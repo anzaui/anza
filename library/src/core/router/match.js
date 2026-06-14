@@ -39,10 +39,40 @@ function getSpecificity(patternStr) {
   return 1;                                // Wildcard: low
 }
 
+function conflict(pathA, pathB) {
+  if (pathA === pathB) return false;
+  const segsA = pathA.split('/').filter(s => s.length > 0);
+  const segsB = pathB.split('/').filter(s => s.length > 0);
+
+  if (segsA.length !== segsB.length) return false;
+
+  for (let i = 0; i < segsA.length; i++) {
+    const sa = segsA[i];
+    const sb = segsB[i];
+    const isDynA = sa.startsWith(':') || sa === '*' || sa.includes('*');
+    const isDynB = sb.startsWith(':') || sb === '*' || sb.includes('*');
+
+    if (!isDynA && !isDynB && sa !== sb) {
+      return false; // static mismatch
+    }
+  }
+
+  return true;
+}
+
 /**
  * Registers a route mapping.
  */
 export function register(patternStr, handler, meta = {}) {
+  // Check conflicts with existing routes before registering
+  for (const r of routes) {
+    if (conflict(patternStr, r.patternStr)) {
+      console.warn(
+        `[anza] WARNING: Route pattern conflict: "${patternStr}" overlaps with "${r.patternStr}"`
+      );
+    }
+  }
+
   const route = {
     patternStr,
     handler,

@@ -134,7 +134,7 @@ function generatePage(mdPath) {
 
 page('${route}', {
   tag: '${tag}',
-  via: ['main'],
+  via: ['main', 'dock-docs', 'dock-doccontent'],
   template: { html: './index.html' }
 }, import.meta.url);
 `;
@@ -161,7 +161,7 @@ if (!existsSync(docsIndexPath)) {
 
 page('/docs', {
   tag: 'doc-index',
-  via: ['main'],
+  via: ['main', 'dock-docs', 'dock-doccontent'],
   template: '<h1>Docs</h1><p>Documentation index coming soon.</p>'
 });
 `;

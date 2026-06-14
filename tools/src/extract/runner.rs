@@ -10,7 +10,7 @@ use swc_ecma_ast::*;
 use swc_ecma_parser::{lexer::Lexer, Parser, StringInput, Syntax};
 use swc_ecma_visit::{Visit, VisitWith};
 
-use crate::types::{ExtractedSpec, PropConfig};
+use crate::types::{ExtractedSpec, ParamDecl, PropConfig, QueryDecl};
 
 /// Consolidated build compilation stage.
 ///
@@ -83,11 +83,16 @@ pub fn run(src_dir: &Path, dist_types_dir: &Path) {
   use rayon::prelude::*;
 
   // Parallel walk & parse — import graph handles element selection naturally
-  let mut specs: Vec<(std::path::PathBuf, ExtractedSpec)> = paths
+  let specs_nested: Vec<Vec<(std::path::PathBuf, ExtractedSpec)>> = paths
     .par_iter()
     .filter_map(|path| {
       if path.extension().map_or(false, |ext| ext == "js") {
-        parse_element_file(path, &cm).map(|spec| (path.clone(), spec))
+        let file_specs = parse_element_file(path, &cm);
+        if file_specs.is_empty() {
+          None
+        } else {
+          Some(file_specs.into_iter().map(|spec| (path.clone(), spec)).collect())
+        }
       } else if path.extension().map_or(false, |ext| ext == "html") {
         logs::compiler!("Found HTML: {:?}", path);
         if let Err(err) = super::html::parse_and_emit(path) {
@@ -100,10 +105,23 @@ pub fn run(src_dir: &Path, dist_types_dir: &Path) {
     })
     .collect();
 
+  let mut specs = specs_nested.into_iter().flatten().collect::<Vec<_>>();
+
   for (file_path, spec) in &mut specs {
     let relative_path = file_path.strip_prefix(src_dir).unwrap_or(file_path);
     spec.file = Some(relative_path.to_string_lossy().to_string().replace('\\', "/"));
   }
+
+  // Validate params/query contract after all specs have file paths.
+  // Emits [WARN] for every undeclared dynamic segment — never aborts compilation.
+  for (_, spec) in &specs {
+    if spec.kind == "page" || spec.kind == "dock" {
+      if let Some(ref file) = spec.file {
+        validate_route_contract(spec, file);
+      }
+    }
+  }
+
 
   // 2. Write individual .d.ts files and the main index.d.ts
   std::fs::create_dir_all(dist_types_dir).ok();
@@ -151,10 +169,10 @@ pub fn run(src_dir: &Path, dist_types_dir: &Path) {
   super::routes::emit(&specs, dist_types_dir.parent().unwrap_or(dist_types_dir));
 }
 
-fn parse_element_file(file_path: &Path, cm: &Arc<SourceMap>) -> Option<ExtractedSpec> {
+fn parse_element_file(file_path: &Path, cm: &Arc<SourceMap>) -> Vec<ExtractedSpec> {
   let fm = match cm.load_file(file_path) {
     Ok(f) => f,
-    Err(_) => return None,
+    Err(_) => return Vec::new(),
   };
 
   let lexer = Lexer::new(
@@ -167,7 +185,7 @@ fn parse_element_file(file_path: &Path, cm: &Arc<SourceMap>) -> Option<Extracted
   let mut parser = Parser::new_from(lexer);
   let program = match parser.parse_program() {
     Ok(p) => p,
-    Err(_) => return None,
+    Err(_) => return Vec::new(),
   };
 
   // Run immutability lint check
@@ -180,19 +198,16 @@ fn parse_element_file(file_path: &Path, cm: &Arc<SourceMap>) -> Option<Extracted
   let mut visitor = ElementVisitor::default();
   program.visit_with(&mut visitor);
 
-  visitor.spec
+  visitor.specs
 }
 
 #[derive(Default)]
 struct ElementVisitor {
-  spec: Option<ExtractedSpec>,
+  specs: Vec<ExtractedSpec>,
 }
 
 impl Visit for ElementVisitor {
   fn visit_call_expr(&mut self, call: &CallExpr) {
-    if self.spec.is_some() {
-      return;
-    }
 
     if let Callee::Expr(expr) = &call.callee {
       match &**expr {
@@ -241,7 +256,9 @@ impl ElementVisitor {
       return;
     }
 
-    let first = get_string_literal(&call.args[0].expr);
+    // First arg may be a single route string or an array of route strings.
+    let route_strings = get_string_or_array_literal(&call.args[0].expr);
+    let first = route_strings.first().cloned();
 
     let mut spec = ExtractedSpec {
       tag: String::new(),
@@ -249,15 +266,20 @@ impl ElementVisitor {
       props: HashMap::new(),
       methods: Vec::new(),
       url: None,
+      routes: Vec::new(),
       container: None,
       via: Vec::new(),
       parent: None,
       meta: HashMap::new(),
+      params: Vec::new(),
+      query_params: Vec::new(),
       ..Default::default()
     };
 
-    // For a page, the first argument is the route pattern.
-    if kind == "page" {
+    // For a page, record all route patterns; also keep `url` as the first for
+    // back-compat with single-route tooling paths.
+    if kind == "page" || kind == "dock" {
+      spec.routes = route_strings.clone();
       spec.url = first.clone();
     }
 
@@ -299,7 +321,7 @@ impl ElementVisitor {
     }
 
     if !spec.tag.is_empty() {
-      self.spec = Some(spec);
+      self.specs.push(spec);
     }
   }
 }
@@ -311,6 +333,28 @@ fn get_string_literal(expr: &Expr) -> Option<String> {
       Some(str_val.to_string())
     }
     _ => None,
+  }
+}
+
+/// Returns a vec of route strings from either a string literal or an array of
+/// string literals. e.g. `'/blog'` -> `['/blog']`,
+/// `['/blog', '/blog/:slug']` -> `["/blog", "/blog/:slug"]`.
+fn get_string_or_array_literal(expr: &Expr) -> Vec<String> {
+  match expr {
+    Expr::Lit(Lit::Str(s)) => {
+      if let Some(v) = s.value.as_str() {
+        vec![v.to_string()]
+      } else {
+        vec![]
+      }
+    }
+    Expr::Array(arr) => arr
+      .elems
+      .iter()
+      .flatten()
+      .filter_map(|el| get_string_literal(&el.expr))
+      .collect(),
+    _ => vec![],
   }
 }
 
@@ -355,6 +399,27 @@ fn parse_spec_object(obj: &ObjectLit, spec: &mut ExtractedSpec) {
             if let Expr::Object(meta_obj) = &*kv.value {
               parse_meta(meta_obj, spec);
             }
+          } else if key.sym == "params" {
+            // `params: [{ name: 'slug', type: String }, ...]`
+            if let Expr::Array(arr) = &*kv.value {
+              parse_params_array(arr, spec);
+            }
+          } else if key.sym == "query" {
+            // `query: [{ name: 'tab', type: String }, ...]`
+            // Note: the old scalar query (string array) form is ignored here;
+            // the new form is always an array of {name, type} objects.
+            if let Expr::Array(arr) = &*kv.value {
+              // Distinguish object-array from string-array by inspecting first element.
+              let is_obj_array = arr
+                .elems
+                .first()
+                .and_then(|e| e.as_ref())
+                .map(|e| matches!(*e.expr, Expr::Object(_)))
+                .unwrap_or(false);
+              if is_obj_array {
+                parse_query_array(arr, spec);
+              }
+            }
           } else if key.sym == "template" {
             if let Some(t) = get_string_literal(&kv.value) {
               if t.starts_with("./") || t.starts_with("../") || t.ends_with(".html") {
@@ -383,6 +448,121 @@ fn parse_spec_object(obj: &ObjectLit, spec: &mut ExtractedSpec) {
             }
           }
         }
+      }
+    }
+  }
+}
+
+/// Parses `params: [{ name: 'slug', type: String }, ...]`.
+/// Each entry must have at minimum a `name`. `type` is read as an identifier
+/// (String / Number) and normalized to "string" / "number".
+fn parse_params_array(arr: &ArrayLit, spec: &mut ExtractedSpec) {
+  for elem in arr.elems.iter().flatten() {
+    if let Expr::Object(obj) = &*elem.expr {
+      let mut decl = ParamDecl {
+        name: String::new(),
+        cast: "string".to_string(),
+      };
+      for p in &obj.props {
+        if let PropOrSpread::Prop(pp) = p {
+          if let Prop::KeyValue(kv) = &**pp {
+            if let PropName::Ident(k) = &kv.key {
+              if k.sym == "name" {
+                if let Some(n) = get_string_literal(&kv.value) {
+                  decl.name = n;
+                }
+              } else if k.sym == "type" {
+                if let Expr::Ident(id) = &*kv.value {
+                  decl.cast = match id.sym.as_ref() {
+                    "Number" => "number".to_string(),
+                    _ => "string".to_string(),
+                  };
+                }
+              }
+            }
+          }
+        }
+      }
+      if !decl.name.is_empty() {
+        spec.params.push(decl);
+      }
+    }
+  }
+}
+
+/// Parses `query: [{ name: 'tab', type: String }, ...]`.
+fn parse_query_array(arr: &ArrayLit, spec: &mut ExtractedSpec) {
+  for elem in arr.elems.iter().flatten() {
+    if let Expr::Object(obj) = &*elem.expr {
+      let mut decl = QueryDecl {
+        name: String::new(),
+        cast: "string".to_string(),
+      };
+      for p in &obj.props {
+        if let PropOrSpread::Prop(pp) = p {
+          if let Prop::KeyValue(kv) = &**pp {
+            if let PropName::Ident(k) = &kv.key {
+              if k.sym == "name" {
+                if let Some(n) = get_string_literal(&kv.value) {
+                  decl.name = n;
+                }
+              } else if k.sym == "type" {
+                if let Expr::Ident(id) = &*kv.value {
+                  decl.cast = match id.sym.as_ref() {
+                    "Number" => "number".to_string(),
+                    _ => "string".to_string(),
+                  };
+                }
+              }
+            }
+          }
+        }
+      }
+      if !decl.name.is_empty() {
+        spec.query_params.push(decl);
+      }
+    }
+  }
+}
+
+/// Extracts `:name` segment names from a URL pattern string.
+/// e.g. "/blog/:slug" -> ["slug"]
+fn extract_segment_params(pattern: &str) -> Vec<String> {
+  pattern
+    .split('/')
+    .filter_map(|seg| {
+      seg.strip_prefix(':')
+        .map(|n| n.trim_end_matches(|c| c == '?' || c == '+' || c == '*').to_string())
+    })
+    .filter(|n| !n.is_empty())
+    .collect()
+}
+
+/// Validates the declared `params` contract against the dynamic segments found
+/// in the registered route patterns. Emits `[WARN]` (never errors) for any
+/// `:name` segment that has no matching entry in `spec.params`.
+pub fn validate_route_contract(spec: &ExtractedSpec, file: &str) {
+  // Build a set of declared param names for O(1) lookup.
+  let declared: std::collections::HashSet<&str> =
+    spec.params.iter().map(|p| p.name.as_str()).collect();
+
+  let routes: &[String] = if !spec.routes.is_empty() {
+    &spec.routes
+  } else if let Some(ref u) = spec.url {
+    std::slice::from_ref(u)
+  } else {
+    return;
+  };
+
+  for pattern in routes {
+    for seg_name in extract_segment_params(pattern) {
+      if !declared.contains(seg_name.as_str()) {
+        logs::warn!(
+          "[anza] WARN  <{}> in {} — route \"{}\" has dynamic segment \":{}\"\
+ but no matching entry in the `params` array. \
+ The library will inject it as a String. Add `{{ name: '{}', type: String }}` to silence.",
+          spec.tag, file, pattern, seg_name, seg_name
+        );
       }
     }
   }

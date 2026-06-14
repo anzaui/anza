@@ -24,14 +24,63 @@ const HOOKS = new Set(['load', 'connect', 'disconnect', 'change']);
 
 /**
  * Collects the route-derived params currently set on an element, keyed by the
- * declared prop names. Used to hand `on.load`/`on.connect` a `{ params }` bag.
+ * declared param names from the contract array.
+ * Used to hand `on.load`/`on.connect` a `{ params }` bag.
+ *
+ * @param {HTMLElement} el
+ * @param {Array<{name:string, cast:string}>} [paramDecls] - from spec.params
+ * @param {object} [props] - legacy props map fallback
  */
-function paramsOf(el, props) {
+function paramsOf(el, paramDecls, props) {
+  // New contract: ordered array with first/last getters.
+  if (Array.isArray(paramDecls) && paramDecls.length > 0) {
+    const arr = paramDecls.map(({ name }) => el[name] ?? null);
+    return makeAccessorArray(arr, paramDecls.map(d => d.name));
+  }
+  // Legacy fallback: collect from props keys.
   const out = {};
   if (props) {
     for (const key of Object.keys(props)) out[key] = el[key];
   }
   return out;
+}
+
+/**
+ * Collects the route-derived query values currently set on an element.
+ * Returns an ordered array with first/last getters.
+ *
+ * @param {HTMLElement} el
+ * @param {Array<{name:string, cast:string}>} [queryDecls]
+ */
+function queryOf(el, queryDecls) {
+  if (!Array.isArray(queryDecls) || queryDecls.length === 0) return [];
+  const arr = queryDecls.map(({ name }) => el[name] ?? null);
+  return makeAccessorArray(arr, queryDecls.map(d => d.name));
+}
+
+/**
+ * Wraps a plain array with non-enumerable `first` and `last` getters and a
+ * keyed named-accessor map so callers can use both positional and named access.
+ *
+ * @param {any[]} values
+ * @param {string[]} names
+ */
+function makeAccessorArray(values, names) {
+  const arr = [...values];
+  Object.defineProperties(arr, {
+    first: { get() { return arr[0] ?? null; }, enumerable: false },
+    last:  { get() { return arr[arr.length - 1] ?? null; }, enumerable: false },
+  });
+  // Named getters: arr.slug === arr[0] if slug was the first param
+  names.forEach((name, i) => {
+    if (!(name in arr)) {
+      Object.defineProperty(arr, name, {
+        get() { return arr[i] ?? null; },
+        enumerable: false,
+      });
+    }
+  });
+  return arr;
 }
 
 /**
@@ -44,20 +93,37 @@ function paramsOf(el, props) {
  */
 export function translate(config, opts = {}) {
   const spec = {};
-  const tpl = config.template ?? {};
+  let html = null;
+  let css = null;
+  let shadow = 'open';
 
-  // Template + style + shadow mode. `element()` takes html/css as separate
-  // string fields (inline source or a resolvable file path) and a shadow mode.
-  if (tpl.html != null) spec.template = tpl.html;
-  if (tpl.css != null) spec.style = tpl.css;
-  spec.mode = tpl.shadow === 'closed' ? 'closed' : 'open';
-  if (tpl.shadow === false) {
+  if (config.template != null) {
+    if (typeof config.template === 'object') {
+      html = config.template.html;
+      css = config.template.css;
+      shadow = config.template.shadow ?? 'open';
+    } else if (typeof config.template === 'string') {
+      html = config.template;
+    }
+  }
+
+  if (config.style != null) {
+    css = config.style;
+  }
+
+  if (html != null) spec.template = html;
+  if (css != null) spec.style = css;
+  spec.mode = shadow === 'closed' ? 'closed' : 'open';
+  if (shadow === false) {
     console.warn('[Native UI] Light DOM (shadow: false) is not supported by the element factory; falling back to open shadow root.');
   }
 
   if (config.props) spec.props = config.props;
   if (config.form) spec.form = config.form;
-  if (config.query) spec.query = config.query;
+
+  // New contract: params and query are typed arrays — handled by page.js and
+  // stored on the spec. No action needed here; intercept.js reads spec.params
+  // and spec.query directly from specRegistry at navigation time.
 
   // Install all `on` entries (helpers + hooks) and explicit `methods` as
   // instance methods, so a hook body can call `this.<helper>()`.
@@ -74,7 +140,11 @@ export function translate(config, opts = {}) {
     spec.mount = async (ctx) => {
       const el = ctx.el;
       if (on.load) {
-        await on.load.call(el, { params: paramsOf(el, config.props), ...ctx });
+        // Provide the full contract-aware context bag.
+        // spec.params / spec.query are set by page.js before element() is called.
+        const params = paramsOf(el, spec.params, config.props);
+        const query  = queryOf(el, spec.query);
+        await on.load.call(el, { params, query, raw: ctx.raw ?? null, ...ctx });
       }
       if (on.connect) {
         await on.connect.call(el, ctx);

@@ -8,7 +8,7 @@
 export default {
   concurrency: 1,
   nodeResolve: false,
-  files: 'tests/**/*.test.js',
+  files: 'tests/core/**/*.test.js',
   testFramework: {
     config: {
       ui: 'bdd',

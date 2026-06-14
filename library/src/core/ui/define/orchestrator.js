@@ -10,7 +10,7 @@ let dispose = null; // One-word module-level disposer variable (RT-11)
 export function initOrchestrator() {
   if (typeof window !== 'undefined') {
     dispose?.();
-    dispose = router.on('found', async ({ tag, params, query, hash, chain, direction }) => {
+    dispose = router.on('found', async ({ tag, params, query, hash, chain, via, container, direction }) => {
       // Resolve the top-level layout element in the chain
       const topTag = chain && chain.length > 0 ? chain[0].tag : tag;
       const topParams = chain && chain.length > 0 ? chain[0].params : params;
@@ -23,9 +23,9 @@ export function initOrchestrator() {
       const spec = specRegistry.get(topTag.toLowerCase());
       // Resolve the render target: the last container in the `via` chain, or
       // the legacy single `container`. Without either there is nothing to mount.
-      const target = (Array.isArray(spec?.via) && spec.via.length)
+      const target = container ?? ((Array.isArray(spec?.via) && spec.via.length)
         ? spec.via[spec.via.length - 1]
-        : spec?.container;
+        : spec?.container);
       if (!spec || !target) {
         console.warn('[Orchestrator] Early return: missing spec or target');
         return;

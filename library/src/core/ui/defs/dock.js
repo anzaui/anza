@@ -24,11 +24,17 @@ const CONTAIN = ':host { contain: layout; display: block; }';
  * @param {string} [config.tag] - tag name; defaults to `dock-<name>`.
  * @param {string} [config.parent='body'] - parent dock key in the graph.
  * @param {object} [config.template] - { html, css, shadow }.
+ * @param {string|object} [config.notfound] - fallback rendered when a 404
+ *   lands in this dock. Pass a raw HTML string or { html } object.
+ *   The deepest configured dock wins at runtime.
  * @param {string} [base] - import.meta.url of the caller (file templates).
  */
 export function dock(name, config = {}, base) {
   const tag = config.tag ?? `dock-${name}`;
   const parent = config.parent ?? 'main';
+
+  // Statically register the layout container in the graph with a null element
+  router.registerContainer(name, null, parent);
 
   const spec = translate(config);
 
@@ -61,6 +67,13 @@ export function dock(name, config = {}, base) {
   // Back-compat alias for the legacy orchestrator/container API.
   if (Cls && !Cls.prototype.swapView) {
     Object.defineProperty(Cls.prototype, 'swapView', { value: swap, configurable: true });
+  }
+
+  // Store user-supplied notfound template on the class as a static property.
+  // intercept.js reads Cls.notfound when rendering 404 fallbacks.
+  if (Cls && config.notfound != null) {
+    const nf = config.notfound;
+    Cls.notfound = typeof nf === 'string' ? nf : (nf?.html ?? null);
   }
 }
 

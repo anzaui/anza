@@ -15,7 +15,7 @@ export class SyncManager {
   constructor() {
     if (
       typeof navigator !== 'undefined' &&
-      'serviceWorker' in navigator
+      navigator.serviceWorker
     ) {
       navigator.serviceWorker.addEventListener('message', async (event) => {
         const data = event.data;
@@ -38,7 +38,7 @@ export class SyncManager {
   async register(tag) {
     if (
       typeof navigator !== 'undefined' &&
-      'serviceWorker' in navigator
+      navigator.serviceWorker
     ) {
       try {
         const registration = await navigator.serviceWorker.ready;

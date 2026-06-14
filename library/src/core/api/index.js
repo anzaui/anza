@@ -20,7 +20,7 @@ import { cache as apiCache } from './caches/index.js';
 
 let cache = null;
 
-export function sync() {
+function sync() {
   if (typeof document === 'undefined') return;
   const el = document.getElementById('anza-state');
   if (el) {
@@ -156,7 +156,7 @@ async function request(url, method, body, opts = {}) {
 
 export const api = {
   get:    (url, opts) => request(url, 'GET', null, opts),
-  state:  () => cache ? JSON.parse(JSON.stringify(cache.__route || {})) : null,
+  state:  () => cache ? JSON.parse(JSON.stringify(cache.__route || {})) : {},
   sync,
   post:   (url, body, opts) => request(url, 'POST', body, opts),
   put:    (url, body, opts) => request(url, 'PUT', body, opts),

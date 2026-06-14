@@ -15,7 +15,15 @@ describe('Router Container Registry', () => {
   let el;
   let mainEl;
 
+  let shell;
+
   beforeEach(() => {
+    // Save and remove the test runner's main element to avoid collision.
+    shell = document.getElementById('main');
+    if (shell) {
+      shell.remove();
+    }
+
     // Framework requires <main id="main"> in the document.
     mainEl = document.createElement('main');
     mainEl.id = 'main';
@@ -31,6 +39,12 @@ describe('Router Container Registry', () => {
     mainEl = null;
     el = null;
     clearContainers();
+
+    // Restore the test runner's main element.
+    if (shell) {
+      document.body.appendChild(shell);
+      shell = null;
+    }
   });
 
   it('registers and retrieves containers by name', () => {

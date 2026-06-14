@@ -47,29 +47,15 @@ export async function ensure(target, current = 'main') {
   const start = segments.indexOf(mounted) + 1;
   for (let i = start; i < segments.length; i++) {
     const node = segments[i];
+    if (resolve(node.name)) continue;
     const parentEl = node.parent?.ref?.deref() ?? null;
-    if (!parentEl || !parentEl.isConnected) {
-      throw new Error(`CascadeError: parent '${node.parent?.name}' is disconnected while mounting '${node.name}'`);
-    }
-
+    if (!parentEl || !parentEl.isConnected) throw new Error(`CascadeError: parent '${node.parent?.name}' is disconnected while mounting '${node.name}'`);
     const tag = node.name;
-    if (tag.includes('-') && typeof customElements !== 'undefined' && !customElements.get(tag)) {
-      await customElements.whenDefined(tag);
-    }
-
+    if (tag.includes('-') && typeof customElements !== 'undefined' && !customElements.get(tag)) await customElements.whenDefined(tag);
     const el = document.createElement(tag);
-    if (typeof parentEl.swap === 'function') {
-      await parentEl.swap(el, { direction: 'push' });
-    } else {
-      parentEl.replaceChildren(el);
-    }
-
-    // Yield so connectedCallback fires and the dock self-registers in the graph.
+    parentEl.replaceChildren(el);
     await frame();
-
-    if (!resolve(node.name)) {
-      throw new Error(`CascadeError: container '${node.name}' failed to register after mount`);
-    }
+    if (!resolve(node.name)) throw new Error(`CascadeError: container '${node.name}' failed to register after mount`);
   }
 
   return resolve(target);

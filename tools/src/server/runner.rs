@@ -32,7 +32,9 @@ pub async fn run(port: u16, src_dir: &Path, tx: broadcast::Sender<HmrMessage>) {
     src_dir: src_dir.to_path_buf(),
   });
 
-  let serve_dir = ServeDir::new(src_dir).fallback(handle_html_fallback.with_state(state.clone()));
+  let serve_dir = ServeDir::new(src_dir)
+    .append_index_html_on_directories(false)
+    .fallback(handle_html_fallback.with_state(state.clone()));
 
   let app = Router::new()
     .route("/hmr", get(hmr_handler))
@@ -75,11 +77,18 @@ async fn hmr_handler(
 
 #[derive(serde::Deserialize, Debug)]
 struct RouteInfo {
-  _tag: String,
+  #[allow(dead_code)]
+  tag: String,
   path: String,
   file: Option<String>,
   html: Option<String>,
   css: Option<String>,
+  #[serde(default)]
+  layouts: Vec<String>,
+  #[serde(default)]
+  templates: Vec<String>,
+  #[serde(default)]
+  styles: Vec<String>,
 }
 
 #[derive(serde::Deserialize, Debug)]
@@ -179,6 +188,17 @@ async fn handle_html_fallback(
 
         if let Some(r) = route {
           inject.push_str("    <link rel=\"modulepreload\" href=\"/dist/app.js\" />\n");
+          
+          for f in &r.layouts {
+            inject.push_str(&format!("    <link rel=\"modulepreload\" href=\"/dist/{}\" />\n", f));
+          }
+          for h in &r.templates {
+            inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" crossorigin=\"anonymous\" />\n", h));
+          }
+          for c in &r.styles {
+            inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" crossorigin=\"anonymous\" />\n", c));
+          }
+
           if let Some(ref f) = r.file {
             inject.push_str(&format!("    <link rel=\"modulepreload\" href=\"/dist/{}\" />\n", f));
             
@@ -188,7 +208,7 @@ async fn handle_html_fallback(
             }
             if let Some(ref c) = r.css {
               let resolved = resolve_asset_path(f, c);
-              inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"style\" />\n", resolved));
+              inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" crossorigin=\"anonymous\" />\n", resolved));
             }
           }
 

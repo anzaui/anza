@@ -91,17 +91,20 @@ describe('Router Boot Sequence', () => {
       throw new Error('Expected boot to fail hard when <main id="main"> is absent');
     }
 
-    if (!error.message.includes('<main id="main"> is required')) {
+    if (!error.message.includes('<dock-main id="main"> is required')) {
       throw new Error(`Expected specific router main required error, got: ${error.message}`);
     }
   });
 
-  it('wires <main id="main"> into the hierarchical graph on boot', () => {
+  it('wires <main id="main"> into the hierarchical graph on boot', async () => {
     if (ready()) {
       throw new Error('Expected router to not be ready before boot');
     }
 
     boot(() => {});
+
+    // Wait for the async setTimeout(launch, 0)
+    await new Promise(r => setTimeout(r, 0));
 
     if (!ready()) {
       throw new Error('Expected router to be ready after boot');

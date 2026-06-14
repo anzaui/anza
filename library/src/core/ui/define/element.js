@@ -2,7 +2,7 @@ import { BaseElement } from '../base.js';
 import { scheduleFrame, yieldTask } from '../schedule.js';
 import { router } from '../../router/index.js';
 import { specRegistry, internalsMap, initializedMap, pendingUpdatesMap, updateScheduledMap, assetCache } from './state.js';
-import { preloadResources } from './utils.js';
+import { preloadResources, createTemplateFragment } from './utils.js';
 import { createComponentContext } from './proxy.js';
 
 // Platform lifecycle method names that must never be overridden by spec.methods.
@@ -63,12 +63,62 @@ export function element(tag, spec, base) {
     ? new URL(spec.template, base).href
     : null;
 
-  // Initiate resource fetching exactly once per component registration (R-06)
+  // Defer resource preloading until first mount or HMR rebind for cold-start performance
+  const hasUrls = (styleUrls.length > 0) || (templateUrl !== null);
   let resolved = null;
-  let resourcesPromise = preloadResources(tag, styleUrls, templateUrl, spec.template, spec.style).then(res => {
-    resolved = res;
-    return res;
-  });
+  let resourcesPromise = null;
+
+  const getResources = () => {
+    if (!resourcesPromise) {
+      resourcesPromise = preloadResources(tag, styleUrls, templateUrl, spec.template, spec.style).then(res => {
+        resolved = res;
+        return res;
+      });
+    }
+    return resourcesPromise;
+  };
+
+  const isLazy = spec.lazy === true && hasUrls;
+
+  if (!isLazy) {
+    if (!hasUrls) {
+      // Compile synchronously immediately to support synchronous connectedCallback (unit tests and static components)
+      const supportsSheets =
+        typeof CSSStyleSheet !== 'undefined' &&
+        'adoptedStyleSheets' in Document.prototype &&
+        'adoptedStyleSheets' in ShadowRoot.prototype;
+
+      let templateNode = null;
+      let stylesheets = [];
+      let cssTextAcc = '';
+
+      if (spec.template) {
+        templateNode = createTemplateFragment(spec.template);
+      }
+      if (spec.style) {
+        const inlineStyles = Array.isArray(spec.style) ? spec.style : [spec.style];
+        for (const style of inlineStyles) {
+          if (supportsSheets) {
+            const sheet = new CSSStyleSheet();
+            sheet.replaceSync(style);
+            stylesheets.push(sheet);
+          } else {
+            cssTextAcc += style + '\n';
+          }
+        }
+      }
+      resolved = {
+        templateNode,
+        stylesheets,
+        cssText: cssTextAcc.trim() ? cssTextAcc : null,
+        tagsDescriptor: null
+      };
+      resourcesPromise = Promise.resolve(resolved);
+    } else {
+      // Start eager preloading immediately
+      getResources();
+    }
+  }
 
   // Handle hot reloading of constructable stylesheets (one global listener per unique styleUrl - R-05)
   if (styleUrls.length > 0 && typeof window !== 'undefined') {
@@ -175,7 +225,7 @@ export function element(tag, spec, base) {
       // Wait for resolved resources to compile (synchronously if already cached)
       let res = resolved;
       if (!res) {
-        res = await resourcesPromise;
+        res = await getResources();
       }
       const { templateNode, stylesheets, cssText, tagsDescriptor } = res;
 
@@ -269,7 +319,7 @@ export function element(tag, spec, base) {
       // 3. Clone new template
       let res = resolved;
       if (!res) {
-        res = await resourcesPromise;
+        res = await getResources();
       }
       const { templateNode, stylesheets, cssText, tagsDescriptor } = res;
 

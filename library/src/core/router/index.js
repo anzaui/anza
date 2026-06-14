@@ -12,6 +12,7 @@ import { register, match, clear, getRoutes, load } from './match.js';
 import {
   setup, destroy,
   addGuard, setNotFound,
+  addTransformer,
   guardsApi, missApi,
   on, nav, registerNavigator,
   getShell, getWin
@@ -56,6 +57,7 @@ export const router = {
   clear,
   guard: addGuard,
   notFound: setNotFound,
+  transform: addTransformer,
 
   // Grouped APIs
   guards: guardsApi,
@@ -151,6 +153,7 @@ export {
   // intercept sub-module
   addGuard,
   setNotFound,
+  addTransformer as transform,
   setup,
   destroy,
   on,

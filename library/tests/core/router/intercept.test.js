@@ -91,9 +91,10 @@ describe('Router Interceptor', () => {
 
     const mockEvent = {
       canIntercept: true,
+      cancelable: true,
       hashChange: false,
       downloadRequest: false,
-      destination: { url: 'http://localhost/admin' },
+      destination: { url: new URL('/admin', globalThis.location?.href || 'http://localhost').href },
       intercept(options) {
         const controller = {
           redirect(url) {
@@ -141,7 +142,7 @@ describe('Router Interceptor', () => {
       canIntercept: true,
       hashChange: false,
       downloadRequest: false,
-      destination: { url: 'http://localhost/admin' },
+      destination: { url: new URL('/admin', globalThis.location?.href || 'http://localhost').href },
       intercept(options) {
         // In Safari, precommitHandler is NOT called, it goes straight to handler()
         handlerPromise = options.handler();
@@ -179,7 +180,7 @@ describe('Router Interceptor', () => {
       canIntercept: true,
       hashChange: false,
       downloadRequest: false,
-      destination: { url: 'http://localhost/user/42' },
+      destination: { url: new URL('/user/42', globalThis.location?.href || 'http://localhost').href },
       intercept(options) {
         handlerPromise1 = options.handler();
       }
@@ -197,7 +198,7 @@ describe('Router Interceptor', () => {
       canIntercept: true,
       hashChange: false,
       downloadRequest: false,
-      destination: { url: 'http://localhost/not-registered' },
+      destination: { url: new URL('/not-registered', globalThis.location?.href || 'http://localhost').href },
       intercept(options) {
         handlerPromise2 = options.handler();
       }
@@ -225,7 +226,7 @@ describe('Router Interceptor', () => {
       canIntercept: true,
       hashChange: false,
       downloadRequest: false,
-      destination: { url: 'http://localhost/dashboard' },
+      destination: { url: new URL('/dashboard', globalThis.location?.href || 'http://localhost').href },
       intercept(options) {
         handlerPromise = options.handler().catch(() => {});
       }

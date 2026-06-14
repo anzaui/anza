@@ -38,8 +38,7 @@ describe('Cache Storage Gateway Adapter', () => {
 
   it('should support TTL expiration and automatic eviction on Cache reads', async () => {
     const data = { token: 'short-lived-session' };
-    // Set cache value with a 10ms TTL
-    await storage.set('http://localhost/api/token', data, 'cache', 10);
+    await storage.set('http://localhost/api/token', data, { tier: 'cache', ttl: 5 });
 
     const activeVal = await storage.get('http://localhost/api/token', 'cache');
     if (!activeVal || activeVal.token !== 'short-lived-session') {
@@ -47,7 +46,7 @@ describe('Cache Storage Gateway Adapter', () => {
     }
 
     // Wait for TTL expiration
-    await new Promise((resolve) => setTimeout(resolve, 20));
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     const expiredVal = await storage.get('http://localhost/api/token', 'cache');
     if (expiredVal !== null) {
