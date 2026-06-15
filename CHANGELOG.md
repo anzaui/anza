@@ -17,7 +17,23 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.4.2] — 2026-06-15
+
+### Added
+
+- **Styling and Tokens Documentation**: Created a dedicated `docs/styles/` section documenting adopted stylesheet caching, multiple style loading, and design token customization.
+
+### Changed
+
+- **Design Tokens Simplification**: Removed unused stylesheets (`radius.css`, `shadow.css`, `zindex.css`, and `components.css`). Simplified primitive colors, motion, typography, and spacing scales.
+- **Houdini Registered Colors**: Kept registrations only for core theme custom properties (`--color-surface-page`, `--color-content-primary`, `--color-interactive`, etc.) to drive seamless light/dark swaps.
+- **Robust Style Fallbacks**: Added default values to all system styles (`base.css`, `transitions.css`) to allow token names/custom properties to be overridden, deleted, or mapped to user-decided variable names.
+- **Customizable Swap Transitions**: Extended view transition variables with `--transition-push`, `--transition-pop`, and `--transition-offset` (sliding offset), and defined default fade-and-slide keyframe animations.
+
+---
+
 ## [0.4.1] — 2026-06-14
+
 
 ### Fixed
 
