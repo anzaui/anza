@@ -83,6 +83,23 @@ export function page(route, config, base) {
     });
   }
 
+  // Dev-time guard: verify every container in `via` has been registered in
+  // the graph by a dock() call. Deferred via queueMicrotask so that all
+  // synchronous dock() declarations in the same module bundle run first —
+  // this prevents false positives from import order within a single file.
+  if (typeof queueMicrotask !== 'undefined') {
+    queueMicrotask(() => {
+      for (const name of via) {
+        if (name !== 'main' && !router.getContainer(name)) {
+          console.error(
+            `[Native UI] <${tag}> declares via:'${name}' but dock('${name}', ...) has not been called.\n` +
+            `Import the file containing dock('${name}', ...) before this page definition, or add dock('${name}', { parent: '...' }).`
+          );
+        }
+      }
+    });
+  }
+
   // Hold the initial match until this element is defined (hard-refresh safety).
   if (typeof customElements !== 'undefined') {
     gate(customElements.whenDefined(tag));

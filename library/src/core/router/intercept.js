@@ -546,15 +546,32 @@ export function setup() {
         : (meta.container ? [meta.container] : []);
 
       // Layout resolution: ensure the route's container chain is mounted on boot.
-      try {
+      // Retry once after a frame — a dock element may still be connecting on
+      // the first attempt (especially on hard refresh when layout docks are
+      // mounting concurrently with the boot gate settling).
+      const mountChain = async () => {
         for (let i = 0; i < chain.length; i++) {
           if (!getContainer(chain[i])) {
             await ensure(chain[i], chain[i - 1] ?? 'main');
           }
         }
+      };
+      try {
+        await mountChain();
       } catch (err) {
-        emit('error', { error: err, url, route: routeMatch.route, phase: 'container' });
-        throw err;
+        // Yield one animation frame and retry before giving up.
+        await new Promise(r => {
+          if (typeof requestAnimationFrame !== 'undefined') requestAnimationFrame(r);
+          else setTimeout(r, 16);
+        });
+        try {
+          await mountChain();
+        } catch (retryErr) {
+          // Both attempts failed — emit error but do NOT throw so the router
+          // can still attempt a notfound render rather than leaving a blank page.
+          emit('error', { error: retryErr, url, route: routeMatch.route, phase: 'container' });
+          return;
+        }
       }
 
       const ctx = buildRouteContext(routeMatch.tag, routeMatch.params, url);

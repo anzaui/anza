@@ -97,6 +97,10 @@ struct RoutesManifest {
 }
 
 fn match_route(pattern: &str, path: &str) -> Option<std::collections::HashMap<String, String>> {
+  // Normalize: strip trailing slashes so /foo/ == /foo
+  let path = path.trim_end_matches('/');
+  let path = if path.is_empty() { "/" } else { path };
+
   let p_parts: Vec<&str> = pattern.split('/').filter(|s| !s.is_empty()).collect();
   let r_parts: Vec<&str> = path.split('/').filter(|s| !s.is_empty()).collect();
 
@@ -150,17 +154,30 @@ async fn handle_html_fallback(
   req: axum::http::Request<Body>,
 ) -> Response<Body> {
   let path = req.uri().path();
-  let clean = path.strip_prefix("/dist").unwrap_or(path);
-  let file_path = state.src_dir.join(clean.trim_start_matches('/'));
+  // Strip /dist prefix and normalize trailing slashes for route matching.
+  let clean = path.strip_prefix("/dist").unwrap_or(path).trim_end_matches('/');
+  let clean = if clean.is_empty() { "/" } else { clean };
 
-  let html_file = if file_path.is_dir() {
-    file_path.join("index.html")
-  } else if file_path.extension().map_or(false, |ext| ext == "html") && file_path.exists() {
-    file_path
+  // Check if the path matches a registered route in routes.json
+  let routes_path = state.src_dir.join("routes.json");
+  let is_route = if let Ok(content) = std::fs::read_to_string(&routes_path) {
+    if let Ok(manifest) = serde_json::from_str::<RoutesManifest>(&content) {
+      manifest.routes.iter().any(|r| match_route(&r.path, clean).is_some())
+    } else {
+      false
+    }
   } else {
-    // SPA Fallback: serve dist/index.html
-    state.src_dir.join("index.html")
+    false
   };
+
+  if !is_route {
+    return Response::builder()
+      .status(StatusCode::NOT_FOUND)
+      .body(Body::from("404 Not Found"))
+      .unwrap();
+  }
+
+  let html_file = state.src_dir.join("index.html");
 
   match std::fs::read_to_string(&html_file) {
     Ok(mut html) => {
@@ -177,7 +194,8 @@ async fn handle_html_fallback(
         if let Ok(content) = std::fs::read_to_string(&routes) {
           if let Ok(manifest) = serde_json::from_str::<RoutesManifest>(&content) {
             for r in manifest.routes {
-              if let Some(p) = match_route(&r.path, path) {
+              // Use clean (normalized) path — same variable as the is_route check above.
+              if let Some(p) = match_route(&r.path, clean) {
                 route = Some(r);
                 params = p;
                 break;
@@ -193,10 +211,11 @@ async fn handle_html_fallback(
             inject.push_str(&format!("    <link rel=\"modulepreload\" href=\"/dist/{}\" />\n", f));
           }
           for h in &r.templates {
-            inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" crossorigin=\"anonymous\" />\n", h));
+            // Same-origin fetch — no crossorigin attribute needed.
+            inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" />\n", h));
           }
           for c in &r.styles {
-            inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" crossorigin=\"anonymous\" />\n", c));
+            inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" />\n", c));
           }
 
           if let Some(ref f) = r.file {
@@ -204,11 +223,12 @@ async fn handle_html_fallback(
             
             if let Some(ref h) = r.html {
               let resolved = resolve_asset_path(f, h);
-              inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" crossorigin=\"anonymous\" />\n", resolved));
+              // Same-origin fetch — no crossorigin attribute needed.
+              inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" />\n", resolved));
             }
             if let Some(ref c) = r.css {
               let resolved = resolve_asset_path(f, c);
-              inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" crossorigin=\"anonymous\" />\n", resolved));
+              inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" />\n", resolved));
             }
           }
 

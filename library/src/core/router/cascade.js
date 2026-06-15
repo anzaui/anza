@@ -32,7 +32,16 @@ export async function ensure(target, current = 'main') {
   if (live) return live;
 
   const segments = path(current, target);
-  if (!segments) throw new Error(`CascadeError: no path '${current}' → '${target}'`);
+  if (!segments) {
+    // The container graph has no registered path from `current` to `target`.
+    // This almost always means a dock() declaration is missing or was imported
+    // after the page() that lists it in `via`.
+    throw new Error(
+      `[Router] CascadeError: cannot mount '${target}' — no graph path from '${current}'.\n` +
+      `Ensure dock('${target}', { parent: '${current}' }) is called and its file is imported\n` +
+      `before any page() that lists '${target}' in its via chain.`
+    );
+  }
 
   // Find the deepest node on the path that is currently connected.
   let mounted = null;

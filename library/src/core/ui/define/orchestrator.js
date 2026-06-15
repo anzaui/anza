@@ -35,7 +35,11 @@ export function initOrchestrator() {
       // The interceptor's cascade has already ensured the chain is mounted.
       const containerEl = router.getContainer(target);
       if (!containerEl) {
-        console.warn(`Target container "${target}" not found in DOM for element <${topTag}>`);
+        console.warn(
+          `[Orchestrator] Container "${target}" is not mounted — cannot render <${topTag}>.\n` +
+          `Make sure dock('${target}', { parent: '...' }) is declared and imported before this page.\n` +
+          `Full via chain expected: ${JSON.stringify(spec?.via ?? [])}`
+        );
         return;
       }
 
