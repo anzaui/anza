@@ -12,7 +12,7 @@ A Rust CLI (`anza`) handles the development server, import-graph resolution, and
 - **Reactive state** — typed stores with batched updates and cross-tab sync
 - **Declarative components** — `page()`, `dock()`, `view()`, `part()` instead of classes
 - **File templates** — split markup, styles, and logic into `.html`, `.css`, and `.js`
-- **Client-side router** — URLPattern-based matching with hierarchical container layouts
+- **Client-side router** — AOT matching tree compiled by Rust, design-by-contract typed validations, URLPattern-based matching with hierarchical container layouts
 - **Offline queue** — IndexedDB-backed operation queue with retry and conflict resolution
 - **Service Worker toolkit** — caching strategies, route interception, background sync, and push notifications
 - **Automatic theme switching** — light, dark, and high-contrast with OS preference detection and localStorage persistence

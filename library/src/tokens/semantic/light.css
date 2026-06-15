@@ -5,53 +5,21 @@
  */
 
 :root {
-  /* Surfaces */
-  --background:            var(--gray-50);
-  --background-elevated:   var(--gray-0);
-  --background-inverse:    var(--gray-900);
-
-  /* Content (Text & Icons) */
-  --foreground:           var(--gray-900);
-  --foreground-muted:     var(--gray-600);
-  --foreground-disabled:   var(--gray-400);
-  --foreground-inverse:    var(--gray-50);
-  --foreground-link:       var(--brand-600);
-
-  /* Interactive Elements */
-  --primary:               var(--brand-500);
-  --primary-hover:         var(--brand-600);
-  --primary-active:        var(--brand-700);
-  --primary-focus:         var(--brand-500);
-  --primary-disabled:      var(--gray-300);
-  --primary-foreground:    var(--gray-0);
-
-  /* Feedback Semantics */
-  --success:               var(--success-500);
-  --warn:                  var(--warn-500);
-  --error:                 var(--error-500);
-  --info:                  var(--info-500);
-
-  /* Borders */
-  --border:                var(--gray-200);
-  --border-strong:         var(--gray-400);
-  --border-focus:          var(--brand-500);
+  --color-surface-page:     var(--color-white);
+  --color-surface-elevated: var(--color-white);
+  --color-content-primary:  var(--gray-900);
+  --color-content-secondary:var(--gray-800);
+  --color-interactive:      var(--brand);
+  --color-border-default:   var(--gray-200);
 
   /* Automatic theme morph configuration */
   transition:
-    --background 220ms var(--ease-out),
-    --background-elevated 220ms var(--ease-out),
-    --background-inverse 220ms var(--ease-out),
-    --foreground 180ms var(--ease-out),
-    --foreground-muted 180ms var(--ease-out),
-    --foreground-disabled 180ms var(--ease-out),
-    --foreground-inverse 180ms var(--ease-out),
-    --foreground-link 180ms var(--ease-out),
-    --primary 180ms var(--ease-out),
-    --primary-hover 180ms var(--ease-out),
-    --primary-active 180ms var(--ease-out),
-    --border 180ms var(--ease-out),
-    --border-strong 180ms var(--ease-out),
-    --border-focus 180ms var(--ease-out);
+    --color-surface-page 220ms var(--ease-out),
+    --color-surface-elevated 220ms var(--ease-out),
+    --color-content-primary 180ms var(--ease-out),
+    --color-content-secondary 180ms var(--ease-out),
+    --color-interactive 180ms var(--ease-out),
+    --color-border-default 180ms var(--ease-out);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -59,3 +27,4 @@
     transition: none !important;
   }
 }
+

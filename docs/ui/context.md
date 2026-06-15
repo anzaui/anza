@@ -14,7 +14,10 @@ Every lifecycle hook receives a frozen context object with helpers for interacti
   refs,     // named element lookups via ref="name"
   on,       // delegated event proxy
   watch,    // mutation watcher
-  internals // ElementInternals (if form: true)
+  internals,// ElementInternals (if form: true)
+  params,   // (load hook only) typed dynamic path params array with getters
+  query,    // (load hook only) typed query params array with getters
+  raw       // (load hook only) raw URLSearchParams object
 }
 ```
 
@@ -49,6 +52,58 @@ on: {
 ```
 
 When the element is removed, the signal aborts and the fetch is cancelled.
+
+---
+
+## params
+
+An ordered, typed array containing dynamic path parameters extracted from the URL. Available in the `load` hook:
+
+```javascript
+on: {
+  async load({ params }) {
+    // If route is /members/:id
+    console.log(params[0]);     // '42'
+    console.log(params.first);  // '42'
+    console.log(params.id);     // '42'
+  }
+}
+```
+
+Values are automatically cast to their declared contract type (e.g., `Number`).
+
+---
+
+## query
+
+An ordered, typed array containing query parameters mapped from the URL. Available in the `load` hook:
+
+```javascript
+on: {
+  async load({ query }) {
+    // If URL is /search?q=hello&page=2
+    console.log(query[0]);     // 'hello'
+    console.log(query.first);  // 'hello'
+    console.log(query.page);   // 2 (cast to Number)
+  }
+}
+```
+
+---
+
+## raw
+
+The raw `URLSearchParams` object representing all query parameters currently in the URL. Useful for accessing undeclared query keys:
+
+```javascript
+on: {
+  async load({ raw }) {
+    if (raw.has('referrer')) {
+      this.referrer = raw.get('referrer');
+    }
+  }
+}
+```
 
 ---
 

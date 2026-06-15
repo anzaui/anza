@@ -10,9 +10,7 @@
 page(route, config, base);
 ```
 
-| Argument | Type | Required | Description |
-|----------|------|----------|-------------|
-| `route` | string | yes | URL pattern, e.g. `'/'` or `'/profile/:id'` |
+| `route` | string \| string[] | yes | Dynamic URL pattern(s), e.g. `'/'`, `'/profile/:id'`, or `['/blog', '/blog/:slug']` |
 | `config` | object | yes | Page definition (see below) |
 | `base` | string | no | `import.meta.url` of the caller; required for file templates |
 
@@ -81,30 +79,38 @@ style: ':host { display: block; padding: 1rem; }'
 
 ### `props`
 
-Reactive properties with type casting. Values from the URL are cast automatically.
+Generic reactive properties for the component. For route-specific parameters, use the dedicated `params` and `query` contract arrays.
 
 ```javascript
 props: {
-  id:    { type: Number, default: 0 },
-  active:{ type: Boolean }
+  theme: { type: String, default: 'light' }
 }
 ```
 
-Supported types: `String`, `Number`, `Boolean`.
+### `params`
+
+An array defining the path parameter contract. The library casts parameter values automatically to the specified type:
+
+```javascript
+params: [
+  { name: 'id', type: Number }
+]
+```
+
+Path parameter values are extracted in order, and pushed reactively onto the element (as attributes/properties) when navigation occurs.
 
 ### `query`
 
-Query parameters to map onto props:
+An array defining the query parameters contract. Mapped parameters are cast and pushed reactively onto the element properties:
 
 ```javascript
-query: ['tab', 'search'],
-props: {
-  tab:    { type: String },
-  search: { type: String }
-}
+query: [
+  { name: 'tab',    type: String },
+  { name: 'search', type: String }
+]
 ```
 
-Visiting `/settings?tab=profile&search=alice` sets `tab = 'profile'` and `search = 'alice'`.
+Visiting `/settings?tab=profile&search=alice` sets `this.tab = 'profile'` and `this.search = 'alice'` on the element instance.
 
 ### `hash`
 
@@ -122,9 +128,13 @@ Lifecycle hooks:
 
 ```javascript
 on: {
-  load({ el, params, query, hash, ctrl }) {
-    // Called once after mount
-    return fetchUser(params.id);
+  load({ el, params, query, raw, hash, ctrl }) {
+    // Called once after mount.
+    // params and query are ordered accessor arrays:
+    const userId = params.id ?? params[0];
+    const activeTab = query.tab ?? query[0];
+    
+    return fetchUser(userId, activeTab);
   },
   connect({ el }) {
     // Called when the element connects to the DOM
@@ -133,12 +143,12 @@ on: {
     // Called when the element disconnects
   },
   change({ el, name, val }) {
-    // Called when a declared prop changes
+    // Called when a declared prop, param, or query changes
   }
 }
 ```
 
-All hooks receive a context object with `el` (the element), `params` (route parameters), `query` (query object), `hash` (hash string), and `ctrl` (an AbortController whose signal aborts when the element disconnects).
+All hooks receive a context object. The `load` hook receives the route-derived `params` (typed ordered array with `.first`, `.last`, and named segment getters), `query` (typed ordered array with the same getters), `raw` (the raw `URLSearchParams` object), `hash`, and `ctrl` (whose signal aborts if the element disconnects).
 
 `load` may return a promise. The router does not wait for it — the element mounts immediately and the promise resolves asynchronously. Use this for data fetching that should not block rendering.
 
@@ -201,11 +211,12 @@ page('/user/:id', {
   tag: 'page-user',
   via: ['main'],
   template: { html: './user.html', css: './user.css' },
-  props: {
-    id: { type: Number, default: 0 },
-    tab: { type: String }
-  },
-  query: ['tab'],
+  params: [
+    { name: 'id', type: Number }
+  ],
+  query: [
+    { name: 'tab', type: String }
+  ],
   on: {
     async load({ params }) {
       const user = await fetchUser(params.id);

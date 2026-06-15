@@ -29,6 +29,20 @@ npx anza dev --port 8080
 
 ---
 
+## Compile-Time Route Validation
+
+During both `dev` and `build` phases, the Rust compiler performs design-by-contract checks on all page and dock definitions. It scans route pattern strings (e.g. `'/blog/:slug'`) and cross-references them with the declared `params` and `query` contract arrays.
+
+If a route parameter (like `:slug`) is present in the route but missing from the component's `params` array, the CLI prints a descriptive warning:
+
+```text
+[WARN] Page tag 'page-blog-post' defines route '/blog/:slug' but has no parameter contract declared for ':slug'.
+```
+
+These warnings are non-blocking: compilation still succeeds and the router will fallback to string matching, but developers get early visibility into contract mismatches.
+
+---
+
 ## Production Build
 
 ```bash

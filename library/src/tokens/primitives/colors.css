@@ -1,71 +1,16 @@
 /**
  * tokens/primitives/colors.css
  *
- * Perceptually uniform color scales using OKLCH.
- * Converted from hex values provided in the design system.
+ * Base raw color decisions.
  */
 
 :root {
-  /* Gray scale — 11-step perceptual scale */
-  --gray-0:   oklch(100% 0 0);
-  --gray-50:  oklch(98% 0.002 264);
-  --gray-100: oklch(95% 0.004 264);
-  --gray-200: oklch(90% 0.006 264);
-  --gray-300: oklch(80% 0.008 264);
-  --gray-400: oklch(65% 0.01 264);
-  --gray-500: oklch(50% 0.012 264);
-  --gray-600: oklch(38% 0.014 264);
-  --gray-700: oklch(28% 0.016 264);
-  --gray-800: oklch(18% 0.018 264);
-  --gray-900: oklch(10% 0.02 264);
-  --gray-950: oklch(5% 0.022 264);
-
-  /* Brand green palette — based on #07a45f, #09d379 */
-  --brand-50:  oklch(96% 0.08 155);
-  --brand-100: oklch(90% 0.12 155);
-  --brand-200: oklch(82% 0.16 155);
-  --brand-300: oklch(72% 0.18 155);
-  --brand-400: oklch(62% 0.20 155);
-  --brand-500: oklch(55% 0.22 155);
-  --brand-600: oklch(48% 0.20 155);
-  --brand-700: oklch(40% 0.18 155);
-  --brand-800: oklch(32% 0.16 155);
-  --brand-900: oklch(24% 0.14 155);
-  --brand-950: oklch(15% 0.12 155);
-
-  /* Success palette — based on #10b981 */
-  --success-50:  oklch(96% 0.08 155);
-  --success-100: oklch(88% 0.12 155);
-  --success-200: oklch(78% 0.16 155);
-  --success-300: oklch(68% 0.18 155);
-  --success-400: oklch(58% 0.20 155);
-  --success-500: oklch(52% 0.22 155);
-  --success-600: oklch(45% 0.20 155);
-
-  /* Error palette — based on #ec4b19 */
-  --error-50:  oklch(96% 0.06 35);
-  --error-100: oklch(90% 0.10 35);
-  --error-200: oklch(80% 0.14 35);
-  --error-300: oklch(70% 0.18 35);
-  --error-400: oklch(60% 0.22 35);
-  --error-500: oklch(54% 0.24 35);
-  --error-600: oklch(47% 0.22 35);
-
-  /* Warn palette — based on #fa6436 */
-  --warn-50:  oklch(96% 0.08 45);
-  --warn-100: oklch(90% 0.12 45);
-  --warn-200: oklch(80% 0.16 45);
-  --warn-300: oklch(70% 0.20 45);
-  --warn-400: oklch(60% 0.24 45);
-  --warn-500: oklch(54% 0.26 45);
-  --warn-600: oklch(47% 0.24 45);
-
-  /* Info palette */
-  --info-50:  oklch(96% 0.06 240);
-  --info-100: oklch(90% 0.10 240);
-  --info-200: oklch(80% 0.14 240);
-  --info-300: oklch(70% 0.18 240);
-  --info-400: oklch(60% 0.22 240);
-  --info-500: oklch(54% 0.24 240);
-  --info-600: oklch(47% 0.22 240);
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --gray-100: oklch(95% 0 0);
+  --gray-200: oklch(90% 0 0);
+  --gray-800: oklch(20% 0 0);
+  --gray-900: oklch(10% 0 0);
+  --brand: oklch(62% 0.17 145); /* Base brand accent */
 }
+

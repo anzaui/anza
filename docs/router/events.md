@@ -11,8 +11,9 @@ Emitted when a route matches successfully:
 ```javascript
 const dispose = router.on('found', (detail) => {
   console.log(detail.tag);        // element tag, e.g. 'page-home'
-  console.log(detail.params);     // route parameters, e.g. { id: '42' }
-  console.log(detail.query);      // query object, e.g. { tab: 'profile' }
+  console.log(detail.params);     // route params array with getters, e.g. ['42'] with detail.params.id
+  console.log(detail.query);      // mapped query params array with getters, e.g. ['profile'] with detail.query.tab
+  console.log(detail.raw);        // raw URLSearchParams object for undeclared queries
   console.log(detail.hash);       // hash string, e.g. '#section-2'
   console.log(detail.chain);       // parent chain array
   console.log(detail.url);        // full URL

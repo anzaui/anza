@@ -219,11 +219,13 @@ page('/user/:id', {
   tag: 'page-user',
   via: ['main'],
   template: { html: './user.html', css: './user.css' },
-  props: { id: { type: Number } }
+  params: [
+    { name: 'id', type: Number }
+  ]
 }, import.meta.url);
 ```
 
-Config fields: `tag`, `via`, `container`, `template`, `style`, `props`, `query`, `hash`, `on`, `guard`, `meta`.
+Config fields: `tag`, `via`, `container`, `template`, `style`, `props`, `params`, `query`, `hash`, `on`, `guard`, `meta`.
 
 ### `dock(name, config, base)`
 
@@ -231,11 +233,14 @@ Define a persistent container shell.
 
 ```javascript
 dock('main', {
-  template: '<slot></slot>'
+  template: '<slot></slot>',
+  params: [],
+  query: [],
+  notfound: '<h1>Page Not Found</h1>'
 });
 ```
 
-Config fields: `tag`, `parent`, `template`, `style`, `on`.
+Config fields: `tag`, `parent`, `template`, `style`, `params`, `query`, `on`, `notfound`.
 
 Default tag: `dock-<name>`. Default parent: `'body'`.
 

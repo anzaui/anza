@@ -2,50 +2,22 @@
  * tokens/semantic/contrast.css
  *
  * WCAG AAA compliant high-contrast semantic token overrides.
- * Enhances readability for visually impaired users.
- * Source: doc 26 §3, library2.md §Phase 1-B
  */
 
 [data-theme="high-contrast"] {
-  /* Surfaces */
-  --color-surface-page:      var(--color-neutral-0);
-  --color-surface-card:      var(--color-neutral-0);
-  --color-surface-elevated:  var(--color-neutral-0);
-  --color-surface-inverse:   var(--color-neutral-1000);
+  --color-surface-page:      var(--color-white);
+  --color-surface-elevated:  var(--color-white);
+  --color-content-primary:   var(--color-black);
+  --color-content-secondary: var(--color-black);
+  --color-interactive:       var(--color-black);
+  --color-border-default:    var(--color-black);
 
-  /* Content */
-  --color-content-primary:   var(--color-neutral-1000);
-  --color-content-secondary: var(--color-neutral-900);
-  --color-content-disabled:  var(--color-neutral-700);
-  --color-content-inverse:   var(--color-neutral-0);
-  --color-content-link:      var(--color-brand-900);
-
-  /* Interactive Elements */
-  --color-interactive:          var(--color-brand-900);
-  --color-interactive-hover:    var(--color-neutral-1000);
-  --color-interactive-active:   var(--color-neutral-1000);
-  --color-interactive-disabled: var(--color-neutral-600);
-
-  /* Borders */
-  --color-border-default:  var(--color-neutral-1000);
-  --color-border-strong:   var(--color-neutral-1000);
-  --color-border-focus:    var(--color-brand-900);
-
-  /* Automatic theme morph — same timing as light theme */
   transition:
     --color-surface-page 220ms var(--ease-out),
-    --color-surface-card 220ms var(--ease-out),
     --color-surface-elevated 220ms var(--ease-out),
-    --color-surface-inverse 220ms var(--ease-out),
     --color-content-primary 180ms var(--ease-out),
     --color-content-secondary 180ms var(--ease-out),
-    --color-content-disabled 180ms var(--ease-out),
-    --color-content-inverse 180ms var(--ease-out),
-    --color-content-link 180ms var(--ease-out),
     --color-interactive 180ms var(--ease-out),
-    --color-interactive-hover 180ms var(--ease-out),
-    --color-interactive-active 180ms var(--ease-out),
-    --color-border-default 180ms var(--ease-out),
-    --color-border-strong 180ms var(--ease-out),
-    --color-border-focus 180ms var(--ease-out);
+    --color-border-default 180ms var(--ease-out);
 }
+

@@ -109,13 +109,18 @@ import { page, dock, view, part } from '@adukiorg/anza/defs';
 
 Define a route-bound element.
 
-Config: `tag`, `via`, `container`, `template`, `style`, `props`, `query`, `hash`, `on`, `guard`, `meta`.
+- **`route`**: `string | string[]` - A single route pattern or an array of route patterns (e.g. `'/blog'` or `['/blog', '/blog/:slug']`).
+- **`config` fields**: `tag`, `via`, `container`, `template`, `style`, `props`, `params`, `query`, `hash`, `on`, `guard`, `meta`.
+  - `params`: `Array<{ name: string, type: Function }>` - path parameter contract (e.g., `[{ name: 'slug', type: String }]`).
+  - `query`: `Array<{ name: string, type: Function }>` - query parameter contract (e.g., `[{ name: 'tab', type: String }]`).
 
 ### `dock(name, config, base)`
 
 Define a container shell.
 
-Config: `tag`, `parent`, `template`, `style`, `on`.
+- **`config` fields**: `tag`, `parent`, `template`, `style`, `params`, `query`, `on`, `notfound`.
+  - `params`: `Array<{ name: string, type: Function }>` - path parameter contract.
+  - `query`: `Array<{ name: string, type: Function }>` - query parameter contract.
 
 Default tag: `dock-<name>`. Default parent: `'body'`.
 
@@ -145,7 +150,8 @@ Warns if `on.change` is declared.
   props: {
     name: { type: String | Number | Boolean, default: any, reflect: boolean, state: boolean }
   },
-  query: string[],
+  params: Array<{ name: string, cast: 'string' | 'number' }>,
+  query: Array<{ name: string, cast: 'string' | 'number' }>,
   mount: (ctx) => any,
   unmount: (ctx) => any,
   update: (ctx) => any,

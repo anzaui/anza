@@ -37,8 +37,15 @@ element(tag, spec, base);
     active: { type: Boolean }
   },
 
-  // Query params to map from URL
-  query: ['tab', 'search'],
+  // Path parameter contract
+  params: [
+    { name: 'id', cast: 'number' }
+  ],
+
+  // Query param contract
+  query: [
+    { name: 'tab', cast: 'string' }
+  ],
 
   // Lifecycle hooks
   mount: (ctx) => { ... },          // on connectedCallback

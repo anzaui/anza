@@ -27,6 +27,14 @@ props: {
 
 ---
 
+## Route Parameter and Query Contracts
+
+Route parameters (`params`) and queries (`query`) are defined using typed contract arrays on page/dock components. Because they define a strict contract with URLs rather than generic component properties, they are processed separately from `props` and are stored directly on the spec registry.
+
+Unlike `props`, they do not support default values or attribute reflection overrides, but their types (e.g. `String`, `Number`) dictate casting before properties are reactively set on the element.
+
+---
+
 ## Update Batching
 
 Property changes are batched to avoid redundant `change` callbacks:

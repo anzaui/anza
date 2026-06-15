@@ -21,14 +21,24 @@ Runs once per mount, after template and style resources have resolved. Use it fo
 
 ```javascript
 on: {
-  async load({ params, ctrl }) {
-    const data = await fetch('/api/user', { signal: ctrl.signal });
+  async load({ params, query, raw, ctrl }) {
+    // Access dynamic path params (e.g. /user/:id)
+    const userId = params.id ?? params[0];
+    
+    // Access query params (e.g. ?tab=posts)
+    const activeTab = query.tab ?? query[0];
+
+    const data = await fetch(`/api/user/${userId}?tab=${activeTab}`, { signal: ctrl.signal });
     this.user = await data.json();
   }
 }
 ```
 
-The `params` bag contains current prop values. `ctrl.signal` aborts the fetch if the element disconnects.
+The context object passed to `load` provides routing contracts parameters:
+- `params`: An ordered array containing dynamic path parameters, with cast values and convenience getters (`.first`, `.last`, and named accessors matching the path segment names).
+- `query`: An ordered array containing query parameters mapped via the `query` contract, with cast values and convenience getters.
+- `raw`: The raw `URLSearchParams` object representing all query parameters currently in the URL.
+- `ctrl.signal`: Aborts the fetch automatically if the element disconnects.
 
 `load` is awaited before `connect` runs. If `load` throws, `connect` still runs — the error is logged but not propagated.
 

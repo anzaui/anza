@@ -5,57 +5,22 @@
  */
 
 [data-theme="dark"] {
-  /* Surfaces */
-  --background:            var(--gray-950);
-  --background-elevated:   var(--gray-900);
-  --background-inverse:    var(--gray-50);
-
-  /* Content (Text & Icons) */
-  --foreground:           var(--gray-50);
-  --foreground-muted:     var(--gray-400);
-  --foreground-disabled:   var(--gray-600);
-  --foreground-inverse:    var(--gray-900);
-  --foreground-link:       var(--brand-300);
-
-  /* Interactive Elements */
-  --primary:               var(--brand-400);
-  --primary-hover:         var(--brand-300);
-  --primary-active:        var(--brand-200);
-  --primary-focus:         var(--brand-400);
-  --primary-disabled:      var(--gray-700);
-  --primary-foreground:    var(--gray-0);
-
-  /* Borders */
-  --border:                var(--gray-800);
-  --border-strong:         var(--gray-600);
-  --border-focus:          var(--brand-400);
+  --color-surface-page:     var(--gray-900);
+  --color-surface-elevated: var(--gray-800);
+  --color-content-primary:  var(--color-white);
+  --color-content-secondary:var(--gray-100);
+  --color-interactive:      var(--brand);
+  --color-border-default:   var(--gray-800);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    /* Surfaces */
-    --background:            var(--gray-950);
-    --background-elevated:   var(--gray-900);
-    --background-inverse:    var(--gray-50);
-
-    /* Content (Text & Icons) */
-    --foreground:           var(--gray-50);
-    --foreground-muted:     var(--gray-400);
-    --foreground-disabled:   var(--gray-600);
-    --foreground-inverse:    var(--gray-900);
-    --foreground-link:       var(--brand-300);
-
-    /* Interactive Elements */
-    --primary:               var(--brand-400);
-    --primary-hover:         var(--brand-300);
-    --primary-active:        var(--brand-200);
-    --primary-focus:         var(--brand-400);
-    --primary-disabled:      var(--gray-700);
-    --primary-foreground:    var(--gray-0);
-
-    /* Borders */
-    --border:                var(--gray-800);
-    --border-strong:         var(--gray-600);
-    --border-focus:          var(--brand-400);
+    --color-surface-page:     var(--gray-900);
+    --color-surface-elevated: var(--gray-800);
+    --color-content-primary:  var(--color-white);
+    --color-content-secondary:var(--gray-100);
+    --color-interactive:      var(--brand);
+    --color-border-default:   var(--gray-800);
   }
 }
+

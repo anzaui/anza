@@ -29,9 +29,11 @@ The declarative custom element system. You will spend most of your time here.
 | [ui/elements.md](ui/elements.md) | The `element()` factory and spec shape |
 | [ui/props.md](ui/props.md) | Reactive properties, types, reflection, and state |
 | [ui/templates.md](ui/templates.md) | Inline, file-based, and tagged template literals |
-| [ui/styles.md](ui/styles.md) | CSS loading, constructable stylesheets, and HMR |
+| [styles/index.md](styles/index.md) | CSS loading, constructable stylesheets, and HMR |
+| [styles/tokens.md](styles/tokens.md) | Primitive, registered, semantic tokens, transitions, and themes |
 | [ui/lifecycle.md](ui/lifecycle.md) | Mount, unmount, connect, disconnect, load, change |
 | [ui/context.md](ui/context.md) | The `el`, `ctrl`, `tags`, `refs`, `on`, `watch` object |
+
 | [ui/scheduling.md](ui/scheduling.md) | Cooperative task scheduling |
 | [ui/observers.md](ui/observers.md) | Safe observer factories with AbortSignal cleanup |
 | [ui/transitions.md](ui/transitions.md) | View transitions wrapper |

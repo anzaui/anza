@@ -36,7 +36,16 @@ router.register('/members/:id', 'page-member');
 router.register('/members/:id/posts/:postId', 'page-post');
 ```
 
-Parameter values are captured as strings. They can be cast to `Number` or `Boolean` by declaring `props` in a `page()` definition.
+Parameter values are captured as strings. They can be cast to `Number` by declaring a `params` contract array on the corresponding `page()` or `dock()` definition:
+
+```javascript
+page('/members/:id', {
+  tag: 'page-member',
+  params: [
+    { name: 'id', type: Number } // casts to Number automatically
+  ]
+});
+```
 
 ### Wildcards
 
@@ -206,9 +215,20 @@ Query parameters and hash are always extracted from the URL, regardless of the r
 ```javascript
 // Visiting /members/42?tab=posts#bio
 const result = await router.match('/members/42?tab=posts#bio');
-result.params  // { id: '42' }
-result.query   // { tab: 'posts' }
+result.params  // { id: '42' } (raw key-value map from match())
+result.query   // { tab: 'posts' } (raw key-value map from match())
 result.hash    // '#bio'
 ```
 
-Query parameters can be mapped onto element properties by declaring `query: ['tab']` in a `page()` definition.
+At navigation time, query parameters can be mapped and cast onto element properties by declaring a `query` contract array in a `page()` or `dock()` definition:
+
+```javascript
+page('/members/:id', {
+  tag: 'page-member',
+  query: [
+    { name: 'tab', type: String }
+  ]
+});
+```
+
+When navigating, the router context builder wraps matching parameters and query entries in typed, ordered accessor arrays, exposing getters for first/last elements (e.g. `params.first`, `query.last`). Custom callbacks receive the raw parameter mapping.

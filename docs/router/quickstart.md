@@ -64,18 +64,18 @@ Now clicking `<a href="/about">` is intercepted, matched, and swapped inside `ma
 page('/profile/:id', {
   tag: 'page-profile',
   via: ['main'],
-  props: {
-    id: { type: Number }
-  },
+  params: [
+    { name: 'id', type: Number }
+  ],
   on: {
     load({ params }) {
-      console.log('Loading profile for user', params.id);
+      console.log('Loading profile for user', params.id); // typed Number
     }
   }
 });
 ```
 
-The `:id` segment is captured, cast to `Number`, and assigned as a property on the element.
+The `:id` segment is captured per the `params` contract, cast to `Number`, and assigned as a property on the element.
 
 ---
 
@@ -168,7 +168,9 @@ page('/', {
 page('/user/:id', {
   tag: 'page-user',
   via: ['main'],
-  props: { id: { type: Number } },
+  params: [
+    { name: 'id', type: Number }
+  ],
   on: {
     load({ params }) {
       console.log('User', params.id);

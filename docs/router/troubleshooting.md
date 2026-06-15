@@ -111,9 +111,9 @@ console.log(result.route.patternStr);
 
 ---
 
-## Query params not mapped to props
+## Query params not mapped to properties
 
-**Cause:** Missing `query` declaration in the page config.
+**Cause:** Missing or misconfigured `query` contract array in the page or dock config.
 
 **Fix:**
 
@@ -121,14 +121,13 @@ console.log(result.route.patternStr);
 page('/search', {
   tag: 'page-search',
   via: ['main'],
-  query: ['q'],
-  props: {
-    q: { type: String }
-  }
+  query: [
+    { name: 'q', type: String }
+  ]
 });
 ```
 
-Without `query: ['q']`, the router does not know to map `?q=hello` onto the element.
+Without the `query` contract array, the router does not map `?q=hello` onto the element. Make sure the type is defined (e.g. `String` or `Number` for casting).
 
 ---
 

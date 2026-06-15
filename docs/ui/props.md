@@ -110,20 +110,19 @@ The `change` hook fires after the assignment (batched via microtask or rAF depen
 
 ## Query Param Mapping
 
-For route-bound elements (`page()`), declare `query` to map URL query params onto props:
+For route-bound elements (`page()`), declare `query` as a contract array to map URL query params onto element properties. The library casts values based on the declared type:
 
 ```javascript
 page('/search', {
   tag: 'page-search',
-  query: ['q', 'page'],
-  props: {
-    q:    { type: String },
-    page: { type: Number, default: 1 }
-  }
+  query: [
+    { name: 'q',    type: String },
+    { name: 'page', type: Number }
+  ]
 });
 ```
 
-Visiting `/search?q=hello&page=2` sets `q = 'hello'` and `page = 2`.
+Visiting `/search?q=hello&page=2` automatically sets the properties `this.q = 'hello'` (String) and `this.page = 2` (Number) on the element, triggering update cycles.
 
 ---
 

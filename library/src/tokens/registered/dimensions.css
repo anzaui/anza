@@ -1,31 +1,18 @@
 /**
  * tokens/registered/dimensions.css
  *
- * Houdini @property registrations for animatable dimension/spacing tokens.
- * This permits smooth, type-checked transitions on spacing and layout.
- * Source: doc 26 §5
+ * Houdini @property registrations for animatable transition tokens.
  */
 
-@property --space-4 {
-  syntax: '<length>';
-  inherits: true;
-  initial-value: 16px;
-}
-
-@property --radius-md {
-  syntax: '<length>';
-  inherits: true;
-  initial-value: 6px;
-}
-
-@property --font-size-base {
-  syntax: '<length>';
-  inherits: true;
-  initial-value: 16px;
-}
-
-@property --duration-normal {
+@property --transition-duration {
   syntax: '<time>';
   inherits: true;
-  initial-value: 200ms;
+  initial-value: 240ms;
 }
+
+@property --transition-offset {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 30px;
+}
+

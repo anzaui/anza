@@ -62,6 +62,8 @@ The trie stores three kinds of children per node:
 
 Walk order is static → param → wild, matching specificity order. The trie returns `{ route, params }` on hit. Params are decoded with `decodeURIComponent`.
 
+These matched `params` are raw key-value string mappings. During navigation, the router interceptor looks up the component's contract in the `specRegistry` to parse and cast these raw values into typed, ordered accessor arrays (`params` and `query`) passed to the component lifecycle.
+
 ---
 
 ## Handler Contract

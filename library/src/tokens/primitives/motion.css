@@ -1,26 +1,14 @@
 /**
  * tokens/primitives/motion.css
  *
- * Durations and easing curves for transitions and animations.
+ * Essential motion parameters.
  */
 
 :root {
-  /* Durations */
-  --duration-fast:    100ms;
-  --duration-normal:  200ms;
-  --duration-slow:    300ms;
-
-  /* Easing curves */
-  --ease-in:        cubic-bezier(0.4, 0, 1, 1);
-  --ease-out:       cubic-bezier(0, 0, 0.2, 1);
-  --ease-in-out:    cubic-bezier(0.4, 0, 0.6, 1);
-  --ease-linear:    linear;
+  --duration-fast: 120ms;
+  --duration-normal: 240ms;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    --duration-fast:    0ms;
-    --duration-normal:  0ms;
-    --duration-slow:    0ms;
-  }
-}

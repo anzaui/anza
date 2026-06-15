@@ -1,27 +1,32 @@
 /**
  * tokens/semantic/transitions.css
  *
- * View Transition pseudo-element theming.
- * Connects the browser's CSS View Transitions API to the semantic token system.
+ * View Transition pseudo-element mapping and layout swap animations.
  */
 
 :root {
-  /* Backdrop behind old and new page snapshots during a transition */
-  --transition-bg: var(--color-surface-page);
-
-  /* Timing tokens used by JS when calling startViewTransition */
   --transition-duration: var(--duration-normal);
   --transition-easing: var(--ease-out);
-
-  /* Directional modifiers — pushed pages feel different from popped pages */
-  --transition-push: var(--ease-out);
-  --transition-pop: var(--ease-in);
+  --transition-push: cubic-bezier(0.1, 0.9, 0.2, 1);
+  --transition-pop: cubic-bezier(0.9, 0.1, 1, 0.2);
   --transition-replace: var(--ease-in-out);
+  --transition-offset: 30px;
+  --transition-bg: var(--color-surface-page);
 }
 
-::view-transition-old(root),
+::view-transition-old(root) {
+  animation: 90ms ease-in both fade-out;
+}
 ::view-transition-new(root) {
-  background: var(--transition-bg);
+  animation: var(--transition-duration) var(--transition-easing) both slide-in;
+}
+
+@keyframes fade-out {
+  to { opacity: 0; }
+}
+@keyframes slide-in {
+  from { transform: translateY(var(--transition-offset)); }
+  to { transform: translateY(0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -29,4 +34,9 @@
     --transition-duration: 0ms;
     --transition-easing: linear;
   }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
 }
+

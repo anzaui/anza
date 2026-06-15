@@ -57,10 +57,11 @@ router.register('/reports', {
 
 ## Callback Handler
 
-For routes that need full control over rendering. The callback receives route parameters and the Navigation API event.
+For routes that need full control over rendering. The callback receives the raw route parameters map (key-value strings) and the Navigation API event.
 
 ```javascript
 router.register('/external/:url', (params, event) => {
+  // params is the raw params map object, e.g. { url: 'https%3A%2F%2Fgoogle.com' }
   window.location.href = decodeURIComponent(params.url);
 });
 ```
@@ -76,6 +77,8 @@ router.register('/external/:url', {
   }
 });
 ```
+
+*(Note: While callback handlers receive raw key-value string mappings, `page` and `dock` lifecycle hooks receive cast, ordered parameter and query accessor arrays per their declared contracts).*
 
 ---
 

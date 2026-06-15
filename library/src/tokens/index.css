@@ -11,9 +11,6 @@
 @import './primitives/spacing.css';
 @import './primitives/typography.css';
 @import './primitives/motion.css';
-@import './primitives/radius.css';
-@import './primitives/shadow.css';
-@import './primitives/zindex.css';
 
 /* 2. Registered (Houdini Typed Properties for Animation) */
 @import './registered/colors.css';
@@ -23,5 +20,5 @@
 @import './semantic/light.css';
 @import './semantic/dark.css';
 @import './semantic/contrast.css';
-@import './semantic/components.css';
 @import './semantic/transitions.css';
+
