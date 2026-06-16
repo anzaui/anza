@@ -684,4 +684,18 @@ main.docs-content::-webkit-scrollbar {
     display: none;
     visibility: hidden;
   }
+
+  main.docs-content {
+    margin: 0;
+    padding: 0 0 50px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  main.docs-content::-webkit-scrollbar {
+    display: none;
+  }
 }
