@@ -3,6 +3,6 @@ compatibility_date = "2024-01-01"
 
 # Cloudflare Pages will use these build settings
 # when connecting via the dashboard:
-#   Root directory: web
-#   Build command: npm install && npm run build
-#   Build output: dist
+#   Root directory: (repo root)
+#   Build command: bash cf-build.sh
+#   Build output: web/dist
