@@ -8,7 +8,11 @@ export default {
       const res = await env.ASSETS.fetch(new Request(url, request));
       return new Response(res.body, {
         status: res.status,
-        headers: { ...Object.fromEntries(res.headers), 'X-Anza': 'dist-asset' }
+        headers: {
+          ...Object.fromEntries(res.headers),
+          'X-Anza': 'dist-asset',
+          'Cache-Control': 'public, max-age=31536000, immutable'
+        }
       });
     }
 
@@ -17,15 +21,23 @@ export default {
       const res = await env.ASSETS.fetch(request);
       return new Response(res.body, {
         status: res.status,
-        headers: { ...Object.fromEntries(res.headers), 'X-Anza': 'static-file' }
+        headers: {
+          ...Object.fromEntries(res.headers),
+          'X-Anza': 'static-file',
+          'Cache-Control': 'public, max-age=31536000, immutable'
+        }
       });
     }
 
-    // 3. Everything else is an SPA route — serve the shell
+    // 3. Everything else is an SPA route — serve the shell (never cache)
     const res = await env.ASSETS.fetch(new Request(new URL('/index.html', url), request));
     return new Response(res.body, {
       status: res.status,
-      headers: { ...Object.fromEntries(res.headers), 'X-Anza': 'spa-shell' }
+      headers: {
+        ...Object.fromEntries(res.headers),
+        'X-Anza': 'spa-shell',
+        'Cache-Control': 'no-store, must-revalidate'
+      }
     });
   }
 };
