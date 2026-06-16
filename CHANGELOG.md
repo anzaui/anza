@@ -32,7 +32,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [0.4.1] — 2026-06-14
+## [0.4.2] — 2026-06-14
 
 
 ### Fixed
