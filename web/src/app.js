@@ -2,6 +2,10 @@
  * src/app.js — app entry point
  */
 import '@adukiorg/anza/ui';
+import { theme } from '@adukiorg/anza/theme';
+
+theme.set(theme.get() === 'light' ? 'light' : 'dark');
+
 // docks
 import './docks/index.js';
 // views
@@ -11,11 +15,6 @@ import './pages/index.js';
 import './docs/index.js';
 
 import { dock } from '@adukiorg/anza/ui';
-import { theme } from '@adukiorg/anza/theme';
-
-theme.set(theme.get() === 'light' ? 'light' : 'dark');
-
-
 
 // Service Worker
 navigator.serviceWorker.register('/dist/sw.js', { type: 'module' });
