@@ -3,11 +3,6 @@ set -euo pipefail
 
 echo "=== Cloudflare Pages Build ==="
 
-# If running from web/ (root dir = web), go up to repo root
-if [ -d ../library ]; then
-  cd ..
-fi
-
 # Extract version from library/package.json
 VERSION=$(jq -r .version library/package.json)
 echo "Anza version: v${VERSION}"
@@ -29,5 +24,9 @@ cd web
 npm install
 anza build
 
+# Copy dist to repo root so Pages can find it
+echo "Copying dist to root..."
+cp -r dist/* ../
+
 echo "=== Build complete ==="
-ls -la dist/
+ls -la ../
