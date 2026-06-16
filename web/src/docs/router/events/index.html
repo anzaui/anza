@@ -1,0 +1,133 @@
+<h1>Events</h1>
+<p>The router emits three events: <code>found</code>, <code>notfound</code>, and <code>error</code>. Subscribe with
+  <code>router.on()</code>.</p>
+
+<h2>Found</h2>
+<p>Emitted when a route matches successfully:</p>
+<view-code language="javascript">const dispose = router.on('found', (detail) =&gt; {
+  console.log(detail.tag); // element tag, e.g. 'page-home'
+  console.log(detail.params); // route params array with getters, e.g. ['42'] with detail.params.id
+  console.log(detail.query); // mapped query params array with getters, e.g. ['profile'] with detail.query.tab
+  console.log(detail.raw); // raw URLSearchParams object for undeclared queries
+  console.log(detail.hash); // hash string, e.g. '#section-2'
+  console.log(detail.chain); // parent chain array
+  console.log(detail.url); // full URL
+  console.log(detail.direction); // 'push', 'replace', 'traverse', or 'load'
+  });
+</view-code>
+<p>The orchestrator listens to this event and mounts the matched element into its container. You can also listen for
+  analytics, logging, or side effects.</p>
+
+<h2>Not Found</h2>
+<p>Emitted when no route matches:</p>
+<view-code language="javascript">router.on('notfound', ({ url }) =&gt; {
+  console.warn('No route for', url);
+  });
+</view-code>
+<p>If a <code>notFound</code> handler is registered, it runs after the event:</p>
+<view-code language="javascript">router.notFound((event) =&gt; {
+  document.body.innerHTML = '&lt;h1&gt;404&lt;/h1&gt;';
+  });
+</view-code>
+
+<h2>Error</h2>
+<p>Emitted when something goes wrong during navigation:</p>
+<view-code language="javascript">router.on('error', ({ error, url, route, phase }) =&gt; {
+  console.error(`Navigation failed in phase ${phase}:`, error);
+  });
+</view-code>
+<p>Phase values:</p>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Phase</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>'match'</code></td>
+      <td>URL matching threw an exception</td>
+    </tr>
+    <tr>
+      <td><code>'container'</code></td>
+      <td>Cascade mounting failed</td>
+    </tr>
+    <tr>
+      <td><code>'guard'</code></td>
+      <td>A guard threw an exception</td>
+    </tr>
+    <tr>
+      <td><code>'handler'</code></td>
+      <td>A callback handler threw an exception</td>
+    </tr>
+    <tr>
+      <td><code>'navigation'</code></td>
+      <td>The Navigation API emitted <code>navigateerror</code></td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+
+<h2>Subscription and Cleanup</h2>
+<p><code>router.on()</code> returns a disposer:</p>
+<view-code language="javascript">const dispose = router.on('found', handler);
+  // later
+  dispose();
+</view-code>
+<p>You can also pass an <code>AbortSignal</code>:</p>
+<view-code language="javascript">const controller = new AbortController();
+  router.on('found', handler, controller.signal);
+  controller.abort(); // removes the listener
+</view-code>
+
+<h2>Clearing Listeners</h2>
+<p>There is no bulk clear for event listeners. Each subscription is independent. Use <code>AbortController</code> for
+  grouped cleanup:</p>
+<view-code language="javascript">const ctrl = new AbortController();
+  router.on('found', handlerA, ctrl.signal);
+  router.on('error', handlerB, ctrl.signal);
+
+  // Remove both at once
+  ctrl.abort();
+</view-code>
+
+<h2>Event Order</h2>
+<p>During a successful navigation:</p>
+<ol>
+  <li>Navigation API <code>navigate</code> event fires</li>
+  <li>Guards run (pre-commit or post-commit)</li>
+  <li><code>match()</code> resolves the route</li>
+  <li>Cascade ensures container chain</li>
+  <li>View transition starts</li>
+  <li><code>found</code> event emits</li>
+  <li>Orchestrator mounts the element</li>
+  <li>View transition finishes</li>
+</ol>
+<p>During a failed navigation:</p>
+<ol>
+  <li>Guard throws or returns redirect</li>
+  <li><code>error</code> event emits with phase <code>'guard'</code></li>
+  <li>Navigation is aborted or redirected</li>
+</ol>
+
+<h2>Listening Inside Components</h2>
+<p>Components can subscribe to router events for coordination:</p>
+<view-code language="javascript">page('/dashboard', {
+  tag: 'page-dashboard',
+  via: ['main'],
+  on: {
+  connect({ el }) {
+  this._dispose = router.on('found', ({ tag }) =&gt; {
+  if (tag !== 'page-dashboard') {
+  this.pauseLiveUpdates();
+  }
+  });
+  },
+  disconnect({ el }) {
+  this._dispose?.();
+  }
+  }
+  });
+</view-code>

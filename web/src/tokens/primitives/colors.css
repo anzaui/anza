@@ -1,0 +1,16 @@
+/**
+ * tokens/primitives/colors.css
+ *
+ * Base raw color decisions.
+ */
+
+:root {
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --gray-100: oklch(95% 0 0);
+  --gray-200: oklch(90% 0 0);
+  --gray-800: oklch(20% 0 0);
+  --gray-900: oklch(10% 0 0);
+  --brand: oklch(62% 0.17 145); /* Base brand accent */
+}
+

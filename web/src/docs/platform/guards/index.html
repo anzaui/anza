@@ -1,0 +1,60 @@
+<h1>Guards</h1>
+<p>The <code>guard</code> object provides asynchronous feature gates. Each method checks native support and either
+  returns the native API or dynamically imports a polyfill.</p>
+
+<h2>urlPattern</h2>
+<view-code language="javascript">const URLPattern = await guard.urlPattern();
+  const pattern = new URLPattern({ pathname: '/user/:id' });
+</view-code>
+<p>Returns the native <code>URLPattern</code> class or loads the polyfill. Used by the router for pathname matching.</p>
+
+<h2>navigation</h2>
+<view-code language="javascript">const nav = await guard.navigation();
+  nav.navigate('/settings');
+</view-code>
+<p>Returns <code>window.navigation</code> or bootstraps the Navigation API polyfill. Used by the router for history
+  management.</p>
+
+<h2>popover</h2>
+<view-code language="javascript">await guard.popover();
+  document.getElementById('menu').showPopover();
+</view-code>
+<p>Installs <code>HTMLElement</code> popover prototype methods if missing. Provides light-dismiss behavior and
+  memory-safe cleanup.</p>
+
+<h2>shadow</h2>
+<view-code language="javascript">await guard.shadow(document);
+</view-code>
+<p>Applies the declarative shadow DOM polyfill to a root element. Parses
+  <code>&lt;template shadowrootmode="open"&gt;</code> nodes.</p>
+
+<h2>anchor</h2>
+<view-code language="javascript">await guard.anchor(floatingEl, anchorEl, { inset: true });
+</view-code>
+<p>Computates dynamic anchor positioning for floating elements when native CSS anchor positioning is unavailable.</p>
+
+<h2>sanitizer</h2>
+<view-code language="javascript">const sanitizer = await guard.sanitizer();
+  const clean = sanitizer.sanitizeToString('&lt;p&gt;Safe&lt;/p&gt;');
+</view-code>
+<p>Returns a sanitizer wrapper with <code>.sanitizeToString(input)</code>. Uses the native <code>Sanitizer</code> API
+  when available, falls back to <code>DOMPurify</code> or a textContent-based sanitizer.</p>
+
+<h2>scheduler</h2>
+<view-code language="javascript">const scheduler = await guard.scheduler();
+  scheduler.postTask(fn, { priority: 'user-visible' });
+</view-code>
+<p>Returns <code>globalThis.scheduler</code> or loads the polyfill. Supports three priorities:
+  <code>user-blocking</code>, <code>user-visible</code>, <code>background</code>.</p>
+
+<h2>yield</h2>
+<view-code language="javascript">await guard.yield();
+</view-code>
+<p>Yields execution control back to the event loop. Equivalent to <code>scheduler.yield()</code> when available,
+  otherwise falls back to <code>setTimeout(..., 0)</code>.</p>
+<p>Use inside heavy loops to prevent UI freezing:</p>
+<view-code language="javascript">for (let i = 0; i &lt; 10000; i++) {
+  process(i);
+  if (i % 100 === 0) await guard.yield();
+  }
+</view-code>

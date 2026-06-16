@@ -1,0 +1,82 @@
+<h1>Caching</h1>
+<p>The API client supports fine-grained TTL caching via the browser Cache API. Caching is opt-in: by default, every
+  request is network-only.</p>
+
+<h2>TTL Caching</h2>
+<p>Enable caching by passing <code>expiry</code> or <code>ttl</code> (in milliseconds):</p>
+<view-code language="javascript">import { api } from '@adukiorg/anza/api';
+
+  // Cache for 60 seconds
+  const products = await api.get('/products', { expiry: 60000 });
+</view-code>
+<p>On the first call, the network is hit and the response is cached. On subsequent calls within the TTL window, the
+  cached response is returned instantly. After expiry, the cache entry is evicted and the network is hit again.</p>
+
+<h2>Cache Strategies</h2>
+<p>For more control, use named strategies:</p>
+<h3>cache-first</h3>
+<p>Return cached data if available, otherwise fetch and cache:</p>
+<view-code language="javascript">const data = await api.get('/config', { cache: 'cache-first' });
+</view-code>
+<p>Best for configuration, reference data, and static assets.</p>
+<h3>network-first</h3>
+<p>Fetch from the network, fall back to cache on failure:</p>
+<view-code language="javascript">const data = await api.get('/feed', { cache: 'network-first' });
+</view-code>
+<p>Best for dynamic data where freshness matters but offline fallback is needed.</p>
+<h3>stale-while-revalidate</h3>
+<p>Return cached data immediately, then revalidate in the background:</p>
+<view-code language="javascript">const data = await api.get('/timeline', { cache: 'stale-while-revalidate' });
+</view-code>
+<p>When a stale entry is served, the client fires a <code>cache:updated</code> event after the background fetch
+  completes:</p>
+<view-code language="javascript">window.addEventListener('cache:updated', (e) =&gt; {
+  console.log('Cache refreshed for', e.detail.url);
+  });
+</view-code>
+<p>Best for timelines, feeds, and dashboards where perceived speed matters.</p>
+
+<h2>Cache Limitations</h2>
+<p>Caching applies only to <code>GET</code> requests. <code>POST</code>, <code>PUT</code>, <code>PATCH</code>, and
+  <code>DELETE</code> bypass the cache entirely.</p>
+<p>If the Cache API is unavailable (private mode, unsupported browser), caching is silently disabled and all requests go
+  to the network.</p>
+
+<h2>Cache Invalidation</h2>
+<h3>Clear Everything</h3>
+<view-code language="javascript">await api.cache.clear();
+</view-code>
+<h3>Delete by Exact URL</h3>
+<view-code language="javascript">await api.cache.delete('https://api.example.com/products');
+</view-code>
+<h3>Delete by Glob Pattern</h3>
+<view-code language="javascript">await api.cache.delete('*/user/*');
+</view-code>
+<p>Glob patterns support <code>*</code> wildcards. The pattern is matched against both the full URL and the pathname.
+</p>
+
+<h2>Direct Cache Access</h2>
+<p>For advanced use, access the cache manager directly:</p>
+<view-code language="javascript">// Read
+  const cached = await api.cache.get('/products');
+
+  // Write with TTL
+  await api.cache.set('/products', response, 60000);
+
+  // Delete
+  await api.cache.delete('/products');
+
+  // Purge all
+  await api.cache.clear();
+</view-code>
+
+<h2>Cache Key</h2>
+<p>Cache keys are derived from the request URL after prefix resolution. Two requests to the same resolved URL share the
+  same cache entry:</p>
+<view-code language="javascript">api.prefix.add('default', 'https://api.example.com');
+
+  // Both resolve to the same key
+  api.get('/products'); // key: https://api.example.com/products
+  api.get('https://api.example.com/products'); // same key
+</view-code>
+<p>Headers and query strings are not part of the cache key.</p>

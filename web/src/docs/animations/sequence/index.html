@@ -1,0 +1,52 @@
+<h1>Sequence</h1>
+<p><code>animations.sequence</code> chains animations so each step starts only after the previous finishes.</p>
+
+<h2>Signature</h2>
+<view-code language="javascript">sequence(steps);
+</view-code>
+<p>Each step is: <code>[element, animationInput, options?]</code></p>
+<p>Returns <code>{ finished: Promise }</code>.</p>
+
+<h2>Basic Sequence</h2>
+<view-code language="javascript">import { animations } from '@adukiorg/anza/animations';
+
+  const seq = animations.sequence([
+  [el, 'fade', { duration: 200 }],
+  [el, 'scale', { duration: 200 }],
+  [el, 'slide-x', { duration: 200 }]
+  ]);
+
+  await seq.finished;
+</view-code>
+<p>The element fades in, then scales, then slides.</p>
+
+<h2>Sequence with Different Elements</h2>
+<view-code language="javascript">const seq = animations.sequence([
+  [overlay, 'fade', { duration: 150 }],
+  [modal, 'scale', { duration: 250 }],
+  [buttons, 'stagger', { staggerDelay: 30, duration: 150 }]
+  ]);
+</view-code>
+
+<h2>Error Handling</h2>
+<p>If any step fails (element missing, animation error), the sequence stops and the <code>finished</code> promise
+  rejects:</p>
+<view-code language="javascript">try {
+  await seq.finished;
+  } catch (err) {
+  console.error('Sequence failed:', err);
+  }
+</view-code>
+
+<h2>Cancel a Sequence</h2>
+<p>There is no group <code>cancel()</code> on sequences. To abort, pass an AbortSignal to individual steps:</p>
+<view-code language="javascript">const ctrl = new AbortController();
+
+  const seq = animations.sequence([
+  [el, 'fade', { duration: 500, signal: ctrl.signal }],
+  [el, 'slide', { duration: 500, signal: ctrl.signal }]
+  ]);
+
+  // Abort mid-sequence
+  ctrl.abort();
+</view-code>

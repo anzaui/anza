@@ -1,0 +1,42 @@
+/**
+ * tokens/registered/colors.css
+ *
+ * Houdini @property registrations for animatable core semantic color tokens.
+ */
+
+@property --color-surface-page {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: oklch(98% 0 0);
+}
+
+@property --color-surface-elevated {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: oklch(100% 0 0);
+}
+
+@property --color-content-primary {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: oklch(10% 0 0);
+}
+
+@property --color-content-secondary {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: oklch(30% 0 0);
+}
+
+@property --color-interactive {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: oklch(62% 0.17 145);
+}
+
+@property --color-border-default {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: oklch(90% 0 0);
+}
+

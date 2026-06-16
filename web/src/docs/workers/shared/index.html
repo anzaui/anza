@@ -1,0 +1,47 @@
+<h1>Shared</h1>
+<p>SharedWorker connections persist across tabs. If <code>SharedWorker</code> is unavailable, the module falls back to a
+  dedicated worker transparently.</p>
+
+<h2>Connect</h2>
+<view-code language="javascript">import { workers } from '@adukiorg/anza/workers';
+
+  const conn = workers.shared('/workers/state.js', 'app-shared');
+</view-code>
+<p><code>connect()</code> is called automatically on first <code>send()</code> or <code>subscribe()</code>.</p>
+
+<h2>Send</h2>
+<view-code language="javascript">conn.send({ action: 'increment', value: 1 });
+</view-code>
+
+<h2>Subscribe</h2>
+<view-code language="javascript">const off = conn.subscribe((data) =&gt; {
+  console.log('From shared worker:', data);
+  });
+
+  off(); // unsubscribe
+</view-code>
+
+<h2>Close</h2>
+<view-code language="javascript">conn.close();
+</view-code>
+
+<h2>Fallback</h2>
+<p>If <code>SharedWorker</code> is not supported, the connection wraps a dedicated worker:</p>
+<view-code language="javascript">// Works in all browsers, even without SharedWorker support
+  const conn = workers.shared('/workers/state.js');
+  conn.send({ type: 'ping' });
+</view-code>
+<p>The dedicated fallback does not share state across tabs, but provides the same API surface.</p>
+
+<h2>Example: Shared Counter</h2>
+<view-code language="javascript">// In every tab
+  const counter = workers.shared('/workers/counter.js');
+
+  counter.subscribe((data) =&gt; {
+  document.getElementById('count').textContent = data.count;
+  });
+
+  document.getElementById('inc').addEventListener('click', () =&gt; {
+  counter.send({ action: 'increment' });
+  });
+</view-code>

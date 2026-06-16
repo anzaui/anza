@@ -1,0 +1,51 @@
+<h1>Sanitize</h1>
+<p>The sanitizer strips disallowed tags, event handler attributes, and <code>javascript:</code> scheme links from HTML.
+  When Trusted Types is available, it wraps the output in a <code>TrustedHTML</code> object.</p>
+
+<h2>Basic Use</h2>
+<view-code language="javascript">import { security } from '@adukiorg/anza/security';
+
+  const safe = String(security.sanitize('&lt;p&gt;&lt;script&gt;alert(1)&lt;/script&gt;Hello&lt;/p&gt;'));
+  // '&lt;p&gt;Hello&lt;/p&gt;'
+</view-code>
+<p>Use <code>String()</code> to get the raw string. Without it, the return type may be <code>TrustedHTML</code> when
+  Trusted Types is active.</p>
+
+<h2>Allowed Tags</h2>
+<p>The sanitizer allows a conservative whitelist:</p>
+<view-code language="text">a, abbr, b, bdi, bdo, blockquote, br, caption, cite, code, col, colgroup,
+  data, dd, del, dfn, div, dl, dt, em, figcaption, figure, footer, h1-h6,
+  header, hr, i, img, ins, kbd, li, mark, ol, p, pre, q, rp, rt, ruby, s,
+  samp, section, small, span, strong, sub, sup, table, tbody, td, tfoot, th,
+  thead, time, tr, u, ul, var, wbr
+</view-code>
+<p>All other tags are stripped (replaced with empty text nodes).</p>
+
+<h2>Allowed Attributes</h2>
+<view-code language="text">href, title, src, alt, width, height, class, id, target, rel, style
+</view-code>
+<p>Any attribute starting with <code>on</code> is removed. <code>href</code> values starting with
+  <code>javascript:</code> are stripped.</p>
+
+<h2>Trusted Types</h2>
+<p>When <code>window.trustedTypes</code> is available, the sanitizer registers a <code>core-sanitize</code> policy and
+  wraps output:</p>
+<view-code language="javascript">const trusted = security.sanitize('&lt;p&gt;Safe&lt;/p&gt;');
+  // Returns TrustedHTML when Trusted Types is active
+  element.innerHTML = trusted; // accepted by Trusted Types CSP
+</view-code>
+
+<h2>Native Sanitizer API</h2>
+<p>When the experimental <code>Sanitizer</code> API is available, it is used preferentially:</p>
+<view-code language="javascript">const sanitizer = new globalThis.Sanitizer();
+  const div = document.createElement('div');
+  div.setHTML(html, { sanitizer });
+</view-code>
+
+<h2>Fallback</h2>
+<p>When neither native Sanitizer nor Trusted Types is available, the fallback uses <code>DOMParser</code> or
+  <code>Document.parseHTMLUnsafe</code> to parse the HTML, then walks the tree removing disallowed content.</p>
+
+<h2>SSR</h2>
+<p>On the server (no <code>window</code>), <code>sanitize</code> returns the input unchanged. Sanitize on the client
+  before rendering user-generated HTML.</p>

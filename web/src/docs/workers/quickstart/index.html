@@ -1,0 +1,125 @@
+<h1>Quick Start</h1>
+<p>Get a worker running in five minutes.</p>
+
+<h2>1. Run a Task in a Pool</h2>
+<view-code language="javascript">import { workers } from '@adukiorg/anza/workers';
+
+  const result = await workers.run('/workers/calc.js', 'fibonacci', {
+  payload: { n: 40 },
+  priority: 'user-visible'
+  });
+
+  console.log(result); // 102334155
+</view-code>
+<p>The pool lazily creates workers (default: <code>hardwareConcurrency - 1</code>). Tasks are scheduled by priority.</p>
+
+<h2>2. Priority Scheduling</h2>
+<view-code language="javascript">// Critical path — runs first
+  workers.run('/workers/calc.js', 'render', {
+  payload: data,
+  priority: 'user-blocking'
+  });
+
+  // Background sync — lowest priority
+  workers.run('/workers/calc.js', 'sync', {
+  payload: data,
+  priority: 'background'
+  });
+</view-code>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Priority</th>
+      <th>Level</th>
+      <th>Use Case</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>user-blocking</code></td>
+      <td>2</td>
+      <td>Critical UI, must run immediately</td>
+    </tr>
+    <tr>
+      <td><code>user-visible</code></td>
+      <td>1</td>
+      <td>Standard work, default</td>
+    </tr>
+    <tr>
+      <td><code>background</code></td>
+      <td>0</td>
+      <td>Telemetry, logging, prefetch</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+<p>The pool promotes background tasks after 20 higher-priority tasks to prevent starvation.</p>
+
+<h2>3. Cancel a Task</h2>
+<view-code language="javascript">const ctrl = new AbortController();
+
+  workers.run('/workers/calc.js', 'heavy', {
+  payload: data,
+  signal: ctrl.signal,
+  timeout: 5000
+  });
+
+  // Cancel after 3 seconds
+  setTimeout(() =&gt; ctrl.abort(), 3000);
+</view-code>
+
+<h2>4. Cross-Tab Messaging</h2>
+<view-code language="javascript">// Send
+  workers.broadcast('app-event', { type: 'logout' });
+
+  // Receive
+  const off = workers.subscribe('app-event', (data) =&gt; {
+  console.log('Received:', data);
+  });
+
+  off(); // unsubscribe
+</view-code>
+
+<h2>5. Web Lock</h2>
+<view-code language="javascript">await workers.lock('db:write', async () =&gt; {
+  await db.put('key', value);
+  }, { timeout: 3000 });
+</view-code>
+<p>Other tabs calling <code>lock('db:write')</code> will wait until this callback completes.</p>
+
+<h2>6. Feature Detection</h2>
+<view-code language="javascript">import { has } from '@adukiorg/anza/workers';
+
+  if (has.worker) console.log('Web Workers supported');
+  if (has.shared) console.log('SharedWorker supported');
+  if (has.channel) console.log('BroadcastChannel supported');
+  if (has.locks) console.log('Web Locks API supported');
+  if (has.offscreen) console.log('OffscreenCanvas supported');
+</view-code>
+
+<h2>Complete Working Example</h2>
+<view-code language="javascript">import { workers } from '@adukiorg/anza/workers';
+
+  // Process data in background
+  async function processChunk(data) {
+  const result = await workers.run('/workers/process.js', 'transform', {
+  payload: data,
+  priority: 'background',
+  timeout: 10000
+  });
+  return result;
+  }
+
+  // Sync state across tabs
+  workers.subscribe('data-update', (payload) =&gt; {
+  updateUI(payload);
+  });
+
+  // Exclusive DB write
+  async function saveRecord(record) {
+  await workers.lock('db:records', async () =&gt; {
+  await db.save(record);
+  });
+  }
+</view-code>

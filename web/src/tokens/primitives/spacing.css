@@ -1,0 +1,14 @@
+/**
+ * tokens/primitives/spacing.css
+ *
+ * Minimal numeric spacing scale.
+ */
+
+:root {
+  --space-0: 0px;
+  --space-px: 1px;
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+}
+

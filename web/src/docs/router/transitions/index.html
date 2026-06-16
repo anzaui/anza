@@ -1,0 +1,172 @@
+<h1>Transitions</h1>
+<p>The router wraps every DOM mutation in the browser's CSS View Transitions API when available, falling back instantly
+  to synchronous rendering when unsupported or when the user prefers reduced motion.</p>
+
+<h2>How It Works</h2>
+<p>When the router emits <code>found</code>, it calls:</p>
+<view-code language="javascript">await transitions.run(async () =&gt; {
+  // mount the new element
+  }, { sourceElement, name });
+</view-code>
+<p>The <code>transitions.run</code> wrapper:</p>
+<ol>
+  <li>Checks <code>prefers-reduced-motion: reduce</code></li>
+  <li>Checks for <code>document.startViewTransition</code></li>
+  <li>If both pass, starts a view transition around the DOM update</li>
+  <li>Otherwise, runs the update synchronously</li>
+</ol>
+
+<h2>Dock-Level Transitions</h2>
+<p>Docks use their own <code>swap</code> method for container-scoped transitions:</p>
+<view-code language="javascript">// Inside a dock element
+  await this.swap(newElement, { direction: 'push' });
+</view-code>
+<p>The dock tries three strategies in order:</p>
+<ol>
+  <li><strong>Element-scoped</strong> <code>startViewTransition</code> (Chrome 147+) — isolated to this subtree,
+    concurrent with other docks</li>
+  <li><strong>Document-scoped</strong> <code>startViewTransition</code> — full-page transition</li>
+  <li><strong>Synchronous</strong> <code>replaceChildren</code> — instant swap</li>
+</ol>
+<p>Element-scoped transitions require <code>contain: layout</code> on the container. Every dock automatically receives
+  this style.</p>
+
+<h2>Shared Element Morphing</h2>
+<p>Morph a specific element between outgoing and incoming views:</p>
+<view-code language="javascript">await transitions.run(() =&gt; {
+  container.replaceChildren(detail);
+  }, {
+  sourceElement: card,
+  name: 'selected-card'
+  });
+</view-code>
+<p>Before the transition, <code>sourceElement.style.viewTransitionName</code> is set to <code>'selected-card'</code>.
+  After the transition completes (or fails), the name is cleared.</p>
+<p>Use this for list-to-detail animations, card expansions, and any cross-view element continuity.</p>
+
+<h2>Directional Hints</h2>
+<p>The <code>direction</code> option is passed through to the dock's <code>swap</code> method and exposed as a dataset
+  attribute:</p>
+<view-code language="javascript">await container.swap(newElement, { direction: 'back' });
+</view-code>
+<p>In CSS:</p>
+<view-code language="css">:host {
+  transition: transform 300ms ease;
+  }
+
+  :host([data-transition-direction=&quot;back&quot;]) {
+  transform: translateX(-20px);
+  }
+</view-code>
+
+<h2>Reduced Motion</h2>
+<p>When <code>prefers-reduced-motion: reduce</code> is active, transitions are skipped entirely. The DOM update runs
+  synchronously. This is automatic — you do not need to handle it.</p>
+
+<h2>Abort Safety</h2>
+<p>Rapid navigation can abort an in-flight transition. The router catches <code>AbortError</code> and silences it. The
+  dock's <code>swap</code> method additionally aborts any previous transition before starting a new one, so rapid clicks
+  do not leave half-finished animations.</p>
+
+<h2>Manual Use</h2>
+<p>You can use <code>transitions.run</code> directly for non-router DOM updates:</p>
+<view-code language="javascript">import { transitions } from '@adukiorg/anza/router';
+
+  await transitions.run(() =&gt; {
+  panel.replaceChildren(newContent);
+  });
+</view-code>
+<p>With shared element:</p>
+<view-code language="javascript">await transitions.run(() =&gt; {
+  panel.replaceChildren(newContent);
+  }, {
+  sourceElement: thumbnail,
+  name: 'hero-image'
+  });
+</view-code>
+
+<h2>Tokens</h2>
+<p>View Transition timing and backdrop are controlled by semantic tokens. The library injects a token-aware stylesheet
+  on the first transition so duration, easing, and background derive from the same layer as surfaces and content.</p>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Token</th>
+      <th>Default</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--transition-bg</code></td>
+      <td><code>--color-surface-page</code></td>
+      <td>Backdrop behind old and new page snapshots</td>
+    </tr>
+    <tr>
+      <td><code>--transition-duration</code></td>
+      <td><code>--duration-normal</code></td>
+      <td>How long the VT runs</td>
+    </tr>
+    <tr>
+      <td><code>--transition-easing</code></td>
+      <td><code>--ease-out</code></td>
+      <td>Default easing curve</td>
+    </tr>
+    <tr>
+      <td><code>--transition-push</code></td>
+      <td><code>--ease-out</code></td>
+      <td>Easing when navigating forward</td>
+    </tr>
+    <tr>
+      <td><code>--transition-pop</code></td>
+      <td><code>--ease-in</code></td>
+      <td>Easing when navigating back</td>
+    </tr>
+    <tr>
+      <td><code>--transition-replace</code></td>
+      <td><code>--ease-in-out</code></td>
+      <td>Easing for replace-style swaps</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+<p>The dock <code>swap</code> method reads <code>--transition-push</code> or <code>--transition-pop</code> based on the
+  <code>direction</code> option and temporarily overrides <code>--transition-easing</code> on <code>:root</code> before
+  starting the transition. This means back-navigation feels physically different from forward-navigation without writing
+  any custom CSS.</p>
+<p>Override any token in your own CSS:</p>
+<view-code language="css">@layer overrides {
+  :root {
+  --transition-duration: 400ms;
+  --transition-easing: var(--ease-spring);
+  }
+  }
+</view-code>
+
+<h2>CSS Transition Basics</h2>
+<p>View transitions work by taking GPU snapshots of the old and new DOM states and interpolating between them. Style the
+  transition with CSS:</p>
+<view-code language="css">::view-transition-old(root) {
+  animation: fade-out 300ms ease;
+  }
+
+  ::view-transition-new(root) {
+  animation: fade-in 300ms ease;
+  }
+
+  @keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+  }
+
+  @keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+  }
+</view-code>
+<p>For element-scoped transitions, target the container instead of <code>root</code>:</p>
+<view-code language="css">dock-main::part(view-transition-old) {
+  animation: slide-out 200ms ease;
+  }
+</view-code>

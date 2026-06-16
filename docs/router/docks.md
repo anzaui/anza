@@ -52,12 +52,17 @@ If no template is provided, the default is `'<slot></slot>'` — a passthrough s
 
 ### `style`
 
-Inline CSS. Automatically prepended with `contain: layout` styling for view transition isolation.
+Inline CSS string, a file path, or an array containing CSS strings or stylesheet paths (both relative and root-relative starting with `/`). Automatically prepended with `contain: layout` styling for view transition isolation.
 
 ```javascript
-dock('main', {
-  style: ':host { background: #f5f5f5; }'
-});
+// Inline CSS
+style: ':host { background: #f5f5f5; }'
+
+// Single stylesheet path
+style: './main.css'
+
+// Multiple stylesheets from any folder
+style: ['/styles/shared.css', './main.css']
 ```
 
 ### `params` and `query`

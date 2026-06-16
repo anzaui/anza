@@ -1,0 +1,24 @@
+/**
+ * tokens/index.css
+ *
+ * Master design token system import entry.
+ * Strict cascade loading order: Primitives -> Registered -> Semantic
+ * Source: doc 26 §7
+*/
+
+/* 1. Primitives (Fixed Scale Decision Scales) */
+@import './primitives/typography.css';
+@import './primitives/colors.css';
+@import './primitives/spacing.css';
+@import './primitives/motion.css';
+@import './primitives/table.css';
+
+/* 2. Registered (Houdini Typed Properties for Animation) */
+@import './registered/colors.css';
+@import './registered/dimensions.css';
+
+/* 3. Semantic (Meaning and Intent-based Mappings) */
+@import './semantic/light.css';
+@import './semantic/dark.css';
+@import './semantic/contrast.css';
+@import './semantic/transitions.css';

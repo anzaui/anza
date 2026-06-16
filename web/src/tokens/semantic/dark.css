@@ -1,0 +1,83 @@
+/**
+ * tokens/semantic/dark.css
+ *
+ * Semantic design token overrides for the Dark theme.
+ */
+
+html[data-theme=dark] {
+  --surfaceElevated: #1e2818;
+  --surfaceSunken: #090c06;
+  --primary: #90b858;
+  --primaryHover: #aad070;
+  --primarySubtle: #1a2010;
+  --secondary: #c8a848;
+  --tertiary: #b0e080;
+  --textPrimary: #e4ead8;
+  --textMuted: #7a8860;
+  --textInverse: #0c0f08;
+  --border: #283018;
+  --shadow: rgba(0, 0, 0, 0.45);
+  --codeBackground: #0e1408;
+  --codeText: #90b858;
+  --blockquoteBackground: #141c0c;
+  --selection: #304020;
+  --scrollbar: #283018;
+  --quoteIcon: rgba(228, 234, 216, 0.4);
+  --tableBackground: #141a0e;
+  --tableHeaderBackground: #1e2818;
+  --tableHeaderText: #e4ead8;
+  --tableRowBackground: #141a0e;
+  --tableRowHover: #1e2818;
+  --tableBorder: #283018;
+  --tableText: #e4ead8;
+
+  /* Colors */
+  --accent-color: #09d379;
+  --accent-alt: #2ddb8d;
+  --alt-color: #52e3a1;
+  --action-color: #09d379;
+  --success-color: #10b981;
+  --white-color: #ffffff;
+  --dark-white: #e5e5e5;
+  --gray-color: #7f95ad;
+  --icon-color: #9fb5cf;
+  --text-color: #c4d2e4;
+  --nav-color: #dde2e5;
+  --label-color: #e1e6ea;
+  --read-color: #eef0f1;
+  --title-color: #f6f7f8;
+  --error-color: #d74a4a;
+  --warn-color: #c86e20;
+  --anchor-color: #5aa3dd;
+  --rating-color: #d38e3e;
+
+  /* Backgrounds */
+  --background: #0c0f08;
+  --surface: #141a0e;
+  --icon-background: #3f658b75;
+  --success-background: #09d378c2;
+  --que-background: #07a45f75;
+  --tab-background: #09d37933;
+  --nav-background: #054a3055;
+  --gray-background: #8fa8c431;
+  --copy-background: #4e4e4ea5;
+  --tabs-background: #40414250;
+  --error-background: #8321213a;
+  --warn-background: #8650203a;
+  --stat-background: #1d1f26;
+
+  /* prisms highlighter styles */
+  --prism-text: #ccc;
+  --prism-background: #2d2d2d;
+  --prism-inline-background: #2d2d2d;
+  --prism-comment: #999;
+  --prism-punctuation: #ccc;
+  --prism-tag: #e2777a;
+  --prism-function-name: #6196cc;
+  --prism-number: #f08d49;
+  --prism-property: #f8c555;
+  --prism-keyword: #cc99cd;
+  --prism-string: #7ec699;
+  --prism-operator: #67cdcc;
+  --prism-inserted: green;
+}

@@ -1,0 +1,87 @@
+<h1>Navigation</h1>
+<p>Programmatic control over the browser history stack. All methods return a <code>{ committed, finished }</code>
+  promise pair and degrade gracefully when the Navigation API is unavailable.</p>
+
+<h2>Navigate (Push)</h2>
+<p>Push a new history entry and navigate to a URL:</p>
+<view-code language="javascript">import { router } from '@adukiorg/anza/router';
+
+  router.navigate('/settings');
+  router.navigate('/user/42');
+</view-code>
+<p>With state:</p>
+<view-code language="javascript">router.navigate('/settings', { state: { tab: 'profile' } });
+</view-code>
+
+<h2>Replace</h2>
+<p>Replace the current history entry instead of pushing:</p>
+<view-code language="javascript">router.replace('/settings?tab=profile');
+</view-code>
+<p>Use <code>replace</code> for filter updates, search queries, and modal state that should not create new history
+  entries.</p>
+
+<h2>Back and Forward</h2>
+<view-code language="javascript">router.back(); // go back one step
+  router.forward(); // go forward one step
+</view-code>
+
+<h2>Go</h2>
+<p>Traverse by an arbitrary delta:</p>
+<view-code language="javascript">router.go(-2); // back two steps
+  router.go(1); // forward one step
+</view-code>
+
+<h2>Chainable Navigation</h2>
+<p>The <code>nav</code> object provides a fluent chainable API:</p>
+<view-code language="javascript">router.nav.to('/settings')
+  .then(() =&gt; console.log('committed'))
+  .catch(() =&gt; console.log('aborted'));
+</view-code>
+
+<h2>History State Inspection</h2>
+<view-code language="javascript">// Current entry
+  const entry = router.current();
+  console.log(entry.url); // current URL
+  console.log(entry.key); // unique entry key
+  console.log(entry.index); // position in the stack
+
+  // All entries
+  const stack = router.entries();
+  console.log(stack.length); // history depth
+
+  // Can the user go back?
+  if (router.canBack()) { ... }
+
+  // Can the user go forward?
+  if (router.canForward()) { ... }
+</view-code>
+
+<h2>Auto-Bootstrap</h2>
+<p>The router attaches itself to the Navigation API automatically when the module loads. You do not need to call
+  <code>setup()</code> manually in most cases. It happens inside the module's top-level execution:</p>
+<view-code language="javascript">if (typeof window !== 'undefined') {
+  router.setup();
+  }
+</view-code>
+
+<h2>Manual Setup and Teardown</h2>
+<p>For SSR, tests, and non-standard environments:</p>
+<view-code language="javascript">// Attach listeners explicitly
+  router.setup();
+
+  // Remove all listeners and reset state
+  router.destroy();
+</view-code>
+<p><code>setup()</code> is idempotent — calling it multiple times has no effect.</p>
+
+<h2>Navigation API Return Shape</h2>
+<p>Every navigation method returns an object with two promises:</p>
+<view-code language="javascript">const result = router.navigate('/settings');
+
+  // Fires when the URL has committed
+  await result.committed;
+
+  // Fires when the transition has finished
+  await result.finished;
+</view-code>
+<p>If the Navigation API is unavailable, both promises resolve immediately.</p>

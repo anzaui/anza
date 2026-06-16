@@ -1,0 +1,153 @@
+<h1>UI</h1>
+<p>The Anza UI layer is a declarative custom element system built on Web Components. It provides reactive properties,
+  lifecycle hooks, template and style loading, event delegation, mutation watching, and cooperative scheduling — all
+  with automatic memory management via AbortController.</p>
+<p>The UI layer is organized into three levels:</p>
+<ol>
+  <li><strong>Definition layer</strong> — <code>page()</code>, <code>dock()</code>, <code>view()</code>,
+    <code>part()</code> — the way you declare elements</li>
+  <li><strong>Factory layer</strong> — <code>element()</code>, <code>define()</code> — the engine that compiles specs
+    into custom elements</li>
+  <li><strong>Utilities</strong> — <code>template()</code>, <code>transition()</code>, <code>schedule()</code>,
+    <code>observe</code> — helpers for DOM, animation, and performance</li>
+</ol>
+
+<h2>What You Get</h2>
+<ul>
+  <li><strong>Declarative element definition</strong> — define custom elements with a config object instead of a class
+  </li>
+  <li><strong>Reactive props</strong> — typed properties with automatic attribute reflection and batched update
+    callbacks</li>
+  <li><strong>Template loading</strong> — inline strings, file paths (<code>.html</code>), or tagged template literals
+  </li>
+  <li><strong>Style loading</strong> — inline CSS, file paths (<code>.css</code>), or constructable stylesheets with HMR
+  </li>
+  <li><strong>Lifecycle hooks</strong> — <code>load</code>, <code>connect</code>, <code>disconnect</code>,
+    <code>change</code> with automatic cleanup</li>
+  <li><strong>Event delegation</strong> — <code>on.click('.btn', handler)</code> with selector-based matching</li>
+  <li><strong>Mutation watching</strong> — <code>watch.text('.counter')</code> for observing DOM changes</li>
+  <li><strong>Tags cache</strong> — fast cached queries for shadow DOM elements</li>
+  <li><strong>Refs</strong> — named element lookups via <code>ref="name"</code> attributes</li>
+  <li><strong>Safe observers</strong> — <code>ResizeObserver</code>, <code>IntersectionObserver</code>,
+    <code>MutationObserver</code>, <code>PerformanceObserver</code> with AbortSignal cleanup</li>
+  <li><strong>Cooperative scheduling</strong> — <code>schedule()</code>, <code>scheduleFrame()</code>,
+    <code>yield()</code> for main-thread-friendly work</li>
+  <li><strong>View transitions</strong> — <code>transition()</code> wrapper with reduced-motion respect</li>
+</ul>
+
+<h2>Package</h2>
+<view-code language="javascript">import { ui } from '@adukiorg/anza/ui';
+  import { page, dock, view, part } from '@adukiorg/anza/defs';
+  import { BaseElement } from '@adukiorg/anza/ui';
+</view-code>
+
+<h2>File Map</h2>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>File</th>
+      <th>What It Covers</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="/docs/ui/quickstart">quickstart.md</a></td>
+      <td>Your first component in five minutes</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/ui/elements">elements.md</a></td>
+      <td>The <code>element()</code> factory and spec shape</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/ui/props">props.md</a></td>
+      <td>Reactive properties, types, reflection, state</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/ui/templates">templates.md</a></td>
+      <td>Inline, file-based, and tagged template literals</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/ui/styles">styles.md</a></td>
+      <td>CSS loading, constructable stylesheets, HMR</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/ui/lifecycle">lifecycle.md</a></td>
+      <td>Mount, unmount, connect, disconnect, load, change</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/ui/context">context.md</a></td>
+      <td>The <code>el</code>, <code>ctrl</code>, <code>tags</code>, <code>refs</code>, <code>on</code>,
+        <code>watch</code> object</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/ui/scheduling">scheduling.md</a></td>
+      <td>Cooperative task scheduling</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/ui/observers">observers.md</a></td>
+      <td>Safe observer factories with AbortSignal cleanup</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/ui/transitions">transitions.md</a></td>
+      <td>View transitions wrapper</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/ui/forms">forms.md</a></td>
+      <td>Form-associated custom elements</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/ui/advanced">advanced.md</a></td>
+      <td>Internals, batching, update visual flag, internals</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/ui/api">api.md</a></td>
+      <td>Complete API reference</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/ui/troubleshooting">troubleshooting.md</a></td>
+      <td>Common problems and how to fix them</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+
+<h2>One-File Example</h2>
+<view-code language="javascript">import { view } from '@adukiorg/anza/defs';
+
+  view('user-card', {
+  props: {
+  name: { type: String, default: 'Guest' },
+  active: { type: Boolean }
+  },
+  template: `
+  &lt;div class=&quot;card&quot;&gt;
+  &lt;h2 ref=&quot;title&quot;&gt;{{ name }}&lt;/h2&gt;
+  &lt;span class=&quot;badge&quot; hidden=&quot;&quot;&gt;{{ active }}&lt;/span&gt;
+  &lt;/div&gt;
+  `,
+  on: {
+  connect({ el, refs }) {
+  refs.title.textContent = el.name;
+  },
+  change({ name, val, refs }) {
+  if (name === 'name') refs.title.textContent = val;
+  }
+  }
+  });
+</view-code>
+<p>Use it in HTML:</p>
+<view-code language="html">&lt;user-card name=&quot;Alice&quot; active&gt;&lt;/user-card&gt;
+</view-code>
+
+<h2>Next Steps</h2>
+<ul>
+  <li>New to the UI layer? Start with <a href="/docs/ui/quickstart">quickstart.md</a>.</li>
+  <li>Want reactive properties? Read <a href="/docs/ui/props">props.md</a> and <a
+      href="/docs/ui/lifecycle">lifecycle.md</a>.</li>
+  <li>Building complex layouts? See <a href="/docs/ui/context">context.md</a> for <code>tags</code>, <code>refs</code>,
+    <code>on</code>, and <code>watch</code>.</li>
+  <li>Need performance? <a href="/docs/ui/scheduling">scheduling.md</a> and <a
+      href="/docs/ui/observers">observers.md</a>.</li>
+  <li>Prefer a single reference page? <a href="/docs/ui/api">api.md</a>.</li>
+</ul>

@@ -76,6 +76,10 @@ export function unregisterContainer(name, element) {
   remove(name, element);
 }
 
+export function hasContainer(name) {
+  return get(name) !== null;
+}
+
 /**
  * Retrieves an active layout container by name.
  *

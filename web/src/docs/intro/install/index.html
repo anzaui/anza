@@ -1,0 +1,30 @@
+<h1>Install</h1>
+<p>There are two parts: the npm package (<code>@adukiorg/anza</code>) and the Rust CLI binary (<code>anza</code>). You
+  need both.</p>
+
+<h2>npm Package</h2>
+<view-code language="bash">
+  npm install @adukiorg/anza
+</view-code>
+<p>This installs the library source, type declarations, and the Node wrapper scripts that spawn the Rust binary.</p>
+
+<h2>Rust CLI</h2>
+<p>The CLI is written in Rust. You can either build it from source or use a prebuilt binary.</p>
+<h3>Build from source</h3>
+<p>Requires Rust &gt;= 1.75 and Cargo.</p>
+<view-code language="bash">
+  cd tools
+  cargo build --release
+</view-code>
+<p>The binary lands at <code>tools/target/release/anza</code>.</p>
+<h3>Or use the Node wrapper</h3>
+<p>If you are developing inside the repo, the wrapper at <code>library/bin/anza/index.js</code> detects the platform and
+  spawns the correct binary automatically. After building once:</p>
+<view-code language="bash">
+  node library/bin/anza/index.js --help
+</view-code>
+<p>For published installs, prebuilt platform binaries ship alongside the wrapper.</p>
+
+<h2>Verify</h2>
+<view-code language="bash">anza --help</view-code>
+<p>You should see the command list: <code>scan</code>, <code>build</code>, <code>dev</code>, <code>doctor</code>, <code>create</code>.</p>

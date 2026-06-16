@@ -90,7 +90,7 @@ export function page(route, config, base) {
   if (typeof queueMicrotask !== 'undefined') {
     queueMicrotask(() => {
       for (const name of via) {
-        if (name !== 'main' && !router.getContainer(name)) {
+        if (name !== 'main' && !router.hasContainer(name)) {
           console.error(
             `[Native UI] <${tag}> declares via:'${name}' but dock('${name}', ...) has not been called.\n` +
             `Import the file containing dock('${name}', ...) before this page definition, or add dock('${name}', { parent: '...' }).`

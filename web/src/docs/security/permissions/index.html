@@ -1,0 +1,88 @@
+<h1>Permissions</h1>
+<p>Query and watch browser permission states for device capabilities like geolocation, camera, microphone, and
+  notifications.</p>
+
+<h2>Query</h2>
+<view-code language="javascript">import { security } from '@adukiorg/anza/security';
+
+  const state = await security.permission('geolocation');
+  // 'granted' | 'denied' | 'prompt'
+</view-code>
+<p>Returns <code>'denied'</code> if the Permissions API is unavailable or the permission name is unrecognized.</p>
+
+<h2>Watch</h2>
+<view-code language="javascript">const dispose = security.watchPermission('geolocation', (state) =&gt; {
+  console.log('Geolocation permission:', state);
+  });
+
+  // Stop watching
+  dispose();
+</view-code>
+
+<h2>AbortSignal Cleanup</h2>
+<view-code language="javascript">const ctrl = new AbortController();
+
+  security.watchPermission('camera', (state) =&gt; {
+  updateCameraUI(state);
+  }, ctrl.signal);
+
+  // Auto-cleanup on unmount
+  ctrl.abort();
+</view-code>
+
+<h2>Common Permission Names</h2>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>geolocation</code></td>
+      <td>GPS location</td>
+    </tr>
+    <tr>
+      <td><code>camera</code></td>
+      <td>Video camera</td>
+    </tr>
+    <tr>
+      <td><code>microphone</code></td>
+      <td>Audio input</td>
+    </tr>
+    <tr>
+      <td><code>notifications</code></td>
+      <td>Push notifications</td>
+    </tr>
+    <tr>
+      <td><code>clipboard-read</code></td>
+      <td>Clipboard read</td>
+    </tr>
+    <tr>
+      <td><code>clipboard-write</code></td>
+      <td>Clipboard write</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+<p>Not all permissions are supported in all browsers. Unsupported names return <code>'denied'</code>.</p>
+
+<h2>Example: Camera Gated Component</h2>
+<view-code language="javascript">async function initCamera() {
+  const state = await security.permission('camera');
+
+  if (state === 'denied') {
+  showError('Camera access is required');
+  return;
+  }
+
+  if (state === 'prompt') {
+  showInfo('Please allow camera access when prompted');
+  }
+
+  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  videoElement.srcObject = stream;
+  }
+</view-code>

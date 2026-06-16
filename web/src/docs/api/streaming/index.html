@@ -1,0 +1,96 @@
+<h1>Streaming</h1>
+<p>The API client parses NDJSON (newline-delimited JSON) streams natively using the Streams API, yielding parsed objects
+  as an async iterable while preserving backpressure.</p>
+
+<h2>Basic Streaming</h2>
+<view-code language="javascript">import { api } from '@adukiorg/anza/api';
+
+  for await (const chunk of api.stream('/logs/stream')) {
+  console.log(chunk.timestamp, chunk.message);
+  }
+</view-code>
+<p>Each yielded value is a parsed JSON object. The stream is read via <code>TextDecoderStream</code> and
+  <code>TransformStream</code> pipelines.</p>
+
+<h2>Stream Options</h2>
+<view-code language="javascript">for await (const chunk of api.stream('/ai/generate', {
+  method: 'POST',
+  body: { prompt: 'Hello' },
+  signal: controller.signal,
+  on: {
+  chunk: (event) =&gt; console.log('Received chunk', event.detail.chunk),
+  error: (event) =&gt; console.error('Stream error', event.detail.error)
+  }
+  })) {
+  appendToDOM(chunk.text);
+  }
+</view-code>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>method</code></td>
+      <td>HTTP method (default <code>GET</code>)</td>
+    </tr>
+    <tr>
+      <td><code>body</code></td>
+      <td>Request body (auto-serialized for objects)</td>
+    </tr>
+    <tr>
+      <td><code>signal</code></td>
+      <td>AbortSignal for cancellation</td>
+    </tr>
+    <tr>
+      <td><code>on</code></td>
+      <td>Per-request event listeners</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+
+<h2>NDJSON Transform</h2>
+<p>For direct stream manipulation, the NDJSON transform stream is exported:</p>
+<view-code language="javascript">import { createNDJSONTransform } from '@adukiorg/anza/api';
+
+  const response = await fetch('/stream');
+  const reader = response.body
+  .pipeThrough(new TextDecoderStream())
+  .pipeThrough(createNDJSONTransform())
+  .getReader();
+
+  while (true) {
+  const { value, done } = await reader.read();
+  if (done) break;
+  console.log(value); // parsed JSON object
+  }
+</view-code>
+<p>The transform handles partial lines across chunk boundaries and parses each complete line as JSON.</p>
+
+<h2>Chunk Events</h2>
+<p>Every parsed chunk emits a <code>chunk</code> event on the telemetry bus:</p>
+<view-code language="javascript">api.on('chunk', (event) =&gt; {
+  console.log('Chunk from', event.detail.requestId, event.detail.chunk);
+  });
+</view-code>
+
+<h2>Error Handling</h2>
+<p>Stream errors (network drops, parse failures) emit <code>error</code> and <code>failed</code> events. The async
+  iterable throws the error, so wrap in try-catch:</p>
+<view-code language="javascript">try {
+  for await (const chunk of api.stream('/logs')) {
+  process(chunk);
+  }
+  } catch (err) {
+  console.error('Stream failed:', err.message);
+  }
+</view-code>
+
+<h2>Backpressure</h2>
+<p>The native Streams API preserves backpressure. If the consumer loop is slow, the fetch pauses reading from the
+  network until the consumer catches up. This prevents unbounded memory growth on fast streams.</p>

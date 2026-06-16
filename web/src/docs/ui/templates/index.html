@@ -1,0 +1,107 @@
+<h1>Templates</h1>
+<p>Templates define the HTML structure of a declarative element. The UI layer supports inline strings, file references,
+  and tagged template literals.</p>
+
+<h2>Inline String</h2>
+<view-code language="javascript">view('user-card', {
+  template: '&lt;div class=&quot;card&quot;&gt;&lt;h2 ref=&quot;title&quot;&gt;&lt;/h2&gt;&lt;/div&gt;'
+  });
+</view-code>
+<p>The string is compiled into a <code>DocumentFragment</code> once per registration and cloned for each instance.</p>
+
+<h2>File Reference</h2>
+<view-code language="javascript">view('user-card', {
+  template: { html: './card.html', css: './card.css' }
+  }, import.meta.url);
+</view-code>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>html</code></td>
+      <td>yes</td>
+      <td>Path to <code>.html</code> file</td>
+    </tr>
+    <tr>
+      <td><code>css</code></td>
+      <td>no</td>
+      <td>Path to <code>.css</code> file</td>
+    </tr>
+    <tr>
+      <td><code>shadow</code></td>
+      <td>no</td>
+      <td><code>'open'</code> or <code>'closed'</code>; default <code>'open'</code></td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+<p>Paths are resolved relative to the third argument (<code>import.meta.url</code>). The native toolchain copies assets
+  during build.</p>
+
+<h2>Tagged Template Literal</h2>
+<p>For rapid prototyping outside the element factory:</p>
+<view-code language="javascript">import { template } from '@adukiorg/anza/ui';
+
+  const fragment = template`&lt;div class=&quot;card&quot;&gt;&lt;h2&gt;Hello&lt;/h2&gt;&lt;/div&gt;`;
+  document.body.appendChild(fragment);
+</view-code>
+<p>Interpolated values are ignored in production. The template is parsed once per call site and cached in a
+  <code>WeakMap</code>. Cloning a cached fragment is ~10x faster than re-parsing HTML.</p>
+<p>In development, passing values logs a warning:</p>
+<view-code language="javascript">template`&lt;div&gt;${dynamic}&lt;/div&gt;`; // warns: use refs for dynamic binding
+</view-code>
+
+<h2>Refs</h2>
+<p>Mark elements with <code>ref="name"</code> for easy lookup:</p>
+<view-code language="javascript">template: '&lt;div&gt;&lt;h2 ref=&quot;title&quot;&gt;&lt;/h2&gt;&lt;button
+  ref=&quot;btn&quot;&gt;Go&lt;/button&gt;&lt;/div&gt;'
+</view-code>
+<p>Access in hooks:</p>
+<view-code language="javascript">on: {
+  connect({ refs }) {
+  refs.title.textContent = 'Hello';
+  refs.btn.addEventListener('click', handler);
+  }
+  }
+</view-code>
+<p>Duplicate <code>ref</code> names log a warning. The first match wins.</p>
+
+<h2>Tags Descriptor</h2>
+<p>When using file templates, the factory looks for a <code>.tags.json</code> alongside the <code>.html</code> file:</p>
+<view-code language="json">{
+  &quot;version&quot;: 1,
+  &quot;refs&quot;: [&quot;title&quot;, &quot;btn&quot;],
+  &quot;ids&quot;: [&quot;header&quot;],
+  &quot;classes&quot;: [&quot;card&quot;, &quot;active&quot;],
+  &quot;tags&quot;: [&quot;h2&quot;, &quot;button&quot;]
+  }
+</view-code>
+<p>The tags descriptor pre-warms the query cache so <code>tags.one('#header')</code> and <code>tags.all('.card')</code>
+  resolve instantly without DOM traversal.</p>
+
+<h2>Template Compilation</h2>
+<p>The compilation path depends on what is available:</p>
+<ol>
+  <li><strong><code>setHTMLUnsafe</code></strong> (modern) — fastest, parses HTML directly into a
+    <code>&lt;template&gt;</code></li>
+  <li><strong><code>innerHTML</code></strong> (fallback) — standard template parsing</li>
+</ol>
+<p>In both cases, the result is a <code>DocumentFragment</code> cloned per instance.</p>
+
+<h2>No Template</h2>
+<p>An element without a template creates an empty shadow root:</p>
+<view-code language="javascript">view('empty-box', {
+  on: {
+  connect({ el }) {
+  el.shadowRoot.appendChild(document.createElement('slot'));
+  }
+  }
+  });
+</view-code>

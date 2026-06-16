@@ -1,0 +1,115 @@
+<h1>Delegate</h1>
+<p>Event delegation registers one listener on an ancestor element to handle events from matching descendants. It
+  traverses <code>composedPath()</code> so it works through shadow DOM boundaries.</p>
+
+<h2>Signature</h2>
+<view-code language="javascript">delegate(root, selector, type, handler, options);
+</view-code>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>root</code></td>
+      <td>EventTarget</td>
+      <td>The ancestor to listen on</td>
+    </tr>
+    <tr>
+      <td><code>selector</code></td>
+      <td>string</td>
+      <td>CSS selector for descendant matching</td>
+    </tr>
+    <tr>
+      <td><code>type</code></td>
+      <td>string</td>
+      <td>Event type</td>
+    </tr>
+    <tr>
+      <td><code>handler</code></td>
+      <td>function</td>
+      <td>Callback receives <code>(event, matchedElement)</code></td>
+    </tr>
+    <tr>
+      <td><code>options</code></td>
+      <td>object</td>
+      <td>Standard <code>addEventListener</code> options plus <code>signal</code></td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+<p>Returns a disposer function.</p>
+
+<h2>Basic Delegation</h2>
+<view-code language="javascript">import { events } from '@adukiorg/anza/events';
+
+  const dispose = events.delegate(
+  document.body,
+  '.btn',
+  'click',
+  (event, target) =&gt; {
+  console.log('Button clicked:', target.textContent);
+  }
+  );
+
+  // Later
+  dispose();
+</view-code>
+<p>One listener on <code>document.body</code> handles all <code>.btn</code> clicks, including buttons added dynamically
+  after registration.</p>
+
+<h2>Shadow DOM Traversal</h2>
+<p>The delegation walks <code>composedPath()</code>, so it matches elements inside shadow roots:</p>
+<view-code language="javascript">events.delegate(
+  document.body,
+  'my-component .action',
+  'click',
+  (event, target) =&gt; {
+  // target may be inside a shadow root
+  }
+  );
+</view-code>
+<p>The path stops at the <code>root</code> element. Selectors outside the root are not evaluated.</p>
+
+<h2>Selector Matching Cache</h2>
+<p><code>element.matches()</code> results are cached in a two-level <code>WeakMap</code>:</p>
+<view-code language="javascript">// First check for this element + selector
+  const result = matchesCache.get(element)?.get(selector);
+</view-code>
+<p>This prevents redundant selector evaluations when the same element fires multiple events.</p>
+
+<h2>Handler Binding</h2>
+<p>The handler is called with <code>this</code> bound to the matched element:</p>
+<view-code language="javascript">events.delegate(container, '.item', 'click', function (event) {
+  console.log(this.textContent); // the matched .item element
+  });
+</view-code>
+<p>The second argument is also the matched element:</p>
+<view-code language="javascript">(container, '.item', 'click', (event, target) =&gt; {
+  console.log(target.textContent);
+  });
+</view-code>
+
+<h2>Options</h2>
+<p>Pass standard <code>addEventListener</code> options:</p>
+<view-code language="javascript">events.delegate(root, '.btn', 'click', handler, {
+  capture: true,
+  signal: controller.signal
+  });
+</view-code>
+
+<h2>AbortSignal Cleanup</h2>
+<view-code language="javascript">const ctrl = new AbortController();
+
+  events.delegate(document.body, '.btn', 'click', handler, {
+  signal: ctrl.signal
+  });
+
+  // Remove all delegated listeners on this root
+  ctrl.abort();
+</view-code>

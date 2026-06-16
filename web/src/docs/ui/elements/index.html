@@ -1,0 +1,154 @@
+<h1>Elements</h1>
+<p>The <code>element(tag, spec, base)</code> factory is the core of the Anza UI layer. It compiles a declarative spec
+  object into a custom element class, handles resource loading, property reflection, lifecycle hooks, and memory-safe
+  cleanup.</p>
+<p>The higher-level <code>page()</code>, <code>dock()</code>, <code>view()</code>, and <code>part()</code> functions all
+  delegate to <code>element()</code> internally. Understanding <code>element()</code> helps you use the definition layer
+  more effectively.</p>
+
+<h2>Signature</h2>
+<view-code language="javascript">element(tag, spec, base);
+</view-code>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Argument</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>tag</code></td>
+      <td>string</td>
+      <td>yes</td>
+      <td>Custom element tag (must contain a hyphen)</td>
+    </tr>
+    <tr>
+      <td><code>spec</code></td>
+      <td>object</td>
+      <td>yes</td>
+      <td>Element definition (see below)</td>
+    </tr>
+    <tr>
+      <td><code>base</code></td>
+      <td>string</td>
+      <td>no</td>
+      <td><code>import.meta.url</code> of the caller</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+
+<h2>Spec Shape</h2>
+<view-code language="javascript">{
+  // Template and styling
+  template: string | { html: string, css: string | string[], shadow: 'open' | 'closed' },
+  style: string | string[], // inline CSS or stylesheet path(s)
+
+  // Shadow DOM mode
+  mode: 'open' | 'closed', // default: 'open'
+
+  // Reactive properties
+  props: {
+  count: { type: Number, default: 0 },
+  active: { type: Boolean }
+  },
+
+  // Path parameter contract
+  params: [
+  { name: 'id', cast: 'number' }
+  ],
+
+  // Query param contract
+  query: [
+  { name: 'tab', cast: 'string' }
+  ],
+
+  // Lifecycle hooks
+  mount: (ctx) =&gt; { ... }, // on connectedCallback
+  unmount: (ctx) =&gt; { ... }, // on disconnectedCallback
+  update: (ctx) =&gt; { ... }, // on property change
+
+  // Custom methods installed on the prototype
+  methods: {
+  refresh() { ... }
+  },
+
+  // Route registration (legacy)
+  url: '/path/:id',
+  container: 'main',
+
+  // Form association
+  form: true,
+  associated: (form) =&gt; { ... },
+  disabled: (value) =&gt; { ... },
+  reset: () =&gt; { ... },
+  restore: (state, mode) =&gt; { ... }
+  }
+</view-code>
+
+<h2>Duplicate Registration Guard</h2>
+<p><code>element()</code> checks <code>customElements.get(tag)</code> and skips if already defined. A warning is logged
+  in development.</p>
+
+<h2>Resource Loading</h2>
+<p>Resources (templates and styles) are fetched once per registration and cached globally:</p>
+<ol>
+  <li><strong>Inline string</strong> — compiled immediately, no fetch</li>
+  <li><strong>File path</strong> — resolved against <code>base</code>, fetched once, cached in <code>assetCache</code>
+  </li>
+  <li><strong>Tags descriptor</strong> — a <code>.tags.json</code> file alongside <code>.html</code> is fetched for
+    pre-warming the query cache</li>
+</ol>
+<p>If a file template is given without <code>base</code>, an error is logged and the resource silently fails.</p>
+
+<h2>Constructable Stylesheets</h2>
+<p>When <code>CSSStyleSheet</code> and <code>adoptedStyleSheets</code> are supported, styles are compiled into a shared
+  constructable stylesheet and adopted by the shadow root. This avoids <code>&lt;style&gt;</code> injection per instance
+  and enables HMR.</p>
+<p>When unsupported, raw CSS text is injected as a <code>&lt;style&gt;</code> element in the shadow root.</p>
+
+<h2>HMR (Hot Module Replacement)</h2>
+<p>During development, the factory listens for <code>native:hmr:css</code> events. When a CSS file changes, the shared
+  stylesheet is replaced in place using <code>replaceSync()</code>. All live instances update instantly without
+  remounting.</p>
+
+<h2>Shadow DOM</h2>
+<p>Every declarative element opens a shadow root. The default mode is <code>open</code>. <code>closed</code> mode can be
+  requested via <code>spec.mode</code>.</p>
+<p>Light DOM (<code>shadow: false</code> in the definition layer) is not supported and falls back to <code>open</code>.
+</p>
+
+<h2>BaseElement</h2>
+<p>The generated class extends <code>BaseElement</code>, which provides:</p>
+<ul>
+  <li><code>connectedCallback</code> — creates <code>AbortController</code>, calls <code>mount()</code></li>
+  <li><code>disconnectedCallback</code> — calls <code>unmount()</code>, aborts the controller</li>
+  <li><code>this.ctrl</code> — <code>AbortController</code> for the element's lifetime</li>
+</ul>
+<p>Subclass <code>BaseElement</code> directly for imperative custom elements:</p>
+<view-code language="javascript">import { BaseElement } from '@adukiorg/anza/ui';
+
+  class MyElement extends BaseElement {
+  mount() {
+  this.ctrl.signal.addEventListener('abort', () =&gt; {
+  console.log('cleaned up');
+  });
+  }
+  }
+
+  customElements.define('my-element', MyElement);
+</view-code>
+
+<h2>Reserved Names</h2>
+<p>These names cannot be used in <code>spec.methods</code>:</p>
+<ul>
+  <li><code>connectedCallback</code>, <code>disconnectedCallback</code>, <code>attributeChangedCallback</code></li>
+  <li><code>adoptedCallback</code>, <code>formAssociatedCallback</code>, <code>formDisabledCallback</code></li>
+  <li><code>formResetCallback</code>, <code>formStateRestoreCallback</code></li>
+  <li><code>mount</code>, <code>unmount</code>, <code>constructor</code></li>
+</ul>
+<p>Using a reserved name logs a warning and the method is skipped.</p>

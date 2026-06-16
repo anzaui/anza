@@ -1,0 +1,51 @@
+<h1>Broadcast</h1>
+<p>Cross-tab messaging via <code>BroadcastChannel</code>. Channels are reference-counted: opened on first subscriber,
+  closed when the last subscriber leaves.</p>
+
+<h2>Send</h2>
+<view-code language="javascript">import { workers } from '@adukiorg/anza/workers';
+
+  workers.broadcast('app-event', { type: 'theme-changed', value: 'dark' });
+</view-code>
+<p>Messages are sent from a short-lived peer channel so all subscribers (including in the same tab) receive them.</p>
+
+<h2>Subscribe</h2>
+<view-code language="javascript">const off = workers.subscribe('app-event', (data) =&gt; {
+  console.log('Received:', data);
+  });
+
+  // Later
+  off();
+</view-code>
+<p>Returns a disposer. The channel auto-closes when the last subscriber disposes.</p>
+
+<h2>AbortSignal Cleanup</h2>
+<view-code language="javascript">const ctrl = new AbortController();
+
+  workers.subscribe('app-event', handler, ctrl.signal);
+
+  // Auto-unsubscribe on abort
+  ctrl.abort();
+</view-code>
+
+<h2>Close All</h2>
+<view-code language="javascript">workers.clear(); // closes all broadcast channels and terminates all pools
+</view-code>
+
+<h2>Fallback</h2>
+<p>If <code>BroadcastChannel</code> is unavailable, <code>broadcast</code> silently does nothing and
+  <code>subscribe</code> returns a no-op disposer.</p>
+
+<h2>Example: Logout All Tabs</h2>
+<view-code language="javascript">// In auth module
+  function logout() {
+  workers.broadcast('auth', { action: 'logout' });
+  }
+
+  // In every tab
+  workers.subscribe('auth', (data) =&gt; {
+  if (data.action === 'logout') {
+  redirectToLogin();
+  }
+  });
+</view-code>

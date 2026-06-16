@@ -1,0 +1,97 @@
+<h1>Quick Start</h1>
+<p>Get animating in five minutes.</p>
+
+<h2>1. Animate an Element</h2>
+<view-code language="javascript">import { animations } from '@adukiorg/anza/animations';
+
+  const el = document.querySelector('.box');
+
+  // Using a built-in preset
+  animations.animate(el, 'fade', { duration: 300 });
+
+  // Using raw keyframes
+  animations.animate(el, [
+  { opacity: 0, transform: 'scale(0.8)' },
+  { opacity: 1, transform: 'scale(1)' }
+  ], { duration: 400, easing: 'ease-out' });
+</view-code>
+
+<h2>2. Stagger a List</h2>
+<view-code language="javascript">const items = document.querySelectorAll('.item');
+
+  const group = animations.stagger(items, 'slide', {
+  staggerDelay: 60,
+  duration: 300
+  });
+
+  // Wait for all to finish
+  await group.finished;
+
+  // Or cancel mid-way
+  group.cancel();
+</view-code>
+
+<h2>3. Chain a Sequence</h2>
+<view-code language="javascript">const seq = animations.sequence([
+  [el, 'fade', { duration: 200 }],
+  [el, 'scale', { duration: 200 }],
+  [el, 'slide', { duration: 200 }]
+  ]);
+
+  await seq.finished;
+</view-code>
+<p>Each step starts when the previous finishes.</p>
+
+<h2>4. Register a Custom Template</h2>
+<view-code language="javascript">animations.register('bounce', [
+  { transform: 'translateY(0)' },
+  { transform: 'translateY(-20px)', offset: 0.5 },
+  { transform: 'translateY(0)' }
+  ], { duration: 500, easing: 'ease-in-out' });
+
+  // Use it anywhere
+  animations.animate(el, 'bounce');
+</view-code>
+
+<h2>5. Respect Reduced Motion</h2>
+<view-code language="javascript">if (animations.reduced()) {
+  // Skip animations for accessibility
+  el.style.opacity = 1;
+  } else {
+  animations.animate(el, 'fade', { duration: 300 });
+  }
+</view-code>
+<p>This checks <code>prefers-reduced-motion: reduce</code> automatically.</p>
+
+<h2>6. Read CSS Tokens</h2>
+<view-code language="javascript">const dur = animations.duration('slow'); // e.g. 300
+  const easing = animations.ease('spring'); // e.g. cubic-bezier(...)
+
+  animations.animate(el, 'fade', { duration: dur, easing });
+</view-code>
+<p><code>duration()</code> and <code>ease()</code> read CSS custom properties at runtime, falling back to defaults.</p>
+
+<h2>Complete Working Example</h2>
+<view-code language="javascript">import { animations } from '@adukiorg/anza/animations';
+
+  async function showMenu() {
+  const menu = document.querySelector('.menu');
+  const items = menu.querySelectorAll('.item');
+
+  if (animations.reduced()) {
+  menu.style.display = 'block';
+  return;
+  }
+
+  // Fade in the menu
+  animations.animate(menu, 'fade', { duration: animations.duration('fast') });
+
+  // Stagger the items
+  const group = animations.stagger(items, 'slide-y', {
+  staggerDelay: 40,
+  duration: animations.duration('normal')
+  });
+
+  await group.finished;
+  }
+</view-code>

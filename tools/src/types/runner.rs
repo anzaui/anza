@@ -63,7 +63,8 @@ pub struct ExtractedSpec {
   pub meta: std::collections::HashMap<String, String>,
   pub file: Option<String>,
   pub html: Option<String>,
-  pub css: Option<String>,
+  #[serde(default)]
+  pub css: Vec<String>,
   /// Declared path parameter bindings (`params: [{ name, type }]`).
   pub params: Vec<ParamDecl>,
   /// Declared query parameter bindings (`query: [{ name, type }]`).

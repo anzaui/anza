@@ -1,0 +1,125 @@
+<h1>Locks</h1>
+<p>The Web Locks API facade provides named exclusive or shared locks with AbortSignal and timeout support. When the
+  Locks API is unavailable, a same-tab promise-chain fallback ensures serial execution.</p>
+
+<h2>Acquire a Lock</h2>
+<view-code language="javascript">import { workers } from '@adukiorg/anza/workers';
+
+  await workers.lock('db:users', async () =&gt; {
+  await db.save(user);
+  });
+</view-code>
+<p>The callback runs while holding the lock. Other tabs calling <code>lock('db:users')</code> wait.</p>
+
+<h2>Options</h2>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>mode</code></td>
+      <td>string</td>
+      <td><code>'exclusive'</code></td>
+      <td><code>'exclusive'</code> or <code>'shared'</code></td>
+    </tr>
+    <tr>
+      <td><code>signal</code></td>
+      <td>AbortSignal</td>
+      <td>—</td>
+      <td>Abort lock acquisition</td>
+    </tr>
+    <tr>
+      <td><code>timeout</code></td>
+      <td>number</td>
+      <td>—</td>
+      <td>Timeout in ms</td>
+    </tr>
+    <tr>
+      <td><code>ifAvailable</code></td>
+      <td>boolean</td>
+      <td><code>false</code></td>
+      <td>Fail if lock is not immediately available</td>
+    </tr>
+    <tr>
+      <td><code>steal</code></td>
+      <td>boolean</td>
+      <td><code>false</code></td>
+      <td>Forcibly take the lock from current holder</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+
+<h2>Timeout</h2>
+<view-code language="javascript">await workers.lock('db:users', async () =&gt; {
+  await db.save(user);
+  }, { timeout: 3000 });
+  // Throws if lock not acquired within 3 seconds
+</view-code>
+
+<h2>Shared Mode</h2>
+<view-code language="javascript">await workers.lock('cache:read', async () =&gt; {
+  return cache.get('data');
+  }, { mode: 'shared' });
+</view-code>
+<p>Multiple shared locks can coexist. Exclusive locks block all other locks.</p>
+
+<h2>Lock Name Conventions</h2>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Prefix</th>
+      <th>Use Case</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>idb:{store}</code></td>
+      <td>IndexedDB store access</td>
+    </tr>
+    <tr>
+      <td><code>opfs:{file}</code></td>
+      <td>Origin Private File System</td>
+    </tr>
+    <tr>
+      <td><code>auth:{op}</code></td>
+      <td>Authentication operations</td>
+    </tr>
+    <tr>
+      <td><code>sync:{role}</code></td>
+      <td>Background sync</td>
+    </tr>
+    <tr>
+      <td><code>cache:{name}</code></td>
+      <td>Cache invalidation</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+
+<h2>Fallback</h2>
+<p>When <code>navigator.locks</code> is unavailable, a same-tab promise-chain fallback serializes callbacks per lock
+  name. Cross-tab coordination is not possible in fallback mode.</p>
+
+<h2>Example: Leader Election</h2>
+<view-code language="javascript">async function becomeLeader() {
+  try {
+  await workers.lock('sync:leader', async () =&gt; {
+  // Only one tab holds this lock at a time
+  startBackgroundSync();
+  // Hold forever (or until page unloads)
+  await new Promise(() =&gt; {});
+  });
+  } catch {
+  console.log('Another tab is the leader');
+  }
+  }
+</view-code>

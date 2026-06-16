@@ -1,0 +1,57 @@
+<h1>Derived</h1>
+<p><code>derived</code> creates lazy, memoized computed values. It tracks which store keys the computation reads,
+  subscribes to those keys, and marks itself dirty when any dependency changes.</p>
+
+<h2>Basic Use</h2>
+<view-code language="javascript">import { state } from '@adukiorg/anza/state';
+
+  const store = state.create({ count: 0 });
+
+  const doubled = state.derived(() =&gt; store.get('count') * 2);
+
+  console.log(doubled.value); // 0
+</view-code>
+<p>The computation runs once on first access. The result is cached.</p>
+
+<h2>Lazy Recomputation</h2>
+<view-code language="javascript">store.set('count', 5);
+
+  // doubled.value is still 0 — it has not been accessed since the change
+  console.log(doubled.value); // 10 — recomputes on access
+</view-code>
+<p>Derived values only recompute when accessed after a dependency change. This is lazy evaluation.</p>
+
+<h2>Dependency Tracking</h2>
+<p>During computation, <code>derived</code> intercepts all <code>store.get()</code> calls:</p>
+<view-code language="javascript">const fullName = state.derived(() =&gt; {
+  const user = store.get('user'); // tracks 'user' key
+  return `${user.first} ${user.last}`;
+  });
+</view-code>
+<p><code>fullName</code> subscribes to <code>user</code>. When <code>store.set('user', ...)</code> fires,
+  <code>fullName</code> marks itself dirty.</p>
+
+<h2>Nested Derived</h2>
+<p>Derived values can depend on other derived values:</p>
+<view-code language="javascript">const subtotal = state.derived(() =&gt;
+  store.get('items').reduce((s, i) =&gt; s + i.price, 0)
+  );
+
+  const total = state.derived(() =&gt; {
+  const taxRate = store.get('taxRate');
+  return subtotal.value * (1 + taxRate);
+  });
+</view-code>
+<p><code>total</code> tracks both <code>taxRate</code> and the dependencies of <code>subtotal</code>.</p>
+
+<h2>Subscribe to Derived</h2>
+<view-code language="javascript">const off = doubled.subscribe(() =&gt; {
+  console.log('Doubled changed:', doubled.value);
+  });
+</view-code>
+<p>Subscribe to be notified when the derived value recomputes to a new result.</p>
+
+<h2>Dispose</h2>
+<view-code language="javascript">doubled.dispose();
+</view-code>
+<p>Cleans up all internal subscriptions. Call when the derived value is no longer needed to prevent memory leaks.</p>

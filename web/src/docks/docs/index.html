@@ -1,0 +1,86 @@
+<header class="docs-header" ref="header">
+  <div class="logo">
+    <a href="/">Anza</a>
+    <span class="version">v1.0.1</span>
+  </div>
+  <nav class="header-nav">
+    <a href="/docs" class="active">Documentation</a>
+    <a href="https://github.com/aduki-org/anza" target="_blank" rel="noopener">GitHub</a>
+  </nav>
+</header>
+
+<div class="docs-container">
+  <!-- Left Sidebar: Navigation links -->
+  <aside class="docs-sidebar-left" ref="leftSidebar">
+    <nav class="sidebar-nav">
+      <div class="sidebar-group">
+        <h3>Getting Started</h3>
+        <a href="/docs/intro/index">Introduction</a>
+        <a href="/docs/intro/install">Installation</a>
+        <a href="/docs/intro/start">Quick Start</a>
+        <a href="/docs/intro/structure">Folder Structure</a>
+      </div>
+
+      <div class="sidebar-group">
+        <h3>UI Core</h3>
+        <a href="/docs/ui/index">Overview</a>
+        <a href="/docs/ui/quickstart">Quickstart</a>
+        <a href="/docs/ui/elements">Elements</a>
+        <a href="/docs/ui/props">Props</a>
+        <a href="/docs/ui/templates">Templates</a>
+        <a href="/docs/ui/styles">Styles</a>
+        <a href="/docs/ui/lifecycle">Lifecycle</a>
+        <a href="/docs/ui/context">Context</a>
+        <a href="/docs/ui/scheduling">Scheduling</a>
+        <a href="/docs/ui/observers">Observers</a>
+        <a href="/docs/ui/transitions">Transitions</a>
+        <a href="/docs/ui/forms">Forms</a>
+        <a href="/docs/ui/api">API Reference</a>
+      </div>
+
+      <div class="sidebar-group">
+        <h3>Router</h3>
+        <a href="/docs/router/index">Overview</a>
+        <a href="/docs/router/quickstart">Quickstart</a>
+        <a href="/docs/router/routes">Routes</a>
+        <a href="/docs/router/handlers">Handlers</a>
+        <a href="/docs/router/guards">Guards</a>
+        <a href="/docs/router/navigation">Navigation</a>
+        <a href="/docs/router/docks">Docks</a>
+        <a href="/docs/router/containers">Containers</a>
+        <a href="/docs/router/transitions">Transitions</a>
+        <a href="/docs/router/cache">Cache</a>
+        <a href="/docs/router/sync">Sync</a>
+        <a href="/docs/router/api">API Reference</a>
+      </div>
+
+      <div class="sidebar-group">
+        <h3>State</h3>
+        <a href="/docs/state/index">Overview</a>
+        <a href="/docs/state/quickstart">Quickstart</a>
+        <a href="/docs/state/store">Store</a>
+        <a href="/docs/state/api">API Reference</a>
+      </div>
+
+      <div class="sidebar-group">
+        <h3>Workers</h3>
+        <a href="/docs/workers/index">Overview</a>
+        <a href="/docs/workers/quickstart">Quickstart</a>
+        <a href="/docs/workers/pool">Pool</a>
+        <a href="/docs/workers/api">API Reference</a>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="docs-content">
+    <!-- Renders dock-doccontent child in Light DOM -->
+    <slot></slot>
+  </main>
+
+  <!-- Right Sidebar: Table of Contents -->
+  <aside class="docs-sidebar-right" ref="rightSidebar">
+    <h4>What's on this page</h4>
+    <ul class="toc-list" ref="tocList"></ul>
+  </aside>
+</div>

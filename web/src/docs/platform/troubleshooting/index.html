@@ -1,0 +1,51 @@
+<h1>Troubleshooting</h1>
+<p>Common problems and their solutions.</p>
+
+<h2>supports flag returns wrong value</h2>
+<p><strong>Cause:</strong> The flag was cached before a polyfill loaded, or the detection test is environment-dependent.
+</p>
+<p><strong>Fix:</strong> Clear the cache and retry:</p>
+<view-code language="javascript">import { reset, supports } from '@adukiorg/anza/platform';
+
+  reset('urlPattern');
+  console.log(supports.urlPattern); // re-detects
+</view-code>
+
+<h2>guard() never resolves</h2>
+<p><strong>Cause:</strong> Polyfill import fails (network error, CSP block, or bad path).</p>
+<p><strong>Fix:</strong> Check the console for polyfill load errors. The module logs warnings on failure:</p>
+<view-code language="text">Failed to eagerly bootstrap shadow polyfill: ...
+</view-code>
+<p>Ensure your build system bundles the polyfill files or that dynamic imports are allowed by your CSP.</p>
+
+<h2>typeGuard throws in tests</h2>
+<p><strong>Cause:</strong> The test environment (JSDOM, Node) does not support the browser API.</p>
+<p><strong>Fix:</strong> Mock the flag before calling <code>typeGuard</code>, or skip the guard in test environments:
+</p>
+<view-code language="javascript">Object.defineProperty(supports, 'opfs', { value: true, configurable: true });
+  typeGuard('opfs'); // passes
+</view-code>
+
+<h2>Scheduler tasks not running</h2>
+<p><strong>Cause:</strong> Tasks were aborted before execution, or the polyfill is not loaded.</p>
+<p><strong>Fix:</strong> Check the AbortSignal and verify the polyfill loaded:</p>
+<view-code language="javascript">const scheduler = await guard.scheduler();
+  console.log(scheduler); // should have postTask and yield
+</view-code>
+
+<h2>Polyfill conflicts with existing library</h2>
+<p><strong>Cause:</strong> Another polyfill (e.g., from a CDN) already defined the API.</p>
+<p><strong>Fix:</strong> The Anza polyfills check for native support before installing. If a third-party polyfill is
+  already present, the Anza guard will use it. To force Anza's polyfill, ensure it loads first:</p>
+<view-code language="javascript">import { guard } from '@adukiorg/anza/platform';
+  // This loads polyfills eagerly if native support is missing
+</view-code>
+
+<h2>Still stuck?</h2>
+<p>Inspect the full capability matrix:</p>
+<view-code language="javascript">import { supports } from '@adukiorg/anza/platform';
+
+  for (const key of Object.keys(supports)) {
+  console.log(key, supports[key]);
+  }
+</view-code>

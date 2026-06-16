@@ -74,9 +74,6 @@ all.rust
 .agents
 webtest/
 .codexweb/
-web/
-web2/
-web3/
 testbranch/
 .agent/
 .gemini/

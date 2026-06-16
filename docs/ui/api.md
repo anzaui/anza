@@ -144,8 +144,8 @@ Warns if `on.change` is declared.
 
 ```javascript
 {
-  template: string | { html: string, css: string, shadow: 'open' | 'closed' },
-  style: string,
+  template: string | { html: string, css: string | string[], shadow: 'open' | 'closed' },
+  style: string | string[],
   mode: 'open' | 'closed',
   props: {
     name: { type: String | Number | Boolean, default: any, reflect: boolean, state: boolean }

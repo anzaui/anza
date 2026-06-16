@@ -1,0 +1,70 @@
+<h1>Troubleshooting</h1>
+<p>Common problems and their solutions.</p>
+
+<h2>storage.get returns null</h2>
+<p><strong>Cause:</strong> Key never set, expired, or wrong tier.</p>
+<p><strong>Fix:</strong> Check tier and TTL:</p>
+<view-code language="javascript">// Wrong tier — wrote to 'memory', reading from default 'idb'
+  await storage.set('temp', data, 'memory');
+  await storage.get('temp'); // null — reads from idb
+
+  // Correct
+  await storage.get('temp', 'memory');
+</view-code>
+
+<h2>IndexedDB blocked</h2>
+<p><strong>Cause:</strong> Another tab has an older version open.</p>
+<p><strong>Fix:</strong> Listen for blocked events and close other tabs:</p>
+<view-code language="javascript">window.addEventListener('storage:blocked', () =&gt; {
+  alert('Please close other tabs to update storage');
+  });
+</view-code>
+
+<h2>OPFS not available</h2>
+<p><strong>Cause:</strong> Not a secure context, or browser lacks support.</p>
+<p><strong>Fix:</strong> Check support first:</p>
+<view-code language="javascript">import { supports } from '@adukiorg/anza/platform';
+
+  if (!supports.opfs) {
+  // Fall back to idb
+  await storage.set('file', data, 'idb');
+  }
+</view-code>
+
+<h2>Data not persisting</h2>
+<p><strong>Cause:</strong> Using <code>memory</code> tier, or private browsing mode.</p>
+<p><strong>Fix:</strong> Use <code>idb</code> or <code>opfs</code> for durable storage. Private browsing may disable
+  IndexedDB.</p>
+
+<h2>Compression failed</h2>
+<p><strong>Cause:</strong> Compression Streams API unavailable, or non-serializable value.</p>
+<p><strong>Fix:</strong> The facade falls back to uncompressed storage automatically. Check that values are serializable
+  (no circular references, no functions).</p>
+
+<h2>Quota exceeded</h2>
+<p><strong>Cause:</strong> Storage is full.</p>
+<p><strong>Fix:</strong> The facade auto-evicts expired and oldest entries when over 80%. For manual cleanup:</p>
+<view-code language="javascript">await storage.delete('old-key');
+</view-code>
+<p>Or request persistent storage:</p>
+<view-code language="javascript">import { quota } from '@adukiorg/anza/storage';
+  await quota.persist();
+</view-code>
+
+<h2>Write journal not replaying</h2>
+<p><strong>Cause:</strong> <code>localStorage</code> is disabled or full.</p>
+<p><strong>Fix:</strong> The journal is a best-effort crash recovery mechanism. Critical writes should be confirmed:</p>
+<view-code language="javascript">await storage.set('critical', data);
+  const confirmed = await storage.get('critical');
+</view-code>
+
+<h2>Still stuck?</h2>
+<p>Inspect storage state:</p>
+<view-code language="javascript">const est = await quota.estimate();
+  console.log('Usage:', est.usage, 'Quota:', est.quota);
+
+  // List all IDB keys
+  const db = new Database('platform-db', 1);
+  const keys = await db.keys('keyval');
+  console.log(keys);
+</view-code>

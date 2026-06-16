@@ -1,0 +1,114 @@
+<h1>API Reference</h1>
+<p>Complete reference for the workers facade and internal classes.</p>
+
+<h2>Facade</h2>
+<view-code language="javascript">import { workers } from '@adukiorg/anza/workers';
+</view-code>
+<h3><code>workers.run(script, task, opts)</code></h3>
+<p>Run a task in a worker pool. Returns <code>Promise&lt;result&gt;</code>.</p>
+<h3><code>workers.dedicated(script)</code></h3>
+<p>Create a raw <code>Dedicated</code> worker. Returns <code>Dedicated</code> instance.</p>
+<h3><code>workers.shared(script, name)</code></h3>
+<p>Create a <code>Shared</code> connection. Falls back to dedicated worker.</p>
+<h3><code>workers.lock(name, fn, opts)</code></h3>
+<p>Acquire a Web Lock. Returns <code>Promise&lt;fn_result&gt;</code>.</p>
+<h3><code>workers.broadcast(name, payload)</code></h3>
+<p>Send to a BroadcastChannel. No-op if unsupported.</p>
+<h3><code>workers.subscribe(name, fn, signal)</code></h3>
+<p>Subscribe to a BroadcastChannel. Returns disposer.</p>
+<h3><code>workers.offscreen(canvas, script, opts)</code></h3>
+<p>Transfer canvas to worker. Returns <code>Promise&lt;Offscreen&gt;</code>.</p>
+<h3><code>workers.close(script)</code></h3>
+<p>Terminate the pool for one script URL.</p>
+<h3><code>workers.clear()</code></h3>
+<p>Terminate all pools and close all broadcast channels.</p>
+
+<h2>Feature Detection</h2>
+<view-code language="javascript">import { has } from '@adukiorg/anza/workers';
+</view-code>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Flag</th>
+      <th>Detects</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>has.worker</code></td>
+      <td><code>Worker</code></td>
+    </tr>
+    <tr>
+      <td><code>has.shared</code></td>
+      <td><code>SharedWorker</code></td>
+    </tr>
+    <tr>
+      <td><code>has.channel</code></td>
+      <td><code>BroadcastChannel</code></td>
+    </tr>
+    <tr>
+      <td><code>has.locks</code></td>
+      <td><code>navigator.locks</code></td>
+    </tr>
+    <tr>
+      <td><code>has.offscreen</code></td>
+      <td><code>OffscreenCanvas</code></td>
+    </tr>
+    <tr>
+      <td><code>has.isolated</code></td>
+      <td><code>crossOriginIsolated</code></td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+
+<h2>Pool Options</h2>
+<view-code language="javascript">workers.run(script, task, {
+  payload, // data for worker
+  transferables, // Transferable[]
+  signal, // AbortSignal
+  timeout, // ms
+  priority, // 'user-blocking' | 'user-visible' | 'background'
+  idempotent, // boolean
+  meta // arbitrary metadata
+  });
+</view-code>
+
+<h2>Dedicated</h2>
+<view-code language="javascript">import { Dedicated } from '@adukiorg/anza/workers';
+
+  const worker = new Dedicated('/worker.js');
+  const result = await worker.run('task', { payload, signal, timeout });
+  worker.terminate();
+</view-code>
+
+<h2>Shared</h2>
+<view-code language="javascript">import { Shared } from '@adukiorg/anza/workers';
+
+  const conn = new Shared('/worker.js', 'name');
+  conn.connect();
+  conn.send(message, transferables);
+  const off = conn.subscribe(fn, signal);
+  conn.close();
+</view-code>
+
+<h2>Offscreen</h2>
+<view-code language="javascript">import { Offscreen } from '@adukiorg/anza/workers';
+
+  const handle = new Offscreen(canvas, '/worker.js', { onError, onResize });
+  await handle.open();
+  handle.send(payload);
+  handle.resize({ width, height, dpr });
+  handle.close();
+</view-code>
+
+<h2>Lock Options</h2>
+<view-code language="javascript">workers.lock(name, fn, {
+  mode: 'exclusive', // or 'shared'
+  signal, // AbortSignal
+  timeout, // ms
+  ifAvailable, // boolean
+  steal // boolean
+  });
+</view-code>

@@ -1,0 +1,188 @@
+<h1>Lifecycle</h1>
+<p>Declarative elements have six lifecycle hooks. Each receives a context object with <code>el</code>,
+  <code>ctrl</code>, <code>tags</code>, <code>refs</code>, <code>on</code>, <code>watch</code>, and
+  <code>internals</code>.</p>
+
+<h2>Hook Map</h2>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Definition Layer</th>
+      <th>Factory Layer</th>
+      <th>When It Fires</th>
+      <th>Async?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>on.load</code></td>
+      <td><code>spec.mount</code></td>
+      <td>After resources load, before <code>connect</code></td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td><code>on.connect</code></td>
+      <td><code>spec.mount</code> (after load)</td>
+      <td>Element connected to DOM</td>
+      <td>yes</td>
+    </tr>
+    <tr>
+      <td><code>on.disconnect</code></td>
+      <td><code>spec.unmount</code></td>
+      <td>Element disconnected from DOM</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <td><code>on.change</code></td>
+      <td><code>spec.update</code></td>
+      <td>Prop value changes (batched)</td>
+      <td>no</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+
+<h2>load</h2>
+<p>Runs once per mount, after template and style resources have resolved. Use it for initial data fetching:</p>
+<view-code language="javascript">on: {
+  async load({ params, query, raw, ctrl }) {
+  // Access dynamic path params (e.g. /user/:id)
+  const userId = params.id ?? params[0];
+
+  // Access query params (e.g. ?tab=posts)
+  const activeTab = query.tab ?? query[0];
+
+  const data = await fetch(`/api/user/${userId}?tab=${activeTab}`, { signal: ctrl.signal });
+  this.user = await data.json();
+  }
+  }
+</view-code>
+<p>The context object passed to <code>load</code> provides routing contracts parameters:
+  - <code>params</code>: An ordered array containing dynamic path parameters, with cast values and convenience getters
+  (<code>.first</code>, <code>.last</code>, and named accessors matching the path segment names).
+  - <code>query</code>: An ordered array containing query parameters mapped via the <code>query</code> contract, with
+  cast values and convenience getters.
+  - <code>raw</code>: The raw <code>URLSearchParams</code> object representing all query parameters currently in the
+  URL.
+  - <code>ctrl.signal</code>: Aborts the fetch automatically if the element disconnects.</p>
+<p><code>load</code> is awaited before <code>connect</code> runs. If <code>load</code> throws, <code>connect</code>
+  still runs — the error is logged but not propagated.</p>
+
+<h2>connect</h2>
+<p>Runs after <code>load</code>, when the element is fully connected:</p>
+<view-code language="javascript">on: {
+  connect({ el, refs, on, watch }) {
+  refs.title.textContent = el.name;
+  on.click('.btn', handleClick);
+  watch.text('.counter', handleTextChange);
+  }
+  }
+</view-code>
+<p>Attach event listeners, observers, and set up reactive bindings here.</p>
+
+<h2>disconnect</h2>
+<p>Runs when the element is removed from the DOM:</p>
+<view-code language="javascript">on: {
+  disconnect({ el }) {
+  console.log('cleaning up', el.tagName);
+  }
+  }
+</view-code>
+<p>The <code>AbortController</code> (<code>ctrl</code>) is aborted automatically, so any listeners or observers bound to
+  <code>ctrl.signal</code> clean up without manual work.</p>
+
+<h2>change</h2>
+<p>Runs when a declared prop changes. Multiple rapid changes are batched into one callback:</p>
+<view-code language="javascript">on: {
+  change({ name, val, old, el, refs }) {
+  if (name === 'name') {
+  refs.title.textContent = val;
+  }
+  if (name === 'active') {
+  el.classList.toggle('active', val);
+  }
+  }
+  }
+</view-code>
+<p>The context includes:</p>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>name</code></td>
+      <td>The prop name that changed</td>
+    </tr>
+    <tr>
+      <td><code>val</code></td>
+      <td>The new value</td>
+    </tr>
+    <tr>
+      <td><code>old</code></td>
+      <td>The previous value</td>
+    </tr>
+    <tr>
+      <td><code>prev</code></td>
+      <td>Alias for <code>old</code></td>
+    </tr>
+    <tr>
+      <td><code>el</code></td>
+      <td>The element instance</td>
+    </tr>
+    <tr>
+      <td><code>ctrl</code></td>
+      <td>The AbortController</td>
+    </tr>
+    <tr>
+      <td><code>tags</code></td>
+      <td>TagsCache for shadow DOM queries</td>
+    </tr>
+    <tr>
+      <td><code>on</code></td>
+      <td>Event delegator</td>
+    </tr>
+    <tr>
+      <td><code>refs</code></td>
+      <td>Named element refs</td>
+    </tr>
+    <tr>
+      <td><code>watch</code></td>
+      <td>Mutation watcher</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+
+<h2>Batching</h2>
+<p>Property changes are collected and flushed in one callback. The flush strategy depends on the <code>visual</code>
+  flag:</p>
+<ul>
+  <li><code>visual: true</code> — flushes via <code>requestAnimationFrame</code> (smooth, layout-aware)</li>
+  <li><code>visual: false</code> (default) — flushes via <code>queueMicrotask</code> (fast, synchronous-feeling)</li>
+</ul>
+<p>Set <code>visual: true</code> on the definition layer:</p>
+<view-code language="javascript">page('/', {
+  tag: 'page-home',
+  template: { html: './home.html', css: './home.css' }
+  // visual: true is set automatically by page(), dock(), view()
+  });
+</view-code>
+<p><code>part()</code> uses <code>visual: false</code> because stateless primitives do not need rAF batching.</p>
+
+<h2>Lifecycle Order</h2>
+<p>For a newly created element:</p>
+<ol>
+  <li>Constructor runs — props initialize from attributes</li>
+  <li><code>connectedCallback</code> — resources load, <code>AbortController</code> created</li>
+  <li><code>load</code> hook — initial data fetching</li>
+  <li><code>connect</code> hook — DOM ready, listeners attached</li>
+  <li>Prop changes → <code>change</code> hook (batched)</li>
+  <li><code>disconnect</code> hook — cleanup</li>
+  <li><code>disconnectedCallback</code> — <code>AbortController</code> aborted</li>
+</ol>

@@ -1,0 +1,113 @@
+/**
+ * tokens/semantic/light.css
+ *
+ * Semantic design token assignments for the default Light theme.
+ */
+
+:root {
+  --font-heading: 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-ui: 'Work Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --text-2xs: 0.6875rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-md: 0.98rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.75;
+  --leading-loose: 1.85;
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.03em;
+  --tracking-wider: 0.06em;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-pill: 999px;
+  --icon-sm: 16px;
+  --icon-md: 18px;
+  --icon-lg: 24px;
+  --btn-icon: 36px;
+  --container-max-width: 56.25rem;
+  --container-padding: var(--space-5);
+
+  /* Colors */
+  --accent-color: #07a45f;
+  --accent-alt: #09d379;
+  --alt-color: #076b46;
+  --action-color: #054a30;
+  --white-color: #ffffff;
+  --dark-white: #c5c5c5;
+  --success-color: #10b981;
+  --gray-color: #6b7280;
+  --icon-color: #404040;
+  --text-color: #494d52;
+  --nav-color: #676c72;
+  --label-color: #3f4246;
+  --read-color: #333333;
+  --title-color: #1f2937;
+  --error-color: #ec4b19;
+  --warn-color: #fa6436;
+  --anchor-color: #1565c0;
+  --rating-color: #df791a;
+
+  /* Backgrounds */
+  --background: #f6f5ef;
+  --surface: #edeee4;
+  --icon-background: #a3b18a70;
+  --dot-background: #054a30c9;
+  --que-background: #c8f5e36c;
+  --tab-background: #c8f5e3b2;
+  --nav-background: #09d37931;
+  --gray-background: #e7e7e7d7;
+  --copy-background: #bbbbbb61;
+  --tabs-background: #e7e7e750;
+  --error-background: #ffc8b73f;
+  --success-background: #0fa171a7;
+  --warn-background: #d6aa833a;
+  --stat-background: #ecf1f3e7;
+
+  /* Prism highlighter styles */
+  --prism-font-family: 'JetBrains Mono', Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  --prism-text: #383a42;
+  --prism-background: #edebe9;
+  --prism-inline-background: #f0f0f0;
+  --prism-comment: #a0a1a7;
+  --prism-punctuation: #383a42;
+  --prism-tag: #e45649;
+  --prism-function-name: #4078f2;
+  --prism-number: #986801;
+  --prism-property: #c18401;
+  --prism-keyword: #a626a4;
+  --prism-string: #50a14f;
+  --prism-operator: #0184bc;
+  --prism-inserted: #50a14f;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    transition: none !important;
+  }
+}

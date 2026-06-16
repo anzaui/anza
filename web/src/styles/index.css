@@ -1,0 +1,10 @@
+/**
+ * styles/index.css
+ *
+ * Master entry stylesheet for cascade layer configurations and element resets.
+ * Source: doc 3 §1.3, library2.md §Phase 1-C
+ */
+
+@import './layers.css';
+@import './reset.css';
+@import './base.css';

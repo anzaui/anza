@@ -1,0 +1,136 @@
+<h1>Transitions</h1>
+<p>The <code>transition()</code> wrapper initiates a CSS View Transition around a DOM mutation, falling back to direct
+  execution when unsupported or when the user prefers reduced motion.</p>
+
+<h2>Basic Use</h2>
+<view-code language="javascript">import { ui } from '@adukiorg/anza/ui';
+
+  await ui.transition(() =&gt; {
+  container.replaceChildren(newElement);
+  });
+</view-code>
+<p>If View Transitions are supported and the user has not requested reduced motion, the DOM update is wrapped in a
+  transition. Otherwise, the callback runs immediately.</p>
+
+<h2>Return Shape</h2>
+<p><code>transition()</code> returns a promise resolving to a transition-like object:</p>
+<view-code language="javascript">const tx = await ui.transition(updateDOM);
+
+  // Always available:
+  tx.finished // resolves when transition ends (or immediately)
+  tx.updateCallbackDone // resolves when the DOM update callback completes
+  tx.skipTransition() // no-op when transitions are skipped
+</view-code>
+<p>When transitions are skipped (unsupported or reduced motion):</p>
+<ul>
+  <li><code>finished</code> resolves immediately with the callback's result</li>
+  <li><code>ready</code> rejects with "View Transitions skipped or unsupported"</li>
+  <li><code>skipTransition</code> is a no-op</li>
+</ul>
+
+<h2>Reduced Motion</h2>
+<p>When <code>prefers-reduced-motion: reduce</code> is active, transitions are skipped entirely. The DOM update runs
+  synchronously. This is automatic — no code change needed.</p>
+
+<h2>Inside Components</h2>
+<p>Use <code>transition()</code> inside event handlers for animated swaps:</p>
+<view-code language="javascript">view('gallery', {
+  template: `
+  &lt;div class=&quot;thumbs&quot;&gt;&lt;/div&gt;
+  &lt;img ref=&quot;main&quot; class=&quot;main&quot;&gt;
+  `,
+  on: {
+  connect({ on, refs }) {
+  on.click('.thumb', async (e, target) =&gt; {
+  await ui.transition(() =&gt; {
+  refs.main.src = target.dataset.full;
+  });
+  });
+  }
+  }
+  });
+</view-code>
+
+<h2>CSS</h2>
+<p>Style the transition with CSS pseudo-elements:</p>
+<view-code language="css">::view-transition-old(root) {
+  animation: fade-out 200ms ease;
+  }
+
+  ::view-transition-new(root) {
+  animation: fade-in 200ms ease;
+  }
+
+  @keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+  }
+
+  @keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+  }
+</view-code>
+<p>For element-scoped transitions (dock <code>swap</code>), target the element:</p>
+<view-code language="css">::view-transition-old(dock-main) {
+  animation: slide-out 200ms ease;
+  }
+</view-code>
+
+<h2>Tokens</h2>
+<p>View Transition timing and backdrop are controlled by semantic tokens. The library injects a token-aware stylesheet
+  on the first transition so duration, easing, and background derive from the same layer as surfaces and content.</p>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Token</th>
+      <th>Default</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--transition-bg</code></td>
+      <td><code>--color-surface-page</code></td>
+      <td>Backdrop behind old and new page snapshots</td>
+    </tr>
+    <tr>
+      <td><code>--transition-duration</code></td>
+      <td><code>--duration-normal</code></td>
+      <td>How long the VT runs</td>
+    </tr>
+    <tr>
+      <td><code>--transition-easing</code></td>
+      <td><code>--ease-out</code></td>
+      <td>Default easing curve</td>
+    </tr>
+    <tr>
+      <td><code>--transition-push</code></td>
+      <td><code>--ease-out</code></td>
+      <td>Easing when navigating forward</td>
+    </tr>
+    <tr>
+      <td><code>--transition-pop</code></td>
+      <td><code>--ease-in</code></td>
+      <td>Easing when navigating back</td>
+    </tr>
+    <tr>
+      <td><code>--transition-replace</code></td>
+      <td><code>--ease-in-out</code></td>
+      <td>Easing for replace-style swaps</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+<p>Override any token in your own CSS:</p>
+<view-code language="css">@layer overrides {
+  :root {
+  --transition-duration: 400ms;
+  --transition-easing: var(--ease-spring);
+  }
+  }
+</view-code>
+<p>The library sets <code>background: var(--transition-bg)</code> on both <code>::view-transition-old(root)</code> and
+  <code>::view-transition-new(root)</code> automatically. You only need to write custom CSS if you want animations
+  beyond the default cross-fade.</p>

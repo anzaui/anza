@@ -71,10 +71,17 @@ Setting `shadow: false` renders into the light DOM instead of a shadow root.
 
 ### `style`
 
-Inline CSS string. When using file templates, the CSS path goes inside the `template` object.
+Inline CSS string, a file path, or an array containing CSS strings or stylesheet paths (both relative and root-relative starting with `/`).
 
 ```javascript
+// Inline CSS
 style: ':host { display: block; padding: 1rem; }'
+
+// Single stylesheet path
+style: './home.css'
+
+// Multiple stylesheets from any folder
+style: ['/styles/shared.css', './home.css']
 ```
 
 ### `props`

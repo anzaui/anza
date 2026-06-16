@@ -25,8 +25,8 @@ element(tag, spec, base);
 ```javascript
 {
   // Template and styling
-  template: string | { html: string, css: string, shadow: 'open' | 'closed' },
-  style: string,                    // inline CSS
+  template: string | { html: string, css: string | string[], shadow: 'open' | 'closed' },
+  style: string | string[],          // inline CSS or stylesheet path(s)
 
   // Shadow DOM mode
   mode: 'open' | 'closed',          // default: 'open'

@@ -1,0 +1,133 @@
+<h1>Start</h1>
+<p>Create a new Anza app and run it.</p>
+
+<h2>Scaffold</h2>
+<view-code language="bash">npm create @adukiorg/anza myapp
+  cd myapp
+  npm install
+</view-code>
+<p>This generates:</p>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Path</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>src/app.js</code></td>
+      <td>Entry point — imports the UI system and defines a layout dock</td>
+    </tr>
+    <tr>
+      <td><code>src/index.html</code></td>
+      <td>HTML shell with importmap, tokens, styles, and module script</td>
+    </tr>
+    <tr>
+      <td><code>src/sw.js</code></td>
+      <td>Service Worker entry — caching, routing, sync</td>
+    </tr>
+    <tr>
+      <td><code>src/pages/entry/index.js</code></td>
+      <td>Landing page definition</td>
+    </tr>
+    <tr>
+      <td><code>src/pages/entry/index.html</code></td>
+      <td>Landing page markup</td>
+    </tr>
+    <tr>
+      <td><code>src/pages/entry/index.css</code></td>
+      <td>Landing page styles</td>
+    </tr>
+    <tr>
+      <td><code>src/tokens/</code></td>
+      <td>Design tokens copied from the library (colors, spacing, typography)</td>
+    </tr>
+    <tr>
+      <td><code>src/styles/</code></td>
+      <td>Global styles copied from the library (reset, layers, base)</td>
+    </tr>
+    <tr>
+      <td><code>importmap.json</code></td>
+      <td>Empty starter for custom aliases</td>
+    </tr>
+    <tr>
+      <td><code>package.json</code></td>
+      <td>Scripts: <code>dev</code> and <code>build</code></td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+<p>You own <code>src/tokens/</code> and <code>src/styles/</code>. The library copies them in as starter files; change
+  them freely.</p>
+
+<h2>Run</h2>
+<view-code language="bash">npm run dev
+</view-code>
+<p>Opens a dev server on <code>http://localhost:3000</code> with:</p>
+<ul>
+  <li>Import graph resolution into <code>dist/</code></li>
+  <li>Separate <code>dist/importmap.json</code> linked from HTML</li>
+  <li>CSS hot-swapping via SSE</li>
+  <li>JS and HTML auto-reload on change</li>
+</ul>
+
+<h2>What Was Generated</h2>
+<h3><code>src/app.js</code></h3>
+<view-code language="javascript">import '@adukiorg/anza/ui';
+  import { dock } from '@adukiorg/anza/ui';
+
+  // Register the Service Worker
+  navigator.serviceWorker.register('/dist/sw.js');
+
+  // Layout shell
+  dock('main');
+
+  import './pages/index.js';
+</view-code>
+<p>This initializes the UI system, registers the Service Worker, creates a <code>main</code> dock, and loads the welcome
+  page.</p>
+<h3><code>src/pages/entry/index.js</code></h3>
+<view-code language="javascript">import { page } from '@adukiorg/anza/ui';
+
+  page('/', {
+  tag: 'page-welcome',
+  via: ['main'],
+  template: { html: './index.html', css: './index.css' }
+  }, import.meta.url);
+</view-code>
+<p>Defines a route at <code>/</code> that renders through the <code>main</code> dock, loading its markup and styles from
+  sibling files.</p>
+<h3>Customizing the landing page</h3>
+<p>The <code>src/pages/entry/</code> folder is the scaffold default. You can rename it, delete it, or replace it with
+  any folder or files you want. The only requirement is that <code>src/pages/index.js</code> imports whatever defines
+  your <code>/</code> route.</p>
+<view-code language="javascript">// src/pages/index.js
+  import './entry/index.js'; // default — can rename
+  import './home/index.js'; // or call it home
+  import './landing/index.js'; // or landing
+</view-code>
+<p>You can also define the route inline without a separate folder:</p>
+<view-code language="javascript">// src/pages/index.js
+  import { page } from '@adukiorg/anza/ui';
+
+  page('/', {
+  tag: 'page-home',
+  via: ['main'],
+  template: '&lt;h1&gt;Home&lt;/h1&gt;'
+  });
+</view-code>
+
+<h2>Next</h2>
+<p>Add a new page:</p>
+<view-code language="javascript">import { page } from '@adukiorg/anza/ui';
+
+  page('/about', {
+  tag: 'page-about',
+  via: ['main'],
+  template: '&lt;h1&gt;About&lt;/h1&gt;'
+  });
+</view-code>
+<p>Clicking <code>&lt;a href="/about"&gt;</code> is intercepted, matched, and swapped inside <code>main</code> without a
+  reload.</p>

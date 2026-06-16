@@ -1,0 +1,71 @@
+:host {
+  display: block;
+  margin: 10px 0 20px;
+  width: 100%;
+}
+
+.code-block {
+  /* background: var(--bg-code); */
+  border-radius: 25px;
+  padding: 0;
+  /* border: 1px solid #333333; */
+  position: relative;
+  text-align: left;
+  transition: transform var(--duration-normal) var(--ease-out), box-shadow var(--duration-normal) var(--ease-out);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+div.code-block>button.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 5px;
+  background: var(--copy-background);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: none;
+  border-radius: 12px;
+  color: var(--gray-color);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-medium);
+  font-family: var(--font-mono);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+div.code-block>button.copy-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+div.code-block>button.copy-btn.copied {
+  color: var(--white-color);
+  background: var(--success-background);
+}
+
+.code-block pre {
+  margin: 0;
+  padding: 12px;
+  border-radius: 18px;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text-color);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.code-block pre::-webkit-scrollbar {
+  visibility: hidden;
+  display: none;
+}
+
+div.code-block>button.copy-btn code {
+  color: inherit;
+}

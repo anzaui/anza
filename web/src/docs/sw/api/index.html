@@ -1,0 +1,311 @@
+<h1>API Reference</h1>
+<p>Complete reference for the Service Worker toolkit.</p>
+
+<h2>Strategies</h2>
+<h3><code>new CacheFirst(cacheName, options)</code></h3>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>cacheName</code></td>
+      <td>string</td>
+      <td>Cache storage bucket name</td>
+    </tr>
+    <tr>
+      <td><code>options.ttl</code></td>
+      <td>number</td>
+      <td>Time-to-live in milliseconds</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+<h3><code>new NetworkFirst(cacheName, options)</code></h3>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>cacheName</code></td>
+      <td>string</td>
+      <td>—</td>
+      <td>Cache storage bucket name</td>
+    </tr>
+    <tr>
+      <td><code>options.timeout</code></td>
+      <td>number</td>
+      <td><code>4000</code></td>
+      <td>Network timeout in ms</td>
+    </tr>
+    <tr>
+      <td><code>options.ttl</code></td>
+      <td>number</td>
+      <td>—</td>
+      <td>Cache TTL in ms</td>
+    </tr>
+    <tr>
+      <td><code>options.fallbackUrl</code></td>
+      <td>string</td>
+      <td>—</td>
+      <td>Offline fallback page for navigation</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+<h3><code>new StaleRevalidate(cacheName, options)</code></h3>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>cacheName</code></td>
+      <td>string</td>
+      <td>Cache storage bucket name</td>
+    </tr>
+    <tr>
+      <td><code>options.ttl</code></td>
+      <td>number</td>
+      <td>Cache TTL in ms</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+<h3><code>new CacheThenNetwork(cacheName, options)</code></h3>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>cacheName</code></td>
+      <td>string</td>
+      <td>Cache storage bucket name</td>
+    </tr>
+    <tr>
+      <td><code>options.ttl</code></td>
+      <td>number</td>
+      <td>Cache TTL in ms</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+<p>Posts <code>cache-update</code> messages to all controlled clients after a successful background fetch.</p>
+<h3><code>new NetworkOnly()</code></h3>
+<p>No params. Direct <code>fetch()</code> pass-through.</p>
+<h3><code>new CacheOnly(cacheName)</code></h3>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>cacheName</code></td>
+      <td>string</td>
+      <td>Cache storage bucket name</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+<p>Throws if the request is not in cache.</p>
+<h3><code>new OfflineFallback(fallbackUrl)</code></h3>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>fallbackUrl</code></td>
+      <td>string</td>
+      <td>Precached fallback page URL</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+<p>Only intercepts <code>request.mode === 'navigate'</code>.</p>
+
+<h2>Router</h2>
+<h3><code>router()</code></h3>
+<p>Factory. Returns a new <code>Router</code> instance.</p>
+<h3><code>router.register(pattern, strategy)</code></h3>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>pattern</code></td>
+      <td>string | URLPatternInit</td>
+      <td>URL to match</td>
+    </tr>
+    <tr>
+      <td><code>strategy</code></td>
+      <td>object</td>
+      <td>Any object with <code>handle(request)</code> method</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+<h3><code>router.handle(event)</code></h3>
+<p>Returns <code>true</code> if a route matched and <code>event.respondWith()</code> was called. Returns
+  <code>false</code> otherwise.</p>
+
+<h2>Lifecycle</h2>
+<h3><code>precache(cacheName, urls)</code></h3>
+<p>Pre-caches an array of URLs during the <code>install</code> event.</p>
+<view-code language="javascript">await precache('shell-v1', ['/dist/index.html', '/dist/app.js']);
+</view-code>
+<h3><code>prefetchFallback(fallbackUrl)</code></h3>
+<p>Pre-caches a single fallback page into a dedicated cache.</p>
+<view-code language="javascript">await prefetchFallback('/dist/offline.html');
+</view-code>
+<h3><code>pruneStale(currentCacheName)</code></h3>
+<p>Deletes all caches except <code>currentCacheName</code> and <code>platform-offline-fallback</code>.</p>
+<view-code language="javascript">await pruneStale('shell-v1');
+</view-code>
+<h3><code>claim()</code></h3>
+<p>Calls <code>self.clients.claim()</code> to take control of all tabs immediately.</p>
+<h3><code>enableNavPreload(registration?)</code></h3>
+<p>Enables Navigation Preload on the registration.</p>
+
+<h2>Expiry</h2>
+<h3><code>pruneExpired(cacheName)</code></h3>
+<p>Iterates a cache and deletes entries whose <code>x-expires-at</code> header is in the past.</p>
+<view-code language="javascript">await pruneExpired('shell-v1');
+</view-code>
+<h3><code>setupAutoPrune(cacheName, intervalMs?)</code></h3>
+<p>Returns a <code>setInterval</code> handle that prunes the cache periodically. Default interval: 60000 ms.</p>
+<view-code language="javascript">const timer = setupAutoPrune('shell-v1', 30000);
+  clearInterval(timer);
+</view-code>
+
+<h2>Queue and Sync</h2>
+<h3><code>serializeRequest(request)</code></h3>
+<p>Converts a <code>Request</code> into a structured-cloneable object for IndexedDB storage.</p>
+<h3><code>deserializeRequest(payload)</code></h3>
+<p>Rebuilds a <code>Request</code> from a serialized payload.</p>
+<h3><code>replayQueue()</code></h3>
+<p>Replays all queued tasks in FIFO order. Removes successful tasks. Retries failures on next call.</p>
+<view-code language="javascript">self.addEventListener('sync', (e) =&gt; {
+  if (e.tag === 'sync-tasks') {
+  e.waitUntil(replayQueue());
+  }
+  });
+</view-code>
+<h3><code>requeueFailed(options?)</code></h3>
+<p>Moves tasks that exceeded <code>maxAttempts</code> to a dead-letter queue.</p>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>maxAttempts</code></td>
+      <td>number</td>
+      <td><code>3</code></td>
+      <td>Retry limit before dead-letter</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+
+<h2>Push</h2>
+<h3><code>subscribe(registration?, vapidKey)</code></h3>
+<p>Registers a Web Push subscription.</p>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>registration</code></td>
+      <td>ServiceWorkerRegistration</td>
+      <td>Optional; defaults to <code>self.registration</code></td>
+    </tr>
+    <tr>
+      <td><code>vapidKey</code></td>
+      <td>string | Uint8Array</td>
+      <td>VAPID public key</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+<h3><code>notify(title, options?, registration?)</code></h3>
+<p>Displays a notification.</p>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Param</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>title</code></td>
+      <td>string</td>
+      <td>Notification title</td>
+    </tr>
+    <tr>
+      <td><code>options</code></td>
+      <td>NotificationOptions</td>
+      <td>Standard Notification options object</td>
+    </tr>
+    <tr>
+      <td><code>registration</code></td>
+      <td>ServiceWorkerRegistration</td>
+      <td>Optional; defaults to <code>self.registration</code></td>
+    </tr>
+  </tbody>
+  </table>
+</div>

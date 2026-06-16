@@ -1,0 +1,18 @@
+/**
+ * tokens/registered/dimensions.css
+ *
+ * Houdini @property registrations for animatable transition tokens.
+ */
+
+@property --transition-duration {
+  syntax: '<time>';
+  inherits: true;
+  initial-value: 240ms;
+}
+
+@property --transition-offset {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 30px;
+}
+

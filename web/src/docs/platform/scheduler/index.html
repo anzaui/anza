@@ -1,0 +1,99 @@
+<h1>Scheduler</h1>
+<p>The platform scheduler provides prioritized task execution and cooperative yielding. It uses the native
+  <code>scheduler</code> API when available, falling back to a microtask/macrotask polyfill.</p>
+
+<h2>Priorities</h2>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Priority</th>
+      <th>Latency</th>
+      <th>Use Case</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>user-blocking</code></td>
+      <td>Immediate</td>
+      <td>Critical UI, user input response</td>
+    </tr>
+    <tr>
+      <td><code>user-visible</code></td>
+      <td>~16ms</td>
+      <td>Standard UI updates, API calls</td>
+    </tr>
+    <tr>
+      <td><code>background</code></td>
+      <td><code>requestIdleCallback</code></td>
+      <td>Telemetry, prefetch, logging</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+
+<h2>Posting Tasks</h2>
+<view-code language="javascript">import { guard } from '@adukiorg/anza/platform';
+
+  const scheduler = await guard.scheduler();
+
+  // Critical path
+  scheduler.postTask(() =&gt; {
+  renderInteractiveButton();
+  }, { priority: 'user-blocking' });
+
+  // Standard work
+  scheduler.postTask(() =&gt; {
+  fetchDashboardData();
+  }, { priority: 'user-visible' });
+
+  // Background sync
+  scheduler.postTask(() =&gt; {
+  flushAnalyticsQueue();
+  }, { priority: 'background' });
+</view-code>
+
+<h2>Delayed Tasks</h2>
+<view-code language="javascript">scheduler.postTask(() =&gt; {
+  showTooltip();
+  }, { delay: 200 });
+</view-code>
+
+<h2>Task Cancellation</h2>
+<view-code language="javascript">const controller = new AbortController();
+
+  scheduler.postTask(() =&gt; {
+  console.log('This may not run');
+  }, { signal: controller.signal });
+
+  // Cancel before it executes
+  controller.abort();
+</view-code>
+
+<h2>Yielding</h2>
+<view-code language="javascript">import { guard } from '@adukiorg/anza/platform';
+
+  async function processItems(items) {
+  for (const item of items) {
+  render(item);
+  await guard.yield(); // let the browser paint
+  }
+  }
+</view-code>
+<p><code>guard.yield()</code> returns a promise that resolves after yielding to the event loop. On browsers with
+  <code>scheduler.yield()</code>, it uses the native API. Otherwise it falls back to <code>setTimeout(..., 0)</code>.
+</p>
+
+<h2>Chunking Heavy Work</h2>
+<view-code language="javascript">async function buildIndex(records) {
+  const index = new Map();
+  for (let i = 0; i &lt; records.length; i++) {
+  index.set(records[i].id, records[i]);
+  if (i % 100 === 0) {
+  await guard.yield();
+  }
+  }
+  return index;
+  }
+</view-code>
+<p>Processing 100 records, then yielding, keeps the UI responsive even with thousands of items.</p>

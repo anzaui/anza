@@ -1,0 +1,84 @@
+<h1>Quick Start</h1>
+<p>Get working with platform detection and polyfills in five minutes.</p>
+
+<h2>1. Check a Capability</h2>
+<view-code language="javascript">import { supports } from '@adukiorg/anza/platform';
+
+  if (supports.viewTransitions) {
+  console.log('View transitions are native');
+  } else {
+  console.log('View transitions unavailable — using fallback');
+  }
+</view-code>
+<p>Flags are lazily evaluated on first access and cached. Subsequent reads are instant.</p>
+
+<h2>2. Assert a Requirement</h2>
+<view-code language="javascript">import { typeGuard } from '@adukiorg/anza/platform';
+
+  // Throws if OPFS is not supported
+  typeGuard('opfs', 'This feature requires file system access');
+</view-code>
+<p>Use <code>typeGuard</code> in critical paths where continuing without the feature would be meaningless.</p>
+
+<h2>3. Lazy-Load a Polyfill</h2>
+<view-code language="javascript">import { guard } from '@adukiorg/anza/platform';
+
+  // Returns native URLPattern or loads the polyfill
+  const URLPattern = await guard.urlPattern();
+  const pattern = new URLPattern({ pathname: '/user/:id' });
+</view-code>
+<p>The guard checks native support first. Only if missing does it dynamically import the polyfill.</p>
+
+<h2>4. Use the Scheduler</h2>
+<view-code language="javascript">import { guard } from '@adukiorg/anza/platform';
+
+  const scheduler = await guard.scheduler();
+
+  scheduler.postTask(() =&gt; {
+  renderCriticalUI();
+  }, { priority: 'user-blocking' });
+</view-code>
+<p>If native <code>scheduler</code> is available, it is returned directly. Otherwise the polyfill is loaded.</p>
+
+<h2>5. Yield in a Loop</h2>
+<view-code language="javascript">import { guard } from '@adukiorg/anza/platform';
+
+  async function processLargeDataset(items) {
+  for (let i = 0; i &lt; items.length; i++) {
+  process(items[i]);
+  if (i % 50 === 0) {
+  await guard.yield(); // let the browser breathe
+  }
+  }
+  }
+</view-code>
+
+<h2>Complete Working Example</h2>
+<view-code language="javascript">import { supports, guard, typeGuard } from '@adukiorg/anza/platform';
+
+  // Feature-gated view transition
+  async function navigate() {
+  if (supports.viewTransitions) {
+  await document.startViewTransition(() =&gt; updateDOM());
+  } else {
+  updateDOM();
+  }
+  }
+
+  // Feature-gated file storage
+  async function saveFile(data) {
+  typeGuard('opfs', 'File storage is required');
+  const dir = await navigator.storage.getDirectory();
+  const file = await dir.getFileHandle('data.json', { create: true });
+  const writable = await file.createWritable();
+  await writable.write(JSON.stringify(data));
+  await writable.close();
+  }
+
+  // Lazy URLPattern for routing
+  async function matchRoute(path) {
+  const URLPattern = await guard.urlPattern();
+  const pattern = new URLPattern({ pathname: '/user/:id' });
+  return pattern.exec({ pathname: path });
+  }
+</view-code>

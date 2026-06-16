@@ -1,0 +1,156 @@
+<h1>Quick Start</h1>
+<p>Get a working route in five minutes.</p>
+
+<h2>1. Create a Dock</h2>
+<p>A <code>dock</code> is a persistent container shell. It stays in the DOM across route changes and provides the
+  mounting point for pages.</p>
+<view-code language="javascript">import { dock } from '@adukiorg/anza/defs';
+
+  dock('main');
+</view-code>
+<p>This registers <code>&lt;dock-main&gt;</code> as a custom element. When it connects, it registers itself in the
+  container graph under the key <code>'main'</code>. The default parent is <code>'body'</code>, so
+  <code>&lt;dock-main&gt;</code> is treated as a top-level container. You can place it directly in HTML or let the
+  router create it automatically.</p>
+
+<h2>2. Define a Page</h2>
+<p>A <code>page</code> maps a URL pattern to a custom element.</p>
+<view-code language="javascript">import { page } from '@adukiorg/anza/defs';
+
+  page('/', {
+  tag: 'page-home',
+  via: ['main'],
+  template: '&lt;h1&gt;Home&lt;/h1&gt;',
+  on: {
+  load() { console.log('home loaded'); }
+  }
+  });
+</view-code>
+<p>What happens:</p>
+<ol>
+  <li><code>page()</code> defines <code>&lt;page-home&gt;</code> as a custom element</li>
+  <li>It registers the route <code>'/'</code> with the router</li>
+  <li>It declares that this page renders through the <code>'main'</code> container</li>
+  <li>When the user visits <code>/</code>, the router creates <code>&lt;page-home&gt;</code> and mounts it inside
+    <code>&lt;dock-main&gt;</code></li>
+</ol>
+
+<h2>3. Add Another Route</h2>
+<view-code language="javascript">page('/about', {
+  tag: 'page-about',
+  via: ['main'],
+  template: '&lt;h1&gt;About&lt;/h1&gt;'
+  });
+</view-code>
+<p>Now clicking <code>&lt;a href="/about"&gt;</code> is intercepted, matched, and swapped inside <code>main</code>
+  without a full page reload.</p>
+
+<h2>4. Route Parameters</h2>
+<view-code language="javascript">page('/profile/:id', {
+  tag: 'page-profile',
+  via: ['main'],
+  params: [
+  { name: 'id', type: Number }
+  ],
+  on: {
+  load({ params }) {
+  console.log('Loading profile for user', params.id); // typed Number
+  }
+  }
+  });
+</view-code>
+<p>The <code>:id</code> segment is captured per the <code>params</code> contract, cast to <code>Number</code>, and
+  assigned as a property on the element.</p>
+
+<h2>5. Nested Layouts with Via Chains</h2>
+<p>A <code>via</code> chain declares the full root-to-leaf container path:</p>
+<view-code language="javascript">dock('sidebar', { parent: 'main' });
+  dock('content', { parent: 'sidebar' });
+
+  page('/settings/profile', {
+  tag: 'page-profile',
+  via: ['main', 'sidebar', 'content'],
+  template: '&lt;h1&gt;Profile Settings&lt;/h1&gt;'
+  });
+</view-code>
+<p>On a cold hard refresh, the router cascades through the chain: it ensures <code>main</code> exists, then
+  <code>sidebar</code> inside <code>main</code>, then <code>content</code> inside <code>sidebar</code>, then mounts the
+  page inside <code>content</code>.</p>
+
+<h2>6. File Templates</h2>
+<p>For IDE support, use real <code>.html</code> and <code>.css</code> files:</p>
+<view-code language="javascript">page('/dashboard', {
+  tag: 'page-dashboard',
+  via: ['main'],
+  template: { html: './dashboard.html', css: './dashboard.css' }
+  }, import.meta.url);
+</view-code>
+<p>Paths are resolved relative to the third argument (<code>import.meta.url</code>). The native toolchain copies these
+  assets during build and generates type declarations.</p>
+
+<h2>7. Programmatic Navigation</h2>
+<view-code language="javascript">import { router } from '@adukiorg/anza/router';
+
+  // Push a new history entry
+  router.navigate('/settings');
+
+  // Replace current entry
+  router.replace('/settings?tab=profile');
+
+  // Go back
+  router.back();
+
+  // Check if back is possible
+  if (router.canBack()) router.back();
+</view-code>
+
+<h2>8. Navigation Guard</h2>
+<view-code language="javascript">router.guard((destination, controller) =&gt; {
+  if (destination.url.pathname.startsWith('/admin') &amp;&amp; !isAdmin()) {
+  return '/login';
+  }
+  });
+</view-code>
+<p>Return a URL string to redirect. Return nothing (or <code>null</code>) to allow.</p>
+
+<h2>Complete Working Example</h2>
+<view-code language="javascript">// app.js
+  import { router } from '@adukiorg/anza/router';
+  import { page, dock } from '@adukiorg/anza/defs';
+
+  // Layout shell
+  dock('main');
+
+  // Routes
+  page('/', {
+  tag: 'page-home',
+  via: ['main'],
+  template: '&lt;h1&gt;Home&lt;/h1&gt;'
+  });
+
+  page('/user/:id', {
+  tag: 'page-user',
+  via: ['main'],
+  params: [
+  { name: 'id', type: Number }
+  ],
+  on: {
+  load({ params }) {
+  console.log('User', params.id);
+  }
+  }
+  });
+
+  // Guard admin routes
+  router.guard((destination) =&gt; {
+  if (destination.url.pathname.startsWith('/admin') &amp;&amp; !isAdmin()) {
+  return '/login';
+  }
+  });
+
+  // 404
+  router.notFound(() =&gt; {
+  document.body.innerHTML = '&lt;h1&gt;Page not found&lt;/h1&gt;';
+  });
+</view-code>
+<p>That is everything you need for a fully functional routed application.</p>

@@ -45,7 +45,8 @@ import {
   registerContainer,
   unregisterContainer,
   getContainer,
-  clearContainers
+  clearContainers,
+  hasContainer
 } from './container.js';
 
 import { cache, prefetch } from './cache.js';
@@ -103,6 +104,7 @@ export const router = {
   unregisterContainer,
   getContainer,
   clearContainers,
+  hasContainer,
 
   // Lifecycle
   setup,
@@ -171,6 +173,7 @@ export {
   unregisterContainer,
   getContainer,
   clearContainers,
+  hasContainer,
   // cache sub-module
   cache,
   prefetch

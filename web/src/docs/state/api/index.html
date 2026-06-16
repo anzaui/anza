@@ -1,0 +1,77 @@
+<h1>API Reference</h1>
+<p>Complete reference for the state facade and internal classes.</p>
+
+<h2>Facade</h2>
+<view-code language="javascript">import { state } from '@adukiorg/anza/state';
+</view-code>
+<h3><code>state.create(initial, options)</code></h3>
+<p>Creates a <code>ReactiveStore</code>.</p>
+<view-code language="javascript">const store = state.create({ count: 0 }, { deep: false });
+</view-code>
+<h3><code>state.derived(compute)</code></h3>
+<p>Creates a <code>DerivedValue</code>.</p>
+<view-code language="javascript">const doubled = state.derived(() =&gt; store.get('count') * 2);
+</view-code>
+<h3><code>state.sync(store, keys, channelName)</code></h3>
+<p>Returns disposer. See <a href="/docs/state/sync">sync.md</a>.</p>
+<h3><code>state.storage</code></h3>
+<p><code>PlatformStorage</code> instance. See <a href="/docs/state/persist">persist.md</a>.</p>
+
+<h2>ReactiveStore</h2>
+<h3><code>get(key)</code></h3>
+<p>Read a property value.</p>
+<h3><code>set(key, value, source)</code></h3>
+<p>Write a property value. <code>source</code> defaults to <code>'local'</code>.</p>
+<h3><code>subscribe(key, callback, signal)</code></h3>
+<p>Subscribe to a key. Returns disposer.</p>
+<p>Callback: <code>(val, key, prev) =&gt; void</code></p>
+<h3><code>batch(fn)</code></h3>
+<p>Batch multiple mutations into one notification.</p>
+<h3><code>snapshot()</code></h3>
+<p>Returns deep-cloned current state.</p>
+<h3><code>hydrate(data)</code></h3>
+<p>Restore state from a snapshot.</p>
+<h3><code>reset(initial)</code></h3>
+<p>Clear all keys, then set from initial object.</p>
+<h3><code>broadcast(channelName, keys)</code></h3>
+<p>Sync keys across tabs. Returns disposer.</p>
+<h3><code>sync(keys, channelName)</code></h3>
+<p>Alias for <code>broadcast</code>.</p>
+<h3><code>onMutation(callback)</code></h3>
+<p>Register global mutation listener: <code>(key, value, source) =&gt; void</code></p>
+
+<h2>DerivedValue</h2>
+<h3><code>value</code></h3>
+<p>Lazy getter. Recomputes if dirty.</p>
+<h3><code>subscribe(callback)</code></h3>
+<p>Notify when value changes. Returns disposer.</p>
+<h3><code>dispose()</code></h3>
+<p>Clean up all subscriptions.</p>
+
+<h2>PlatformStorage</h2>
+<h3><code>setDatabaseName(name)</code></h3>
+<p>Configure database name before first use.</p>
+<h3><code>registerMigrations(migrations)</code></h3>
+<p>Register schema migration functions.</p>
+<h3><code>get(storeName, key)</code></h3>
+<p>Read a record.</p>
+<h3><code>set(storeName, key, value, options)</code></h3>
+<p>Write a record. Options: <code>{ ttl }</code>.</p>
+<h3><code>delete(storeName, key)</code></h3>
+<p>Remove a record.</p>
+<h3><code>query(storeName, filterFn)</code></h3>
+<p>Filter records by predicate.</p>
+<h3><code>persist()</code></h3>
+<p>Request persistent storage.</p>
+
+<h2>Named Exports</h2>
+<view-code language="javascript">import {
+  ReactiveStore,
+  setActiveSubscriber,
+  getActiveSubscriber,
+  derived,
+  sync,
+  PlatformStorage,
+  storage
+  } from '@adukiorg/anza/state';
+</view-code>

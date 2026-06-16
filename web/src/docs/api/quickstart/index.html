@@ -1,0 +1,137 @@
+<h1>Quick Start</h1>
+<p>Get a working request in five minutes.</p>
+
+<h2>1. Make a GET Request</h2>
+<view-code language="javascript">import { api } from '@adukiorg/anza/api';
+
+  const user = await api.get('/user/profile');
+  console.log(user.name);
+</view-code>
+<p>The client auto-parses JSON when the response <code>Content-Type</code> is <code>application/json</code>. Otherwise
+  it returns text.</p>
+
+<h2>2. Make a POST Request</h2>
+<view-code language="javascript">const result = await api.post('/posts', {
+  title: 'Hello World',
+  body: 'My first post'
+  });
+</view-code>
+<p>Objects are auto-serialized to JSON. The <code>Content-Type: application/json</code> header is set automatically if
+  not already present.</p>
+
+<h2>3. Register a Prefix</h2>
+<p>Prefix routing keeps endpoints clean and isolates environment config:</p>
+<view-code language="javascript">api.prefix.add('default', 'https://api.example.com');
+
+  // Now /user/profile resolves to https://api.example.com/user/profile
+  const user = await api.get('/user/profile');
+</view-code>
+
+<h2>4. Cache a Response</h2>
+<view-code language="javascript">// Cache for 60 seconds
+  const products = await api.get('/products', { expiry: 60000 });
+</view-code>
+<p>On the next call within 60 seconds, the cached response is returned instantly. After expiry, the cache is stale and
+  the network is hit again.</p>
+
+<h2>5. Listen for Errors</h2>
+<view-code language="javascript">api.on('failed', (event) =&gt; {
+  console.error('Request failed:', event.detail.error);
+  });
+
+  api.on('status:401', () =&gt; {
+  redirectToLogin();
+  });
+</view-code>
+<p>Listeners return a disposer:</p>
+<view-code language="javascript">const off = api.on('error', handler);
+  off(); // stop listening
+</view-code>
+
+<h2>6. Per-Request Events</h2>
+<p>Scope listeners to a single request with the <code>on</code> option:</p>
+<view-code language="javascript">await api.get('/user/profile', {
+  on: {
+  'status:401': () =&gt; redirectToLogin(),
+  failed: (event) =&gt; console.error(event.detail.error)
+  }
+  });
+</view-code>
+<p>These listeners auto-cleanup when the request completes. No manual disposer needed.</p>
+
+<h2>7. Stream NDJSON</h2>
+<view-code language="javascript">for await (const chunk of api.stream('/logs/stream')) {
+  console.log(chunk.timestamp, chunk.message);
+  }
+</view-code>
+<p>Each chunk is a parsed JSON object. Backpressure is preserved natively via the Streams API.</p>
+
+<h2>8. Upload a File</h2>
+<view-code language="javascript">const form = new FormData();
+  form.append('file', fileBlob);
+
+  await api.upload('/upload', form, {
+  on: {
+  progress: (event) =&gt; {
+  const { loaded, total, percentage } = event.detail;
+  console.log(`${percentage}% uploaded`);
+  }
+  }
+  });
+</view-code>
+
+<h2>9. Abort a Request</h2>
+<view-code language="javascript">const controller = new AbortController();
+
+  api.get('/slow-endpoint', { signal: controller.signal });
+
+  // Cancel after 5 seconds
+  setTimeout(() =&gt; controller.abort(), 5000);
+</view-code>
+
+<h2>10. Handle Errors</h2>
+<view-code language="javascript">import { api } from '@adukiorg/anza/api';
+
+  try {
+  await api.get('/protected');
+  } catch (err) {
+  if (err.code === 'HTTP_ERROR') {
+  console.log('Server returned', err.context.status);
+  }
+  if (err.code === 'NETWORK_TIMEOUT') {
+  console.log('Request timed out');
+  }
+  if (err.code === 'NETWORK_ERROR') {
+  console.log('Network failure');
+  }
+  }
+</view-code>
+<p>Every error is a <code>PlatformError</code> with <code>code</code>, <code>message</code>, <code>context</code>, and
+  <code>recoverable</code>.</p>
+
+<h2>Complete Working Example</h2>
+<view-code language="javascript">import { api } from '@adukiorg/anza/api';
+
+  // Bootstrap
+  api.prefix.add('default', 'https://api.example.com');
+
+  // Global error handling
+  api.on('status:401', () =&gt; redirectToLogin());
+  api.on('failed', (e) =&gt; showToast(e.detail.error.message));
+
+  // Cached profile
+  const profile = await api.get('/user/profile', { expiry: 300000 });
+
+  // Create post
+  await api.post('/posts', { title: 'Hello' });
+
+  // Upload avatar
+  const form = new FormData();
+  form.append('avatar', fileInput.files[0]);
+
+  await api.upload('/user/avatar', form, {
+  on: {
+  progress: (e) =&gt; updateProgressBar(e.detail.percentage)
+  }
+  });
+</view-code>

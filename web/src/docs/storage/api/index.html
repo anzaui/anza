@@ -1,0 +1,76 @@
+<h1>API Reference</h1>
+<p>Complete reference for the storage facade and internal classes.</p>
+
+<h2>Facade</h2>
+<view-code language="javascript">import { storage } from '@adukiorg/anza/storage';
+</view-code>
+<h3><code>storage.configure(options)</code></h3>
+<p>Reconfigure pools before first use.</p>
+<view-code language="javascript">storage.configure({
+  idb: { name: 'my-app', version: 2, migrations: [] },
+  lru: { maxSize: 500 },
+  cache: { name: 'my-cache' }
+  });
+</view-code>
+<h3><code>storage.get(key, tierOrOptions)</code></h3>
+<p>Read from a tier.</p>
+<view-code language="javascript">await storage.get('name'); // default idb
+  await storage.get('name', 'memory');
+  await storage.get('name', { tier: 'idb' });
+</view-code>
+<h3><code>storage.set(key, value, tierOrOptions)</code></h3>
+<p>Write to a tier.</p>
+<view-code language="javascript">await storage.set('name', 'Alice');
+  await storage.set('name', 'Alice', 'memory');
+  await storage.set('name', 'Alice', { tier: 'idb', ttl: 60000 });
+</view-code>
+<h3><code>storage.delete(key, tierOrOptions)</code></h3>
+<p>Remove from a tier.</p>
+<h3><code>storage.query(storeName, filterFn)</code></h3>
+<p>Query IDB store with filter.</p>
+
+<h2>Database</h2>
+<view-code language="javascript">import { Database } from '@adukiorg/anza/storage';
+</view-code>
+<h3><code>new Database(name, version, migrations)</code></h3>
+<h3><code>db.open()</code></h3>
+<p>Returns <code>Promise&lt;IDBDatabase&gt;</code>.</p>
+<h3><code>db.get(storeName, key)</code></h3>
+<h3><code>db.set(storeName, key, value)</code></h3>
+<h3><code>db.delete(storeName, key)</code></h3>
+<h3><code>db.clear(storeName)</code></h3>
+<h3><code>db.getAll(storeName)</code></h3>
+<h3><code>db.keys(storeName)</code></h3>
+<h3><code>db.query(storeName, options)</code></h3>
+<p>Options: <code>{ index, range, direction, limit }</code>.</p>
+<h3><code>db.transaction(storeNames, mode, callback)</code></h3>
+<p>Multi-store transactional callback.</p>
+
+<h2>CacheStorage</h2>
+<view-code language="javascript">import { CacheStorage } from '@adukiorg/anza/storage';
+</view-code>
+<h3><code>new CacheStorage(name)</code></h3>
+<h3><code>cache.get(request)</code></h3>
+<p>Returns <code>Promise&lt;Response | null&gt;</code>.</p>
+<h3><code>cache.set(request, response, ttlMs)</code></h3>
+<h3><code>cache.delete(request)</code></h3>
+<h3><code>cache.clear()</code></h3>
+
+<h2>LRUCache</h2>
+<h3><code>new LRUCache(maxSize)</code></h3>
+<h3><code>cache.get(key)</code></h3>
+<h3><code>cache.set(key, value, ttlMs)</code></h3>
+<h3><code>cache.delete(key)</code></h3>
+<h3><code>cache.clear()</code></h3>
+
+<h2>WeakLRUCache</h2>
+<h3><code>new WeakLRUCache(maxSize)</code></h3>
+<p>Values must be objects or functions.</p>
+
+<h2>QuotaManager</h2>
+<view-code language="javascript">import { quota } from '@adukiorg/anza/storage';
+</view-code>
+<h3><code>quota.estimate()</code></h3>
+<h3><code>quota.persist()</code></h3>
+<h3><code>quota.check(onWarning)</code></h3>
+<h3><code>quota.onQuotaWarning(handler)</code></h3>

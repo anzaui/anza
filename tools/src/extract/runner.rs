@@ -433,7 +433,10 @@ fn parse_spec_object(obj: &ObjectLit, spec: &mut ExtractedSpec) {
                       if tkey.sym == "html" {
                         spec.html = get_string_literal(&tkv.value);
                       } else if tkey.sym == "css" {
-                        spec.css = get_string_literal(&tkv.value);
+                        spec.css = get_string_or_array_literal(&tkv.value)
+                          .into_iter()
+                          .filter(|s| s.ends_with(".css") || ((s.starts_with("./") || s.starts_with("../") || s.starts_with('/')) && !s.starts_with("/*") && !s.contains('{')))
+                          .collect();
                       }
                     }
                   }
@@ -441,11 +444,10 @@ fn parse_spec_object(obj: &ObjectLit, spec: &mut ExtractedSpec) {
               }
             }
           } else if key.sym == "style" {
-            if let Some(s) = get_string_literal(&kv.value) {
-              if s.starts_with("./") || s.starts_with("../") || s.ends_with(".css") {
-                spec.css = Some(s);
-              }
-            }
+            spec.css = get_string_or_array_literal(&kv.value)
+              .into_iter()
+              .filter(|s| s.ends_with(".css") || ((s.starts_with("./") || s.starts_with("../") || s.starts_with('/')) && !s.starts_with("/*") && !s.contains('{')))
+              .collect();
           }
         }
       }

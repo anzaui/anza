@@ -1,0 +1,98 @@
+/**
+ * table.css
+ *
+ * Table design token definitions.
+ * ------------------------------------------------------------------
+ * USAGE: Do one of:
+ *   A) @import this file AFTER tokens/index.css in your HTML <head>
+ *   B) Copy the :root block into tokens/semantic/light.css  :root {}
+ *      Copy the [data-theme="dark"] block into tokens/semantic/dark.css
+ * ------------------------------------------------------------------
+ */
+
+
+/* ─────────────────────────────────────────────────────────────────
+   LIGHT (default)
+   Structural tokens are defined once here — font, size, spacing,
+   radius. They do not need dark overrides since they don't change.
+   ───────────────────────────────────────────────────────────────── */
+
+:root {
+
+  /* Structure — shared across themes */
+  --table-radius: var(--radius-lg);
+  --table-font: var(--font-ui);
+  --table-font-size: var(--text-base);
+  --table-line-height: var(--leading-normal);
+
+  /* Cell padding — two sizes for responsive swap */
+  --table-pad-x: var(--space-5);
+  --table-pad-y: var(--space-4);
+  --table-pad-x-sm: var(--space-4);
+  --table-pad-y-sm: var(--space-3);
+
+  /* Header typography */
+  --table-header-size: var(--text-sm);
+  --table-header-weight: var(--weight-semibold);
+  --table-header-tracking: var(--tracking-wider);
+  --table-header-transform: uppercase;
+
+  /* Caption */
+  --table-caption-size: var(--text-sm);
+  --table-caption-style: italic;
+
+  /* Colors — light values */
+  --table-border: var(--color-border-default);
+
+  --table-bg: var(--surface);
+
+  --table-header-bg: var(--gray-background);
+  --table-header-color: var(--title-color);
+  --table-header-border: var(--color-border-default);
+
+  --table-row-bg: var(--background);
+  --table-row-bg-alt: var(--surface);
+  --table-row-bg-hover: var(--tab-background);
+  --table-row-color: var(--text-color);
+  --table-row-border: var(--color-border-default);
+
+  --table-footer-bg: var(--gray-background);
+  --table-footer-color: var(--label-color);
+  --table-footer-border: var(--color-border-default);
+
+  --table-caption-color: var(--nav-color);
+
+  --table-scrollbar-thumb: var(--gray-color);
+  --table-scrollbar-track: transparent;
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   DARK overrides — only color tokens need to change
+   ───────────────────────────────────────────────────────────────── */
+
+html[data-theme="dark"] {
+
+  --table-border: var(--border);
+
+  --table-bg: var(--surface);
+
+  --table-header-bg: var(--surfaceElevated);
+  --table-header-color: var(--textPrimary);
+  --table-header-border: var(--border);
+
+  --table-row-bg: var(--background);
+  --table-row-bg-alt: var(--surface);
+  --table-row-bg-hover: var(--tab-background);
+  --table-row-color: var(--textPrimary);
+  --table-row-border: var(--border);
+
+  --table-footer-bg: var(--surfaceElevated);
+  --table-footer-color: var(--textMuted);
+  --table-footer-border: var(--border);
+
+  --table-caption-color: var(--textMuted);
+
+  --table-scrollbar-thumb: var(--scrollbar);
+  --table-scrollbar-track: transparent;
+}

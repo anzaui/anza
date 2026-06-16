@@ -1,0 +1,152 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 1200px;
+}
+
+.docs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 var(--space-6);
+  height: 60px;
+  flex-shrink: 0;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.logo a {
+  color: var(--color-content-primary);
+  text-decoration: none;
+}
+
+.logo .version {
+  font-size: var(--font-size-xs);
+  color: var(--color-content-tertiary);
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-surface-aside);
+  border-radius: var(--radius-sm);
+}
+
+.header-nav {
+  display: flex;
+  gap: var(--space-6);
+}
+
+.header-nav a {
+  color: var(--color-content-secondary);
+  font-size: var(--font-size-md);
+  text-decoration: none;
+}
+
+.header-nav a:hover,
+.header-nav a.active {
+  color: var(--color-interactive-active);
+}
+
+div.docs-container {
+  display: grid;
+  grid-template-columns: 240px 1fr 250px;
+  height: calc(100vh - 60px);
+  overflow: hidden;
+}
+
+aside.docs-sidebar-left {
+  padding: 0 10px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+aside.docs-sidebar-left::-webkit-scrollbar {
+  visibility: hidden;
+  display: none;
+}
+
+.sidebar-group h3 {
+  text-transform: uppercase;
+}
+
+.sidebar-group a {
+  display: block;
+  padding: 5px 0;
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.sidebar-group a:hover {
+  text-decoration: none;
+}
+
+.sidebar-group a.active {
+  text-decoration: none;
+}
+
+main.docs-content {
+  padding: 0 10px;
+  margin: 0;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
+main.docs-content::-webkit-scrollbar {
+  visibility: hidden;
+  display: none;
+}
+
+aside.docs-sidebar-right {
+  padding: 0 10px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+aside.docs-sidebar-right::-webkit-scrollbar {
+  visibility: hidden;
+  display: none;
+}
+
+aside.docs-sidebar-right h4 {
+  text-transform: uppercase;
+}
+
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-list li {
+  margin-bottom: var(--space-2);
+}
+
+.toc-list a {
+  display: block;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+/* 
+.toc-list a:hover,
+.toc-list a.active {
+  color: inherit;
+} */
+
+@media (max-width: 1100px) {
+  .docs-container {
+    grid-template-columns: 240px 1fr;
+  }
+
+  .docs-sidebar-right {
+    display: none;
+  }
+}

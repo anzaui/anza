@@ -1,0 +1,133 @@
+<h1>Uploads</h1>
+<p>Standard <code>fetch</code> does not expose upload progress in baseline browsers. The API client bridges this gap
+  with a precise <code>XMLHttpRequest</code>-based uploader that reports real-time progress via telemetry events.</p>
+
+<h2>Basic Upload</h2>
+<view-code language="javascript">import { api } from '@adukiorg/anza/api';
+
+  const form = new FormData();
+  form.append('file', fileBlob);
+
+  const result = await api.upload('/upload', form);
+</view-code>
+<p>The response is auto-parsed as JSON when possible, otherwise returned as text.</p>
+
+<h2>Upload with Progress</h2>
+<view-code language="javascript">await api.upload('/upload', formData, {
+  on: {
+  progress: (event) =&gt; {
+  const { loaded, total, percentage } = event.detail;
+  updateProgressBar(percentage);
+  },
+  'status:200': () =&gt; {
+  showToast('Upload complete');
+  },
+  error: (event) =&gt; {
+  showToast('Upload failed: ' + event.detail.error.message);
+  }
+  }
+  });
+</view-code>
+
+<h2>Upload Options</h2>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>method</code></td>
+      <td>string</td>
+      <td>HTTP method (default <code>POST</code>)</td>
+    </tr>
+    <tr>
+      <td><code>headers</code></td>
+      <td>object</td>
+      <td>Additional headers</td>
+    </tr>
+    <tr>
+      <td><code>onProgress</code></td>
+      <td>function</td>
+      <td>Legacy progress callback</td>
+    </tr>
+    <tr>
+      <td><code>signal</code></td>
+      <td>AbortSignal</td>
+      <td>Cancel the upload</td>
+    </tr>
+    <tr>
+      <td><code>on</code></td>
+      <td>object</td>
+      <td>Per-request event listeners</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+
+<h2>Legacy onProgress</h2>
+<p>For non-telemetry use, pass <code>onProgress</code> directly:</p>
+<view-code language="javascript">await api.upload('/upload', file, {
+  onProgress: ({ loaded, total, percentage }) =&gt; {
+  console.log(`${percentage}%`);
+  }
+  });
+</view-code>
+<p>This is called alongside the <code>progress</code> telemetry event.</p>
+
+<h2>Aborting Uploads</h2>
+<view-code language="javascript">const controller = new AbortController();
+
+  api.upload('/upload', file, { signal: controller.signal });
+
+  // Cancel after 10 seconds
+  setTimeout(() =&gt; controller.abort(), 10000);
+</view-code>
+<p>When aborted, the upload terminates and a <code>PlatformError</code> with code <code>NETWORK_ERROR</code> is
+  rejected.</p>
+
+<h2>Raw Binary Upload</h2>
+<p>Upload raw binary data instead of <code>FormData</code>:</p>
+<view-code language="javascript">const buffer = new Uint8Array([...]);
+  await api.upload('/binary', buffer, {
+  headers: { 'Content-Type': 'application/octet-stream' }
+  });
+</view-code>
+
+<h2>Upload Events</h2>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>Event</th>
+      <th>Trigger</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>progress</code></td>
+      <td>Upload progress update</td>
+    </tr>
+    <tr>
+      <td><code>status:xxx</code></td>
+      <td>HTTP status from the upload response</td>
+    </tr>
+    <tr>
+      <td><code>failed</code></td>
+      <td>Non-2xx response or network error</td>
+    </tr>
+    <tr>
+      <td><code>error</code></td>
+      <td>Network failure</td>
+    </tr>
+    <tr>
+      <td><code>timeout</code></td>
+      <td>Upload timed out</td>
+    </tr>
+  </tbody>
+  </table>
+</div>

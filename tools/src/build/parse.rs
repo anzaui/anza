@@ -168,6 +168,15 @@ impl Collector {
               "template" | "style" => {
                 match &*kv.value {
                   Expr::Lit(Lit::Str(s)) => self.push_asset(s),
+                  Expr::Array(arr) => {
+                    for elem in &arr.elems {
+                      if let Some(e) = elem {
+                        if let Expr::Lit(Lit::Str(s)) = &*e.expr {
+                          self.push_asset(s);
+                        }
+                      }
+                    }
+                  }
                   // New form: template: { html: './t.html', css: './s.css' }.
                   Expr::Object(obj) => {
                     for p in &obj.props {

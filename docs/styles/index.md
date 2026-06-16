@@ -30,9 +30,11 @@ view('styled-box', {
 
 ---
 
-## Multiple Stylesheets
+## Multiple & Shared Stylesheets
 
 Definitions for `view()`, `dock()`, and `page()` accept an array of styles. This is useful for combining common utility or theme sheets with element-specific layouts.
+
+Additionally, stylesheets can be loaded from any folder in the project, using either relative paths (`../`) or root-relative absolute paths starting with `/` (e.g., `/styles/shared.css`). The compiler automatically resolves these paths, mirrors the files into `dist/`, and registers them for preloading.
 
 ### Array of Inline Styles
 
@@ -46,7 +48,24 @@ view('themed-button', {
 });
 ```
 
-### Array of Stylesheet Files
+### Array of Stylesheet Files (via `style`)
+
+You can define multiple file-based stylesheets directly inside the `style` property:
+
+```javascript
+page('blog-post', {
+  template: { html: './post.html' },
+  style: [
+    '/styles/shared.css',      // Absolute path from src/ root
+    '../../styles/base.css',   // Relative path
+    './post.css'               // Local relative path
+  ]
+}, import.meta.url);
+```
+
+### Array of Stylesheet Files (via `template.css`)
+
+Alternatively, they can be referenced inside the `template.css` field:
 
 ```javascript
 page('blog-post', {
@@ -57,7 +76,7 @@ page('blog-post', {
 }, import.meta.url);
 ```
 
-When files are referenced in an array, the compiler resolves each relative path independently and loads them in the specified sequence.
+When files are referenced, the compiler resolves each relative path independently against the component's file directory (and absolute paths against the project's source root), copies them into `dist/`, and preloads them in the specified sequence.
 
 ---
 

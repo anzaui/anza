@@ -1,0 +1,23 @@
+/**
+ * tokens/semantic/contrast.css
+ *
+ * WCAG AAA compliant high-contrast semantic token overrides.
+ */
+
+[data-theme="high-contrast"] {
+  --color-surface-page:      var(--color-white);
+  --color-surface-elevated:  var(--color-white);
+  --color-content-primary:   var(--color-black);
+  --color-content-secondary: var(--color-black);
+  --color-interactive:       var(--color-black);
+  --color-border-default:    var(--color-black);
+
+  transition:
+    --color-surface-page 220ms var(--ease-out),
+    --color-surface-elevated 220ms var(--ease-out),
+    --color-content-primary 180ms var(--ease-out),
+    --color-content-secondary 180ms var(--ease-out),
+    --color-interactive 180ms var(--ease-out),
+    --color-border-default 180ms var(--ease-out);
+}
+

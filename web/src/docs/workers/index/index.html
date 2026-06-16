@@ -1,0 +1,99 @@
+<h1>Workers</h1>
+<p>The Anza workers layer provides a unified interface for browser concurrency primitives: dedicated worker pools,
+  shared workers, broadcast channels, web locks, and offscreen canvas. It handles feature detection, graceful
+  degradation, and lifecycle management automatically.</p>
+
+<h2>What You Get</h2>
+<ul>
+  <li><strong>Worker pools</strong> — bounded, priority-queued task execution with starvation prevention</li>
+  <li><strong>Dedicated workers</strong> — raw background workers with MessageChannel isolation</li>
+  <li><strong>Shared workers</strong> — cross-tab shared state with dedicated fallback</li>
+  <li><strong>Broadcast channels</strong> — reference-counted cross-tab messaging</li>
+  <li><strong>Web locks</strong> — named exclusive/shared locks with timeout and fallback</li>
+  <li><strong>Offscreen canvas</strong> — main-thread canvas rendering offloaded to a worker</li>
+  <li><strong>Feature detection</strong> — <code>has.worker</code>, <code>has.shared</code>, <code>has.channel</code>,
+    etc.</li>
+</ul>
+
+<h2>Package</h2>
+<view-code language="javascript">import { workers } from '@adukiorg/anza/workers';
+</view-code>
+
+<h2>File Map</h2>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>File</th>
+      <th>What It Covers</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="/docs/workers/quickstart">quickstart.md</a></td>
+      <td>Your first worker task in five minutes</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/workers/pool">pool.md</a></td>
+      <td>Dedicated worker pools with priority scheduling</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/workers/dedicated">dedicated.md</a></td>
+      <td>Raw dedicated workers with MessageChannel isolation</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/workers/shared">shared.md</a></td>
+      <td>SharedWorker connections with fallback</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/workers/broadcast">broadcast.md</a></td>
+      <td>Cross-tab BroadcastChannel messaging</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/workers/locks">locks.md</a></td>
+      <td>Web Locks API with fallback</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/workers/offscreen">offscreen.md</a></td>
+      <td>OffscreenCanvas transfer to workers</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/workers/api">api.md</a></td>
+      <td>Complete API reference</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/workers/troubleshooting">troubleshooting.md</a></td>
+      <td>Common problems and how to fix them</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+
+<h2>One-File Example</h2>
+<view-code language="javascript">import { workers } from '@adukiorg/anza/workers';
+
+  // Run a CPU task in a worker pool
+  const result = await workers.run('/workers/sort.js', 'sort', {
+  payload: { items: [3, 1, 2] },
+  priority: 'user-visible'
+  });
+
+  // Cross-tab broadcast
+  workers.broadcast('app-event', { type: 'theme-changed' });
+
+  // Acquire a lock
+  await workers.lock('db:write', async () =&gt; {
+  await saveToDatabase();
+  });
+</view-code>
+
+<h2>Next Steps</h2>
+<ul>
+  <li>New to workers? Start with <a href="/docs/workers/quickstart">quickstart.md</a>.</li>
+  <li>CPU-bound tasks? Read <a href="/docs/workers/pool">pool.md</a>.</li>
+  <li>Cross-tab state? <a href="/docs/workers/shared">shared.md</a> and <a
+      href="/docs/workers/broadcast">broadcast.md</a>.</li>
+  <li>Need synchronization? <a href="/docs/workers/locks">locks.md</a>.</li>
+  <li>Canvas rendering? <a href="/docs/workers/offscreen">offscreen.md</a>.</li>
+  <li>Prefer a single reference page? <a href="/docs/workers/api">api.md</a>.</li>
+</ul>

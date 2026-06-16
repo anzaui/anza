@@ -1,0 +1,101 @@
+<h1>State</h1>
+<p>The Anza state layer provides reactive in-memory stores, lazy computed values, cross-tab synchronization, and
+  transactional IndexedDB persistence. It is built on JavaScript Proxies for fine-grained reactivity without virtual DOM
+  overhead.</p>
+
+<h2>What You Get</h2>
+<ul>
+  <li><strong>Reactive stores</strong> — Proxy-based state with automatic dependency tracking and microtask-batched
+    updates</li>
+  <li><strong>Derived values</strong> — Lazy, memoized computations that track their own dependencies</li>
+  <li><strong>Cross-tab sync</strong> — BroadcastChannel replication of store mutations across browser tabs</li>
+  <li><strong>Persistence</strong> — IndexedDB-backed storage with migrations, TTL, and quota-aware eviction</li>
+</ul>
+
+<h2>Package</h2>
+<view-code language="javascript">import { state } from '@adukiorg/anza/state';
+</view-code>
+
+<h2>File Map</h2>
+<div class="table-wrap">
+  <table>
+  <thead>
+    <tr>
+      <th>File</th>
+      <th>What It Covers</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="/docs/state/quickstart">quickstart.md</a></td>
+      <td>Your first store in five minutes</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/state/store">store.md</a></td>
+      <td>ReactiveStore — get, set, subscribe, batch, snapshot</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/state/derived">derived.md</a></td>
+      <td>Lazy computed values and dependency tracking</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/state/sync">sync.md</a></td>
+      <td>Cross-tab state replication</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/state/persist">persist.md</a></td>
+      <td>IndexedDB persistence, migrations, TTL</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/state/api">api.md</a></td>
+      <td>Complete API reference</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/state/troubleshooting">troubleshooting.md</a></td>
+      <td>Common problems and how to fix them</td>
+    </tr>
+  </tbody>
+  </table>
+</div>
+
+<h2>One-File Example</h2>
+<view-code language="javascript">import { state } from '@adukiorg/anza/state';
+
+  // Create a reactive store
+  const store = state.create({ count: 0, user: null });
+
+  // Subscribe to a key
+  const off = store.subscribe('count', (val, key, prev) =&gt; {
+  console.log(`${key}: ${prev} -&gt; ${val}`);
+  });
+
+  // Set triggers subscribers
+  store.set('count', 5); // logs &quot;count: 0 -&gt; 5&quot;
+
+  // Batch multiple changes
+  store.batch(() =&gt; {
+  store.set('count', 10);
+  store.set('user', { name: 'Alice' });
+  });
+  // One notification batch for both changes
+
+  // Derived value
+  const doubled = state.derived(() =&gt; store.get('count') * 2);
+  console.log(doubled.value); // 20
+
+  // Sync across tabs
+  store.broadcast('app-state', ['count', 'user']);
+
+  // Persist to IndexedDB
+  state.storage.set('keyval', 'count', store.get('count'));
+</view-code>
+
+<h2>Next Steps</h2>
+<ul>
+  <li>New to the state layer? Start with <a href="/docs/state/quickstart">quickstart.md</a>.</li>
+  <li>Building reactive UI? Read <a href="/docs/state/store">store.md</a> and <a
+      href="/docs/state/derived">derived.md</a>.</li>
+  <li>Multi-tab app? <a href="/docs/state/sync">sync.md</a>.</li>
+  <li>Need persistence? <a href="/docs/state/persist">persist.md</a>.</li>
+  <li>Prefer a single reference page? <a href="/docs/state/api">api.md</a>.</li>
+</ul>

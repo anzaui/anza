@@ -41,7 +41,11 @@ export function dock(name, config = {}, base) {
   // Default passthrough template — a dock is a shell around its slotted content.
   if (spec.template == null) spec.template = '<slot></slot>';
   // Prepend containment styling to whatever the dock declares.
-  spec.style = spec.style ? `${CONTAIN}\n${spec.style}` : CONTAIN;
+  if (spec.style != null) {
+    spec.style = Array.isArray(spec.style) ? [CONTAIN, ...spec.style] : [CONTAIN, spec.style];
+  } else {
+    spec.style = CONTAIN;
+  }
 
   // Register in the graph on connect, unregister on disconnect. Wrap any
   // user-supplied connect/disconnect rather than clobbering them.

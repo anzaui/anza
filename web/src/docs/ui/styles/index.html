@@ -1,0 +1,77 @@
+<article class="doc">
+  <h1>Styles</h1>
+  <p>Styles are loaded per element and applied to the shadow root. The UI layer uses constructable stylesheets when
+    available, falling back to <code>&lt;style&gt;</code> injection.</p>
+
+  <h2>Inline CSS</h2>
+  <pre><code class="language-javascript">view('styled-box', {
+  template: '&lt;div class="box"&gt;&lt;/div&gt;',
+  style: `
+    :host { display: block; padding: 1rem; }
+    .box { background: #f0f0f0; border-radius: 4px; }
+  `
+});
+</code></pre>
+
+  <h2>File CSS</h2>
+  <pre><code class="language-javascript">view('styled-box', {
+  template: { html: './box.html', css: './box.css' }
+}, import.meta.url);
+</code></pre>
+  <p>Or with the definition layer:</p>
+  <pre><code class="language-javascript">view('styled-box', {
+  template: { html: './box.html', css: './box.css' }
+}, import.meta.url);
+</code></pre>
+
+  <h2>Constructable Stylesheets</h2>
+  <p>When <code>CSSStyleSheet</code> and <code>adoptedStyleSheets</code> are supported:</p>
+  <ol>
+    <li>CSS is fetched once per unique URL</li>
+    <li>A <code>CSSStyleSheet</code> is created and populated with <code>replaceSync()</code></li>
+    <li>The sheet is stored in a global cache</li>
+    <li>Each instance adopts the shared sheet via <code>shadowRoot.adoptedStyleSheets</code></li>
+  </ol>
+  <p>This means:</p>
+  <ul>
+    <li>One fetch per CSS file across the entire application</li>
+    <li>One stylesheet object shared by all instances</li>
+    <li>Hot reload updates all live instances simultaneously</li>
+  </ul>
+
+  <h2>Fallback</h2>
+  <p>When constructable stylesheets are unsupported:</p>
+  <ol>
+    <li>CSS text is fetched and stored as a string</li>
+    <li>Each instance injects a <code>&lt;style&gt;</code> element into its shadow root</li>
+  </ol>
+  <p>No shared caching, but full compatibility.</p>
+
+  <h2>HMR (Hot Module Replacement)</h2>
+  <p>During development, the factory listens for <code>native:hmr:css</code> events:</p>
+  <pre><code class="language-javascript">window.dispatchEvent(new CustomEvent('native:hmr:css', {
+  detail: { path: './box.css', css: '/* new css */' }
+}));
+</code></pre>
+  <p>When a matching CSS file is detected, the shared stylesheet is updated with <code>replaceSync()</code>. All live
+    instances reflect the change without remounting.</p>
+  <p>Only one listener per unique style URL is registered globally.</p>
+
+  <h2>Scoped Styles</h2>
+  <p>Styles defined in a declarative element are scoped to its shadow root. They do not leak outside:</p>
+  <pre><code class="language-css">/* Inside &lt;styled-box&gt; shadow root */
+.box { color: red; }   /* only matches inside this element */
+</code></pre>
+  <p>Use <code>:host</code> to style the element itself:</p>
+  <pre><code class="language-css">:host { display: flex; gap: 1rem; }
+:host([active]) { border: 2px solid blue; }
+</code></pre>
+
+  <h2>Dock Containment</h2>
+  <p>Docks automatically receive <code>contain: layout</code> styling for view transition isolation:</p>
+  <pre><code class="language-css">:host { contain: layout; display: block; }
+</code></pre>
+  <p>This is prepended to any user-supplied style. Do not override <code>contain</code> on docks unless you understand
+    the transition implications.</p>
+
+</article>

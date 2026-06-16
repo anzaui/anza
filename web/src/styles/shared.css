@@ -1,0 +1,644 @@
+@charset "UTF-8";
+
+*,
+*:after,
+*:before {
+  box-sizing: border-box;
+  font-family: inherit;
+  color: var(--text-color);
+  -webkit-box-sizing: border-box;
+}
+
+*:focus {
+  outline: inherit !important;
+}
+
+::selection {
+  background-color: var(--selection)
+}
+
+*::-webkit-scrollbar {
+  width: 3px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scroll-bar-background);
+}
+
+*::-webkit-scrollbar-thumb {
+  width: 3px;
+  background: var(--scroll-bar-linear);
+  border-radius: 50px;
+}
+
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 10px 0;
+  line-height: var(--leading-tight);
+}
+
+h1 {
+  font-size: var(--text-2xl);
+}
+
+h2 {
+  font-size: var(--text-xl);
+  margin: 30px 0 10px;
+}
+
+h3 {
+  font-size: var(--text-lg);
+}
+
+h4 {
+  font-size: var(--text-md);
+}
+
+h5 {
+  font-size: var(--text-sm);
+}
+
+h6 {
+  font-size: var(--text-xs);
+}
+
+@media only screen and (max-width: 700px) {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 5px 0;
+  }
+}
+
+p {
+  margin: 5px 0;
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+
+figcaption p {
+  font-size: var(--text-sm) !important
+}
+
+a {
+  font-weight: 500;
+  color: var(--anchor-color);
+  text-decoration: none;
+  transition: all .25s ease-in
+}
+
+a:focus,
+a:hover {
+  text-decoration: underline
+}
+
+
+blockquote {
+  margin: var(--space-6)0;
+  padding: var(--space-4)var(--space-6);
+  border-left: 4px solid var(--border);
+  background-color: var(--surfaceSunken);
+  color: var(--textMuted);
+  font-style: italic
+}
+
+blockquote p {
+  margin: 0
+}
+
+blockquote p+p {
+  margin-top: var(--space-4)
+}
+
+blockquote cite {
+  display: block;
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--textTertiary);
+  font-style: normal
+}
+
+blockquote cite::before {
+  content: "— "
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: .9em;
+  background-color: var(--prism-background);
+  color: var(--prism-text);
+  padding: .2em .4em;
+  border-radius: 8px;
+  transition: background-color .3s ease, color .3s ease
+}
+
+pre {
+  background-color: var(--surfaceElevated) !important;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  padding-top: var(--space-8);
+  overflow-x: auto;
+  overflow-y: hidden;
+  position: relative;
+  transition: background-color .3s ease, border-color .3s ease;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border)transparent
+}
+
+pre::-webkit-scrollbar {
+  height: 6px
+}
+
+pre::-webkit-scrollbar-track {
+  background: 0 0
+}
+
+pre::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 3px
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+  background-color: var(--textMuted)
+}
+
+hr {
+  box-sizing: content-box;
+  height: 0;
+  overflow: visible
+}
+
+
+abbr[title] {
+  border-bottom: none;
+  text-decoration: underline;
+  text-decoration: underline dotted
+}
+
+b,
+strong {
+  font-weight: 600
+}
+
+code,
+kbd,
+samp {
+  font-family: var(--font-mono);
+}
+
+small {
+  font-size: 80%
+}
+
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline
+}
+
+sub {
+  bottom: -.25em
+}
+
+sup {
+  top: -.5em
+}
+
+img {
+  border-style: none
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: 1.15;
+  margin: 0
+}
+
+button,
+input {
+  overflow: visible
+}
+
+button,
+select {
+  text-transform: none
+}
+
+button,
+[type=button],
+[type=reset],
+[type=submit] {
+  appearance: button;
+  -webkit-appearance: button;
+}
+
+button::-moz-focus-inner,
+[type=button]::-moz-focus-inner,
+[type=reset]::-moz-focus-inner,
+[type=submit]::-moz-focus-inner {
+  border-style: none;
+  padding: 0
+}
+
+button:-moz-focusring,
+[type=button]:-moz-focusring,
+[type=reset]:-moz-focusring,
+[type=submit]:-moz-focusring {
+  outline: 1px dotted ButtonText
+}
+
+fieldset {
+  padding: .35em .75em .625em
+}
+
+legend {
+  box-sizing: border-box;
+  color: inherit;
+  display: table;
+  max-width: 100%;
+  padding: 0;
+  white-space: normal
+}
+
+progress {
+  vertical-align: baseline
+}
+
+textarea {
+  overflow: auto
+}
+
+/* ═══════════════════════════════════════
+   Blog lists — ul, ol, dl + nesting
+   ═══════════════════════════════════════ */
+
+
+/* ── Unordered ─────────────────────────── */
+
+ul {
+  list-style: none;
+  padding-left: 0;
+  margin: var(--space-6) 0;
+  font-family: var(--font-sans);
+}
+
+ul li {
+  position: relative;
+  padding-left: var(--space-6);
+  margin: var(--space-2) 0;
+  font-size: var(--text-base);
+  color: var(--text-color);
+  line-height: var(--leading-relaxed);
+  width: 100%;
+  max-width: 100%;
+  overflow: visible;
+}
+
+/* Level 1 — filled dot, accent */
+ul li::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--space-2) + 2px);
+  top: 0.65em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: var(--accent-color);
+  display: block;
+}
+
+/* Level 2 — hollow ring */
+ul ul {
+  margin: var(--space-2) 0;
+}
+
+ul ul li::before {
+  width: 4px;
+  height: 4px;
+  background-color: transparent;
+  border: 1.5px solid var(--accent-color);
+  top: 0.68em;
+}
+
+/* Level 3 — small square, muted */
+ul ul ul li::before {
+  border-radius: var(--radius-sm);
+  border: none;
+  background-color: var(--nav-color);
+}
+
+
+/* ── Ordered ───────────────────────────── */
+
+ol {
+  list-style: none;
+  padding-left: 0;
+  margin: var(--space-6) 0;
+  font-family: var(--font-sans);
+  counter-reset: blog-ol;
+}
+
+ol li {
+  position: relative;
+  padding-left: var(--space-8);
+  margin: var(--space-2) 0;
+  font-size: var(--text-base);
+  color: var(--text-color);
+  line-height: var(--leading-relaxed);
+  counter-increment: blog-ol;
+}
+
+/* Level 1 — accent numeral */
+ol li::before {
+  content: counter(blog-ol);
+  position: absolute;
+  left: 0;
+  top: 0.05em;
+  width: var(--space-6);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  font-family: var(--font-ui);
+  color: var(--accent-color);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* Level 2 — alpha, muted */
+ol ol {
+  margin: var(--space-2) 0;
+  counter-reset: blog-ol-alpha;
+}
+
+ol ol li {
+  counter-increment: blog-ol-alpha;
+}
+
+ol ol li::before {
+  content: counter(blog-ol-alpha, lower-alpha) '.';
+  color: var(--nav-color);
+  font-weight: var(--weight-medium);
+}
+
+
+/* ── Mixed nesting ─────────────────────── */
+
+ol ul,
+ul ol {
+  margin: var(--space-2) 0;
+}
+
+
+/* ── Definition list ───────────────────── */
+
+dl {
+  margin: var(--space-6) 0;
+  font-family: var(--font-sans);
+}
+
+dt {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--title-color);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  margin-top: var(--space-5);
+}
+
+dt:first-child {
+  margin-top: 0;
+}
+
+dd {
+  margin: var(--space-1) 0 0 var(--space-4);
+  font-size: var(--text-base);
+  color: var(--text-color);
+  line-height: var(--leading-relaxed);
+}
+
+dd + dd {
+  margin-top: var(--space-1);
+}
+
+
+/* ── Responsive ────────────────────────── */
+
+@media (max-width: 700px) {
+  ul li,
+  ol li {
+    font-size: var(--text-md);
+  }
+}
+
+
+/**
+ *
+ * Complete table styles for content.
+ * Depends entirely on --table-* tokens from table-tokens.css.
+ * Load order: table-tokens.css → table.css
+ *
+ * Markup pattern:
+ *   <div class="table-wrap">
+ *     <div class="table-wrap">
+  <table>
+ *       <caption>Optional title</caption>
+ *       <thead><tr><th>…</th></tr></thead>
+ *       <tbody><tr><td>…</td></tr></tbody>
+ *       <tfoot><tr><td>…</td></tr></tfoot>  ← optional
+ *       </table>
+</div>
+ *   </div>
+ */
+
+
+/* ─────────────────────────────────────────────────────────────────
+   Responsive wrapper
+   Provides scroll, border-radius clip, and the outer border.
+   border-radius on the wrapper (not the table) is intentional —
+   border-collapse: collapse makes radius on table unreliable.
+   ───────────────────────────────────────────────────────────────── */
+
+div.table-wrap {
+  width: 100%;
+  margin: 15px 0 10px;
+  overflow-x: auto;
+  border-radius: var(--table-radius);
+  border: 1px solid var(--table-border);
+  background-color: var(--table-bg);
+
+  /* Thin scrollbar visible only when needed */
+  scrollbar-width: thin;
+  scrollbar-color: var(--table-scrollbar-thumb) var(--table-scrollbar-track);
+}
+
+div.table-wrap::-webkit-scrollbar {
+  height: 4px;
+}
+
+div.table-wrap::-webkit-scrollbar-track {
+  background: var(--table-scrollbar-track);
+}
+
+div.table-wrap::-webkit-scrollbar-thumb {
+  background-color: var(--table-scrollbar-thumb);
+  border-radius: var(--radius-pill);
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   Table base
+   ───────────────────────────────────────────────────────────────── */
+
+div.table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--table-font);
+  font-size: var(--table-font-size);
+  line-height: var(--table-line-height);
+  background-color: var(--table-bg);
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   Caption
+   ───────────────────────────────────────────────────────────────── */
+
+div.table-wrap table caption {
+  caption-side: top;
+  text-align: left;
+  padding: var(--table-pad-y) var(--table-pad-x);
+  font-size: var(--table-caption-size);
+  font-style: var(--table-caption-style);
+  color: var(--table-caption-color);
+  border-bottom: 1px solid var(--table-header-border);
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   Header
+   ───────────────────────────────────────────────────────────────── */
+
+div.table-wrap thead th {
+  background-color: var(--table-header-bg);
+  color: var(--table-header-color);
+  font-family: var(--table-font);
+  font-size: var(--table-header-size);
+  font-weight: var(--table-header-weight);
+  letter-spacing: var(--table-header-tracking);
+  text-transform: var(--table-header-transform);
+  text-align: left;
+  padding: var(--table-pad-y) var(--table-pad-x);
+  border-bottom: 2px solid var(--table-header-border);
+  white-space: nowrap;
+}
+
+/* Numeric columns — right-align by convention */
+div.table-wrap thead th[data-type="number"],
+div.table-wrap tbody td[data-type="number"] {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   Body rows
+   ───────────────────────────────────────────────────────────────── */
+
+div.table-wrap tbody tr {
+  background-color: var(--table-row-bg);
+  transition:
+    background-color var(--duration-fast) var(--ease-out);
+}
+
+div.table-wrap tbody tr:nth-child(even) {
+  background-color: var(--table-row-bg-alt);
+}
+
+div.table-wrap tbody tr:hover {
+  background-color: var(--table-row-bg-hover);
+}
+
+div.table-wrap tbody td {
+  color: var(--table-row-color);
+  padding: var(--table-pad-y) var(--table-pad-x);
+  border-bottom: 1px solid var(--table-row-border);
+  vertical-align: middle;
+}
+
+/* Remove bottom border on last row to avoid doubling with wrapper */
+div.table-wrap tbody tr:last-child td {
+  border-bottom: none;
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   Footer (optional totals / summary row)
+   ───────────────────────────────────────────────────────────────── */
+
+div.table-wrap tfoot td {
+  background-color: var(--table-footer-bg);
+  color: var(--table-footer-color);
+  font-size: var(--table-header-size);
+  font-weight: var(--table-header-weight);
+  padding: var(--table-pad-y) var(--table-pad-x);
+  border-top: 2px solid var(--table-footer-border);
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   Responsive — narrow viewports
+   Swap to tighter padding; the wrapper handles horizontal scroll.
+   No display:block / stack pattern — keeps <thead> visible.
+   ───────────────────────────────────────────────────────────────── */
+
+@media (max-width: 700px) {
+
+  div.table-wrap {
+    /* Push edges to viewport on mobile */
+    margin-inline: calc(-1 * var(--container-padding, var(--space-5)));
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  div.table-wrap thead th,
+  div.table-wrap tbody td,
+  div.table-wrap tfoot td {
+    padding: var(--table-pad-y-sm) var(--table-pad-x-sm);
+    white-space: nowrap;
+  }
+
+  div.table-wrap table caption {
+    padding: var(--table-pad-y-sm) var(--table-pad-x-sm);
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────────────
+   Reduced motion — disable row transition
+   ───────────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  div.table-wrap tbody tr {
+    transition: none;
+  }
+}

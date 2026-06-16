@@ -1,0 +1,9 @@
+/**
+ * styles/layers.css
+ *
+ * Establishes the explicit order of CSS cascade layers.
+ * Lower priority layers sit earlier in the declaration list.
+ * Source: doc 3 §1.3
+*/
+
+@layer reset, tokens, base, components, layouts, utilities, overrides;

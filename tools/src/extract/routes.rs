@@ -176,18 +176,27 @@ pub fn emit(specs: &[(std::path::PathBuf, ExtractedSpec)], dist_dir: &Path) {
             if !layouts.contains(f) {
               layouts.push(f.clone());
             }
-            if let Some(ref h) = container_spec.html {
+             if let Some(ref h) = container_spec.html {
               let resolved = resolve_compile_time_asset_path(f, h);
               if !templates.contains(&resolved) {
                 templates.push(resolved);
               }
             }
-            if let Some(ref c) = container_spec.css {
+            for c in &container_spec.css {
               let resolved = resolve_compile_time_asset_path(f, c);
               if !styles.contains(&resolved) {
                 styles.push(resolved);
               }
             }
+          }
+        }
+      }
+
+      if let Some(ref f) = spec.file {
+        for c in &spec.css {
+          let resolved = resolve_compile_time_asset_path(f, c);
+          if !styles.contains(&resolved) {
+            styles.push(resolved);
           }
         }
       }
@@ -203,7 +212,7 @@ pub fn emit(specs: &[(std::path::PathBuf, ExtractedSpec)], dist_dir: &Path) {
         query_cast: query_cast.iter().map(|e| CastEntry { name: e.name.clone(), cast: e.cast.clone() }).collect(),
         file: spec.file.as_deref(),
         html: spec.html.as_deref(),
-        css: spec.css.as_deref(),
+        css: spec.css.first().map(|s| s.as_str()),
         layouts,
         templates,
         styles,
@@ -405,7 +414,20 @@ fn resolve_compile_time_asset_path(file: &str, asset: &str) -> String {
     let path = Path::new(file);
     if let Some(parent) = path.parent() {
       let resolved = parent.join(asset);
-      format!("/dist/{}", resolved.to_string_lossy().replace('\\', "/"))
+      let mut parts = Vec::new();
+      for component in resolved.components() {
+        match component {
+          std::path::Component::ParentDir => {
+            parts.pop();
+          }
+          std::path::Component::CurDir => {}
+          std::path::Component::Normal(c) => {
+            parts.push(c.to_string_lossy());
+          }
+          _ => {}
+        }
+      }
+      format!("/dist/{}", parts.join("/"))
     } else {
       format!("/dist/{}", asset)
     }

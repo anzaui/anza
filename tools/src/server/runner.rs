@@ -211,11 +211,10 @@ async fn handle_html_fallback(
             inject.push_str(&format!("    <link rel=\"modulepreload\" href=\"/dist/{}\" />\n", f));
           }
           for h in &r.templates {
-            // Same-origin fetch — no crossorigin attribute needed.
-            inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" />\n", h));
+            inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" crossorigin />\n", h));
           }
           for c in &r.styles {
-            inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" />\n", c));
+            inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" crossorigin />\n", c));
           }
 
           if let Some(ref f) = r.file {
@@ -223,12 +222,13 @@ async fn handle_html_fallback(
             
             if let Some(ref h) = r.html {
               let resolved = resolve_asset_path(f, h);
-              // Same-origin fetch — no crossorigin attribute needed.
-              inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" />\n", resolved));
+              inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" crossorigin />\n", resolved));
             }
             if let Some(ref c) = r.css {
               let resolved = resolve_asset_path(f, c);
-              inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" />\n", resolved));
+              if !r.styles.contains(&resolved) {
+                inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" crossorigin />\n", resolved));
+              }
             }
           }
 
