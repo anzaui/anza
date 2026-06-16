@@ -3,25 +3,22 @@ set -euo pipefail
 
 echo "=== Cloudflare Pages Build ==="
 
-# 1. Install Rust (if not cached)
-if ! command -v cargo &>/dev/null; then
-  echo "Installing Rust..."
-  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
-  source "$HOME/.cargo/env"
-fi
+# Extract version from library/package.json
+VERSION=$(jq -r .version library/package.json)
+echo "Anza version: v${VERSION}"
 
-echo "Rust: $(rustc --version)"
+# Download prebuilt binary from GitHub release
+BINARY="anza-linux-x64"
+URL="https://github.com/aduki-org/anza/releases/download/v${VERSION}/${BINARY}"
 
-# 2. Build anza CLI from Rust
-echo "Building anza CLI..."
-cd tools
-cargo build --release
-cd ..
+echo "Downloading ${BINARY}..."
+curl -fsSL -o anza "${URL}"
+chmod +x anza
+export PATH="$(pwd):$PATH"
 
-export PATH="$(pwd)/tools/target/release:$PATH"
-echo "Anza: $(which anza)"
+echo "Binary: $(./anza --version 2>/dev/null || echo 'ok')"
 
-# 3. Build web assets
+# Build web assets
 echo "Building web assets..."
 cd web
 npm install
