@@ -1,95 +1,102 @@
+<!-- Main Content -->
 <h1>Troubleshooting</h1>
 <p>Common problems and their solutions.</p>
 
+<!-- Listener not firing Section -->
 <h2>Listener not firing</h2>
 <p><strong>Cause:</strong> Wrong event name, or listener attached after emit.</p>
 <p><strong>Fix:</strong> Check spelling and registration order:</p>
 <view-code language="javascript">// Correct — listen first, emit second
-  events.on('update', handler);
-  events.emit('update', data);
+events.on('update', handler);
+events.emit('update', data);
 
-  // Wrong — emit before listener is registered
-  events.emit('update', data);
-  events.on('update', handler); // missed it
+// Wrong — emit before listener is registered
+events.emit('update', data);
+events.on('update', handler); // missed it
 </view-code>
 
+<!-- Memory leak Section -->
 <h2>Memory leak with global listeners</h2>
 <p><strong>Cause:</strong> Listeners registered without cleanup.</p>
 <p><strong>Fix:</strong> Use disposers or AbortSignal:</p>
 <view-code language="javascript">// Manual cleanup
-  const off = events.on('update', handler);
-  off();
+const off = events.on('update', handler);
+off();
 
-  // Auto-cleanup
-  const ctrl = new AbortController();
-  events.on('update', handler, ctrl.signal);
-  ctrl.abort();
+// Auto-cleanup
+const ctrl = new AbortController();
+events.on('update', handler, ctrl.signal);
+ctrl.abort();
 </view-code>
 
+<!-- Delegation not matching Section -->
 <h2>Delegation not matching shadow DOM elements</h2>
 <p><strong>Cause:</strong> The selector does not match any element in <code>composedPath()</code>.</p>
-<p><strong>Fix:</strong> Ensure the selector targets the actual event target or an ancestor in the path. The delegation
-  stops at the root element.</p>
+<p><strong>Fix:</strong> Ensure the selector targets the actual event target or an ancestor in the path. The delegation stops at the root element.</p>
 <view-code language="javascript">// If the click happens on &lt;span&gt; inside &lt;my-el&gt; inside &lt;body&gt;
-  // composedPath() is [span, my-el, body, html, document, window]
+// composedPath() is [span, my-el, body, html, document, window]
 
-  events.delegate(document.body, 'span', 'click', handler); // matches
-  events.delegate(document.body, 'my-el', 'click', handler); // matches
-  events.delegate(document.body, 'div', 'click', handler); // no match
+events.delegate(document.body, 'span', 'click', handler); // matches
+events.delegate(document.body, 'my-el', 'click', handler); // matches
+events.delegate(document.body, 'div', 'click', handler); // no match
 </view-code>
 
+<!-- Passive event warning Section -->
 <h2>Passive event warning</h2>
 <p><strong>Warning:</strong> <code>Unable to preventDefault inside passive event listener</code></p>
-<p><strong>Cause:</strong> <code>touchstart</code>, <code>touchmove</code>, <code>wheel</code>, or
-  <code>mousewheel</code> listener is passive by default.</p>
+<p><strong>Cause:</strong> <code>touchstart</code>, <code>touchmove</code>, <code>wheel</code>, or <code>mousewheel</code> listener is passive by default.</p>
 <p><strong>Fix:</strong> Override the default explicitly if you need <code>preventDefault</code>:</p>
 <view-code language="javascript">events.listen(el, 'touchmove', handler, { passive: false });
 </view-code>
 <p>Only do this when you genuinely need to block scrolling. Default passive is correct for most use cases.</p>
 
+<!-- once() promise Section -->
 <h2>once() promise never resolves</h2>
 <p><strong>Cause:</strong> Event never fires, or signal aborted.</p>
 <p><strong>Fix:</strong> Check that the event can actually fire on the target:</p>
 <view-code language="javascript">// Correct — document receives click events
-  await events.once(document, 'click');
+await events.once(document, 'click');
 
-  // Wrong — a detached element never receives events
-  const el = document.createElement('div');
-  await events.once(el, 'click'); // never resolves
+// Wrong — a detached element never receives events
+const el = document.createElement('div');
+await events.once(el, 'click'); // never resolves
 </view-code>
 
+<!-- AbortSignal not cleaning up Section -->
 <h2>AbortSignal not cleaning up</h2>
 <p><strong>Cause:</strong> Signal was created but never aborted.</p>
 <p><strong>Fix:</strong> Ensure the signal aborts when the component unmounts:</p>
 <view-code language="javascript">// Correct
-  mount({ ctrl }) {
+mount({ ctrl }) {
   events.on('update', handler, ctrl.signal);
-  }
-  // ctrl.abort() called on unmount
+}
+// ctrl.abort() called on unmount
 
-  // Wrong — signal never aborted
-  const ctrl = new AbortController();
-  events.on('update', handler, ctrl.signal);
-  // ctrl.abort() never called
+// Wrong — signal never aborted
+const ctrl = new AbortController();
+events.on('update', handler, ctrl.signal);
+// ctrl.abort() never called
 </view-code>
 
+<!-- EventBus events leaking Section -->
 <h2>EventBus events leaking between modules</h2>
 <p><strong>Cause:</strong> Using the global bus for module-scoped communication.</p>
 <p><strong>Fix:</strong> Create isolated buses for module scope:</p>
 <view-code language="javascript">import { EventBus } from '@adukiorg/anza/events';
 
-  const moduleBus = new EventBus();
-  moduleBus.on('internal', handler);
+const moduleBus = new EventBus();
+moduleBus.on('internal', handler);
 </view-code>
 <p>Only use <code>events.emit</code> and <code>events.on</code> for truly global events.</p>
 
+<!-- Still stuck Section -->
 <h2>Still stuck?</h2>
 <p>Debug the event flow:</p>
 <view-code language="javascript">// Log every event on the bus
-  events.on('*', (e) =&gt; {
+events.on('*', (e) => {
   console.log('Event:', e.type, e.detail);
-  });
+});
 
-  // Check active listeners (not exposed — use native methods)
-  bus.addEventListener('debug', (e) =&gt; console.log(e));
+// Check active listeners (not exposed — use native methods)
+bus.addEventListener('debug', (e) => console.log(e));
 </view-code>

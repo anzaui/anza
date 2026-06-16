@@ -1,88 +1,94 @@
+<!-- Main Content -->
 <h1>Observers</h1>
-<p>Safe wrappers around browser observer APIs. Each observer is automatically disconnected when the provided
-  <code>AbortSignal</code> aborts, preventing memory leaks.</p>
+<p>Safe wrappers around browser observer APIs. Each observer is automatically disconnected when the provided <code>AbortSignal</code> aborts, preventing memory leaks.</p>
 
+<!-- resize Section -->
 <h2>resize</h2>
 <view-code language="javascript">import { observe } from '@adukiorg/anza/ui';
 
-  view('responsive-box', {
+view('responsive-box', {
   on: {
-  connect({ el, ctrl }) {
-  observe.resize(el, (entries) =&gt; {
-  for (const entry of entries) {
-  const { width } = entry.contentRect;
-  el.classList.toggle('compact', width &lt; 400);
+    connect({ el, ctrl }) {
+      observe.resize(el, (entries) => {
+        for (const entry of entries) {
+          const { width } = entry.contentRect;
+          el.classList.toggle('compact', width < 400);
+        }
+      }, ctrl.signal);
+    }
   }
-  }, ctrl.signal);
-  }
-  }
-  });
+});
 </view-code>
 
+<!-- intersection Section -->
 <h2>intersection</h2>
 <view-code language="javascript">view('lazy-image', {
-  template: '&lt;img ref=&quot;img&quot; data-src=&quot;photo.jpg&quot; loading=&quot;lazy&quot;&gt;',
+  template: '&lt;img ref="img" data-src="photo.jpg" loading="lazy"&gt;',
   on: {
-  connect({ refs, ctrl }) {
-  observe.intersection(refs.img, (entries) =&gt; {
-  for (const entry of entries) {
-  if (entry.isIntersecting) {
-  refs.img.src = refs.img.dataset.src;
+    connect({ refs, ctrl }) {
+      observe.intersection(refs.img, (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            refs.img.src = refs.img.dataset.src;
+          }
+        }
+      }, ctrl.signal, { rootMargin: '100px' });
+    }
   }
-  }
-  }, ctrl.signal, { rootMargin: '100px' });
-  }
-  }
-  });
+});
 </view-code>
 
+<!-- mutation Section -->
 <h2>mutation</h2>
 <view-code language="javascript">view('live-list', {
   on: {
-  connect({ el, ctrl }) {
-  observe.mutation(el.shadowRoot, (mutations) =&gt; {
-  for (const m of mutations) {
-  if (m.type === 'childList') {
-  console.log('Children changed');
+    connect({ el, ctrl }) {
+      observe.mutation(el.shadowRoot, (mutations) => {
+        for (const m of mutations) {
+          if (m.type === 'childList') {
+            console.log('Children changed');
+          }
+        }
+      }, ctrl.signal, { childList: true, subtree: true });
+    }
   }
-  }
-  }, ctrl.signal, { childList: true, subtree: true });
-  }
-  }
-  });
+});
 </view-code>
 
+<!-- performance Section -->
 <h2>performance</h2>
 <view-code language="javascript">view('perf-tracker', {
   on: {
-  connect({ ctrl }) {
-  observe.performance(['measure', 'navigation'], (list) =&gt; {
-  for (const entry of list.getEntries()) {
-  console.log(entry.name, entry.duration);
+    connect({ ctrl }) {
+      observe.performance(['measure', 'navigation'], (list) => {
+        for (const entry of list.getEntries()) {
+          console.log(entry.name, entry.duration);
+        }
+      }, ctrl.signal);
+    }
   }
-  }, ctrl.signal);
-  }
-  }
-  });
+});
 </view-code>
 
+<!-- Return Value Section -->
 <h2>Return Value</h2>
 <p>Each observer factory returns a disposer function:</p>
 <view-code language="javascript">const dispose = observe.resize(el, handler, signal);
-  dispose(); // disconnect manually
+dispose(); // disconnect manually
 </view-code>
 <p>If the signal aborts first, the disposer is a no-op (no double-disconnect).</p>
 
+<!-- Signal Already Aborted Section -->
 <h2>Signal Already Aborted</h2>
-<p>If the signal is already aborted when the observer is created, the factory returns a no-op disposer and the observer
-  is never started:</p>
+<p>If the signal is already aborted when the observer is created, the factory returns a no-op disposer and the observer is never started:</p>
 <view-code language="javascript">const controller = new AbortController();
-  controller.abort();
+controller.abort();
 
-  const dispose = observe.resize(el, handler, controller.signal);
-  // returns () =&gt; {} — observer never started
+const dispose = observe.resize(el, handler, controller.signal);
+// returns () => {} — observer never started
 </view-code>
 
+<!-- Error Handling Section -->
 <h2>Error Handling</h2>
 <p>Observer callbacks are wrapped in try-catch. Errors are logged to console but do not crash the observer:</p>
 <view-code language="text">Error in ResizeObserver callback: ...

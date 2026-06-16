@@ -1,7 +1,9 @@
+<!-- Main Content -->
 <h1>Events</h1>
 <p>The router emits three events: <code>found</code>, <code>notfound</code>, and <code>error</code>. Subscribe with
   <code>router.on()</code>.</p>
 
+<!-- Found Section -->
 <h2>Found</h2>
 <p>Emitted when a route matches successfully:</p>
 <view-code language="javascript">const dispose = router.on('found', (detail) =&gt; {
@@ -13,86 +15,91 @@
   console.log(detail.chain); // parent chain array
   console.log(detail.url); // full URL
   console.log(detail.direction); // 'push', 'replace', 'traverse', or 'load'
-  });
+});
 </view-code>
 <p>The orchestrator listens to this event and mounts the matched element into its container. You can also listen for
   analytics, logging, or side effects.</p>
 
+<!-- Not Found Section -->
 <h2>Not Found</h2>
 <p>Emitted when no route matches:</p>
 <view-code language="javascript">router.on('notfound', ({ url }) =&gt; {
   console.warn('No route for', url);
-  });
+});
 </view-code>
 <p>If a <code>notFound</code> handler is registered, it runs after the event:</p>
 <view-code language="javascript">router.notFound((event) =&gt; {
   document.body.innerHTML = '&lt;h1&gt;404&lt;/h1&gt;';
-  });
+});
 </view-code>
 
+<!-- Error Section -->
 <h2>Error</h2>
 <p>Emitted when something goes wrong during navigation:</p>
 <view-code language="javascript">router.on('error', ({ error, url, route, phase }) =&gt; {
   console.error(`Navigation failed in phase ${phase}:`, error);
-  });
+});
 </view-code>
 <p>Phase values:</p>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Phase</th>
-      <th>Meaning</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>'match'</code></td>
-      <td>URL matching threw an exception</td>
-    </tr>
-    <tr>
-      <td><code>'container'</code></td>
-      <td>Cascade mounting failed</td>
-    </tr>
-    <tr>
-      <td><code>'guard'</code></td>
-      <td>A guard threw an exception</td>
-    </tr>
-    <tr>
-      <td><code>'handler'</code></td>
-      <td>A callback handler threw an exception</td>
-    </tr>
-    <tr>
-      <td><code>'navigation'</code></td>
-      <td>The Navigation API emitted <code>navigateerror</code></td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Phase</th>
+        <th>Meaning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>'match'</code></td>
+        <td>URL matching threw an exception</td>
+      </tr>
+      <tr>
+        <td><code>'container'</code></td>
+        <td>Cascade mounting failed</td>
+      </tr>
+      <tr>
+        <td><code>'guard'</code></td>
+        <td>A guard threw an exception</td>
+      </tr>
+      <tr>
+        <td><code>'handler'</code></td>
+        <td>A callback handler threw an exception</td>
+      </tr>
+      <tr>
+        <td><code>'navigation'</code></td>
+        <td>The Navigation API emitted <code>navigateerror</code></td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Subscription and Cleanup Section -->
 <h2>Subscription and Cleanup</h2>
 <p><code>router.on()</code> returns a disposer:</p>
 <view-code language="javascript">const dispose = router.on('found', handler);
-  // later
-  dispose();
+// later
+dispose();
 </view-code>
 <p>You can also pass an <code>AbortSignal</code>:</p>
 <view-code language="javascript">const controller = new AbortController();
-  router.on('found', handler, controller.signal);
-  controller.abort(); // removes the listener
+router.on('found', handler, controller.signal);
+controller.abort(); // removes the listener
 </view-code>
 
+<!-- Clearing Listeners Section -->
 <h2>Clearing Listeners</h2>
 <p>There is no bulk clear for event listeners. Each subscription is independent. Use <code>AbortController</code> for
   grouped cleanup:</p>
 <view-code language="javascript">const ctrl = new AbortController();
-  router.on('found', handlerA, ctrl.signal);
-  router.on('error', handlerB, ctrl.signal);
+router.on('found', handlerA, ctrl.signal);
+router.on('error', handlerB, ctrl.signal);
 
-  // Remove both at once
-  ctrl.abort();
+// Remove both at once
+ctrl.abort();
 </view-code>
 
+<!-- Event Order Section -->
 <h2>Event Order</h2>
 <p>During a successful navigation:</p>
 <ol>
@@ -112,22 +119,23 @@
   <li>Navigation is aborted or redirected</li>
 </ol>
 
+<!-- Listening Inside Components Section -->
 <h2>Listening Inside Components</h2>
 <p>Components can subscribe to router events for coordination:</p>
 <view-code language="javascript">page('/dashboard', {
   tag: 'page-dashboard',
   via: ['main'],
   on: {
-  connect({ el }) {
-  this._dispose = router.on('found', ({ tag }) =&gt; {
-  if (tag !== 'page-dashboard') {
-  this.pauseLiveUpdates();
+    connect({ el }) {
+      this._dispose = router.on('found', ({ tag }) =&gt; {
+        if (tag !== 'page-dashboard') {
+          this.pauseLiveUpdates();
+        }
+      });
+    },
+    disconnect({ el }) {
+      this._dispose?.();
+    }
   }
-  });
-  },
-  disconnect({ el }) {
-  this._dispose?.();
-  }
-  }
-  });
+});
 </view-code>

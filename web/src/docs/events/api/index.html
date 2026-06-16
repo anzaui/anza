@@ -1,99 +1,116 @@
+<!-- Main Content -->
 <h1>API Reference</h1>
 <p>Complete reference for the events facade and internal utilities.</p>
 
+<!-- Facade Section -->
 <h2>Facade</h2>
 <view-code language="javascript">import { events } from '@adukiorg/anza/events';
 </view-code>
+
 <h3><code>events.on(type, handler, signal)</code></h3>
 <p>Subscribe to the global event bus. Returns a disposer.</p>
-<view-code language="javascript">const off = events.on('update', (e) =&gt; { ... });
-  off(); // remove
+<view-code language="javascript">const off = events.on('update', (e) => { ... });
+off(); // remove
 </view-code>
+
 <h3><code>events.emit(type, detail)</code></h3>
 <p>Emit a global event.</p>
 <view-code language="javascript">events.emit('update', { value: 42 });
 </view-code>
+
 <h3><code>events.listen(target, type, handler, options)</code></h3>
 <p>Memory-safe DOM listener. Returns a disposer.</p>
 <view-code language="javascript">const off = events.listen(el, 'click', handler, { signal: ctrl.signal });
 </view-code>
+
 <h3><code>events.delegate(root, selector, type, handler, options)</code></h3>
 <p>Shadow-aware event delegation. Returns a disposer.</p>
 <view-code language="javascript">const off = events.delegate(document.body, '.btn', 'click', handler);
 </view-code>
+
 <h3><code>events.once(target, type, options)</code></h3>
 <p>Promise-wrapped single event.</p>
 <view-code language="javascript">const event = await events.once(document, 'click');
 </view-code>
+
 <h3><code>events.names</code></h3>
 <p>System event name constants:</p>
 <view-code language="javascript">events.names.auth.signedin // 'auth:signedin'
-  events.names.auth.signedout // 'auth:signedout'
-  events.names.auth.refreshed // 'auth:refreshed'
-  events.names.connectivity.online // 'connectivity:online'
-  events.names.connectivity.offline // 'connectivity:offline'
-  events.names.preference.changed // 'preference:changed'
-  events.names.sw.updated // 'sw:updated'
-  events.names.sw.message // 'sw:message'
+events.names.auth.signedout // 'auth:signedout'
+events.names.auth.refreshed // 'auth:refreshed'
+events.names.connectivity.online // 'connectivity:online'
+events.names.connectivity.offline // 'connectivity:offline'
+events.names.preference.changed // 'preference:changed'
+events.names.sw.updated // 'sw:updated'
+events.names.sw.message // 'sw:message'
 </view-code>
 
+<!-- Named Exports Section -->
 <h2>Named Exports</h2>
 <view-code language="javascript">import { bus, EventBus, delegate, once, listen, names } from '@adukiorg/anza/events';
 </view-code>
+
 <h3><code>bus</code></h3>
 <p>Global <code>EventBus</code> instance.</p>
+
 <h3><code>EventBus</code></h3>
 <p>Class extending <code>EventTarget</code>:</p>
 <view-code language="javascript">const myBus = new EventBus();
-  myBus.on('event', handler);
-  myBus.emit('event', detail);
+myBus.on('event', handler);
+myBus.emit('event', detail);
 </view-code>
 <p>Methods: <code>on(type, fn, signal)</code>, <code>emit(type, detail)</code>.</p>
+
 <h3><code>delegate(root, selector, type, handler, options)</code></h3>
 <p>Shadow-aware event delegation. Returns disposer.</p>
+
 <h3><code>listen(target, type, handler, options)</code></h3>
 <p>Memory-safe listener. Returns disposer.</p>
+
 <h3><code>once(target, type, options)</code></h3>
 <p>Promise-wrapped single event. Returns <code>Promise&lt;Event&gt;</code>.</p>
+
 <h3><code>names</code></h3>
 <p>System event constants object.</p>
 
+<!-- Listener Options Section -->
 <h2>Listener Options</h2>
 <p>All listener functions accept standard <code>addEventListener</code> options:</p>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Option</th>
-      <th>Type</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>signal</code></td>
-      <td>AbortSignal</td>
-      <td>Auto-cleanup on abort</td>
-    </tr>
-    <tr>
-      <td><code>capture</code></td>
-      <td>boolean</td>
-      <td>Capture phase</td>
-    </tr>
-    <tr>
-      <td><code>once</code></td>
-      <td>boolean</td>
-      <td>Fire once (native, not the <code>once()</code> function)</td>
-    </tr>
-    <tr>
-      <td><code>passive</code></td>
-      <td>boolean</td>
-      <td>Cannot call preventDefault</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Option</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>signal</code></td>
+        <td>AbortSignal</td>
+        <td>Auto-cleanup on abort</td>
+      </tr>
+      <tr>
+        <td><code>capture</code></td>
+        <td>boolean</td>
+        <td>Capture phase</td>
+      </tr>
+      <tr>
+        <td><code>once</code></td>
+        <td>boolean</td>
+        <td>Fire once (native, not the <code>once()</code> function)</td>
+      </tr>
+      <tr>
+        <td><code>passive</code></td>
+        <td>boolean</td>
+        <td>Cannot call preventDefault</td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Event Payload Section -->
 <h2>Event Payload</h2>
 <p>Bus and emit listeners receive a <code>CustomEvent</code>:</p>
 <view-code language="javascript">{
@@ -101,5 +118,5 @@
   detail: any, // payload passed to emit
   bubbles: boolean, // false for bus events
   composed: boolean // false for bus events
-  }
+}
 </view-code>

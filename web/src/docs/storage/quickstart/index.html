@@ -1,79 +1,93 @@
 <h1>Quick Start</h1>
 <p>Get reading and writing in five minutes.</p>
 
+<!-- Write and Read Section -->
 <h2>1. Write and Read</h2>
-<view-code language="javascript">import { storage } from '@adukiorg/anza/storage';
+<view-code language="javascript">
+import { storage } from '@adukiorg/anza/storage';
 
-  await storage.set('name', 'Alice');
-  const name = await storage.get('name');
-  console.log(name); // 'Alice'
+await storage.set('name', 'Alice');
+const name = await storage.get('name');
+console.log(name); // 'Alice'
 </view-code>
 <p>Default tier is IndexedDB with an LRU memory cache.</p>
 
+<!-- Choose a Tier Section -->
 <h2>2. Choose a Tier</h2>
-<view-code language="javascript">// Memory — fastest, lost on refresh
-  await storage.set('hot', data, 'memory');
+<view-code language="javascript">
+// Memory — fastest, lost on refresh
+await storage.set('hot', data, 'memory');
 
-  // IndexedDB — durable, default
-  await storage.set('profile', data, 'idb');
+// IndexedDB — durable, default
+await storage.set('profile', data, 'idb');
 
-  // OPFS — large files, synchronous worker-backed
-  await storage.set('image', buffer, 'opfs');
+// OPFS — large files, synchronous worker-backed
+await storage.set('image', buffer, 'opfs');
 
-  // Cache API — HTTP-like request/response
-  await storage.set('api-data', response, 'cache');
+// Cache API — HTTP-like request/response
+await storage.set('api-data', response, 'cache');
 </view-code>
 
+<!-- Set TTL Section -->
 <h2>3. Set TTL</h2>
-<view-code language="javascript">// Expires after 60 seconds
-  await storage.set('token', 'abc', { tier: 'idb', ttl: 60000 });
+<view-code language="javascript">
+// Expires after 60 seconds
+await storage.set('token', 'abc', { tier: 'idb', ttl: 60000 });
 
-  // After expiry, get returns null
-  await new Promise(r =&gt; setTimeout(r, 61000));
-  await storage.get('token'); // null
+// After expiry, get returns null
+await new Promise(r => setTimeout(r, 61000));
+await storage.get('token'); // null
 </view-code>
 
+<!-- Delete Section -->
 <h2>4. Delete</h2>
-<view-code language="javascript">await storage.delete('name');
+<view-code language="javascript">
+await storage.delete('name');
 </view-code>
 <p>Deletes from all tiers (memory + the specified tier).</p>
 
+<!-- Query IndexedDB Section -->
 <h2>5. Query IndexedDB</h2>
-<view-code language="javascript">const results = await storage.query('keyval', (value) =&gt; {
-  return value &amp;&amp; value.active === true;
-  });
+<view-code language="javascript">
+const results = await storage.query('keyval', (value) => {
+  return value && value.active === true;
+});
 </view-code>
 <p>Returns all records matching the filter.</p>
 
+<!-- Configure Section -->
 <h2>6. Configure</h2>
-<view-code language="javascript">storage.configure({
+<view-code language="javascript">
+storage.configure({
   idb: { name: 'my-app', version: 2 },
   lru: { maxSize: 500 }
-  });
+});
 </view-code>
 <p>Call <code>configure</code> before the first read/write.</p>
 
+<!-- Complete Working Example Section -->
 <h2>Complete Working Example</h2>
-<view-code language="javascript">import { storage } from '@adukiorg/anza/storage';
+<view-code language="javascript">
+import { storage } from '@adukiorg/anza/storage';
 
-  // Reconfigure for the app
-  storage.configure({
+// Reconfigure for the app
+storage.configure({
   idb: { name: 'my-app-db', version: 1 }
-  });
+});
 
-  // Cache user profile in memory and IDB
-  await storage.set('profile', { name: 'Alice', role: 'admin' });
+// Cache user profile in memory and IDB
+await storage.set('profile', { name: 'Alice', role: 'admin' });
 
-  // Fast in-memory lookup on next read
-  const profile = await storage.get('profile'); // hits LRU cache
+// Fast in-memory lookup on next read
+const profile = await storage.get('profile'); // hits LRU cache
 
-  // Store large image in OPFS
-  const buffer = await fetchImage('/avatar.jpg');
-  await storage.set('avatar', buffer, 'opfs');
+// Store large image in OPFS
+const buffer = await fetchImage('/avatar.jpg');
+await storage.set('avatar', buffer, 'opfs');
 
-  // Temporary API cache
-  await storage.set('posts', posts, { tier: 'cache', ttl: 300000 });
+// Temporary API cache
+await storage.set('posts', posts, { tier: 'cache', ttl: 300000 });
 
-  // Clean up
-  await storage.delete('posts');
+// Clean up
+await storage.delete('posts');
 </view-code>

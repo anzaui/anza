@@ -1,8 +1,10 @@
+<!-- Main Content -->
 <h1>Platform</h1>
 <p>The Anza platform layer detects browser capabilities, lazily loads polyfills for missing features, and provides a
   unified interface to modern APIs regardless of native support.</p>
 <p>It answers two questions: what does this browser support, and how do I use the feature regardless?</p>
 
+<!-- Features Section -->
 <h2>What You Get</h2>
 <ul>
   <li><strong>Feature detection</strong> — 30+ lazy-evaluated boolean flags for routing, components, CSS, scheduling,
@@ -13,66 +15,70 @@
   <li><strong>Reset for testing</strong> — <code>reset(flag)</code> to clear cached detection values</li>
 </ul>
 
+<!-- Package Section -->
 <h2>Package</h2>
 <view-code language="javascript">import { supports, guard, reset, typeGuard } from '@adukiorg/anza/platform';
 </view-code>
 
+<!-- File Map Section -->
 <h2>File Map</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>File</th>
-      <th>What It Covers</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><a href="/docs/platform/quickstart">quickstart.md</a></td>
-      <td>Feature detection and polyfills in five minutes</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/platform/supports">supports.md</a></td>
-      <td>Full supports registry and detection flags</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/platform/guards">guards.md</a></td>
-      <td>Lazy polyfill loaders and usage patterns</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/platform/scheduler">scheduler.md</a></td>
-      <td>Prioritized task scheduling and yielding</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/platform/api">api.md</a></td>
-      <td>Complete API reference</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/platform/troubleshooting">troubleshooting.md</a></td>
-      <td>Common problems and how to fix them</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>File</th>
+        <th>What It Covers</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="/docs/platform/quickstart">quickstart.md</a></td>
+        <td>Feature detection and polyfills in five minutes</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/platform/supports">supports.md</a></td>
+        <td>Full supports registry and detection flags</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/platform/guards">guards.md</a></td>
+        <td>Lazy polyfill loaders and usage patterns</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/platform/scheduler">scheduler.md</a></td>
+        <td>Prioritized task scheduling and yielding</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/platform/api">api.md</a></td>
+        <td>Complete API reference</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/platform/troubleshooting">troubleshooting.md</a></td>
+        <td>Common problems and how to fix them</td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Example Section -->
 <h2>One-File Example</h2>
 <view-code language="javascript">import { supports, guard, typeGuard } from '@adukiorg/anza/platform';
 
-  // Detect
-  if (supports.viewTransitions) {
+// Detect
+if (supports.viewTransitions) {
   document.startViewTransition(() =&gt; updateDOM());
-  } else {
+} else {
   updateDOM();
-  }
+}
 
-  // Guard — throws if OPFS is unavailable
-  typeGuard('opfs', 'File storage requires Origin Private File System');
+// Guard — throws if OPFS is unavailable
+typeGuard('opfs', 'File storage requires Origin Private File System');
 
-  // Lazy polyfill
-  const URLPattern = await guard.urlPattern();
-  const pattern = new URLPattern({ pathname: '/user/:id' });
+// Lazy polyfill
+const URLPattern = await guard.urlPattern();
+const pattern = new URLPattern({ pathname: '/user/:id' });
 </view-code>
 
+<!-- Next Steps Section -->
 <h2>Next Steps</h2>
 <ul>
   <li>New to the platform layer? Start with <a href="/docs/platform/quickstart">quickstart.md</a>.</li>

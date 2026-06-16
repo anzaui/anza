@@ -1,9 +1,14 @@
+<!-- Main Content -->
 <h1>Tokens</h1>
-<p>Animation timing values are synchronized with CSS custom properties at runtime. This ensures JavaScript animations
-  and CSS transitions share the same duration and easing values.</p>
+<p>
+  Animation timing values are synchronized with CSS custom properties at runtime. This ensures JavaScript animations
+  and CSS transitions share the same duration and easing values.
+</p>
 
+<!-- Duration Section -->
 <h2>Duration</h2>
-<view-code language="javascript">import { animations } from '@adukiorg/anza/animations';
+<view-code language="javascript">
+  import { animations } from '@adukiorg/anza/animations';
 
   const fast = animations.duration('fast'); // e.g. 100
   const normal = animations.duration('normal'); // e.g. 200
@@ -12,89 +17,95 @@
 <p>Reads the <code>--duration-{name}</code> CSS custom property. Falls back to defaults:</p>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Token</th>
-      <th>Default</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>instant</code></td>
-      <td>50ms</td>
-    </tr>
-    <tr>
-      <td><code>fast</code></td>
-      <td>100ms</td>
-    </tr>
-    <tr>
-      <td><code>normal</code></td>
-      <td>200ms</td>
-    </tr>
-    <tr>
-      <td><code>slow</code></td>
-      <td>300ms</td>
-    </tr>
-    <tr>
-      <td><code>slower</code></td>
-      <td>500ms</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Token</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>instant</code></td>
+        <td>50ms</td>
+      </tr>
+      <tr>
+        <td><code>fast</code></td>
+        <td>100ms</td>
+      </tr>
+      <tr>
+        <td><code>normal</code></td>
+        <td>200ms</td>
+      </tr>
+      <tr>
+        <td><code>slow</code></td>
+        <td>300ms</td>
+      </tr>
+      <tr>
+        <td><code>slower</code></td>
+        <td>500ms</td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Easing Section -->
 <h2>Easing</h2>
-<view-code language="javascript">const easeDefault = animations.ease('default');
+<view-code language="javascript">
+  const easeDefault = animations.ease('default');
   const easeOut = animations.ease('out');
   const spring = animations.ease('spring');
 </view-code>
 <p>Reads the <code>--ease-{name}</code> CSS custom property. Falls back to:</p>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Token</th>
-      <th>Default</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>default</code></td>
-      <td><code>cubic-bezier(0.4, 0, 0.2, 1)</code></td>
-    </tr>
-    <tr>
-      <td><code>in</code></td>
-      <td><code>cubic-bezier(0.4, 0, 1, 1)</code></td>
-    </tr>
-    <tr>
-      <td><code>out</code></td>
-      <td><code>cubic-bezier(0, 0, 0.2, 1)</code></td>
-    </tr>
-    <tr>
-      <td><code>in-out</code></td>
-      <td><code>cubic-bezier(0.4, 0, 0.6, 1)</code></td>
-    </tr>
-    <tr>
-      <td><code>spring</code></td>
-      <td><code>cubic-bezier(0.34, 1.56, 0.64, 1)</code></td>
-    </tr>
-    <tr>
-      <td><code>linear</code></td>
-      <td><code>linear</code></td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Token</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>default</code></td>
+        <td><code>cubic-bezier(0.4, 0, 0.2, 1)</code></td>
+      </tr>
+      <tr>
+        <td><code>in</code></td>
+        <td><code>cubic-bezier(0.4, 0, 1, 1)</code></td>
+      </tr>
+      <tr>
+        <td><code>out</code></td>
+        <td><code>cubic-bezier(0, 0, 0.2, 1)</code></td>
+      </tr>
+      <tr>
+        <td><code>in-out</code></td>
+        <td><code>cubic-bezier(0.4, 0, 0.6, 1)</code></td>
+      </tr>
+      <tr>
+        <td><code>spring</code></td>
+        <td><code>cubic-bezier(0.34, 1.56, 0.64, 1)</code></td>
+      </tr>
+      <tr>
+        <td><code>linear</code></td>
+        <td><code>linear</code></td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Reduced Motion Section -->
 <h2>Reduced Motion</h2>
-<view-code language="javascript">if (animations.reduced()) {
-  // User prefers reduced motion
+<view-code language="javascript">
+  if (animations.reduced()) {
+    // User prefers reduced motion
   }
 </view-code>
 <p>Checks <code>prefers-reduced-motion: reduce</code>.</p>
 
+<!-- Timing Constants Section -->
 <h2>Timing Constants</h2>
-<view-code language="javascript">import { Timing } from '@adukiorg/anza/animations';
+<view-code language="javascript">
+  import { Timing } from '@adukiorg/anza/animations';
 
   Timing.EASE; // 'ease'
   Timing.EASE_IN; // 'ease-in'
@@ -104,20 +115,27 @@
   Timing.SPRING; // resolves to CSS token
 </view-code>
 
+<!-- View Transitions Section -->
 <h2>View Transitions</h2>
-<p>The router and UI layers read animation tokens automatically when running View Transitions. See
+<p>
+  The router and UI layers read animation tokens automatically when running View Transitions. See
   <code>docs/ui/transitions.md</code> and <code>docs/router/transitions.md</code> for the <code>--transition-*</code>
-  token layer.</p>
+  token layer.
+</p>
 
+<!-- Timing Helper Section -->
 <h2>Timing Helper</h2>
-<view-code language="javascript">import { timing } from '@adukiorg/anza/animations';
+<view-code language="javascript">
+  import { timing } from '@adukiorg/anza/animations';
 
   const opts = timing(300, 'ease-out', 'both');
   // { duration: 300, easing: 'ease-out', fill: 'both' }
 </view-code>
 
+<!-- Keyframe Builder Section -->
 <h2>Keyframe Builder</h2>
-<view-code language="javascript">import { keyframes } from '@adukiorg/anza/animations';
+<view-code language="javascript">
+  import { keyframes } from '@adukiorg/anza/animations';
 
   const fade = keyframes('fade');
   // [{ opacity: 0 }, { opacity: 1 }]

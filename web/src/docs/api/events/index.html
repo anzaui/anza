@@ -1,102 +1,118 @@
+<!-- Main Content -->
 <h1>Events</h1>
-<p>The API client emits telemetry events for every request. Subscribe globally for application-wide hooks, or
-  per-request for scoped cleanup.</p>
+<p>
+  The API client emits telemetry events for every request. Subscribe globally for application-wide hooks, or
+  per-request for scoped cleanup.
+</p>
 
+<!-- Global Listeners Section -->
 <h2>Global Listeners</h2>
-<view-code language="javascript">import { api } from '@adukiorg/anza/api';
+<view-code language="javascript">
+  import { api } from '@adukiorg/anza/api';
 
   const off = api.on('status:401', (event) =&gt; {
-  redirectToLogin();
+    redirectToLogin();
   });
 
   // Stop listening
   off();
 </view-code>
-<p><code>api.on(event, handler, signal)</code> returns a disposer. Pass an <code>AbortSignal</code> for automatic
-  cleanup when a component unmounts.</p>
+<p>
+  <code>api.on(event, handler, signal)</code> returns a disposer. Pass an <code>AbortSignal</code> for automatic
+  cleanup when a component unmounts.
+</p>
 
+<!-- Standard Events Section -->
 <h2>Standard Events</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Event</th>
-      <th>Trigger</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>error</code></td>
-      <td>Any network failure, timeout, or server error</td>
-    </tr>
-    <tr>
-      <td><code>failed</code></td>
-      <td>Any non-ok response (&gt;= 400) or aborted connection</td>
-    </tr>
-    <tr>
-      <td><code>timeout</code></td>
-      <td>Request exceeded its timeout limit</td>
-    </tr>
-    <tr>
-      <td><code>status:401</code></td>
-      <td>HTTP 401 response</td>
-    </tr>
-    <tr>
-      <td><code>status:500</code></td>
-      <td>HTTP 500 response</td>
-    </tr>
-    <tr>
-      <td><code>status:xxx</code></td>
-      <td>Any specific HTTP status</td>
-    </tr>
-    <tr>
-      <td><code>type:json</code></td>
-      <td>Successful <code>application/json</code> response</td>
-    </tr>
-    <tr>
-      <td><code>type:stream</code></td>
-      <td>Successful <code>text/event-stream</code> response</td>
-    </tr>
-    <tr>
-      <td><code>type:text</code></td>
-      <td>Successful <code>text/*</code> response</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Event</th>
+        <th>Trigger</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>error</code></td>
+        <td>Any network failure, timeout, or server error</td>
+      </tr>
+      <tr>
+        <td><code>failed</code></td>
+        <td>Any non-ok response (&gt;= 400) or aborted connection</td>
+      </tr>
+      <tr>
+        <td><code>timeout</code></td>
+        <td>Request exceeded its timeout limit</td>
+      </tr>
+      <tr>
+        <td><code>status:401</code></td>
+        <td>HTTP 401 response</td>
+      </tr>
+      <tr>
+        <td><code>status:500</code></td>
+        <td>HTTP 500 response</td>
+      </tr>
+      <tr>
+        <td><code>status:xxx</code></td>
+        <td>Any specific HTTP status</td>
+      </tr>
+      <tr>
+        <td><code>type:json</code></td>
+        <td>Successful <code>application/json</code> response</td>
+      </tr>
+      <tr>
+        <td><code>type:stream</code></td>
+        <td>Successful <code>text/event-stream</code> response</td>
+      </tr>
+      <tr>
+        <td><code>type:text</code></td>
+        <td>Successful <code>text/*</code> response</td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Per-Request Listeners Section -->
 <h2>Per-Request Listeners</h2>
 <p>Scope listeners to a single request using the <code>on</code> option:</p>
-<view-code language="javascript">await api.get('/user/profile', {
-  on: {
-  'status:401': () =&gt; redirectToLogin(),
-  failed: (event) =&gt; console.error(event.detail.error),
-  timeout: (event) =&gt; showToast('Request timed out')
-  }
+<view-code language="javascript">
+  await api.get('/user/profile', {
+    on: {
+      'status:401': () =&gt; redirectToLogin(),
+      failed: (event) =&gt; console.error(event.detail.error),
+      timeout: (event) =&gt; showToast('Request timed out')
+    }
   });
 </view-code>
 <p>These listeners are cleaned up automatically when the request completes. No manual disposer needed.</p>
 
+<!-- Event Payload Section -->
 <h2>Event Payload</h2>
 <p>All events receive an object with <code>type</code> and <code>detail</code>:</p>
-<view-code language="javascript">api.on('failed', (event) =&gt; {
-  console.log(event.type); // 'failed'
-  console.log(event.detail); // { error, requestId }
+<view-code language="javascript">
+  api.on('failed', (event) =&gt; {
+    console.log(event.type); // 'failed'
+    console.log(event.detail); // { error, requestId }
   });
 </view-code>
 <p>The <code>detail</code> object always includes <code>requestId</code> for correlation.</p>
 
+<!-- Lifecycle-Gated Cleanup Section -->
 <h2>Lifecycle-Gated Cleanup</h2>
 <p>Pass an <code>AbortSignal</code> for automatic listener removal:</p>
-<view-code language="javascript">mount({ ctrl }) {
-  api.on('status:401', () =&gt; {
-  redirectToLogin();
-  }, ctrl.signal); // auto-removed on disconnect
+<view-code language="javascript">
+  mount({ ctrl }) {
+    api.on('status:401', () =&gt; {
+      redirectToLogin();
+    }, ctrl.signal); // auto-removed on disconnect
   }
 </view-code>
 
+<!-- Emitting Custom Events Section -->
 <h2>Emitting Custom Events</h2>
 <p>Emit telemetry events manually for custom instrumentation:</p>
-<view-code language="javascript">api.emit('custom:metric', { value: 42 });
+<view-code language="javascript">
+  api.emit('custom:metric', { value: 42 });
 </view-code>
 <p>Custom events flow through the same bus and can be listened to with <code>api.on</code>.</p>

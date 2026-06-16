@@ -4,5 +4,5 @@ page('/docs/intro/index', {
   tag: 'doc-intro-index',
   via: ['main', 'dock-docs', 'dock-doccontent'],
   template: { html: './index.html' },
-  style: ['/styles/shared.css']
+  style: ['./index.css', '/styles/shared.css'],
 }, import.meta.url);

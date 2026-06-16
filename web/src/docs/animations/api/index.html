@@ -1,8 +1,11 @@
+<!-- Main Content -->
 <h1>API Reference</h1>
 <p>Complete reference for the animations facade and utilities.</p>
 
+<!-- Facade Section -->
 <h2>Facade</h2>
-<view-code language="javascript">import { animations } from '@adukiorg/anza/animations';
+<view-code language="javascript">
+  import { animations } from '@adukiorg/anza/animations';
 </view-code>
 <h3><code>animations.register(name, keyframes, defaultOpts)</code></h3>
 <p>Register a named animation template.</p>
@@ -32,18 +35,22 @@
 <h3><code>animations.reduced()</code></h3>
 <p>Returns <code>true</code> if <code>prefers-reduced-motion: reduce</code>.</p>
 
+<!-- Named Exports Section -->
 <h2>Named Exports</h2>
-<view-code language="javascript">import {
-  registry,
-  animate, stagger, sequence,
-  scroll, view,
-  Timing, timing, keyframes,
-  duration, ease, reduced
+<view-code language="javascript">
+  import {
+    registry,
+    animate, stagger, sequence,
+    scroll, view,
+    Timing, timing, keyframes,
+    duration, ease, reduced
   } from '@adukiorg/anza/animations';
 </view-code>
 
+<!-- AnimationRegistry Section -->
 <h2>AnimationRegistry</h2>
-<view-code language="javascript">import { registry } from '@adukiorg/anza/animations';
+<view-code language="javascript">
+  import { registry } from '@adukiorg/anza/animations';
 </view-code>
 <h3><code>registry.register(name, keyframes, options)</code></h3>
 <h3><code>registry.get(name)</code></h3>
@@ -51,49 +58,54 @@
 <h3><code>registry.delete(name)</code></h3>
 <h3><code>registry.clear()</code></h3>
 
+<!-- Stagger Return Section -->
 <h2>Stagger Return</h2>
-<view-code language="javascript">{
-  animations: Animation[],
-  cancel: () =&gt; void,
-  finish: () =&gt; void,
-  finished: Promise&lt;void[]&gt;
+<view-code language="javascript">
+  {
+    animations: Animation[],
+    cancel: () =&gt; void,
+    finish: () =&gt; void,
+    finished: Promise&lt;void[]&gt;
   }
 </view-code>
 
+<!-- Sequence Step Section -->
 <h2>Sequence Step</h2>
-<view-code language="javascript">[element, animationInput, options?]
+<view-code language="javascript">
+  [element, animationInput, options?]
 </view-code>
 
+<!-- Keyframe Options Section -->
 <h2>Keyframe Options</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Type</th>
-      <th>Options</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>fade</code></td>
-      <td><code>{ from?, to? }</code></td>
-    </tr>
-    <tr>
-      <td><code>slide</code></td>
-      <td><code>{ axis?, from? }</code></td>
-    </tr>
-    <tr>
-      <td><code>scale</code></td>
-      <td><code>{ from? }</code></td>
-    </tr>
-    <tr>
-      <td><code>zoom</code></td>
-      <td><code>{ from? }</code></td>
-    </tr>
-    <tr>
-      <td><code>blur</code></td>
-      <td><code>{ from? }</code></td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Options</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>fade</code></td>
+        <td><code>{ from?, to? }</code></td>
+      </tr>
+      <tr>
+        <td><code>slide</code></td>
+        <td><code>{ axis?, from? }</code></td>
+      </tr>
+      <tr>
+        <td><code>scale</code></td>
+        <td><code>{ from? }</code></td>
+      </tr>
+      <tr>
+        <td><code>zoom</code></td>
+        <td><code>{ from? }</code></td>
+      </tr>
+      <tr>
+        <td><code>blur</code></td>
+        <td><code>{ from? }</code></td>
+      </tr>
+    </tbody>
   </table>
 </div>

@@ -7,7 +7,7 @@ dock('dock-docs', {
   tag: 'dock-docs',
   template: { html: './index.html', css: './index.css' },
   on: {
-    connect({ el, refs, on }) {
+    connect({ el, refs, on, tags }) {
       // 1. Highlight active left sidebar navigation link
       const highlightActiveLink = () => {
         const path = window.location.pathname;
@@ -115,6 +115,31 @@ dock('dock-docs', {
       });
 
       updateTOC();
+
+      // 4. Theme toggle
+      const saved = localStorage.getItem('theme') ?? 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+
+      const themeToggle = tags.one('.theme-toggle');
+      const mobileMenuBtn = tags.one('.mobile-menu-btn');
+      const mobileNav = tags.one('.mobile-nav');
+
+      themeToggle.setAttribute('aria-pressed', String(saved === 'dark'));
+
+      on.click('.theme-toggle', (event, target) => {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const newTheme = isDark ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        target.setAttribute('aria-pressed', String(!isDark));
+      });
+
+      // 5. Mobile menu toggle
+      on.click('.mobile-menu-btn', (event, target) => {
+        const isOpen = target.getAttribute('aria-expanded') === 'true';
+        target.setAttribute('aria-expanded', String(!isOpen));
+        mobileNav.setAttribute('aria-hidden', String(isOpen));
+      });
     }
   }
 }, import.meta.url); // trigger rebuild

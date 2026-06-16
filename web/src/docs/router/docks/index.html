@@ -1,60 +1,63 @@
+<!-- Main Content -->
 <h1>Docks</h1>
 <p><code>dock(name, config, base)</code> defines a persistent container shell. Docks live across route changes, register
   themselves in the hierarchical container graph on connect, and expose a <code>swap</code> method for animated content
   replacement.</p>
 
+<!-- Signature Section -->
 <h2>Signature</h2>
 <view-code language="javascript">dock(name, config, base);
 </view-code>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Argument</th>
-      <th>Type</th>
-      <th>Required</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>name</code></td>
-      <td>string</td>
-      <td>yes</td>
-      <td>Unique key in the container graph, e.g. <code>'main'</code></td>
-    </tr>
-    <tr>
-      <td><code>config</code></td>
-      <td>object</td>
-      <td>no</td>
-      <td>Dock definition</td>
-    </tr>
-    <tr>
-      <td><code>base</code></td>
-      <td>string</td>
-      <td>no</td>
-      <td><code>import.meta.url</code> of the caller</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Argument</th>
+        <th>Type</th>
+        <th>Required</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>name</code></td>
+        <td>string</td>
+        <td>yes</td>
+        <td>Unique key in the container graph, e.g. <code>'main'</code></td>
+      </tr>
+      <tr>
+        <td><code>config</code></td>
+        <td>object</td>
+        <td>no</td>
+        <td>Dock definition</td>
+      </tr>
+      <tr>
+        <td><code>base</code></td>
+        <td>string</td>
+        <td>no</td>
+        <td><code>import.meta.url</code> of the caller</td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Config Fields Section -->
 <h2>Config Fields</h2>
 <h3><code>tag</code></h3>
 <p>Custom element tag. Defaults to <code>dock-&lt;name&gt;</code>.</p>
 <view-code language="javascript">dock('main', { tag: 'app-shell' });
-  // Defines &lt;app-shell&gt;
+// Defines &lt;app-shell&gt;
 </view-code>
 <h3><code>parent</code></h3>
 <p>Parent container key in the graph. Defaults to <code>'body'</code>.</p>
 <view-code language="javascript">dock('sidebar', { parent: 'main' });
-  // sidebar is a child of main in the graph
+// sidebar is a child of main in the graph
 </view-code>
 <h3><code>template</code></h3>
 <p>Same as <code>page()</code>: inline string or file reference.</p>
 <view-code language="javascript">dock('main', {
   template: { html: './main.html', css: './main.css' }
-  }, import.meta.url);
+}, import.meta.url);
 </view-code>
 <p>If no template is provided, the default is <code>'&lt;slot&gt;&lt;/slot&gt;'</code> — a passthrough shell.</p>
 <h3><code>style</code></h3>
@@ -62,13 +65,13 @@
   root-relative starting with <code>/</code>). Automatically prepended with <code>contain: layout</code> styling for
   view transition isolation.</p>
 <view-code language="javascript">// Inline CSS
-  style: ':host { background: #f5f5f5; }'
+style: ':host { background: #f5f5f5; }'
 
-  // Single stylesheet path
-  style: './main.css'
+// Single stylesheet path
+style: './main.css'
 
-  // Multiple stylesheets from any folder
-  style: ['/styles/shared.css', './main.css']
+// Multiple stylesheets from any folder
+style: ['/styles/shared.css', './main.css']
 </view-code>
 <h3><code>params</code> and <code>query</code></h3>
 <p>Typed parameter and query contract arrays. If the active route provides dynamic segments or mapped query parameters,
@@ -76,21 +79,22 @@
 </p>
 <view-code language="javascript">dock('detail', {
   params: [
-  { name: 'id', type: Number }
+    { name: 'id', type: Number }
   ],
   query: [
-  { name: 'tab', type: String }
+    { name: 'tab', type: String }
   ]
-  });
+});
 </view-code>
 <h3><code>notfound</code></h3>
 <p>Custom HTML or template config to render inside the dock when a 404 (route not found) is encountered. The deepest
   configured dock in the container chain wins at runtime:</p>
 <view-code language="javascript">dock('main', {
   notfound: '&lt;div class=&quot;error-404&quot;&gt;&lt;h1&gt;Oops! Page Not Found&lt;/h1&gt;&lt;/div&gt;'
-  });
+});
 </view-code>
 
+<!-- Default Containment Section -->
 <h2>Default Containment</h2>
 <p>Every dock automatically receives:</p>
 <view-code language="css">:host { contain: layout; display: block; }
@@ -98,6 +102,7 @@
 <p>The <code>contain: layout</code> declaration is required for element-scoped view transitions. It is prepended to any
   user-supplied style.</p>
 
+<!-- Swap Method Section -->
 <h2>Swap Method</h2>
 <p>Docks expose a <code>swap</code> method that replaces child content under a view transition:</p>
 <view-code language="javascript">await dockElement.swap(newElement, { direction: 'push' });
@@ -114,22 +119,24 @@
 <view-code language="css">:host([data-transition-direction=&quot;back&quot;]) { ... }
 </view-code>
 
+<!-- Lifecycle Hooks Section -->
 <h2>Lifecycle Hooks</h2>
 <p>Docks support the same <code>on</code> hooks as pages:</p>
 <view-code language="javascript">dock('main', {
   on: {
-  connect({ el }) {
-  console.log('main dock connected');
-  },
-  disconnect({ el }) {
-  console.log('main dock disconnected');
+    connect({ el }) {
+      console.log('main dock connected');
+    },
+    disconnect({ el }) {
+      console.log('main dock disconnected');
+    }
   }
-  }
-  });
+});
 </view-code>
 <p>User-supplied <code>connect</code> and <code>disconnect</code> hooks are wrapped so the dock still registers and
   unregisters itself in the graph.</p>
 
+<!-- Graph Registration Section -->
 <h2>Graph Registration</h2>
 <p>When a dock connects:</p>
 <view-code language="javascript">router.registerContainer(name, element, parent);
@@ -139,37 +146,39 @@
 </view-code>
 <p>This happens automatically. You do not need to call these manually for docks.</p>
 
+<!-- Example: Sidebar Layout Section -->
 <h2>Example: Sidebar Layout</h2>
 <view-code language="javascript">dock('main');
-  dock('sidebar', { parent: 'main' });
-  dock('content', { parent: 'main' });
+dock('sidebar', { parent: 'main' });
+dock('content', { parent: 'main' });
 
-  page('/dashboard', {
+page('/dashboard', {
   tag: 'page-dashboard',
   via: ['main', 'content']
-  });
+});
 
-  page('/settings', {
+page('/settings', {
   tag: 'page-settings',
   via: ['main', 'sidebar']
-  });
+});
 </view-code>
 <p>Dashboard renders through <code>main → content</code>. Settings renders through <code>main → sidebar</code>. The
   router computes the LCA (<code>main</code>) and only swaps the divergent branch.</p>
 
+<!-- Example: Custom Swap Animation Section -->
 <h2>Example: Custom Swap Animation</h2>
 <view-code language="javascript">dock('main', {
   on: {
-  connect({ el }) {
-  // The swap method is already installed by dock().
-  // You can override it for custom behavior.
-  el.swap = async (newEl, options) =&gt; {
-  el.style.opacity = '0';
-  await new Promise(r =&gt; setTimeout(r, 150));
-  el.replaceChildren(newEl);
-  el.style.opacity = '1';
-  };
+    connect({ el }) {
+      // The swap method is already installed by dock().
+      // You can override it for custom behavior.
+      el.swap = async (newEl, options) =&gt; {
+        el.style.opacity = '0';
+        await new Promise(r =&gt; setTimeout(r, 150));
+        el.replaceChildren(newEl);
+        el.style.opacity = '1';
+      };
+    }
   }
-  }
-  });
+});
 </view-code>

@@ -1,40 +1,53 @@
+<!-- Main Content -->
 <h1>API Reference</h1>
 <p>Complete reference for the platform module.</p>
 
+<!-- Named Exports Section -->
 <h2>Named Exports</h2>
 <view-code language="javascript">import { supports, guard, reset, typeGuard } from '@adukiorg/anza/platform';
 </view-code>
+
 <h3><code>supports</code></h3>
-<p>Lazy-evaluated feature detection object. See <a href="/docs/platform/supports">supports.md</a> for the full flag
-  list.</p>
+<p>Lazy-evaluated feature detection object. See <a href="/docs/platform/supports">supports.md</a> for the full flag list.</p>
+
 <h3><code>guard.urlPattern()</code></h3>
 <p>Returns <code>Promise&lt;URLPatternClass&gt;</code>.</p>
+
 <h3><code>guard.navigation()</code></h3>
 <p>Returns <code>Promise&lt;navigationObject&gt;</code>.</p>
+
 <h3><code>guard.popover()</code></h3>
 <p>Returns <code>Promise&lt;void&gt;</code>. Installs polyfill if needed.</p>
+
 <h3><code>guard.shadow(root)</code></h3>
 <p>Returns <code>Promise&lt;void&gt;</code>. Applies declarative shadow DOM polyfill to root.</p>
+
 <h3><code>guard.anchor(floating, anchorEl, options)</code></h3>
 <p>Returns <code>Promise&lt;void&gt;</code>. Computes anchor positioning fallback.</p>
+
 <h3><code>guard.sanitizer()</code></h3>
 <p>Returns <code>Promise&lt;{ sanitizeToString(input) }&gt;</code>.</p>
+
 <h3><code>guard.scheduler()</code></h3>
 <p>Returns <code>Promise&lt;schedulerObject&gt;</code>.</p>
+
 <h3><code>guard.yield()</code></h3>
 <p>Returns <code>Promise&lt;void&gt;</code>. Yields to the event loop.</p>
+
 <h3><code>reset(key)</code></h3>
 <p>Clears cached detection value for a flag.</p>
 <view-code language="javascript">reset('urlPattern');
 </view-code>
+
 <h3><code>typeGuard(key, message)</code></h3>
 <p>Throws if the feature is not supported.</p>
 <view-code language="javascript">typeGuard('opfs', 'File storage is required');
 </view-code>
 
+<!-- Scheduler Polyfill API Section -->
 <h2>Scheduler Polyfill API</h2>
 <p>When native <code>scheduler</code> is unavailable, the polyfill exposes:</p>
 <view-code language="javascript">scheduler.postTask(fn, { priority, delay, signal })
-  scheduler.yield()
+scheduler.yield()
 </view-code>
 <p>Priorities: <code>user-blocking</code>, <code>user-visible</code>, <code>background</code>.</p>

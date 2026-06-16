@@ -1,11 +1,18 @@
+<!-- Main Content -->
 <h1>Build</h1>
-<p>The <code>anza</code> CLI resolves your ESM import graph, copies reachable files into <code>dist/</code>, generates
-  type declarations, and serves the result. You call it through npm scripts.</p>
+<p>
+  The <code>anza</code> CLI resolves your ESM import graph, copies reachable files into <code>dist/</code>, generates
+  type declarations, and serves the result. You call it through npm scripts.
+</p>
 
+<!-- Dev Server Section -->
 <h2>Dev Server</h2>
-<view-code language="bash">npm run dev
+<view-code language="bash">
+  npm run dev
 </view-code>
-<p>This runs <code>anza dev</code> under the hood. It starts a server on <code>http://localhost:3000</code> and:</p>
+<p>
+  This runs <code>anza dev</code> under the hood. It starts a server on <code>http://localhost:3000</code> and:
+</p>
 <ol>
   <li>Resolves the import graph from <code>src/app.js</code>, <code>src/sw.js</code>, and HTML module scripts</li>
   <li>Copies reachable modules into <code>dist/</code></li>
@@ -16,87 +23,105 @@
 </ol>
 <p>CSS files are hot-swapped. JS and HTML changes trigger a reload.</p>
 <p>Override the port:</p>
-<view-code language="bash">npx anza dev --port 8080
+<view-code language="bash">
+  npx anza dev --port 8080
 </view-code>
 
+<!-- Route Validation Section -->
 <h2>Compile-Time Route Validation</h2>
-<p>During both <code>dev</code> and <code>build</code> phases, the Rust compiler performs design-by-contract checks on
+<p>
+  During both <code>dev</code> and <code>build</code> phases, the Rust compiler performs design-by-contract checks on
   all page and dock definitions. It scans route pattern strings (e.g. <code>'/blog/:slug'</code>) and cross-references
-  them with the declared <code>params</code> and <code>query</code> contract arrays.</p>
-<p>If a route parameter (like <code>:slug</code>) is present in the route but missing from the component's
-  <code>params</code> array, the CLI prints a descriptive warning:</p>
-<view-code language="text">[WARN] Page tag 'page-blog-post' defines route '/blog/:slug' but has no parameter contract
+  them with the declared <code>params</code> and <code>query</code> contract arrays.
+</p>
+<p>
+  If a route parameter (like <code>:slug</code>) is present in the route but missing from the component's
+  <code>params</code> array, the CLI prints a descriptive warning:
+</p>
+<view-code language="text">
+  [WARN] Page tag 'page-blog-post' defines route '/blog/:slug' but has no parameter contract
   declared for ':slug'.
 </view-code>
-<p>These warnings are non-blocking: compilation still succeeds and the router will fallback to string matching, but
-  developers get early visibility into contract mismatches.</p>
+<p>
+  These warnings are non-blocking: compilation still succeeds and the router will fallback to string matching, but
+  developers get early visibility into contract mismatches.
+</p>
 
+<!-- Production Build Section -->
 <h2>Production Build</h2>
-<view-code language="bash">npm run build
+<view-code language="bash">
+  npm run build
 </view-code>
-<p>This runs <code>anza build</code>. Same graph resolution, but starts from a clean <code>dist/</code> and fails on
-  unresolved imports or syntax errors.</p>
+<p>
+  This runs <code>anza build</code>. Same graph resolution, but starts from a clean <code>dist/</code> and fails on
+  unresolved imports or syntax errors.
+</p>
 
+<!-- Diagnostics Section -->
 <h2>Diagnostics</h2>
-<view-code language="bash">npx anza doctor
+<view-code language="bash">
+  npx anza doctor
 </view-code>
 <p>Checks your project for common issues: missing entry points, missing tokens/styles, conflicting layouts.</p>
 
+<!-- CLI Flags Section -->
 <h2>Flags</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Flag</th>
-      <th>Default</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>-s, --src</code></td>
-      <td><code>src</code></td>
-      <td>Source directory</td>
-    </tr>
-    <tr>
-      <td><code>-p, --port</code></td>
-      <td><code>3000</code></td>
-      <td>Dev server port</td>
-    </tr>
-    <tr>
-      <td><code>--dist</code></td>
-      <td><code>dist</code></td>
-      <td>Output directory</td>
-    </tr>
-    <tr>
-      <td><code>-e, --entry</code></td>
-      <td><code>src/app.js</code></td>
-      <td>Additional entry modules</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Flag</th>
+        <th>Default</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>-s, --src</code></td>
+        <td><code>src</code></td>
+        <td>Source directory</td>
+      </tr>
+      <tr>
+        <td><code>-p, --port</code></td>
+        <td><code>3000</code></td>
+        <td>Dev server port</td>
+      </tr>
+      <tr>
+        <td><code>--dist</code></td>
+        <td><code>dist</code></td>
+        <td>Output directory</td>
+      </tr>
+      <tr>
+        <td><code>-e, --entry</code></td>
+        <td><code>src/app.js</code></td>
+        <td>Additional entry modules</td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Build Output Section -->
 <h2>Output</h2>
 <p>After <code>npm run build</code>:</p>
-<view-code language="text">dist/
-  index.html # HTML with injected importmap link
-  importmap.json # Generated library mappings
-  app.js # Entry and resolved dependencies
-  sw.js # Service Worker entry with rewritten imports
-  sw/ # Copied SW library modules
-  pages/
-  index/
-  index.js
-  index.html
-  index.css
-  tokens/
-  index.css
-  ...
-  styles/
-  index.css
-  ...
-  types/
-  index.d.ts # Global HTMLElementTagNameMap augmentation
+<view-code language="text">
+  dist/
+    index.html # HTML with injected importmap link
+    importmap.json # Generated library mappings
+    app.js # Entry and resolved dependencies
+    sw.js # Service Worker entry with rewritten imports
+    sw/ # Copied SW library modules
+    pages/
+    index/
+    index.js
+    index.html
+    index.css
+    tokens/
+    index.css
+    ...
+    styles/
+    index.css
+    ...
+    types/
+    index.d.ts # Global HTMLElementTagNameMap augmentation
 </view-code>
 <p>The folder structure inside <code>dist/</code> mirrors <code>src/</code>. The browser resolves imports natively.</p>

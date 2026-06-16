@@ -1,127 +1,145 @@
+<!-- Main Content -->
 <h1>Animate</h1>
-<p><code>animations.animate</code> wraps <code>element.animate()</code> with template resolution, AbortSignal cleanup,
-  and automatic memory-safe finish handling.</p>
+<p>
+  <code>animations.animate</code> wraps <code>element.animate()</code> with template resolution, AbortSignal cleanup,
+  and automatic memory-safe finish handling.
+</p>
 
+<!-- Signature Section -->
 <h2>Signature</h2>
-<view-code language="javascript">animate(el, animationInput, options);
+<view-code language="javascript">
+  animate(el, animationInput, options);
 </view-code>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Param</th>
-      <th>Type</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>el</code></td>
-      <td>Element</td>
-      <td>Target DOM element</td>
-    </tr>
-    <tr>
-      <td><code>animationInput</code></td>
-      <td>string | Keyframe[]</td>
-      <td>Template name or raw keyframes</td>
-    </tr>
-    <tr>
-      <td><code>options</code></td>
-      <td>object</td>
-      <td>WAAPI options plus <code>signal</code></td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Param</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>el</code></td>
+        <td>Element</td>
+        <td>Target DOM element</td>
+      </tr>
+      <tr>
+        <td><code>animationInput</code></td>
+        <td>string | Keyframe[]</td>
+        <td>Template name or raw keyframes</td>
+      </tr>
+      <tr>
+        <td><code>options</code></td>
+        <td>object</td>
+        <td>WAAPI options plus <code>signal</code></td>
+      </tr>
+    </tbody>
   </table>
 </div>
 <p>Returns a <code>Animation</code> instance.</p>
 
+<!-- Preset Usage Section -->
 <h2>Using a Preset</h2>
-<view-code language="javascript">import { animations } from '@adukiorg/anza/animations';
+<view-code language="javascript">
+  import { animations } from '@adukiorg/anza/animations';
 
   const anim = animations.animate(el, 'fade', { duration: 300 });
   await anim.finished;
 </view-code>
-<p>Built-in presets: <code>fade</code>, <code>slide</code>, <code>slide-x</code>, <code>slide-y</code>,
-  <code>scale</code>, <code>zoom</code>, <code>blur</code>.</p>
+<p>
+  Built-in presets: <code>fade</code>, <code>slide</code>, <code>slide-x</code>, <code>slide-y</code>,
+  <code>scale</code>, <code>zoom</code>, <code>blur</code>.
+</p>
 
+<!-- Raw Keyframes Section -->
 <h2>Using Raw Keyframes</h2>
-<view-code language="javascript">animations.animate(el, [
-  { opacity: 0, transform: 'translateY(20px)' },
-  { opacity: 1, transform: 'translateY(0)' }
+<view-code language="javascript">
+  animations.animate(el, [
+    { opacity: 0, transform: 'translateY(20px)' },
+    { opacity: 1, transform: 'translateY(0)' }
   ], { duration: 400, easing: 'ease-out', fill: 'both' });
 </view-code>
 
+<!-- Options Section -->
 <h2>Options</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Option</th>
-      <th>Type</th>
-      <th>Default</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>duration</code></td>
-      <td>number</td>
-      <td>from template</td>
-      <td>Animation duration in ms</td>
-    </tr>
-    <tr>
-      <td><code>delay</code></td>
-      <td>number</td>
-      <td>0</td>
-      <td>Delay before start</td>
-    </tr>
-    <tr>
-      <td><code>easing</code></td>
-      <td>string</td>
-      <td>from template</td>
-      <td>Easing curve</td>
-    </tr>
-    <tr>
-      <td><code>fill</code></td>
-      <td>string</td>
-      <td><code>'both'</code></td>
-      <td>Fill mode</td>
-    </tr>
-    <tr>
-      <td><code>iterations</code></td>
-      <td>number</td>
-      <td>1</td>
-      <td>Repeat count</td>
-    </tr>
-    <tr>
-      <td><code>direction</code></td>
-      <td>string</td>
-      <td><code>'normal'</code></td>
-      <td>Playback direction</td>
-    </tr>
-    <tr>
-      <td><code>signal</code></td>
-      <td>AbortSignal</td>
-      <td>—</td>
-      <td>Cancel on abort</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Option</th>
+        <th>Type</th>
+        <th>Default</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>duration</code></td>
+        <td>number</td>
+        <td>from template</td>
+        <td>Animation duration in ms</td>
+      </tr>
+      <tr>
+        <td><code>delay</code></td>
+        <td>number</td>
+        <td>0</td>
+        <td>Delay before start</td>
+      </tr>
+      <tr>
+        <td><code>easing</code></td>
+        <td>string</td>
+        <td>from template</td>
+        <td>Easing curve</td>
+      </tr>
+      <tr>
+        <td><code>fill</code></td>
+        <td>string</td>
+        <td><code>'both'</code></td>
+        <td>Fill mode</td>
+      </tr>
+      <tr>
+        <td><code>iterations</code></td>
+        <td>number</td>
+        <td>1</td>
+        <td>Repeat count</td>
+      </tr>
+      <tr>
+        <td><code>direction</code></td>
+        <td>string</td>
+        <td><code>'normal'</code></td>
+        <td>Playback direction</td>
+      </tr>
+      <tr>
+        <td><code>signal</code></td>
+        <td>AbortSignal</td>
+        <td>—</td>
+        <td>Cancel on abort</td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- AbortSignal Section -->
 <h2>AbortSignal Cleanup</h2>
-<view-code language="javascript">const ctrl = new AbortController();
+<view-code language="javascript">
+  const ctrl = new AbortController();
 
   animations.animate(el, 'fade', { signal: ctrl.signal });
 
   // Cancel the animation
   ctrl.abort();
 </view-code>
-<p>The animation is automatically cancelled when the signal aborts. The abort listener is removed when the animation
-  finishes to prevent leaks.</p>
+<p>
+  The animation is automatically cancelled when the signal aborts. The abort listener is removed when the animation
+  finishes to prevent leaks.
+</p>
 
+<!-- Playback Control Section -->
 <h2>Controlling Playback</h2>
-<view-code language="javascript">const anim = animations.animate(el, 'slide');
+<view-code language="javascript">
+  const anim = animations.animate(el, 'slide');
 
   anim.pause();
   anim.play();
@@ -133,37 +151,40 @@
   anim.updateTiming({ duration: 600 });
 </view-code>
 
+<!-- Fill Modes Section -->
 <h2>Fill Modes</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Fill</th>
-      <th>Behavior</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>'none'</code></td>
-      <td>No effect before/after active time</td>
-    </tr>
-    <tr>
-      <td><code>'forwards'</code></td>
-      <td>Holds final state</td>
-    </tr>
-    <tr>
-      <td><code>'backwards'</code></td>
-      <td>Holds initial state during delay</td>
-    </tr>
-    <tr>
-      <td><code>'both'</code></td>
-      <td>Holds both initial and final states</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Fill</th>
+        <th>Behavior</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>'none'</code></td>
+        <td>No effect before/after active time</td>
+      </tr>
+      <tr>
+        <td><code>'forwards'</code></td>
+        <td>Holds final state</td>
+      </tr>
+      <tr>
+        <td><code>'backwards'</code></td>
+        <td>Holds initial state during delay</td>
+      </tr>
+      <tr>
+        <td><code>'both'</code></td>
+        <td>Holds both initial and final states</td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Reversed Playback Section -->
 <h2>Reversed Playback</h2>
-<view-code language="javascript">const anim = animations.animate(el, 'fade', { direction: 'reverse' });
+<view-code language="javascript">
+  const anim = animations.animate(el, 'fade', { direction: 'reverse' });
   // Plays from opacity 1 to 0
 </view-code>

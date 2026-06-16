@@ -1,13 +1,16 @@
+<!-- Main Content -->
 <h1>Dedicated</h1>
 <p>Raw dedicated worker wrapper with per-request MessageChannel isolation. Each <code>run()</code> creates a new port,
   so concurrent requests do not cross-contaminate messages.</p>
 
+<!-- Create Section -->
 <h2>Create</h2>
 <view-code language="javascript">import { workers } from '@adukiorg/anza/workers';
 
-  const worker = workers.dedicated('/workers/sort.js');
+const worker = workers.dedicated('/workers/sort.js');
 </view-code>
 
+<!-- Run a Task Section -->
 <h2>Run a Task</h2>
 <view-code language="javascript">const result = await worker.run('sort', {
   payload: { items: [3, 1, 2] },
@@ -15,41 +18,45 @@
   signal: controller.signal,
   timeout: 5000,
   meta: { requestId: 'abc' }
-  });
+});
 </view-code>
 
+<!-- Message Contract Section -->
 <h2>Message Contract</h2>
 <p>The worker receives:</p>
 <view-code language="javascript">{ task, payload, meta, port }
 </view-code>
 <p>And responds via <code>port.postMessage</code>:</p>
 <view-code language="javascript">port.postMessage({ ok: true, value: result });
-  // or
-  port.postMessage({ ok: false, error: 'message' });
+// or
+port.postMessage({ ok: false, error: 'message' });
 </view-code>
 
+<!-- Terminate Section -->
 <h2>Terminate</h2>
 <view-code language="javascript">worker.terminate();
 </view-code>
 <p>After termination, all pending <code>run()</code> calls reject immediately.</p>
 
+<!-- Abort and Timeout Section -->
 <h2>Abort and Timeout</h2>
 <view-code language="javascript">const ctrl = new AbortController();
 
-  worker.run('long', { signal: ctrl.signal, timeout: 3000 });
+worker.run('long', { signal: ctrl.signal, timeout: 3000 });
 
-  // Either abort manually...
-  ctrl.abort();
+// Either abort manually...
+ctrl.abort();
 
-  // ...or let the 3-second timer fire
+// ...or let the 3-second timer fire
 </view-code>
 <p>Signal and timeout are combined into one abort controller internally.</p>
 
+<!-- Error Handling Section -->
 <h2>Error Handling</h2>
 <p>Worker-level errors (syntax errors, unhandled exceptions) reject all pending requests:</p>
 <view-code language="javascript">try {
   await worker.run('crash');
-  } catch (err) {
+} catch (err) {
   console.error('Worker failed:', err.message);
-  }
+}
 </view-code>

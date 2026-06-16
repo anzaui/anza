@@ -8,14 +8,15 @@
  * Source: doc 09 — Routing §2, §5, §9, §13
  */
 
-import { match } from './match.js';
-import { transitions } from './transitions.js';
+import { boot, reset as resetBoot } from './boot.js';
+import { isCallback, runCallback } from './handler.js';
+
+import { ensure } from './cascade.js';
 import { getContainer } from './container.js';
 import { get as graphGet } from './graph.js';
-import { isCallback, runCallback } from './handler.js';
-import { boot, reset as resetBoot } from './boot.js';
-import { ensure } from './cascade.js';
+import { match } from './match.js';
 import { specRegistry } from '../ui/define/state.js';
+import { transitions } from './transitions.js';
 
 /**
  * Built-in minimal 404 HTML rendered when no user notfound is configured.
@@ -179,6 +180,100 @@ function pushToElement(el, tag, rawParams, url) {
     const raw = searchParams.get(name);
     if (raw !== null) el[name] = castValue(raw, cast);
   }
+}
+
+/**
+ * Async navigation pipeline — extracted from handler to prevent browser spinner.
+ * Runs fire-and-forget via queueMicrotask so the Navigation API handler resolves
+ * immediately, eliminating the loading indicator during async work.
+ *
+ * @param {NavigationEvent} event - The navigation event
+ * @param {boolean} precommitted - Whether precommitHandler ran (guards already checked)
+ */
+async function pipe(event, precommitted) {
+  const destination = event.destination;
+  let routeMatch = null;
+  try {
+    routeMatch = await match(destination.url);
+  } catch (err) {
+    emit('error', { error: err, url: destination.url, route: null, phase: 'match' });
+    return;
+  }
+
+  if (routeMatch) {
+    for (const fn of transformers) {
+      try { fn(routeMatch); } catch (e) { console.error(e); }
+    }
+  }
+
+  let chain = [];
+  if (routeMatch) {
+    const meta = routeMatch.route?.meta ?? {};
+    chain = Array.isArray(meta.via) && meta.via.length
+      ? meta.via
+      : (meta.container ? [meta.container] : []);
+
+    try {
+      for (let i = 0; i < chain.length; i++) {
+        if (!getContainer(chain[i])) {
+          await ensure(chain[i], chain[i - 1] ?? 'main');
+        }
+      }
+    } catch (err) {
+      emit('error', { error: err, url: destination.url, route: routeMatch.route, phase: 'container' });
+      throw err;
+    }
+  }
+
+  if (!precommitted) {
+    for (const guardFn of guards) {
+      let redirectUrl;
+      try {
+        redirectUrl = await guardFn(destination, null);
+      } catch (err) {
+        emit('error', { error: err, url: destination.url, route: routeMatch?.route ?? null, phase: 'guard' });
+        return;
+      }
+      if (redirectUrl) {
+        window.navigation.navigate(redirectUrl, { history: 'replace' });
+        return;
+      }
+    }
+  }
+
+  await transitions.run(async () => {
+    if (routeMatch) {
+      if (isCallback(routeMatch.route.handler)) {
+        try {
+          await runCallback(routeMatch.route.handler, routeMatch.params, event);
+        } catch (err) {
+          emit('error', { error: err, url: destination.url, route: routeMatch.route, phase: 'handler' });
+          return;
+        }
+      }
+
+      const ctx = buildRouteContext(routeMatch.tag, routeMatch.params, destination.url);
+      emit('found', {
+        tag: routeMatch.tag,
+        params: ctx.params,
+        query: ctx.query,
+        raw: ctx.raw,
+        hash: routeMatch.hash,
+        chain: routeMatch.chain,
+        via: chain,
+        container: chain.at(-1) ?? null,
+        url: destination.url,
+        direction: event.navigationType
+      });
+    } else {
+      emit('notfound', { url: destination.url });
+      if (notFoundHandler) {
+        await notFoundHandler(event);
+      } else {
+        renderNotFound('main');
+      }
+    }
+  });
 }
 
 /**
@@ -372,105 +467,16 @@ export function setup() {
     // events (Navigation API spec §4.3). Including it unconditionally throws
     // InvalidStateError on non-cancelable navigations (e.g. back/forward).
     const interceptOpts = {
+      focusReset: 'manual',   // router owns focus — browser must not reset it
+      scroll: 'manual',       // router owns scroll — browser must not reset it
       /**
        * Executes DOM mutations, layout changes, and provides fallbacks for Safari.
        * Always provided — this is what prevents the browser from reloading.
        */
       handler() {
-        // Return the promise representing the navigation work so the Navigation
-        // API (and success/error events) properly wait for DOM updates to complete.
-        return (async () => {
-          const destination = event.destination;
-          let routeMatch = null;
-          try {
-            routeMatch = await match(destination.url);
-          } catch (err) {
-            emit('error', { error: err, url: destination.url, route: null, phase: 'match' });
-            return;
-          }
-
-          if (routeMatch) {
-            for (const fn of transformers) {
-              try { fn(routeMatch); } catch (e) { console.error(e); }
-            }
-          }
-
-          // Layout resolution: ensure the route's container chain is mounted.
-          let chain = [];
-          if (routeMatch) {
-            const meta = routeMatch.route?.meta ?? {};
-            chain = Array.isArray(meta.via) && meta.via.length
-              ? meta.via
-              : (meta.container ? [meta.container] : []);
-
-            try {
-              for (let i = 0; i < chain.length; i++) {
-                if (!getContainer(chain[i])) {
-                  await ensure(chain[i], chain[i - 1] ?? 'main');
-                }
-              }
-            } catch (err) {
-              emit('error', { error: err, url: destination.url, route: routeMatch.route, phase: 'container' });
-              throw err;
-            }
-          }
-
-          // Graceful Safari Fallback: run guards post-commit when precommit was skipped.
-          if (!precommitted) {
-            for (const guardFn of guards) {
-              let redirectUrl;
-              try {
-                redirectUrl = await guardFn(destination, null);
-              } catch (err) {
-                emit('error', { error: err, url: destination.url, route: routeMatch?.route ?? null, phase: 'guard' });
-                return;
-              }
-              if (redirectUrl) {
-                window.navigation.navigate(redirectUrl, { history: 'replace' });
-                return;
-              }
-            }
-          }
-
-          await transitions.run(async () => {
-            if (routeMatch) {
-              // Run callback handlers exactly once, here (never during match()).
-              if (isCallback(routeMatch.route.handler)) {
-                try {
-                  await runCallback(routeMatch.route.handler, routeMatch.params, event);
-                } catch (err) {
-                  emit('error', { error: err, url: destination.url, route: routeMatch.route, phase: 'handler' });
-                  return;
-                }
-              }
-
-              const ctx = buildRouteContext(routeMatch.tag, routeMatch.params, destination.url);
-              emit('found', {
-                tag: routeMatch.tag,
-                params: ctx.params,
-                query: ctx.query,
-                raw: ctx.raw,
-                hash: routeMatch.hash,
-                chain: routeMatch.chain,
-                via: chain,
-                container: chain.at(-1) ?? null,
-                url: destination.url,
-                direction: event.navigationType
-              });
-            } else {
-              // Not found — render in-place without a browser reload.
-              // The URL has already committed in the address bar.
-              emit('notfound', { url: destination.url });
-
-              if (notFoundHandler) {
-                await notFoundHandler(event);
-              } else {
-                // Built-in: render a 404 into the deepest live container.
-                renderNotFound('main');
-              }
-            }
-          });
-        })();
+        // Resolve immediately — no browser spinner, no focus/scroll side effects.
+        // pipe() runs detached; the router's own emit() system handles success/error.
+        queueMicrotask(() => pipe(event, precommitted));
       }
     };
 

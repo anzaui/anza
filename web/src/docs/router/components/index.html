@@ -1,27 +1,29 @@
+<!-- Main Content -->
 <h1>Components</h1>
 <p><code>view()</code> and <code>part()</code> define custom elements without route binding. They are the building
   blocks of pages and docks.</p>
 
+<!-- view() Section -->
 <h2>view()</h2>
 <p>A <code>view</code> is a composable, stateful Web Component. It has reactive properties, lifecycle hooks, and a
   template. The router never touches it directly — it is a UI primitive.</p>
 <view-code language="javascript">import { view } from '@adukiorg/anza/defs';
 
-  view('user-card', {
+view('user-card', {
   props: {
-  name: { type: String, default: '' },
-  age: { type: Number }
+    name: { type: String, default: '' },
+    age: { type: Number }
   },
   template: '&lt;span&gt;{{ name }}&lt;/span&gt;',
   on: {
-  connect({ el }) {
-  console.log('user-card mounted');
-  },
-  change({ name, val }) {
-  if (name === 'name') el.querySelector('span').textContent = val;
+    connect({ el }) {
+      console.log('user-card mounted');
+    },
+    change({ name, val }) {
+      if (name === 'name') el.querySelector('span').textContent = val;
+    }
   }
-  }
-  });
+});
 </view-code>
 <p>A <code>page</code> is a <code>view</code> that also owns a URL. Everything a page can do (props, template, on,
   methods), a view can do — minus routing.</p>
@@ -32,23 +34,24 @@
   <li>Complex stateful components that need reactive updates</li>
 </ul>
 
+<!-- part() Section -->
 <h2>part()</h2>
 <p>A <code>part</code> is an atomic, stateless UI primitive: buttons, icons, badges, chips. It has props but no reactive
   update loop.</p>
 <view-code language="javascript">import { part } from '@adukiorg/anza/defs';
 
-  part('icon-star', {
+part('icon-star', {
   props: {
-  color: { type: String, default: 'gold' }
+    color: { type: String, default: 'gold' }
   },
   template: '&lt;svg&gt;...&lt;/svg&gt;'
-  });
+});
 </view-code>
 <p>Parts are lighter than views because they skip the reactive <code>on.change</code> loop. If you find yourself adding
   <code>on.change</code> to a part, promote it to a view.</p>
 <p>The router warns you if you declare <code>on.change</code> on a part:</p>
 <view-code>[Native UI] &lt;icon-star&gt; is a 'part' but declares on.change.
-  Parts are stateless — promote it to a 'view' if it needs reactive re-rendering.
+Parts are stateless — promote it to a 'view' if it needs reactive re-rendering.
 </view-code>
 <p>Use parts for:</p>
 <ul>
@@ -57,147 +60,151 @@
   <li>Purely presentational elements</li>
 </ul>
 
+<!-- Shared Config Fields Section -->
 <h2>Shared Config Fields</h2>
 <p>Both <code>view()</code> and <code>part()</code> accept the same config fields as <code>page()</code>, minus
   routing-specific ones:</p>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Field</th>
-      <th>view</th>
-      <th>part</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>tag</code></td>
-      <td>yes</td>
-      <td>yes</td>
-    </tr>
-    <tr>
-      <td><code>template</code></td>
-      <td>yes</td>
-      <td>yes</td>
-    </tr>
-    <tr>
-      <td><code>style</code></td>
-      <td>yes</td>
-      <td>yes</td>
-    </tr>
-    <tr>
-      <td><code>props</code></td>
-      <td>yes</td>
-      <td>yes</td>
-    </tr>
-    <tr>
-      <td><code>on.connect</code></td>
-      <td>yes</td>
-      <td>yes</td>
-    </tr>
-    <tr>
-      <td><code>on.disconnect</code></td>
-      <td>yes</td>
-      <td>yes</td>
-    </tr>
-    <tr>
-      <td><code>on.change</code></td>
-      <td>yes</td>
-      <td>no (warns)</td>
-    </tr>
-    <tr>
-      <td><code>on.load</code></td>
-      <td>yes</td>
-      <td>yes (runs on mount)</td>
-    </tr>
-    <tr>
-      <td><code>methods</code></td>
-      <td>yes</td>
-      <td>yes</td>
-    </tr>
-    <tr>
-      <td><code>base</code></td>
-      <td>yes</td>
-      <td>yes</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Field</th>
+        <th>view</th>
+        <th>part</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>tag</code></td>
+        <td>yes</td>
+        <td>yes</td>
+      </tr>
+      <tr>
+        <td><code>template</code></td>
+        <td>yes</td>
+        <td>yes</td>
+      </tr>
+      <tr>
+        <td><code>style</code></td>
+        <td>yes</td>
+        <td>yes</td>
+      </tr>
+      <tr>
+        <td><code>props</code></td>
+        <td>yes</td>
+        <td>yes</td>
+      </tr>
+      <tr>
+        <td><code>on.connect</code></td>
+        <td>yes</td>
+        <td>yes</td>
+      </tr>
+      <tr>
+        <td><code>on.disconnect</code></td>
+        <td>yes</td>
+        <td>yes</td>
+      </tr>
+      <tr>
+        <td><code>on.change</code></td>
+        <td>yes</td>
+        <td>no (warns)</td>
+      </tr>
+      <tr>
+        <td><code>on.load</code></td>
+        <td>yes</td>
+        <td>yes (runs on mount)</td>
+      </tr>
+      <tr>
+        <td><code>methods</code></td>
+        <td>yes</td>
+        <td>yes</td>
+      </tr>
+      <tr>
+        <td><code>base</code></td>
+        <td>yes</td>
+        <td>yes</td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Methods Section -->
 <h2>Methods</h2>
 <p>Both support custom methods:</p>
 <view-code language="javascript">view('user-card', {
   methods: {
-  refresh() {
-  this.loadData();
+    refresh() {
+      this.loadData();
+    }
   }
-  }
-  });
+});
 </view-code>
 <p>Methods are assigned to the element prototype.</p>
 
+<!-- File Templates Section -->
 <h2>File Templates</h2>
 <p>Same as pages and docks:</p>
 <view-code language="javascript">view('user-card', {
   template: { html: './card.html', css: './card.css' }
-  }, import.meta.url);
+}, import.meta.url);
 </view-code>
 
+<!-- Comparison Section -->
 <h2>Comparison</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Concern</th>
-      <th>page</th>
-      <th>dock</th>
-      <th>view</th>
-      <th>part</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Owns a URL</td>
-      <td>yes</td>
-      <td>no</td>
-      <td>no</td>
-      <td>no</td>
-    </tr>
-    <tr>
-      <td>Registers in container graph</td>
-      <td>no</td>
-      <td>yes</td>
-      <td>no</td>
-      <td>no</td>
-    </tr>
-    <tr>
-      <td>Has reactive update loop</td>
-      <td>yes</td>
-      <td>yes</td>
-      <td>yes</td>
-      <td>no</td>
-    </tr>
-    <tr>
-      <td>Declares <code>via</code> chain</td>
-      <td>yes</td>
-      <td>no</td>
-      <td>no</td>
-      <td>no</td>
-    </tr>
-    <tr>
-      <td>Exposes <code>swap</code></td>
-      <td>no</td>
-      <td>yes</td>
-      <td>no</td>
-      <td>no</td>
-    </tr>
-    <tr>
-      <td>Typical use</td>
-      <td>Routed view</td>
-      <td>Layout shell</td>
-      <td>Stateful widget</td>
-      <td>Stateless primitive</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Concern</th>
+        <th>page</th>
+        <th>dock</th>
+        <th>view</th>
+        <th>part</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Owns a URL</td>
+        <td>yes</td>
+        <td>no</td>
+        <td>no</td>
+        <td>no</td>
+      </tr>
+      <tr>
+        <td>Registers in container graph</td>
+        <td>no</td>
+        <td>yes</td>
+        <td>no</td>
+        <td>no</td>
+      </tr>
+      <tr>
+        <td>Has reactive update loop</td>
+        <td>yes</td>
+        <td>yes</td>
+        <td>yes</td>
+        <td>no</td>
+      </tr>
+      <tr>
+        <td>Declares <code>via</code> chain</td>
+        <td>yes</td>
+        <td>no</td>
+        <td>no</td>
+        <td>no</td>
+      </tr>
+      <tr>
+        <td>Exposes <code>swap</code></td>
+        <td>no</td>
+        <td>yes</td>
+        <td>no</td>
+        <td>no</td>
+      </tr>
+      <tr>
+        <td>Typical use</td>
+        <td>Routed view</td>
+        <td>Layout shell</td>
+        <td>Stateful widget</td>
+        <td>Stateless primitive</td>
+      </tr>
+    </tbody>
   </table>
 </div>

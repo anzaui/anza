@@ -1,6 +1,8 @@
+<!-- Main Content -->
 <h1>API Reference</h1>
 <p>Complete reference for the UI facade and definition layer.</p>
 
+<!-- UI Facade Section -->
 <h2>UI Facade</h2>
 <view-code language="javascript">import { ui } from '@adukiorg/anza/ui';
 </view-code>
@@ -24,26 +26,26 @@
 <p>Cooperative task scheduling.</p>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Priority</th>
-      <th>Value</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>ui.Priority.BLOCKING</code></td>
-      <td><code>'user-blocking'</code></td>
-    </tr>
-    <tr>
-      <td><code>ui.Priority.VISIBLE</code></td>
-      <td><code>'user-visible'</code></td>
-    </tr>
-    <tr>
-      <td><code>ui.Priority.BACKGROUND</code></td>
-      <td><code>'background'</code></td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Priority</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>ui.Priority.BLOCKING</code></td>
+        <td><code>'user-blocking'</code></td>
+      </tr>
+      <tr>
+        <td><code>ui.Priority.VISIBLE</code></td>
+        <td><code>'user-visible'</code></td>
+      </tr>
+      <tr>
+        <td><code>ui.Priority.BACKGROUND</code></td>
+        <td><code>'background'</code></td>
+      </tr>
+    </tbody>
   </table>
 </div>
 <h3><code>ui.scheduleFrame(fn)</code></h3>
@@ -63,74 +65,70 @@
 <h3><code>ui.observe.performance(types, fn, signal, options)</code></h3>
 <p>PerformanceObserver with AbortSignal cleanup.</p>
 
+<!-- Named Exports Section -->
 <h2>Named Exports</h2>
 <view-code language="javascript">import { BaseElement } from '@adukiorg/anza/ui';
-  import { define, element, container, page, dock, view, part } from '@adukiorg/anza/ui';
-  import { schedule, scheduleFrame, yieldTask } from '@adukiorg/anza/ui';
-  import { transition } from '@adukiorg/anza/ui';
-  import { template } from '@adukiorg/anza/ui';
-  import { observe } from '@adukiorg/anza/ui';
+import { define, element, container, page, dock, view, part } from '@adukiorg/anza/ui';
+import { schedule, scheduleFrame, yieldTask } from '@adukiorg/anza/ui';
+import { transition } from '@adukiorg/anza/ui';
+import { template } from '@adukiorg/anza/ui';
+import { observe } from '@adukiorg/anza/ui';
 </view-code>
 
+<!-- Definition Layer Exports Section -->
 <h2>Definition Layer Exports</h2>
 <view-code language="javascript">import { page, dock, view, part } from '@adukiorg/anza/defs';
 </view-code>
 <h3><code>page(route, config, base)</code></h3>
 <p>Define a route-bound element.</p>
 <ul>
-  <li><strong><code>route</code></strong>: <code>string | string[]</code> - A single route pattern or an array of route
-    patterns (e.g. <code>'/blog'</code> or <code>['/blog', '/blog/:slug']</code>).</li>
-  <li><strong><code>config</code> fields</strong>: <code>tag</code>, <code>via</code>, <code>container</code>,
-    <code>template</code>, <code>style</code>, <code>props</code>, <code>params</code>, <code>query</code>,
-    <code>hash</code>, <code>on</code>, <code>guard</code>, <code>meta</code>.</li>
-  <li><code>params</code>: <code>Array&lt;{ name: string, type: Function }&gt;</code> - path parameter contract (e.g.,
-    <code>[{ name: 'slug', type: String }]</code>).</li>
-  <li><code>query</code>: <code>Array&lt;{ name: string, type: Function }&gt;</code> - query parameter contract (e.g.,
-    <code>[{ name: 'tab', type: String }]</code>).</li>
+  <li><strong><code>route</code></strong>: <code>string | string[]</code> - A single route pattern or an array of route patterns (e.g. <code>'/blog'</code> or <code>['/blog', '/blog/:slug']</code>).</li>
+  <li><strong><code>config</code> fields</strong>: <code>tag</code>, <code>via</code>, <code>container</code>, <code>template</code>, <code>style</code>, <code>props</code>, <code>params</code>, <code>query</code>, <code>hash</code>, <code>on</code>, <code>guard</code>, <code>meta</code>.</li>
+  <li><code>params</code>: <code>Array&lt;{ name: string, type: Function }&gt;</code> - path parameter contract (e.g., <code>[{ name: 'slug', type: String }]</code>).</li>
+  <li><code>query</code>: <code>Array&lt;{ name: string, type: Function }&gt;</code> - query parameter contract (e.g., <code>[{ name: 'tab', type: String }]</code>).</li>
 </ul>
 <h3><code>dock(name, config, base)</code></h3>
 <p>Define a container shell.</p>
 <ul>
-  <li><strong><code>config</code> fields</strong>: <code>tag</code>, <code>parent</code>, <code>template</code>,
-    <code>style</code>, <code>params</code>, <code>query</code>, <code>on</code>, <code>notfound</code>.</li>
+  <li><strong><code>config</code> fields</strong>: <code>tag</code>, <code>parent</code>, <code>template</code>, <code>style</code>, <code>params</code>, <code>query</code>, <code>on</code>, <code>notfound</code>.</li>
   <li><code>params</code>: <code>Array&lt;{ name: string, type: Function }&gt;</code> - path parameter contract.</li>
   <li><code>query</code>: <code>Array&lt;{ name: string, type: Function }&gt;</code> - query parameter contract.</li>
 </ul>
 <p>Default tag: <code>dock-&lt;name&gt;</code>. Default parent: <code>'body'</code>.</p>
 <h3><code>view(tag, config, base)</code></h3>
 <p>Define a stateful component.</p>
-<p>Config: <code>tag</code>, <code>template</code>, <code>style</code>, <code>props</code>, <code>on</code>,
-  <code>methods</code>.</p>
+<p>Config: <code>tag</code>, <code>template</code>, <code>style</code>, <code>props</code>, <code>on</code>, <code>methods</code>.</p>
 <h3><code>part(tag, config, base)</code></h3>
 <p>Define a stateless primitive.</p>
-<p>Config: <code>tag</code>, <code>template</code>, <code>style</code>, <code>props</code>, <code>on</code>,
-  <code>methods</code>.</p>
+<p>Config: <code>tag</code>, <code>template</code>, <code>style</code>, <code>props</code>, <code>on</code>, <code>methods</code>.</p>
 <p>Warns if <code>on.change</code> is declared.</p>
 
+<!-- Spec Config Shape Section -->
 <h2>Spec Config Shape</h2>
 <view-code language="javascript">{
   template: string | { html: string, css: string | string[], shadow: 'open' | 'closed' },
   style: string | string[],
   mode: 'open' | 'closed',
   props: {
-  name: { type: String | Number | Boolean, default: any, reflect: boolean, state: boolean }
+    name: { type: String | Number | Boolean, default: any, reflect: boolean, state: boolean }
   },
   params: Array&lt;{ name: string, cast: 'string' | 'number' }&gt;,
   query: Array&lt;{ name: string, cast: 'string' | 'number' }&gt;,
-  mount: (ctx) =&gt; any,
-  unmount: (ctx) =&gt; any,
-  update: (ctx) =&gt; any,
+  mount: (ctx) => any,
+  unmount: (ctx) => any,
+  update: (ctx) => any,
   methods: { methodName: fn },
   url: string,
   container: string,
   form: boolean,
-  associated: (form) =&gt; any,
-  disabled: (value) =&gt; any,
-  reset: () =&gt; any,
-  restore: (state, mode) =&gt; any
-  }
+  associated: (form) => any,
+  disabled: (value) => any,
+  reset: () => any,
+  restore: (state, mode) => any
+}
 </view-code>
 
+<!-- Context Shape Section -->
 <h2>Context Shape</h2>
 <view-code language="javascript">{
   el: HTMLElement,
@@ -140,32 +138,34 @@
   on: EventDelegator,
   watch: MutationWatcher,
   internals: ElementInternals | null
-  }
+}
 </view-code>
 
+<!-- TagsCache Methods Section -->
 <h2>TagsCache Methods</h2>
 <view-code language="javascript">tags.one(selector) // querySelector, cached
-  tags.all(selector) // querySelectorAll, cached
-  tags.each(selector, fn) // iterate over matches
-  tags.has(selector) // boolean
-  tags.clear() // invalidate cache
-  tags.prewarmId(id) // pre-warm by ID
-  tags.prewarm(selector, element) // manual pre-warm
+tags.all(selector) // querySelectorAll, cached
+tags.each(selector, fn) // iterate over matches
+tags.has(selector) // boolean
+tags.clear() // invalidate cache
+tags.prewarmId(id) // pre-warm by ID
+tags.prewarm(selector, element) // manual pre-warm
 </view-code>
 
+<!-- Event Delegator Methods Section -->
 <h2>Event Delegator Methods</h2>
 <view-code language="javascript">on.click(selector, handler, options)
-  on.submit(selector, handler, options)
-  on.input(selector, handler, options)
-  on[eventType](selector, handler, options)
+on.submit(selector, handler, options)
+on.input(selector, handler, options)
+on[eventType](selector, handler, options)
 </view-code>
-<p>Options: <code>signal</code> (AbortSignal), <code>once</code> (boolean), <code>passive</code> (boolean),
-  <code>capture</code> (boolean).</p>
+<p>Options: <code>signal</code> (AbortSignal), <code>once</code> (boolean), <code>passive</code> (boolean), <code>capture</code> (boolean).</p>
 <p>Returns a disposer function.</p>
 
+<!-- Mutation Watcher Methods Section -->
 <h2>Mutation Watcher Methods</h2>
-<view-code language="javascript">watch.text(selector, callback) // (text, old, el) =&gt; {}
-  watch.attr(selector, attr, callback) // (val, old, el) =&gt; {}
-  watch.children(selector, callback) // (mutations) =&gt; {}
+<view-code language="javascript">watch.text(selector, callback) // (text, old, el) => {}
+watch.attr(selector, attr, callback) // (val, old, el) => {}
+watch.children(selector, callback) // (mutations) => {}
 </view-code>
 <p>Returns a disposer function.</p>

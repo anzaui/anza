@@ -1,45 +1,47 @@
+<!-- Main Content -->
 <h1>API Reference</h1>
 <p>Complete reference for the router facade and definition layer.</p>
 
+<!-- Router Facade Section -->
 <h2>Router Facade</h2>
 <h3><code>router.register(pattern, handler, meta)</code></h3>
 <p>Register a route. Returns nothing.</p>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Param</th>
-      <th>Type</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>pattern</code></td>
-      <td>string</td>
-      <td>URL pattern or absolute URL</td>
-    </tr>
-    <tr>
-      <td><code>handler</code></td>
-      <td>string | function | object</td>
-      <td>See <a href="/docs/router/handlers">handlers.md</a></td>
-    </tr>
-    <tr>
-      <td><code>meta</code></td>
-      <td>object</td>
-      <td>Optional metadata (<code>container</code>, <code>parent</code>, <code>via</code>)</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Param</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>pattern</code></td>
+        <td>string</td>
+        <td>URL pattern or absolute URL</td>
+      </tr>
+      <tr>
+        <td><code>handler</code></td>
+        <td>string | function | object</td>
+        <td>See <a href="/docs/router/handlers">handlers.md</a></td>
+      </tr>
+      <tr>
+        <td><code>meta</code></td>
+        <td>object</td>
+        <td>Optional metadata (<code>container</code>, <code>parent</code>, <code>via</code>)</td>
+      </tr>
+    </tbody>
   </table>
 </div>
 <view-code language="javascript">router.register('/', 'page-home');
-  router.register('/user/:id', 'page-user', { container: 'main' });
+router.register('/user/:id', 'page-user', { container: 'main' });
 </view-code>
 <h3><code>router.load(routes)</code></h3>
 <p>Bulk register from an array of <code>{ pattern, handler, meta }</code> objects.</p>
 <view-code language="javascript">router.load([
   { pattern: '/', handler: 'page-home', meta: { container: 'main' } }
-  ]);
+]);
 </view-code>
 <h3><code>router.clear()</code></h3>
 <p>Remove all registered routes.</p>
@@ -53,15 +55,15 @@
   hash, // hash string
   chain, // parent chain array
   result // URLPattern exec result
-  }
+}
 </view-code>
 <p>Returns <code>null</code> on no match.</p>
 <h3><code>router.guard(fn)</code></h3>
 <p>Register a global navigation guard. Returns a disposer.</p>
 <view-code language="javascript">const dispose = router.guard((destination, controller) =&gt; {
   if (blocked) return '/login';
-  });
-  dispose(); // remove
+});
+dispose(); // remove
 </view-code>
 <h3><code>router.guards.add(fn)</code></h3>
 <p>Same as <code>router.guard(fn)</code>.</p>
@@ -71,7 +73,7 @@
 <p>Set the handler for unmatched routes. Returns a disposer.</p>
 <view-code language="javascript">router.notFound((event) =&gt; {
   document.body.innerHTML = '&lt;h1&gt;404&lt;/h1&gt;';
-  });
+});
 </view-code>
 <h3><code>router.miss.set(fn)</code></h3>
 <p>Same as <code>router.notFound(fn)</code>.</p>
@@ -81,12 +83,12 @@
 <p>Subscribe to router events. Returns a disposer.</p>
 <p>Events: <code>'found'</code>, <code>'notfound'</code>, <code>'error'</code>.</p>
 <view-code language="javascript">const dispose = router.on('found', (detail) =&gt; { ... });
-  dispose();
+dispose();
 </view-code>
 <h3><code>router.navigate(url, options)</code></h3>
 <p>Push a new history entry. Returns <code>{ committed, finished }</code>.</p>
 <view-code language="javascript">router.navigate('/settings');
-  router.navigate('/settings', { state: { tab: 'profile' } });
+router.navigate('/settings', { state: { tab: 'profile' } });
 </view-code>
 <h3><code>router.replace(url, options)</code></h3>
 <p>Replace the current history entry.</p>
@@ -137,6 +139,7 @@
 <h3><code>router.destroy()</code></h3>
 <p>Remove all listeners and reset internal state.</p>
 
+<!-- Definition Layer Section -->
 <h2>Definition Layer</h2>
 <h3><code>page(route, config, base)</code></h3>
 <p>Define a route-bound element.</p>
@@ -145,9 +148,9 @@
   via: ['main'],
   template: { html: './user.html', css: './user.css' },
   params: [
-  { name: 'id', type: Number }
+    { name: 'id', type: Number }
   ]
-  }, import.meta.url);
+}, import.meta.url);
 </view-code>
 <p>Config fields: <code>tag</code>, <code>via</code>, <code>container</code>, <code>template</code>, <code>style</code>,
   <code>props</code>, <code>params</code>, <code>query</code>, <code>hash</code>, <code>on</code>, <code>guard</code>,
@@ -159,7 +162,7 @@
   params: [],
   query: [],
   notfound: '&lt;h1&gt;Page Not Found&lt;/h1&gt;'
-  });
+});
 </view-code>
 <p>Config fields: <code>tag</code>, <code>parent</code>, <code>template</code>, <code>style</code>, <code>params</code>,
   <code>query</code>, <code>on</code>, <code>notfound</code>.</p>
@@ -169,22 +172,23 @@
 <view-code language="javascript">view('user-card', {
   props: { name: { type: String } },
   template: '&lt;span&gt;{{ name }}&lt;/span&gt;'
-  });
+});
 </view-code>
 <h3><code>part(tag, config, base)</code></h3>
 <p>Define a stateless primitive.</p>
 <view-code language="javascript">part('icon-star', {
   props: { color: { type: String } },
   template: '&lt;svg&gt;...&lt;/svg&gt;'
-  });
+});
 </view-code>
 
+<!-- Internal Exports Section -->
 <h2>Internal Exports</h2>
 <p>For middleware and test utilities:</p>
 <view-code language="javascript">import { register, match, clear, getRoutes, load } from '@adukiorg/anza/router';
-  import { addGuard, setNotFound, on, setup, destroy } from '@adukiorg/anza/router';
-  import { navigate, replace, back, forward, go } from '@adukiorg/anza/router';
-  import { gate, boot, ready, reset } from '@adukiorg/anza/router';
-  import { isCallback, resolveTag, runCallback } from '@adukiorg/anza/router';
-  import { transitions } from '@adukiorg/anza/router';
+import { addGuard, setNotFound, on, setup, destroy } from '@adukiorg/anza/router';
+import { navigate, replace, back, forward, go } from '@adukiorg/anza/router';
+import { gate, boot, ready, reset } from '@adukiorg/anza/router';
+import { isCallback, resolveTag, runCallback } from '@adukiorg/anza/router';
+import { transitions } from '@adukiorg/anza/router';
 </view-code>

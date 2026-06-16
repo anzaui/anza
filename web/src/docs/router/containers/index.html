@@ -1,24 +1,27 @@
+<!-- Main Content -->
 <h1>Containers</h1>
 <p>The router's container system is a hierarchical graph of DOM mounting points. Every container knows its parent, its
   children, and its depth. This enables lowest-common-ancestor traversal and automatic cascade mounting on hard
   refreshes.</p>
 
+<!-- What Is a Container Section -->
 <h2>What Is a Container?</h2>
 <p>A container is a DOM node that acts as a first-class mounting slot for routed views. It owns its own animation, its
   own DOM swap strategy, and its own transition scope.</p>
 <p>Containers are created with <code>dock()</code>:</p>
 <view-code language="javascript">import { dock } from '@adukiorg/anza/defs';
 
-  dock('main');
+dock('main');
 </view-code>
 <p>When <code>&lt;dock-main&gt;</code> connects, it registers itself in the graph under the key <code>'main'</code>.
   Because no <code>parent</code> is set, it defaults to <code>'body'</code> as its parent.</p>
 
+<!-- The Container Graph Section -->
 <h2>The Container Graph</h2>
 <p>The graph is a tree of nodes. Each node holds a <code>WeakRef</code> to its element, so unmounted containers can be
   garbage-collected.</p>
 <view-code>body (virtual root)
-  └── main
+└── main
   ├── sidebar
   │ └── content
   └── overlay
@@ -26,79 +29,86 @@
 <p>Every dock declares its <code>parent</code> when defined. The graph is built dynamically as elements connect and
   disconnect.</p>
 
+<!-- Via Chains Section -->
 <h2>Via Chains</h2>
 <p>A <code>page</code> declares an ordered <code>via</code> chain — the root-to-leaf container path it renders through:
 </p>
 <view-code language="javascript">page('/settings/profile', {
   tag: 'page-profile',
   via: ['main', 'sidebar', 'content']
-  });
+});
 </view-code>
 <p>The last entry (<code>content</code>) is the render target. The router ensures every preceding container exists
   before mounting.</p>
 
+<!-- Cascade Mounting Section -->
 <h2>Cascade Mounting</h2>
 <p>When a navigation targets a container chain whose intermediate containers are not yet in the DOM, the router walks
   the graph path from the deepest live ancestor down to the target, creating each missing dock in order and yielding a
   frame between each so <code>connectedCallback</code> (and self-registration) can run.</p>
 <view-code>Target: /settings/profile → via: ['main', 'sidebar', 'content']
-  Current: /dashboard → only 'main' is mounted
+Current: /dashboard → only 'main' is mounted
 
-  Cascade:
-  1. Ensure 'main' exists → already mounted
-  2. Create 'sidebar' inside 'main'
-  3. Yield one frame for connectedCallback
-  4. Create 'content' inside 'sidebar'
-  5. Yield one frame for connectedCallback
-  6. Mount 'page-profile' inside 'content'
+Cascade:
+1. Ensure 'main' exists → already mounted
+2. Create 'sidebar' inside 'main'
+3. Yield one frame for connectedCallback
+4. Create 'content' inside 'sidebar'
+5. Yield one frame for connectedCallback
+6. Mount 'page-profile' inside 'content'
 </view-code>
 <p>This is what makes a hard refresh on a deep route work without error.</p>
 
+<!-- Lowest Common Ancestor (LCA) Section -->
 <h2>Lowest Common Ancestor (LCA)</h2>
 <p>Cross-branch navigation uses LCA to minimize DOM churn:</p>
 <view-code language="javascript">// Navigating from container A to container B
-  const ancestor = lca('A', 'B');
+const ancestor = lca('A', 'B');
 </view-code>
 <p>Everything below the ancestor on the source side unmounts. Everything below the ancestor on the target side mounts.
   The ancestor itself and everything above it stays untouched.</p>
 <p>The LCA computation is O(d) where d is tree depth. Real UI trees rarely exceed depth 5.</p>
 
+<!-- Singleton Constraint Section -->
 <h2>Singleton Constraint</h2>
 <p>Two containers with the same name cannot coexist in the DOM at the same time:</p>
 <view-code>ContainerError: Singleton violation — 'main' is already mounted.
-  A second instance cannot register while the first is active.
+A second instance cannot register while the first is active.
 </view-code>
 <p>This is enforced in <code>connectedCallback</code> before any registration is accepted.</p>
 
+<!-- CSS Selector Fallback Section -->
 <h2>CSS Selector Fallback</h2>
 <p>A container name that looks like a CSS selector is resolved against the document:</p>
 <view-code language="javascript">router.register('/about', 'page-about', {
   container: '#main-content'
-  });
+});
 </view-code>
 <p>The router queries the selector and self-registers on first hit. A <code>MutationObserver</code> watches for
   dynamically added elements that match tracked selectors.</p>
 
+<!-- Container Registry API Section -->
 <h2>Container Registry API</h2>
 <p>For advanced use, the container registry is accessible directly:</p>
 <view-code language="javascript">// Register a container manually
-  router.registerContainer('main', document.getElementById('main'));
+router.registerContainer('main', document.getElementById('main'));
 
-  // Unregister
-  router.unregisterContainer('main', el);
+// Unregister
+router.unregisterContainer('main', el);
 
-  // Get a live container
-  const el = router.getContainer('main');
+// Get a live container
+const el = router.getContainer('main');
 
-  // Clear everything
-  router.clearContainers();
+// Clear everything
+router.clearContainers();
 </view-code>
 <p>In most cases, <code>dock()</code> handles registration and unregistration automatically via lifecycle hooks.</p>
 
+<!-- Ambiguous Names Section -->
 <h2>Ambiguous Names</h2>
 <p>If a plain registry key shadows a real DOM element with the same tag name, the router warns:</p>
 <view-code>[Router] Container name &quot;main&quot; is ambiguous: it exists in the DOM as a selector
-  but is being treated as a registry key. Use a selector prefix (e.g., &quot;#main&quot;)
-  to explicitly target the DOM element, or ensure it is registered via registerContainer().
+but is being treated as a registry key. Use a selector prefix (e.g., &quot;#main&quot;)
+to explicitly target the DOM element, or ensure it is registered via registerContainer().
 </view-code>
 <p>Fix it by using a selector prefix or renaming the container key.</p>

@@ -1,7 +1,9 @@
+<!-- Main Content -->
 <h1>Pages</h1>
 <p><code>page(route, config, base)</code> defines a route-bound custom element. It is the primary way to declare
   navigable views in an Anza application.</p>
 
+<!-- Signature Section -->
 <h2>Signature</h2>
 <view-code language="javascript">page(route, config, base);
 </view-code>
@@ -10,6 +12,7 @@
   | <code>config</code> | object | yes | Page definition (see below) |
   | <code>base</code> | string | no | <code>import.meta.url</code> of the caller; required for file templates |</p>
 
+<!-- Config Fields Section -->
 <h2>Config Fields</h2>
 <h3><code>tag</code></h3>
 <p>The custom element tag. Must contain a hyphen.</p>
@@ -20,7 +23,7 @@
 <view-code language="javascript">page('/settings/profile', {
   tag: 'page-profile',
   via: ['main', 'sidebar', 'content']
-  });
+});
 </view-code>
 <h3><code>container</code></h3>
 <p>Single container (back-compat for <code>via</code> with one entry):</p>
@@ -42,27 +45,27 @@
 <p>Inline CSS string, a file path, or an array containing CSS strings or stylesheet paths (both relative and
   root-relative starting with <code>/</code>).</p>
 <view-code language="javascript">// Inline CSS
-  style: ':host { display: block; padding: 1rem; }'
+style: ':host { display: block; padding: 1rem; }'
 
-  // Single stylesheet path
-  style: './home.css'
+// Single stylesheet path
+style: './home.css'
 
-  // Multiple stylesheets from any folder
-  style: ['/styles/shared.css', './home.css']
+// Multiple stylesheets from any folder
+style: ['/styles/shared.css', './home.css']
 </view-code>
 <h3><code>props</code></h3>
 <p>Generic reactive properties for the component. For route-specific parameters, use the dedicated <code>params</code>
   and <code>query</code> contract arrays.</p>
 <view-code language="javascript">props: {
   theme: { type: String, default: 'light' }
-  }
+}
 </view-code>
 <h3><code>params</code></h3>
 <p>An array defining the path parameter contract. The library casts parameter values automatically to the specified
   type:</p>
 <view-code language="javascript">params: [
   { name: 'id', type: Number }
-  ]
+]
 </view-code>
 <p>Path parameter values are extracted in order, and pushed reactively onto the element (as attributes/properties) when
   navigation occurs.</p>
@@ -72,7 +75,7 @@
 <view-code language="javascript">query: [
   { name: 'tab', type: String },
   { name: 'search', type: String }
-  ]
+]
 </view-code>
 <p>Visiting <code>/settings?tab=profile&amp;search=alice</code> sets <code>this.tab = 'profile'</code> and
   <code>this.search = 'alice'</code> on the element instance.</p>
@@ -85,23 +88,23 @@
 <p>Lifecycle hooks:</p>
 <view-code language="javascript">on: {
   load({ el, params, query, raw, hash, ctrl }) {
-  // Called once after mount.
-  // params and query are ordered accessor arrays:
-  const userId = params.id ?? params[0];
-  const activeTab = query.tab ?? query[0];
+    // Called once after mount.
+    // params and query are ordered accessor arrays:
+    const userId = params.id ?? params[0];
+    const activeTab = query.tab ?? query[0];
 
-  return fetchUser(userId, activeTab);
+    return fetchUser(userId, activeTab);
   },
   connect({ el }) {
-  // Called when the element connects to the DOM
+    // Called when the element connects to the DOM
   },
   disconnect({ el }) {
-  // Called when the element disconnects
+    // Called when the element disconnects
   },
   change({ el, name, val }) {
-  // Called when a declared prop, param, or query changes
+    // Called when a declared prop, param, or query changes
   }
-  }
+}
 </view-code>
 <p>All hooks receive a context object. The <code>load</code> hook receives the route-derived <code>params</code> (typed
   ordered array with <code>.first</code>, <code>.last</code>, and named segment getters), <code>query</code> (typed
@@ -115,9 +118,9 @@
   tag: 'page-checkout',
   via: ['main'],
   guard: (destination, controller) =&gt; {
-  if (!cart.hasItems()) return '/cart';
+    if (!cart.hasItems()) return '/cart';
   }
-  });
+});
 </view-code>
 <p>See <a href="/docs/router/guards">guards.md</a> for full guard documentation.</p>
 <h3><code>meta</code></h3>
@@ -126,6 +129,7 @@
 </view-code>
 <p>Available in match results as <code>result.route.meta</code>.</p>
 
+<!-- Boot Gate Section -->
 <h2>Boot Gate</h2>
 <p><code>page()</code> automatically gates the initial route match on the element's custom element definition:</p>
 <view-code language="javascript">gate(customElements.whenDefined(tag));
@@ -133,31 +137,33 @@
 <p>This means a hard refresh on <code>/user/42</code> will wait for <code>&lt;page-user&gt;</code> to be defined before
   running the initial match, eliminating the race condition that plagued earlier router architectures.</p>
 
+<!-- Route Registration Section -->
 <h2>Route Registration</h2>
 <p><code>page()</code> registers the route internally:</p>
 <view-code language="javascript">router.register(route, tag, { via, container: target, ...meta });
 </view-code>
 <p>The tag is both the custom element name and the route handler.</p>
 
+<!-- Example: Full Page Definition Section -->
 <h2>Example: Full Page Definition</h2>
 <view-code language="javascript">page('/user/:id', {
   tag: 'page-user',
   via: ['main'],
   template: { html: './user.html', css: './user.css' },
   params: [
-  { name: 'id', type: Number }
+    { name: 'id', type: Number }
   ],
   query: [
-  { name: 'tab', type: String }
+    { name: 'tab', type: String }
   ],
   on: {
-  async load({ params }) {
-  const user = await fetchUser(params.id);
-  this.user = user;
-  },
-  change({ name, val }) {
-  if (name === 'tab') this.refreshTab(val);
+    async load({ params }) {
+      const user = await fetchUser(params.id);
+      this.user = user;
+    },
+    change({ name, val }) {
+      if (name === 'tab') this.refreshTab(val);
+    }
   }
-  }
-  }, import.meta.url);
+}, import.meta.url);
 </view-code>

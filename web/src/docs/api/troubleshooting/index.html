@@ -1,10 +1,13 @@
+<!-- Main Content -->
 <h1>Troubleshooting</h1>
 <p>Common problems and their solutions.</p>
 
+<!-- Request returns old cached data Section -->
 <h2>Request returns old cached data</h2>
 <p><strong>Cause:</strong> TTL not expired, or no cache invalidation performed.</p>
 <p><strong>Fix:</strong></p>
-<view-code language="javascript">// Force fresh by clearing the cache entry
+<view-code language="javascript">
+  // Force fresh by clearing the cache entry
   await api.cache.delete('/products');
 
   // Or use network-first strategy
@@ -14,19 +17,23 @@
   await api.get('/products', { expiry: 5000 });
 </view-code>
 
+<!-- Cache not working Section -->
 <h2>Cache not working</h2>
 <p><strong>Cause:</strong> Not a GET request, or Cache API unavailable.</p>
 <p><strong>Fix:</strong> Caching only applies to GET requests. Check the browser supports <code>caches</code>:</p>
-<view-code language="javascript">if (typeof caches === 'undefined') {
-  console.warn('Cache API unavailable');
+<view-code language="javascript">
+  if (typeof caches === 'undefined') {
+    console.warn('Cache API unavailable');
   }
 </view-code>
 <p>Private browsing modes often disable the Cache API.</p>
 
+<!-- Prefix not resolving Section -->
 <h2>Prefix not resolving</h2>
 <p><strong>Cause:</strong> Prefix not registered, or path format mismatch.</p>
 <p><strong>Fix:</strong> Check prefix registration and path format:</p>
-<view-code language="javascript">api.prefix.add('default', 'https://api.example.com');
+<view-code language="javascript">
+  api.prefix.add('default', 'https://api.example.com');
 
   // Correct
   api.get('/user/profile'); // matches root fallback
@@ -38,70 +45,83 @@
   api.get('https://api.example.com/user/profile'); // no prefix matching
 </view-code>
 
+<!-- Upload progress not firing Section -->
 <h2>Upload progress not firing</h2>
 <p><strong>Cause:</strong> Server does not send <code>Content-Length</code>, or file is too small.</p>
-<p><strong>Fix:</strong> The progress event requires <code>event.lengthComputable</code> from the XMLHttpRequest upload.
-  Ensure the server sets the content length. Small files may complete before any progress events fire.</p>
+<p>
+  <strong>Fix:</strong> The progress event requires <code>event.lengthComputable</code> from the XMLHttpRequest upload.
+  Ensure the server sets the content length. Small files may complete before any progress events fire.
+</p>
 
+<!-- Stream stops mid-way Section -->
 <h2>Stream stops mid-way</h2>
 <p><strong>Cause:</strong> Network drop, or server closed connection.</p>
 <p><strong>Fix:</strong> Wrap in try-catch and handle reconnection:</p>
-<view-code language="javascript">async function* reconnectingStream(url) {
-  while (true) {
-  try {
-  for await (const chunk of api.stream(url)) {
-  yield chunk;
-  }
-  break; // clean end
-  } catch (err) {
-  console.warn('Stream dropped, reconnecting...');
-  await new Promise(r =&gt; setTimeout(r, 1000));
-  }
-  }
+<view-code language="javascript">
+  async function* reconnectingStream(url) {
+    while (true) {
+      try {
+        for await (const chunk of api.stream(url)) {
+          yield chunk;
+        }
+        break; // clean end
+      } catch (err) {
+        console.warn('Stream dropped, reconnecting...');
+        await new Promise(r =&gt; setTimeout(r, 1000));
+      }
+    }
   }
 </view-code>
 
+<!-- 401 not triggering handler Section -->
 <h2>401 not triggering handler</h2>
 <p><strong>Cause:</strong> Listener registered after the request, or wrong event name.</p>
 <p><strong>Fix:</strong></p>
-<view-code language="javascript">// Correct — register before the request
+<view-code language="javascript">
+  // Correct — register before the request
   api.on('status:401', handler);
   await api.get('/protected');
 
   // Also correct — per-request listener
   await api.get('/protected', {
-  on: { 'status:401': handler }
+    on: { 'status:401': handler }
   });
 </view-code>
 <p>Event names are case-sensitive: <code>'status:401'</code> not <code>'Status:401'</code>.</p>
 
+<!-- Request not timing out Section -->
 <h2>Request not timing out</h2>
 <p><strong>Cause:</strong> Timeout shorter than expected, or signal already aborted.</p>
 <p><strong>Fix:</strong> Check that the timeout value is in milliseconds:</p>
-<view-code language="javascript">// Correct — 5 seconds
+<view-code language="javascript">
+  // Correct — 5 seconds
   await api.get('/slow', { timeout: 5000 });
 
   // Wrong — 5 milliseconds
   await api.get('/slow', { timeout: 5 });
 </view-code>
 
+<!-- Retry not helping Section -->
 <h2>Retry not helping</h2>
 <p><strong>Cause:</strong> Error is not transient (4xx client error).</p>
 <p><strong>Fix:</strong> Check the error code. 4xx errors are not retried:</p>
-<view-code language="javascript">try {
-  await api.get('/invalid');
+<view-code language="javascript">
+  try {
+    await api.get('/invalid');
   } catch (err) {
-  console.log(err.code); // 'HTTP_ERROR'
-  console.log(err.context.status); // 404
-  console.log(err.recoverable); // false
+    console.log(err.code); // 'HTTP_ERROR'
+    console.log(err.context.status); // 404
+    console.log(err.recoverable); // false
   }
 </view-code>
 <p>Only <code>NETWORK_TIMEOUT</code>, <code>NETWORK_ERROR</code>, and 5xx are retried.</p>
 
+<!-- Memory leak with event listeners Section -->
 <h2>Memory leak with event listeners</h2>
 <p><strong>Cause:</strong> Global listeners never removed.</p>
 <p><strong>Fix:</strong> Use disposers or AbortSignal:</p>
-<view-code language="javascript">// Manual cleanup
+<view-code language="javascript">
+  // Manual cleanup
   const off = api.on('error', handler);
   off();
 
@@ -111,14 +131,19 @@
   ctrl.abort(); // removes all listeners bound to this signal
 </view-code>
 
+<!-- CORS errors Section -->
 <h2>CORS errors</h2>
 <p><strong>Cause:</strong> Cross-origin request without proper headers.</p>
-<p><strong>Fix:</strong> The API client does not handle CORS. Ensure the server sends appropriate
-  <code>Access-Control-Allow-*</code> headers. For preflight issues, check that custom headers are allowed.</p>
+<p>
+  <strong>Fix:</strong> The API client does not handle CORS. Ensure the server sends appropriate
+  <code>Access-Control-Allow-*</code> headers. For preflight issues, check that custom headers are allowed.
+</p>
 
+<!-- Still stuck Section -->
 <h2>Still stuck?</h2>
 <p>Inspect the pipeline:</p>
-<view-code language="javascript">// See registered prefixes
+<view-code language="javascript">
+  // See registered prefixes
   console.log(api.prefix.resolve('/test'));
 
   // Check cache status

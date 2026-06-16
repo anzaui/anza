@@ -1,103 +1,107 @@
+<!-- Main Content -->
 <h1>Quick Start</h1>
 <p>Get working with events in five minutes.</p>
 
+<!-- Global Pub/Sub Section -->
 <h2>1. Global Pub/Sub</h2>
 <view-code language="javascript">import { events } from '@adukiorg/anza/events';
 
-  // Subscribe
-  const off = events.on('user:login', (e) =&gt; {
+// Subscribe
+const off = events.on('user:login', (e) => {
   console.log('User logged in:', e.detail);
-  });
+});
 
-  // Publish
-  events.emit('user:login', { id: 42, name: 'Alice' });
+// Publish
+events.emit('user:login', { id: 42, name: 'Alice' });
 
-  // Unsubscribe
-  off();
+// Unsubscribe
+off();
 </view-code>
 <p>The event bus is a global singleton. Any module can emit. Any module can listen.</p>
 
+<!-- Per-Request Scoped Listeners Section -->
 <h2>2. Per-Request Scoped Listeners</h2>
 <p>For listeners tied to a component lifecycle, pass an <code>AbortSignal</code>:</p>
 <view-code language="javascript">const controller = new AbortController();
 
-  events.on('notification', handler, controller.signal);
+events.on('notification', handler, controller.signal);
 
-  // Later, when the component unmounts
-  controller.abort(); // all listeners bound to this signal are removed
+// Later, when the component unmounts
+controller.abort(); // all listeners bound to this signal are removed
 </view-code>
 
+<!-- Memory-Safe DOM Listener Section -->
 <h2>3. Memory-Safe DOM Listener</h2>
 <view-code language="javascript">const dispose = events.listen(
   document.querySelector('.btn'),
   'click',
-  (e) =&gt; console.log('clicked')
-  );
+  (e) => console.log('clicked')
+);
 
-  // Remove manually
-  dispose();
+// Remove manually
+dispose();
 </view-code>
-<p><code>events.listen</code> defaults <code>touchstart</code>, <code>touchmove</code>, <code>wheel</code>, and
-  <code>mousewheel</code> to <code>passive: true</code> automatically. This prevents scroll-blocking and protects INP
-  performance.</p>
+<p><code>events.listen</code> defaults <code>touchstart</code>, <code>touchmove</code>, <code>wheel</code>, and <code>mousewheel</code> to <code>passive: true</code> automatically. This prevents scroll-blocking and protects INP performance.</p>
 
+<!-- Promise-Wrapped Single Event Section -->
 <h2>4. Promise-Wrapped Single Event</h2>
 <view-code language="javascript">// Wait for one click, then proceed
-  const click = await events.once(document.body, 'click');
-  console.log('Clicked element:', click.target);
+const click = await events.once(document.body, 'click');
+console.log('Clicked element:', click.target);
 </view-code>
 <p>Useful for one-off interactions: "wait for the user to confirm, then continue."</p>
 
+<!-- Event Delegation Section -->
 <h2>5. Event Delegation</h2>
 <p>Handle clicks on dynamically added elements:</p>
 <view-code language="javascript">const dispose = events.delegate(
   document.body,
   '.item',
   'click',
-  (event, target) =&gt; {
-  console.log('Item clicked:', target.textContent);
+  (event, target) => {
+    console.log('Item clicked:', target.textContent);
   }
-  );
+);
 </view-code>
-<p>One listener on <code>document.body</code> handles all <code>.item</code> clicks, even elements added after the
-  listener is registered. The delegation traverses <code>composedPath()</code> so it works through shadow DOM
-  boundaries.</p>
+<p>One listener on <code>document.body</code> handles all <code>.item</code> clicks, even elements added after the listener is registered. The delegation traverses <code>composedPath()</code> so it works through shadow DOM boundaries.</p>
 
+<!-- System Event Names Section -->
 <h2>6. Use System Event Names</h2>
 <view-code language="javascript">import { events } from '@adukiorg/anza/events';
 
-  events.on(events.names.auth.signedin, (e) =&gt; {
+events.on(events.names.auth.signedin, (e) => {
   console.log('Auth token refreshed');
-  });
+});
 
-  events.on(events.names.connectivity.offline, () =&gt; {
+events.on(events.names.connectivity.offline, () => {
   showToast('You are offline');
-  });
+});
 </view-code>
 <p>System event names prevent typos and give IDE autocomplete.</p>
 
+<!-- Complete Working Example Section -->
 <h2>Complete Working Example</h2>
 <view-code language="javascript">import { events } from '@adukiorg/anza/events';
 
-  // Global notifications
-  events.on('notification', (e) =&gt; {
+// Global notifications
+events.on('notification', (e) => {
   showToast(e.detail.message);
-  });
+});
 
-  // Auth state
-  events.on(events.names.auth.signedin, (e) =&gt; {
+// Auth state
+events.on(events.names.auth.signedin, (e) => {
   events.emit('notification', { message: `Welcome, ${e.detail.name}` });
-  });
+});
 
-  // Offline detection
-  events.listen(window, 'offline', () =&gt; {
+// Offline detection
+events.listen(window, 'offline', () => {
   events.emit(events.names.connectivity.offline);
-  });
+});
 
-  // One-off confirmation dialog
-  async function confirmAction() {
+// One-off confirmation dialog
+async function confirmAction() {
   events.emit('notification', { message: 'Are you sure? Click to confirm.' });
   const click = await events.once(document.body, 'click');
   return click.target.matches('.confirm');
-  }
+}
 </view-code>

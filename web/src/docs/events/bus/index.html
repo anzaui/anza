@@ -1,76 +1,82 @@
+<!-- Main Content -->
 <h1>Bus</h1>
-<p>The global event bus is a singleton <code>EventBus</code> instance built on the native <code>EventTarget</code>. It
-  provides typed <code>emit</code> and <code>on</code> methods for application-wide publish/subscribe.</p>
+<p>The global event bus is a singleton <code>EventBus</code> instance built on the native <code>EventTarget</code>. It provides typed <code>emit</code> and <code>on</code> methods for application-wide publish/subscribe.</p>
 
+<!-- Global Bus Section -->
 <h2>Global Bus</h2>
 <view-code language="javascript">import { events } from '@adukiorg/anza/events';
 
-  // Subscribe
-  const off = events.on('app:theme', (e) =&gt; {
+// Subscribe
+const off = events.on('app:theme', (e) => {
   console.log('Theme changed to', e.detail.theme);
-  });
+});
 
-  // Publish
-  events.emit('app:theme', { theme: 'dark' });
+// Publish
+events.emit('app:theme', { theme: 'dark' });
 
-  // Unsubscribe
-  off();
+// Unsubscribe
+off();
 </view-code>
 
+<!-- EventBus Class Section -->
 <h2>EventBus Class</h2>
 <p>Create isolated buses for scoped communication:</p>
 <view-code language="javascript">import { EventBus } from '@adukiorg/anza/events';
 
-  const moduleBus = new EventBus();
+const moduleBus = new EventBus();
 
-  moduleBus.on('update', handler);
-  moduleBus.emit('update', data);
+moduleBus.on('update', handler);
+moduleBus.emit('update', data);
 </view-code>
 <p>Each <code>EventBus</code> is an independent <code>EventTarget</code>. Events do not leak between instances.</p>
 
+<!-- Event Payload Section -->
 <h2>Event Payload</h2>
 <p>Listeners receive a <code>CustomEvent</code> with <code>type</code> and <code>detail</code>:</p>
-<view-code language="javascript">events.on('user:action', (e) =&gt; {
+<view-code language="javascript">events.on('user:action', (e) => {
   console.log(e.type); // 'user:action'
   console.log(e.detail); // { action: 'save' }
-  });
+});
 </view-code>
 
+<!-- AbortSignal Cleanup Section -->
 <h2>AbortSignal Cleanup</h2>
 <view-code language="javascript">const ctrl = new AbortController();
 
-  events.on('update', handler, ctrl.signal);
+events.on('update', handler, ctrl.signal);
 
-  // Later — all listeners on this signal are removed
-  ctrl.abort();
+// Later — all listeners on this signal are removed
+ctrl.abort();
 </view-code>
-<p>This is the recommended pattern for component-scoped listeners. The bus uses the native
-  <code>addEventListener({ signal })</code> API, so cleanup is handled by the browser.</p>
+<p>This is the recommended pattern for component-scoped listeners. The bus uses the native <code>addEventListener({ signal })</code> API, so cleanup is handled by the browser.</p>
 
+<!-- Manual Disposal Section -->
 <h2>Manual Disposal</h2>
 <p><code>events.on</code> returns a disposer function:</p>
 <view-code language="javascript">const off = events.on('update', handler);
-  off(); // removes just this listener
+off(); // removes just this listener
 </view-code>
 
+<!-- Native EventTarget Methods Section -->
 <h2>Using Native EventTarget Methods</h2>
 <p>The bus is a full <code>EventTarget</code>. Use native methods directly if needed:</p>
 <view-code language="javascript">bus.addEventListener('custom', handler);
-  bus.dispatchEvent(new CustomEvent('custom', { detail: {} }));
-  bus.removeEventListener('custom', handler);
+bus.dispatchEvent(new CustomEvent('custom', { detail: {} }));
+bus.removeEventListener('custom', handler);
 </view-code>
 
+<!-- Listener Order Section -->
 <h2>Listener Order</h2>
-<p>Listeners fire in registration order. There is no priority system. If order matters, register in the correct
-  sequence.</p>
+<p>Listeners fire in registration order. There is no priority system. If order matters, register in the correct sequence.</p>
 
+<!-- Error Handling Section -->
 <h2>Error Handling</h2>
 <p>Listener errors are not caught by the bus. Wrap handlers to prevent one listener from breaking others:</p>
-<view-code language="javascript">events.on('update', (e) =&gt; {
+<view-code language="javascript">events.on('update', (e) => {
   try {
-  process(e.detail);
+    process(e.detail);
   } catch (err) {
-  console.error('Handler failed:', err);
+    console.error('Handler failed:', err);
   }
-  });
+});
 </view-code>

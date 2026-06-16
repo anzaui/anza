@@ -11,15 +11,15 @@
   --transition-pop: cubic-bezier(0.9, 0.1, 1, 0.2);
   --transition-replace: var(--ease-in-out);
   --transition-offset: 30px;
-  --transition-bg: var(--color-surface-page);
+  --transition-bg: var(--background);
 }
 
 ::view-transition-old(root) {
   animation: 90ms ease-in both fade-out;
 }
-::view-transition-new(root) {
+/* ::view-transition-new(root) {
   animation: var(--transition-duration) var(--transition-easing) both slide-in;
-}
+} */
 
 @keyframes fade-out {
   to { opacity: 0; }

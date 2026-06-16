@@ -1,9 +1,14 @@
+<!-- Main Content -->
 <h1>Requests</h1>
-<p>The API client exposes five HTTP methods. Each auto-serializes JSON bodies, parses JSON responses, and carries
-  standard options for timeouts, signals, caching, and retries.</p>
+<p>
+  The API client exposes five HTTP methods. Each auto-serializes JSON bodies, parses JSON responses, and carries
+  standard options for timeouts, signals, caching, and retries.
+</p>
 
+<!-- HTTP Methods Section -->
 <h2>HTTP Methods</h2>
-<view-code language="javascript">import { api } from '@adukiorg/anza/api';
+<view-code language="javascript">
+  import { api } from '@adukiorg/anza/api';
 
   // GET
   const user = await api.get('/user/profile');
@@ -21,10 +26,14 @@
   await api.delete('/posts/1');
 </view-code>
 
+<!-- Auto-Serialization Section -->
 <h2>Auto-Serialization</h2>
-<p>When the body is a plain object (not <code>Blob</code> or <code>FormData</code>), it is serialized to JSON and the
-  <code>Content-Type: application/json</code> header is set automatically:</p>
-<view-code language="javascript">// Sends JSON body with correct header
+<p>
+  When the body is a plain object (not <code>Blob</code> or <code>FormData</code>), it is serialized to JSON and the
+  <code>Content-Type: application/json</code> header is set automatically:
+</p>
+<view-code language="javascript">
+  // Sends JSON body with correct header
   api.post('/posts', { title: 'Hello' });
 
   // Does NOT auto-serialize
@@ -32,164 +41,180 @@
   api.post('/upload', blob); // Blob passes through as-is
 </view-code>
 
+<!-- Response Parsing Section -->
 <h2>Response Parsing</h2>
 <p>The response is parsed based on <code>Content-Type</code>:</p>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Content-Type</th>
-      <th>Returned As</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>application/json</code></td>
-      <td>Parsed JSON object</td>
-    </tr>
-    <tr>
-      <td>Anything else</td>
-      <td>Raw text string</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Content-Type</th>
+        <th>Returned As</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>application/json</code></td>
+        <td>Parsed JSON object</td>
+      </tr>
+      <tr>
+        <td>Anything else</td>
+        <td>Raw text string</td>
+      </tr>
+    </tbody>
   </table>
 </div>
 <p>To get the raw <code>Response</code> object, use the lower-level <code>execute</code> export:</p>
-<view-code language="javascript">import { execute } from '@adukiorg/anza/api';
+<view-code language="javascript">
+  import { execute } from '@adukiorg/anza/api';
   const response = await execute({ url: '/image', method: 'GET' });
   const blob = await response.blob();
 </view-code>
 
+<!-- Request Options Section -->
 <h2>Request Options</h2>
 <p>All methods accept an options object:</p>
-<view-code language="javascript">await api.get('/user/profile', {
-  headers: { 'X-Custom': 'value' },
-  signal: controller.signal,
-  timeout: 15000,
-  priority: 'user-blocking',
-  retries: 5,
-  cache: 'network-first',
-  expiry: 60000,
-  on: { 'status:401': handler }
+<view-code language="javascript">
+  await api.get('/user/profile', {
+    headers: { 'X-Custom': 'value' },
+    signal: controller.signal,
+    timeout: 15000,
+    priority: 'user-blocking',
+    retries: 5,
+    cache: 'network-first',
+    expiry: 60000,
+    on: { 'status:401': handler }
   });
 </view-code>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Option</th>
-      <th>Type</th>
-      <th>Default</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>headers</code></td>
-      <td>object</td>
-      <td><code>{}</code></td>
-      <td>Additional request headers</td>
-    </tr>
-    <tr>
-      <td><code>signal</code></td>
-      <td>AbortSignal</td>
-      <td>—</td>
-      <td>Cancel the request</td>
-    </tr>
-    <tr>
-      <td><code>timeout</code></td>
-      <td>number</td>
-      <td><code>10000</code></td>
-      <td>Timeout in milliseconds</td>
-    </tr>
-    <tr>
-      <td><code>priority</code></td>
-      <td>string</td>
-      <td><code>'user-visible'</code></td>
-      <td>Browser task priority (<code>user-blocking</code>, <code>user-visible</code>, <code>background</code>)</td>
-    </tr>
-    <tr>
-      <td><code>retries</code></td>
-      <td>number</td>
-      <td><code>3</code></td>
-      <td>Retry attempts for transient failures</td>
-    </tr>
-    <tr>
-      <td><code>cache</code></td>
-      <td>string</td>
-      <td>—</td>
-      <td>Cache strategy (<code>cache-first</code>, <code>network-first</code>, <code>stale-while-revalidate</code>)
-      </td>
-    </tr>
-    <tr>
-      <td><code>expiry</code> / <code>ttl</code></td>
-      <td>number</td>
-      <td>—</td>
-      <td>Cache TTL in milliseconds</td>
-    </tr>
-    <tr>
-      <td><code>on</code></td>
-      <td>object</td>
-      <td>—</td>
-      <td>Per-request event listeners</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Option</th>
+        <th>Type</th>
+        <th>Default</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>headers</code></td>
+        <td>object</td>
+        <td><code>{}</code></td>
+        <td>Additional request headers</td>
+      </tr>
+      <tr>
+        <td><code>signal</code></td>
+        <td>AbortSignal</td>
+        <td>—</td>
+        <td>Cancel the request</td>
+      </tr>
+      <tr>
+        <td><code>timeout</code></td>
+        <td>number</td>
+        <td><code>10000</code></td>
+        <td>Timeout in milliseconds</td>
+      </tr>
+      <tr>
+        <td><code>priority</code></td>
+        <td>string</td>
+        <td><code>'user-visible'</code></td>
+        <td>Browser task priority (<code>user-blocking</code>, <code>user-visible</code>, <code>background</code>)</td>
+      </tr>
+      <tr>
+        <td><code>retries</code></td>
+        <td>number</td>
+        <td><code>3</code></td>
+        <td>Retry attempts for transient failures</td>
+      </tr>
+      <tr>
+        <td><code>cache</code></td>
+        <td>string</td>
+        <td>—</td>
+        <td>Cache strategy (<code>cache-first</code>, <code>network-first</code>, <code>stale-while-revalidate</code>)</td>
+      </tr>
+      <tr>
+        <td><code>expiry</code> / <code>ttl</code></td>
+        <td>number</td>
+        <td>—</td>
+        <td>Cache TTL in milliseconds</td>
+      </tr>
+      <tr>
+        <td><code>on</code></td>
+        <td>object</td>
+        <td>—</td>
+        <td>Per-request event listeners</td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Timeouts Section -->
 <h2>Timeouts</h2>
 <p>Requests time out after 10 seconds by default. Change per request:</p>
-<view-code language="javascript">await api.get('/slow-endpoint', { timeout: 30000 });
+<view-code language="javascript">
+  await api.get('/slow-endpoint', { timeout: 30000 });
 </view-code>
-<p>When a timeout fires, the request aborts and a <code>PlatformError</code> with code <code>NETWORK_TIMEOUT</code> is
-  thrown.</p>
+<p>
+  When a timeout fires, the request aborts and a <code>PlatformError</code> with code <code>NETWORK_TIMEOUT</code> is
+  thrown.
+</p>
 
+<!-- Abort Signals Section -->
 <h2>Abort Signals</h2>
 <p>Pass an <code>AbortSignal</code> to cancel a request:</p>
-<view-code language="javascript">const controller = new AbortController();
+<view-code language="javascript">
+  const controller = new AbortController();
 
   api.get('/endpoint', { signal: controller.signal });
 
   // Cancel after 5 seconds
   setTimeout(() =&gt; controller.abort(), 5000);
 </view-code>
-<p>The API client composes the user signal with its internal timeout signal using <code>AbortSignal.any</code> when
-  available, falling back to manual composition.</p>
+<p>
+  The API client composes the user signal with its internal timeout signal using <code>AbortSignal.any</code> when
+  available, falling back to manual composition.
+</p>
 
+<!-- Browser Task Priority Section -->
 <h2>Browser Task Priority</h2>
-<p>The API client uses <code>scheduler.postTask</code> when available to schedule the fetch at the requested priority:
+<p>
+  The API client uses <code>scheduler.postTask</code> when available to schedule the fetch at the requested priority:
 </p>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Priority</th>
-      <th>Use Case</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>user-blocking</code></td>
-      <td>Critical path data needed immediately</td>
-    </tr>
-    <tr>
-      <td><code>user-visible</code></td>
-      <td>Standard API calls</td>
-    </tr>
-    <tr>
-      <td><code>background</code></td>
-      <td>Prefetch, analytics, non-urgent sync</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Priority</th>
+        <th>Use Case</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>user-blocking</code></td>
+        <td>Critical path data needed immediately</td>
+      </tr>
+      <tr>
+        <td><code>user-visible</code></td>
+        <td>Standard API calls</td>
+      </tr>
+      <tr>
+        <td><code>background</code></td>
+        <td>Prefetch, analytics, non-urgent sync</td>
+      </tr>
+    </tbody>
   </table>
 </div>
-<view-code language="javascript">await api.get('/critical-data', { priority: 'user-blocking' });
+<view-code language="javascript">
+  await api.get('/critical-data', { priority: 'user-blocking' });
 </view-code>
 
+<!-- Headers Section -->
 <h2>Headers</h2>
 <p>Custom headers merge with defaults:</p>
-<view-code language="javascript">await api.get('/protected', {
-  headers: { Authorization: `Bearer ${token}` }
+<view-code language="javascript">
+  await api.get('/protected', {
+    headers: { Authorization: `Bearer ${token}` }
   });
 </view-code>
 <p>The <code>Content-Type</code> header is auto-set for JSON bodies unless already provided.</p>

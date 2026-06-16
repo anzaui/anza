@@ -27,7 +27,7 @@
   padding: var(--space-3) var(--space-4);
   border-bottom: var(--space-px) solid var(--color-border-default);
   box-sizing: border-box;
-  transition: background-color var(--duration-fast) var(--ease-out);
+  /* transition: background-color var(--duration-fast) var(--ease-out); */
 }
 
 ::slotted(ui-list-item:last-child), ::slotted(div[role="listitem"]:last-child) {

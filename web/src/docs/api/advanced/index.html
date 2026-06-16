@@ -1,36 +1,41 @@
+<!-- Main Content -->
 <h1>Advanced Topics</h1>
-<p>Internals, extension points, and edge cases for developers building on or extending the API client.</p>
+<p>
+  Internals, extension points, and edge cases for developers building on or extending the API client.
+</p>
 
+<!-- Retry Internals Section -->
 <h2>Retry Internals</h2>
 <p>The retry function uses exponential backoff with full jitter:</p>
-<view-code language="javascript">delay = random(0, min(maxDelay, base * 2^attempt))
+<view-code language="javascript">
+  delay = random(0, min(maxDelay, base * 2^attempt))
 </view-code>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Default</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>attempts</code></td>
-      <td>3</td>
-      <td>Maximum retry attempts</td>
-    </tr>
-    <tr>
-      <td><code>base</code></td>
-      <td>100ms</td>
-      <td>Starting delay</td>
-    </tr>
-    <tr>
-      <td><code>maxDelay</code></td>
-      <td>3000ms</td>
-      <td>Cap on delay</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Default</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>attempts</code></td>
+        <td>3</td>
+        <td>Maximum retry attempts</td>
+      </tr>
+      <tr>
+        <td><code>base</code></td>
+        <td>100ms</td>
+        <td>Starting delay</td>
+      </tr>
+      <tr>
+        <td><code>maxDelay</code></td>
+        <td>3000ms</td>
+        <td>Cap on delay</td>
+      </tr>
+    </tbody>
   </table>
 </div>
 <p>Retries apply only to transient failures:</p>
@@ -40,12 +45,16 @@
   <li><code>HTTP_ERROR</code> with status &gt;= 500</li>
 </ul>
 <p>4xx errors and aborted requests fail immediately.</p>
-<p>The retry loop respects <code>AbortSignal</code>. If the signal aborts during backoff, the wait is cancelled and a
-  <code>NETWORK_ERROR</code> is thrown.</p>
+<p>
+  The retry loop respects <code>AbortSignal</code>. If the signal aborts during backoff, the wait is cancelled and a
+  <code>NETWORK_ERROR</code> is thrown.
+</p>
 
+<!-- AbortSignal Composition Section -->
 <h2>AbortSignal Composition</h2>
 <p>The API client composes its internal timeout signal with any user-provided signal:</p>
-<view-code language="javascript">// Modern path (AbortSignal.any)
+<view-code language="javascript">
+  // Modern path (AbortSignal.any)
   const activeSignal = AbortSignal.any([timeoutSignal, userSignal]);
 
   // Fallback path (manual listeners)
@@ -53,47 +62,60 @@
 </view-code>
 <p>This means either the timeout firing or the user calling <code>abort()</code> will cancel the request.</p>
 
+<!-- Browser Scheduler Integration Section -->
 <h2>Browser Scheduler Integration</h2>
 <p>When <code>scheduler.postTask</code> is available, the fetch is scheduled at the requested priority:</p>
-<view-code language="javascript">scheduler.postTask(runFetch, { priority: 'user-visible', signal });
+<view-code language="javascript">
+  scheduler.postTask(runFetch, { priority: 'user-visible', signal });
 </view-code>
 <p>This improves Interaction to Next Paint (INP) by deferring non-critical requests.</p>
 <p>When <code>scheduler.postTask</code> is unavailable, the fetch runs immediately.</p>
 
+<!-- Pipeline Short-Circuiting Section -->
 <h2>Pipeline Short-Circuiting</h2>
 <p>An outbound interceptor can return a <code>Response</code> to skip the network entirely:</p>
-<view-code language="javascript">api.pipeline.outbound((descriptor) =&gt; {
-  if (isOffline()) {
-  return new Response(JSON.stringify({ offline: true }));
-  }
-  return descriptor;
+<view-code language="javascript">
+  api.pipeline.outbound((descriptor) =&gt; {
+    if (isOffline()) {
+      return new Response(JSON.stringify({ offline: true }));
+    }
+    return descriptor;
   });
 </view-code>
 <p>The response still runs through the inbound pipeline, so telemetry events fire normally.</p>
 
+<!-- Request IDs Section -->
 <h2>Request IDs</h2>
 <p>Every request gets a unique ID:</p>
-<view-code language="javascript">const requestId = crypto.randomUUID?.() || Math.random().toString(36).slice(2) +
-  Date.now().toString(36);
+<view-code language="javascript">
+  const requestId = crypto.randomUUID?.() || Math.random().toString(36).slice(2) +
+    Date.now().toString(36);
 </view-code>
 <p>This ID scopes per-request event listeners and correlates telemetry.</p>
 
+<!-- Cache Internals Section -->
 <h2>Cache Internals</h2>
 <p>The cache layer uses the browser Cache API directly:</p>
-<view-code language="javascript">const storage = await caches.open('platform-api-cache');
+<view-code language="javascript">
+  const storage = await caches.open('platform-api-cache');
 </view-code>
-<p>TTL is implemented via an <code>x-expires-at</code> header on cached responses. When reading, expired entries are
-  deleted and <code>null</code> is returned.</p>
+<p>
+  TTL is implemented via an <code>x-expires-at</code> header on cached responses. When reading, expired entries are
+  deleted and <code>null</code> is returned.
+</p>
 <p>Glob invalidation converts patterns to regex and iterates all cache keys:</p>
-<view-code language="javascript">const regex = globToRegex('*/user/*');
+<view-code language="javascript">
+  const regex = globToRegex('*/user/*');
   for (const req of await store.keys()) {
-  if (regex.test(req.url)) await store.delete(req);
+    if (regex.test(req.url)) await store.delete(req);
   }
 </view-code>
 
+<!-- NDJSON Parsing Section -->
 <h2>NDJSON Parsing</h2>
 <p>The <code>createNDJSONTransform</code> stream uses a line buffer to handle partial chunks:</p>
-<view-code language="javascript">let buffer = '';
+<view-code language="javascript">
+  let buffer = '';
   // On each chunk:
   buffer += chunk;
   const lines = buffer.split('\n');
@@ -102,6 +124,7 @@
 </view-code>
 <p>This guarantees correct parsing even when chunks break mid-line.</p>
 
+<!-- SSR Considerations Section -->
 <h2>SSR Considerations</h2>
 <p>The API client checks <code>typeof caches !== 'undefined'</code> before using the Cache API. On the server:</p>
 <ul>

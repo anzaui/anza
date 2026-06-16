@@ -1,6 +1,8 @@
+<!-- Main Content -->
 <h1>API Reference</h1>
 <p>Complete reference for the state facade and internal classes.</p>
 
+<!-- Facade Section -->
 <h2>Facade</h2>
 <view-code language="javascript">import { state } from '@adukiorg/anza/state';
 </view-code>
@@ -17,6 +19,7 @@
 <h3><code>state.storage</code></h3>
 <p><code>PlatformStorage</code> instance. See <a href="/docs/state/persist">persist.md</a>.</p>
 
+<!-- ReactiveStore Section -->
 <h2>ReactiveStore</h2>
 <h3><code>get(key)</code></h3>
 <p>Read a property value.</p>
@@ -40,6 +43,7 @@
 <h3><code>onMutation(callback)</code></h3>
 <p>Register global mutation listener: <code>(key, value, source) =&gt; void</code></p>
 
+<!-- DerivedValue Section -->
 <h2>DerivedValue</h2>
 <h3><code>value</code></h3>
 <p>Lazy getter. Recomputes if dirty.</p>
@@ -48,6 +52,7 @@
 <h3><code>dispose()</code></h3>
 <p>Clean up all subscriptions.</p>
 
+<!-- PlatformStorage Section -->
 <h2>PlatformStorage</h2>
 <h3><code>setDatabaseName(name)</code></h3>
 <p>Configure database name before first use.</p>
@@ -64,6 +69,7 @@
 <h3><code>persist()</code></h3>
 <p>Request persistent storage.</p>
 
+<!-- Named Exports Section -->
 <h2>Named Exports</h2>
 <view-code language="javascript">import {
   ReactiveStore,

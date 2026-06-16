@@ -1,92 +1,101 @@
+<!-- Main Content -->
 <h1>Structure</h1>
-<p>When you run <code>npm create @adukiorg/anza myapp</code>, the scaffold generates a folder layout the CLI expects.
-  Here is what each file and folder does.</p>
+<p>
+  When you run <code>npm create @adukiorg/anza myapp</code>, the scaffold generates a folder layout the CLI expects.
+  Here is what each file and folder does.
+</p>
 
+<!-- Root Files Section -->
 <h2>Root Files</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>File</th>
-      <th>Why it exists</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>package.json</code></td>
-      <td>Lists <code>@adukiorg/anza</code> as a dev dependency and exposes <code>npm run dev</code> and
-        <code>npm run build</code></td>
-    </tr>
-    <tr>
-      <td><code>importmap.json</code></td>
-      <td>Empty starter for user-defined import aliases. The CLI merges library mappings in at build time</td>
-    </tr>
-    <tr>
-      <td><code>.gitignore</code></td>
-      <td>Excludes <code>node_modules/</code>, <code>dist/</code>, and <code>.anzacache.json</code></td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>File</th>
+        <th>Why it exists</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>package.json</code></td>
+        <td>Lists <code>@adukiorg/anza</code> as a dev dependency and exposes <code>npm run dev</code> and
+          <code>npm run build</code></td>
+      </tr>
+      <tr>
+        <td><code>importmap.json</code></td>
+        <td>Empty starter for user-defined import aliases. The CLI merges library mappings in at build time</td>
+      </tr>
+      <tr>
+        <td><code>.gitignore</code></td>
+        <td>Excludes <code>node_modules/</code>, <code>dist/</code>, and <code>.anzacache.json</code></td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Source Folder Section -->
 <h2><code>src/</code> Folder</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Folder</th>
-      <th>Why it exists</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>src/app.js</code></td>
-      <td>Entry point. Initializes the UI system, defines the root layout dock, and imports all pages</td>
-    </tr>
-    <tr>
-      <td><code>src/index.html</code></td>
-      <td>HTML shell. Links the generated importmap, tokens, styles, and the app entry module</td>
-    </tr>
-    <tr>
-      <td><code>src/pages/</code></td>
-      <td>Route definitions. Each subfolder is a page with its own <code>.js</code>, <code>.html</code>, and
-        <code>.css</code></td>
-    </tr>
-    <tr>
-      <td><code>src/docks/</code></td>
-      <td>Container shells that persist across route changes (optional)</td>
-    </tr>
-    <tr>
-      <td><code>src/views/</code></td>
-      <td>Reusable stateful components, shared across pages (optional)</td>
-    </tr>
-    <tr>
-      <td><code>src/parts/</code></td>
-      <td>Atomic stateless primitives like buttons or badges (optional)</td>
-    </tr>
-    <tr>
-      <td><code>src/elements/</code></td>
-      <td>Legacy element definitions, migratable to views or parts (optional)</td>
-    </tr>
-    <tr>
-      <td><code>src/tokens/</code></td>
-      <td>Design tokens — CSS custom properties for colors, spacing, typography, motion</td>
-    </tr>
-    <tr>
-      <td><code>src/styles/</code></td>
-      <td>Global styles — browser reset, cascade layers, base element defaults</td>
-    </tr>
-    <tr>
-      <td><code>src/sw.js</code></td>
-      <td>Service Worker entry — caching strategies, route interception, background sync</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Folder</th>
+        <th>Why it exists</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>src/app.js</code></td>
+        <td>Entry point. Initializes the UI system, defines the root layout dock, and imports all pages</td>
+      </tr>
+      <tr>
+        <td><code>src/index.html</code></td>
+        <td>HTML shell. Links the generated importmap, tokens, styles, and the app entry module</td>
+      </tr>
+      <tr>
+        <td><code>src/pages/</code></td>
+        <td>Route definitions. Each subfolder is a page with its own <code>.js</code>, <code>.html</code>, and
+          <code>.css</code></td>
+      </tr>
+      <tr>
+        <td><code>src/docks/</code></td>
+        <td>Container shells that persist across route changes (optional)</td>
+      </tr>
+      <tr>
+        <td><code>src/views/</code></td>
+        <td>Reusable stateful components, shared across pages (optional)</td>
+      </tr>
+      <tr>
+        <td><code>src/parts/</code></td>
+        <td>Atomic stateless primitives like buttons or badges (optional)</td>
+      </tr>
+      <tr>
+        <td><code>src/elements/</code></td>
+        <td>Legacy element definitions, migratable to views or parts (optional)</td>
+      </tr>
+      <tr>
+        <td><code>src/tokens/</code></td>
+        <td>Design tokens — CSS custom properties for colors, spacing, typography, motion</td>
+      </tr>
+      <tr>
+        <td><code>src/styles/</code></td>
+        <td>Global styles — browser reset, cascade layers, base element defaults</td>
+      </tr>
+      <tr>
+        <td><code>src/sw.js</code></td>
+        <td>Service Worker entry — caching strategies, route interception, background sync</td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Generated Files Section -->
 <h2>What <code>npm create @adukiorg/anza</code> Generates</h2>
+
+<!-- App.js File -->
 <h3><code>src/app.js</code></h3>
-<view-code language="javascript">import '@adukiorg/anza/ui';
+<view-code language="javascript">
+  import '@adukiorg/anza/ui';
   import { dock } from '@adukiorg/anza/ui';
 
   navigator.serviceWorker.register('/dist/sw.js');
@@ -95,30 +104,40 @@
 
   import './pages/index.js';
 </view-code>
-<p>This bootstraps the framework, registers the Service Worker, and creates a <code>main</code> dock. All pages render
-  through this dock by default.</p>
+<p>
+  This bootstraps the framework, registers the Service Worker, and creates a <code>main</code> dock. All pages render
+  through this dock by default.
+</p>
+
+<!-- Index.html File -->
 <h3><code>src/index.html</code></h3>
-<view-code language="html">&lt;script type=&quot;importmap&quot; src=&quot;/importmap.json&quot;&gt;&lt;/script&gt;
+<view-code language="html">
+  &lt;script type=&quot;importmap&quot; src=&quot;/importmap.json&quot;&gt;&lt;/script&gt;
   &lt;link rel=&quot;stylesheet&quot; href=&quot;/dist/tokens/index.css&quot;&gt;
   &lt;link rel=&quot;stylesheet&quot; href=&quot;/dist/styles/index.css&quot;&gt;
   &lt;script type=&quot;module&quot; src=&quot;/dist/app.js&quot;&gt;&lt;/script&gt;
 </view-code>
-<p>The shell loads the importmap, design tokens, global styles, and the app entry. The CLI injects the HMR script in dev
-  mode.</p>
+<p>
+  The shell loads the importmap, design tokens, global styles, and the app entry. The CLI injects the HMR script in dev
+  mode.
+</p>
+
+<!-- Service Worker File -->
 <h3><code>src/sw.js</code></h3>
-<view-code language="javascript">import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from
-  '@adukiorg/anza/sw';
+<view-code language="javascript">
+  import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from
+    '@adukiorg/anza/sw';
 
   const SHELL = 'shell-v1';
   const API = 'api-v1';
 
   self.addEventListener('install', (e) =&gt; {
-  e.waitUntil(precache(SHELL, ['/dist/index.html', '/dist/app.js', '/dist/tokens/index.css',
-  '/dist/styles/index.css']));
+    e.waitUntil(precache(SHELL, ['/dist/index.html', '/dist/app.js', '/dist/tokens/index.css',
+    '/dist/styles/index.css']));
   });
 
   self.addEventListener('activate', (e) =&gt; {
-  e.waitUntil(Promise.all([pruneStale(SHELL), claim()]));
+    e.waitUntil(Promise.all([pruneStale(SHELL), claim()]));
   });
 
   const r = router();
@@ -126,80 +145,102 @@
   r.register('/api/*', new NetworkFirst(API, { timeout: 3000 }));
 
   self.addEventListener('fetch', (e) =&gt; {
-  if (r.handle(e)) return;
-  e.respondWith(fetch(e.request));
+    if (r.handle(e)) return;
+    e.respondWith(fetch(e.request));
   });
 </view-code>
-<p>Pre-caches the app shell and cleans up old caches on update. Static assets use <code>CacheFirst</code>; API calls use
-  <code>NetworkFirst</code> with a 3-second timeout.</p>
+<p>
+  Pre-caches the app shell and cleans up old caches on update. Static assets use <code>CacheFirst</code>; API calls use
+  <code>NetworkFirst</code> with a 3-second timeout.
+</p>
+
+<!-- Entry Page File -->
 <h3><code>src/pages/entry/index.js</code></h3>
-<view-code language="javascript">import { page } from '@adukiorg/anza/ui';
+<view-code language="javascript">
+  import { page } from '@adukiorg/anza/ui';
 
   page('/', {
-  tag: 'page-welcome',
-  via: ['main'],
-  template: { html: './index.html', css: './index.css' }
+    tag: 'page-welcome',
+    via: ['main'],
+    template: { html: './index.html', css: './index.css' }
   }, import.meta.url);
 </view-code>
-<p>Defines the <code>/</code> route. <code>via: ['main']</code> tells the router to mount this page inside the
-  <code>main</code> dock. <code>import.meta.url</code> makes relative paths resolve from this file.</p>
+<p>
+  Defines the <code>/</code> route. <code>via: ['main']</code> tells the router to mount this page inside the
+  <code>main</code> dock. <code>import.meta.url</code> makes relative paths resolve from this file.
+</p>
+
+<!-- Entry Page HTML/CSS -->
 <h3><code>src/pages/entry/index.html</code> and <code>index.css</code></h3>
-<p>The markup and styles for the welcome page. They are referenced by the <code>template</code> option above. You can
-  delete them and use inline strings instead.</p>
+<p>
+  The markup and styles for the welcome page. They are referenced by the <code>template</code> option above. You can
+  delete them and use inline strings instead.
+</p>
+
+<!-- Pages Index File -->
 <h3><code>src/pages/index.js</code></h3>
 <p>The barrel file. It imports every page folder so <code>app.js</code> only needs one import:</p>
-<view-code language="javascript">import './entry/index.js';
+<view-code language="javascript">
+  import './entry/index.js';
 </view-code>
-<p>This pattern scales: add a new folder, import it here, and the route registers automatically. The <code>entry/</code>
+<p>
+  This pattern scales: add a new folder, import it here, and the route registers automatically. The <code>entry/</code>
   name is just a convention. Rename it, replace it, or remove it entirely — whatever defines <code>/</code> in this
-  barrel becomes your landing page.</p>
+  barrel becomes your landing page.
+</p>
 
+<!-- Tokens and Styles Section -->
 <h2>Tokens and Styles</h2>
-<p><code>src/tokens/</code> and <code>src/styles/</code> are copied from the library during scaffolding. You own them —
-  the CLI never overwrites them after creation.</p>
-<view-code language="text">src/tokens/
-  index.css # Imports all token files
-  primitives/
-  colors.css # Raw color palette
-  spacing.css # Space scale (4, 8, 16...)
-  typography.css # Font sizes, weights, line heights
-  motion.css # Durations and easing curves
-  radius.css # Border radius scale
-  shadow.css # Box shadow scale
-  zindex.css # Z-index layers
-  registered/
-  colors.css # Houdini typed custom properties for color
-  dimensions.css # Houdini typed custom properties for length
-  semantic/
-  light.css # Light mode color mappings
-  dark.css # Dark mode color mappings
-  contrast.css # High contrast overrides
-  components.css # Component-specific token assignments
-  transitions.css # View Transition timing and backdrop tokens
+<p>
+  <code>src/tokens/</code> and <code>src/styles/</code> are copied from the library during scaffolding. You own them —
+  the CLI never overwrites them after creation.
+</p>
+<view-code language="text">
+  src/tokens/
+    index.css # Imports all token files
+    primitives/
+    colors.css # Raw color palette
+    spacing.css # Space scale (4, 8, 16...)
+    typography.css # Font sizes, weights, line heights
+    motion.css # Durations and easing curves
+    radius.css # Border radius scale
+    shadow.css # Box shadow scale
+    zindex.css # Z-index layers
+    registered/
+    colors.css # Houdini typed custom properties for color
+    dimensions.css # Houdini typed custom properties for length
+    semantic/
+    light.css # Light mode color mappings
+    dark.css # Dark mode color mappings
+    contrast.css # High contrast overrides
+    components.css # Component-specific token assignments
+    transitions.css # View Transition timing and backdrop tokens
 
   src/styles/
-  index.css # Imports reset, layers, and base
-  layers.css # @layer declarations (reset, tokens, base, components...)
-  reset.css # Normalize and reset inside the reset layer
-  base.css # Root and body defaults inside the base layer
+    index.css # Imports reset, layers, and base
+    layers.css # @layer declarations (reset, tokens, base, components...)
+    reset.css # Normalize and reset inside the reset layer
+    base.css # Root and body defaults inside the base layer
 </view-code>
 
+<!-- Build Output Section -->
 <h2>Build Output</h2>
 <p><code>npm run dev</code> and <code>npm run build</code> emit to <code>dist/</code>:</p>
-<view-code language="text">dist/
-  index.html # HTML with injected importmap link
-  importmap.json # Generated library mappings
-  app.js # Entry and all resolved dependencies
-  sw.js # Service Worker entry with rewritten imports
-  sw/ # Copied SW library modules
-  pages/
-  index/
-  index.js
-  index.html
-  index.css
-  tokens/ # Copied from src/tokens/
-  styles/ # Copied from src/styles/
-  types/
-  index.d.ts # Global HTMLElementTagNameMap augmentation
+<view-code language="text">
+  dist/
+    index.html # HTML with injected importmap link
+    importmap.json # Generated library mappings
+    app.js # Entry and all resolved dependencies
+    sw.js # Service Worker entry with rewritten imports
+    sw/ # Copied SW library modules
+    pages/
+    index/
+    index.js
+    index.html
+    index.css
+    tokens/ # Copied from src/tokens/
+    styles/ # Copied from src/styles/
+    types/
+    index.d.ts # Global HTMLElementTagNameMap augmentation
 </view-code>
 <p>The folder structure mirrors <code>src/</code>. Serve <code>dist/</code> from any static host.</p>

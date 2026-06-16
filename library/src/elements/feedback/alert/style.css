@@ -38,7 +38,7 @@ button {
   display: none;
   align-items: center;
   justify-content: center;
-  transition: opacity var(--duration-fast) var(--ease-out);
+  /* transition: opacity var(--duration-fast) var(--ease-out); */
 }
 
 button:hover {

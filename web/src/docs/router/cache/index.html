@@ -1,47 +1,53 @@
+<!-- Main Content -->
 <h1>Cache</h1>
 <p>The router provides a route-level cache backed by the browser Cache API. Prefetch view assets on hover or visibility
   so navigation is instant.</p>
 
+<!-- Prefetch Section -->
 <h2>Prefetch</h2>
 <p>Fetch and cache a URL before the user navigates to it:</p>
 <view-code language="javascript">import { router } from '@adukiorg/anza/router';
 
-  // On link hover
-  link.addEventListener('mouseenter', () =&gt; {
+// On link hover
+link.addEventListener('mouseenter', () =&gt; {
   router.cache.prefetch('/reports');
-  });
+});
 
-  // On section visibility
-  observer.observe(section, { callback: () =&gt; {
+// On section visibility
+observer.observe(section, { callback: () =&gt; {
   router.cache.prefetch('/settings');
-  }});
+}});
 </view-code>
 <p>Prefetch uses the Cache API with a 5-minute TTL. If the resource is already cached and not expired, it returns
   immediately.</p>
 
+<!-- Cache Read and Write Section -->
 <h2>Cache Read and Write</h2>
 <p>Direct cache access:</p>
 <view-code language="javascript">// Read
-  const response = await router.cache.get('/reports');
+const response = await router.cache.get('/reports');
 
-  // Write
-  await router.cache.set('/reports', response, { ttl: 10 * 60 * 1000 }); // 10 minutes
+// Write
+await router.cache.set('/reports', response, { ttl: 10 * 60 * 1000 }); // 10 minutes
 
-  // Purge one URL
-  await router.cache.purge('/reports');
+// Purge one URL
+await router.cache.purge('/reports');
 
-  // Purge everything
-  await router.cache.purge();
+// Purge everything
+await router.cache.purge();
 </view-code>
 
+<!-- TTL Convention Section -->
 <h2>TTL Convention</h2>
 <p>The cache stores an <code>x-expires-at</code> header on every response. When reading, expired entries are deleted
   automatically. The default TTL is 5 minutes.</p>
 
+<!-- Graceful Degradation Section -->
 <h2>Graceful Degradation</h2>
 <p>When the Cache API is unavailable (private mode, quota exceeded, unsupported browser), all cache operations return
   <code>null</code> silently. Navigation continues normally.</p>
 
+<!-- When to Prefetch Section -->
 <h2>When to Prefetch</h2>
 <p>Good candidates:</p>
 <ul>

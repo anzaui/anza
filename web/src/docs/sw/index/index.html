@@ -1,3 +1,4 @@
+<!-- Main Content -->
 <h1>SW</h1>
 <p>The Anza Service Worker toolkit handles caching, request interception, background sync, and push notifications. It
   runs in a separate thread from your app and intercepts <code>fetch</code> events before they hit the network.</p>
@@ -11,6 +12,7 @@
 <p>Browsers do not support import maps in Service Worker scope, so the build tool rewrites bare specifiers to relative
   paths when emitting <code>dist/sw.js</code>.</p>
 
+<!-- Features Section -->
 <h2>What You Get</h2>
 <ul>
   <li><strong>Caching strategies</strong> — CacheFirst, NetworkFirst, StaleRevalidate, CacheThenNetwork, NetworkOnly,
@@ -23,74 +25,78 @@
   <li><strong>Request serialization</strong> — store Request objects in IndexedDB for offline replay</li>
 </ul>
 
+<!-- Package Section -->
 <h2>Package</h2>
 <view-code language="javascript">// Service Worker thread
-  import { CacheFirst, router, precache } from '@adukiorg/anza/sw';
+import { CacheFirst, router, precache } from '@adukiorg/anza/sw';
 
-  // Main thread
-  import { offline } from '@adukiorg/anza/offline';
+// Main thread
+import { offline } from '@adukiorg/anza/offline';
 </view-code>
 
+<!-- File Map Section -->
 <h2>File Map</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>File</th>
-      <th>What It Covers</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><a href="/docs/sw/start">start.md</a></td>
-      <td>Writing your first <code>src/sw.js</code> and registering it from <code>app.js</code></td>
-    </tr>
-    <tr>
-      <td><a href="/docs/sw/strategies">strategies.md</a></td>
-      <td>The seven caching strategies and their behavior</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/sw/routes">routes.md</a></td>
-      <td>URLPattern routing inside the Service Worker</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/sw/sync">sync.md</a></td>
-      <td>Background sync queue and replay</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/sw/api">api.md</a></td>
-      <td>Complete API reference</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>File</th>
+        <th>What It Covers</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="/docs/sw/start">start.md</a></td>
+        <td>Writing your first <code>src/sw.js</code> and registering it from <code>app.js</code></td>
+      </tr>
+      <tr>
+        <td><a href="/docs/sw/strategies">strategies.md</a></td>
+        <td>The seven caching strategies and their behavior</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/sw/routes">routes.md</a></td>
+        <td>URLPattern routing inside the Service Worker</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/sw/sync">sync.md</a></td>
+        <td>Background sync queue and replay</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/sw/api">api.md</a></td>
+        <td>Complete API reference</td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Example Section -->
 <h2>One-File Example</h2>
 <view-code language="javascript">// src/sw.js
-  import { precache, router, CacheFirst, NetworkFirst } from '@adukiorg/anza/sw';
+import { precache, router, CacheFirst, NetworkFirst } from '@adukiorg/anza/sw';
 
-  self.addEventListener('install', (e) =&gt; {
+self.addEventListener('install', (e) =&gt; {
   e.waitUntil(precache('shell-v1', ['/dist/index.html', '/dist/app.js']));
-  });
+});
 
-  const r = router();
-  r.register('/dist/*', new CacheFirst('shell-v1'));
-  r.register('/api/*', new NetworkFirst('api-v1', { timeout: 3000 }));
+const r = router();
+r.register('/dist/*', new CacheFirst('shell-v1'));
+r.register('/api/*', new NetworkFirst('api-v1', { timeout: 3000 }));
 
-  self.addEventListener('fetch', (e) =&gt; {
+self.addEventListener('fetch', (e) =&gt; {
   if (r.handle(e)) return;
   e.respondWith(fetch(e.request));
-  });
+});
 </view-code>
 <view-code language="javascript">// src/app.js
-  import '@adukiorg/anza/ui';
-  import { dock } from '@adukiorg/anza/ui';
+import '@adukiorg/anza/ui';
+import { dock } from '@adukiorg/anza/ui';
 
-  navigator.serviceWorker.register('/dist/sw.js');
+navigator.serviceWorker.register('/dist/sw.js');
 
-  dock('main');
+dock('main');
 </view-code>
 
+<!-- Next Steps Section -->
 <h2>Next Steps</h2>
 <ul>
   <li>New to SW? Start with <a href="/docs/sw/start">start.md</a>.</li>

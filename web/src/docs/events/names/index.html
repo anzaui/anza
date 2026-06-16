@@ -1,120 +1,126 @@
+<!-- Main Content -->
 <h1>Names</h1>
-<p>The <code>events.names</code> object provides typed constants for cross-cutting system events. Using these prevents
-  typos and enables IDE autocomplete.</p>
+<p>The <code>events.names</code> object provides typed constants for cross-cutting system events. Using these prevents typos and enables IDE autocomplete.</p>
 
+<!-- Available Namespaces Section -->
 <h2>Available Namespaces</h2>
+
+<!-- Auth Namespace -->
 <h3>Auth</h3>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Constant</th>
-      <th>Value</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>events.names.auth.signedin</code></td>
-      <td><code>'auth:signedin'</code></td>
-    </tr>
-    <tr>
-      <td><code>events.names.auth.signedout</code></td>
-      <td><code>'auth:signedout'</code></td>
-    </tr>
-    <tr>
-      <td><code>events.names.auth.refreshed</code></td>
-      <td><code>'auth:refreshed'</code></td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Constant</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>events.names.auth.signedin</code></td>
+        <td><code>'auth:signedin'</code></td>
+      </tr>
+      <tr>
+        <td><code>events.names.auth.signedout</code></td>
+        <td><code>'auth:signedout'</code></td>
+      </tr>
+      <tr>
+        <td><code>events.names.auth.refreshed</code></td>
+        <td><code>'auth:refreshed'</code></td>
+      </tr>
+    </tbody>
   </table>
 </div>
-<view-code language="javascript">events.on(events.names.auth.signedin, (e) =&gt; {
+<view-code language="javascript">events.on(events.names.auth.signedin, (e) => {
   console.log('Token:', e.detail.token);
-  });
+});
 </view-code>
 
+<!-- Connectivity Namespace -->
 <h2>Connectivity</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Constant</th>
-      <th>Value</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>events.names.connectivity.online</code></td>
-      <td><code>'connectivity:online'</code></td>
-    </tr>
-    <tr>
-      <td><code>events.names.connectivity.offline</code></td>
-      <td><code>'connectivity:offline'</code></td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Constant</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>events.names.connectivity.online</code></td>
+        <td><code>'connectivity:online'</code></td>
+      </tr>
+      <tr>
+        <td><code>events.names.connectivity.offline</code></td>
+        <td><code>'connectivity:offline'</code></td>
+      </tr>
+    </tbody>
   </table>
 </div>
-<view-code language="javascript">events.on(events.names.connectivity.offline, () =&gt; {
+<view-code language="javascript">events.on(events.names.connectivity.offline, () => {
   showToast('You are offline');
-  });
+});
 </view-code>
 
+<!-- Preference Namespace -->
 <h2>Preference</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Constant</th>
-      <th>Value</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>events.names.preference.changed</code></td>
-      <td><code>'preference:changed'</code></td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Constant</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>events.names.preference.changed</code></td>
+        <td><code>'preference:changed'</code></td>
+      </tr>
+    </tbody>
   </table>
 </div>
-<view-code language="javascript">events.on(events.names.preference.changed, (e) =&gt; {
+<view-code language="javascript">events.on(events.names.preference.changed, (e) => {
   console.log('Preference changed:', e.detail.key, e.detail.value);
-  });
+});
 </view-code>
 
+<!-- Service Worker Namespace -->
 <h2>Service Worker</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Constant</th>
-      <th>Value</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>events.names.sw.updated</code></td>
-      <td><code>'sw:updated'</code></td>
-    </tr>
-    <tr>
-      <td><code>events.names.sw.message</code></td>
-      <td><code>'sw:message'</code></td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Constant</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>events.names.sw.updated</code></td>
+        <td><code>'sw:updated'</code></td>
+      </tr>
+      <tr>
+        <td><code>events.names.sw.message</code></td>
+        <td><code>'sw:message'</code></td>
+      </tr>
+    </tbody>
   </table>
 </div>
-<view-code language="javascript">events.on(events.names.sw.updated, () =&gt; {
+<view-code language="javascript">events.on(events.names.sw.updated, () => {
   showToast('A new version is available. Refresh to update.');
-  });
+});
 </view-code>
 
+<!-- Extending Section -->
 <h2>Extending</h2>
 <p>Add your own constants to the registry:</p>
 <view-code language="javascript">export const myNames = {
   cart: {
-  added: 'cart:added',
-  removed: 'cart:removed'
+    added: 'cart:added',
+    removed: 'cart:removed'
   }
-  };
+};
 </view-code>
-<p>Or emit and listen using string literals directly — <code>events.names</code> is a convenience, not a requirement.
-</p>
+<p>Or emit and listen using string literals directly — <code>events.names</code> is a convenience, not a requirement.</p>

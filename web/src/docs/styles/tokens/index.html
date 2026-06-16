@@ -1,8 +1,10 @@
+<!-- Main Content -->
 <h1>Design Tokens</h1>
 <p>Anza implements a minimal design token architecture based on CSS custom properties. This system defines variables for
   base values (primitives), registers animatable variables via Houdini (registered), and maps them to themes and
   transitions (semantic).</p>
 
+<!-- Token Architecture Section -->
 <h2>Token Architecture</h2>
 <p>The token system is structured into three layers:</p>
 <view-code>[Primitives] -&gt; Raw, immutable design constants (e.g., base colors, timings, fonts)
@@ -11,6 +13,7 @@
   |
   [Semantic] -&gt; Intent-based mappings for Light, Dark, High-Contrast, and Transitions
 </view-code>
+
 <h3>1. Primitives</h3>
 <p>Primitives define the baseline design values inside <code>/src/tokens/primitives/</code>:</p>
 <ul>
@@ -23,6 +26,7 @@
   <li><strong><code>typography.css</code></strong>: Sets standard font sizes (<code>--font-size-base</code> to
     <code>--font-size-3xl</code>), font weights, and line heights.</li>
 </ul>
+
 <h3>2. Registered</h3>
 <p>Registered tokens use Houdini <code>@property</code> rules in <code>/src/tokens/registered/</code> to define types,
   inheritance, and initial values. This allows browsers to animate variables smoothly:</p>
@@ -33,6 +37,7 @@
   <li><strong><code>dimensions.css</code></strong>: Registers transition-specific properties (e.g.,
     <code>--transition-duration</code>, <code>--transition-offset</code>).</li>
 </ul>
+
 <h3>3. Semantic &amp; Themes</h3>
 <p>Semantic tokens map primitive choices to specific intents and themes in <code>/src/tokens/semantic/</code>:</p>
 <ul>
@@ -44,6 +49,7 @@
     <code>[data-theme="high-contrast"]</code>.</li>
 </ul>
 
+<!-- View Transition Tokens Section -->
 <h2>View Transition Tokens</h2>
 <p>Swap transitions between layout docks and pages are controlled via dedicated variables in
   <code>/src/tokens/semantic/transitions.css</code>:</p>
@@ -58,10 +64,13 @@
   }
 </view-code>
 <p>The transitions engine uses these values to drive the slide and fade animations when swapping routing views.</p>
+
+<!-- Customizing Token Values Section -->
 <h2>Customizing Token Values</h2>
 <p>All Anza system styles (including layout base styles and view transitions) reference values using CSS custom
   properties. Because these are standard custom properties, the actual variable names and values can be overridden,
   deleted, or mapped to the user's own naming conventions.</p>
+
 <h3>Graceful Fallbacks</h3>
 <p>System styles include default fallback values. If a user deletes the library's default variable declarations from
   their styles, the system falls back to base defaults:</p>
@@ -71,6 +80,7 @@
   color: var(--color-content-primary, #111111);
   }
 </view-code>
+
 <h3>Customizing via Overrides</h3>
 <p>To customize the default styling, redefine the custom property values on the <code>:root</code> element or within a
   specific theme block:</p>
@@ -85,6 +95,7 @@
   --color-surface-page: #0d0e12;
   }
 </view-code>
+
 <h3>Deciding Your Own Variable Names</h3>
 <p>If you prefer to use your own custom variable names throughout your codebase, you can map the library's custom
   properties directly to your custom variables:</p>

@@ -1,94 +1,98 @@
+<!-- Main Content -->
 <h1>Storage</h1>
-<p>The Anza storage layer provides a unified, tiered storage surface. It integrates LRU memory caching, IndexedDB,
-  Origin Private File System (OPFS), and the Cache API under a single facade with automatic tier fallback, TTL support,
-  and transparent gzip compression.</p>
+<p>The Anza storage layer provides a unified, tiered storage surface. It integrates LRU memory caching, IndexedDB, Origin Private File System (OPFS), and the Cache API under a single facade with automatic tier fallback, TTL support, and transparent gzip compression.</p>
 
+<!-- Features Section -->
 <h2>What You Get</h2>
 <ul>
-  <li><strong>Unified API</strong> — <code>storage.get</code>, <code>storage.set</code>, <code>storage.delete</code>
-    with tier selection</li>
-  <li><strong>Multiple tiers</strong> — <code>memory</code> (LRU), <code>idb</code> (IndexedDB), <code>opfs</code> (file
-    system), <code>cache</code> (Cache API)</li>
+  <li><strong>Unified API</strong> — <code>storage.get</code>, <code>storage.set</code>, <code>storage.delete</code> with tier selection</li>
+  <li><strong>Multiple tiers</strong> — <code>memory</code> (LRU), <code>idb</code> (IndexedDB), <code>opfs</code> (file system), <code>cache</code> (Cache API)</li>
   <li><strong>TTL</strong> — per-key expiry honored across all tiers</li>
   <li><strong>Compression</strong> — automatic gzip for values over 64KB in IndexedDB</li>
   <li><strong>Write journaling</strong> — localStorage-backed journal for crash recovery</li>
   <li><strong>Quota management</strong> — proactive checks and eviction warnings</li>
 </ul>
 
+<!-- Package Section -->
 <h2>Package</h2>
-<view-code language="javascript">import { storage } from '@adukiorg/anza/storage';
+<view-code language="javascript">
+import { storage } from '@adukiorg/anza/storage';
 </view-code>
 
+<!-- File Map Section -->
 <h2>File Map</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>File</th>
-      <th>What It Covers</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><a href="/docs/storage/quickstart">quickstart.md</a></td>
-      <td>Your first get/set in five minutes</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/storage/tiers">tiers.md</a></td>
-      <td>Storage tiers and when to use each</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/storage/idb">idb.md</a></td>
-      <td>IndexedDB adapter, migrations, transactions</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/storage/opfs">opfs.md</a></td>
-      <td>Origin Private File System via Web Worker</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/storage/cache">cache.md</a></td>
-      <td>Cache API wrapper with TTL</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/storage/lru">lru.md</a></td>
-      <td>In-memory LRU and WeakLRU caches</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/storage/quota">quota.md</a></td>
-      <td>Quota estimation, persistence, warnings</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/storage/api">api.md</a></td>
-      <td>Complete API reference</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/storage/troubleshooting">troubleshooting.md</a></td>
-      <td>Common problems and how to fix them</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>File</th>
+        <th>What It Covers</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="/docs/storage/quickstart">quickstart.md</a></td>
+        <td>Your first get/set in five minutes</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/storage/tiers">tiers.md</a></td>
+        <td>Storage tiers and when to use each</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/storage/idb">idb.md</a></td>
+        <td>IndexedDB adapter, migrations, transactions</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/storage/opfs">opfs.md</a></td>
+        <td>Origin Private File System via Web Worker</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/storage/cache">cache.md</a></td>
+        <td>Cache API wrapper with TTL</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/storage/lru">lru.md</a></td>
+        <td>In-memory LRU and WeakLRU caches</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/storage/quota">quota.md</a></td>
+        <td>Quota estimation, persistence, warnings</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/storage/api">api.md</a></td>
+        <td>Complete API reference</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/storage/troubleshooting">troubleshooting.md</a></td>
+        <td>Common problems and how to fix them</td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Example Section -->
 <h2>One-File Example</h2>
-<view-code language="javascript">import { storage } from '@adukiorg/anza/storage';
+<view-code language="javascript">
+import { storage } from '@adukiorg/anza/storage';
 
-  // Basic IDB read/write
-  await storage.set('user', { name: 'Alice' });
-  const user = await storage.get('user');
+// Basic IDB read/write
+await storage.set('user', { name: 'Alice' });
+const user = await storage.get('user');
 
-  // Memory tier for hot data
-  await storage.set('session', { token: 'abc' }, 'memory');
+// Memory tier for hot data
+await storage.set('session', { token: 'abc' }, 'memory');
 
-  // TTL — expires in 5 minutes
-  await storage.set('temp', data, { tier: 'idb', ttl: 300000 });
+// TTL — expires in 5 minutes
+await storage.set('temp', data, { tier: 'idb', ttl: 300000 });
 
-  // OPFS for large files
-  await storage.set('blob', fileBuffer, 'opfs');
+// OPFS for large files
+await storage.set('blob', fileBuffer, 'opfs');
 
-  // Cache tier
-  await storage.set('config', settings, 'cache');
+// Cache tier
+await storage.set('config', settings, 'cache');
 </view-code>
 
+<!-- Next Steps Section -->
 <h2>Next Steps</h2>
 <ul>
   <li>New to storage? Start with <a href="/docs/storage/quickstart">quickstart.md</a>.</li>

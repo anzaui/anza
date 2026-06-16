@@ -14,34 +14,34 @@
   }
 
   body {
-    background-color: var(--color-surface-page, #ffffff);
-    color: var(--color-content-primary, #111111);
+    background-color: var(--background);
+    color: var(--text-color);
     min-height: 100vh;
     font-weight: var(--font-weight-regular, 400);
     line-height: var(--line-height-normal, 1.5);
-    transition: background-color 220ms var(--ease-out, ease-out), color 180ms var(--ease-out, ease-out);
+    /* transition: background-color 220ms var(--ease-out, ease-out), color 180ms var(--ease-out, ease-out); */
   }
 
   /* Typography Defaults */
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
-    color: var(--color-content-primary, #111111);
-    font-weight: var(--font-weight-semibold, 600);
+    color: var(--text-color);
+    font-weight: var(--font-weight-semibold);
     line-height: var(--line-height-tight, 1.25);
   }
 
-  h1 { font-size: var(--font-size-3xl, 2.25rem); margin-bottom: var(--space-4, 1rem); }
-  h2 { font-size: var(--font-size-2xl, 1.875rem); margin-bottom: var(--space-3, 0.75rem); }
-  h3 { font-size: var(--font-size-xl, 1.5rem); margin-bottom: var(--space-2, 0.5rem); }
+  h1 { font-size: var(--font-size-3xl, 2.25rem); margin-bottom: var(--space-4); }
+  h2 { font-size: var(--font-size-2xl, 1.875rem); margin-bottom: var(--space-3); }
+  h3 { font-size: var(--font-size-xl, 1.5rem); margin-bottom: var(--space-2); }
   h4 { font-size: var(--font-size-lg, 1.25rem); }
   
   p {
-    margin-bottom: var(--space-4, 1rem);
-    color: var(--color-content-secondary, #444444);
+    margin-bottom: var(--space-4);
+    color: var(--color-content-secondary);
   }
 
   a {
-    color: var(--color-interactive, #0070f3);
+    color: var(--color-interactive);
     text-decoration: none;
     transition: opacity var(--duration-fast, 120ms) var(--ease-out, ease-out);
   }
@@ -53,8 +53,8 @@
 
   /* Selection highlight styles */
   ::selection {
-    background-color: var(--color-interactive, #0070f3);
-    color: var(--color-surface-page, #ffffff);
+    background-color: var(--color-interactive);
+    color: var(--color-surface-page);
   }
 
 

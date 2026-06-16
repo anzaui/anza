@@ -1,6 +1,8 @@
+<!-- Main Content -->
 <h1>Troubleshooting</h1>
 <p>Common problems and their solutions.</p>
 
+<!-- Subscriber not firing Section -->
 <h2>Subscriber not firing</h2>
 <p><strong>Cause:</strong> Setting the same reference, or batching without actual change.</p>
 <p><strong>Fix:</strong> Check that the value actually changed (not <code>Object.is</code> equal):</p>
@@ -11,6 +13,7 @@
   store.set('count', store.get('count'));
 </view-code>
 
+<!-- Derived value stale Section -->
 <h2>Derived value stale</h2>
 <p><strong>Cause:</strong> The derived value was not accessed after a dependency changed.</p>
 <p><strong>Fix:</strong> Derived values recompute lazily. Access <code>.value</code> after changes:</p>
@@ -18,6 +21,7 @@
   console.log(doubled.value); // forces recompute
 </view-code>
 
+<!-- Memory leak with subscribers Section -->
 <h2>Memory leak with subscribers</h2>
 <p><strong>Cause:</strong> Subscribers never removed.</p>
 <p><strong>Fix:</strong> Use disposers or AbortSignal:</p>
@@ -28,6 +32,7 @@
   store.subscribe('count', handler, ctrl.signal);
 </view-code>
 
+<!-- Cross-tab sync not working Section -->
 <h2>Cross-tab sync not working</h2>
 <p><strong>Cause:</strong> <code>BroadcastChannel</code> unavailable, or different channel names.</p>
 <p><strong>Fix:</strong> Check that all tabs use the same channel name:</p>
@@ -39,6 +44,7 @@
 </view-code>
 <p>Private browsing may disable <code>BroadcastChannel</code>.</p>
 
+<!-- IndexedDB blocked Section -->
 <h2>IndexedDB blocked</h2>
 <p><strong>Cause:</strong> Another tab has the database open with an older version.</p>
 <p><strong>Fix:</strong> Listen for the <code>storage:blocked</code> event:</p>
@@ -47,6 +53,7 @@
   });
 </view-code>
 
+<!-- TTL entries returning null Section -->
 <h2>TTL entries returning null</h2>
 <p><strong>Cause:</strong> Entry expired between set and get.</p>
 <p><strong>Fix:</strong> Check timestamps. TTL is in milliseconds:</p>
@@ -57,6 +64,7 @@
   await state.storage.set('keyval', 'token', data, { ttl: 60 });
 </view-code>
 
+<!-- Still stuck? Section -->
 <h2>Still stuck?</h2>
 <p>Inspect store state:</p>
 <view-code language="javascript">console.log(store.snapshot());

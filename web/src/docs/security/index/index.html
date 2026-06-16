@@ -1,8 +1,10 @@
+<!-- Main Content -->
 <h1>Security</h1>
 <p>The Anza security layer provides browser-native cryptography, HTML sanitization, Trusted Types integration, and
   Permissions API querying. Everything delegates to the browser's <code>SubtleCrypto</code> and <code>crypto</code>
   thread pools — no third-party libraries required.</p>
 
+<!-- Features Section -->
 <h2>What You Get</h2>
 <ul>
   <li><strong>Cryptography</strong> — AES-GCM encryption, PBKDF2 key derivation, HMAC/ECDSA signing and verification,
@@ -13,6 +15,7 @@
   <li><strong>Permissions</strong> — query and watch browser permission states (geolocation, camera, etc.)</li>
 </ul>
 
+<!-- Package Section -->
 <h2>Package</h2>
 <view-code language="javascript">import { security } from '@adukiorg/anza/security';
 </view-code>
@@ -21,69 +24,72 @@
   '@adukiorg/anza/security';
 </view-code>
 
+<!-- File Map Section -->
 <h2>File Map</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>File</th>
-      <th>What It Covers</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><a href="/docs/security/quickstart">quickstart.md</a></td>
-      <td>Your first encrypt and sanitize in five minutes</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/security/crypto">crypto.md</a></td>
-      <td>AES-GCM, PBKDF2, HMAC, ECDSA, hash, UUID</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/security/seal">seal.md</a></td>
-      <td>String encryption with base64 storage</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/security/sanitize">sanitize.md</a></td>
-      <td>HTML sanitization and Trusted Types</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/security/permissions">permissions.md</a></td>
-      <td>Query and watch browser permissions</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/security/api">api.md</a></td>
-      <td>Complete API reference</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/security/troubleshooting">troubleshooting.md</a></td>
-      <td>Common problems and how to fix them</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>File</th>
+        <th>What It Covers</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="/docs/security/quickstart">quickstart.md</a></td>
+        <td>Your first encrypt and sanitize in five minutes</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/security/crypto">crypto.md</a></td>
+        <td>AES-GCM, PBKDF2, HMAC, ECDSA, hash, UUID</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/security/seal">seal.md</a></td>
+        <td>String encryption with base64 storage</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/security/sanitize">sanitize.md</a></td>
+        <td>HTML sanitization and Trusted Types</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/security/permissions">permissions.md</a></td>
+        <td>Query and watch browser permissions</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/security/api">api.md</a></td>
+        <td>Complete API reference</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/security/troubleshooting">troubleshooting.md</a></td>
+        <td>Common problems and how to fix them</td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Example Section -->
 <h2>One-File Example</h2>
 <view-code language="javascript">import { security } from '@adukiorg/anza/security';
 
-  // Hash
-  const digest = await security.hash('password123');
+// Hash
+const digest = await security.hash('password123');
 
-  // Encrypt
-  const key = await security.generateKey('AES-GCM');
-  const sealed = await security.seal(key, 'Secret data');
+// Encrypt
+const key = await security.generateKey('AES-GCM');
+const sealed = await security.seal(key, 'Secret data');
 
-  // Decrypt later
-  const plain = await security.unseal(key, sealed);
+// Decrypt later
+const plain = await security.unseal(key, sealed);
 
-  // Sanitize HTML
-  const safe = String(security.sanitize('&lt;p&gt;&lt;script&gt;alert(1)&lt;/script&gt;Hello&lt;/p&gt;'));
-  // '&lt;p&gt;Hello&lt;/p&gt;'
+// Sanitize HTML
+const safe = String(security.sanitize('&lt;p&gt;&lt;script&gt;alert(1)&lt;/script&gt;Hello&lt;/p&gt;'));
+// '&lt;p&gt;Hello&lt;/p&gt;'
 
-  // Query permission
-  const state = await security.permission('geolocation');
+// Query permission
+const state = await security.permission('geolocation');
 </view-code>
 
+<!-- Next Steps Section -->
 <h2>Next Steps</h2>
 <ul>
   <li>New to security? Start with <a href="/docs/security/quickstart">quickstart.md</a>.</li>

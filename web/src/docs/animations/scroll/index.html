@@ -1,53 +1,66 @@
+<!-- Main Content -->
 <h1>Scroll</h1>
-<p>Scroll-driven animations link element playback to scroll position or viewport intersection. The module wraps
-  <code>ScrollTimeline</code> and <code>ViewTimeline</code> with graceful fallbacks for unsupported browsers.</p>
+<p>
+  Scroll-driven animations link element playback to scroll position or viewport intersection. The module wraps
+  <code>ScrollTimeline</code> and <code>ViewTimeline</code> with graceful fallbacks for unsupported browsers.
+</p>
 
+<!-- Scroll Timeline Section -->
 <h2>Scroll Timeline</h2>
-<view-code language="javascript">import { animations } from '@adukiorg/anza/animations';
+<view-code language="javascript">
+  import { animations } from '@adukiorg/anza/animations';
 
   const timeline = animations.scroll({
-  source: document.querySelector('.scroll-container'),
-  axis: 'block'
+    source: document.querySelector('.scroll-container'),
+    axis: 'block'
   });
 
   el.animate(
-  [{ transform: 'translateX(0)' }, { transform: 'translateX(100px)' }],
-  { duration: 1000, timeline }
+    [{ transform: 'translateX(0)' }, { transform: 'translateX(100px)' }],
+    { duration: 1000, timeline }
   );
 </view-code>
 <p>The animation progress is tied to the scroll position of the source element.</p>
 
+<!-- View Timeline Section -->
 <h2>View Timeline</h2>
-<view-code language="javascript">const timeline = animations.view({
-  subject: el,
-  axis: 'block',
-  inset: '0px'
+<view-code language="javascript">
+  const timeline = animations.view({
+    subject: el,
+    axis: 'block',
+    inset: '0px'
   });
 
   el.animate(
-  [{ opacity: 0 }, { opacity: 1 }],
-  { duration: 1000, timeline }
+    [{ opacity: 0 }, { opacity: 1 }],
+    { duration: 1000, timeline }
   );
 </view-code>
 <p>The animation plays as the element enters and exits the viewport.</p>
 
+<!-- Fallback Section -->
 <h2>Fallback</h2>
-<p>If <code>ScrollTimeline</code> or <code>ViewTimeline</code> is not available, a descriptor object is returned with
-  <code>unsupported: true</code>:</p>
-<view-code language="javascript">const timeline = animations.scroll();
+<p>
+  If <code>ScrollTimeline</code> or <code>ViewTimeline</code> is not available, a descriptor object is returned with
+  <code>unsupported: true</code>:
+</p>
+<view-code language="javascript">
+  const timeline = animations.scroll();
   if (timeline.unsupported) {
-  // Fallback: use scroll listener + manual animation
+    // Fallback: use scroll listener + manual animation
   }
 </view-code>
 
+<!-- Platform Check Section -->
 <h2>Platform Check</h2>
-<view-code language="javascript">import { supports } from '@adukiorg/anza/platform';
+<view-code language="javascript">
+  import { supports } from '@adukiorg/anza/platform';
 
   if (supports.scrollTimeline) {
-  // Use ScrollTimeline
+    // Use ScrollTimeline
   }
 
   if (supports.viewTimeline) {
-  // Use ViewTimeline
+    // Use ViewTimeline
   }
 </view-code>

@@ -1,67 +1,77 @@
 <h1>IndexedDB</h1>
-<p>The IndexedDB adapter provides a Promise-based interface over the legacy IDBRequest API. It supports schema
-  migrations, multi-store transactions, and cursor-based queries.</p>
+<p>The IndexedDB adapter provides a Promise-based interface over the legacy IDBRequest API. It supports schema migrations, multi-store transactions, and cursor-based queries.</p>
 
+<!-- Database Section -->
 <h2>Database</h2>
-<view-code language="javascript">import { Database } from '@adukiorg/anza/storage';
+<view-code language="javascript">
+import { Database } from '@adukiorg/anza/storage';
 
-  const db = new Database('my-app', 1, [
-  (db) =&gt; db.createObjectStore('users') // v1
-  ]);
+const db = new Database('my-app', 1, [
+  (db) => db.createObjectStore('users') // v1
+]);
 </view-code>
 
+<!-- Migrations Section -->
 <h2>Migrations</h2>
 <p>Migration functions run in order inside <code>onupgradeneeded</code>:</p>
-<view-code language="javascript">const db = new Database('my-app', 3, [
-  (db) =&gt; db.createObjectStore('users'), // v1
-  (db) =&gt; db.createObjectStore('settings'), // v2
-  (db) =&gt; {
-  // v3 — add an index
-  const store = db.transaction('users').objectStore('users');
-  store.createIndex('email', 'email', { unique: true });
+<view-code language="javascript">
+const db = new Database('my-app', 3, [
+  (db) => db.createObjectStore('users'), // v1
+  (db) => db.createObjectStore('settings'), // v2
+  (db) => {
+    // v3 — add an index
+    const store = db.transaction('users').objectStore('users');
+    store.createIndex('email', 'email', { unique: true });
   }
-  ]);
+]);
 </view-code>
 <p>Each function corresponds to one version step (0→1, 1→2, 2→3).</p>
 
+<!-- CRUD Operations Section -->
 <h2>CRUD Operations</h2>
-<view-code language="javascript">await db.set('users', 'alice', { name: 'Alice', email: 'a@x.com' });
-  const user = await db.get('users', 'alice');
-  await db.delete('users', 'alice');
+<view-code language="javascript">
+await db.set('users', 'alice', { name: 'Alice', email: 'a@x.com' });
+const user = await db.get('users', 'alice');
+await db.delete('users', 'alice');
 </view-code>
 
+<!-- Transactions Section -->
 <h2>Transactions</h2>
-<view-code language="javascript">const result = await db.transaction(['users', 'logs'], 'readwrite', (store, tx) =&gt; {
+<view-code language="javascript">
+const result = await db.transaction(['users', 'logs'], 'readwrite', (store, tx) => {
   store('users').put({ name: 'Alice' }, 'alice');
   store('logs').put({ action: 'signup' }, Date.now());
   return 'done';
-  });
+});
 </view-code>
 <p>Supports async callbacks. Errors abort the transaction.</p>
 
+<!-- Queries Section -->
 <h2>Queries</h2>
-<view-code language="javascript">// All records
-  const all = await db.getAll('users');
+<view-code language="javascript">
+// All records
+const all = await db.getAll('users');
 
-  // Filtered via cursor
-  const active = await db.query('users', {
+// Filtered via cursor
+const active = await db.query('users', {
   index: 'email',
   range: IDBKeyRange.bound('a', 'b'),
   direction: 'next',
   limit: 10
-  });
+});
 </view-code>
-<p>Query options: <code>index</code>, <code>range</code>, <code>direction</code> (<code>'next'</code> or
-  <code>'prev'</code>), <code>limit</code>.</p>
+<p>Query options: <code>index</code>, <code>range</code>, <code>direction</code> (<code>'next'</code> or <code>'prev'</code>), <code>limit</code>.</p>
 
+<!-- Events Section -->
 <h2>Events</h2>
-<view-code language="javascript">// Blocked upgrade
-  window.addEventListener('storage:blocked', (e) =&gt; {
+<view-code language="javascript">
+// Blocked upgrade
+window.addEventListener('storage:blocked', (e) => {
   console.warn('IDB blocked:', e.detail.name);
-  });
+});
 
-  // Version change
-  window.addEventListener('storage:versionchange', (e) =&gt; {
+// Version change
+window.addEventListener('storage:versionchange', (e) => {
   console.warn('IDB version change:', e.detail.name);
-  });
+});
 </view-code>

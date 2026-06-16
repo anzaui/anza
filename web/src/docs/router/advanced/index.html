@@ -1,6 +1,8 @@
+<!-- Main Content -->
 <h1>Advanced Topics</h1>
 <p>Internals, edge cases, and extension points for developers who need to understand or modify the router.</p>
 
+<!-- Boot Gate Section -->
 <h2>Boot Gate</h2>
 <p>The router's initial match does not fire immediately. It waits for:</p>
 <ol>
@@ -10,31 +12,32 @@
 <p>Prerequisites are registered with <code>gate()</code>:</p>
 <view-code language="javascript">import { gate } from '@adukiorg/anza/router';
 
-  gate(customElements.whenDefined('page-home'));
-  gate(someAsyncSetup());
+gate(customElements.whenDefined('page-home'));
+gate(someAsyncSetup());
 </view-code>
 <p><code>page()</code> and <code>dock()</code> automatically gate on their element definitions. This means a hard
   refresh on <code>/user/42</code> waits for <code>&lt;page-user&gt;</code> to be defined before matching.</p>
 <p>The boot sequence is idempotent. <code>ready()</code> returns <code>true</code> once it has fired:</p>
 <view-code language="javascript">import { ready } from '@adukiorg/anza/router';
-  if (ready()) { /* boot has completed */ }
+if (ready()) { /* boot has completed */ }
 </view-code>
 <p><code>reset()</code> clears all state for test isolation:</p>
 <view-code language="javascript">import { reset } from '@adukiorg/anza/router';
-  reset();
+reset();
 </view-code>
 
+<!-- Radix Trie Matcher Section -->
 <h2>Radix Trie Matcher</h2>
 <p>The router uses a radix trie for O(k) matching where k is the segment count:</p>
 <view-code language="javascript">// Fast path — trie handles this
-  '/members/:id'
-  '/docs/*'
-  '/about'
+'/members/:id'
+'/docs/*'
+'/about'
 
-  // Fallback — URLPattern scan handles these
-  '/members/:id?'
-  '/members/:id+('
-  'https://example.com/special'
+// Fallback — URLPattern scan handles these
+'/members/:id?'
+'/members/:id+('
+'https://example.com/special'
 </view-code>
 <p>The trie stores three kinds of children per node:</p>
 <ul>
@@ -48,31 +51,34 @@
   up the component's contract in the <code>specRegistry</code> to parse and cast these raw values into typed, ordered
   accessor arrays (<code>params</code> and <code>query</code>) passed to the component lifecycle.</p>
 
+<!-- Handler Contract Section -->
 <h2>Handler Contract</h2>
 <p>The internal handler resolution contract separates tag resolution from callback execution:</p>
 <view-code language="javascript">// Match phase — safe to call repeatedly
-  const tag = await resolveTag(handler);
+const tag = await resolveTag(handler);
 
-  // Intercept phase — only runs once per navigation
-  if (isCallback(handler)) {
+// Intercept phase — only runs once per navigation
+if (isCallback(handler)) {
   await runCallback(handler, params, event);
-  }
+}
 </view-code>
 <p>This prevents callbacks from running twice, which was a bug in earlier architectures where <code>match()</code> and
   <code>intercept()</code> both invoked function handlers.</p>
 
+<!-- Cycle-Guarded Parent Chains Section -->
 <h2>Cycle-Guarded Parent Chains</h2>
 <p>The parent chain walk in <code>finalize()</code> guards against misconfigured cycles:</p>
 <view-code language="javascript">const visited = new Set();
-  while (currentRoute) {
+while (currentRoute) {
   if (visited.has(currentRoute.patternStr)) break; // cycle detected
   visited.add(currentRoute.patternStr);
   // ... walk to parent
-  }
+}
 </view-code>
 <p>If route A declares parent B and route B declares parent A, the loop stops at the first duplicate instead of hanging.
 </p>
 
+<!-- Container Graph Internals Section -->
 <h2>Container Graph Internals</h2>
 <p>The graph stores nodes in a <code>Map&lt;string, Node&gt;</code>. Each node:</p>
 <view-code language="javascript">{
@@ -81,23 +87,25 @@
   parent, // Node | null
   children, // Set&lt;Node&gt;
   depth // number
-  }
+}
 </view-code>
 <p>The virtual root <code>'body'</code> always exists. When a node is garbage-collected, a
   <code>FinalizationRegistry</code> prunes it from the tree and reparents its children to its parent.</p>
 <p>Explicit unregistrations mark the name in a <code>gone</code> set for one macrotask, so a lookup during teardown does
   not accidentally resolve to a stale querySelector result.</p>
 
+<!-- Cascade Frame Yielding Section -->
 <h2>Cascade Frame Yielding</h2>
 <p><code>cascade.js</code> yields one <code>requestAnimationFrame</code> between each mount so
   <code>connectedCallback</code> can fire and self-register:</p>
 <view-code language="javascript">function frame() {
   return new Promise((r) =&gt; requestAnimationFrame(() =&gt; r()));
-  }
+}
 </view-code>
 <p>This is what makes sequential container mounting work. Each dock has time to register in the graph before the next
   dock is created.</p>
 
+<!-- Safari Precommit Fallback Section -->
 <h2>Safari Precommit Fallback</h2>
 <p>Safari currently ignores <code>precommitHandler</code> on the Navigation API. The router runs guards in both phases:
 </p>
@@ -108,19 +116,21 @@
 </ol>
 <p>Your guard functions run identically in both phases. You do not need Safari-specific code.</p>
 
+<!-- Extending the Router Section -->
 <h2>Extending the Router</h2>
 <p>The router facade is a plain object. You can attach middleware:</p>
 <view-code language="javascript">const originalRegister = router.register;
-  router.register = (pattern, handler, meta) =&gt; {
+router.register = (pattern, handler, meta) =&gt; {
   console.log('registering', pattern);
   return originalRegister(pattern, handler, meta);
-  };
+};
 </view-code>
 <p>For deeper extension, import internal modules directly:</p>
 <view-code language="javascript">import { register, match } from '@adukiorg/anza/router/match';
-  import { addGuard } from '@adukiorg/anza/router/intercept';
+import { addGuard } from '@adukiorg/anza/router/intercept';
 </view-code>
 
+<!-- SSR Considerations Section -->
 <h2>SSR Considerations</h2>
 <p>The router checks <code>typeof window !== 'undefined'</code> before touching DOM APIs. On the server:</p>
 <ul>

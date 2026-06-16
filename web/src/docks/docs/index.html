@@ -1,74 +1,288 @@
 <header class="docs-header" ref="header">
-  <div class="logo">
-    <a href="/">Anza</a>
-    <span class="version">v1.0.1</span>
+  <div class="header-inner">
+    <a href="/" class="logo" aria-label="Anza home">
+      <div class="logo-mark">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 14 14"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path
+            d="M3 11L7 3L11 11M5.2 8.5H8.8"
+            stroke="white"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+      <span class="version">v1.0.1</span>
+    </a>
+
+    <nav class="header-nav" aria-label="Primary navigation">
+      <a href="/docs" class="nav-link active">Docs</a>
+      <a
+        href="https://github.com/aduki-org/anza"
+        class="nav-link nav-link--gh"
+        target="_blank"
+        rel="noopener"
+      >
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 16 16"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0016 8c0-4.42-3.58-8-8-8z"
+          />
+        </svg>
+        GitHub
+      </a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="search-btn" aria-label="Search documentation">
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 14 14"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <circle cx="6" cy="6" r="4.5" />
+          <path d="M9.5 9.5L12.5 12.5" />
+        </svg>
+        <span class="search-hint">Search</span>
+        <kbd>⌘K</kbd>
+      </button>
+
+      <button
+        class="theme-toggle"
+        id="themeToggle"
+        aria-label="Toggle dark mode"
+        aria-pressed="false"
+      >
+        <div class="orbital">
+          <div class="orbital-knob">
+            <svg
+              class="icon-sun"
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="4" />
+              <path
+                d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+              />
+            </svg>
+            <svg
+              class="icon-moon"
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+            </svg>
+          </div>
+        </div>
+      </button>
+
+      <button
+        class="mobile-menu-btn"
+        id="mobileMenuBtn"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="mobileNav"
+      >
+        <div class="seg-icon">
+          <span></span><span></span> <span></span><span></span> <span></span
+          ><span></span>
+        </div>
+      </button>
+    </div>
   </div>
-  <nav class="header-nav">
-    <a href="/docs" class="active">Documentation</a>
-    <a href="https://github.com/aduki-org/anza" target="_blank" rel="noopener">GitHub</a>
-  </nav>
+
+  <div class="mobile-nav" id="mobileNav" aria-hidden="true">
+    <nav aria-label="Mobile navigation">
+      <a href="/docs" class="mobile-nav__link active">Docs</a>
+      <a href="/components" class="mobile-nav__link">Components</a>
+      <a href="/examples" class="mobile-nav__link">Examples</a>
+      <a
+        href="https://github.com/aduki-org/anza"
+        class="mobile-nav__link"
+        target="_blank"
+        rel="noopener"
+        >GitHub</a
+      >
+    </nav>
+  </div>
 </header>
 
 <div class="docs-container">
   <!-- Left Sidebar: Navigation links -->
   <aside class="docs-sidebar-left" ref="leftSidebar">
     <nav class="sidebar-nav">
-      <div class="sidebar-group">
-        <h3>Getting Started</h3>
-        <a href="/docs/intro/index">Introduction</a>
-        <a href="/docs/intro/install">Installation</a>
-        <a href="/docs/intro/start">Quick Start</a>
-        <a href="/docs/intro/structure">Folder Structure</a>
-      </div>
+      <details class="sidebar-group" open>
+        <summary class="sidebar-group-header">
+          <h3>Getting Started</h3>
+          <svg
+            class="group-chevron"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 4l4 4-4 4" />
+          </svg>
+        </summary>
+        <div class="sidebar-group-links">
+          <a href="/docs/intro/index" class="active">Introduction</a>
+          <a href="/docs/intro/install">Installation</a>
+          <a href="/docs/intro/start">Quick Start</a>
+          <a href="/docs/intro/structure">Folder Structure</a>
+        </div>
+      </details>
 
-      <div class="sidebar-group">
-        <h3>UI Core</h3>
-        <a href="/docs/ui/index">Overview</a>
-        <a href="/docs/ui/quickstart">Quickstart</a>
-        <a href="/docs/ui/elements">Elements</a>
-        <a href="/docs/ui/props">Props</a>
-        <a href="/docs/ui/templates">Templates</a>
-        <a href="/docs/ui/styles">Styles</a>
-        <a href="/docs/ui/lifecycle">Lifecycle</a>
-        <a href="/docs/ui/context">Context</a>
-        <a href="/docs/ui/scheduling">Scheduling</a>
-        <a href="/docs/ui/observers">Observers</a>
-        <a href="/docs/ui/transitions">Transitions</a>
-        <a href="/docs/ui/forms">Forms</a>
-        <a href="/docs/ui/api">API Reference</a>
-      </div>
+      <div class="sidebar-divider"></div>
 
-      <div class="sidebar-group">
-        <h3>Router</h3>
-        <a href="/docs/router/index">Overview</a>
-        <a href="/docs/router/quickstart">Quickstart</a>
-        <a href="/docs/router/routes">Routes</a>
-        <a href="/docs/router/handlers">Handlers</a>
-        <a href="/docs/router/guards">Guards</a>
-        <a href="/docs/router/navigation">Navigation</a>
-        <a href="/docs/router/docks">Docks</a>
-        <a href="/docs/router/containers">Containers</a>
-        <a href="/docs/router/transitions">Transitions</a>
-        <a href="/docs/router/cache">Cache</a>
-        <a href="/docs/router/sync">Sync</a>
-        <a href="/docs/router/api">API Reference</a>
-      </div>
+      <details class="sidebar-group" open>
+        <summary class="sidebar-group-header">
+          <h3>UI Core</h3>
+          <svg
+            class="group-chevron"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 4l4 4-4 4" />
+          </svg>
+        </summary>
+        <div class="sidebar-group-links">
+          <a href="/docs/ui/index">Overview</a>
+          <a href="/docs/ui/quickstart">Quickstart</a>
+          <a href="/docs/ui/elements">Elements</a>
+          <a href="/docs/ui/props">Props</a>
+          <a href="/docs/ui/templates">Templates</a>
+          <a href="/docs/ui/styles">Styles</a>
+          <a href="/docs/ui/lifecycle">Lifecycle</a>
+          <a href="/docs/ui/context">Context</a>
+          <a href="/docs/ui/scheduling">Scheduling</a>
+          <a href="/docs/ui/observers">Observers</a>
+          <a href="/docs/ui/transitions">Transitions</a>
+          <a href="/docs/ui/forms">Forms</a>
+          <a href="/docs/ui/api">API Reference</a>
+        </div>
+      </details>
 
-      <div class="sidebar-group">
-        <h3>State</h3>
-        <a href="/docs/state/index">Overview</a>
-        <a href="/docs/state/quickstart">Quickstart</a>
-        <a href="/docs/state/store">Store</a>
-        <a href="/docs/state/api">API Reference</a>
-      </div>
+      <div class="sidebar-divider"></div>
 
-      <div class="sidebar-group">
-        <h3>Workers</h3>
-        <a href="/docs/workers/index">Overview</a>
-        <a href="/docs/workers/quickstart">Quickstart</a>
-        <a href="/docs/workers/pool">Pool</a>
-        <a href="/docs/workers/api">API Reference</a>
-      </div>
+      <details class="sidebar-group" open>
+        <summary class="sidebar-group-header">
+          <h3>Router</h3>
+          <svg
+            class="group-chevron"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 4l4 4-4 4" />
+          </svg>
+        </summary>
+        <div class="sidebar-group-links">
+          <a href="/docs/router/index">Overview</a>
+          <a href="/docs/router/quickstart">Quickstart</a>
+          <a href="/docs/router/routes">Routes</a>
+          <a href="/docs/router/handlers">Handlers</a>
+          <a href="/docs/router/guards">Guards</a>
+          <a href="/docs/router/navigation">Navigation</a>
+          <a href="/docs/router/docks">Docks</a>
+          <a href="/docs/router/containers">Containers</a>
+          <a href="/docs/router/transitions">Transitions</a>
+          <a href="/docs/router/cache">Cache</a>
+          <a href="/docs/router/sync">Sync</a>
+          <a href="/docs/router/api">API Reference</a>
+        </div>
+      </details>
+
+      <div class="sidebar-divider"></div>
+
+      <details class="sidebar-group" open>
+        <summary class="sidebar-group-header">
+          <h3>State</h3>
+          <svg
+            class="group-chevron"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 4l4 4-4 4" />
+          </svg>
+        </summary>
+        <div class="sidebar-group-links">
+          <a href="/docs/state/index">Overview</a>
+          <a href="/docs/state/quickstart">Quickstart</a>
+          <a href="/docs/state/store">Store</a>
+          <a href="/docs/state/api">API Reference</a>
+        </div>
+      </details>
+
+      <div class="sidebar-divider"></div>
+
+      <details class="sidebar-group" open>
+        <summary class="sidebar-group-header">
+          <h3>Workers</h3>
+          <svg
+            class="group-chevron"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 4l4 4-4 4" />
+          </svg>
+        </summary>
+        <div class="sidebar-group-links">
+          <a href="/docs/workers/index">Overview</a>
+          <a href="/docs/workers/quickstart">Quickstart</a>
+          <a href="/docs/workers/pool">Pool</a>
+          <a href="/docs/workers/api">API Reference</a>
+        </div>
+      </details>
     </nav>
   </aside>
 

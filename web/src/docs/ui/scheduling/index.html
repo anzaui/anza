@@ -1,71 +1,74 @@
+<!-- Main Content -->
 <h1>Scheduling</h1>
-<p>Cooperative task scheduling for main-thread-friendly work. Prevents long tasks that hurt Interaction to Next Paint
-  (INP).</p>
+<p>Cooperative task scheduling for main-thread-friendly work. Prevents long tasks that hurt Interaction to Next Paint (INP).</p>
 
+<!-- schedule Section -->
 <h2>schedule</h2>
 <view-code language="javascript">import { ui } from '@adukiorg/anza/ui';
 
-  ui.schedule(() =&gt; {
+ui.schedule(() => {
   renderChunk();
-  }, ui.Priority.VISIBLE);
+}, ui.Priority.VISIBLE);
 </view-code>
 <p>Priorities:</p>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Priority</th>
-      <th>Fallback Latency</th>
-      <th>Use Case</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>BLOCKING</code></td>
-      <td>0ms</td>
-      <td>Critical path work</td>
-    </tr>
-    <tr>
-      <td><code>VISIBLE</code></td>
-      <td>16ms</td>
-      <td>UI updates</td>
-    </tr>
-    <tr>
-      <td><code>BACKGROUND</code></td>
-      <td><code>requestIdleCallback</code></td>
-      <td>Offscreen work</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Priority</th>
+        <th>Fallback Latency</th>
+        <th>Use Case</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>BLOCKING</code></td>
+        <td>0ms</td>
+        <td>Critical path work</td>
+      </tr>
+      <tr>
+        <td><code>VISIBLE</code></td>
+        <td>16ms</td>
+        <td>UI updates</td>
+      </tr>
+      <tr>
+        <td><code>BACKGROUND</code></td>
+        <td><code>requestIdleCallback</code></td>
+        <td>Offscreen work</td>
+      </tr>
+    </tbody>
   </table>
 </div>
-<p>Uses <code>scheduler.postTask</code> when available, falling back to <code>setTimeout</code> or
-  <code>requestIdleCallback</code>.</p>
+<p>Uses <code>scheduler.postTask</code> when available, falling back to <code>setTimeout</code> or <code>requestIdleCallback</code>.</p>
 
+<!-- scheduleFrame Section -->
 <h2>scheduleFrame</h2>
 <p>Run during the next <code>requestAnimationFrame</code>:</p>
-<view-code language="javascript">ui.scheduleFrame(() =&gt; {
+<view-code language="javascript">ui.scheduleFrame(() => {
   measureLayout();
-  }).then(() =&gt; {
+}).then(() => {
   applyStyles();
-  });
+});
 </view-code>
 <p>Returns a promise that resolves with the callback's return value.</p>
 
+<!-- yield Section -->
 <h2>yield</h2>
 <p>Yield control to the browser mid-task:</p>
 <view-code language="javascript">import { ui } from '@adukiorg/anza/ui';
 
-  async function processLargeDataset(rows) {
+async function processLargeDataset(rows) {
   for (const row of rows) {
-  process(row);
-  if (rows.indexOf(row) % 100 === 0) {
-  await ui.yield(); // let the browser breathe
+    process(row);
+    if (rows.indexOf(row) % 100 === 0) {
+      await ui.yield(); // let the browser breathe
+    }
   }
-  }
-  }
+}
 </view-code>
 <p>Uses <code>scheduler.yield()</code> when available, falling back to <code>setTimeout(..., 0)</code>.</p>
 
+<!-- When to Use Each Section -->
 <h2>When to Use Each</h2>
 <ul>
   <li><strong><code>schedule()</code></strong> — defer non-critical work: analytics, logging, non-urgent rendering</li>
@@ -73,29 +76,30 @@
   <li><strong><code>yield()</code></strong> — chunk heavy computation inside loops</li>
 </ul>
 
+<!-- Example Section -->
 <h2>Example: Chunked Rendering</h2>
 <view-code language="javascript">view('data-grid', {
   props: {
-  rows: { type: Array, default: [] }
+    rows: { type: Array, default: [] }
   },
   on: {
-  async change({ name, val, refs }) {
-  if (name !== 'rows') return;
+    async change({ name, val, refs }) {
+      if (name !== 'rows') return;
 
-  refs.body.innerHTML = '';
-  const chunkSize = 50;
+      refs.body.innerHTML = '';
+      const chunkSize = 50;
 
-  for (let i = 0; i &lt; val.length; i += chunkSize) {
-  const chunk = val.slice(i, i + chunkSize);
-  const fragment = document.createDocumentFragment();
-  for (const row of chunk) {
-  fragment.appendChild(createRow(row));
+      for (let i = 0; i < val.length; i += chunkSize) {
+        const chunk = val.slice(i, i + chunkSize);
+        const fragment = document.createDocumentFragment();
+        for (const row of chunk) {
+          fragment.appendChild(createRow(row));
+        }
+        refs.body.appendChild(fragment);
+        await ui.yield();
+      }
+    }
   }
-  refs.body.appendChild(fragment);
-  await ui.yield();
-  }
-  }
-  }
-  });
+});
 </view-code>
 <p>The grid renders in chunks, yielding between each so the browser stays responsive.</p>

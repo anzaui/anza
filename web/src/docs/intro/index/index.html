@@ -1,3 +1,4 @@
+<!-- Main Content -->
 <h1>Intro</h1>
 <p>
   Anza is a web platform library built on browser-native APIs. It gives you
@@ -12,60 +13,64 @@
   hot module replacement.
 </p>
 
+<!-- Features Section -->
 <h2>What You Get</h2>
-<ul>
+<ul class="install">
   <li>
-    <strong>Pure ESM modules</strong> — authored as <code>.js</code> files,
-    resolved by the browser natively
+    <strong>Pure ESM modules</strong>
+    <span class="text">— authored as <code>.js</code> files,
+    resolved by the browser natively</span>
   </li>
   <li>
-    <strong>Reactive state</strong> — typed stores with batched updates and
-    cross-tab sync
+    <strong>Reactive state</strong> <span class="text">— typed stores with batched updates and
+    cross-tab sync</span>
   </li>
   <li>
-    <strong>Declarative components</strong> — <code>page()</code>,
+    <strong>Declarative components</strong> <span class="text">— <code>page()</code>,
     <code>dock()</code>, <code>view()</code>, <code>part()</code> instead of
-    classes
+    classes</span>
   </li>
   <li>
-    <strong>File templates</strong> — split markup, styles, and logic into
-    <code>.html</code>, <code>.css</code>, and <code>.js</code>
+    <strong>File templates</strong> <span class="text">— split markup, styles, and logic into
+    <code>.html</code>, <code>.css</code>, and <code>.js</code></span>
   </li>
   <li>
-    <strong>Client-side router</strong> — AOT matching tree compiled by Rust,
+    <strong>Client-side router</strong> <span class="text">— AOT matching tree compiled by Rust,
     design-by-contract typed validations, URLPattern-based matching with
-    hierarchical container layouts
+    hierarchical container layouts</span>
   </li>
   <li>
-    <strong>Offline queue</strong> — IndexedDB-backed operation queue with retry
-    and conflict resolution
+    <strong>Offline queue</strong> <span class="text">— IndexedDB-backed operation queue with retry
+    and conflict resolution</span>
   </li>
   <li>
-    <strong>Service Worker toolkit</strong> — caching strategies, route
-    interception, background sync, and push notifications
+    <strong>Service Worker toolkit</strong> <span class="text">— caching strategies, route
+    interception, background sync, and push notifications</span>
   </li>
   <li>
-    <strong>Automatic theme switching</strong> — light, dark, and high-contrast
-    with OS preference detection and localStorage persistence
+    <strong>Automatic theme switching</strong> <span class="text">— light, dark, and high-contrast
+    with OS preference detection and localStorage persistence</span>
   </li>
   <li>
-    <strong>Animation helpers</strong> — WAAPI wrappers, stagger groups, and
-    view transitions
+    <strong>Animation helpers</strong> <span class="text">— WAAPI wrappers, stagger groups, and
+    view transitions</span>
   </li>
   <li>
-    <strong>Real-browser tests</strong> — <code>@web/test-runner</code> with
-    Playwright, no jsdom
+    <strong>Real-browser tests</strong> <span class="text">— <code>@web/test-runner</code> with
+    Playwright, no jsdom</span>
   </li>
 </ul>
 
+<!-- Package Section -->
 <h2>Package</h2>
 <view-code language="javascript">
-  // to use 
-  import { state } from '@adukiorg/anza/state'; 
-  import { router } from '@adukiorg/anza/router'; 
+  // to use
+  import { state } from '@adukiorg/anza/state';
+  import { router } from '@adukiorg/anza/router';
   import { page, dock, view } from '@adukiorg/anza/ui';
 </view-code>
 
+<!-- File Map Section -->
 <h2>File Map</h2>
 <div class="table-wrap">
   <table>
@@ -97,31 +102,31 @@
         <td>Service Worker caching, routing, sync, and push</td>
       </tr>
     </tbody>
-    </table>
-</div>
+  </table>
 </div>
 
+<!-- Example Section -->
 <h2>One-File Example</h2>
 <view-code language="html">
-  &lt;!-- src/index.html --&gt; 
-  &lt;!DOCTYPE html&gt; 
-  &lt;html lang=&quot;en&quot;&gt; 
+  &lt;!-- src/index.html --&gt;
+  &lt;!DOCTYPE html&gt;
+  &lt;html lang=&quot;en&quot;&gt;
   &lt;head&gt; &lt;meta charset=&quot;utf-8&quot;&gt;
-    &lt;title&gt;Hello&lt;/title&gt; 
-    &lt;link rel=&quot;stylesheet&quot; href=&quot;/dist/tokens/index.css&quot;&gt; 
-    &lt;script type=&quot;module&quot; src=&quot;/dist/app.js&quot;&gt; &lt;/script&gt; 
+    &lt;title&gt;Hello&lt;/title&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;/dist/tokens/index.css&quot;&gt;
+    &lt;script type=&quot;module&quot; src=&quot;/dist/app.js&quot;&gt; &lt;/script&gt;
   &lt;/head&gt;
-  &lt;body&gt;&lt;/body&gt; 
+  &lt;body&gt;&lt;/body&gt;
   &lt;/html&gt;
 </view-code>
 <view-code language="javascript">
-  // src/app.js import '@adukiorg/anza/ui'; 
-  import { dock, page } from '@adukiorg/anza/ui'; 
-  dock('main'); page('/', 
-    { 
-      tag: 'page-home', 
-      via: ['main'], 
-      template: '&lt;h1&gt;Hello, Anza&lt;/h1&gt;' 
+  // src/app.js import '@adukiorg/anza/ui';
+  import { dock, page } from '@adukiorg/anza/ui';
+  dock('main'); page('/',
+    {
+      tag: 'page-home',
+      via: ['main'],
+      template: '&lt;h1&gt;Hello, Anza&lt;/h1&gt;'
     }
   );
 </view-code>
@@ -130,6 +135,7 @@
   <code>http://localhost:3000</code>.
 </p>
 
+<!-- Next Steps Section -->
 <h2>Next Steps</h2>
 <ul>
   <li>

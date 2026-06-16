@@ -33,7 +33,7 @@
 
 ::slotted(tr) {
   border-bottom: var(--space-px) solid var(--color-border-default);
-  transition: background-color var(--duration-fast) var(--ease-out);
+  /* transition: background-color var(--duration-fast) var(--ease-out); */
 }
 
 ::slotted(tr:last-child) {

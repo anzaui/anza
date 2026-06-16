@@ -1,16 +1,21 @@
+<!-- Main Content -->
 <h1>API Reference</h1>
 <p>Complete reference for the API client facade and internal utilities.</p>
 
+<!-- Facade Section -->
 <h2>Facade</h2>
-<view-code language="javascript">import { api } from '@adukiorg/anza/api';
+<view-code language="javascript">
+  import { api } from '@adukiorg/anza/api';
 </view-code>
 <h3><code>api.get(url, opts)</code></h3>
 <p>GET request. Returns parsed JSON or text.</p>
-<view-code language="javascript">const data = await api.get('/user/profile');
+<view-code language="javascript">
+  const data = await api.get('/user/profile');
 </view-code>
 <h3><code>api.post(url, body, opts)</code></h3>
 <p>POST request. Auto-serializes JSON bodies.</p>
-<view-code language="javascript">const result = await api.post('/posts', { title: 'Hello' });
+<view-code language="javascript">
+  const result = await api.post('/posts', { title: 'Hello' });
 </view-code>
 <h3><code>api.put(url, body, opts)</code></h3>
 <p>PUT request.</p>
@@ -20,24 +25,29 @@
 <p>DELETE request.</p>
 <h3><code>api.stream(url, opts)</code></h3>
 <p>NDJSON async iterable.</p>
-<view-code language="javascript">for await (const chunk of api.stream('/logs')) { ... }
+<view-code language="javascript">
+  for await (const chunk of api.stream('/logs')) { ... }
 </view-code>
 <h3><code>api.upload(url, data, opts)</code></h3>
 <p>File upload with progress tracking. Returns promise resolving to response data.</p>
-<view-code language="javascript">await api.upload('/upload', formData, { on: { progress: handler } });
+<view-code language="javascript">
+  await api.upload('/upload', formData, { on: { progress: handler } });
 </view-code>
 <h3><code>api.on(event, handler, signal)</code></h3>
 <p>Subscribe to telemetry events. Returns disposer.</p>
-<view-code language="javascript">const off = api.on('status:401', handler);
+<view-code language="javascript">
+  const off = api.on('status:401', handler);
   off(); // unsubscribe
 </view-code>
 <h3><code>api.emit(event, detail)</code></h3>
 <p>Emit a telemetry event.</p>
-<view-code language="javascript">api.emit('custom:metric', { value: 42 });
+<view-code language="javascript">
+  api.emit('custom:metric', { value: 42 });
 </view-code>
 <h3><code>api.prefix.add(name, value)</code></h3>
 <p>Register a URL prefix.</p>
-<view-code language="javascript">api.prefix.add('default', 'https://api.example.com');
+<view-code language="javascript">
+  api.prefix.add('default', 'https://api.example.com');
 </view-code>
 <h3><code>api.prefix.clear()</code></h3>
 <p>Remove all prefixes.</p>
@@ -54,113 +64,121 @@
 <h3><code>api.pipeline.inbound(interceptor)</code></h3>
 <p>Register an inbound interceptor.</p>
 
+<!-- Named Exports Section -->
 <h2>Named Exports</h2>
-<view-code language="javascript">import {
-  api, // facade object
-  pipeline, // Pipeline instance
-  PlatformError, // Error class
-  execute, // raw fetch executor
-  retry, // retry utility
-  stream, // streaming function
-  createNDJSONTransform, // NDJSON TransformStream
-  upload, // upload function
-  prefixes, // PrefixRegistry instance
-  events, // ApiEventEmitter instance
-  cache // ApiCache instance
+<view-code language="javascript">
+  import {
+    api, // facade object
+    pipeline, // Pipeline instance
+    PlatformError, // Error class
+    execute, // raw fetch executor
+    retry, // retry utility
+    stream, // streaming function
+    createNDJSONTransform, // NDJSON TransformStream
+    upload, // upload function
+    prefixes, // PrefixRegistry instance
+    events, // ApiEventEmitter instance
+    cache // ApiCache instance
   } from '@adukiorg/anza/api';
 </view-code>
 
+<!-- Request Options Section -->
 <h2>Request Options</h2>
-<view-code language="javascript">{
-  headers: object, // additional headers
-  signal: AbortSignal, // cancellation
-  timeout: number, // ms (default 10000)
-  priority: string, // 'user-blocking' | 'user-visible' | 'background'
-  retries: number, // attempts (default 3)
-  cache: string, // 'cache-first' | 'network-first' | 'stale-while-revalidate'
-  expiry: number, // TTL in ms (alias: ttl)
-  on: object // per-request event listeners
+<view-code language="javascript">
+  {
+    headers: object, // additional headers
+    signal: AbortSignal, // cancellation
+    timeout: number, // ms (default 10000)
+    priority: string, // 'user-blocking' | 'user-visible' | 'background'
+    retries: number, // attempts (default 3)
+    cache: string, // 'cache-first' | 'network-first' | 'stale-while-revalidate'
+    expiry: number, // TTL in ms (alias: ttl)
+    on: object // per-request event listeners
   }
 </view-code>
 
+<!-- Telemetry Events Section -->
 <h2>Telemetry Events</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Event</th>
-      <th>Payload</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>error</code></td>
-      <td><code>{ error, requestId }</code></td>
-    </tr>
-    <tr>
-      <td><code>failed</code></td>
-      <td><code>{ error \| response, requestId }</code></td>
-    </tr>
-    <tr>
-      <td><code>timeout</code></td>
-      <td><code>{ error, requestId }</code></td>
-    </tr>
-    <tr>
-      <td><code>status:xxx</code></td>
-      <td><code>{ response, requestId }</code></td>
-    </tr>
-    <tr>
-      <td><code>type:json</code></td>
-      <td><code>{ response, requestId }</code></td>
-    </tr>
-    <tr>
-      <td><code>type:stream</code></td>
-      <td><code>{ response, requestId }</code></td>
-    </tr>
-    <tr>
-      <td><code>type:text</code></td>
-      <td><code>{ response, requestId }</code></td>
-    </tr>
-    <tr>
-      <td><code>progress</code></td>
-      <td><code>{ loaded, total, percentage, requestId }</code></td>
-    </tr>
-    <tr>
-      <td><code>chunk</code></td>
-      <td><code>{ chunk, requestId }</code></td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Event</th>
+        <th>Payload</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>error</code></td>
+        <td><code>{ error, requestId }</code></td>
+      </tr>
+      <tr>
+        <td><code>failed</code></td>
+        <td><code>{ error \| response, requestId }</code></td>
+      </tr>
+      <tr>
+        <td><code>timeout</code></td>
+        <td><code>{ error, requestId }</code></td>
+      </tr>
+      <tr>
+        <td><code>status:xxx</code></td>
+        <td><code>{ response, requestId }</code></td>
+      </tr>
+      <tr>
+        <td><code>type:json</code></td>
+        <td><code>{ response, requestId }</code></td>
+      </tr>
+      <tr>
+        <td><code>type:stream</code></td>
+        <td><code>{ response, requestId }</code></td>
+      </tr>
+      <tr>
+        <td><code>type:text</code></td>
+        <td><code>{ response, requestId }</code></td>
+      </tr>
+      <tr>
+        <td><code>progress</code></td>
+        <td><code>{ loaded, total, percentage, requestId }</code></td>
+      </tr>
+      <tr>
+        <td><code>chunk</code></td>
+        <td><code>{ chunk, requestId }</code></td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Error Codes Section -->
 <h2>Error Codes</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Code</th>
-      <th>Context</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>HTTP_ERROR</code></td>
-      <td><code>{ url, status, method }</code></td>
-    </tr>
-    <tr>
-      <td><code>NETWORK_ERROR</code></td>
-      <td><code>{ url, method }</code></td>
-    </tr>
-    <tr>
-      <td><code>NETWORK_TIMEOUT</code></td>
-      <td><code>{ url, method }</code></td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Context</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>HTTP_ERROR</code></td>
+        <td><code>{ url, status, method }</code></td>
+      </tr>
+      <tr>
+        <td><code>NETWORK_ERROR</code></td>
+        <td><code>{ url, method }</code></td>
+      </tr>
+      <tr>
+        <td><code>NETWORK_TIMEOUT</code></td>
+        <td><code>{ url, method }</code></td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Prefix Resolution Section -->
 <h2>Prefix Resolution</h2>
-<view-code language="javascript">api.prefix.add('auth', 'https://auth.example.com');
+<view-code language="javascript">
+  api.prefix.add('auth', 'https://auth.example.com');
 
   api.get('/auth/login'); // https://auth.example.com/login
   api.get('auth/login'); // https://auth.example.com/login
@@ -168,36 +186,39 @@
   api.get('https://x.com/y'); // left as-is
 </view-code>
 
+<!-- Cache Strategies Section -->
 <h2>Cache Strategies</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Strategy</th>
-      <th>Behavior</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>cache-first</code></td>
-      <td>Cache hit returns immediately; miss fetches and stores</td>
-    </tr>
-    <tr>
-      <td><code>network-first</code></td>
-      <td>Fetch first; on failure return cached; on success store</td>
-    </tr>
-    <tr>
-      <td><code>stale-while-revalidate</code></td>
-      <td>Return cached immediately; revalidate in background</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Strategy</th>
+        <th>Behavior</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>cache-first</code></td>
+        <td>Cache hit returns immediately; miss fetches and stores</td>
+      </tr>
+      <tr>
+        <td><code>network-first</code></td>
+        <td>Fetch first; on failure return cached; on success store</td>
+      </tr>
+      <tr>
+        <td><code>stale-while-revalidate</code></td>
+        <td>Return cached immediately; revalidate in background</td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Retry Parameters Section -->
 <h2>Retry Parameters</h2>
-<view-code language="javascript">retry(operation, {
-  attempts: 3, // max attempts
-  base: 100, // starting delay ms
-  maxDelay: 3000 // delay cap ms
+<view-code language="javascript">
+  retry(operation, {
+    attempts: 3, // max attempts
+    base: 100, // starting delay ms
+    maxDelay: 3000 // delay cap ms
   });
 </view-code>

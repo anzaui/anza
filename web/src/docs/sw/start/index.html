@@ -1,6 +1,8 @@
+<!-- Main Content -->
 <h1>Start</h1>
 <p>Write a Service Worker that caches your shell and intercepts API calls.</p>
 
+<!-- Create sw.js Section -->
 <h2>1. Create <code>src/sw.js</code></h2>
 <p>The scaffold generates this file for you. Here is what it contains:</p>
 <view-code language="javascript">import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from
@@ -36,6 +38,7 @@
   <li>On <code>fetch</code>, tries the router first; unmatched requests fall through to the network</li>
 </ol>
 
+<!-- Register from app.js Section -->
 <h2>2. Register from <code>app.js</code></h2>
 <view-code language="javascript">import '@adukiorg/anza/ui';
   import { dock } from '@adukiorg/anza/ui';
@@ -52,6 +55,7 @@
 <p><code>navigator.serviceWorker.register('/dist/sw.js')</code> starts the SW. The browser resolves the path relative to
   the page origin, so <code>/dist/sw.js</code> is correct.</p>
 
+<!-- Send Messages Section -->
 <h2>3. Send Messages from the Main Thread</h2>
 <p>Use the offline bridge to send tasks to the active SW:</p>
 <view-code language="javascript">import { offline } from '@adukiorg/anza/offline';
@@ -60,6 +64,7 @@
 </view-code>
 <p>The SW receives this via <code>message</code> events. The bridge handles the response as a Promise.</p>
 
+<!-- Build Output Section -->
 <h2>4. Build Output</h2>
 <p>After <code>npm run build</code>:</p>
 <view-code language="text">dist/
@@ -78,6 +83,7 @@
 <p>The build tool copied these from <code>library/src/sw/</code> and rewrote bare specifiers in <code>dist/sw.js</code>
   to relative paths like <code>./sw/index.js</code>.</p>
 
+<!-- Next Section -->
 <h2>Next</h2>
 <p>Add background sync to replay failed mutations:</p>
 <view-code language="javascript">import { replayQueue } from '@adukiorg/anza/sw';

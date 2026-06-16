@@ -1,7 +1,9 @@
+<!-- Main Content -->
 <h1>Derived</h1>
 <p><code>derived</code> creates lazy, memoized computed values. It tracks which store keys the computation reads,
   subscribes to those keys, and marks itself dirty when any dependency changes.</p>
 
+<!-- Basic Use Section -->
 <h2>Basic Use</h2>
 <view-code language="javascript">import { state } from '@adukiorg/anza/state';
 
@@ -13,6 +15,7 @@
 </view-code>
 <p>The computation runs once on first access. The result is cached.</p>
 
+<!-- Lazy Recomputation Section -->
 <h2>Lazy Recomputation</h2>
 <view-code language="javascript">store.set('count', 5);
 
@@ -21,6 +24,7 @@
 </view-code>
 <p>Derived values only recompute when accessed after a dependency change. This is lazy evaluation.</p>
 
+<!-- Dependency Tracking Section -->
 <h2>Dependency Tracking</h2>
 <p>During computation, <code>derived</code> intercepts all <code>store.get()</code> calls:</p>
 <view-code language="javascript">const fullName = state.derived(() =&gt; {
@@ -31,6 +35,7 @@
 <p><code>fullName</code> subscribes to <code>user</code>. When <code>store.set('user', ...)</code> fires,
   <code>fullName</code> marks itself dirty.</p>
 
+<!-- Nested Derived Section -->
 <h2>Nested Derived</h2>
 <p>Derived values can depend on other derived values:</p>
 <view-code language="javascript">const subtotal = state.derived(() =&gt;
@@ -44,6 +49,7 @@
 </view-code>
 <p><code>total</code> tracks both <code>taxRate</code> and the dependencies of <code>subtotal</code>.</p>
 
+<!-- Subscribe to Derived Section -->
 <h2>Subscribe to Derived</h2>
 <view-code language="javascript">const off = doubled.subscribe(() =&gt; {
   console.log('Doubled changed:', doubled.value);
@@ -51,6 +57,7 @@
 </view-code>
 <p>Subscribe to be notified when the derived value recomputes to a new result.</p>
 
+<!-- Dispose Section -->
 <h2>Dispose</h2>
 <view-code language="javascript">doubled.dispose();
 </view-code>

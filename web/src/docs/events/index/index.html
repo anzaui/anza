@@ -1,10 +1,16 @@
+<!-- Main Content -->
 <h1>Events</h1>
-<p>The Anza events layer is a thin, memory-safe wrapper around the DOM EventTarget. It provides a global event bus,
+<p>
+  The Anza events layer is a thin, memory-safe wrapper around the DOM EventTarget. It provides a global event bus,
   high-performance delegation through Shadow DOM boundaries, promise-wrapped single-event awaits, automatic passive
-  defaults for scroll-critical events, and a centralized registry of system event names.</p>
-<p>Everything is built on the browser's native <code>EventTarget</code> and <code>CustomEvent</code>. No polyfills, no
-  heavy abstractions.</p>
+  defaults for scroll-critical events, and a centralized registry of system event names.
+</p>
+<p>
+  Everything is built on the browser's native <code>EventTarget</code> and <code>CustomEvent</code>. No polyfills, no
+  heavy abstractions.
+</p>
 
+<!-- Features Section -->
 <h2>What You Get</h2>
 <ul>
   <li><strong>Global event bus</strong> — <code>events.emit</code> and <code>events.on</code> for application-wide
@@ -19,62 +25,67 @@
     <code>events.names.connectivity.online</code>, and so on</li>
 </ul>
 
+<!-- Package Section -->
 <h2>Package</h2>
-<view-code language="javascript">import { events } from '@adukiorg/anza/events';
+<view-code language="javascript">
+  import { events } from '@adukiorg/anza/events';
 </view-code>
 
+<!-- File Map Section -->
 <h2>File Map</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>File</th>
-      <th>What It Covers</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><a href="/docs/events/quickstart">quickstart.md</a></td>
-      <td>Your first event in five minutes</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/events/bus">bus.md</a></td>
-      <td>Global event bus — emit, on, and the EventBus class</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/events/delegate">delegate.md</a></td>
-      <td>High-performance event delegation through shadow DOM</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/events/listen">listen.md</a></td>
-      <td>Memory-safe listeners with passive defaults</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/events/once">once.md</a></td>
-      <td>Promise-wrapped single-event awaits</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/events/names">names.md</a></td>
-      <td>System event name constants</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/events/api">api.md</a></td>
-      <td>Complete API reference</td>
-    </tr>
-    <tr>
-      <td><a href="/docs/events/troubleshooting">troubleshooting.md</a></td>
-      <td>Common problems and how to fix them</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>File</th>
+        <th>What It Covers</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="/docs/events/quickstart">quickstart.md</a></td>
+        <td>Your first event in five minutes</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/events/bus">bus.md</a></td>
+        <td>Global event bus — emit, on, and the EventBus class</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/events/delegate">delegate.md</a></td>
+        <td>High-performance event delegation through shadow DOM</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/events/listen">listen.md</a></td>
+        <td>Memory-safe listeners with passive defaults</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/events/once">once.md</a></td>
+        <td>Promise-wrapped single-event awaits</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/events/names">names.md</a></td>
+        <td>System event name constants</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/events/api">api.md</a></td>
+        <td>Complete API reference</td>
+      </tr>
+      <tr>
+        <td><a href="/docs/events/troubleshooting">troubleshooting.md</a></td>
+        <td>Common problems and how to fix them</td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Example Section -->
 <h2>One-File Example</h2>
-<view-code language="javascript">import { events } from '@adukiorg/anza/events';
+<view-code language="javascript">
+  import { events } from '@adukiorg/anza/events';
 
   // Global pub/sub
   const off = events.on('user:login', (e) =&gt; {
-  console.log('User logged in:', e.detail);
+    console.log('User logged in:', e.detail);
   });
 
   events.emit('user:login', { id: 42 });
@@ -87,6 +98,7 @@
   console.log('Clicked at', click.clientX, click.clientY);
 </view-code>
 
+<!-- Next Steps Section -->
 <h2>Next Steps</h2>
 <ul>
   <li>New to the events layer? Start with <a href="/docs/events/quickstart">quickstart.md</a>.</li>

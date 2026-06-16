@@ -1,80 +1,85 @@
+<!-- Main Content -->
 <h1>Props</h1>
-<p>Props are reactive properties on declarative elements. They are typed, support default values, automatically reflect
-  to attributes, and trigger batched update callbacks on change.</p>
+<p>Props are reactive properties on declarative elements. They are typed, support default values, automatically reflect to attributes, and trigger batched update callbacks on change.</p>
 
+<!-- Declaring Props Section -->
 <h2>Declaring Props</h2>
 <view-code language="javascript">view('user-card', {
   props: {
-  name: { type: String, default: 'Guest' },
-  age: { type: Number },
-  admin: { type: Boolean }
+    name: { type: String, default: 'Guest' },
+    age: { type: Number },
+    admin: { type: Boolean }
   }
-  });
+});
 </view-code>
 
+<!-- Shorthand Section -->
 <h2>Shorthand</h2>
 <p>Literal values are auto-detected:</p>
 <view-code language="javascript">props: {
   name: 'Guest', // type: String, default: 'Guest'
   count: 0, // type: Number, default: 0
   active: false // type: Boolean, default: false
-  }
+}
 </view-code>
-<p>This expands to the full config internally. Use the longhand form when you need <code>reflect</code>,
-  <code>state</code>, or other options.</p>
+<p>This expands to the full config internally. Use the longhand form when you need <code>reflect</code>, <code>state</code>, or other options.</p>
 
+<!-- Supported Types Section -->
 <h2>Supported Types</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Type</th>
-      <th>Attribute Cast</th>
-      <th>Example</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>String</code></td>
-      <td>As-is</td>
-      <td><code>name="Alice"</code> → <code>'Alice'</code></td>
-    </tr>
-    <tr>
-      <td><code>Number</code></td>
-      <td><code>Number(val)</code></td>
-      <td><code>age="42"</code> → <code>42</code></td>
-    </tr>
-    <tr>
-      <td><code>Boolean</code></td>
-      <td>Presence = true</td>
-      <td><code>active</code> → <code>true</code>, absent → <code>false</code></td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Attribute Cast</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>String</code></td>
+        <td>As-is</td>
+        <td><code>name="Alice"</code> → <code>'Alice'</code></td>
+      </tr>
+      <tr>
+        <td><code>Number</code></td>
+        <td><code>Number(val)</code></td>
+        <td><code>age="42"</code> → <code>42</code></td>
+      </tr>
+      <tr>
+        <td><code>Boolean</code></td>
+        <td>Presence = true</td>
+        <td><code>active</code> → <code>true</code>, absent → <code>false</code></td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Attribute Reflection Section -->
 <h2>Attribute Reflection</h2>
 <p>By default, props reflect to attributes. Disable it per prop:</p>
 <view-code language="javascript">props: {
   secret: { type: String, reflect: false }
-  }
+}
 </view-code>
 <p>Boolean reflection uses empty string (<code>active=""</code>) for true and removes the attribute for false.</p>
 
+<!-- Custom State Section -->
 <h2>Custom State (<code>:state()</code>)</h2>
 <p>Expose props as custom state pseudo-classes:</p>
 <view-code language="javascript">props: {
   loading: { type: Boolean, state: true }
-  }
+}
 </view-code>
 <p>When <code>loading</code> is true, the element matches <code>:state(loading)</code> in CSS:</p>
 <view-code language="css">user-card:state(loading) { opacity: 0.5; }
 </view-code>
 <p>Requires <code>ElementInternals</code> and the <code>states</code> API (Chrome 132+, Baseline 2026).</p>
 
+<!-- Initial Values Section -->
 <h2>Initial Values</h2>
 <p>Props are initialized from attributes before <code>connectedCallback</code>:</p>
-<view-code language="html">&lt;user-card name=&quot;Alice&quot; age=&quot;30&quot; admin&gt;&lt;/user-card&gt;
+<view-code language="html">&lt;user-card name="Alice" age="30" admin&gt;&lt;/user-card&gt;
 </view-code>
 <p>If an attribute is absent, the default is used. If no default is declared:</p>
 <ul>
@@ -83,45 +88,46 @@
   <li><code>Boolean</code> → <code>false</code></li>
 </ul>
 
+<!-- Programmatic Assignment Section -->
 <h2>Programmatic Assignment</h2>
 <p>Set props from JavaScript:</p>
 <view-code language="javascript">const card = document.querySelector('user-card');
-  card.name = 'Bob';
-  card.age = 25;
+card.name = 'Bob';
+card.age = 25;
 </view-code>
-<p>The <code>change</code> hook fires after the assignment (batched via microtask or rAF depending on the
-  <code>visual</code> flag).</p>
+<p>The <code>change</code> hook fires after the assignment (batched via microtask or rAF depending on the <code>visual</code> flag).</p>
 
+<!-- Query Param Mapping Section -->
 <h2>Query Param Mapping</h2>
-<p>For route-bound elements (<code>page()</code>), declare <code>query</code> as a contract array to map URL query
-  params onto element properties. The library casts values based on the declared type:</p>
+<p>For route-bound elements (<code>page()</code>), declare <code>query</code> as a contract array to map URL query params onto element properties. The library casts values based on the declared type:</p>
 <view-code language="javascript">page('/search', {
   tag: 'page-search',
   query: [
-  { name: 'q', type: String },
-  { name: 'page', type: Number }
+    { name: 'q', type: String },
+    { name: 'page', type: Number }
   ]
-  });
+});
 </view-code>
-<p>Visiting <code>/search?q=hello&amp;page=2</code> automatically sets the properties <code>this.q = 'hello'</code>
-  (String) and <code>this.page = 2</code> (Number) on the element, triggering update cycles.</p>
+<p>Visiting <code>/search?q=hello&amp;page=2</code> automatically sets the properties <code>this.q = 'hello'</code> (String) and <code>this.page = 2</code> (Number) on the element, triggering update cycles.</p>
 
+<!-- Hash Mapping Section -->
 <h2>Hash Mapping</h2>
 <p>Declare a <code>hash</code> prop to receive the URL hash:</p>
 <view-code language="javascript">props: {
   hash: { type: String }
-  }
+}
 </view-code>
 <p>Visiting <code>/about#team</code> sets <code>hash = '#team'</code>.</p>
 
+<!-- Property Change Callback Section -->
 <h2>Property Change Callback</h2>
 <p>The <code>change</code> hook receives all pending changes in a single batch:</p>
 <view-code language="javascript">on: {
   change({ name, val, old, el, refs }) {
-  if (name === 'name') {
-  refs.title.textContent = val;
+    if (name === 'name') {
+      refs.title.textContent = val;
+    }
   }
-  }
-  }
+}
 </view-code>
 <p>Multiple rapid assignments are coalesced into one callback.</p>

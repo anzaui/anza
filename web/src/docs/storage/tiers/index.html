@@ -1,119 +1,128 @@
 <h1>Tiers</h1>
-<p>The storage facade routes reads and writes to one of four tiers. Each tier has different durability, capacity, and
-  performance characteristics.</p>
+<p>The storage facade routes reads and writes to one of four tiers. Each tier has different durability, capacity, and performance characteristics.</p>
 
+<!-- Tier Comparison Section -->
 <h2>Tier Comparison</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Tier</th>
-      <th>Durability</th>
-      <th>Capacity</th>
-      <th>Speed</th>
-      <th>Best For</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>memory</code></td>
-      <td>None (refresh clears)</td>
-      <td>Limited by RAM</td>
-      <td>Fastest</td>
-      <td>Hot data, session state</td>
-    </tr>
-    <tr>
-      <td><code>idb</code></td>
-      <td>Durable (IndexedDB)</td>
-      <td>~50MB+</td>
-      <td>Fast</td>
-      <td>Default key-value storage</td>
-    </tr>
-    <tr>
-      <td><code>opfs</code></td>
-      <td>Durable (file system)</td>
-      <td>~60% of disk</td>
-      <td>Medium</td>
-      <td>Large files, binary data</td>
-    </tr>
-    <tr>
-      <td><code>cache</code></td>
-      <td>Durable (Cache API)</td>
-      <td>~50MB+</td>
-      <td>Fast</td>
-      <td>API responses, preloaded assets</td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Tier</th>
+        <th>Durability</th>
+        <th>Capacity</th>
+        <th>Speed</th>
+        <th>Best For</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>memory</code></td>
+        <td>None (refresh clears)</td>
+        <td>Limited by RAM</td>
+        <td>Fastest</td>
+        <td>Hot data, session state</td>
+      </tr>
+      <tr>
+        <td><code>idb</code></td>
+        <td>Durable (IndexedDB)</td>
+        <td>~50MB+</td>
+        <td>Fast</td>
+        <td>Default key-value storage</td>
+      </tr>
+      <tr>
+        <td><code>opfs</code></td>
+        <td>Durable (file system)</td>
+        <td>~60% of disk</td>
+        <td>Medium</td>
+        <td>Large files, binary data</td>
+      </tr>
+      <tr>
+        <td><code>cache</code></td>
+        <td>Durable (Cache API)</td>
+        <td>~50MB+</td>
+        <td>Fast</td>
+        <td>API responses, preloaded assets</td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
+<!-- Memory Section -->
 <h2>Memory</h2>
 <p>An LRU cache in JavaScript memory. Fastest but lost on page refresh.</p>
-<view-code language="javascript">await storage.set('session', data, 'memory');
-  const session = await storage.get('session', 'memory');
+<view-code language="javascript">
+await storage.set('session', data, 'memory');
+const session = await storage.get('session', 'memory');
 </view-code>
 <p>IDB reads automatically populate the memory LRU for subsequent fast access.</p>
 
+<!-- IDB Section -->
 <h2>IDB (Default)</h2>
 <p>IndexedDB with an LRU memory fronting cache. Supports TTL, compression, and write journaling.</p>
-<view-code language="javascript">await storage.set('settings', data); // tier defaults to 'idb'
-  await storage.set('settings', data, 'idb'); // explicit
-  await storage.set('settings', data, { tier: 'idb', ttl: 60000 });
+<view-code language="javascript">
+await storage.set('settings', data); // tier defaults to 'idb'
+await storage.set('settings', data, 'idb'); // explicit
+await storage.set('settings', data, { tier: 'idb', ttl: 60000 });
 </view-code>
 <p>Values over 64KB are automatically gzip-compressed when the Compression Streams API is available.</p>
 
+<!-- OPFS Section -->
 <h2>OPFS</h2>
 <p>Origin Private File System via a dedicated Web Worker. Uses synchronous file access handles for high performance.</p>
-<view-code language="javascript">await storage.set('large-file', buffer, 'opfs');
-  const file = await storage.get('large-file', 'opfs');
+<view-code language="javascript">
+await storage.set('large-file', buffer, 'opfs');
+const file = await storage.get('large-file', 'opfs');
 </view-code>
 <p>Cross-tab invalidation is handled via BroadcastChannel. Use OPFS for blobs, images, and large JSON.</p>
 
+<!-- Cache Section -->
 <h2>Cache</h2>
 <p>The browser Cache API. Stores <code>Response</code> objects.</p>
-<view-code language="javascript">await storage.set('config', response, 'cache');
-  const cached = await storage.get('config', 'cache'); // returns Response
+<view-code language="javascript">
+await storage.set('config', response, 'cache');
+const cached = await storage.get('config', 'cache'); // returns Response
 </view-code>
 <p>TTL is implemented via <code>x-expires-at</code> header on cached responses.</p>
 
+<!-- Tier Selection Guide Section -->
 <h2>Tier Selection Guide</h2>
 <div class="table-wrap">
   <table>
-  <thead>
-    <tr>
-      <th>Data</th>
-      <th>Recommended Tier</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>User settings</td>
-      <td><code>idb</code></td>
-    </tr>
-    <tr>
-      <td>Auth token (short-lived)</td>
-      <td><code>memory</code> or <code>idb</code> with TTL</td>
-    </tr>
-    <tr>
-      <td>Large image/video</td>
-      <td><code>opfs</code></td>
-    </tr>
-    <tr>
-      <td>API response</td>
-      <td><code>cache</code> or <code>idb</code></td>
-    </tr>
-    <tr>
-      <td>Component state</td>
-      <td><code>memory</code></td>
-    </tr>
-    <tr>
-      <td>Offline assets</td>
-      <td><code>cache</code></td>
-    </tr>
-    <tr>
-      <td>Files, PDFs</td>
-      <td><code>opfs</code></td>
-    </tr>
-  </tbody>
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Recommended Tier</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>User settings</td>
+        <td><code>idb</code></td>
+      </tr>
+      <tr>
+        <td>Auth token (short-lived)</td>
+        <td><code>memory</code> or <code>idb</code> with TTL</td>
+      </tr>
+      <tr>
+        <td>Large image/video</td>
+        <td><code>opfs</code></td>
+      </tr>
+      <tr>
+        <td>API response</td>
+        <td><code>cache</code> or <code>idb</code></td>
+      </tr>
+      <tr>
+        <td>Component state</td>
+        <td><code>memory</code></td>
+      </tr>
+      <tr>
+        <td>Offline assets</td>
+        <td><code>cache</code></td>
+      </tr>
+      <tr>
+        <td>Files, PDFs</td>
+        <td><code>opfs</code></td>
+      </tr>
+    </tbody>
   </table>
 </div>

@@ -9,7 +9,8 @@
 @layer base {
 
   html {
-    font-size: 100% !important
+    font-size: 100% !important;
+    background: var(--background);
   }
 
   * {
@@ -27,6 +28,7 @@
     flex-flow: column;
     align-items: center;
     justify-content: center;
+    background: var(--background);
   }
 
 
