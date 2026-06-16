@@ -18,7 +18,7 @@
   justify-content: center;
   text-align: center;
   position: relative;
-  overflow: hidden;
+  /* overflow: hidden; */
   margin: 0;
 }
 
@@ -52,7 +52,7 @@
   -webkit-backdrop-filter: blur(8px);
   color: var(--text-color);
   padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-full);
+  border-radius: 50px;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   font-family: var(--font-mono);
@@ -103,18 +103,28 @@ p.landing-subtitle > span.highlight-nudge {
 }
 
 .landing-description {
-  font-size: clamp(1.125rem, 2vw, 1.25rem);
+  font-size: 1rem;
   color: var(--gray-color);
   max-width: 600px;
-  margin: 0 auto var(--space-8);
+  margin: var(--space-6) auto;
   line-height: var(--line-height-relaxed);
-  font-family: var(--font-read);
+  font-family: var(--font-main);
 }
 
-
+.landing-note {
+  font-size: var(--font-size-sm);
+  color: var(--gray-color);
+  max-width: 600px;
+  margin: 0 auto var(--space-6);
+  line-height: var(--line-height-normal);
+  font-family: var(--font-sans);
+  opacity: 0.8;
+  font-style: italic;
+}
 
 .landing-actions {
   display: flex;
+  margin: var(--space-6) 0;
   gap: var(--space-4);
   justify-content: center;
   flex-wrap: wrap;
@@ -127,25 +137,32 @@ p.landing-subtitle > span.highlight-nudge {
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  padding: 12px 28px; 
-  border-radius: var(--radius-full);
+  padding: 12px 28px;
+  border-radius: 20px;
   font-weight: var(--font-weight-semibold);
   text-decoration: none;
   transition: all var(--duration-fast) var(--ease-out);
   font-size: var(--font-size-base);
   font-family: var(--font-sans);
   letter-spacing: -0.01em;
+  cursor: pointer;
+}
+
+.btn:hover {
+  opacity: 0.9;
 }
 
 .btn svg {
   width: 1.25rem;
   height: 1.25rem;
   flex-shrink: 0;
+  color: inherit !important;
 }
 
 .btn-primary {
-  background: var(--text-color);
-  color: var(--bg-primary);
+  background: var(--action-background);
+  border: thin solid var(--success-color);
+  color: var(--accent-color);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
 }
 
