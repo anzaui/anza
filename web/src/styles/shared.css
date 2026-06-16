@@ -561,7 +561,6 @@ div.table-wrap tfoot td {
 /* Responsive table */
 @media (max-width: 700px) {
   div.table-wrap {
-    margin-inline: calc(-1 * var(--container-padding, 20px));
     border-radius: 0;
     border-left: none;
     border-right: none;
