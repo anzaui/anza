@@ -8,6 +8,6 @@
     "build": "anza build"
   },
   "devDependencies": {
-    "@adukiorg/anza": "@adukiorg/anza@0.4.3"
+    "@adukiorg/anza": "^0.4.3"
   }
 }
