@@ -59,12 +59,22 @@ export async function ensure(target, current = 'main') {
     if (resolve(node.name)) continue;
     const parentEl = node.parent?.ref?.deref() ?? null;
     if (!parentEl || !parentEl.isConnected) throw new Error(`CascadeError: parent '${node.parent?.name}' is disconnected while mounting '${node.name}'`);
-    const tag = node.name;
+    const tag = node.tag;
     if (tag.includes('-') && typeof customElements !== 'undefined' && !customElements.get(tag)) await customElements.whenDefined(tag);
     const el = document.createElement(tag);
     parentEl.replaceChildren(el);
-    await frame();
-    if (!resolve(node.name)) throw new Error(`CascadeError: container '${node.name}' failed to register after mount`);
+
+    // Wait for the element's connectedCallback to complete, including any
+    // async resource loading (template/style fetches). A single frame is
+    // not sufficient when preloadResources() hits the network.
+    let attempts = 0;
+    while (!resolve(node.name) && attempts < 50) {
+      await frame();
+      attempts++;
+    }
+    if (!resolve(node.name)) {
+      throw new Error(`CascadeError: container '${node.name}' failed to register after mount`);
+    }
   }
 
   return resolve(target);

@@ -13,5 +13,6 @@ pub mod html;
 pub mod parse;
 pub mod resolve;
 pub mod sw;
+pub mod transform;
 
 pub use graph::resolve;

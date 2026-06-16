@@ -158,6 +158,12 @@ pub fn resolve(
       }
     };
 
+    // Validate dock() definitions for naming ambiguities
+    let dock_diagnostics = super::transform::validate(&module, &parsed.ast);
+    for diag in dock_diagnostics {
+      warnings.push(diag);
+    }
+
     let importer = module.parent().map(|p| p.to_path_buf()).unwrap_or_default();
 
     // 1. ESM import specifiers -> walked as modules (if JS) or copied (assets).

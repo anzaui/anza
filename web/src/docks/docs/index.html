@@ -107,31 +107,16 @@
       <button
         class="mobile-menu-btn"
         id="mobileMenuBtn"
-        aria-label="Open menu"
+        aria-label="Open navigation"
         aria-expanded="false"
-        aria-controls="mobileNav"
+        aria-controls="leftSidebar"
       >
-        <div class="seg-icon">
-          <span></span><span></span> <span></span><span></span> <span></span
-          ><span></span>
+        <div class="hamburger">
+          <span></span>
+          <span></span>
         </div>
       </button>
     </div>
-  </div>
-
-  <div class="mobile-nav" id="mobileNav" aria-hidden="true">
-    <nav aria-label="Mobile navigation">
-      <a href="/docs" class="mobile-nav__link active">Docs</a>
-      <a href="/components" class="mobile-nav__link">Components</a>
-      <a href="/examples" class="mobile-nav__link">Examples</a>
-      <a
-        href="https://github.com/aduki-org/anza"
-        class="mobile-nav__link"
-        target="_blank"
-        rel="noopener"
-        >GitHub</a
-      >
-    </nav>
   </div>
 </header>
 
@@ -285,6 +270,8 @@
       </details>
     </nav>
   </aside>
+
+  <div class="sidebar-backdrop" ref="sidebarBackdrop" aria-hidden="true"></div>
 
   <!-- Main Content Area -->
   <main class="docs-content">

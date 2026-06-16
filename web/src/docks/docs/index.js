@@ -2,7 +2,7 @@ import { dock } from '@adukiorg/anza/defs';
 import { router } from '@adukiorg/anza/router';
 
 // The persistent outer layout dock
-dock('dock-docs', {
+dock('docs', {
   parent: 'main',
   tag: 'dock-docs',
   template: { html: './index.html', css: './index.css' },
@@ -122,9 +122,10 @@ dock('dock-docs', {
 
       const themeToggle = tags.one('.theme-toggle');
       const mobileMenuBtn = tags.one('.mobile-menu-btn');
-      const mobileNav = tags.one('.mobile-nav');
 
       themeToggle.setAttribute('aria-pressed', String(saved === 'dark'));
+      const orbital = themeToggle.querySelector('.orbital');
+      if (orbital) orbital.classList.toggle('dark', saved === 'dark');
 
       on.click('.theme-toggle', (event, target) => {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -132,13 +133,30 @@ dock('dock-docs', {
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
         target.setAttribute('aria-pressed', String(!isDark));
+
+        const orbital = target.querySelector('.orbital');
+        if (orbital) orbital.classList.toggle('dark', !isDark);
       });
 
-      // 5. Mobile menu toggle
-      on.click('.mobile-menu-btn', (event, target) => {
-        const isOpen = target.getAttribute('aria-expanded') === 'true';
-        target.setAttribute('aria-expanded', String(!isOpen));
-        mobileNav.setAttribute('aria-hidden', String(isOpen));
+      // 5. Mobile sidebar drawer
+      const sidebar = refs.leftSidebar;
+      const backdrop = refs.sidebarBackdrop;
+
+      function setDrawer(open) {
+        mobileMenuBtn.setAttribute('aria-expanded', String(open));
+        sidebar.classList.toggle('open', open);
+        backdrop.classList.toggle('visible', open);
+      }
+
+      on.click('.mobile-menu-btn', () => {
+        const isOpen = mobileMenuBtn.getAttribute('aria-expanded') === 'true';
+        setDrawer(!isOpen);
+      });
+
+      on.click('.sidebar-backdrop', () => setDrawer(false));
+
+      on.click('.sidebar-nav a', () => {
+        if (window.innerWidth <= 600) setDrawer(false);
       });
     }
   }

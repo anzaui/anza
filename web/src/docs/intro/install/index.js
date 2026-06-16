@@ -2,7 +2,7 @@ import { page } from '@adukiorg/anza/ui';
 
 page('/docs/intro/install', {
   tag: 'doc-intro-install',
-  via: ['main', 'dock-docs', 'dock-doccontent'],
+  via: ['main', 'docs', 'content'],
   template: { html: './index.html' },
   style: ['/styles/shared.css']
 }, import.meta.url);

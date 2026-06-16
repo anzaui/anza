@@ -18,6 +18,7 @@ use super::graph::{Diagnostic, Kind};
 
 /// Parsed metadata for a single JS module.
 pub struct Parsed {
+  pub ast: Program,
   pub imports: Vec<(String, Span)>,
   pub assets: Vec<(String, Span)>,
   pub prop_errors: Vec<(String, Span)>,
@@ -57,6 +58,7 @@ pub fn parse(file: &Path, cm: &Arc<SourceMap>) -> Result<Parsed, Diagnostic> {
   program.visit_with(&mut visitor);
 
   Ok(Parsed {
+    ast: program,
     imports: visitor.imports,
     assets: visitor.assets,
     prop_errors: visitor.prop_errors,
@@ -148,10 +150,10 @@ impl Collector {
   /// Records a relative asset path (template/style) for copying into dist.
   fn push_asset(&mut self, s: &swc_ecma_ast::Str) {
     if let Some(v) = str_value(s) {
-      if (v.starts_with("./") || v.starts_with("../") || v.starts_with('/')) 
-          && !v.starts_with("/*") 
-          && !v.starts_with("<!--") 
-          && !v.contains('{') 
+      if (v.starts_with("./") || v.starts_with("../") || v.starts_with('/'))
+          && !v.starts_with("/*")
+          && !v.starts_with("<!--")
+          && !v.contains('{')
           && !v.contains('<') {
         self.assets.push((v, s.span));
       }

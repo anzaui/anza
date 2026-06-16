@@ -1,11 +1,12 @@
 /**
  * src/docs/entry/index.js — docs landing page
  */
-import { page, view } from '@adukiorg/anza/ui';
+import { page } from '@adukiorg/anza/ui';
 
 // Docs landing page
 page('/docs', {
   tag: 'page-docs',
-  via: ['main', 'dock-docs', 'dock-doccontent'],
-  template: { html: './index.html', css: './index.css' }
+  via: ['main', 'docs', 'content'],
+  template: { html: './index.html' },
+  style: ['./index.css', '/styles/shared.css']
 }, import.meta.url);

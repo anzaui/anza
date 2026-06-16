@@ -2,6 +2,10 @@
  * tokens/semantic/transitions.css
  *
  * View Transition pseudo-element mapping and layout swap animations.
+ *
+ * Docks use element-scoped view transitions via this.startViewTransition().
+ * The transitioned element gets viewTransitionName='dock-swap'.
+ * Never target (root) — that animates the stable chrome (sidebar, header).
  */
 
 :root {
@@ -14,10 +18,10 @@
   --transition-bg: var(--color-surface-page);
 }
 
-::view-transition-old(root) {
+::view-transition-old(dock-swap) {
   animation: 90ms ease-in both fade-out;
 }
-::view-transition-new(root) {
+::view-transition-new(dock-swap) {
   animation: var(--transition-duration) var(--transition-easing) both slide-in;
 }
 
@@ -34,9 +38,8 @@
     --transition-duration: 0ms;
     --transition-easing: linear;
   }
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
+  ::view-transition-old(dock-swap),
+  ::view-transition-new(dock-swap) {
     animation: none !important;
   }
 }
-

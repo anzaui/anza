@@ -34,7 +34,7 @@ export function dock(name, config = {}, base) {
   const parent = config.parent ?? 'main';
 
   // Statically register the layout container in the graph with a null element
-  router.registerContainer(name, null, parent);
+  router.registerContainer(name, null, parent, tag);
 
   const spec = translate(config);
 
@@ -51,7 +51,7 @@ export function dock(name, config = {}, base) {
   // user-supplied connect/disconnect rather than clobbering them.
   const userMount = spec.mount;
   spec.mount = (ctx) => {
-    router.registerContainer(name, ctx.el, parent);
+    router.registerContainer(name, ctx.el, parent, tag);
     return userMount?.(ctx);
   };
   const userUnmount = spec.unmount;
@@ -121,26 +121,22 @@ async function swap(el, options = {}) {
     }
   }
 
+  // Only use element-scoped view transitions. If the browser doesn't support
+  // this.startViewTransition (Chrome < 147), fall back to a direct synchronous
+  // swap. Document-level startViewTransition() captures the entire page and
+  // causes the sidebar/header to flicker — we never want that.
   if (typeof this.startViewTransition === 'function') {
     try {
+      // Assign a named view-transition so CSS can target this element's
+      // group explicitly, keeping the root group stable.
+      this.style.viewTransitionName = 'dock-swap';
       this._tx = this.startViewTransition(go);
       await this._tx.finished;
     } catch (err) {
       if (err?.name !== 'AbortError') console.warn('[Native UI] dock scoped VT aborted:', err);
     } finally {
       this._tx = null;
-      restore();
-    }
-    return;
-  }
-
-  if (typeof document !== 'undefined' && typeof document.startViewTransition === 'function') {
-    try {
-      const vt = document.startViewTransition(go);
-      await vt.finished;
-    } catch (err) {
-      if (err?.name !== 'AbortError') console.warn('[Native UI] dock document VT aborted:', err);
-    } finally {
+      this.style.viewTransitionName = '';
       restore();
     }
     return;

@@ -148,6 +148,18 @@ fn resolve_asset_path(base_file: &str, relative_path: &str) -> String {
   format!("/dist/{}", parts.join("/"))
 }
 
+/// Returns the correct `as` attribute for a `<link rel="preload">` tag
+/// based on the file extension.
+fn preload_as(path: &str) -> &'static str {
+  if path.ends_with(".css") {
+    "style"
+  } else if path.ends_with(".html") {
+    "fetch"
+  } else {
+    "fetch"
+  }
+}
+
 /// Automatically serves HTML files, falling back to index.html for SPA routing.
 async fn handle_html_fallback(
   State(state): State<Arc<ServerState>>,
@@ -211,10 +223,12 @@ async fn handle_html_fallback(
             inject.push_str(&format!("    <link rel=\"modulepreload\" href=\"/dist/{}\" />\n", f));
           }
           for h in &r.templates {
-            inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" crossorigin />\n", h));
+            let as_attr = preload_as(h);
+            inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"{}\" crossorigin />\n", h, as_attr));
           }
           for c in &r.styles {
-            inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" crossorigin />\n", c));
+            let as_attr = preload_as(c);
+            inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"{}\" crossorigin />\n", c, as_attr));
           }
 
           if let Some(ref f) = r.file {
@@ -222,12 +236,14 @@ async fn handle_html_fallback(
             
             if let Some(ref h) = r.html {
               let resolved = resolve_asset_path(f, h);
-              inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" crossorigin />\n", resolved));
+              let as_attr = preload_as(&resolved);
+              inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"{}\" crossorigin />\n", resolved, as_attr));
             }
             if let Some(ref c) = r.css {
               let resolved = resolve_asset_path(f, c);
               if !r.styles.contains(&resolved) {
-                inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"fetch\" crossorigin />\n", resolved));
+                let as_attr = preload_as(&resolved);
+                inject.push_str(&format!("    <link rel=\"preload\" href=\"{}\" as=\"{}\" crossorigin />\n", resolved, as_attr));
               }
             }
           }

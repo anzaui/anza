@@ -8,7 +8,8 @@ import {
   registerContainer,
   unregisterContainer,
   getContainer,
-  clearContainers
+  clearContainers,
+  getNode
 } from '../../../src/core/router/container.js';
 
 describe('Router Container Registry', () => {
@@ -105,6 +106,40 @@ describe('Router Container Registry', () => {
 
     if (getContainer('app-main')) {
       throw new Error('Expected container map to be empty after clearContainers');
+    }
+  });
+
+  it('registers containers with separate name and tag', () => {
+    const dockEl = document.createElement('div');
+    registerContainer('docs', dockEl, 'main', 'dock-docs');
+
+    const node = getNode('docs');
+    if (!node) {
+      throw new Error('Expected node to exist');
+    }
+    if (node.name !== 'docs') {
+      throw new Error(`Expected node.name to be 'docs', got '${node.name}'`);
+    }
+    if (node.tag !== 'dock-docs') {
+      throw new Error(`Expected node.tag to be 'dock-docs', got '${node.tag}'`);
+    }
+
+    const retrieved = getContainer('docs');
+    if (retrieved !== dockEl) {
+      throw new Error('Expected retrieved container to match registered element');
+    }
+  });
+
+  it('defaults tag to name when not provided', () => {
+    const dockEl = document.createElement('div');
+    registerContainer('sidebar', dockEl, 'main');
+
+    const node = getNode('sidebar');
+    if (!node) {
+      throw new Error('Expected node to exist');
+    }
+    if (node.tag !== 'sidebar') {
+      throw new Error(`Expected node.tag to default to 'sidebar', got '${node.tag}'`);
     }
   });
 });

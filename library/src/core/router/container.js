@@ -62,8 +62,8 @@ function ensureObserver() {
  * @param {string|null} [parent='main'] - parent container key in the graph.
  *   Pass null explicitly when registering the root (no parent).
  */
-export function registerContainer(name, element, parent = 'main') {
-  add(name, element, parent);
+export function registerContainer(name, element, parent = 'main', tag = null) {
+  add(name, element, parent, tag);
 }
 
 /**

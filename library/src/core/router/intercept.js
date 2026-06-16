@@ -16,7 +16,6 @@ import { getContainer } from './container.js';
 import { get as graphGet } from './graph.js';
 import { match } from './match.js';
 import { specRegistry } from '../ui/define/state.js';
-import { transitions } from './transitions.js';
 
 /**
  * Built-in minimal 404 HTML rendered when no user notfound is configured.
@@ -241,39 +240,37 @@ async function pipe(event, precommitted) {
     }
   }
 
-  await transitions.run(async () => {
-    if (routeMatch) {
-      if (isCallback(routeMatch.route.handler)) {
-        try {
-          await runCallback(routeMatch.route.handler, routeMatch.params, event);
-        } catch (err) {
-          emit('error', { error: err, url: destination.url, route: routeMatch.route, phase: 'handler' });
-          return;
-        }
-      }
-
-      const ctx = buildRouteContext(routeMatch.tag, routeMatch.params, destination.url);
-      emit('found', {
-        tag: routeMatch.tag,
-        params: ctx.params,
-        query: ctx.query,
-        raw: ctx.raw,
-        hash: routeMatch.hash,
-        chain: routeMatch.chain,
-        via: chain,
-        container: chain.at(-1) ?? null,
-        url: destination.url,
-        direction: event.navigationType
-      });
-    } else {
-      emit('notfound', { url: destination.url });
-      if (notFoundHandler) {
-        await notFoundHandler(event);
-      } else {
-        renderNotFound('main');
+  if (routeMatch) {
+    if (isCallback(routeMatch.route.handler)) {
+      try {
+        await runCallback(routeMatch.route.handler, routeMatch.params, event);
+      } catch (err) {
+        emit('error', { error: err, url: destination.url, route: routeMatch.route, phase: 'handler' });
+        return;
       }
     }
-  });
+
+    const ctx = buildRouteContext(routeMatch.tag, routeMatch.params, destination.url);
+    emit('found', {
+      tag: routeMatch.tag,
+      params: ctx.params,
+      query: ctx.query,
+      raw: ctx.raw,
+      hash: routeMatch.hash,
+      chain: routeMatch.chain,
+      via: chain,
+      container: chain.at(-1) ?? null,
+      url: destination.url,
+      direction: event.navigationType
+    });
+  } else {
+    emit('notfound', { url: destination.url });
+    if (notFoundHandler) {
+      await notFoundHandler(event);
+    } else {
+      renderNotFound('main');
+    }
+  }
 }
 
 /**

@@ -21,12 +21,13 @@ function injectSheet() {
   try {
     const sheet = new CSSStyleSheet();
     sheet.replaceSync(`
-      ::view-transition-group(root) {
+      /* Dock-swap group: element-scoped content transitions */
+      ::view-transition-group(dock-swap) {
         animation-duration: var(--transition-duration);
         animation-timing-function: var(--transition-easing);
       }
-      ::view-transition-old(root),
-      ::view-transition-new(root) {
+      ::view-transition-old(dock-swap),
+      ::view-transition-new(dock-swap) {
         animation-duration: var(--transition-duration);
         animation-timing-function: var(--transition-easing);
         background: var(--transition-bg);

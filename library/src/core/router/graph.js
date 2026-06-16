@@ -14,8 +14,9 @@
  */
 
 class Node {
-  constructor(name, ref, parent) {
+  constructor(name, tag, ref, parent) {
     this.name = name;            // registry key, e.g. 'main' | 'sidebar'
+    this.tag = tag;              // custom element tag, e.g. 'dock-docs' | 'main'
     this.ref = ref;              // WeakRef<Element> | null (null for virtual root)
     this.parent = parent;        // Node | null
     this.children = new Set();   // Set<Node>
@@ -33,7 +34,7 @@ const nodes = new Map();
 // The permanent root node. ref is null at module-evaluation time because
 // modules may be evaluated before the parser reaches <main id="main">.
 // boot.js fills in the WeakRef during anchor().
-const root = new Node('main', null, null);
+const root = new Node('main', 'main', null, null);
 root.depth = 0;
 nodes.set('main', root);
 
@@ -76,9 +77,10 @@ function detach(name) {
  * @param {string} name - unique registry key.
  * @param {Element} el - the container element.
  * @param {string} [parent='main'] - parent registry key.
+ * @param {string} [tag] - custom element tag; defaults to name.
  * @returns {Node} the inserted node.
  */
-export function add(name, el, parent = 'main') {
+export function add(name, el, parent = 'main', tag = null) {
   gone.delete(name);
 
   const existing = nodes.get(name);
@@ -103,7 +105,8 @@ export function add(name, el, parent = 'main') {
   }
 
   const parentNode = nodes.get(parent) ?? root;
-  const node = new Node(name, el ? new WeakRef(el) : null, parentNode);
+  const resolvedTag = tag || name;
+  const node = new Node(name, resolvedTag, el ? new WeakRef(el) : null, parentNode);
   parentNode.children.add(node);
   nodes.set(name, node);
   if (el) finalizer.register(el, name);

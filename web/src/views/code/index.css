@@ -54,7 +54,7 @@ div.code-block>button.copy-btn.copied {
   padding: 12px;
   border-radius: 18px;
   font-family: var(--font-mono);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   line-height: 1.7;
   color: var(--text-color);
   overflow-x: auto;

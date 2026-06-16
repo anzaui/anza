@@ -53,7 +53,9 @@ export function container(tag, spec, base = import.meta.url) {
         delete this.dataset.transitionDirection;
       };
 
-      // Strategy 1: Element-scoped transition (Chrome 147+, concurrent-safe)
+      // Only use element-scoped view transitions. Document-level
+      // startViewTransition() captures the entire page and causes
+      // chrome flicker — never use it as a fallback.
       if (typeof this.startViewTransition === 'function') {
         try {
           const vt = this.startViewTransition(doSwap);
@@ -64,18 +66,6 @@ export function container(tag, spec, base = import.meta.url) {
         return;
       }
 
-      // Strategy 2: Document-scoped transition (Baseline Oct 2025)
-      if (typeof document.startViewTransition === 'function') {
-        try {
-          const vt = document.startViewTransition(doSwap);
-          await vt.ready;
-        } catch (err) {
-          if (err?.name !== 'AbortError') console.warn('[UI Container] Document VT aborted:', err);
-        }
-        return;
-      }
-
-      // Strategy 3: Synchronous direct swap
       doSwap();
     };
   }
