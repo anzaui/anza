@@ -19,7 +19,7 @@ export PATH="$(pwd):$PATH"
 echo "Binary: $(./anza --version 2>/dev/null || echo 'ok')"
 
 # Build web assets
-echo "Building web assets..."
+echo "Building web assets.."
 cd web
 npm install
 anza build
