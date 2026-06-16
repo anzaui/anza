@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "=== Cloudflare Pages Build ==="
+echo "=== Cloudflare Workers Build ==="
 
 # Extract version from library/package.json
 VERSION=$(jq -r .version library/package.json)
@@ -24,9 +24,8 @@ cd web
 npm install
 anza build
 
-# Copy dist to repo root so Pages can find it
-echo "Copying dist to root..."
-cp -r dist/* ../
-
 echo "=== Build complete ==="
-ls -la ../
+ls -la dist/
+
+echo "=== Deploying to Workers ==="
+npx wrangler deploy
