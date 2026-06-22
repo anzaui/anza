@@ -32,7 +32,9 @@ function escapeAttrValue(value) {
   if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
     return CSS.escape(value);
   }
-  return String(value).replace(/"/g, '\\"');
+  return String(value)
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"');
 }
 
 function warn(message) {
