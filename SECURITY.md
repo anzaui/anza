@@ -15,7 +15,7 @@ marked with :x: are no longer supported.
 
 ## Reporting a Vulnerability
 
-Please report suspected vulnerabilities by email to **security@example.com**.
+Please report suspected vulnerabilities by email to **security@aduki.org**.
 Do **not** open public GitHub issues for security reports.
 
 Include the following details in your report:
