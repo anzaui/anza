@@ -72,11 +72,14 @@ export function sanitize(html, config = {}) {
           const name = attr.name.toLowerCase();
           const value = attr.value.trim().toLowerCase();
 
-          // Evict unapproved attributes or javascript: scheme injection vectors
+          // Evict unapproved attributes or dangerous URL scheme injection vectors
           if (
             !ALLOWED_ATTRS.has(name) ||
             name.startsWith('on') ||
-            (name === 'href' && value.startsWith('javascript:'))
+            (name === 'href' &&
+              (value.startsWith('javascript:') ||
+                value.startsWith('data:') ||
+                value.startsWith('vbscript:')))
           ) {
             node.removeAttribute(attr.name);
           }
