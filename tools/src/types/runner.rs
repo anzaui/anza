@@ -43,6 +43,15 @@ pub struct QueryDecl {
   pub cast: String,
 }
 
+/// Optional SEO inputs from `page('/path', { seo: { ... } })`.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct SeoDecl {
+  pub title: Option<String>,
+  pub description: Option<String>,
+  pub canonical: Option<String>,
+  pub image: Option<String>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ExtractedSpec {
   pub tag: String,
@@ -60,7 +69,11 @@ pub struct ExtractedSpec {
   pub via: Vec<String>,
   /// Parent dock name declared by a `dock`.
   pub parent: Option<String>,
+  /// Dock graph key from `dock(name, …)` (pages leave this empty).
+  pub name: Option<String>,
   pub meta: std::collections::HashMap<String, String>,
+  /// SEO metadata from `page(..., { seo })` for SSG HTML head emission.
+  pub seo: Option<SeoDecl>,
   pub file: Option<String>,
   pub html: Option<String>,
   #[serde(default)]

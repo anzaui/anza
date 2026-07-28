@@ -15,7 +15,7 @@ const SHELL = 'shell-v1';
 const API = 'api-v1';
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(precache(SHELL, ['/dist/index.html', '/dist/app.js', '/dist/tokens/index.css', '/dist/styles/index.css']));
+  e.waitUntil(precache(SHELL, ['/index.html', '/app.js', '/tokens/index.css', '/styles/index.css']));
 });
 
 self.addEventListener('activate', (e) => {
@@ -23,7 +23,7 @@ self.addEventListener('activate', (e) => {
 });
 
 const r = router();
-r.register('/dist/*', new CacheFirst(SHELL));
+r.register('/*', new CacheFirst(SHELL));
 r.register('/api/*', new NetworkFirst(API, { timeout: 3000 }));
 
 self.addEventListener('fetch', (e) => {
@@ -48,7 +48,7 @@ import '@adukiorg/anza/ui';
 import { dock } from '@adukiorg/anza/ui';
 
 // Register the Service Worker
-navigator.serviceWorker.register('/dist/sw.js');
+navigator.serviceWorker.register('/sw.js');
 
 // Layout shell
 dock('main');
@@ -57,7 +57,7 @@ dock('main');
 import './pages/index/index.js';
 ```
 
-`navigator.serviceWorker.register('/dist/sw.js')` starts the SW. The browser resolves the path relative to the page origin, so `/dist/sw.js` is correct.
+`navigator.serviceWorker.register('/sw.js')` starts the SW. The browser resolves the path relative to the page origin, so `/sw.js` is correct.
 
 ---
 

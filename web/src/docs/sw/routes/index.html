@@ -13,7 +13,7 @@
 
 <!-- Register Patterns Section -->
 <h2>Register Patterns</h2>
-<view-code language="javascript">r.register('/dist/*', new CacheFirst('shell-v1'));
+<view-code language="javascript">r.register('/*', new CacheFirst('shell-v1'));
   r.register('/api/users/:id', new NetworkFirst('api-v1'));
   r.register('*', new NetworkOnly());
 </view-code>
@@ -32,8 +32,8 @@
         <td>Every request</td>
       </tr>
       <tr>
-        <td><code>'/dist/*'</code></td>
-        <td>Any path under <code>/dist/</code></td>
+        <td><code>'/*'</code></td>
+        <td>Any path under the site root</td>
       </tr>
       <tr>
         <td><code>'/api/users/:id'</code></td>

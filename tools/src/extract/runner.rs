@@ -10,7 +10,7 @@ use swc_ecma_ast::*;
 use swc_ecma_parser::{lexer::Lexer, Parser, StringInput, Syntax};
 use swc_ecma_visit::{Visit, VisitWith};
 
-use crate::types::{ExtractedSpec, ParamDecl, PropConfig, QueryDecl};
+use crate::types::{ExtractedSpec, ParamDecl, PropConfig, QueryDecl, SeoDecl};
 
 /// Consolidated build compilation stage.
 ///
@@ -54,6 +54,13 @@ pub fn compile(
         report.copied,
         dist_dir.display()
       );
+
+      // 4. Mode A SSG — contentful HTML with open DSD for public routes.
+      //    Production only: overwrites route index.html (and dist/index.html for `/`).
+      //    Requires routes.json (step 2) and copied templates/CSS under dist/src.
+      if strict {
+        crate::build::ssg::emit(src_dir, dist_dir);
+      }
     }
     Err(diags) => {
       for d in &diags {
@@ -252,7 +259,9 @@ impl ElementVisitor {
   ///   ui.element(tag, ...) -> tag = first arg
   ///   ui.container(tag,..) -> tag = first arg
   fn capture(&mut self, kind: &str, call: &CallExpr) {
-    if call.args.len() < 2 {
+    // dock(name) is valid with only the graph key; other defs need a config object.
+    let min_args = if kind == "dock" { 1 } else { 2 };
+    if call.args.len() < min_args {
       return;
     }
 
@@ -270,21 +279,26 @@ impl ElementVisitor {
       container: None,
       via: Vec::new(),
       parent: None,
+      name: None,
       meta: HashMap::new(),
+      seo: None,
       params: Vec::new(),
       query_params: Vec::new(),
       ..Default::default()
     };
 
-    // For a page, record all route patterns; also keep `url` as the first for
-    // back-compat with single-route tooling paths.
-    if kind == "page" || kind == "dock" {
+    // Pages register URL patterns. Docks take a graph name (not a route).
+    if kind == "page" {
       spec.routes = route_strings.clone();
       spec.url = first.clone();
+    } else if kind == "dock" {
+      spec.name = first.clone();
     }
 
-    if let Expr::Object(obj_lit) = &*call.args[1].expr {
-      parse_spec_object(obj_lit, &mut spec);
+    if call.args.len() >= 2 {
+      if let Expr::Object(obj_lit) = &*call.args[1].expr {
+        parse_spec_object(obj_lit, &mut spec);
+      }
     }
 
     // A page's render target is the last container in its `via` chain unless an
@@ -398,6 +412,10 @@ fn parse_spec_object(obj: &ObjectLit, spec: &mut ExtractedSpec) {
           } else if key.sym == "meta" {
             if let Expr::Object(meta_obj) = &*kv.value {
               parse_meta(meta_obj, spec);
+            }
+          } else if key.sym == "seo" {
+            if let Expr::Object(seo_obj) = &*kv.value {
+              parse_seo(seo_obj, spec);
             }
           } else if key.sym == "params" {
             // `params: [{ name: 'slug', type: String }, ...]`
@@ -643,6 +661,29 @@ fn parse_meta(obj: &ObjectLit, spec: &mut ExtractedSpec) {
       }
     }
   }
+}
+
+/// Parses `seo: { title, description, canonical?, image? }` from page config.
+fn parse_seo(obj: &ObjectLit, spec: &mut ExtractedSpec) {
+  let mut seo = SeoDecl::default();
+  for prop in &obj.props {
+    if let PropOrSpread::Prop(p) = prop {
+      if let Prop::KeyValue(kv) = &**p {
+        if let PropName::Ident(key) = &kv.key {
+          if let Some(val) = get_string_literal(&kv.value) {
+            match key.sym.as_ref() {
+              "title" => seo.title = Some(val),
+              "description" => seo.description = Some(val),
+              "canonical" => seo.canonical = Some(val),
+              "image" => seo.image = Some(val),
+              _ => {}
+            }
+          }
+        }
+      }
+    }
+  }
+  spec.seo = Some(seo);
 }
 
 fn generate_dts_content(spec: &ExtractedSpec) -> String {

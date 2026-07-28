@@ -106,7 +106,7 @@ Returns a precached fallback page when a navigation request fails.
 ```javascript
 import { OfflineFallback } from '@adukiorg/anza/sw';
 
-const strategy = new OfflineFallback('/dist/offline.html');
+const strategy = new OfflineFallback('/offline.html');
 ```
 
 Only applies to `mode === 'navigate'` requests. Non-navigation errors pass through unchanged.

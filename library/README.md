@@ -131,11 +131,12 @@ Proxy-based reactivity. Batched updates. Cross-tab sync via `BroadcastChannel`. 
 ```javascript
 import { theme } from '@adukiorg/anza/theme';
 
-theme.toggle();        // light ↔ dark
-theme.set('contrast'); // high-contrast mode
+theme.toggle();              // light ↔ dark
+theme.set('high-contrast');  // high-contrast mode
+theme.resolved();            // effective theme (resolves auto)
 ```
 
-No init call needed. It auto-restores from `localStorage` on import. Respects `prefers-color-scheme` if no saved preference exists. Attaches to `window.theme` for devtools access.
+No init call needed. It auto-restores from `localStorage` (`anza-theme`) on import. Sets `data-theme` on `<html>`. Respects `prefers-color-scheme` if no saved preference exists. Attaches to `window.theme` for devtools access.
 
 ---
 

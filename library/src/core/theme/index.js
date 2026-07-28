@@ -33,7 +33,7 @@ function restore() {
 }
 
 export const theme = {
-  /** Return the active theme name: light, dark, contrast, or auto. */
+  /** Return the active theme name: light, dark, high-contrast, or auto. */
   get() {
     const attr = root().dataset.theme;
     if (attr) return attr;
@@ -53,13 +53,19 @@ export const theme = {
     } catch (_) {}
   },
 
-  /** Toggle between light and dark. */
-  toggle() {
+  /** Return the effective theme: light, dark, or high-contrast. Resolves auto via OS preference. */
+  resolved() {
     const current = this.get();
+    if (current !== 'auto') return current;
     const prefersDark =
       typeof window !== 'undefined' &&
       window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const resolved = current === 'auto' ? (prefersDark ? 'dark' : 'light') : current;
+    return prefersDark ? 'dark' : 'light';
+  },
+
+  /** Toggle between light and dark. */
+  toggle() {
+    const resolved = this.resolved();
     this.set(resolved === 'dark' ? 'light' : 'dark');
   }
 };

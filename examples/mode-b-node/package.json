@@ -1,0 +1,9 @@
+{
+  "name": "mode-b-node",
+  "private": true,
+  "type": "module",
+  "description": "Mode B example: plain Node http server for Anza dist/ (no Anza runtime)",
+  "scripts": {
+    "start": "node serve.js --dist ../../web/dist --port 8782"
+  }
+}

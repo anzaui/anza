@@ -45,24 +45,6 @@
     </nav>
 
     <div class="header-actions">
-      <button class="search-btn" aria-label="Search documentation">
-        <svg
-          width="13"
-          height="13"
-          viewBox="0 0 14 14"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.7"
-          stroke-linecap="round"
-          aria-hidden="true"
-        >
-          <circle cx="6" cy="6" r="4.5" />
-          <path d="M9.5 9.5L12.5 12.5" />
-        </svg>
-        <span class="search-hint">Search</span>
-        <kbd>⌘K</kbd>
-      </button>
-
       <button
         class="theme-toggle"
         id="themeToggle"
@@ -144,6 +126,7 @@
           <a href="/docs/intro/index" class="active">Introduction</a>
           <a href="/docs/intro/install">Installation</a>
           <a href="/docs/intro/start">Quick Start</a>
+          <a href="/docs/intro/build">Build</a>
           <a href="/docs/intro/structure">Folder Structure</a>
         </div>
       </details>
@@ -152,7 +135,7 @@
 
       <details class="sidebar-group" open>
         <summary class="sidebar-group-header">
-          <h3>UI Core</h3>
+          <h3>UI</h3>
           <svg
             class="group-chevron"
             viewBox="0 0 16 16"
@@ -172,14 +155,17 @@
           <a href="/docs/ui/elements">Elements</a>
           <a href="/docs/ui/props">Props</a>
           <a href="/docs/ui/templates">Templates</a>
-          <a href="/docs/ui/styles">Styles</a>
+          <a href="/docs/styles/index">Styles</a>
+          <a href="/docs/styles/tokens">Tokens</a>
           <a href="/docs/ui/lifecycle">Lifecycle</a>
           <a href="/docs/ui/context">Context</a>
           <a href="/docs/ui/scheduling">Scheduling</a>
           <a href="/docs/ui/observers">Observers</a>
           <a href="/docs/ui/transitions">Transitions</a>
           <a href="/docs/ui/forms">Forms</a>
+          <a href="/docs/ui/advanced">Advanced</a>
           <a href="/docs/ui/api">API Reference</a>
+          <a href="/docs/ui/troubleshooting">Troubleshooting</a>
         </div>
       </details>
 
@@ -208,12 +194,17 @@
           <a href="/docs/router/handlers">Handlers</a>
           <a href="/docs/router/guards">Guards</a>
           <a href="/docs/router/navigation">Navigation</a>
-          <a href="/docs/router/docks">Docks</a>
           <a href="/docs/router/containers">Containers</a>
+          <a href="/docs/router/pages">Pages</a>
+          <a href="/docs/router/docks">Docks</a>
+          <a href="/docs/router/components">Components</a>
+          <a href="/docs/router/events">Events</a>
           <a href="/docs/router/transitions">Transitions</a>
           <a href="/docs/router/cache">Cache</a>
           <a href="/docs/router/sync">Sync</a>
+          <a href="/docs/router/advanced">Advanced</a>
           <a href="/docs/router/api">API Reference</a>
+          <a href="/docs/router/troubleshooting">Troubleshooting</a>
         </div>
       </details>
 
@@ -239,7 +230,169 @@
           <a href="/docs/state/index">Overview</a>
           <a href="/docs/state/quickstart">Quickstart</a>
           <a href="/docs/state/store">Store</a>
+          <a href="/docs/state/derived">Derived</a>
+          <a href="/docs/state/persist">Persist</a>
+          <a href="/docs/state/sync">Sync</a>
           <a href="/docs/state/api">API Reference</a>
+          <a href="/docs/state/troubleshooting">Troubleshooting</a>
+        </div>
+      </details>
+
+      <div class="sidebar-divider"></div>
+
+      <details class="sidebar-group" open>
+        <summary class="sidebar-group-header">
+          <h3>Service Worker</h3>
+          <svg
+            class="group-chevron"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 4l4 4-4 4" />
+          </svg>
+        </summary>
+        <div class="sidebar-group-links">
+          <a href="/docs/sw/index">Overview</a>
+          <a href="/docs/sw/start">Getting Started</a>
+          <a href="/docs/sw/strategies">Strategies</a>
+          <a href="/docs/sw/routes">Routes</a>
+          <a href="/docs/sw/sync">Sync</a>
+          <a href="/docs/sw/api">API Reference</a>
+        </div>
+      </details>
+
+      <div class="sidebar-divider"></div>
+
+      <details class="sidebar-group" open>
+        <summary class="sidebar-group-header">
+          <h3>API</h3>
+          <svg
+            class="group-chevron"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 4l4 4-4 4" />
+          </svg>
+        </summary>
+        <div class="sidebar-group-links">
+          <a href="/docs/api/index">Overview</a>
+          <a href="/docs/api/quickstart">Quickstart</a>
+          <a href="/docs/api/requests">Requests</a>
+          <a href="/docs/api/caching">Caching</a>
+          <a href="/docs/api/streaming">Streaming</a>
+          <a href="/docs/api/uploads">Uploads</a>
+          <a href="/docs/api/events">Events</a>
+          <a href="/docs/api/errors">Errors</a>
+          <a href="/docs/api/pipeline">Pipeline</a>
+          <a href="/docs/api/prefixes">Prefixes</a>
+          <a href="/docs/api/advanced">Advanced</a>
+          <a href="/docs/api/api">API Reference</a>
+          <a href="/docs/api/troubleshooting">Troubleshooting</a>
+        </div>
+      </details>
+
+      <div class="sidebar-divider"></div>
+
+      <details class="sidebar-group" open>
+        <summary class="sidebar-group-header">
+          <h3>Events</h3>
+          <svg
+            class="group-chevron"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 4l4 4-4 4" />
+          </svg>
+        </summary>
+        <div class="sidebar-group-links">
+          <a href="/docs/events/index">Overview</a>
+          <a href="/docs/events/quickstart">Quickstart</a>
+          <a href="/docs/events/listen">Listen</a>
+          <a href="/docs/events/bus">Bus</a>
+          <a href="/docs/events/delegate">Delegate</a>
+          <a href="/docs/events/once">Once</a>
+          <a href="/docs/events/names">Names</a>
+          <a href="/docs/events/api">API Reference</a>
+          <a href="/docs/events/troubleshooting">Troubleshooting</a>
+        </div>
+      </details>
+
+      <div class="sidebar-divider"></div>
+
+      <details class="sidebar-group" open>
+        <summary class="sidebar-group-header">
+          <h3>Storage</h3>
+          <svg
+            class="group-chevron"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 4l4 4-4 4" />
+          </svg>
+        </summary>
+        <div class="sidebar-group-links">
+          <a href="/docs/storage/index">Overview</a>
+          <a href="/docs/storage/quickstart">Quickstart</a>
+          <a href="/docs/storage/idb">IndexedDB</a>
+          <a href="/docs/storage/opfs">OPFS</a>
+          <a href="/docs/storage/cache">Cache</a>
+          <a href="/docs/storage/lru">LRU</a>
+          <a href="/docs/storage/tiers">Tiers</a>
+          <a href="/docs/storage/quota">Quota</a>
+          <a href="/docs/storage/api">API Reference</a>
+          <a href="/docs/storage/troubleshooting">Troubleshooting</a>
+        </div>
+      </details>
+
+      <div class="sidebar-divider"></div>
+
+      <details class="sidebar-group" open>
+        <summary class="sidebar-group-header">
+          <h3>Animations</h3>
+          <svg
+            class="group-chevron"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 4l4 4-4 4" />
+          </svg>
+        </summary>
+        <div class="sidebar-group-links">
+          <a href="/docs/animations/index">Overview</a>
+          <a href="/docs/animations/quickstart">Quickstart</a>
+          <a href="/docs/animations/animate">Animate</a>
+          <a href="/docs/animations/sequence">Sequence</a>
+          <a href="/docs/animations/stagger">Stagger</a>
+          <a href="/docs/animations/scroll">Scroll</a>
+          <a href="/docs/animations/registry">Registry</a>
+          <a href="/docs/animations/tokens">Tokens</a>
+          <a href="/docs/animations/api">API Reference</a>
+          <a href="/docs/animations/troubleshooting">Troubleshooting</a>
         </div>
       </details>
 
@@ -264,8 +417,73 @@
         <div class="sidebar-group-links">
           <a href="/docs/workers/index">Overview</a>
           <a href="/docs/workers/quickstart">Quickstart</a>
+          <a href="/docs/workers/dedicated">Dedicated</a>
+          <a href="/docs/workers/shared">Shared</a>
+          <a href="/docs/workers/offscreen">Offscreen</a>
+          <a href="/docs/workers/broadcast">Broadcast</a>
+          <a href="/docs/workers/locks">Locks</a>
           <a href="/docs/workers/pool">Pool</a>
           <a href="/docs/workers/api">API Reference</a>
+          <a href="/docs/workers/troubleshooting">Troubleshooting</a>
+        </div>
+      </details>
+
+      <div class="sidebar-divider"></div>
+
+      <details class="sidebar-group" open>
+        <summary class="sidebar-group-header">
+          <h3>Security</h3>
+          <svg
+            class="group-chevron"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 4l4 4-4 4" />
+          </svg>
+        </summary>
+        <div class="sidebar-group-links">
+          <a href="/docs/security/index">Overview</a>
+          <a href="/docs/security/quickstart">Quickstart</a>
+          <a href="/docs/security/crypto">Crypto</a>
+          <a href="/docs/security/sanitize">Sanitize</a>
+          <a href="/docs/security/permissions">Permissions</a>
+          <a href="/docs/security/seal">Seal</a>
+          <a href="/docs/security/api">API Reference</a>
+          <a href="/docs/security/troubleshooting">Troubleshooting</a>
+        </div>
+      </details>
+
+      <div class="sidebar-divider"></div>
+
+      <details class="sidebar-group" open>
+        <summary class="sidebar-group-header">
+          <h3>Platform</h3>
+          <svg
+            class="group-chevron"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 4l4 4-4 4" />
+          </svg>
+        </summary>
+        <div class="sidebar-group-links">
+          <a href="/docs/platform/index">Overview</a>
+          <a href="/docs/platform/quickstart">Quickstart</a>
+          <a href="/docs/platform/supports">Supports</a>
+          <a href="/docs/platform/guards">Guards</a>
+          <a href="/docs/platform/scheduler">Scheduler</a>
+          <a href="/docs/platform/api">API Reference</a>
+          <a href="/docs/platform/troubleshooting">Troubleshooting</a>
         </div>
       </details>
     </nav>

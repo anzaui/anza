@@ -98,7 +98,7 @@
   import '@adukiorg/anza/ui';
   import { dock } from '@adukiorg/anza/ui';
 
-  navigator.serviceWorker.register('/dist/sw.js');
+  navigator.serviceWorker.register('/sw.js');
 
   dock('main');
 
@@ -113,9 +113,9 @@
 <h3><code>src/index.html</code></h3>
 <view-code language="html">
   &lt;script type=&quot;importmap&quot; src=&quot;/importmap.json&quot;&gt;&lt;/script&gt;
-  &lt;link rel=&quot;stylesheet&quot; href=&quot;/dist/tokens/index.css&quot;&gt;
-  &lt;link rel=&quot;stylesheet&quot; href=&quot;/dist/styles/index.css&quot;&gt;
-  &lt;script type=&quot;module&quot; src=&quot;/dist/app.js&quot;&gt;&lt;/script&gt;
+  &lt;link rel=&quot;stylesheet&quot; href=&quot;/tokens/index.css&quot;&gt;
+  &lt;link rel=&quot;stylesheet&quot; href=&quot;/styles/index.css&quot;&gt;
+  &lt;script type=&quot;module&quot; src=&quot;/app.js&quot;&gt;&lt;/script&gt;
 </view-code>
 <p>
   The shell loads the importmap, design tokens, global styles, and the app entry. The CLI injects the HMR script in dev
@@ -132,8 +132,8 @@
   const API = 'api-v1';
 
   self.addEventListener('install', (e) =&gt; {
-    e.waitUntil(precache(SHELL, ['/dist/index.html', '/dist/app.js', '/dist/tokens/index.css',
-    '/dist/styles/index.css']));
+    e.waitUntil(precache(SHELL, ['/index.html', '/app.js', '/tokens/index.css',
+    '/styles/index.css']));
   });
 
   self.addEventListener('activate', (e) =&gt; {
@@ -141,7 +141,7 @@
   });
 
   const r = router();
-  r.register('/dist/*', new CacheFirst(SHELL));
+  r.register('/*', new CacheFirst(SHELL));
   r.register('/api/*', new NetworkFirst(API, { timeout: 3000 }));
 
   self.addEventListener('fetch', (e) =&gt; {

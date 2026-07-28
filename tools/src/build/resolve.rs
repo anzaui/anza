@@ -35,13 +35,14 @@ pub fn spec(
     if target.starts_with("http://") || target.starts_with("https://") || target.starts_with("data:") {
       return Resolution::External;
     }
-    if let Some(stripped) = target.strip_prefix("/dist/") {
-      let res = finalize(src.join(stripped));
+    // Site-root (`/app.js`) or legacy (`/dist/app.js`) → resolve under src / lib_src.
+    if let Some(rel) = asset_rel(target) {
+      let res = finalize(src.join(rel));
       if !matches!(res, Resolution::Missing) {
         return res;
       }
       if let Some(ref src_dir) = lib_src {
-        let res = finalize(src_dir.join(stripped));
+        let res = finalize(src_dir.join(rel));
         if !matches!(res, Resolution::Missing) {
           return res;
         }
@@ -61,13 +62,21 @@ pub fn spec(
       return Resolution::External;
     }
     if let Some(ref src_dir) = lib_src {
-      let rel = target.strip_prefix("/dist/").unwrap_or(target);
+      let rel = asset_rel(target).unwrap_or(target);
       let path = src_dir.join(rel);
       return finalize(path);
     }
   }
 
   Resolution::Missing
+}
+
+/// Strip a site-root or legacy `/dist/` prefix from an importmap target.
+/// Returns the path relative to the dist/document root (e.g. `core/ui/index.js`).
+fn asset_rel(target: &str) -> Option<&str> {
+  target
+    .strip_prefix("/dist/")
+    .or_else(|| target.strip_prefix('/'))
 }
 
 fn finalize(candidate: PathBuf) -> Resolution {
@@ -196,8 +205,8 @@ mod tests {
           <script type="importmap">
             {
               "imports": {
-                "@adukiorg/anza": "/dist/index.js",
-                "@adukiorg/anza/ui": "/dist/core/ui/index.js"
+                "@adukiorg/anza": "/index.js",
+                "@adukiorg/anza/ui": "/core/ui/index.js"
               }
             }
           </script>
@@ -207,8 +216,8 @@ mod tests {
     fs::write(src.join("index.html"), html).unwrap();
 
     let map = load_map(&dir);
-    assert_eq!(map.get("@adukiorg/anza").unwrap(), "/dist/index.js");
-    assert_eq!(map.get("@adukiorg/anza/ui").unwrap(), "/dist/core/ui/index.js");
+    assert_eq!(map.get("@adukiorg/anza").unwrap(), "/index.js");
+    assert_eq!(map.get("@adukiorg/anza/ui").unwrap(), "/core/ui/index.js");
 
     fs::remove_dir_all(&dir).ok();
   }
@@ -222,8 +231,8 @@ mod tests {
     fs::write(src.join("user.js"), "console.log('user');").unwrap();
 
     let mut user = HashMap::new();
-    user.insert("@adukiorg/anza/ui".to_string(), "/dist/core/ui/index.js".to_string());
-    user.insert("my-comp".to_string(), "/dist/user.js".to_string());
+    user.insert("@adukiorg/anza/ui".to_string(), "/core/ui/index.js".to_string());
+    user.insert("my-comp".to_string(), "/user.js".to_string());
 
     let lib = HashMap::new();
     let lib_src = std::env::temp_dir().join("anza-lib-src");
@@ -243,6 +252,42 @@ mod tests {
       assert_eq!(p, lib_src.join("core").join("ui").join("index.js"));
     } else {
       panic!("Expected Resolution::File");
+    }
+
+    fs::remove_dir_all(&dir).ok();
+    fs::remove_dir_all(&lib_src).ok();
+  }
+
+  #[test]
+  fn test_spec_legacy_dist_prefix() {
+    let dir = std::env::temp_dir().join("anza-legacy-dist-project");
+    let src = dir.join("src");
+    fs::create_dir_all(&src).ok();
+    fs::write(src.join("user.js"), "console.log('user');").unwrap();
+
+    let mut user = HashMap::new();
+    user.insert("my-comp".to_string(), "/dist/user.js".to_string());
+
+    let lib = HashMap::new();
+    let lib_src = std::env::temp_dir().join("anza-legacy-lib-src");
+    fs::create_dir_all(lib_src.join("core").join("ui")).ok();
+    fs::write(lib_src.join("core").join("ui").join("index.js"), "console.log('ui');").unwrap();
+
+    let mut lib_map = HashMap::new();
+    lib_map.insert("@adukiorg/anza/ui".to_string(), "/dist/core/ui/index.js".to_string());
+
+    let res1 = spec("my-comp", &src, &src, &dir, &user, &lib, &Some(lib_src.clone()));
+    if let Resolution::File(p, _) = res1 {
+      assert_eq!(p, src.join("user.js"));
+    } else {
+      panic!("Expected Resolution::File for legacy /dist/ user target");
+    }
+
+    let res2 = spec("@adukiorg/anza/ui", &src, &src, &dir, &user, &lib_map, &Some(lib_src.clone()));
+    if let Resolution::File(p, _) = res2 {
+      assert_eq!(p, lib_src.join("core").join("ui").join("index.js"));
+    } else {
+      panic!("Expected Resolution::File for legacy /dist/ library target");
     }
 
     fs::remove_dir_all(&dir).ok();

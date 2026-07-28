@@ -12,6 +12,7 @@ pub mod graph;
 pub mod html;
 pub mod parse;
 pub mod resolve;
+pub mod ssg;
 pub mod sw;
 pub mod transform;
 

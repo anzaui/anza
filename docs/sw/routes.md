@@ -19,7 +19,7 @@ const r = router();
 ## Register Patterns
 
 ```javascript
-r.register('/dist/*', new CacheFirst('shell-v1'));
+r.register('/*', new CacheFirst('shell-v1'));
 r.register('/api/users/:id', new NetworkFirst('api-v1'));
 r.register('*', new NetworkOnly());
 ```
@@ -29,7 +29,7 @@ Patterns are matched in order. The first match wins and `event.respondWith()` is
 | Pattern | Matches |
 | ------ | ------- |
 | `'*'` | Every request |
-| `'/dist/*'` | Any path under `/dist/` |
+| `'/*'` | Any path under the site root |
 | `'/api/users/:id'` | `/api/users/42`, `/api/users/abc` |
 | `{ pathname: '/items/:id', search: '?tab=*' }` | Object patterns forwarded to `URLPattern` |
 

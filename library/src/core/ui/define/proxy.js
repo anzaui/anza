@@ -221,6 +221,17 @@ export function prewarmTags(tags, refs, descriptor) {
   }
 }
 
+/**
+ * Warm TagsCache from a live (adopted) shadow tree when no compile-time
+ * descriptor is available — walks `[id]` nodes already in the DSD markup.
+ */
+export function rehydrateTagsFromDom(tags, shadowRoot) {
+  if (!shadowRoot?.querySelectorAll) return;
+  for (const el of shadowRoot.querySelectorAll('[id]')) {
+    if (el.id) tags.prewarmId(el.id);
+  }
+}
+
 export function installInvalidationHooks(shadowRoot, tags) {
   // Use a simple, native MutationObserver to clear tags cache when children change (R-07)
   const observer = new MutationObserver(() => {
@@ -624,14 +635,19 @@ function callWatchHandler(records, reg) {
   }
 }
 
-export function createComponentContext({ el, shadowRoot, ctrl, descriptor, internals }) {
+export function createComponentContext({ el, shadowRoot, ctrl, descriptor, internals, adopted = false }) {
   const tags = new TagsCache(shadowRoot);
+  // createRefs walks existing `[ref]` nodes — works for CSR clones and adopted DSD alike.
   const refs = createRefs(shadowRoot, descriptor);
+  // on / watch bind to the live shadowRoot; AbortSignal cleanup still via ctrl.signal.
   const on = createEventDelegator(shadowRoot, ctrl?.signal);
   const watch = createMutationWatcher(shadowRoot, ctrl?.signal);
   const disposeInvalidationHooks = installInvalidationHooks(shadowRoot, tags);
 
   prewarmTags(tags, refs, descriptor);
+  if (adopted) {
+    rehydrateTagsFromDom(tags, shadowRoot);
+  }
   ctrl?.signal?.addEventListener('abort', disposeInvalidationHooks, { once: true });
 
   return Object.freeze({
@@ -641,6 +657,8 @@ export function createComponentContext({ el, shadowRoot, ctrl, descriptor, inter
     on,
     refs,
     watch,
-    internals
+    internals,
+    /** True when this mount adopted a pre-existing open shadow (DSD / SSR). */
+    adopted: Boolean(adopted)
   });
 }

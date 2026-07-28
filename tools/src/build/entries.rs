@@ -29,6 +29,7 @@ pub fn collect(src: &Path, entries: &[PathBuf]) -> Vec<PathBuf> {
         if spec.starts_with("./") || spec.starts_with("../") || spec.starts_with('/') {
           let dir = path.parent().unwrap_or(src);
           let resolved = if let Some(stripped) = spec.strip_prefix("/dist/") {
+            // Legacy /dist/ prefix (pre Phase 0); treat as site-root.
             src.join(stripped)
           } else if let Some(stripped) = spec.strip_prefix('/') {
             src.join(stripped)
@@ -44,6 +45,7 @@ pub fn collect(src: &Path, entries: &[PathBuf]) -> Vec<PathBuf> {
         if spec.starts_with("./") || spec.starts_with("../") || spec.starts_with('/') {
           let dir = path.parent().unwrap_or(src);
           let resolved = if let Some(stripped) = spec.strip_prefix("/dist/") {
+            // Legacy /dist/ prefix (pre Phase 0); treat as site-root.
             src.join(stripped)
           } else if let Some(stripped) = spec.strip_prefix('/') {
             src.join(stripped)

@@ -52,8 +52,8 @@ import { page, dock, view } from '@adukiorg/anza/ui';
   <head>
     <meta charset="utf-8">
     <title>Hello</title>
-    <link rel="stylesheet" href="/dist/tokens/index.css">
-    <script type="module" src="/dist/app.js"></script>
+    <link rel="stylesheet" href="/tokens/index.css">
+    <script type="module" src="/app.js"></script>
   </head>
   <body></body>
 </html>

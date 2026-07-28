@@ -7,7 +7,7 @@ const SHELL = 'shell-v1';
 const API = 'api-v1';
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(precache(SHELL, ['/dist/index.html', '/dist/app.js', '/dist/tokens/index.css', '/dist/styles/index.css']));
+  e.waitUntil(precache(SHELL, ['/index.html', '/app.js', '/tokens/index.css', '/styles/index.css']));
 });
 
 self.addEventListener('activate', (e) => {
@@ -15,7 +15,7 @@ self.addEventListener('activate', (e) => {
 });
 
 const r = router();
-r.register('/dist/*', new CacheFirst(SHELL));
+r.register('/*', new CacheFirst(SHELL));
 r.register('/api/*', new NetworkFirst(API, { timeout: 3000 }));
 
 self.addEventListener('fetch', (e) => {

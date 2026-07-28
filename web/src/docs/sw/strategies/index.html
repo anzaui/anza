@@ -117,7 +117,7 @@
 <p>Returns a precached fallback page when a navigation request fails.</p>
 <view-code language="javascript">import { OfflineFallback } from '@adukiorg/anza/sw';
 
-  const strategy = new OfflineFallback('/dist/offline.html');
+  const strategy = new OfflineFallback('/offline.html');
 </view-code>
 <p>Only applies to <code>mode === 'navigate'</code> requests. Non-navigation errors pass through unchanged.</p>
 

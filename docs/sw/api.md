@@ -86,7 +86,7 @@ Returns `true` if a route matched and `event.respondWith()` was called. Returns 
 Pre-caches an array of URLs during the `install` event.
 
 ```javascript
-await precache('shell-v1', ['/dist/index.html', '/dist/app.js']);
+await precache('shell-v1', ['/index.html', '/app.js']);
 ```
 
 ### `prefetchFallback(fallbackUrl)`
@@ -94,7 +94,7 @@ await precache('shell-v1', ['/dist/index.html', '/dist/app.js']);
 Pre-caches a single fallback page into a dedicated cache.
 
 ```javascript
-await prefetchFallback('/dist/offline.html');
+await prefetchFallback('/offline.html');
 ```
 
 ### `pruneStale(currentCacheName)`

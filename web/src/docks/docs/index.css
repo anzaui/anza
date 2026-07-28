@@ -113,41 +113,6 @@ html[data-theme="dark"] .docs-header {
   flex-shrink: 0;
 }
 
-/* ─── Search ──────────────────────────────────────── */
-.search-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-ui);
-  font-size: 13px;
-  color: var(--nav-color);
-  background: color-mix(in oklch, var(--text-color) 6%, transparent);
-  border: 1px solid color-mix(in oklch, var(--text-color) 12%, transparent);
-  border-radius: 8px;
-  padding: 5px 10px;
-  cursor: pointer;
-  transition: border-color 120ms, color 120ms;
-}
-html[data-theme="dark"] .search-btn {
-  border-color: var(--border);
-  background: color-mix(in oklch, var(--accent-color) 4%, transparent);
-}
-.search-btn:hover {
-  color: var(--title-color);
-  border-color: color-mix(in oklch, var(--text-color) 22%, transparent);
-}
-
-kbd {
-  font-family: var(--font-ui);
-  font-size: 11px;
-  background: color-mix(in oklch, var(--text-color) 9%, transparent);
-  border: 1px solid color-mix(in oklch, var(--text-color) 16%, transparent);
-  border-radius: 4px;
-  padding: 1px 5px;
-  color: var(--label-color);
-  line-height: 1.6;
-}
-
 /* ─── Orbital theme toggle ────────────────────────── */
 .theme-toggle {
   background: none;
@@ -268,9 +233,7 @@ button.mobile-menu-btn[aria-expanded="true"] .hamburger span:nth-child(2) {
 
 /* ─── Responsive ──────────────────────────────────── */
 @media (max-width: 600px) {
-  .header-nav,
-  .search-hint,
-  kbd { display: none; }
+  .header-nav { display: none; }
 
   .header-inner {
     width: 100%;
@@ -290,7 +253,6 @@ button.mobile-menu-btn[aria-expanded="true"] .hamburger span:nth-child(2) {
     flex-shrink: 0;
   }
 
-  .search-btn { padding: 6px 8px; }
   .mobile-menu-btn { display: flex; }
 
   /* ─── Mobile sidebar drawer ─────────────────────── */
@@ -337,10 +299,6 @@ button.mobile-menu-btn[aria-expanded="true"] .hamburger span:nth-child(2) {
   aside.docs-sidebar-right {
     display: none;
   }
-}
-
-@media (max-width: 380px) {
-  .search-btn { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

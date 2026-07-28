@@ -1,8 +1,14 @@
 import { BaseElement } from '../base.js';
 import { scheduleFrame, yieldTask } from '../schedule.js';
 import { router } from '../../router/index.js';
-import { specRegistry, internalsMap, initializedMap, pendingUpdatesMap, updateScheduledMap, assetCache } from './state.js';
-import { preloadResources, createTemplateFragment } from './utils.js';
+import {
+  specRegistry, internalsMap, initializedMap, pendingUpdatesMap,
+  updateScheduledMap, assetCache, adoptedMap, hydrationFallbackMap
+} from './state.js';
+import {
+  preloadResources, createTemplateFragment,
+  findDsdTemplate, hasHydrationMismatch, replaceShadowTemplate
+} from './utils.js';
 import { createComponentContext } from './proxy.js';
 
 // Platform lifecycle method names that must never be overridden by spec.methods.
@@ -179,8 +185,26 @@ export function element(tag, spec, base) {
 
     constructor() {
       super();
-      this.attachShadow({ mode: spec.mode || 'open' });
-      
+      // Adopt existing open DSD shadow when present; otherwise CSR attach.
+      // Also consume a lingering light-DOM <template shadowrootmode> (polyfill path).
+      // See plans/PHASE-II.md §2 / SSG-SEO Phase 2 — never wipe pre-rendered trees.
+      let adopted = Boolean(this.shadowRoot);
+      let shadowRoot = this.shadowRoot;
+      if (!shadowRoot) {
+        const dsdTpl = findDsdTemplate(this);
+        const mode = dsdTpl?.getAttribute('shadowrootmode') || spec.mode || 'open';
+        shadowRoot = this.attachShadow({ mode });
+        if (dsdTpl) {
+          shadowRoot.appendChild(dsdTpl.content);
+          dsdTpl.remove();
+          adopted = true;
+        }
+      }
+      adoptedMap.set(this, adopted);
+      if (!shadowRoot) {
+        throw new Error(`[Native UI] Failed to attach shadow root for <${tag}>`);
+      }
+
       initializedMap.set(this, false);
       pendingUpdatesMap.set(this, new Map());
       updateScheduledMap.set(this, false);
@@ -195,7 +219,7 @@ export function element(tag, spec, base) {
         internalsMap.set(this, internals);
       }
 
-      // Initialize default properties backing store dynamically (R-01)
+      // Attr → prop sync for SSG/server initial attributes (PHASE-II §3)
       if (spec.props) {
         for (const [key, config] of Object.entries(spec.props)) {
           const sym = store[key];
@@ -240,26 +264,46 @@ export function element(tag, spec, base) {
         }
       }
 
-      if (templateNode && this.shadowRoot.childNodes.length === 0) {
-        this.shadowRoot.appendChild(templateNode.cloneNode(true));
+      const adopted = adoptedMap.get(this) === true;
+      const root = this.shadowRoot;
+
+      if (templateNode) {
+        if (!adopted) {
+          // CSR: empty root — clone client template
+          if (root.childNodes.length === 0) {
+            root.appendChild(templateNode.cloneNode(true));
+          }
+        } else if (
+          hasHydrationMismatch(root, templateNode, tagsDescriptor) &&
+          !hydrationFallbackMap.get(this)
+        ) {
+          // Hard mismatch vs client template: one graceful re-render, no flash loop
+          hydrationFallbackMap.set(this, true);
+          replaceShadowTemplate(root, templateNode);
+        }
+        // else adopted + matching: keep DSD markup; do NOT clone over it
       }
 
       if (stylesheets && stylesheets.length > 0) {
-        // Constructable stylesheets path
-        this.shadowRoot.adoptedStyleSheets = stylesheets;
+        // Constructable sheets do not wipe existing DSD nodes
+        root.adoptedStyleSheets = stylesheets;
       } else if (cssText) {
-        // Fallback: inject <style> for browsers without adoptedStyleSheets
-        const style = document.createElement('style');
-        style.textContent = cssText;
-        this.shadowRoot.prepend(style);
+        // Fallback <style>: skip if DSD already shipped encapsulated styles
+        if (!adopted || !root.querySelector('style')) {
+          const style = document.createElement('style');
+          style.textContent = cssText;
+          root.prepend(style);
+        }
       }
-      
+
+      // Rehydrate refs / tags / on / watch against existing (or freshly cloned) DOM
       const context = createComponentContext({
         el: this,
-        shadowRoot: this.shadowRoot,
+        shadowRoot: root,
         ctrl: this.ctrl,
         descriptor: tagsDescriptor,
-        internals: internalsMap.get(this)
+        internals: internalsMap.get(this),
+        adopted
       });
 
       this._ctx = context;
@@ -340,7 +384,8 @@ export function element(tag, spec, base) {
         shadowRoot: this.shadowRoot,
         ctrl: this.ctrl,
         descriptor: tagsDescriptor,
-        internals: internalsMap.get(this)
+        internals: internalsMap.get(this),
+        adopted: false
       });
       this._ctx = context;
       this._tags = context.tags;

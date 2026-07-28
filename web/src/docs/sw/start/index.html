@@ -12,8 +12,8 @@
   const API = 'api-v1';
 
   self.addEventListener('install', (e) =&gt; {
-  e.waitUntil(precache(SHELL, ['/dist/index.html', '/dist/app.js', '/dist/tokens/index.css',
-  '/dist/styles/index.css']));
+  e.waitUntil(precache(SHELL, ['/index.html', '/app.js', '/tokens/index.css',
+  '/styles/index.css']));
   });
 
   self.addEventListener('activate', (e) =&gt; {
@@ -21,7 +21,7 @@
   });
 
   const r = router();
-  r.register('/dist/*', new CacheFirst(SHELL));
+  r.register('/*', new CacheFirst(SHELL));
   r.register('/api/*', new NetworkFirst(API, { timeout: 3000 }));
 
   self.addEventListener('fetch', (e) =&gt; {
@@ -44,7 +44,7 @@
   import { dock } from '@adukiorg/anza/ui';
 
   // Register the Service Worker
-  navigator.serviceWorker.register('/dist/sw.js');
+  navigator.serviceWorker.register('/sw.js');
 
   // Layout shell
   dock('main');
@@ -52,8 +52,8 @@
   // Pages
   import './pages/index/index.js';
 </view-code>
-<p><code>navigator.serviceWorker.register('/dist/sw.js')</code> starts the SW. The browser resolves the path relative to
-  the page origin, so <code>/dist/sw.js</code> is correct.</p>
+<p><code>navigator.serviceWorker.register('/sw.js')</code> starts the SW. The browser resolves the path relative to
+  the page origin, so <code>/sw.js</code> is correct.</p>
 
 <!-- Send Messages Section -->
 <h2>3. Send Messages from the Main Thread</h2>

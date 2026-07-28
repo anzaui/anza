@@ -4,8 +4,43 @@ import { specRegistry } from './state.js';
 let dispose = null; // One-word module-level disposer variable (RT-11)
 
 /**
+ * Find an already-mounted page leaf inside a dock/container.
+ *
+ * Soft-nav marks leaves with `.page-content`. SSG / Mode B HTML ships the same
+ * custom tag without that class — prefer the class when present, else match by tag
+ * so boot/`direction: 'load'` adopts pre-rendered DSD instead of wiping it.
+ *
+ * @param {Element} containerEl
+ * @param {string} topTag
+ * @returns {Element|null}
+ */
+function findMountedPage(containerEl, topTag) {
+  const want = topTag.toLowerCase();
+  const byClass = containerEl.querySelector('.page-content');
+  if (byClass && byClass.tagName.toLowerCase() === want) return byClass;
+
+  for (const child of containerEl.children) {
+    if (child.tagName.toLowerCase() === want) return child;
+  }
+
+  try {
+    const nested = containerEl.querySelector(want);
+    if (nested) return nested;
+  } catch (_) {
+    // Invalid tag selector — ignore.
+  }
+  return null;
+}
+
+/**
  * Initializes the global routing orchestrator.
  * Listens for navigation found events and dynamically updates layout containers.
+ *
+ * Contract (SSG-SEO Phase 2 — Client navigations):
+ * - Full load / hard refresh: SSG (or Mode B) HTML is already in the document;
+ *   reuse a matching leaf tag (adopt DSD) — do not blank-flash by recreating it.
+ * - Soft-nav to a different leaf: createElement + swapView/replaceChildren (CSR
+ *   mount of the new page). Parent docks stay mounted with their adopted trees.
  */
 export function initOrchestrator() {
   if (typeof window !== 'undefined') {
@@ -85,16 +120,18 @@ export function initOrchestrator() {
         props.hash = hash;
       }
 
-      // Layout-preserving diffing: Sync parameters reactively if the element is already mounted
-      const currentChild = containerEl.querySelector('.page-content');
-      if (currentChild && currentChild.tagName.toLowerCase() === topTag.toLowerCase()) {
+      // Same leaf already in the dock (SSG adopt on load, or soft-nav param update):
+      // keep the instance — never swapView/replaceChildren over adopted DSD.
+      const currentChild = findMountedPage(containerEl, topTag);
+      if (currentChild) {
+        currentChild.classList.add('page-content');
         for (const [key, value] of Object.entries(props)) {
           currentChild[key] = value;
         }
         return;
       }
 
-      // Instantiate the new declarative page element
+      // Soft-nav (or CSR boot without SSG leaf): instantiate and swap the leaf only.
       const pageEl = document.createElement(topTag);
       pageEl.classList.add('page-content');
       for (const [key, value] of Object.entries(props)) {

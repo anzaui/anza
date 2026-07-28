@@ -29,12 +29,12 @@ const HTML = (name) => `<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${name}</title>
 
-    <script type="importmap" src="/dist/importmap.json"></script>
+    <script type="importmap" src="/importmap.json"></script>
 
-    <link rel="stylesheet" href="/dist/tokens/index.css" />
-    <link rel="stylesheet" href="/dist/styles/index.css" />
+    <link rel="stylesheet" href="/tokens/index.css" />
+    <link rel="stylesheet" href="/styles/index.css" />
 
-    <script type="module" src="/dist/app.js"></script>
+    <script type="module" src="/app.js"></script>
   </head>
   <body>
     <dock-main id="main"></dock-main>
@@ -50,7 +50,7 @@ import { dock } from '@adukiorg/anza/ui';
 import '@adukiorg/anza/theme';
 
 // Service Worker
-navigator.serviceWorker.register('/dist/sw.js', { type: 'module' });
+navigator.serviceWorker.register('/sw.js', { type: 'module' });
 
 // Layout shell
 dock('main');
@@ -68,7 +68,7 @@ const SHELL = 'shell-v1';
 const API = 'api-v1';
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(precache(SHELL, ['/dist/index.html', '/dist/app.js', '/dist/tokens/index.css', '/dist/styles/index.css']));
+  e.waitUntil(precache(SHELL, ['/index.html', '/app.js', '/tokens/index.css', '/styles/index.css']));
 });
 
 self.addEventListener('activate', (e) => {
@@ -76,7 +76,7 @@ self.addEventListener('activate', (e) => {
 });
 
 const r = router();
-r.register('/dist/*', new CacheFirst(SHELL));
+r.register('/*', new CacheFirst(SHELL));
 r.register('/api/*', new NetworkFirst(API, { timeout: 3000 }));
 
 self.addEventListener('fetch', (e) => {

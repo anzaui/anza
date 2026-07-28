@@ -10,6 +10,14 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **Portable site-root asset URLs** — production `dist/` is the document root; import maps, routes, SW, and scaffolds emit `/app.js`-style paths with no `/dist` prefix.
+- **Mode A SSG** — `anza build` emits contentful HTML with open Declarative Shadow DOM (DSD) per public route (`dist/<route>/index.html`), including title/meta and route-scoped `modulepreload`.
+- **Client DSD adopt / hydrate** — custom elements adopt existing open shadow trees instead of wiping; soft-nav swaps the leaf only while parent docks stay mounted.
+- **Mode B HTML contract** — normative contract in `docs/ssg/contract.md`, golden fixtures, contract check harness, and minimal Python / Go / Node example servers.
+- **Docs UI** — theme via `@adukiorg/anza/theme`, fuller sidebar coverage, active-link fix, search removed; docs home canonical path is `/docs`.
+
 ### Planned
 
 - Full element library documentation (`src/elements/`)

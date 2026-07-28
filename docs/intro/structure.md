@@ -39,7 +39,7 @@ When you run `npm create @adukiorg/anza myapp`, the scaffold generates a folder 
 import '@adukiorg/anza/ui';
 import { dock } from '@adukiorg/anza/ui';
 
-navigator.serviceWorker.register('/dist/sw.js');
+navigator.serviceWorker.register('/sw.js');
 
 dock('main');
 
@@ -52,9 +52,9 @@ This bootstraps the framework, registers the Service Worker, and creates a `main
 
 ```html
 <script type="importmap" src="/importmap.json"></script>
-<link rel="stylesheet" href="/dist/tokens/index.css">
-<link rel="stylesheet" href="/dist/styles/index.css">
-<script type="module" src="/dist/app.js"></script>
+<link rel="stylesheet" href="/tokens/index.css">
+<link rel="stylesheet" href="/styles/index.css">
+<script type="module" src="/app.js"></script>
 ```
 
 The shell loads the importmap, design tokens, global styles, and the app entry. The CLI injects the HMR script in dev mode.
@@ -68,7 +68,7 @@ const SHELL = 'shell-v1';
 const API = 'api-v1';
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(precache(SHELL, ['/dist/index.html', '/dist/app.js', '/dist/tokens/index.css', '/dist/styles/index.css']));
+  e.waitUntil(precache(SHELL, ['/index.html', '/app.js', '/tokens/index.css', '/styles/index.css']));
 });
 
 self.addEventListener('activate', (e) => {
@@ -76,7 +76,7 @@ self.addEventListener('activate', (e) => {
 });
 
 const r = router();
-r.register('/dist/*', new CacheFirst(SHELL));
+r.register('/*', new CacheFirst(SHELL));
 r.register('/api/*', new NetworkFirst(API, { timeout: 3000 }));
 
 self.addEventListener('fetch', (e) => {

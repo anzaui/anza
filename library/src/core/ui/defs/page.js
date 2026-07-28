@@ -29,6 +29,8 @@ import { translate } from './spec.js';
  * @param {Array<{name:string, type:Function}>} [config.query] - query param contract.
  * @param {Function} [config.guard] - route-scoped navigation guard.
  * @param {object} [config.on] - lifecycle hooks (load, connect, disconnect, change).
+ * @param {{title?:string, description?:string, canonical?:string, image?:string}} [config.seo]
+ *   Build-time SEO extracted into routes.json for SSG HTML head.
  * @param {string} [base] - import.meta.url of the caller (file templates).
  */
 export function page(route, config, base) {

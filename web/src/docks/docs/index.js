@@ -1,5 +1,6 @@
 import { dock } from '@adukiorg/anza/defs';
 import { router } from '@adukiorg/anza/router';
+import { theme } from '@adukiorg/anza/theme';
 
 // The persistent outer layout dock
 dock('docs', {
@@ -9,16 +10,26 @@ dock('docs', {
   on: {
     connect({ el, refs, on, tags }) {
       // 1. Highlight active left sidebar navigation link
+      // Prefer exact match; otherwise the longest href that is a path-segment prefix.
       const highlightActiveLink = () => {
-        const path = window.location.pathname;
-        const links = refs.leftSidebar.querySelectorAll('a');
+        const path = window.location.pathname.replace(/\/+$/, '') || '/';
+        const links = [...refs.leftSidebar.querySelectorAll('a')];
+        let best = null;
+        let bestLen = -1;
+
         for (const link of links) {
-          const href = link.getAttribute('href');
-          if (href && (path === href || (href !== '/docs' && path.startsWith(href)))) {
-            link.classList.add('active');
-          } else {
-            link.classList.remove('active');
+          const raw = link.getAttribute('href');
+          if (!raw || raw.startsWith('#') || /^[a-z]+:/i.test(raw)) continue;
+          const href = raw.replace(/\/+$/, '') || '/';
+          const isMatch = path === href || path.startsWith(`${href}/`);
+          if (isMatch && href.length > bestLen) {
+            best = link;
+            bestLen = href.length;
           }
+        }
+
+        for (const link of links) {
+          link.classList.toggle('active', link === best);
         }
       };
 
@@ -117,25 +128,21 @@ dock('docs', {
       updateTOC();
 
       // 4. Theme toggle
-      const saved = localStorage.getItem('theme') ?? 'light';
-      document.documentElement.setAttribute('data-theme', saved);
-
       const themeToggle = tags.one('.theme-toggle');
       const mobileMenuBtn = tags.one('.mobile-menu-btn');
 
-      themeToggle.setAttribute('aria-pressed', String(saved === 'dark'));
-      const orbital = themeToggle.querySelector('.orbital');
-      if (orbital) orbital.classList.toggle('dark', saved === 'dark');
+      const syncThemeToggle = (target) => {
+        const isDark = theme.resolved() === 'dark';
+        target.setAttribute('aria-pressed', String(isDark));
+        const orbital = target.querySelector('.orbital');
+        if (orbital) orbital.classList.toggle('dark', isDark);
+      };
+
+      syncThemeToggle(themeToggle);
 
       on.click('.theme-toggle', (event, target) => {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        const newTheme = isDark ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        target.setAttribute('aria-pressed', String(!isDark));
-
-        const orbital = target.querySelector('.orbital');
-        if (orbital) orbital.classList.toggle('dark', !isDark);
+        theme.toggle();
+        syncThemeToggle(target);
       });
 
       // 5. Mobile sidebar drawer

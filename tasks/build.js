@@ -13,6 +13,7 @@ import { existsSync } from 'fs';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const tools = join(root, '..', 'tools');
+const targetDir = join(tools, 'target');
 
 if (!existsSync(join(tools, 'Cargo.toml'))) {
   console.error('Error: tools/Cargo.toml not found. Run from repo root.');
@@ -20,7 +21,11 @@ if (!existsSync(join(tools, 'Cargo.toml'))) {
 }
 
 console.log('Building anza binary (release)...');
-execSync('cargo build --release', { cwd: tools, stdio: 'inherit' });
+execSync('cargo build --release', {
+  cwd: tools,
+  stdio: 'inherit',
+  env: { ...process.env, CARGO_TARGET_DIR: targetDir },
+});
 
-const out = join(tools, 'target', 'release', 'anza');
+const out = join(targetDir, 'release', 'anza');
 console.log(`\nDone → ${out}`);

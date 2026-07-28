@@ -55,7 +55,7 @@ import '@adukiorg/anza/ui';
 import { dock } from '@adukiorg/anza/ui';
 
 // Register the Service Worker
-navigator.serviceWorker.register('/dist/sw.js');
+navigator.serviceWorker.register('/sw.js');
 
 // Layout shell
 dock('main');

@@ -195,11 +195,11 @@
 <h2>Lifecycle</h2>
 <h3><code>precache(cacheName, urls)</code></h3>
 <p>Pre-caches an array of URLs during the <code>install</code> event.</p>
-<view-code language="javascript">await precache('shell-v1', ['/dist/index.html', '/dist/app.js']);
+<view-code language="javascript">await precache('shell-v1', ['/index.html', '/app.js']);
 </view-code>
 <h3><code>prefetchFallback(fallbackUrl)</code></h3>
 <p>Pre-caches a single fallback page into a dedicated cache.</p>
-<view-code language="javascript">await prefetchFallback('/dist/offline.html');
+<view-code language="javascript">await prefetchFallback('/offline.html');
 </view-code>
 <h3><code>pruneStale(currentCacheName)</code></h3>
 <p>Deletes all caches except <code>currentCacheName</code> and <code>platform-offline-fallback</code>.</p>

@@ -54,11 +54,11 @@ import { offline } from '@adukiorg/anza/offline';
 import { precache, router, CacheFirst, NetworkFirst } from '@adukiorg/anza/sw';
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(precache('shell-v1', ['/dist/index.html', '/dist/app.js']));
+  e.waitUntil(precache('shell-v1', ['/index.html', '/app.js']));
 });
 
 const r = router();
-r.register('/dist/*', new CacheFirst('shell-v1'));
+r.register('/*', new CacheFirst('shell-v1'));
 r.register('/api/*', new NetworkFirst('api-v1', { timeout: 3000 }));
 
 self.addEventListener('fetch', (e) => {
@@ -72,7 +72,7 @@ self.addEventListener('fetch', (e) => {
 import '@adukiorg/anza/ui';
 import { dock } from '@adukiorg/anza/ui';
 
-navigator.serviceWorker.register('/dist/sw.js');
+navigator.serviceWorker.register('/sw.js');
 
 dock('main');
 ```

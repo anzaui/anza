@@ -145,7 +145,7 @@ fn resolve_asset_path(base_file: &str, relative_path: &str) -> String {
     }
   }
 
-  format!("/dist/{}", parts.join("/"))
+  format!("/{}", parts.join("/"))
 }
 
 /// Returns the correct `as` attribute for a `<link rel="preload">` tag
@@ -217,10 +217,10 @@ async fn handle_html_fallback(
         }
 
         if let Some(r) = route {
-          inject.push_str("    <link rel=\"modulepreload\" href=\"/dist/app.js\" />\n");
+          inject.push_str("    <link rel=\"modulepreload\" href=\"/app.js\" />\n");
           
           for f in &r.layouts {
-            inject.push_str(&format!("    <link rel=\"modulepreload\" href=\"/dist/{}\" />\n", f));
+            inject.push_str(&format!("    <link rel=\"modulepreload\" href=\"/{}\" />\n", f));
           }
           for h in &r.templates {
             let as_attr = preload_as(h);
@@ -232,7 +232,7 @@ async fn handle_html_fallback(
           }
 
           if let Some(ref f) = r.file {
-            inject.push_str(&format!("    <link rel=\"modulepreload\" href=\"/dist/{}\" />\n", f));
+            inject.push_str(&format!("    <link rel=\"modulepreload\" href=\"/{}\" />\n", f));
             
             if let Some(ref h) = r.html {
               let resolved = resolve_asset_path(f, h);

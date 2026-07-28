@@ -33,7 +33,6 @@ The declarative custom element system. You will spend most of your time here.
 | [styles/tokens.md](styles/tokens.md) | Primitive, registered, semantic tokens, transitions, and themes |
 | [ui/lifecycle.md](ui/lifecycle.md) | Mount, unmount, connect, disconnect, load, change |
 | [ui/context.md](ui/context.md) | The `el`, `ctrl`, `tags`, `refs`, `on`, `watch` object |
-
 | [ui/scheduling.md](ui/scheduling.md) | Cooperative task scheduling |
 | [ui/observers.md](ui/observers.md) | Safe observer factories with AbortSignal cleanup |
 | [ui/transitions.md](ui/transitions.md) | View transitions wrapper |

@@ -214,8 +214,9 @@ export interface BaseLifecycleContext<
   refs: Readonly<Refs>;
   watch: WatchApi;
   internals: InternalsFor<Form>;
+  /** True when the element adopted a pre-existing open shadow root (DSD / SSR). */
+  adopted?: boolean;
 }
-
 export type MountContext<
   Props extends PropsDefinition = {},
   Refs extends ElementRefs<Refs> = RefsMap,
@@ -420,6 +421,36 @@ export function scheduleFrame<T>(fn: () => T): Promise<T>;
 
 export function yieldTask(): Promise<void>;
 
+/** SEO inputs for SSG / Mode B HTML head composition. */
+export interface PageSeo {
+  title?: string;
+  description?: string;
+  canonical?: string;
+  image?: string;
+}
+
+export interface PageConfig {
+  tag: string;
+  via?: string[];
+  container?: string;
+  template?: string | { html?: string; css?: string | string[]; shadow?: boolean };
+  style?: string | string[];
+  props?: PropsDefinition;
+  params?: Array<{ name: string; type: PropConstructor }>;
+  query?: Array<{ name: string; type: PropConstructor }>;
+  guard?: (...args: any[]) => any;
+  on?: Record<string, (...args: any[]) => any>;
+  meta?: Record<string, unknown>;
+  /** Build-time SEO for routes.json → SSG HTML. */
+  seo?: PageSeo;
+}
+
+export function page(
+  route: string | string[],
+  config: PageConfig,
+  base?: string | URL
+): void;
+
 export function dock(
   name: string,
   config?: {
@@ -445,6 +476,7 @@ export interface UiApi {
   define: typeof define;
   element: typeof element;
   container: typeof container;
+  page: typeof page;
   dock: typeof dock;
   schedule: typeof schedule;
   scheduleFrame: typeof scheduleFrame;

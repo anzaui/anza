@@ -146,3 +146,92 @@ export function createTemplateFragment(htmlString) {
   }
   return tpl.content;
 }
+
+function escapeAttrValue(value) {
+  if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
+    return CSS.escape(value);
+  }
+  return String(value)
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"');
+}
+
+/**
+ * True when a root has meaningful markup beyond style/link/script shells.
+ */
+export function hasStructuralElements(root) {
+  if (!root?.childNodes?.length) return false;
+  for (const node of root.childNodes) {
+    if (node.nodeType !== 1 /* ELEMENT_NODE */) continue;
+    const tag = node.localName;
+    if (tag === 'style' || tag === 'link' || tag === 'script') continue;
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Collects `ref` attribute names under a fragment or shadow root.
+ */
+export function collectRefNames(root) {
+  const names = [];
+  if (!root?.querySelectorAll) return names;
+  for (const node of root.querySelectorAll('[ref]')) {
+    const name = node.getAttribute('ref');
+    if (name) names.push(name);
+  }
+  return names;
+}
+
+/**
+ * Detects hard hydration mismatches between an adopted DSD tree and the
+ * client template / tags descriptor (missing critical refs or empty structure).
+ */
+export function hasHydrationMismatch(shadowRoot, templateNode, descriptor) {
+  if (!shadowRoot || !templateNode) return false;
+
+  const expectedRefs = Array.isArray(descriptor?.refs) && descriptor.refs.length > 0
+    ? descriptor.refs
+    : collectRefNames(templateNode);
+
+  for (const name of expectedRefs) {
+    try {
+      if (!shadowRoot.querySelector(`[ref="${escapeAttrValue(name)}"]`)) {
+        return true;
+      }
+    } catch {
+      return true;
+    }
+  }
+
+  if (hasStructuralElements(templateNode) && !hasStructuralElements(shadowRoot)) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * One-shot replace of shadow children with a clone of the client template.
+ * Leaves adoptedStyleSheets intact (they live on the root, not as children).
+ */
+export function replaceShadowTemplate(shadowRoot, templateNode) {
+  if (!shadowRoot || !templateNode) return;
+  while (shadowRoot.firstChild) {
+    shadowRoot.removeChild(shadowRoot.firstChild);
+  }
+  shadowRoot.appendChild(templateNode.cloneNode(true));
+}
+
+/**
+ * Finds a direct-child Declarative Shadow DOM template (polyfill / late upgrade).
+ */
+export function findDsdTemplate(host) {
+  if (!host?.children) return null;
+  for (const child of host.children) {
+    if (child.localName === 'template' && child.hasAttribute('shadowrootmode')) {
+      return child;
+    }
+  }
+  return null;
+}

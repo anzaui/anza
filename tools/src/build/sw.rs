@@ -135,8 +135,8 @@ fn is_bare(spec: &str) -> bool {
     && !spec.starts_with("data:")
 }
 
-/// Convert an importmap target (e.g. `/dist/sw/index.js`) into a relative
-/// path from `dist/sw.js` (e.g. `./sw/index.js`).
+/// Convert an importmap target (e.g. `/sw/index.js` or legacy `/dist/sw/index.js`)
+/// into a relative path from `dist/sw.js` (e.g. `./sw/index.js`).
 fn relative(target: &str) -> String {
   if let Some(stripped) = target.strip_prefix("/dist/") {
     format!("./{}", stripped)

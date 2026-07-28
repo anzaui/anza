@@ -2,6 +2,9 @@
 //
 // Emits routes.json and routes.d.ts from all ExtractedSpec entries.
 // Warns to stderr when duplicate route patterns are detected.
+//
+// Parametric routes (path params / wildcards) need a build-time expansion
+// manifest to emit SSG HTML; without expansion, `ssg` stays false (Mode B later).
 
 use std::collections::HashSet;
 use std::path::Path;
@@ -16,6 +19,17 @@ struct CastEntry {
   name: String,
   /// "string" | "number"
   cast: String,
+}
+
+/// SEO metadata written into each route record for SSG HTML head composition.
+#[derive(serde::Serialize, Clone)]
+struct SeoRecord {
+  title: String,
+  description: String,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  canonical: Option<String>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  image: Option<String>,
 }
 
 /// A single route record written into routes.json.
@@ -38,6 +52,12 @@ struct RouteRecord<'a> {
   #[serde(skip_serializing_if = "Vec::is_empty")]
   #[serde(rename = "queryCast")]
   query_cast: Vec<CastEntry>,
+  /// Indexable / public URL (v1: `/` and `/docs/**`).
+  public: bool,
+  /// Eligible for build-time SSG HTML (public + no unexpanded params).
+  ssg: bool,
+  /// Title/description (and optional canonical/image) for SSG `<head>`.
+  seo: SeoRecord,
   #[serde(skip_serializing_if = "Option::is_none")]
   file: Option<&'a str>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -68,15 +88,113 @@ fn to_pascal_case(s: &str) -> String {
   result
 }
 
-/// Emits `routes.json` and `routes.d.ts` files to `dist_dir`.
+/// v1 public convention: site root and docs tree.
+fn is_public_route(path: &str) -> bool {
+  path == "/" || path.starts_with("/docs")
+}
+
+/// SSG only for public static paths. Parametric routes without a build-time
+/// expansion manifest are not emitted as HTML files (`ssg: false`).
+fn is_ssg_route(path: &str, params: &[String]) -> bool {
+  if !is_public_route(path) {
+    return false;
+  }
+  if !params.is_empty() {
+    return false;
+  }
+  // Catch wildcards / `:param` not yet listed in `params`.
+  if path.contains('*') || path.contains(':') {
+    return false;
+  }
+  true
+}
+
+fn humanize_segment(raw: &str) -> String {
+  let trimmed = raw
+    .trim_start_matches("page-")
+    .trim_start_matches("doc-");
+  trimmed
+    .split(|c| c == '-' || c == '_')
+    .filter(|p| !p.is_empty())
+    .map(|p| {
+      let mut chars = p.chars();
+      match chars.next() {
+        None => String::new(),
+        Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+      }
+    })
+    .collect::<Vec<_>>()
+    .join(" ")
+}
+
+fn derive_title(tag: &str, path: &str) -> String {
+  let segment = path.trim_matches('/').rsplit('/').next().unwrap_or("");
+  if !segment.is_empty() {
+    let title = humanize_segment(segment);
+    if !title.is_empty() {
+      return title;
+    }
+  }
+  let from_tag = humanize_segment(tag);
+  if from_tag.is_empty() {
+    path.to_string()
+  } else {
+    from_tag
+  }
+}
+
+fn resolve_seo(spec: &ExtractedSpec, path: &str) -> SeoRecord {
+  let title = spec
+    .seo
+    .as_ref()
+    .and_then(|s| s.title.clone())
+    .or_else(|| spec.meta.get("title").cloned())
+    .unwrap_or_else(|| derive_title(&spec.tag, path));
+
+  let description = spec
+    .seo
+    .as_ref()
+    .and_then(|s| s.description.clone())
+    .unwrap_or_default();
+
+  let canonical = spec.seo.as_ref().and_then(|s| s.canonical.clone());
+  let image = spec.seo.as_ref().and_then(|s| s.image.clone());
+
+  SeoRecord {
+    title,
+    description,
+    canonical,
+    image,
+  }
+}
+
+/// Look up a via-chain container by dock name, tag, or `dock-{name}` fallback.
+fn resolve_container<'a>(
+  name: &str,
+  tag_to_spec: &std::collections::HashMap<String, &'a ExtractedSpec>,
+  dock_name_to_spec: &std::collections::HashMap<String, &'a ExtractedSpec>,
+) -> Option<&'a ExtractedSpec> {
+  dock_name_to_spec
+    .get(name)
+    .copied()
+    .or_else(|| tag_to_spec.get(name).copied())
+    .or_else(|| tag_to_spec.get(&format!("dock-{}", name)).copied())
+}
+
 /// Emits `routes.json` and `routes.d.ts` files to `dist_dir`.
 pub fn emit(specs: &[(std::path::PathBuf, ExtractedSpec)], dist_dir: &Path) {
   let mut entries: Vec<(RouteRecord, String)> = Vec::new();
   let mut seen: HashSet<String> = HashSet::new();
 
   let mut tag_to_spec = std::collections::HashMap::new();
+  let mut dock_name_to_spec = std::collections::HashMap::new();
   for (_, spec) in specs {
     tag_to_spec.insert(spec.tag.clone(), spec);
+    if spec.kind == "dock" {
+      if let Some(ref name) = spec.name {
+        dock_name_to_spec.insert(name.clone(), spec);
+      }
+    }
   }
 
   let mut element_interfaces = Vec::new();
@@ -128,6 +246,11 @@ pub fn emit(specs: &[(std::path::PathBuf, ExtractedSpec)], dist_dir: &Path) {
 
     tag_mappings.push(format!("    \"{}\": {};", spec.tag, class_name));
 
+    // Only pages produce navigable route records (docks are layout lookup only).
+    if spec.kind != "page" {
+      continue;
+    }
+
     // Determine effective route list: multi-route array takes precedence over
     // the legacy single `url` field.
     let effective_routes: Vec<&str> = if !spec.routes.is_empty() {
@@ -165,18 +288,23 @@ pub fn emit(specs: &[(std::path::PathBuf, ExtractedSpec)], dist_dir: &Path) {
 
       // Extract raw segment param names (back-compat / trie building).
       let params = extract_params(url);
+      let public = is_public_route(url);
+      let ssg = is_ssg_route(url, &params);
+      let seo = resolve_seo(spec, url);
 
       let mut layouts = Vec::new();
       let mut templates = Vec::new();
       let mut styles = Vec::new();
 
-      for container_tag in &spec.via {
-        if let Some(container_spec) = tag_to_spec.get(container_tag) {
+      for container_name in &spec.via {
+        if let Some(container_spec) =
+          resolve_container(container_name, &tag_to_spec, &dock_name_to_spec)
+        {
           if let Some(ref f) = container_spec.file {
             if !layouts.contains(f) {
               layouts.push(f.clone());
             }
-             if let Some(ref h) = container_spec.html {
+            if let Some(ref h) = container_spec.html {
               let resolved = resolve_compile_time_asset_path(f, h);
               if !templates.contains(&resolved) {
                 templates.push(resolved);
@@ -210,6 +338,9 @@ pub fn emit(specs: &[(std::path::PathBuf, ExtractedSpec)], dist_dir: &Path) {
         params,
         param_cast: param_cast.iter().map(|e| CastEntry { name: e.name.clone(), cast: e.cast.clone() }).collect(),
         query_cast: query_cast.iter().map(|e| CastEntry { name: e.name.clone(), cast: e.cast.clone() }).collect(),
+        public,
+        ssg,
+        seo,
         file: spec.file.as_deref(),
         html: spec.html.as_deref(),
         css: spec.css.first().map(|s| s.as_str()),
@@ -427,9 +558,9 @@ fn resolve_compile_time_asset_path(file: &str, asset: &str) -> String {
           _ => {}
         }
       }
-      format!("/dist/{}", parts.join("/"))
+      format!("/{}", parts.join("/"))
     } else {
-      format!("/dist/{}", asset)
+      format!("/{}", asset)
     }
   }
 }
