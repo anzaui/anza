@@ -1,58 +1,38 @@
-<!-- Main Content -->
 <h1>Design Tokens</h1>
-<p>Anza implements a minimal design token architecture based on CSS custom properties. This system defines variables for
-  base values (primitives), registers animatable variables via Houdini (registered), and maps them to themes and
-  transitions (semantic).</p>
-
-<!-- Token Architecture Section -->
+<p>Anza implements a minimal design token architecture based on CSS custom properties. This system defines variables for base values (primitives), registers animatable variables via Houdini (registered), and maps them to themes and transitions (semantic).</p>
+<hr />
 <h2>Token Architecture</h2>
 <p>The token system is structured into three layers:</p>
-<view-code>[Primitives] -&gt; Raw, immutable design constants (e.g., base colors, timings, fonts)
-  |
-  [Registered] -&gt; Houdini typed declarations enabling GPU-accelerated theme morphing
-  |
-  [Semantic] -&gt; Intent-based mappings for Light, Dark, High-Contrast, and Transitions
+<view-code language="text">[Primitives]   -&gt; Raw, immutable design constants (e.g., base colors, timings, fonts)
+     |
+[Registered]   -&gt; Houdini typed declarations enabling GPU-accelerated theme morphing
+     |
+[Semantic]     -&gt; Intent-based mappings for Light, Dark, High-Contrast, and Transitions
 </view-code>
-
 <h3>1. Primitives</h3>
 <p>Primitives define the baseline design values inside <code>/src/tokens/primitives/</code>:</p>
 <ul>
-  <li><strong><code>colors.css</code></strong>: Defines raw black, white, gray scales (<code>--gray-100</code> to
-    <code>--gray-900</code>), and a base brand accent (<code>--brand</code>).</li>
-  <li><strong><code>motion.css</code></strong>: Configures fast/normal durations (<code>--duration-normal</code>) and
-    default easing curves (<code>--ease-out</code>).</li>
-  <li><strong><code>spacing.css</code></strong>: Sets a standard 4px numeric increment grid (<code>--space-0</code> to
-    <code>--space-4</code>).</li>
-  <li><strong><code>typography.css</code></strong>: Sets standard font sizes (<code>--font-size-base</code> to
-    <code>--font-size-3xl</code>), font weights, and line heights.</li>
+<li><strong><code>colors.css</code></strong>: Defines raw black, white, gray scales (<code>--gray-100</code> to <code>--gray-900</code>), and a base brand accent (<code>--brand</code>).</li>
+<li><strong><code>motion.css</code></strong>: Configures fast/normal durations (<code>--duration-normal</code>) and default easing curves (<code>--ease-out</code>).</li>
+<li><strong><code>spacing.css</code></strong>: Sets a standard 4px numeric increment grid (<code>--space-0</code> to <code>--space-4</code>).</li>
+<li><strong><code>typography.css</code></strong>: Sets standard font sizes (<code>--font-size-base</code> to <code>--font-size-3xl</code>), font weights, and line heights.</li>
 </ul>
-
 <h3>2. Registered</h3>
-<p>Registered tokens use Houdini <code>@property</code> rules in <code>/src/tokens/registered/</code> to define types,
-  inheritance, and initial values. This allows browsers to animate variables smoothly:</p>
+<p>Registered tokens use Houdini <code>@property</code> rules in <code>/src/tokens/registered/</code> to define types, inheritance, and initial values. This allows browsers to animate variables smoothly:</p>
 <ul>
-  <li><strong><code>colors.css</code></strong>: Registers the core semantic color variables (e.g.,
-    <code>--color-surface-page</code>, <code>--color-content-primary</code>, <code>--color-border-default</code>,
-    <code>--color-interactive</code>).</li>
-  <li><strong><code>dimensions.css</code></strong>: Registers transition-specific properties (e.g.,
-    <code>--transition-duration</code>, <code>--transition-offset</code>).</li>
+<li><strong><code>colors.css</code></strong>: Registers the core semantic color variables (e.g., <code>--color-surface-page</code>, <code>--color-content-primary</code>, <code>--color-border-default</code>, <code>--color-interactive</code>).</li>
+<li><strong><code>dimensions.css</code></strong>: Registers transition-specific properties (e.g., <code>--transition-duration</code>, <code>--transition-offset</code>).</li>
 </ul>
-
 <h3>3. Semantic &amp; Themes</h3>
 <p>Semantic tokens map primitive choices to specific intents and themes in <code>/src/tokens/semantic/</code>:</p>
 <ul>
-  <li><strong><code>light.css</code></strong>: Default Light theme mappings (e.g., <code>--color-surface-page</code>
-    maps to white).</li>
-  <li><strong><code>dark.css</code></strong>: Dark theme overrides applied under <code>[data-theme="dark"]</code> or
-    matching user preferences.</li>
-  <li><strong><code>contrast.css</code></strong>: WCAG AAA compliant high-contrast overrides applied under
-    <code>[data-theme="high-contrast"]</code>.</li>
+<li><strong><code>light.css</code></strong>: Default Light theme mappings (e.g., <code>--color-surface-page</code> maps to white).</li>
+<li><strong><code>dark.css</code></strong>: Dark theme overrides applied under <code>[data-theme="dark"]</code> or matching user preferences.</li>
+<li><strong><code>contrast.css</code></strong>: WCAG AAA compliant high-contrast overrides applied under <code>[data-theme="high-contrast"]</code>.</li>
 </ul>
-
-<!-- View Transition Tokens Section -->
+<hr />
 <h2>View Transition Tokens</h2>
-<p>Swap transitions between layout docks and pages are controlled via dedicated variables in
-  <code>/src/tokens/semantic/transitions.css</code>:</p>
+<p>Swap transitions between layout docks and pages are controlled via dedicated variables in <code>/src/tokens/semantic/transitions.css</code>:</p>
 <view-code language="css">:root {
   --transition-duration: var(--duration-normal);
   --transition-easing: var(--ease-out);
@@ -61,44 +41,34 @@
   --transition-replace: var(--ease-in-out);
   --transition-offset: 30px; /* Sizing distance for slide sweeps */
   --transition-bg: var(--color-surface-page);
-  }
+}
 </view-code>
 <p>The transitions engine uses these values to drive the slide and fade animations when swapping routing views.</p>
-
-<!-- Customizing Token Values Section -->
 <h2>Customizing Token Values</h2>
-<p>All Anza system styles (including layout base styles and view transitions) reference values using CSS custom
-  properties. Because these are standard custom properties, the actual variable names and values can be overridden,
-  deleted, or mapped to the user's own naming conventions.</p>
-
+<p>All Anza system styles (including layout base styles and view transitions) reference values using CSS custom properties. Because these are standard custom properties, the actual variable names and values can be overridden, deleted, or mapped to the user's own naming conventions.</p>
 <h3>Graceful Fallbacks</h3>
-<p>System styles include default fallback values. If a user deletes the library's default variable declarations from
-  their styles, the system falls back to base defaults:</p>
+<p>System styles include default fallback values. If a user deletes the library's default variable declarations from their styles, the system falls back to base defaults:</p>
 <view-code language="css">/* Example of library internal base.css using custom properties with fallbacks */
-  body {
+body {
   background-color: var(--color-surface-page, #ffffff);
   color: var(--color-content-primary, #111111);
-  }
+}
 </view-code>
-
 <h3>Customizing via Overrides</h3>
-<p>To customize the default styling, redefine the custom property values on the <code>:root</code> element or within a
-  specific theme block:</p>
+<p>To customize the default styling, redefine the custom property values on the <code>:root</code> element or within a specific theme block:</p>
 <view-code language="css">/* custom.css */
-  :root {
+:root {
   /* Override the default interactive color token value */
   --color-interactive: oklch(55% 0.22 250);
-  }
+}
 
-  [data-theme=&quot;dark&quot;] {
+[data-theme="dark"] {
   /* Override the page background token value for dark mode */
   --color-surface-page: #0d0e12;
-  }
+}
 </view-code>
-
 <h3>Deciding Your Own Variable Names</h3>
-<p>If you prefer to use your own custom variable names throughout your codebase, you can map the library's custom
-  properties directly to your custom variables:</p>
+<p>If you prefer to use your own custom variable names throughout your codebase, you can map the library's custom properties directly to your custom variables:</p>
 <view-code language="css">:root {
   /* Your custom variables */
   --app-bg: #f5f5f7;
@@ -107,7 +77,6 @@
   /* Map the library custom properties to your variables */
   --color-surface-page: var(--app-bg);
   --color-content-primary: var(--app-text);
-  }
+}
 </view-code>
-<p>This mapping allows you to maintain full control over the variable names in your application stylesheet while
-  ensuring the library's layout and transition engines receive the correct values.</p>
+<p>This mapping allows you to maintain full control over the variable names in your application stylesheet while ensuring the library's layout and transition engines receive the correct values.</p>

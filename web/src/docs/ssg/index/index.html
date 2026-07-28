@@ -1,0 +1,86 @@
+<h1>SSG &amp; SEO</h1>
+<p>Anza ships <strong>contentful HTML</strong> for public routes so hard refresh and crawlers see unique meta, open Declarative Shadow DOM, and primary headings <strong>without executing JS</strong>. There is no Anza-owned production SSR runtime — Mode A emits HTML at build time; Mode B templates in any language emit the same shape at request time.</p>
+<p>Portable rule: treat <code>dist/</code> as the <strong>site root</strong>. Public URLs are <code>/app.js</code>, <code>/importmap.json</code>, <code>/docs/...</code> — never <code>/dist/...</code>.</p>
+<p>Planning track (Phases 0–6): <a href="../../plans/SSG-SEO.md">plans/SSG-SEO.md</a>. Client adopt: <a href="/docs/ui/hydration">ui/hydration.md</a>. Normative markup: <a href="/docs/ssg/contract">contract.md</a>.</p>
+<hr />
+<h2>Modes</h2>
+<div class="table-wrap"><table><thead><tr><th>Mode</th><th>When</th><th>Who emits HTML</th><th>Assets</th></tr></thead><tbody>
+<tr><td><strong>A — Pure static</strong></td><td><code>anza build</code> / <code>anza dev</code></td><td>SSG emitter → <code>dist/&lt;route&gt;/index.html</code></td><td><code>dist/</code> as site root</td></tr>
+<tr><td><strong>B — Any-lang templates</strong></td><td>Request time</td><td>Jinja / EJS / HBS / Go / Node / …</td><td>Same <code>dist/</code> static files</td></tr>
+</tbody></table></div>
+<p>Both modes must satisfy the <a href="/docs/ssg/contract">page HTML contract</a> so hydration has one adoption path. Examples: <code>examples/mode-b-python/</code>, <code>examples/mode-b-go/</code>, <code>examples/mode-b-node/</code>. Goldens: <code>plans/fixtures/ssg/</code>.</p>
+<hr />
+<h2>What shipped (Phases 0–6)</h2>
+<div class="table-wrap"><table><thead><tr><th>Phase</th><th>Outcome</th></tr></thead><tbody>
+<tr><td><strong>0</strong></td><td>Portable site-root assets — import map and routes without <code>/dist</code> prefixes; serve with <code>cd dist &amp;&amp; python3 -m http.server</code></td></tr>
+<tr><td><strong>1</strong></td><td>Mode A SSG HTML per public route — title/meta, open DSD, modulepreload, deferred <code>/app.js</code></td></tr>
+<tr><td><strong>2</strong></td><td>Client DSD <strong>adopt</strong> (no wipe) — rehydrate refs / tags / <code>on</code> / <code>watch</code>; soft-nav leaf swap</td></tr>
+<tr><td><strong>3</strong></td><td>Mode B contract + goldens + Python/Go/Node examples + <code>tasks/ssg-contract-check.js</code></td></tr>
+<tr><td><strong>4</strong></td><td>Nested docks as <strong>light-DOM siblings after</strong> each open DSD template; CSR <code>template.html</code> when SSG collides with the page fragment path; soft-nav must not fetch full SSG documents as templates</td></tr>
+<tr><td><strong>5</strong></td><td>Parametric expand — <code>page({ ssg: { expand } })</code> / <code>ssg.params.json</code>; unexpanded patterns stay <code>ssg: false</code></td></tr>
+<tr><td><strong>6</strong></td><td><code>ssg.json</code> / <code>ANZA_SITE_ORIGIN</code> — absolute canonicals, <code>sitemap.xml</code> / <code>robots.txt</code>, JSON-LD WebSite/WebPage, corpus contract gate</td></tr>
+</tbody></table></div>
+<p>There is <strong>no Phase 7</strong>. Residual host polish (Worker preferring SSG over SPA fallback) is optional and not product acceptance.</p>
+<hr />
+<h2>Simple: Mode A page SEO</h2>
+<view-code language="javascript">page('/docs/intro/start', {
+  tag: 'doc-intro-start',
+  via: ['main', 'docs', 'content'],
+  template: { html: './index.html' },
+  seo: {
+    title: 'Getting Started — Anza',
+    description: 'Scaffold and run your first Anza app.'
+  }
+}, import.meta.url);
+</view-code>
+<p>After <code>anza build</code>, <code>dist/docs/intro/start/index.html</code> is curl-readable (unique <code>&lt;title&gt;</code>, open DSD, primary heading). Soft-nav between docs pages fetches the CSR fragment (<code>template.html</code> when needed), not that full document.</p>
+<hr />
+<h2>Advanced: expand, origin, sitemap</h2>
+<h3>Parametric expand (Phase 5)</h3>
+<view-code language="javascript">page('/docs/ssg/expand/:slug', {
+  params: [{ name: 'slug', type: String }],
+  ssg: {
+    expand: [{ slug: 'foo' }]
+  },
+  seo: {
+    title: 'SSG expand: {{slug}} — Anza',
+    description: 'Example for {{slug}}'
+  }
+}, import.meta.url);
+</view-code>
+<p>Or project-level <code>ssg.params.json</code>. Pattern stays <code>ssg: false</code>; each expansion emits a concrete <code>ssg: true</code> route. Live fixture: <a href="/docs/ssg/expand/foo"><code>/docs/ssg/expand/foo</code></a>. Details: <a href="/docs/ssg/contract">contract.md</a>.</p>
+<h3>Site origin + SEO artifacts (Phase 6)</h3>
+<p><code>web/ssg.json</code> (or next to <code>src/</code>):</p>
+<view-code language="json">{
+  "origin": "https://example.com",
+  "siteName": "Anza",
+  "jsonLd": true,
+  "sitemap": true,
+  "robots": true
+}
+</view-code>
+<div class="table-wrap"><table><thead><tr><th>Field</th><th>Effect</th></tr></thead><tbody>
+<tr><td><code>origin</code></td><td>Absolute canonical / <code>og:url</code> / sitemap <code>&lt;loc&gt;</code> (override: <code>ANZA_SITE_ORIGIN</code>)</td></tr>
+<tr><td><code>jsonLd</code></td><td>Light-DOM <code>WebSite</code> + <code>WebPage</code> JSON-LD (default on)</td></tr>
+<tr><td><code>sitemap</code> / <code>robots</code></td><td>Write <code>dist/sitemap.xml</code> and <code>dist/robots.txt</code></td></tr>
+</tbody></table></div>
+<p>Without <code>origin</code>, path-relative URLs are fine for local preview; sitemap locs stay site-root paths.</p>
+<hr />
+<h2>Soft-nav coexistence (Phase 4)</h2>
+<p>Hard refresh serves the SSG (or Mode B) document. Soft-nav must <strong>not</strong> use that document as a page template — nested docks would stack inside the leaf shadow. Mode A preserves the CSR fragment as <code>template.html</code> when paths collide, and the client <code>sanitizeTemplateHtml</code> refuses full HTML documents. Nested hosts must be light-DOM children <strong>after</strong> each parent’s <code>&lt;template shadowrootmode="open"&gt;</code>.</p>
+<hr />
+<h2>Verify</h2>
+<view-code language="bash">rm -rf dist &amp;&amp; npm run build   # or anza build from web/
+cd dist &amp;&amp; python3 -m http.server PORT
+curl -s http://127.0.0.1:PORT/docs/intro/start/ | grep -E '&lt;h1|&lt;title'
+node tasks/ssg-contract-check.js          # goldens + nest + closed-DSD /dist gates
+node tasks/ssg-contract-check.js --rebuild
+</view-code>
+<p>Same contentful HTML for every User-Agent — no cloaking.</p>
+<hr />
+<h2>File map</h2>
+<div class="table-wrap"><table><thead><tr><th>File</th><th>What it covers</th></tr></thead><tbody>
+<tr><td><a href="/docs/ssg/contract">contract.md</a></td><td>Normative head/body, Mode A/B, expand, origin/sitemap/JSON-LD, checklist</td></tr>
+<tr><td><a href="/docs/ui/hydration">ui/hydration.md</a></td><td>Client adopt / soft-nav vs hard refresh</td></tr>
+<tr><td>Fixture expand page</td><td><a href="/docs/ssg/expand/foo"><code>/docs/ssg/expand/foo</code></a></td></tr>
+</tbody></table></div>

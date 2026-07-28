@@ -1,10 +1,8 @@
 <h1>Cache</h1>
 <p>The Cache API wrapper provides TTL support by attaching an <code>x-expires-at</code> header to cached responses. It is separate from the API client's cache and intended for general asset and data caching.</p>
-
-<!-- Basic Use Section -->
+<hr />
 <h2>Basic Use</h2>
-<view-code language="javascript">
-import { storage } from '@adukiorg/anza/storage';
+<view-code language="javascript">import { storage } from '@adukiorg/anza/storage';
 
 // Cache a JSON response
 await storage.set('config', { theme: 'dark' }, 'cache');
@@ -13,19 +11,15 @@ await storage.set('config', { theme: 'dark' }, 'cache');
 const res = await storage.get('config', 'cache');
 const data = await res.json();
 </view-code>
-
-<!-- TTL Section -->
+<hr />
 <h2>TTL</h2>
-<view-code language="javascript">
-// Cache for 5 minutes
+<view-code language="javascript">// Cache for 5 minutes
 await storage.set('feed', response, { tier: 'cache', ttl: 300000 });
 </view-code>
 <p>Expired entries are evicted on read. The <code>x-expires-at</code> header stores the expiry timestamp.</p>
-
-<!-- Direct CacheStorage Section -->
+<hr />
 <h2>Direct CacheStorage</h2>
-<view-code language="javascript">
-import { CacheStorage } from '@adukiorg/anza/storage';
+<view-code language="javascript">import { CacheStorage } from '@adukiorg/anza/storage';
 
 const cache = new CacheStorage('my-cache');
 
@@ -35,18 +29,15 @@ await cache.set('/api/data', new Response(JSON.stringify(data)), 60000);
 // Retrieve
 const res = await cache.get('/api/data');
 </view-code>
-
-<!-- Clear Section -->
+<hr />
 <h2>Clear</h2>
-<view-code language="javascript">
-await cache.clear(); // deletes entire cache pool
+<view-code language="javascript">await cache.clear(); // deletes entire cache pool
 </view-code>
-
-<!-- Use Cases Section -->
+<hr />
 <h2>Use Cases</h2>
 <ul>
-  <li>Offline-first API responses</li>
-  <li>Preloaded assets for SPA navigation</li>
-  <li>Image caching with expiry</li>
-  <li>Configuration data that updates infrequently</li>
+<li>Offline-first API responses</li>
+<li>Preloaded assets for SPA navigation</li>
+<li>Image caching with expiry</li>
+<li>Configuration data that updates infrequently</li>
 </ul>

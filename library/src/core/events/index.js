@@ -13,6 +13,12 @@ import { delegate } from './delegate.js';
 import { once } from './once.js';
 import { listen } from './listen.js';
 import { names } from './types/index.js';
+import {
+  matchInComposedPath,
+  matchesAttrs,
+  PASSIVE_DEFAULT_TYPES,
+  resolvePassiveDefault
+} from './match.js';
 
 export const events = {
   emit: (type, detail) => bus.emit(type, detail),
@@ -23,4 +29,15 @@ export const events = {
   names
 };
 
-export { bus, EventBus, delegate, once, listen, names };
+export {
+  bus,
+  EventBus,
+  delegate,
+  once,
+  listen,
+  names,
+  matchInComposedPath,
+  matchesAttrs,
+  PASSIVE_DEFAULT_TYPES,
+  resolvePassiveDefault
+};

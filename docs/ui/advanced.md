@@ -115,15 +115,45 @@ For high-frequency mutations, consider direct DOM references instead of `tags` q
 
 ## Event Delegation Internals
 
-The `on` proxy registers one listener per event type on the shadow root. Handlers are matched via `event.target.closest(selector)`:
+The `on` proxy registers one listener per event type on the shadow root. Handlers are matched via `composedPath()` (same algorithm as `events.delegate`):
 
 ```javascript
 on.click('.btn', handler);
 // Registers one 'click' listener on shadowRoot
-// Checks event.target.closest('.btn') for each click
+// Walks event.composedPath() for the first .btn before the shadow root
 ```
 
-Passive vs non-passive is auto-detected. If any handler for an event type is non-passive, the root listener is registered as non-passive.
+Passive defaults align with `events.listen` (touch/wheel only). If any remaining handler for a type is non-passive, the root listener is non-passive. When the registry for a type is empty, the root listener is removed immediately.
+
+---
+
+## Framework-global listeners / observers
+
+These are intentional document-adjacent attachments owned by the framework (not component `on` / `watch`). Soft-nav must not accumulate extras:
+
+| Name | Location | Target | Cleanup |
+| --- | --- | --- | --- |
+| `router.nav-click` | `platform/polyfills/navigation.js` | `document` click | framework lifetime (globals) |
+| `router.nav-popstate` | `platform/polyfills/navigation.js` | `window` popstate | framework lifetime (globals) |
+| `router.container-mo` | `router/container.js` | `#main` MO | disconnects when selectors found; `clearContainers` |
+| `popover.target-click` | `platform/polyfills/popover.js` | `document` click | framework lifetime when polyfill installs |
+| `popover.body-mo:*` | `platform/polyfills/popover.js` | parent (preferred) or `body` | disconnect on hide |
+
+Inspect with `import { globals } from '@adukiorg/anza/platform'` — `globals.count()` / `globals.list()` (test / diagnostics helper). Prefer `on` / `watch` / `events.*` with `{ signal: ctrl.signal }` for app code. Soft-nav aborts the detached leaf’s `ctrl`; anything attached without that signal survives `replaceChildren` / `swapView`.
+
+Per-instance attachment budget (DEV / tests):
+
+```javascript
+import { getAttachmentStats } from '@adukiorg/anza/ui';
+
+const stats = getAttachmentStats(el.shadowRoot);
+// { onRootListeners, onRegistrations, watchBuckets, watchRegistrations, slotListeners }
+// After soft-nav, a detached leaf’s shadow returns null (aborted / cleared).
+```
+
+When a container uses element-scoped View Transitions, `swapView` still runs `replaceChildren` inside the VT **update callback** — disconnect / `ctrl.abort()` happens at swap time, not after the transition animation finishes.
+
+Overlay kit notes (native top-layer vs toast body portal, popover polyfill `globals`): [Overlay patterns](../elements/overlay.md).
 
 ---
 

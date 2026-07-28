@@ -1,0 +1,41 @@
+<h1>Form</h1>
+<p>Form orchestrator that validates form-associated children, submits JSON via the API pipeline, and can queue offline.</p>
+<p><strong>Tag:</strong> <code>ui-form</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/form</code></p>
+<hr />
+<h2>Import</h2>
+<view-code language="javascript">import '@adukiorg/anza/elements/form';
+</view-code>
+<hr />
+<h2>Basic usage</h2>
+<view-code language="html">&lt;ui-form action="/api/profile" method="POST" offline&gt;
+  &lt;ui-field label="Name" required&gt;
+    &lt;ui-input name="name" required&gt;&lt;/ui-input&gt;
+  &lt;/ui-field&gt;
+  &lt;ui-button type="submit"&gt;Save&lt;/ui-button&gt;
+&lt;/ui-form&gt;
+</view-code>
+<hr />
+<h2>Props</h2>
+<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>action</code></td><td>String</td><td>Reflect</td><td>Submit URL (default current location)</td></tr>
+<tr><td><code>method</code></td><td>String</td><td>Reflect</td><td>HTTP method (default <code>POST</code>)</td></tr>
+<tr><td><code>offline</code></td><td>Boolean</td><td>Reflect</td><td>Queue payload when offline instead of failing</td></tr>
+</tbody></table></div>
+<h2>Events</h2>
+<div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody>
+<tr><td><code>invalid</code></td><td>Validation failed via <code>reportValidity</code> on a child</td></tr>
+<tr><td><code>submit-start</code></td><td>About to submit — <code>detail.payload</code></td></tr>
+<tr><td><code>success</code></td><td>Online submit succeeded — <code>detail</code> is the response</td></tr>
+<tr><td><code>submit-error</code></td><td>Submit or queue failed</td></tr>
+<tr><td><code>offline-queued</code></td><td>Queued for background sync — <code>detail.syncId</code></td></tr>
+</tbody></table></div>
+<h2>Notes</h2>
+<p>Collects descendants with <code>formAssociated</code> constructors. Payload keys come from each control’s <code>name</code> attribute and <code>.value</code>.</p>
+<hr />
+<h2>Related</h2>
+<ul>
+<li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="/docs/elements/forms">Forms</a></li>
+<li><a href="/docs/ui/forms">Form association</a></li>
+<li><a href="../../plans/ELEMENTS.md">Planning: ELEMENTS.md</a></li>
+</ul>

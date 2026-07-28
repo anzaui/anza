@@ -1,108 +1,97 @@
-<!-- Main Content -->
 <h1>Quick Start</h1>
 <p>Get a reactive store running in five minutes.</p>
-
-<!-- Create a Store Section -->
+<hr />
 <h2>1. Create a Store</h2>
 <view-code language="javascript">import { state } from '@adukiorg/anza/state';
 
-  const store = state.create({
+const store = state.create({
   count: 0,
   user: null,
   items: []
-  });
+});
 </view-code>
 <p>The store is a reactive Proxy. Reading a property tracks it. Writing triggers subscribers.</p>
-
-<!-- Read and Write Section -->
+<hr />
 <h2>2. Read and Write</h2>
 <view-code language="javascript">// Read
-  console.log(store.get('count')); // 0
+console.log(store.get('count')); // 0
 
-  // Write
-  store.set('count', 5);
-  console.log(store.get('count')); // 5
+// Write
+store.set('count', 5);
+console.log(store.get('count')); // 5
 </view-code>
-
-<!-- Subscribe to Changes Section -->
+<hr />
 <h2>3. Subscribe to Changes</h2>
 <view-code language="javascript">const off = store.subscribe('count', (val, key, prev) =&gt; {
   console.log(`${key} changed: ${prev} -&gt; ${val}`);
-  });
+});
 
-  store.set('count', 10); // &quot;count changed: 5 -&gt; 10&quot;
+store.set('count', 10); // "count changed: 5 -&gt; 10"
 
-  off(); // unsubscribe
+off(); // unsubscribe
 </view-code>
 <p>Subscribers receive the new value, key name, and previous value.</p>
-
-<!-- Batch Updates Section -->
+<hr />
 <h2>4. Batch Updates</h2>
 <view-code language="javascript">store.batch(() =&gt; {
   store.set('count', 1);
   store.set('count', 2);
   store.set('count', 3);
-  });
-  // Subscribers fire once with the final value
+});
+// Subscribers fire once with the final value
 </view-code>
-
-<!-- Derived Values Section -->
+<hr />
 <h2>5. Derived Values</h2>
 <view-code language="javascript">const total = state.derived(() =&gt; {
   const items = store.get('items');
   return items.reduce((sum, item) =&gt; sum + item.price, 0);
-  });
+});
 
-  console.log(total.value); // computed lazily, memoized
+console.log(total.value); // computed lazily, memoized
 </view-code>
-<p>The derived value automatically tracks which store keys it reads. When any dependency changes, it marks itself dirty
-  and recomputes on the next access.</p>
-
-<!-- Snapshot and Hydrate Section -->
+<p>The derived value automatically tracks which store keys it reads. When any dependency changes, it marks itself dirty and recomputes on the next access.</p>
+<hr />
 <h2>6. Snapshot and Hydrate</h2>
 <view-code language="javascript">// Serialize
-  const snapshot = store.snapshot();
+const snapshot = store.snapshot();
 
-  // Restore
-  store.hydrate(snapshot);
+// Restore
+store.hydrate(snapshot);
 </view-code>
 <p><code>snapshot</code> returns a deep clone. <code>hydrate</code> restores without firing redundant triggers.</p>
-
-<!-- Cross-Tab Sync Section -->
+<hr />
 <h2>7. Cross-Tab Sync</h2>
 <view-code language="javascript">store.broadcast('app-sync', ['count', 'user']);
 </view-code>
 <p>Mutations to <code>count</code> and <code>user</code> replicate to other tabs via BroadcastChannel.</p>
-
-<!-- Persist to IndexedDB Section -->
+<hr />
 <h2>8. Persist to IndexedDB</h2>
 <view-code language="javascript">await state.storage.set('keyval', 'count', store.get('count'));
-  const restored = await state.storage.get('keyval', 'count');
+const restored = await state.storage.get('keyval', 'count');
 </view-code>
-
-<!-- Complete Working Example Section -->
+<hr />
 <h2>Complete Working Example</h2>
 <view-code language="javascript">import { state } from '@adukiorg/anza/state';
 
-  const cart = state.create({ items: [], total: 0 });
+const cart = state.create({ items: [], total: 0 });
 
-  // Auto-recalculate total when items change
-  const computedTotal = state.derived(() =&gt; {
+// Auto-recalculate total when items change
+const computedTotal = state.derived(() =&gt; {
   return cart.get('items').reduce((sum, item) =&gt; sum + item.price, 0);
-  });
+});
 
-  // Subscribe to total changes
-  cart.subscribe('items', () =&gt; {
+// Subscribe to total changes
+cart.subscribe('items', () =&gt; {
   console.log('Cart total:', computedTotal.value);
-  });
+});
 
-  // Add items in batch
-  cart.batch(() =&gt; {
+// Add items in batch
+cart.batch(() =&gt; {
   const items = cart.get('items');
   items.push({ name: 'Widget', price: 9.99 });
   cart.set('items', items);
-  });
+});
 
-  // Sync across tabs
-  cart.broadcast('cart-sync', ['items']);
+// Sync across tabs
+cart.broadcast('cart-sync', ['items']);
 </view-code>

@@ -54,11 +54,41 @@ struct RouteInfo {
   public: Option<bool>,
   #[serde(default)]
   seo: Option<SeoMeta>,
+  /// Concrete expansion values from Phase 5 (`ssgParams` in routes.json).
+  #[serde(default)]
+  #[serde(rename = "ssgParams")]
+  ssg_params: HashMap<String, String>,
 }
 
 #[derive(Debug, Deserialize)]
 struct RoutesManifest {
   routes: Vec<RouteInfo>,
+}
+
+/// Optional project SEO config from `ssg.json` (and `ANZA_SITE_ORIGIN` override).
+#[derive(Debug, Clone, Deserialize, Default)]
+struct SsgSiteConfig {
+  /// Absolute site origin, e.g. `https://example.com` (no trailing slash).
+  #[serde(default)]
+  origin: Option<String>,
+  /// Display name for JSON-LD WebSite (defaults to "Anza").
+  #[serde(default)]
+  #[serde(rename = "siteName")]
+  site_name: Option<String>,
+  /// Emit JSON-LD WebSite/WebPage in SSG `<head>` (default true).
+  #[serde(default = "default_true")]
+  #[serde(rename = "jsonLd")]
+  json_ld: bool,
+  /// Emit `sitemap.xml` (default true).
+  #[serde(default = "default_true")]
+  sitemap: bool,
+  /// Emit `robots.txt` (default true).
+  #[serde(default = "default_true")]
+  robots: bool,
+}
+
+fn default_true() -> bool {
+  true
 }
 
 #[derive(Debug, Clone)]
@@ -92,16 +122,21 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) {
     }
   };
 
+  let site = load_site_config(src_dir);
   let importmap = load_importmap(dist_dir);
   let docks = collect_docks(&manifest.routes);
 
   let mut emitted = 0usize;
+  let mut ssg_paths: Vec<String> = Vec::new();
   for route in &manifest.routes {
     if !should_ssg(route) {
       continue;
     }
-    match emit_route(src_dir, dist_dir, route, &docks, &importmap) {
-      Ok(()) => emitted += 1,
+    match emit_route(src_dir, dist_dir, route, &docks, &importmap, &site) {
+      Ok(()) => {
+        emitted += 1;
+        ssg_paths.push(normalize_route_path(&route.path));
+      }
       Err(err) => {
         logs::warn!("SSG failed for {}: {}", route.path, err);
       }
@@ -113,15 +148,21 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) {
   } else {
     logs::info!("SSG: no eligible routes to emit");
   }
+
+  if let Err(err) = emit_seo_extras(dist_dir, &site, &ssg_paths) {
+    logs::warn!("SSG SEO extras failed: {}", err);
+  }
 }
 
-/// v1 eligibility: no params; honor `ssg` when present; else `/` and `/docs/**`.
+/// Eligibility: honor `ssg` when present; else `/` and `/docs/**`.
+/// Parametric patterns (`:param` / `*` / non-empty `params`) are never emitted —
+/// only concrete expanded paths (empty params, no `:`) qualify.
 fn should_ssg(route: &RouteInfo) -> bool {
   // Dock registry rows use bare names ("docs") — never SSG those.
   if !route.path.starts_with('/') {
     return false;
   }
-  // Parametric routes need a build-time expansion manifest (not in v1).
+  // Parametric patterns need expansion first (Phase 5 → concrete path records).
   if !route.params.is_empty() || route.path.contains(':') || route.path.contains('*') {
     return false;
   }
@@ -172,6 +213,7 @@ fn emit_route(
   route: &RouteInfo,
   docks: &HashMap<String, DockInfo>,
   importmap: &str,
+  site: &SsgSiteConfig,
 ) -> Result<(), String> {
   let out_path = output_path(dist_dir, &route.path);
   if let Some(parent) = out_path.parent() {
@@ -179,23 +221,46 @@ fn emit_route(
   }
 
   let page_html = read_page_html(src_dir, dist_dir, route)?;
+  let page_html = interpolate_params(&page_html, &route.ssg_params);
   let page_css = read_page_css(src_dir, dist_dir, route);
+  let page_css = interpolate_params(&page_css, &route.ssg_params);
 
   let h1_text = extract_h1_text(&page_html);
   let h1_inner = extract_h1_inner_html(&page_html);
   let first_p = extract_first_p_text(&page_html);
 
   let seo = route.seo.clone().unwrap_or_default();
-  let title = non_empty(seo.title.clone())
+  let title = non_empty(seo.title.clone().map(|t| interpolate_params(&t, &route.ssg_params)))
     .or_else(|| non_empty(h1_text.clone()))
     .unwrap_or_else(|| title_from_path(&route.path));
-  let description = non_empty(seo.description.clone())
-    .or_else(|| non_empty(first_p))
-    .unwrap_or_else(|| format!("{} — Anza documentation", title));
-  let canonical = non_empty(seo.canonical.clone()).unwrap_or_else(|| route.path.clone());
+  let description = non_empty(
+    seo
+      .description
+      .clone()
+      .map(|d| interpolate_params(&d, &route.ssg_params)),
+  )
+  .or_else(|| non_empty(first_p))
+  .unwrap_or_else(|| format!("{} — Anza documentation", title));
+  let path_canonical = non_empty(
+    seo
+      .canonical
+      .clone()
+      .map(|c| interpolate_params(&c, &route.ssg_params)),
+  )
+  .unwrap_or_else(|| normalize_route_path(&route.path));
+  let canonical = absolutize(site.origin.as_deref(), &path_canonical);
 
   let body = build_dsd_tree(src_dir, dist_dir, route, docks, &page_html, &page_css, h1_inner.as_deref())?;
-  let head_extra = build_head(route, docks, importmap, &title, &description, &canonical, &seo);
+  let head_extra = build_head(
+    route,
+    docks,
+    importmap,
+    &title,
+    &description,
+    &canonical,
+    &seo,
+    site,
+  );
 
   let html = format!(
     r#"<!DOCTYPE html>
@@ -212,8 +277,106 @@ fn emit_route(
     body = body,
   );
 
+  // CSR soft-nav fetches `template.html` relative to the page module. When that
+  // path is `./index.html`, it collides with this SSG document — the leaf then
+  // mounts a full nested dock tree in its shadow (stacked docs chrome). Preserve
+  // the fragment beside the SSG page and rewrite the dist module + routes.json.
+  preserve_csr_template(dist_dir, route, &out_path, &page_html)?;
+
   std::fs::write(&out_path, html).map_err(|e| e.to_string())?;
   logs::compiler!("SSG {}", out_path.display());
+  Ok(())
+}
+
+/// When the page fragment path equals the SSG `index.html` output, keep the
+/// fragment as `template.html` and point the built page module at it.
+fn preserve_csr_template(
+  dist_dir: &Path,
+  route: &RouteInfo,
+  ssg_out: &Path,
+  page_html: &str,
+) -> Result<(), String> {
+  let Some(file) = route.file.as_deref() else {
+    return Ok(());
+  };
+  let html_rel = route.html.as_deref().unwrap_or("./index.html");
+  if html_rel.starts_with('/') {
+    // Absolute site-root templates never share the route's index.html slot.
+    return Ok(());
+  }
+
+  let fragment_dist = {
+    let base = Path::new(file);
+    let parent = base.parent().unwrap_or_else(|| Path::new(""));
+    dist_dir.join(normalize_rel(&parent.join(html_rel)))
+  };
+
+  // Only rewrite when SSG would clobber the CSR fragment.
+  if fragment_dist != ssg_out {
+    return Ok(());
+  }
+
+  let preserve_path = ssg_out
+    .parent()
+    .unwrap_or_else(|| Path::new(""))
+    .join("template.html");
+  std::fs::write(&preserve_path, page_html).map_err(|e| e.to_string())?;
+
+  let js_path = dist_dir.join(file);
+  if js_path.exists() {
+    let src = std::fs::read_to_string(&js_path).map_err(|e| e.to_string())?;
+    let rewritten = rewrite_template_html_path(&src, html_rel, "./template.html");
+    if rewritten != src {
+      std::fs::write(&js_path, rewritten).map_err(|e| e.to_string())?;
+    }
+  }
+
+  rewrite_routes_html_field(dist_dir, &route.path, "./template.html")?;
+  logs::compiler!(
+    "SSG preserved CSR fragment {} → {}",
+    fragment_dist.display(),
+    preserve_path.display()
+  );
+  Ok(())
+}
+
+fn rewrite_template_html_path(source: &str, from: &str, to: &str) -> String {
+  // Match both `html: './index.html'` and `html: "./index.html"`.
+  let patterns = [
+    format!("html: '{}'", from),
+    format!("html: \"{}\"", from),
+  ];
+  let mut out = source.to_string();
+  for pat in patterns {
+    let replacement = if pat.contains('\'') {
+      format!("html: '{}'", to)
+    } else {
+      format!("html: \"{}\"", to)
+    };
+    out = out.replace(&pat, &replacement);
+  }
+  out
+}
+
+fn rewrite_routes_html_field(dist_dir: &Path, route_path: &str, new_html: &str) -> Result<(), String> {
+  let routes_path = dist_dir.join("routes.json");
+  let content = std::fs::read_to_string(&routes_path).map_err(|e| e.to_string())?;
+  let mut value: serde_json::Value =
+    serde_json::from_str(&content).map_err(|e| e.to_string())?;
+  let Some(routes) = value.get_mut("routes").and_then(|r| r.as_array_mut()) else {
+    return Ok(());
+  };
+  for route in routes {
+    let path = route.get("path").and_then(|p| p.as_str()).unwrap_or("");
+    if path == route_path {
+      if let Some(obj) = route.as_object_mut() {
+        obj.insert("html".into(), serde_json::Value::String(new_html.into()));
+      }
+      break;
+    }
+  }
+  let pretty = serde_json::to_string_pretty(&value).map_err(|e| e.to_string())?;
+  std::fs::write(&routes_path, pretty + "\n").map_err(|e| e.to_string())?;
   Ok(())
 }
 
@@ -234,6 +397,7 @@ fn build_head(
   description: &str,
   canonical: &str,
   seo: &SeoMeta,
+  site: &SsgSiteConfig,
 ) -> String {
   let mut head = String::new();
   head.push_str("  <meta charset=\"utf-8\" />\n");
@@ -263,6 +427,10 @@ fn build_head(
     escape_attr(canonical)
   ));
   head.push_str("  <meta name=\"twitter:card\" content=\"summary\" />\n");
+
+  if site.json_ld {
+    head.push_str(&json_ld_script(site, title, description, canonical, &route.path));
+  }
 
   // Import map before any module scripts (inline — same as production graph inject).
   if !importmap.is_empty() {
@@ -315,6 +483,22 @@ fn build_head(
   head
 }
 
+/// Open DSD host with **light-DOM** children after the template.
+///
+/// Nested custom-element hosts MUST be siblings of `<template shadowrootmode>`,
+/// not descendants of it. Shadow + slots only project light-DOM children of the
+/// host; hosts baked into the parent's shadow template never slot and break
+/// hard-refresh / SSG nesting (cascade adopt looks at `parent.children`).
+fn dsd_host(tag: &str, attrs: &str, shadow_inner: &str, light_children: &str) -> String {
+  format!(
+    "<{tag}{attrs}>\n<template shadowrootmode=\"open\">\n{shadow}\n</template>\n{light}</{tag}>",
+    tag = tag,
+    attrs = attrs,
+    shadow = shadow_inner,
+    light = light_children,
+  )
+}
+
 fn build_dsd_tree(
   src_dir: &Path,
   dist_dir: &Path,
@@ -327,15 +511,17 @@ fn build_dsd_tree(
   // Innermost: the leaf page custom element with open DSD.
   // `class="page-content"` matches the client orchestrator's soft-nav marker so
   // boot/`found` reuses this leaf (adopt) instead of swapping a CSR clone over it.
-  let mut inner = format!(
-    "<{tag} class=\"page-content\">\n<template shadowrootmode=\"open\">\n{style}{body}\n</template>\n{light}</{tag}>",
-    tag = route.tag,
-    style = style_block(page_css),
-    body = page_html.trim(),
-    light = light_dom_heading(light_h1),
+  let shadow = format!("{}{}", style_block(page_css), page_html.trim());
+  let mut inner = dsd_host(
+    &route.tag,
+    " class=\"page-content\"",
+    &shadow,
+    &light_dom_heading(light_h1),
   );
 
   // Wrap via chain from leaf → root so outer docks contain inner ones.
+  // Each wrap attaches the previous tree as a light-DOM child (after the
+  // parent's DSD template) so slots project the nested hosts.
   for via_name in route.via.iter().rev() {
     let dock = resolve_dock(via_name, docks, route, src_dir);
     let (tpl_html, tpl_css) = read_dock_assets(src_dir, dist_dir, &dock)?;
@@ -352,15 +538,10 @@ fn build_dsd_tree(
     };
     let mut css = String::from(":host { contain: layout; display: block; }\n");
     css.push_str(&tpl_css);
-
-    inner = format!(
-      "<{tag}{attrs}>\n<template shadowrootmode=\"open\">\n{style}{body}\n</template>\n{child}\n</{tag}>",
-      tag = dock.tag,
-      attrs = attrs,
-      style = style_block(&css),
-      body = body.trim(),
-      child = inner,
-    );
+    let shadow = format!("{}{}", style_block(&css), body.trim());
+    // Trailing newline keeps nested host indentation readable in View Source.
+    let light = format!("{}\n", inner);
+    inner = dsd_host(&dock.tag, attrs, &shadow, &light);
   }
 
   Ok(inner)
@@ -369,6 +550,17 @@ fn build_dsd_tree(
 fn resolve_dock(name: &str, docks: &HashMap<String, DockInfo>, route: &RouteInfo, src_dir: &Path) -> DockInfo {
   if let Some(d) = docks.get(name) {
     return d.clone();
+  }
+
+  // Accept custom element tag as alias for the registry key
+  // (e.g. via entry "dock-doccontent" → dock registered as "content").
+  if let Some(d) = docks.values().find(|d| d.tag == name) {
+    return d.clone();
+  }
+  if let Some(stripped) = name.strip_prefix("dock-") {
+    if let Some(d) = docks.get(stripped) {
+      return d.clone();
+    }
   }
 
   // Infer from this route's layout/template/style lists (sibling layouts wiring).
@@ -734,6 +926,200 @@ fn escape_attr(s: &str) -> String {
   escape_html(s).replace('"', "&quot;")
 }
 
+/// Replace `{{name}}` placeholders using Phase 5 expansion values.
+fn interpolate_params(input: &str, values: &HashMap<String, String>) -> String {
+  if values.is_empty() || !input.contains("{{") {
+    return input.to_string();
+  }
+  let mut out = input.to_string();
+  for (k, v) in values {
+    out = out.replace(&format!("{{{{{}}}}}", k), v);
+  }
+  out
+}
+
+/// Load `ssg.json` from `src_dir` or its parent; `ANZA_SITE_ORIGIN` overrides origin.
+fn load_site_config(src_dir: &Path) -> SsgSiteConfig {
+  let mut cfg = SsgSiteConfig {
+    origin: None,
+    site_name: None,
+    json_ld: true,
+    sitemap: true,
+    robots: true,
+  };
+  let candidates = [
+    src_dir.join("ssg.json"),
+    src_dir
+      .parent()
+      .map(|p| p.join("ssg.json"))
+      .unwrap_or_else(|| src_dir.join("ssg.json")),
+  ];
+  for path in &candidates {
+    let Ok(text) = std::fs::read_to_string(path) else {
+      continue;
+    };
+    match serde_json::from_str::<SsgSiteConfig>(&text) {
+      Ok(parsed) => {
+        cfg = parsed;
+        logs::info!("Loaded SSG site config from {}", path.display());
+        break;
+      }
+      Err(err) => {
+        logs::warn!("Invalid ssg.json at {}: {}", path.display(), err);
+      }
+    }
+  }
+  if let Ok(env_origin) = std::env::var("ANZA_SITE_ORIGIN") {
+    let trimmed = env_origin.trim();
+    if !trimmed.is_empty() {
+      cfg.origin = Some(trimmed.to_string());
+    }
+  }
+  if let Some(ref mut origin) = cfg.origin {
+    while origin.ends_with('/') {
+      origin.pop();
+    }
+    if origin.is_empty() {
+      cfg.origin = None;
+    }
+  }
+  cfg
+}
+
+fn normalize_route_path(path: &str) -> String {
+  if path.is_empty() || path == "/" {
+    "/".to_string()
+  } else if path.ends_with('/') && path.len() > 1 {
+    path.trim_end_matches('/').to_string()
+  } else {
+    path.to_string()
+  }
+}
+
+/// Join optional origin with a path or absolute URL.
+fn absolutize(origin: Option<&str>, path_or_url: &str) -> String {
+  let raw = path_or_url.trim();
+  if raw.starts_with("http://") || raw.starts_with("https://") {
+    return raw.to_string();
+  }
+  let path = normalize_route_path(raw);
+  match origin {
+    Some(origin) if !origin.is_empty() => {
+      if path == "/" {
+        format!("{}/", origin.trim_end_matches('/'))
+      } else {
+        format!("{}{}", origin.trim_end_matches('/'), path)
+      }
+    }
+    _ => path,
+  }
+}
+
+fn json_ld_script(
+  site: &SsgSiteConfig,
+  title: &str,
+  description: &str,
+  canonical: &str,
+  route_path: &str,
+) -> String {
+  let site_name = site
+    .site_name
+    .as_deref()
+    .filter(|s| !s.is_empty())
+    .unwrap_or("Anza");
+  let site_url = absolutize(site.origin.as_deref(), "/");
+  let page_url = canonical.to_string();
+
+  let mut graph = Vec::new();
+  // WebSite on every public page (small, crawler-friendly).
+  graph.push(serde_json::json!({
+    "@type": "WebSite",
+    "name": site_name,
+    "url": site_url,
+  }));
+  graph.push(serde_json::json!({
+    "@type": "WebPage",
+    "name": title,
+    "description": description,
+    "url": page_url,
+    "isPartOf": { "@type": "WebSite", "name": site_name, "url": site_url },
+  }));
+  // Silence unused in case we branch later.
+  let _ = route_path;
+
+  let doc = serde_json::json!({
+    "@context": "https://schema.org",
+    "@graph": graph,
+  });
+  let compact = serde_json::to_string(&doc).unwrap_or_else(|_| "{}".to_string());
+  format!(
+    "  <script type=\"application/ld+json\">{}</script>\n",
+    compact
+  )
+}
+
+fn emit_seo_extras(
+  dist_dir: &Path,
+  site: &SsgSiteConfig,
+  ssg_paths: &[String],
+) -> Result<(), String> {
+  let mut paths = ssg_paths.to_vec();
+  paths.sort();
+  paths.dedup();
+
+  if site.sitemap {
+    emit_sitemap(dist_dir, site.origin.as_deref(), &paths)?;
+  }
+  if site.robots {
+    emit_robots(dist_dir, site.origin.as_deref())?;
+  }
+  Ok(())
+}
+
+fn emit_sitemap(dist_dir: &Path, origin: Option<&str>, paths: &[String]) -> Result<(), String> {
+  if origin.is_none() {
+    logs::info!(
+      "SSG sitemap: no site origin configured — <loc> uses site-root paths. Set ssg.json \"origin\" or ANZA_SITE_ORIGIN for absolute URLs."
+    );
+  }
+  let mut xml = String::from(
+    r#"<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+"#,
+  );
+  for path in paths {
+    let loc = absolutize(origin, path);
+    xml.push_str("  <url>\n");
+    xml.push_str(&format!("    <loc>{}</loc>\n", escape_xml(&loc)));
+    xml.push_str("  </url>\n");
+  }
+  xml.push_str("</urlset>\n");
+  let dest = dist_dir.join("sitemap.xml");
+  std::fs::write(&dest, xml).map_err(|e| e.to_string())?;
+  logs::success!("SSG wrote {}", dest.display());
+  Ok(())
+}
+
+fn emit_robots(dist_dir: &Path, origin: Option<&str>) -> Result<(), String> {
+  let sitemap_href = absolutize(origin, "/sitemap.xml");
+  let body = format!(
+    "User-agent: *\nAllow: /\n\nSitemap: {}\n",
+    sitemap_href
+  );
+  let dest = dist_dir.join("robots.txt");
+  std::fs::write(&dest, body).map_err(|e| e.to_string())?;
+  logs::success!("SSG wrote {}", dest.display());
+  Ok(())
+}
+
+fn escape_xml(s: &str) -> String {
+  s.replace('&', "&amp;")
+    .replace('<', "&lt;")
+    .replace('>', "&gt;")
+    .replace('"', "&quot;")
+    .replace('\'', "&apos;")
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -754,6 +1140,7 @@ mod tests {
       ssg: None,
       public: None,
       seo: None,
+      ssg_params: HashMap::new(),
     };
     assert!(should_ssg(&page));
 
@@ -776,6 +1163,18 @@ mod tests {
     };
     assert!(!should_ssg(&parametric));
 
+    let expanded = RouteInfo {
+      path: "/docs/ssg/expand/foo".into(),
+      ssg: Some(true),
+      ssg_params: {
+        let mut m = HashMap::new();
+        m.insert("slug".into(), "foo".into());
+        m
+      },
+      ..page.clone()
+    };
+    assert!(should_ssg(&expanded));
+
     let flagged_off = RouteInfo {
       path: "/docs/x".into(),
       ssg: Some(false),
@@ -788,6 +1187,17 @@ mod tests {
       ..page
     };
     assert!(!should_ssg(&dock_row));
+  }
+
+  #[test]
+  fn interpolates_ssg_params() {
+    let mut values = HashMap::new();
+    values.insert("slug".into(), "foo".into());
+    assert_eq!(
+      interpolate_params("<h1>Expand: {{slug}}</h1>", &values),
+      "<h1>Expand: foo</h1>"
+    );
+    assert_eq!(interpolate_params("static", &values), "static");
   }
 
   #[test]
@@ -804,5 +1214,87 @@ mod tests {
   fn extracts_h1() {
     let html = "<h1 class=\"t\">Start</h1><p>Hi</p>";
     assert_eq!(extract_h1_text(html).as_deref(), Some("Start"));
+  }
+
+  #[test]
+  fn rewrite_template_html_path_quotes() {
+    let src = "page('/x', { template: { html: './index.html' } });";
+    let out = rewrite_template_html_path(src, "./index.html", "./template.html");
+    assert!(out.contains("html: './template.html'"));
+    assert!(!out.contains("html: './index.html'"));
+
+    let src2 = r#"page('/x', { template: { html: "./index.html" } });"#;
+    let out2 = rewrite_template_html_path(src2, "./index.html", "./template.html");
+    assert!(out2.contains(r#"html: "./template.html""#));
+  }
+
+  #[test]
+  fn dsd_host_puts_children_in_light_dom_after_template() {
+    let html = dsd_host(
+      "dock-docs",
+      "",
+      "<style></style>\n<slot></slot>",
+      "<dock-doccontent>\n<template shadowrootmode=\"open\">\n<slot></slot>\n</template>\n</dock-doccontent>\n",
+    );
+
+    let tpl_open = html.find("<template shadowrootmode=\"open\">").expect("open tpl");
+    let tpl_close = html.find("</template>").expect("close tpl");
+    let child = html.find("<dock-doccontent>").expect("child host");
+    assert!(
+      tpl_open < tpl_close && tpl_close < child,
+      "child host must be a light-DOM sibling after </template>, got:\n{html}"
+    );
+    // Child must not appear inside the parent's shadow template body.
+    let shadow_body = &html[tpl_open..tpl_close];
+    assert!(
+      !shadow_body.contains("<dock-doccontent>"),
+      "nested host must not live inside parent DSD template:\n{html}"
+    );
+  }
+
+  #[test]
+  fn dsd_host_leaf_keeps_light_heading_outside_shadow() {
+    let html = dsd_host(
+      "doc-intro-start",
+      " class=\"page-content\"",
+      "<style></style>\n<h1>Start</h1>",
+      "  <h1>Start</h1>\n",
+    );
+    let tpl_close = html.find("</template>").expect("close tpl");
+    let light_h1 = html.rfind("<h1>Start</h1>").expect("light h1");
+    assert!(tpl_close < light_h1);
+  }
+
+  #[test]
+  fn absolutize_joins_origin() {
+    assert_eq!(absolutize(None, "/docs/x"), "/docs/x");
+    assert_eq!(
+      absolutize(Some("https://example.com"), "/docs/x"),
+      "https://example.com/docs/x"
+    );
+    assert_eq!(
+      absolutize(Some("https://example.com/"), "/"),
+      "https://example.com/"
+    );
+    assert_eq!(
+      absolutize(Some("https://example.com"), "https://other.test/a"),
+      "https://other.test/a"
+    );
+  }
+
+  #[test]
+  fn json_ld_contains_website_and_webpage() {
+    let site = SsgSiteConfig {
+      origin: Some("https://example.com".into()),
+      site_name: Some("Anza".into()),
+      json_ld: true,
+      sitemap: true,
+      robots: true,
+    };
+    let script = json_ld_script(&site, "Start", "Desc", "https://example.com/docs/x", "/docs/x");
+    assert!(script.contains("application/ld+json"));
+    assert!(script.contains("WebSite"));
+    assert!(script.contains("WebPage"));
+    assert!(script.contains("https://example.com/docs/x"));
   }
 }

@@ -173,4 +173,4 @@ dist/
     index.d.ts           # Global HTMLElementTagNameMap augmentation
 ```
 
-The folder structure mirrors `src/`. Serve `dist/` from any static host.
+The folder structure mirrors `src/`. Serve `dist/` as the document root from any static host. Public URLs are `/app.js`, `/importmap.json`, `/tokens/...` — not `/dist/app.js`. Mode A SSG (during both `anza dev` and `anza build`) writes contentful HTML per public route so crawlers and hard refresh do not depend on an empty SPA shell. Soft-nav continues to use page fragments (`template.html` when the fragment path collides with SSG `index.html`).

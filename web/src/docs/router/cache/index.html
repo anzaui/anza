@@ -1,9 +1,6 @@
-<!-- Main Content -->
 <h1>Cache</h1>
-<p>The router provides a route-level cache backed by the browser Cache API. Prefetch view assets on hover or visibility
-  so navigation is instant.</p>
-
-<!-- Prefetch Section -->
+<p>The router provides a route-level cache backed by the browser Cache API. Prefetch view assets on hover or visibility so navigation is instant.</p>
+<hr />
 <h2>Prefetch</h2>
 <p>Fetch and cache a URL before the user navigates to it:</p>
 <view-code language="javascript">import { router } from '@adukiorg/anza/router';
@@ -18,10 +15,8 @@ observer.observe(section, { callback: () =&gt; {
   router.cache.prefetch('/settings');
 }});
 </view-code>
-<p>Prefetch uses the Cache API with a 5-minute TTL. If the resource is already cached and not expired, it returns
-  immediately.</p>
-
-<!-- Cache Read and Write Section -->
+<p>Prefetch uses the Cache API with a 5-minute TTL. If the resource is already cached and not expired, it returns immediately.</p>
+<hr />
 <h2>Cache Read and Write</h2>
 <p>Direct cache access:</p>
 <view-code language="javascript">// Read
@@ -36,29 +31,24 @@ await router.cache.purge('/reports');
 // Purge everything
 await router.cache.purge();
 </view-code>
-
-<!-- TTL Convention Section -->
+<hr />
 <h2>TTL Convention</h2>
-<p>The cache stores an <code>x-expires-at</code> header on every response. When reading, expired entries are deleted
-  automatically. The default TTL is 5 minutes.</p>
-
-<!-- Graceful Degradation Section -->
+<p>The cache stores an <code>x-expires-at</code> header on every response. When reading, expired entries are deleted automatically. The default TTL is 5 minutes.</p>
+<hr />
 <h2>Graceful Degradation</h2>
-<p>When the Cache API is unavailable (private mode, quota exceeded, unsupported browser), all cache operations return
-  <code>null</code> silently. Navigation continues normally.</p>
-
-<!-- When to Prefetch Section -->
+<p>When the Cache API is unavailable (private mode, quota exceeded, unsupported browser), all cache operations return <code>null</code> silently. Navigation continues normally.</p>
+<hr />
 <h2>When to Prefetch</h2>
 <p>Good candidates:</p>
 <ul>
-  <li>Links the user is likely to click (hover, focus)</li>
-  <li>Sections that become visible in a scroll area</li>
-  <li>Next steps in a linear flow (wizard, checkout)</li>
-  <li>Routes whose data is expensive to fetch</li>
+<li>Links the user is likely to click (hover, focus)</li>
+<li>Sections that become visible in a scroll area</li>
+<li>Next steps in a linear flow (wizard, checkout)</li>
+<li>Routes whose data is expensive to fetch</li>
 </ul>
 <p>Avoid prefetching:</p>
 <ul>
-  <li>Routes behind authentication guards (the guard still runs)</li>
-  <li>Large assets that would exhaust cache quota</li>
-  <li>Routes the user is unlikely to visit</li>
+<li>Routes behind authentication guards (the guard still runs)</li>
+<li>Large assets that would exhaust cache quota</li>
+<li>Routes the user is unlikely to visit</li>
 </ul>

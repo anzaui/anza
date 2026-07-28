@@ -1,99 +1,60 @@
-<!-- Main Content -->
 <h1>Stagger</h1>
-<p>
-  <code>animations.stagger</code> animates a collection of elements with cascading delays. It returns a group
-  controller with <code>cancel()</code>, <code>finish()</code>, and a <code>finished</code> promise.
-</p>
-
-<!-- Signature Section -->
+<p><code>animations.stagger</code> animates a collection of elements with cascading delays. It returns a group controller with <code>cancel()</code>, <code>finish()</code>, and a <code>finished</code> promise.</p>
+<hr />
 <h2>Signature</h2>
-<view-code language="javascript">
-  stagger(elements, animationInput, options);
+<view-code language="javascript">stagger(elements, animationInput, options);
 </view-code>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Param</th>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>elements</code></td>
-        <td>NodeList | Array</td>
-        <td>Elements to animate</td>
-      </tr>
-      <tr>
-        <td><code>animationInput</code></td>
-        <td>string | Keyframe[]</td>
-        <td>Template or keyframes</td>
-      </tr>
-      <tr>
-        <td><code>options</code></td>
-        <td>object</td>
-        <td>WAAPI options plus <code>staggerDelay</code></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Basic Stagger Section -->
+<div class="table-wrap"><table><thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>elements</code></td><td>NodeList | Array</td><td>Elements to animate</td></tr>
+<tr><td><code>animationInput</code></td><td>string | Keyframe[]</td><td>Template or keyframes</td></tr>
+<tr><td><code>options</code></td><td>object</td><td>WAAPI options plus <code>staggerDelay</code></td></tr>
+</tbody></table></div>
+<hr />
 <h2>Basic Stagger</h2>
-<view-code language="javascript">
-  import { animations } from '@adukiorg/anza/animations';
+<view-code language="javascript">import { animations } from '@adukiorg/anza/animations';
 
-  const items = document.querySelectorAll('.item');
+const items = document.querySelectorAll('.item');
 
-  const group = animations.stagger(items, 'fade', {
-    staggerDelay: 60, // 60ms between each
-    duration: 300
-  });
+const group = animations.stagger(items, 'fade', {
+  staggerDelay: 60,  // 60ms between each
+  duration: 300
+});
 
-  await group.finished;
+await group.finished;
 </view-code>
 <p>Delay for element at index <code>i</code> is: <code>(options.delay ?? 0) + i * staggerDelay</code>.</p>
-
-<!-- Group Controls Section -->
+<hr />
 <h2>Group Controls</h2>
-<view-code language="javascript">
-  // Cancel all animations immediately
-  group.cancel();
+<view-code language="javascript">// Cancel all animations immediately
+group.cancel();
 
-  // Skip all to their final state
-  group.finish();
+// Skip all to their final state
+group.finish();
 
-  // Wait for completion
-  await group.finished;
+// Wait for completion
+await group.finished;
 </view-code>
-
-<!-- Stagger with Slide Section -->
+<hr />
 <h2>Stagger with Slide</h2>
-<view-code language="javascript">
-  animations.stagger(items, 'slide-y', {
-    staggerDelay: 50,
-    duration: animations.duration('normal'),
-    easing: animations.ease('out')
-  });
+<view-code language="javascript">animations.stagger(items, 'slide-y', {
+  staggerDelay: 50,
+  duration: animations.duration('normal'),
+  easing: animations.ease('out')
+});
 </view-code>
-
-<!-- Reverse Stagger Section -->
+<hr />
 <h2>Reverse Stagger</h2>
-<view-code language="javascript">
-  const reversed = Array.from(items).reverse();
+<view-code language="javascript">const reversed = Array.from(items).reverse();
 
-  animations.stagger(reversed, 'fade', {
-    staggerDelay: 40,
-    duration: 200
-  });
+animations.stagger(reversed, 'fade', {
+  staggerDelay: 40,
+  duration: 200
+});
 </view-code>
-
-<!-- Custom Keyframes Section -->
+<hr />
 <h2>Custom Keyframes</h2>
-<view-code language="javascript">
-  animations.stagger(items, [
-    { opacity: 0, transform: 'scale(0.5)' },
-    { opacity: 1, transform: 'scale(1)' }
-  ], { staggerDelay: 100, duration: 400 });
+<view-code language="javascript">animations.stagger(items, [
+  { opacity: 0, transform: 'scale(0.5)' },
+  { opacity: 1, transform: 'scale(1)' }
+], { staggerDelay: 100, duration: 400 });
 </view-code>

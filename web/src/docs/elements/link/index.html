@@ -1,0 +1,34 @@
+<h1>Link</h1>
+<p>Router-aware hyperlink that intercepts same-origin clicks for soft navigation and tracks <code>aria-current</code>.</p>
+<p><strong>Tag:</strong> <code>ui-link</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/link</code></p>
+<hr />
+<h2>Import</h2>
+<view-code language="javascript">import '@adukiorg/anza/elements/link';
+</view-code>
+<hr />
+<h2>Basic usage</h2>
+<view-code language="html">&lt;ui-link href="/docs/intro/index"&gt;Introduction&lt;/ui-link&gt;
+&lt;ui-link href="https://example.com" external&gt;External&lt;/ui-link&gt;
+</view-code>
+<hr />
+<h2>Props</h2>
+<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>href</code></td><td>String</td><td>Reflect</td><td>Destination URL</td></tr>
+<tr><td><code>target</code></td><td>String</td><td>Reflect</td><td>Forwarded to the inner <code>&lt;a&gt;</code> (e.g. <code>_blank</code>)</td></tr>
+<tr><td><code>current</code></td><td>String</td><td>Reflect</td><td>Explicit <code>aria-current</code> value; auto-sets <code>page</code> when path matches</td></tr>
+<tr><td><code>external</code></td><td>Boolean</td><td>Reflect</td><td>Treat as external (also auto when <code>http(s):</code>)</td></tr>
+</tbody></table></div>
+<h2>Events</h2>
+<div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody>
+<tr><td><code>external</code></td><td>Cancelable; fired for external clicks before the browser follows the link</td></tr>
+</tbody></table></div>
+<h2>Notes</h2>
+<p>Same-origin clicks call <code>router.navigate(href)</code> unless modified keys, <code>#</code> hashes, or <code>target="_blank"</code>. External links show an indicator icon.</p>
+<hr />
+<h2>Related</h2>
+<ul>
+<li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="/docs/elements/primitives">Primitives</a></li>
+<li><a href="/docs/router/index">Router</a></li>
+<li><a href="../../plans/ELEMENTS.md">Planning: ELEMENTS.md</a></li>
+</ul>

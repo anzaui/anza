@@ -1,0 +1,34 @@
+<h1>Grid</h1>
+<p>Responsive CSS grid with column template and gap.</p>
+<p><strong>Tag:</strong> <code>ui-grid</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/grid</code></p>
+<hr />
+<h2>Import</h2>
+<view-code language="javascript">import '@adukiorg/anza/elements/grid';
+</view-code>
+<hr />
+<h2>Basic usage</h2>
+<view-code language="html">&lt;ui-grid cols="3" gap="4"&gt;
+  &lt;div&gt;A&lt;/div&gt;&lt;div&gt;B&lt;/div&gt;&lt;div&gt;C&lt;/div&gt;
+&lt;/ui-grid&gt;
+&lt;ui-grid cols="1fr 2fr" gap="1rem"&gt;
+  &lt;div&gt;Narrow&lt;/div&gt;
+  &lt;div&gt;Wide&lt;/div&gt;
+&lt;/ui-grid&gt;
+</view-code>
+<hr />
+<h2>Props</h2>
+<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>cols</code></td><td>String</td><td>Reflect</td><td>Numeric → <code>repeat(N, minmax(0, 1fr))</code>; otherwise raw CSS track list</td></tr>
+<tr><td><code>gap</code></td><td>String</td><td>Reflect</td><td>Sets <code>--grid-gap</code> (length/<code>rem</code>, or space token name)</td></tr>
+</tbody></table></div>
+<h2>Notes</h2>
+<p>Default slot / <code>part="grid"</code>.</p>
+<hr />
+<h2>Related</h2>
+<ul>
+<li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="/docs/elements/layout">Layout</a></li>
+<li><a href="/docs/elements/stack">Stack</a></li>
+<li><a href="/docs/elements/split">Split</a></li>
+<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
+</ul>

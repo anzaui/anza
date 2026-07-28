@@ -1,8 +1,6 @@
-<!-- Main Content -->
 <h1>Forms</h1>
 <p>Declarative elements can participate in HTML forms by declaring <code>form: true</code>. The element gains <code>ElementInternals</code>, form-associated callbacks, and the ability to expose custom state pseudo-classes.</p>
-
-<!-- Enabling Form Participation Section -->
+<hr />
 <h2>Enabling Form Participation</h2>
 <view-code language="javascript">view('toggle-switch', {
   form: true,
@@ -16,7 +14,7 @@
   `,
   on: {
     connect({ el, refs, internals }) {
-      refs.btn.addEventListener('click', () => {
+      refs.btn.addEventListener('click', () =&gt; {
         el.checked = !el.checked;
         internals.setFormValue(el.checked ? 'on' : '');
         refs.label.textContent = el.checked ? 'On' : 'Off';
@@ -31,48 +29,24 @@
   &lt;button type="submit"&gt;Save&lt;/button&gt;
 &lt;/form&gt;
 </view-code>
-
-<!-- Form-Associated Callbacks Section -->
+<hr />
 <h2>Form-Associated Callbacks</h2>
 <p>When <code>form: true</code> is set, the element receives these callbacks:</p>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Callback</th>
-        <th>Trigger</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>associated</code></td>
-        <td>Element is associated with a form</td>
-      </tr>
-      <tr>
-        <td><code>disabled</code></td>
-        <td>Form disabled state changes</td>
-      </tr>
-      <tr>
-        <td><code>reset</code></td>
-        <td>Form is reset</td>
-      </tr>
-      <tr>
-        <td><code>restore</code></td>
-        <td>Form state is restored</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+<div class="table-wrap"><table><thead><tr><th>Callback</th><th>Trigger</th></tr></thead><tbody>
+<tr><td><code>associated</code></td><td>Element is associated with a form</td></tr>
+<tr><td><code>disabled</code></td><td>Form disabled state changes</td></tr>
+<tr><td><code>reset</code></td><td>Form is reset</td></tr>
+<tr><td><code>restore</code></td><td>Form state is restored</td></tr>
+</tbody></table></div>
 <view-code language="javascript">view('custom-input', {
   form: true,
-  associated: (form) => { console.log('associated with', form); },
-  disabled: (value) => { this.disabled = value; },
-  reset: () => { this.value = ''; },
-  restore: (state, mode) => { this.value = state; }
+  associated: (form) =&gt; { console.log('associated with', form); },
+  disabled: (value) =&gt; { this.disabled = value; },
+  reset: () =&gt; { this.value = ''; },
+  restore: (state, mode) =&gt; { this.value = state; }
 });
 </view-code>
-
-<!-- Custom State Section -->
+<hr />
 <h2>Custom State</h2>
 <p>Expose props as CSS custom state pseudo-classes:</p>
 <view-code language="javascript">props: {
@@ -85,8 +59,7 @@
 toggle-switch:state(invalid) { border-color: red; }
 </view-code>
 <p>Requires Chrome 132+ / Baseline 2026.</p>
-
-<!-- Validation Section -->
+<hr />
 <h2>Validation</h2>
 <p>Use <code>ElementInternals</code> for custom validation:</p>
 <view-code language="javascript">view('email-field', {
@@ -110,16 +83,21 @@ toggle-switch:state(invalid) { border-color: red; }
   }
 });
 </view-code>
-
-<!-- Form Reset and Restore Section -->
+<hr />
 <h2>Form Reset and Restore</h2>
 <view-code language="javascript">view('rating-input', {
   form: true,
   props: {
     value: { type: Number, default: 0 }
   },
-  reset: () => { this.value = 0; },
-  restore: (state) => { this.value = Number(state) || 0; }
+  reset: () =&gt; { this.value = 0; },
+  restore: (state) =&gt; { this.value = Number(state) || 0; }
 });
 </view-code>
 <p>The <code>restore</code> callback receives the saved state string when the browser restores form data (e.g., after back/forward).</p>
+<hr />
+<h2>Related</h2>
+<ul>
+<li>Kit form controls: <a href="/docs/elements/forms">Elements → Forms</a> (<code>ui-input</code>, <code>ui-select</code>, <code>ui-checkbox</code>, …)</li>
+<li><a href="/docs/ui/elements">UI <code>element()</code> factory</a></li>
+</ul>

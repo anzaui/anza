@@ -1,8 +1,6 @@
-<!-- Main Content -->
 <h1>API Reference</h1>
 <p>Complete reference for the workers facade and internal classes.</p>
-
-<!-- Facade Section -->
+<hr />
 <h2>Facade</h2>
 <view-code language="javascript">import { workers } from '@adukiorg/anza/workers';
 </view-code>
@@ -24,62 +22,31 @@
 <p>Terminate the pool for one script URL.</p>
 <h3><code>workers.clear()</code></h3>
 <p>Terminate all pools and close all broadcast channels.</p>
-
-<!-- Feature Detection Section -->
+<hr />
 <h2>Feature Detection</h2>
 <view-code language="javascript">import { has } from '@adukiorg/anza/workers';
 </view-code>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Flag</th>
-        <th>Detects</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>has.worker</code></td>
-        <td><code>Worker</code></td>
-      </tr>
-      <tr>
-        <td><code>has.shared</code></td>
-        <td><code>SharedWorker</code></td>
-      </tr>
-      <tr>
-        <td><code>has.channel</code></td>
-        <td><code>BroadcastChannel</code></td>
-      </tr>
-      <tr>
-        <td><code>has.locks</code></td>
-        <td><code>navigator.locks</code></td>
-      </tr>
-      <tr>
-        <td><code>has.offscreen</code></td>
-        <td><code>OffscreenCanvas</code></td>
-      </tr>
-      <tr>
-        <td><code>has.isolated</code></td>
-        <td><code>crossOriginIsolated</code></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Pool Options Section -->
+<div class="table-wrap"><table><thead><tr><th>Flag</th><th>Detects</th></tr></thead><tbody>
+<tr><td><code>has.worker</code></td><td><code>Worker</code></td></tr>
+<tr><td><code>has.shared</code></td><td><code>SharedWorker</code></td></tr>
+<tr><td><code>has.channel</code></td><td><code>BroadcastChannel</code></td></tr>
+<tr><td><code>has.locks</code></td><td><code>navigator.locks</code></td></tr>
+<tr><td><code>has.offscreen</code></td><td><code>OffscreenCanvas</code></td></tr>
+<tr><td><code>has.isolated</code></td><td><code>crossOriginIsolated</code></td></tr>
+</tbody></table></div>
+<hr />
 <h2>Pool Options</h2>
 <view-code language="javascript">workers.run(script, task, {
-  payload, // data for worker
-  transferables, // Transferable[]
-  signal, // AbortSignal
-  timeout, // ms
-  priority, // 'user-blocking' | 'user-visible' | 'background'
-  idempotent, // boolean
-  meta // arbitrary metadata
+  payload,        // data for worker
+  transferables,  // Transferable[]
+  signal,         // AbortSignal
+  timeout,        // ms
+  priority,       // 'user-blocking' | 'user-visible' | 'background'
+  idempotent,     // boolean
+  meta            // arbitrary metadata
 });
 </view-code>
-
-<!-- Dedicated Section -->
+<hr />
 <h2>Dedicated</h2>
 <view-code language="javascript">import { Dedicated } from '@adukiorg/anza/workers';
 
@@ -87,8 +54,7 @@ const worker = new Dedicated('/worker.js');
 const result = await worker.run('task', { payload, signal, timeout });
 worker.terminate();
 </view-code>
-
-<!-- Shared Section -->
+<hr />
 <h2>Shared</h2>
 <view-code language="javascript">import { Shared } from '@adukiorg/anza/workers';
 
@@ -98,8 +64,7 @@ conn.send(message, transferables);
 const off = conn.subscribe(fn, signal);
 conn.close();
 </view-code>
-
-<!-- Offscreen Section -->
+<hr />
 <h2>Offscreen</h2>
 <view-code language="javascript">import { Offscreen } from '@adukiorg/anza/workers';
 
@@ -109,14 +74,13 @@ handle.send(payload);
 handle.resize({ width, height, dpr });
 handle.close();
 </view-code>
-
-<!-- Lock Options Section -->
+<hr />
 <h2>Lock Options</h2>
 <view-code language="javascript">workers.lock(name, fn, {
-  mode: 'exclusive', // or 'shared'
-  signal, // AbortSignal
-  timeout, // ms
-  ifAvailable, // boolean
-  steal // boolean
+  mode: 'exclusive',  // or 'shared'
+  signal,            // AbortSignal
+  timeout,           // ms
+  ifAvailable,       // boolean
+  steal              // boolean
 });
 </view-code>

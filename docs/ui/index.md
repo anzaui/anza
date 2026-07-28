@@ -17,8 +17,8 @@ The UI layer is organized into three levels:
 - **Template loading** — inline strings, file paths (`.html`), or tagged template literals
 - **Style loading** — inline CSS, file paths (`.css`), or constructable stylesheets with HMR
 - **Lifecycle hooks** — `load`, `connect`, `disconnect`, `change` with automatic cleanup
-- **Event delegation** — `on.click('.btn', handler)` with selector-based matching
-- **Mutation watching** — `watch.text('.counter')` for observing DOM changes
+- **Event delegation** — `on.click('.btn', handler)` with `composedPath` matching, `attrs` / `not` / `key` / `scope`
+- **Mutation watching** — `watch.attr` / `kids` / `text` / `slot` / `tree` with observer buckets
 - **Tags cache** — fast cached queries for shadow DOM elements
 - **Refs** — named element lookups via `ref="name"` attributes
 - **Safe observers** — `ResizeObserver`, `IntersectionObserver`, `MutationObserver`, `PerformanceObserver` with AbortSignal cleanup
@@ -45,15 +45,15 @@ import { BaseElement } from '@adukiorg/anza/ui';
 | [elements.md](elements.md) | The `element()` factory and spec shape |
 | [props.md](props.md) | Reactive properties, types, reflection, state |
 | [templates.md](templates.md) | Inline, file-based, and tagged template literals |
-| [styles.md](styles.md) | CSS loading, constructable stylesheets, HMR |
-| [lifecycle.md](lifecycle.md) | Mount, unmount, connect, disconnect, load, change |
-| [context.md](context.md) | The `el`, `ctrl`, `tags`, `refs`, `on`, `watch` object |
+| [styles/index.md](../styles/index.md) | CSS loading, constructable stylesheets, HMR |
+| [lifecycle.md](lifecycle.md) | Mount, unmount, connect, disconnect, load, change; soft-nav abort |
+| [context.md](context.md) | `el`, `ctrl`, `tags`, `refs`, `on`, `watch` (precision + buckets) |
 | [scheduling.md](scheduling.md) | Cooperative task scheduling |
-| [observers.md](observers.md) | Safe observer factories with AbortSignal cleanup |
+| [observers.md](observers.md) | Safe observer factories; `mutation.scoped` |
 | [transitions.md](transitions.md) | View transitions wrapper |
 | [forms.md](forms.md) | Form-associated custom elements |
 | [hydration.md](hydration.md) | Adopt open DSD from SSG / Mode B HTML |
-| [advanced.md](advanced.md) | Internals, batching, update visual flag, internals |
+| [advanced.md](advanced.md) | Internals, globals, `getAttachmentStats` |
 | [api.md](api.md) | Complete API reference |
 | [troubleshooting.md](troubleshooting.md) | Common problems and how to fix them |
 
@@ -101,3 +101,4 @@ Use it in HTML:
 - Building complex layouts? See [context.md](context.md) for `tags`, `refs`, `on`, and `watch`.
 - Need performance? [scheduling.md](scheduling.md) and [observers.md](observers.md).
 - Prefer a single reference page? [api.md](api.md).
+- Looking for shipped `ui-*` components? [Elements kit](../elements/index.md) (overlays: [patterns](../elements/overlay.md)).

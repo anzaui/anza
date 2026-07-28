@@ -142,4 +142,46 @@ describe('Router Container Registry', () => {
       throw new Error(`Expected node.tag to default to 'sidebar', got '${node.tag}'`);
     }
   });
+
+  it('container selector MO registers via globals and disconnects when satisfied', async () => {
+    const { getContainer: getBySelector, clearContainers: clearAll } = await import(
+      '../../../src/core/router/container.js'
+    );
+    // Re-import globals + waitFor path: calling getContainer with a missing selector
+    // schedules ensureObserver. Use a unique selector under #main.
+    const { globals } = await import('../../../src/core/platform/globals.js');
+
+    const before = globals.count();
+    // Trigger wait path — selector not yet in DOM.
+    getBySelector('#soft-container-mo-target');
+
+    await new Promise((r) => setTimeout(r, 150));
+
+    const waiting = globals.list().some((e) => e.name === 'router.container-mo');
+    // Observer may attach after idle callback; if main exists it should appear.
+    if (!waiting && globals.count() === before) {
+      // Some environments may not have scheduled yet — force another lookup after tick.
+      getBySelector('#soft-container-mo-target');
+      await new Promise((r) => setTimeout(r, 150));
+    }
+
+    if (!globals.list().some((e) => e.name === 'router.container-mo')) {
+      throw new Error('Expected router.container-mo global while waiting for selector');
+    }
+
+    const target = document.createElement('div');
+    target.id = 'soft-container-mo-target';
+    mainEl.appendChild(target);
+
+    await new Promise((r) => setTimeout(r, 50));
+
+    if (getBySelector('#soft-container-mo-target') !== target) {
+      throw new Error('Expected MO to register discovered container');
+    }
+    if (globals.list().some((e) => e.name === 'router.container-mo')) {
+      throw new Error('Expected container MO global detached once selectors satisfied');
+    }
+
+    clearAll();
+  });
 });

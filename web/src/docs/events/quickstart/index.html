@@ -1,13 +1,11 @@
-<!-- Main Content -->
 <h1>Quick Start</h1>
 <p>Get working with events in five minutes.</p>
-
-<!-- Global Pub/Sub Section -->
+<hr />
 <h2>1. Global Pub/Sub</h2>
 <view-code language="javascript">import { events } from '@adukiorg/anza/events';
 
 // Subscribe
-const off = events.on('user:login', (e) => {
+const off = events.on('user:login', (e) =&gt; {
   console.log('User logged in:', e.detail);
 });
 
@@ -18,8 +16,7 @@ events.emit('user:login', { id: 42, name: 'Alice' });
 off();
 </view-code>
 <p>The event bus is a global singleton. Any module can emit. Any module can listen.</p>
-
-<!-- Per-Request Scoped Listeners Section -->
+<hr />
 <h2>2. Per-Request Scoped Listeners</h2>
 <p>For listeners tied to a component lifecycle, pass an <code>AbortSignal</code>:</p>
 <view-code language="javascript">const controller = new AbortController();
@@ -29,72 +26,67 @@ events.on('notification', handler, controller.signal);
 // Later, when the component unmounts
 controller.abort(); // all listeners bound to this signal are removed
 </view-code>
-
-<!-- Memory-Safe DOM Listener Section -->
+<hr />
 <h2>3. Memory-Safe DOM Listener</h2>
 <view-code language="javascript">const dispose = events.listen(
   document.querySelector('.btn'),
   'click',
-  (e) => console.log('clicked')
+  (e) =&gt; console.log('clicked')
 );
 
 // Remove manually
 dispose();
 </view-code>
 <p><code>events.listen</code> defaults <code>touchstart</code>, <code>touchmove</code>, <code>wheel</code>, and <code>mousewheel</code> to <code>passive: true</code> automatically. This prevents scroll-blocking and protects INP performance.</p>
-
-<!-- Promise-Wrapped Single Event Section -->
+<hr />
 <h2>4. Promise-Wrapped Single Event</h2>
 <view-code language="javascript">// Wait for one click, then proceed
 const click = await events.once(document.body, 'click');
 console.log('Clicked element:', click.target);
 </view-code>
 <p>Useful for one-off interactions: "wait for the user to confirm, then continue."</p>
-
-<!-- Event Delegation Section -->
+<hr />
 <h2>5. Event Delegation</h2>
 <p>Handle clicks on dynamically added elements:</p>
 <view-code language="javascript">const dispose = events.delegate(
   document.body,
   '.item',
   'click',
-  (event, target) => {
+  (event, target) =&gt; {
     console.log('Item clicked:', target.textContent);
   }
 );
 </view-code>
 <p>One listener on <code>document.body</code> handles all <code>.item</code> clicks, even elements added after the listener is registered. The delegation traverses <code>composedPath()</code> so it works through shadow DOM boundaries.</p>
-
-<!-- System Event Names Section -->
+<hr />
 <h2>6. Use System Event Names</h2>
 <view-code language="javascript">import { events } from '@adukiorg/anza/events';
 
-events.on(events.names.auth.signedin, (e) => {
+events.on(events.names.auth.signedin, (e) =&gt; {
   console.log('Auth token refreshed');
 });
 
-events.on(events.names.connectivity.offline, () => {
+events.on(events.names.connectivity.offline, () =&gt; {
   showToast('You are offline');
 });
 </view-code>
 <p>System event names prevent typos and give IDE autocomplete.</p>
-
-<!-- Complete Working Example Section -->
+<hr />
 <h2>Complete Working Example</h2>
 <view-code language="javascript">import { events } from '@adukiorg/anza/events';
 
 // Global notifications
-events.on('notification', (e) => {
+events.on('notification', (e) =&gt; {
   showToast(e.detail.message);
 });
 
 // Auth state
-events.on(events.names.auth.signedin, (e) => {
+events.on(events.names.auth.signedin, (e) =&gt; {
   events.emit('notification', { message: `Welcome, ${e.detail.name}` });
 });
 
 // Offline detection
-events.listen(window, 'offline', () => {
+events.listen(window, 'offline', () =&gt; {
   events.emit(events.names.connectivity.offline);
 });
 

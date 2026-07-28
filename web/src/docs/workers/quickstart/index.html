@@ -1,8 +1,6 @@
-<!-- Main Content -->
 <h1>Quick Start</h1>
 <p>Get a worker running in five minutes.</p>
-
-<!-- Run a Task in a Pool Section -->
+<hr />
 <h2>1. Run a Task in a Pool</h2>
 <view-code language="javascript">import { workers } from '@adukiorg/anza/workers';
 
@@ -14,8 +12,7 @@ const result = await workers.run('/workers/calc.js', 'fibonacci', {
 console.log(result); // 102334155
 </view-code>
 <p>The pool lazily creates workers (default: <code>hardwareConcurrency - 1</code>). Tasks are scheduled by priority.</p>
-
-<!-- Priority Scheduling Section -->
+<hr />
 <h2>2. Priority Scheduling</h2>
 <view-code language="javascript">// Critical path — runs first
 workers.run('/workers/calc.js', 'render', {
@@ -29,37 +26,13 @@ workers.run('/workers/calc.js', 'sync', {
   priority: 'background'
 });
 </view-code>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Priority</th>
-        <th>Level</th>
-        <th>Use Case</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>user-blocking</code></td>
-        <td>2</td>
-        <td>Critical UI, must run immediately</td>
-      </tr>
-      <tr>
-        <td><code>user-visible</code></td>
-        <td>1</td>
-        <td>Standard work, default</td>
-      </tr>
-      <tr>
-        <td><code>background</code></td>
-        <td>0</td>
-        <td>Telemetry, logging, prefetch</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+<div class="table-wrap"><table><thead><tr><th>Priority</th><th>Level</th><th>Use Case</th></tr></thead><tbody>
+<tr><td><code>user-blocking</code></td><td>2</td><td>Critical UI, must run immediately</td></tr>
+<tr><td><code>user-visible</code></td><td>1</td><td>Standard work, default</td></tr>
+<tr><td><code>background</code></td><td>0</td><td>Telemetry, logging, prefetch</td></tr>
+</tbody></table></div>
 <p>The pool promotes background tasks after 20 higher-priority tasks to prevent starvation.</p>
-
-<!-- Cancel a Task Section -->
+<hr />
 <h2>3. Cancel a Task</h2>
 <view-code language="javascript">const ctrl = new AbortController();
 
@@ -70,42 +43,38 @@ workers.run('/workers/calc.js', 'heavy', {
 });
 
 // Cancel after 3 seconds
-setTimeout(() => ctrl.abort(), 3000);
+setTimeout(() =&gt; ctrl.abort(), 3000);
 </view-code>
-
-<!-- Cross-Tab Messaging Section -->
+<hr />
 <h2>4. Cross-Tab Messaging</h2>
 <view-code language="javascript">// Send
 workers.broadcast('app-event', { type: 'logout' });
 
 // Receive
-const off = workers.subscribe('app-event', (data) => {
+const off = workers.subscribe('app-event', (data) =&gt; {
   console.log('Received:', data);
 });
 
 off(); // unsubscribe
 </view-code>
-
-<!-- Web Lock Section -->
+<hr />
 <h2>5. Web Lock</h2>
-<view-code language="javascript">await workers.lock('db:write', async () => {
+<view-code language="javascript">await workers.lock('db:write', async () =&gt; {
   await db.put('key', value);
 }, { timeout: 3000 });
 </view-code>
 <p>Other tabs calling <code>lock('db:write')</code> will wait until this callback completes.</p>
-
-<!-- Feature Detection Section -->
+<hr />
 <h2>6. Feature Detection</h2>
 <view-code language="javascript">import { has } from '@adukiorg/anza/workers';
 
-if (has.worker) console.log('Web Workers supported');
-if (has.shared) console.log('SharedWorker supported');
-if (has.channel) console.log('BroadcastChannel supported');
-if (has.locks) console.log('Web Locks API supported');
+if (has.worker)   console.log('Web Workers supported');
+if (has.shared)   console.log('SharedWorker supported');
+if (has.channel)  console.log('BroadcastChannel supported');
+if (has.locks)    console.log('Web Locks API supported');
 if (has.offscreen) console.log('OffscreenCanvas supported');
 </view-code>
-
-<!-- Complete Working Example Section -->
+<hr />
 <h2>Complete Working Example</h2>
 <view-code language="javascript">import { workers } from '@adukiorg/anza/workers';
 
@@ -120,13 +89,13 @@ async function processChunk(data) {
 }
 
 // Sync state across tabs
-workers.subscribe('data-update', (payload) => {
+workers.subscribe('data-update', (payload) =&gt; {
   updateUI(payload);
 });
 
 // Exclusive DB write
 async function saveRecord(record) {
-  await workers.lock('db:records', async () => {
+  await workers.lock('db:records', async () =&gt; {
     await db.save(record);
   });
 }

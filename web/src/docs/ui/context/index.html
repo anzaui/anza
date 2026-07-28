@@ -1,36 +1,32 @@
-<!-- Main Content -->
 <h1>Context</h1>
 <p>Every lifecycle hook receives a frozen context object with helpers for interacting with the element's shadow DOM, events, and observers.</p>
-
-<!-- Context Fields Section -->
+<hr />
 <h2>Context Fields</h2>
 <view-code language="javascript">{
-  el, // the element instance
-  ctrl, // AbortController (signal aborts on disconnect)
-  tags, // TagsCache for fast shadow DOM queries
-  refs, // named element lookups via ref="name"
-  on, // delegated event proxy
-  watch, // mutation watcher
+  el,       // the element instance
+  ctrl,     // AbortController (signal aborts on disconnect)
+  tags,     // TagsCache for fast shadow DOM queries
+  refs,     // named element lookups via ref="name"
+  on,       // delegated event proxy
+  watch,    // mutation watcher
   internals,// ElementInternals (if form: true)
-  params, // (load hook only) typed dynamic path params array with getters
-  query, // (load hook only) typed query params array with getters
-  raw // (load hook only) raw URLSearchParams object
+  params,   // (load hook only) typed dynamic path params array with getters
+  query,    // (load hook only) typed query params array with getters
+  raw       // (load hook only) raw URLSearchParams object
 }
 </view-code>
-
-<!-- el Section -->
+<hr />
 <h2>el</h2>
 <p>The element instance itself. Access properties, shadow root, and methods:</p>
 <view-code language="javascript">on: {
   connect({ el }) {
-    console.log(el.tagName); // 'USER-CARD'
-    console.log(el.name); // current prop value
+    console.log(el.tagName);      // 'USER-CARD'
+    console.log(el.name);       // current prop value
     console.log(el.shadowRoot); // the shadow root
   }
 }
 </view-code>
-
-<!-- ctrl Section -->
+<hr />
 <h2>ctrl</h2>
 <p>An <code>AbortController</code> whose signal aborts when the element disconnects. Pass it to any async operation for automatic cleanup:</p>
 <view-code language="javascript">on: {
@@ -40,35 +36,32 @@
 }
 </view-code>
 <p>When the element is removed, the signal aborts and the fetch is cancelled.</p>
-
-<!-- params Section -->
+<hr />
 <h2>params</h2>
 <p>An ordered, typed array containing dynamic path parameters extracted from the URL. Available in the <code>load</code> hook:</p>
 <view-code language="javascript">on: {
   async load({ params }) {
     // If route is /members/:id
-    console.log(params[0]); // '42'
-    console.log(params.first); // '42'
-    console.log(params.id); // '42'
+    console.log(params[0]);     // '42'
+    console.log(params.first);  // '42'
+    console.log(params.id);     // '42'
   }
 }
 </view-code>
 <p>Values are automatically cast to their declared contract type (e.g., <code>Number</code>).</p>
-
-<!-- query Section -->
+<hr />
 <h2>query</h2>
 <p>An ordered, typed array containing query parameters mapped from the URL. Available in the <code>load</code> hook:</p>
 <view-code language="javascript">on: {
   async load({ query }) {
     // If URL is /search?q=hello&amp;page=2
-    console.log(query[0]); // 'hello'
-    console.log(query.first); // 'hello'
-    console.log(query.page); // 2 (cast to Number)
+    console.log(query[0]);     // 'hello'
+    console.log(query.first);  // 'hello'
+    console.log(query.page);   // 2 (cast to Number)
   }
 }
 </view-code>
-
-<!-- raw Section -->
+<hr />
 <h2>raw</h2>
 <p>The raw <code>URLSearchParams</code> object representing all query parameters currently in the URL. Useful for accessing undeclared query keys:</p>
 <view-code language="javascript">on: {
@@ -79,22 +72,20 @@
   }
 }
 </view-code>
-
-<!-- tags Section -->
+<hr />
 <h2>tags</h2>
 <p>A cached query interface for the shadow root. Pre-warmed by the tags descriptor (if available).</p>
 <view-code language="javascript">on: {
   connect({ tags }) {
-    const title = tags.one('.title'); // querySelector, cached
-    const items = tags.all('.item'); // querySelectorAll, cached
-    const hasItems = tags.has('.item'); // boolean
-    tags.each('.item', (el, i) => { ... }); // iterate
+    const title = tags.one('.title');     // querySelector, cached
+    const items = tags.all('.item');      // querySelectorAll, cached
+    const hasItems = tags.has('.item');   // boolean
+    tags.each('.item', (el, i) =&gt; { ... }); // iterate
   }
 }
 </view-code>
 <p>The cache is invalidated automatically when shadow DOM children change.</p>
-
-<!-- refs Section -->
+<hr />
 <h2>refs</h2>
 <p>Named element lookups based on <code>ref="name"</code> attributes in the template:</p>
 <view-code language="javascript">template: '&lt;div ref="header"&gt;&lt;span ref="count"&gt;0&lt;/span&gt;&lt;/div&gt;'
@@ -107,58 +98,107 @@ on: {
 }
 </view-code>
 <p>Duplicate <code>ref</code> names log a warning. The first match wins.</p>
-
-<!-- on Section -->
+<hr />
 <h2>on</h2>
-<p>Delegated event proxy. One listener per event type on the shadow root handles all matching selectors:</p>
+<p>Delegated event proxy. One listener per <code>(type, capture)</code> on the <strong>shadow root</strong> handles all matching selectors. Matching walks <code>event.composedPath()</code> and stops at the shadow root (same algorithm as <a href="/docs/events/delegate"><code>events.delegate</code></a>). Default scope is the shadow tree — use <code>events.delegate</code> / <code>events.listen</code> for document roots so those attachments stay greppable.</p>
+<h3>Simple</h3>
 <view-code language="javascript">on: {
   connect({ on }) {
-    on.click('.btn', (event, target) => {
-      // target is the matched .btn element
+    on.click('.btn', (event, target) =&gt; {
       target.disabled = true;
     });
 
-    on.submit('form', (event, form) => {
-      event.preventDefault();
+    on.submit('form', (event, form) =&gt; {
+      event.preventDefault(); // non-passive by default for submit
     });
 
-    on.input('.search', (event, input) => {
+    on.input('.search', (event, input) =&gt; {
       console.log(input.value);
     });
   }
 }
 </view-code>
-<p>Event types: any standard DOM event type. The proxy auto-detects passive vs non-passive based on registered handlers.</p>
-<p>Return a disposer to remove the listener:</p>
 <view-code language="javascript">const dispose = on.click('.btn', handler);
-dispose(); // removes this specific handler
+dispose(); // removes this registration; last handler for the type removes the root listener
 </view-code>
+<h3>Advanced</h3>
+<view-code language="javascript">on.click('.btn', handler, {
+  signal,           // default: ctrl.signal
+  once: false,
+  capture: false,
+  passive: undefined, // default: true only for touchstart|touchmove|wheel|mousewheel
+  attrs: {
+    'data-action': 'save', // must equal
+    'aria-disabled': null  // must be absent
+  },
+  not: '.ignore',          // skip if match.closest('.ignore') within the root
+  key: 'toolbar-save',     // second add with same key replaces the first
+  scope: 'assigned'        // also match light-DOM nodes assigned to a slot in this shadow
+});
 
-<!-- watch Section -->
+on.click.once('.btn', handler);
+</view-code>
+<div class="table-wrap"><table><thead><tr><th>Option</th><th>Behavior</th></tr></thead><tbody>
+<tr><td><code>attrs</code></td><td>Predicate on the matched element (<code>null</code> = attribute must be absent)</td></tr>
+<tr><td><code>not</code></td><td>Skip when <code>match.closest(not)</code> is inside the shadow root</td></tr>
+<tr><td><code>key</code></td><td>Dedupe id — re-registering replaces the prior handler</td></tr>
+<tr><td><code>scope: 'assigned'</code></td><td>Opt into slotted light-DOM matches via <code>assignedSlot</code> (default is shadow-only)</td></tr>
+</tbody></table></div>
+<p><strong>Passive defaults</strong> match <code>events.listen</code>: only scroll-critical types are passive unless you pass <code>{ passive: false }</code>. Click / submit / key handlers can call <code>preventDefault()</code> without an override.</p>
+<p><strong>Empty teardown:</strong> when the last registration for a <code>(type, capture)</code> key is disposed (or aborted), the shadow-root <code>addEventListener</code> is removed immediately — no idle root listener left behind.</p>
+<p>Direct <code>Element</code> targets must live inside this shadow; targets outside warn and return a no-op disposer.</p>
+<hr />
 <h2>watch</h2>
-<p>Mutation watcher for observing DOM changes inside the shadow root:</p>
+<p>Shadow-scoped mutation helpers. Prefer typed kinds (<code>attr</code> / <code>kids</code> / <code>text</code> / <code>slot</code>) over <code>tree</code>. Observers are <strong>bucketed by fingerprint</strong> so a wide <code>tree</code> or <code>attr *</code> registration never drops <code>attributeFilter</code> / <code>subtree</code> on a neighbor.</p>
+<p>Canonical child API is <code>watch.kids</code>; <code>watch.children</code> is an alias.</p>
+<h3>Simple</h3>
 <view-code language="javascript">on: {
-  connect({ watch }) {
-    // Watch text content changes
-    watch.text('.counter', (text, old, el) => {
+  connect({ watch, refs }) {
+    watch.text(refs.counter, (text, old, el) =&gt; {
       console.log('Counter:', text);
     });
 
-    // Watch attribute changes
-    watch.attr('[data-status]', 'data-status', (val, old, el) => {
-      console.log('Status:', val);
+    watch.attr(refs.submit, 'disabled', (attr, next, prev, el) =&gt; {
+      el.dataset.wasDisabled = String(prev !== null);
     });
 
-    // Watch child list changes
-    watch.children('.list', (mutations) => {
-      console.log('List changed');
+    watch.kids(refs.list, ({ added, removed }, list) =&gt; {
+      console.log(added.length, removed.length);
     });
   }
 }
 </view-code>
-<p>All watchers are disconnected automatically when the element disconnects (via <code>ctrl.signal</code>).</p>
+<h3>Advanced</h3>
+<view-code language="javascript">on: {
+  connect({ watch, refs }) {
+    // Named attrs keep attributeFilter; tree lives in a separate bucket
+    watch.attr(refs.toggle, 'aria-pressed', handler);
+    watch.tree(refs.editor, (records) =&gt; { /* escape hatch */ });
 
-<!-- internals Section -->
+    // Fail closed when the selector matches nothing at register time
+    watch.attr('.late-btn', 'disabled', handler, { requirePresent: true });
+
+    // Slot / light-DOM boundary (slotchange — not a document MO)
+    watch.slot(refs.body, ({ assigned, assignedElements }, slot) =&gt; {
+      console.log(assignedElements.length);
+    });
+
+    watch.kids(refs.list, { deep: true }, ({ added }) =&gt; { /* descendants */ });
+    watch.attr.once(refs.panel, 'open', handler);
+    watch.slot.once('slot[name=actions]', handler);
+  }
+}
+</view-code>
+<div class="table-wrap"><table><thead><tr><th>Kind</th><th>Handler</th><th>Notes</th></tr></thead><tbody>
+<tr><td><code>watch.attr(target, name|names|'*', handler, opts)</code></td><td><code>(attr, next, prev, el)</code></td><td>Prefer named attrs over <code>*</code></td></tr>
+<tr><td><code>watch.kids(target, handler, opts)</code> / <code>{ deep }</code></td><td><code>({ added, removed }, el)</code></td><td><code>children</code> alias</td></tr>
+<tr><td><code>watch.text(target, handler, opts)</code></td><td><code>(text, old, el)</code></td><td>Character data under target</td></tr>
+<tr><td><code>watch.tree(target, handler, opts)</code></td><td><code>(records, el)</code></td><td>Wide escape hatch; isolated bucket</td></tr>
+<tr><td><code>watch.slot(slot|selector, handler, opts)</code></td><td><code>({ assigned, assignedElements }, slot)</code></td><td><code>slotchange</code> on <code>&lt;slot&gt;</code></td></tr>
+</tbody></table></div>
+<p>Options: <code>{ signal, once, requirePresent }</code> (or pass an <code>AbortSignal</code> as the last arg). Default signal is <code>ctrl.signal</code>. Every call returns a disposer. Selector targets with zero current matches still observe for late bind unless <code>requirePresent: true</code> (then no-op + warn). Direct targets outside the shadow throw in development and no-op in production.</p>
+<p>Diagnostics: <a href="/docs/ui/api"><code>getAttachmentStats(shadowRoot)</code></a> reports live <code>on</code> / <code>watch</code> / slot counts for soft-nav leak tests.</p>
+<hr />
 <h2>internals</h2>
 <p><code>ElementInternals</code> when <code>form: true</code> is declared. Provides form participation and custom state:</p>
 <view-code language="javascript">view('toggle-switch', {

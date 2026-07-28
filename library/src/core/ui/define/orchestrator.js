@@ -4,11 +4,12 @@ import { specRegistry } from './state.js';
 let dispose = null; // One-word module-level disposer variable (RT-11)
 
 /**
- * Find an already-mounted page leaf inside a dock/container.
+ * Find an already-mounted page leaf among a dock/container's direct children.
  *
  * Soft-nav marks leaves with `.page-content`. SSG / Mode B HTML ships the same
- * custom tag without that class — prefer the class when present, else match by tag
- * so boot/`direction: 'load'` adopts pre-rendered DSD instead of wiping it.
+ * custom tag without that class — prefer the class when present on a direct
+ * child, else match by tag among direct children so boot/`direction: 'load'`
+ * adopts pre-rendered DSD instead of wiping it. Never deep-query nested tags.
  *
  * @param {Element} containerEl
  * @param {string} topTag
@@ -16,20 +17,15 @@ let dispose = null; // One-word module-level disposer variable (RT-11)
  */
 function findMountedPage(containerEl, topTag) {
   const want = topTag.toLowerCase();
-  const byClass = containerEl.querySelector('.page-content');
-  if (byClass && byClass.tagName.toLowerCase() === want) return byClass;
-
+  // Direct children only (same spirit as cascade findChildByTag) — never
+  // adopt a deep nested match that happens to share the leaf tag.
+  let byTag = null;
   for (const child of containerEl.children) {
-    if (child.tagName.toLowerCase() === want) return child;
+    if (child.tagName.toLowerCase() !== want) continue;
+    if (child.classList.contains('page-content')) return child;
+    if (!byTag) byTag = child;
   }
-
-  try {
-    const nested = containerEl.querySelector(want);
-    if (nested) return nested;
-  } catch (_) {
-    // Invalid tag selector — ignore.
-  }
-  return null;
+  return byTag;
 }
 
 /**

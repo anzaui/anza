@@ -1,8 +1,6 @@
-<!-- Main Content -->
 <h1>Advanced Topics</h1>
 <p>Internals, edge cases, and extension points for developers who need to understand or modify the UI layer.</p>
-
-<!-- Property Normalization Section -->
+<hr />
 <h2>Property Normalization</h2>
 <p>Props declared as literal values are auto-expanded:</p>
 <view-code language="javascript">// Shorthand
@@ -13,17 +11,15 @@ props: { count: { type: Number, default: 0 } }
 </view-code>
 <p>Object configs with a <code>type</code> key are passed through unchanged. This lets you mix shorthand and full config:</p>
 <view-code language="javascript">props: {
-  count: 0, // shorthand
+  count: 0,                              // shorthand
   label: { type: String, reflect: false } // full config
 }
 </view-code>
-
-<!-- Route Parameter and Query Contracts Section -->
+<hr />
 <h2>Route Parameter and Query Contracts</h2>
 <p>Route parameters (<code>params</code>) and queries (<code>query</code>) are defined using typed contract arrays on page/dock components. Because they define a strict contract with URLs rather than generic component properties, they are processed separately from <code>props</code> and are stored directly on the spec registry.</p>
 <p>Unlike <code>props</code>, they do not support default values or attribute reflection overrides, but their types (e.g. <code>String</code>, <code>Number</code>) dictate casting before properties are reactively set on the element.</p>
-
-<!-- Update Batching Section -->
+<hr />
 <h2>Update Batching</h2>
 <p>Property changes are batched to avoid redundant <code>change</code> callbacks:</p>
 <view-code language="javascript">el.name = 'Alice';
@@ -32,81 +28,95 @@ el.age = 30;
 </view-code>
 <p>The flush mechanism:</p>
 <ul>
-  <li><code>queueMicrotask</code> by default (fast, sync-like)</li>
-  <li><code>requestAnimationFrame</code> when <code>visual: true</code> (smooth, layout-aware)</li>
+<li><code>queueMicrotask</code> by default (fast, sync-like)</li>
+<li><code>requestAnimationFrame</code> when <code>visual: true</code> (smooth, layout-aware)</li>
 </ul>
 <p>Set <code>visual</code> on the update function:</p>
-<view-code language="javascript">spec.update = (ctx) => { ... };
+<view-code language="javascript">spec.update = (ctx) =&gt; { ... };
 spec.update.visual = true; // flushes via rAF
 </view-code>
 <p>The definition layer (<code>page</code>, <code>dock</code>, <code>view</code>) sets <code>visual: true</code> automatically. <code>part</code> does not.</p>
-
-<!-- Attribute Sync Section -->
+<hr />
 <h2>Attribute Sync</h2>
 <p>When a prop changes programmatically, the corresponding attribute updates (unless <code>reflect: false</code>):</p>
-<view-code language="javascript">el.active = true; // sets active=""
+<view-code language="javascript">el.active = true;  // sets active=""
 el.active = false; // removes attribute
-el.name = null; // removes attribute
-el.name = 'Bob'; // sets name="Bob"
+el.name = null;    // removes attribute
+el.name = 'Bob';   // sets name="Bob"
 </view-code>
 <p>When an attribute changes externally (e.g., via <code>setAttribute</code>), the property setter is invoked, which triggers the <code>change</code> hook.</p>
-
-<!-- Memory Safety Section -->
+<hr />
 <h2>Memory Safety</h2>
 <p>Every declarative element manages its own lifecycle via <code>AbortController</code>:</p>
 <ul>
-  <li><code>connectedCallback</code> creates a fresh controller</li>
-  <li><code>disconnectedCallback</code> aborts it</li>
-  <li>All async operations should use <code>ctrl.signal</code></li>
-  <li>All observer factories accept <code>ctrl.signal</code> for auto-cleanup</li>
+<li><code>connectedCallback</code> creates a fresh controller</li>
+<li><code>disconnectedCallback</code> aborts it</li>
+<li>All async operations should use <code>ctrl.signal</code></li>
+<li>All observer factories accept <code>ctrl.signal</code> for auto-cleanup</li>
 </ul>
 <p>If an element disconnects while resources are still loading, the <code>connectedCallback</code> returns early:</p>
 <view-code language="javascript">if (!this.ctrl || this.ctrl.signal.aborted || !this.isConnected) {
   return;
 }
 </view-code>
-
-<!-- Tags Cache Invalidation Section -->
+<hr />
 <h2>Tags Cache Invalidation</h2>
 <p>The <code>TagsCache</code> is pre-warmed by the tags descriptor and cleared by a <code>MutationObserver</code> on the shadow root:</p>
-<view-code language="javascript">const observer = new MutationObserver(() => { tags.clear(); });
+<view-code language="javascript">const observer = new MutationObserver(() =&gt; { tags.clear(); });
 observer.observe(shadowRoot, { childList: true, subtree: false });
 </view-code>
 <p>This means:</p>
 <ul>
-  <li>Static templates: cache is never invalidated after mount</li>
-  <li>Dynamic templates (children change): cache is cleared on every mutation</li>
+<li>Static templates: cache is never invalidated after mount</li>
+<li>Dynamic templates (children change): cache is cleared on every mutation</li>
 </ul>
 <p>For high-frequency mutations, consider direct DOM references instead of <code>tags</code> queries.</p>
-
-<!-- Event Delegation Internals Section -->
+<hr />
 <h2>Event Delegation Internals</h2>
-<p>The <code>on</code> proxy registers one listener per event type on the shadow root. Handlers are matched via <code>event.target.closest(selector)</code>:</p>
+<p>The <code>on</code> proxy registers one listener per event type on the shadow root. Handlers are matched via <code>composedPath()</code> (same algorithm as <code>events.delegate</code>):</p>
 <view-code language="javascript">on.click('.btn', handler);
 // Registers one 'click' listener on shadowRoot
-// Checks event.target.closest('.btn') for each click
+// Walks event.composedPath() for the first .btn before the shadow root
 </view-code>
-<p>Passive vs non-passive is auto-detected. If any handler for an event type is non-passive, the root listener is registered as non-passive.</p>
+<p>Passive defaults align with <code>events.listen</code> (touch/wheel only). If any remaining handler for a type is non-passive, the root listener is non-passive. When the registry for a type is empty, the root listener is removed immediately.</p>
+<hr />
+<h2>Framework-global listeners / observers</h2>
+<p>These are intentional document-adjacent attachments owned by the framework (not component <code>on</code> / <code>watch</code>). Soft-nav must not accumulate extras:</p>
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Location</th><th>Target</th><th>Cleanup</th></tr></thead><tbody>
+<tr><td><code>router.nav-click</code></td><td><code>platform/polyfills/navigation.js</code></td><td><code>document</code> click</td><td>framework lifetime (globals)</td></tr>
+<tr><td><code>router.nav-popstate</code></td><td><code>platform/polyfills/navigation.js</code></td><td><code>window</code> popstate</td><td>framework lifetime (globals)</td></tr>
+<tr><td><code>router.container-mo</code></td><td><code>router/container.js</code></td><td><code>#main</code> MO</td><td>disconnects when selectors found; <code>clearContainers</code></td></tr>
+<tr><td><code>popover.target-click</code></td><td><code>platform/polyfills/popover.js</code></td><td><code>document</code> click</td><td>framework lifetime when polyfill installs</td></tr>
+<tr><td><code>popover.body-mo:*</code></td><td><code>platform/polyfills/popover.js</code></td><td>parent (preferred) or <code>body</code></td><td>disconnect on hide</td></tr>
+</tbody></table></div>
+<p>Inspect with <code>import { globals } from '@adukiorg/anza/platform'</code> — <code>globals.count()</code> / <code>globals.list()</code> (test / diagnostics helper). Prefer <code>on</code> / <code>watch</code> / <code>events.*</code> with <code>{ signal: ctrl.signal }</code> for app code. Soft-nav aborts the detached leaf’s <code>ctrl</code>; anything attached without that signal survives <code>replaceChildren</code> / <code>swapView</code>.</p>
+<p>Per-instance attachment budget (DEV / tests):</p>
+<view-code language="javascript">import { getAttachmentStats } from '@adukiorg/anza/ui';
 
-<!-- Non-browser / hydration -->
+const stats = getAttachmentStats(el.shadowRoot);
+// { onRootListeners, onRegistrations, watchBuckets, watchRegistrations, slotListeners }
+// After soft-nav, a detached leaf’s shadow returns null (aborted / cleared).
+</view-code>
+<p>When a container uses element-scoped View Transitions, <code>swapView</code> still runs <code>replaceChildren</code> inside the VT <strong>update callback</strong> — disconnect / <code>ctrl.abort()</code> happens at swap time, not after the transition animation finishes.</p>
+<p>Overlay kit notes (native top-layer vs toast body portal, popover polyfill <code>globals</code>): <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
+<hr />
 <h2>Non-browser / hydration</h2>
 <p>The UI layer checks <code>typeof customElements !== 'undefined'</code> before defining elements. Outside the browser:</p>
 <ul>
-  <li><code>element()</code> is a no-op</li>
-  <li><code>template()</code> returns a frozen empty object</li>
-  <li><code>observe</code> factories return no-op disposers</li>
-  <li><code>transition()</code> returns a resolved promise</li>
+<li><code>element()</code> is a no-op</li>
+<li><code>template()</code> returns a frozen empty object</li>
+<li><code>observe</code> factories return no-op disposers</li>
+<li><code>transition()</code> returns a resolved promise</li>
 </ul>
-<p>Public SEO HTML comes from Mode A SSG or Mode B templates (<a href="/docs/ssg/contract">contract</a>). The client <strong>adopts</strong> open DSD — see <a href="/docs/ui/hydration">Hydration</a>. The factory is safe to import in any environment.</p>
-
-<!-- Extending BaseElement Section -->
+<p>Public SEO HTML comes from Mode A SSG or Mode B templates (<a href="/docs/ssg/contract">contract</a>). The client <strong>adopts</strong> open DSD — see <a href="/docs/ui/hydration">hydration.md</a>. The factory is safe to import in any environment.</p>
+<hr />
 <h2>Extending BaseElement</h2>
 <p>Subclass <code>BaseElement</code> for imperative elements that need the AbortController pattern but not the full declarative factory:</p>
 <view-code language="javascript">import { BaseElement } from '@adukiorg/anza/ui';
 
 class ChartWidget extends BaseElement {
   mount() {
-    this.ctrl.signal.addEventListener('abort', () => {
+    this.ctrl.signal.addEventListener('abort', () =&gt; {
       this.chart.destroy();
     });
     this.renderChart();
@@ -119,8 +129,7 @@ class ChartWidget extends BaseElement {
 
 customElements.define('chart-widget', ChartWidget);
 </view-code>
-
-<!-- Custom Define Section -->
+<hr />
 <h2>Custom Define</h2>
 <p>The low-level <code>define(tag, Class)</code> helper skips duplicate registrations:</p>
 <view-code language="javascript">import { define } from '@adukiorg/anza/ui';

@@ -1,73 +1,32 @@
-<!-- Main Content -->
 <h1>Security</h1>
-<p>The Anza security layer provides browser-native cryptography, HTML sanitization, Trusted Types integration, and
-  Permissions API querying. Everything delegates to the browser's <code>SubtleCrypto</code> and <code>crypto</code>
-  thread pools — no third-party libraries required.</p>
-
-<!-- Features Section -->
+<p>The Anza security layer provides browser-native cryptography, HTML sanitization, Trusted Types integration, and Permissions API querying. Everything delegates to the browser's <code>SubtleCrypto</code> and <code>crypto</code> thread pools — no third-party libraries required.</p>
+<hr />
 <h2>What You Get</h2>
 <ul>
-  <li><strong>Cryptography</strong> — AES-GCM encryption, PBKDF2 key derivation, HMAC/ECDSA signing and verification,
-    SHA hashing, UUID generation</li>
-  <li><strong>String encryption</strong> — <code>seal</code> and <code>unseal</code> for storing encrypted data as
-    base64 in JSON or localStorage</li>
-  <li><strong>HTML sanitization</strong> — XSS-safe HTML with Trusted Types policy when available</li>
-  <li><strong>Permissions</strong> — query and watch browser permission states (geolocation, camera, etc.)</li>
+<li><strong>Cryptography</strong> — AES-GCM encryption, PBKDF2 key derivation, HMAC/ECDSA signing and verification, SHA hashing, UUID generation</li>
+<li><strong>String encryption</strong> — <code>seal</code> and <code>unseal</code> for storing encrypted data as base64 in JSON or localStorage</li>
+<li><strong>HTML sanitization</strong> — XSS-safe HTML with Trusted Types policy when available</li>
+<li><strong>Permissions</strong> — query and watch browser permission states (geolocation, camera, etc.)</li>
 </ul>
-
-<!-- Package Section -->
+<hr />
 <h2>Package</h2>
 <view-code language="javascript">import { security } from '@adukiorg/anza/security';
 </view-code>
 <p>Or individual functions:</p>
-<view-code language="javascript">import { uuid, hash, encrypt, decrypt, seal, unseal, sanitize, permission } from
-  '@adukiorg/anza/security';
+<view-code language="javascript">import { uuid, hash, encrypt, decrypt, seal, unseal, sanitize, permission } from '@adukiorg/anza/security';
 </view-code>
-
-<!-- File Map Section -->
+<hr />
 <h2>File Map</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>File</th>
-        <th>What It Covers</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a href="/docs/security/quickstart">quickstart.md</a></td>
-        <td>Your first encrypt and sanitize in five minutes</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/security/crypto">crypto.md</a></td>
-        <td>AES-GCM, PBKDF2, HMAC, ECDSA, hash, UUID</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/security/seal">seal.md</a></td>
-        <td>String encryption with base64 storage</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/security/sanitize">sanitize.md</a></td>
-        <td>HTML sanitization and Trusted Types</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/security/permissions">permissions.md</a></td>
-        <td>Query and watch browser permissions</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/security/api">api.md</a></td>
-        <td>Complete API reference</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/security/troubleshooting">troubleshooting.md</a></td>
-        <td>Common problems and how to fix them</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Example Section -->
+<div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
+<tr><td><a href="/docs/security/quickstart">quickstart.md</a></td><td>Your first encrypt and sanitize in five minutes</td></tr>
+<tr><td><a href="/docs/security/crypto">crypto.md</a></td><td>AES-GCM, PBKDF2, HMAC, ECDSA, hash, UUID</td></tr>
+<tr><td><a href="/docs/security/seal">seal.md</a></td><td>String encryption with base64 storage</td></tr>
+<tr><td><a href="/docs/security/sanitize">sanitize.md</a></td><td>HTML sanitization and Trusted Types</td></tr>
+<tr><td><a href="/docs/security/permissions">permissions.md</a></td><td>Query and watch browser permissions</td></tr>
+<tr><td><a href="/docs/security/api">api.md</a></td><td>Complete API reference</td></tr>
+<tr><td><a href="/docs/security/troubleshooting">troubleshooting.md</a></td><td>Common problems and how to fix them</td></tr>
+</tbody></table></div>
+<hr />
 <h2>One-File Example</h2>
 <view-code language="javascript">import { security } from '@adukiorg/anza/security';
 
@@ -88,14 +47,12 @@ const safe = String(security.sanitize('&lt;p&gt;&lt;script&gt;alert(1)&lt;/scrip
 // Query permission
 const state = await security.permission('geolocation');
 </view-code>
-
-<!-- Next Steps Section -->
+<hr />
 <h2>Next Steps</h2>
 <ul>
-  <li>New to security? Start with <a href="/docs/security/quickstart">quickstart.md</a>.</li>
-  <li>Building encryption? Read <a href="/docs/security/crypto">crypto.md</a> and <a
-      href="/docs/security/seal">seal.md</a>.</li>
-  <li>Rendering user HTML? <a href="/docs/security/sanitize">sanitize.md</a>.</li>
-  <li>Need device permissions? <a href="/docs/security/permissions">permissions.md</a>.</li>
-  <li>Prefer a single reference page? <a href="/docs/security/api">api.md</a>.</li>
+<li>New to security? Start with <a href="/docs/security/quickstart">quickstart.md</a>.</li>
+<li>Building encryption? Read <a href="/docs/security/crypto">crypto.md</a> and <a href="/docs/security/seal">seal.md</a>.</li>
+<li>Rendering user HTML? <a href="/docs/security/sanitize">sanitize.md</a>.</li>
+<li>Need device permissions? <a href="/docs/security/permissions">permissions.md</a>.</li>
+<li>Prefer a single reference page? <a href="/docs/security/api">api.md</a>.</li>
 </ul>

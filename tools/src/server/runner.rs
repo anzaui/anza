@@ -189,14 +189,34 @@ async fn handle_html_fallback(
       .unwrap();
   }
 
-  let html_file = state.src_dir.join("index.html");
+  // Prefer Mode A SSG: dist/<route>/index.html (or dist/index.html for `/`).
+  // Without this, every deep link falls through to the SPA shell and CSR
+  // remounts docks — also the page's ./index.html template was historically
+  // overwritten by SSG, nesting full docs chrome inside the leaf shadow.
+  let ssg_file = if clean == "/" {
+    state.src_dir.join("index.html")
+  } else {
+    state
+      .src_dir
+      .join(clean.trim_start_matches('/'))
+      .join("index.html")
+  };
+
+  let (html_file, is_ssg) = if ssg_file.exists() && clean != "/" {
+    (ssg_file, true)
+  } else if clean == "/" && state.src_dir.join("index.html").exists() {
+    // Root may be SSG home or SPA shell — serve dist/index.html either way.
+    (state.src_dir.join("index.html"), true)
+  } else {
+    (state.src_dir.join("index.html"), false)
+  };
 
   match std::fs::read_to_string(&html_file) {
     Ok(mut html) => {
-      logs::server!("Serving HTML fallback: {}", html_file.display());
+      logs::server!("Serving HTML {}: {}", if is_ssg { "SSG" } else { "fallback" }, html_file.display());
 
-      // If we served the fallback index.html, perform preloading injection
-      let fallback = html_file.file_name().map_or(false, |name| name == "index.html");
+      // Preload injection only for the SPA shell (SSG pages already embed preloads).
+      let fallback = !is_ssg && html_file.file_name().map_or(false, |name| name == "index.html");
       if fallback {
         let routes = state.src_dir.join("routes.json");
         let mut inject = String::new();

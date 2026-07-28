@@ -1,134 +1,57 @@
-<!-- Main Content -->
 <h1>Router</h1>
-<p>The Anza router is a client-side routing engine built on the Navigation API and URLPattern. It intercepts every
-  navigation — link clicks, form submissions, history traversals, and programmatic calls — at a single junction, matches
-  URLs against registered routes, and renders the corresponding view into the right container.</p>
-<p>It is designed for hierarchical layouts: pages declare the container chain they render through, and the router
-  ensures every intermediate container exists before mounting. A hard refresh on <code>/settings/profile</code> will
-  build the full <code>body → main → sidebar → settings-panel</code> chain automatically rather than erroring because a
-  container is missing.</p>
-
-<!-- Features Section -->
+<p>The Anza router is a client-side routing engine built on the Navigation API and URLPattern. It intercepts every navigation — link clicks, form submissions, history traversals, and programmatic calls — at a single junction, matches URLs against registered routes, and renders the corresponding view into the right container.</p>
+<p>It is designed for hierarchical layouts: pages declare the container chain they render through, and the router ensures every intermediate container exists before mounting. A hard refresh on <code>/settings/profile</code> will build the full <code>body → main → sidebar → settings-panel</code> chain automatically rather than erroring because a container is missing.</p>
+<hr />
 <h2>What You Get</h2>
 <ul>
-  <li><strong>URLPattern matching</strong> with static routes, parameters (<code>:id</code>), wildcards
-    (<code>*</code>), and parent chains</li>
-  <li><strong>Hierarchical containers</strong> via <code>dock()</code> — persistent layout shells that register in a
-    parent-child graph</li>
-  <li><strong>Cascade mounting</strong> — missing containers are created automatically on deep-link hard refreshes</li>
-  <li><strong>View transitions</strong> — GPU-accelerated page swaps, falling back gracefully when unsupported</li>
-  <li><strong>Navigation guards</strong> — block, redirect, or gate routes at pre-commit or post-commit time</li>
-  <li><strong>Cross-tab sync</strong> — keep duplicate tabs in navigation sync via BroadcastChannel</li>
-  <li><strong>Route cache</strong> — prefetch and cache view assets with TTL</li>
-  <li><strong>Deferred boot gate</strong> — the initial route match waits for custom element definitions so deep links
-    work on cold load</li>
+<li><strong>URLPattern matching</strong> with static routes, parameters (<code>:id</code>), wildcards (<code>*</code>), and parent chains</li>
+<li><strong>Hierarchical containers</strong> via <code>dock()</code> — persistent layout shells that register in a parent-child graph</li>
+<li><strong>Cascade mounting</strong> — missing containers are created automatically on deep-link hard refreshes</li>
+<li><strong>View transitions</strong> — GPU-accelerated page swaps, falling back gracefully when unsupported</li>
+<li><strong>Navigation guards</strong> — block, redirect, or gate routes at pre-commit or post-commit time</li>
+<li><strong>Cross-tab sync</strong> — keep duplicate tabs in navigation sync via BroadcastChannel</li>
+<li><strong>Route cache</strong> — prefetch and cache view assets with TTL</li>
+<li><strong>Deferred boot gate</strong> — the initial route match waits for custom element definitions so deep links work on cold load</li>
 </ul>
-
-<!-- Package Section -->
+<hr />
 <h2>Package</h2>
 <view-code language="javascript">import { router } from '@adukiorg/anza/router';
 import { page, dock, view, part } from '@adukiorg/anza/defs';
 </view-code>
-<p>The router also exposes itself as <code>window.router</code> (non-enumerable, non-configurable) for devtools and
-  non-module contexts.</p>
-
-<!-- File Map Section -->
+<p>The router also exposes itself as <code>window.router</code> (non-enumerable, non-configurable) for devtools and non-module contexts.</p>
+<hr />
 <h2>File Map</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>File</th>
-        <th>What It Covers</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a href="/docs/router/quickstart">quickstart.md</a></td>
-        <td>Your first route in five minutes</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/router/routes">routes.md</a></td>
-        <td>Defining routes: patterns, params, specificity, parent chains</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/router/handlers">handlers.md</a></td>
-        <td>The six shapes a route handler can take</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/router/guards">guards.md</a></td>
-        <td>Blocking and redirecting navigation</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/router/navigation">navigation.md</a></td>
-        <td>Programmatic navigation and history</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/router/containers">containers.md</a></td>
-        <td>The container graph, via chains, cascade mounting, LCA</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/router/pages">pages.md</a></td>
-        <td><code>page()</code> — route-bound element definitions</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/router/docks">docks.md</a></td>
-        <td><code>dock()</code> — container shells with swap transitions</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/router/components">components.md</a></td>
-        <td><code>view()</code> and <code>part()</code> — stateful and stateless components</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/router/events">events.md</a></td>
-        <td><code>found</code>, <code>notfound</code>, <code>error</code>, and <code>on()</code> subscriptions</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/router/transitions">transitions.md</a></td>
-        <td>CSS View Transitions wrapper</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/router/cache">cache.md</a></td>
-        <td>Prefetch and route caching</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/router/sync">sync.md</a></td>
-        <td>Cross-tab navigation synchronization</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/router/advanced">advanced.md</a></td>
-        <td>Boot gate, trie matcher, handler contract, internals</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/router/api">api.md</a></td>
-        <td>Complete API reference</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/router/troubleshooting">troubleshooting.md</a></td>
-        <td>Common problems and how to fix them</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Architecture Section -->
+<div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
+<tr><td><a href="/docs/router/quickstart">quickstart.md</a></td><td>Your first route in five minutes</td></tr>
+<tr><td><a href="/docs/router/routes">routes.md</a></td><td>Defining routes: patterns, params, specificity, parent chains</td></tr>
+<tr><td><a href="/docs/router/handlers">handlers.md</a></td><td>The six shapes a route handler can take</td></tr>
+<tr><td><a href="/docs/router/guards">guards.md</a></td><td>Blocking and redirecting navigation</td></tr>
+<tr><td><a href="/docs/router/navigation">navigation.md</a></td><td>Programmatic navigation and history</td></tr>
+<tr><td><a href="/docs/router/containers">containers.md</a></td><td>The container graph, via chains, cascade mounting, LCA</td></tr>
+<tr><td><a href="/docs/router/pages">pages.md</a></td><td><code>page()</code> — route-bound element definitions</td></tr>
+<tr><td><a href="/docs/router/docks">docks.md</a></td><td><code>dock()</code> — container shells with swap transitions</td></tr>
+<tr><td><a href="/docs/router/components">components.md</a></td><td><code>view()</code> and <code>part()</code> — stateful and stateless components</td></tr>
+<tr><td><a href="/docs/router/events">events.md</a></td><td><code>found</code>, <code>notfound</code>, <code>error</code>, and <code>on()</code> subscriptions</td></tr>
+<tr><td><a href="/docs/router/transitions">transitions.md</a></td><td>CSS View Transitions wrapper</td></tr>
+<tr><td><a href="/docs/router/cache">cache.md</a></td><td>Prefetch and route caching</td></tr>
+<tr><td><a href="/docs/router/sync">sync.md</a></td><td>Cross-tab navigation synchronization</td></tr>
+<tr><td><a href="/docs/router/advanced">advanced.md</a></td><td>Boot gate, trie matcher, handler contract, internals</td></tr>
+<tr><td><a href="/docs/router/api">api.md</a></td><td>Complete API reference</td></tr>
+<tr><td><a href="/docs/router/troubleshooting">troubleshooting.md</a></td><td>Common problems and how to fix them</td></tr>
+</tbody></table></div>
+<hr />
 <h2>The Three-Layer Model</h2>
 <p>The router is organized into three layers. You will spend most of your time in the top two.</p>
-<p><strong>1. Definition layer</strong> — <code>page()</code>, <code>dock()</code>, <code>view()</code>,
-  <code>part()</code></p>
-<p>Declarative functions that define custom elements and register routes. A <code>page</code> is a <code>view</code>
-  that also owns a URL. A <code>dock</code> is a container shell that lives across route changes.</p>
-<p><strong>2. Router facade</strong> — <code>router.register</code>, <code>router.navigate</code>,
-  <code>router.guard</code>, <code>router.on</code></p>
+<p><strong>1. Definition layer</strong> — <code>page()</code>, <code>dock()</code>, <code>view()</code>, <code>part()</code></p>
+<p>Declarative functions that define custom elements and register routes. A <code>page</code> is a <code>view</code> that also owns a URL. A <code>dock</code> is a container shell that lives across route changes.</p>
+<p><strong>2. Router facade</strong> — <code>router.register</code>, <code>router.navigate</code>, <code>router.guard</code>, <code>router.on</code></p>
 <p>Imperative APIs for programmatic control, event subscription, and advanced use cases.</p>
-<p><strong>3. Internal machinery</strong> — <code>match.js</code>, <code>intercept.js</code>, <code>graph.js</code>,
-  <code>cascade.js</code></p>
+<p><strong>3. Internal machinery</strong> — <code>match.js</code>, <code>intercept.js</code>, <code>graph.js</code>, <code>cascade.js</code></p>
 <p>What makes the router fast and correct. You do not call these directly unless you are extending the router.</p>
-
-<!-- Example Section -->
+<hr />
 <h2>One-File Example</h2>
 <view-code language="html">&lt;!-- index.html --&gt;
-&lt;script type=&quot;module&quot; src=&quot;./app.js&quot;&gt;&lt;/script&gt;
+&lt;script type="module" src="./app.js"&gt;&lt;/script&gt;
 &lt;body&gt;&lt;/body&gt;
 </view-code>
 <view-code language="javascript">// app.js
@@ -147,18 +70,14 @@ page('/', {
   }
 }, import.meta.url);
 </view-code>
-<p>That is a complete working route. The router auto-bootstraps, intercepts link clicks, matches the URL, and renders
-  <code>page-home</code> inside the <code>main</code> dock.</p>
-
-<!-- Next Steps Section -->
+<p>That is a complete working route. The router auto-bootstraps, intercepts link clicks, matches the URL, and renders <code>page-home</code> inside the <code>main</code> dock.</p>
+<hr />
 <h2>Next Steps</h2>
 <ul>
-  <li>New to the router? Start with <a href="/docs/router/quickstart">quickstart.md</a>.</li>
-  <li>Want the full route API? Read <a href="/docs/router/routes">routes.md</a> and <a
-      href="/docs/router/handlers">handlers.md</a>.</li>
-  <li>Building layouts with sidebars and panels? See <a href="/docs/router/containers">containers.md</a> and <a
-      href="/docs/router/docks">docks.md</a>.</li>
-  <li>Need to block certain routes? <a href="/docs/router/guards">guards.md</a>.</li>
-  <li>Want animated page swaps? <a href="/docs/router/transitions">transitions.md</a>.</li>
-  <li>Prefer a single reference page? <a href="/docs/router/api">api.md</a>.</li>
+<li>New to the router? Start with <a href="/docs/router/quickstart">quickstart.md</a>.</li>
+<li>Want the full route API? Read <a href="/docs/router/routes">routes.md</a> and <a href="/docs/router/handlers">handlers.md</a>.</li>
+<li>Building layouts with sidebars and panels? See <a href="/docs/router/containers">containers.md</a> and <a href="/docs/router/docks">docks.md</a>.</li>
+<li>Need to block certain routes? <a href="/docs/router/guards">guards.md</a>.</li>
+<li>Want animated page swaps? <a href="/docs/router/transitions">transitions.md</a>.</li>
+<li>Prefer a single reference page? <a href="/docs/router/api">api.md</a>.</li>
 </ul>

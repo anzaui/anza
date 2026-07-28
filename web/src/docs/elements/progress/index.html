@@ -1,0 +1,37 @@
+<h1>Progress</h1>
+<p>Determinate progress bar with percentage label and ARIA progressbar semantics.</p>
+<p><strong>Tag:</strong> <code>ui-progress</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/progress</code></p>
+<hr />
+<h2>Import</h2>
+<view-code language="javascript">import '@adukiorg/anza/elements/progress';
+</view-code>
+<hr />
+<h2>Basic usage</h2>
+<view-code language="html">&lt;ui-progress value="40" max="100"&gt;&lt;/ui-progress&gt;
+&lt;ui-progress value="3" max="10"&gt;
+  &lt;span slot="label"&gt;Upload&lt;/span&gt;
+&lt;/ui-progress&gt;
+</view-code>
+<hr />
+<h2>Props</h2>
+<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>value</code></td><td>Number</td><td>Reflect</td><td>Current progress value (default <code>0</code>)</td></tr>
+<tr><td><code>max</code></td><td>Number</td><td>Reflect</td><td>Maximum value (default <code>100</code>)</td></tr>
+</tbody></table></div>
+<h2>Slots / parts</h2>
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>label</code></td><td>slot</td><td>Label text (default “Progress”)</td></tr>
+<tr><td><code>labels</code></td><td>part</td><td>Label + percent row</td></tr>
+<tr><td><code>track</code></td><td>part</td><td>Track container</td></tr>
+<tr><td><code>fill</code></td><td>part</td><td>Filled portion</td></tr>
+</tbody></table></div>
+<h2>Notes</h2>
+<p>Sets <code>role="progressbar"</code> and <code>aria-valuenow</code> / <code>aria-valuemin</code> / <code>aria-valuemax</code> on update. Percent label is derived as <code>round((value / max) * 100)</code>.</p>
+<hr />
+<h2>Related</h2>
+<ul>
+<li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="/docs/elements/feedback">Feedback</a></li>
+<li><a href="/docs/elements/spinner">Spinner</a></li>
+<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
+</ul>

@@ -119,4 +119,4 @@ page('/about', {
 });
 ```
 
-Clicking `<a href="/about">` is intercepted, matched, and swapped inside `main` without a reload.
+Clicking `<a href="/about">` is intercepted, matched, and soft-nav swaps only the page leaf inside `main` — the dock stays mounted. Both `anza dev` and `anza build` emit contentful SSG HTML per public route for hard refresh; soft-nav loads page fragments (see [ssg/contract.md](../ssg/contract.md)).

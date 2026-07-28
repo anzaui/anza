@@ -1,72 +1,61 @@
-<!-- Main Content -->
 <h1>Sync</h1>
 <p>Background Sync queues failed requests and replays them when the browser comes back online.</p>
-
-<!-- How It Works Section -->
+<hr />
 <h2>How It Works</h2>
 <ol>
-  <li>The main thread queues a task via <code>offline.queue.push()</code></li>
-  <li>The browser fires a <code>sync</code> event when connectivity returns</li>
-  <li>The Service Worker replays all queued requests in order</li>
-  <li>Successful tasks are removed; failed tasks are retried or moved to a dead-letter queue</li>
+<li>The main thread queues a task via <code>offline.queue.push()</code></li>
+<li>The browser fires a <code>sync</code> event when connectivity returns</li>
+<li>The Service Worker replays all queued requests in order</li>
+<li>Successful tasks are removed; failed tasks are retried or moved to a dead-letter queue</li>
 </ol>
-
-<!-- Queue a Task Section -->
+<hr />
 <h2>Queue a Task from the Main Thread</h2>
 <view-code language="javascript">import { offline } from '@adukiorg/anza/offline';
 
-  await offline.queue.push({
+await offline.queue.push({
   url: '/api/posts',
   method: 'POST',
   body: JSON.stringify({ title: 'Hello' }),
   headers: { 'content-type': 'application/json' }
-  });
+});
 </view-code>
-<p><code>offline.queue.push()</code> serializes the request and stores it in IndexedDB. It returns a Promise that
-  resolves when the store write completes.</p>
-
-<!-- Replay in Service Worker Section -->
+<p><code>offline.queue.push()</code> serializes the request and stores it in IndexedDB. It returns a Promise that resolves when the store write completes.</p>
+<hr />
 <h2>Replay in the Service Worker</h2>
 <view-code language="javascript">import { replayQueue } from '@adukiorg/anza/sw';
 
-  self.addEventListener('sync', (e) =&gt; {
+self.addEventListener('sync', (e) =&gt; {
   if (e.tag === 'sync-tasks') {
-  e.waitUntil(replayQueue());
+    e.waitUntil(replayQueue());
   }
-  });
+});
 </view-code>
-<p><code>replayQueue()</code> reads all stored tasks, replays them as <code>fetch()</code> calls, and removes the ones
-  that succeed. Failed tasks stay in the queue for the next sync event.</p>
-
-<!-- Register Sync Event Section -->
+<p><code>replayQueue()</code> reads all stored tasks, replays them as <code>fetch()</code> calls, and removes the ones that succeed. Failed tasks stay in the queue for the next sync event.</p>
+<hr />
 <h2>Register the Sync Event</h2>
 <p>The browser does not fire <code>sync</code> events unless you request them. Use the main thread bridge:</p>
 <view-code language="javascript">import { offline } from '@adukiorg/anza/offline';
 
-  async function registerSync() {
+async function registerSync() {
   const reg = await navigator.serviceWorker.ready;
   await reg.sync.register('sync-tasks');
-  }
+}
 </view-code>
 <p>Call <code>registerSync()</code> after any mutation that should survive going offline.</p>
-
-<!-- Dead Letter Queue Section -->
+<hr />
 <h2>Dead Letter Queue</h2>
-<p>After a configurable number of retries, failed tasks move to a dead-letter queue where they wait for manual
-  inspection.</p>
+<p>After a configurable number of retries, failed tasks move to a dead-letter queue where they wait for manual inspection.</p>
 <view-code language="javascript">import { requeueFailed } from '@adukiorg/anza/sw';
 
-  // After 3 failed attempts, move to dead letter
-  await requeueFailed({ maxAttempts: 3 });
+// After 3 failed attempts, move to dead letter
+await requeueFailed({ maxAttempts: 3 });
 </view-code>
-
-<!-- Request Serialization Section -->
+<hr />
 <h2>Request Serialization</h2>
 <p>The queue stores standard <code>Request</code> objects as plain objects. Two helpers handle the conversion:</p>
 <view-code language="javascript">import { serializeRequest, deserializeRequest } from '@adukiorg/anza/sw';
 
-  const payload = await serializeRequest(request);
-  const restored = await deserializeRequest(payload);
+const payload = await serializeRequest(request);
+const restored = await deserializeRequest(payload);
 </view-code>
-<p><code>serializeRequest</code> reads the body as a blob and extracts headers. <code>deserializeRequest</code> rebuilds
-  a standard <code>Request</code> from the stored payload.</p>
+<p><code>serializeRequest</code> reads the body as a blob and extracts headers. <code>deserializeRequest</code> rebuilds a standard <code>Request</code> from the stored payload.</p>

@@ -1,42 +1,16 @@
-<!-- Main Content -->
 <h1>Once</h1>
 <p><code>events.once</code> waits for a single event occurrence and resolves a promise with the event object. It uses the native <code>once: true</code> listener option and supports AbortSignal cancellation.</p>
-
-<!-- Signature Section -->
+<hr />
 <h2>Signature</h2>
 <view-code language="javascript">const event = await once(target, type, options);
 </view-code>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Param</th>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>target</code></td>
-        <td>EventTarget</td>
-        <td>Element, window, document, or bus</td>
-      </tr>
-      <tr>
-        <td><code>type</code></td>
-        <td>string</td>
-        <td>Event name</td>
-      </tr>
-      <tr>
-        <td><code>options</code></td>
-        <td>object</td>
-        <td><code>addEventListener</code> options plus <code>signal</code></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+<div class="table-wrap"><table><thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>target</code></td><td>EventTarget</td><td>Element, window, document, or bus</td></tr>
+<tr><td><code>type</code></td><td>string</td><td>Event name</td></tr>
+<tr><td><code>options</code></td><td>object</td><td><code>addEventListener</code> options plus <code>signal</code></td></tr>
+</tbody></table></div>
 <p>Returns a <code>Promise&lt;Event&gt;</code>.</p>
-
-<!-- Basic Use Section -->
+<hr />
 <h2>Basic Use</h2>
 <view-code language="javascript">import { events } from '@adukiorg/anza/events';
 
@@ -44,8 +18,7 @@
 const click = await events.once(document.body, 'click');
 console.log('Clicked at', click.clientX, click.clientY);
 </view-code>
-
-<!-- With AbortSignal Section -->
+<hr />
 <h2>With AbortSignal</h2>
 <p>Cancel the wait if the user navigates away:</p>
 <view-code language="javascript">const ctrl = new AbortController();
@@ -63,10 +36,8 @@ try {
 ctrl.abort();
 </view-code>
 <p>Aborting rejects the promise with <code>'Operation aborted'</code>.</p>
-
-<!-- Use Cases Section -->
+<hr />
 <h2>Use Cases</h2>
-
 <h3>Confirm before action</h3>
 <view-code language="javascript">async function confirmDelete() {
   showDialog('Are you sure?');
@@ -74,17 +45,14 @@ ctrl.abort();
   return click.target.matches('.confirm-btn');
 }
 </view-code>
-
 <h3>Wait for element to connect</h3>
 <view-code language="javascript">await events.once(document.body, 'my-element-connected');
 </view-code>
-
 <h3>One-off analytics</h3>
 <view-code language="javascript">const interaction = await events.once(form, 'submit');
 logFirstInteraction(interaction);
 </view-code>
-
-<!-- Options Section -->
+<hr />
 <h2>Options</h2>
 <p>Pass standard <code>addEventListener</code> options:</p>
 <view-code language="javascript">const click = await events.once(document, 'click', {
@@ -92,8 +60,7 @@ logFirstInteraction(interaction);
   signal: ctrl.signal
 });
 </view-code>
-
-<!-- Already Aborted Signal Section -->
+<hr />
 <h2>Already Aborted Signal</h2>
 <p>If the signal is already aborted, the promise rejects immediately:</p>
 <view-code language="javascript">const ctrl = new AbortController();

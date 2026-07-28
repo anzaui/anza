@@ -1,0 +1,49 @@
+<h1>Popover</h1>
+<p>Lightweight contextual overlay using the native Popover API for top-layer rendering and light dismiss.</p>
+<p><strong>Tag:</strong> <code>ui-popover</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/popover</code></p>
+<p>Architecture and when-to-use: <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
+<hr />
+<h2>Import</h2>
+<view-code language="javascript">import '@adukiorg/anza/elements/popover';
+</view-code>
+<hr />
+<h2>Basic usage</h2>
+<view-code language="html">&lt;ui-button id="more" type="button"&gt;More&lt;/ui-button&gt;
+&lt;ui-popover id="panel"&gt;
+  &lt;p&gt;Contextual content&lt;/p&gt;
+&lt;/ui-popover&gt;
+
+&lt;script type="module"&gt;
+  const panel = document.querySelector('#panel');
+  document.querySelector('#more').addEventListener('click', () =&gt; panel.toggle());
+  panel.addEventListener('toggle', (e) =&gt; {
+    console.log(e.detail.newState); // 'open' | 'closed'
+  });
+&lt;/script&gt;
+</view-code>
+<hr />
+<h2>Props</h2>
+<p>None. Open state is driven by methods / the native popover.</p>
+<h2>Methods</h2>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>show()</code></td><td>Opens via <code>showPopover()</code></td></tr>
+<tr><td><code>hide()</code></td><td>Closes via <code>hidePopover()</code></td></tr>
+<tr><td><code>toggle()</code></td><td>Toggles open / closed</td></tr>
+</tbody></table></div>
+<h2>Events</h2>
+<div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody>
+<tr><td><code>toggle</code></td><td>After open/close; <code>detail.newState</code> is <code>'open'</code> | <code>'closed'</code></td></tr>
+</tbody></table></div>
+<h2>Notes</h2>
+<p>Default slot projects into <code>part="popover"</code>. Uses <code>[popover="auto"]</code> (top-layer; polyfill when the Popover API is missing).</p>
+<h3>Lifecycle / memory</h3>
+<p>Listeners stay on the popover surface inside the shadow. Soft-nav aborts the leaf <code>ctrl</code>. Prefer <code>on</code> / signal-owned work over raw <code>document</code> listeners. See <a href="/docs/elements/overlay">Overlay patterns</a> and <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a>.</p>
+<hr />
+<h2>Related</h2>
+<ul>
+<li><a href="/docs/elements/overlay">Overlay patterns</a></li>
+<li><a href="/docs/elements/menu">Menu</a></li>
+<li><a href="/docs/elements/dialog">Dialog</a></li>
+<li><a href="/docs/elements/index">Elements overview</a></li>
+<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
+</ul>

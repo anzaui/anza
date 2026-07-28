@@ -1,5 +1,6 @@
 import { router } from '../../router/index.js';
 import { element } from './element.js';
+import { runSwapTransition } from '../transitions.js';
 
 /**
  * High-performance declarative routing container factory.
@@ -9,6 +10,10 @@ export function container(tag, spec, base = import.meta.url) {
   // Inject default contain: layout styling required for element-scoped View Transitions
   const containerStyle = ':host { contain: layout; display: block; }';
   spec.style = spec.style ? `${containerStyle}\n${spec.style}` : containerStyle;
+
+  // Optional VT config on the container spec (same shape as dock).
+  const transitionConfig = spec.transition === undefined ? true : spec.transition;
+  delete spec.transition;
 
   // Intercept mount to strictly register the singleton layout container
   const originalMount = spec.mount;
@@ -41,32 +46,31 @@ export function container(tag, spec, base = import.meta.url) {
 
   // Dynamically inject the Delegated Swap Interface for route transitions
   const ElementClass = customElements.get(tag);
-  if (ElementClass && !ElementClass.prototype.swapView) {
-    ElementClass.prototype.swapView = async function(newElement, options = {}) {
-      const { direction = 'push' } = options;
+  if (ElementClass) {
+    ElementClass.transitionConfig = transitionConfig;
+    if (typeof transitionConfig === 'object' && transitionConfig?.name) {
+      ElementClass.transitionName = transitionConfig.name;
+    }
 
-      // Apply directional transition hint via CSS custom property
-      this.dataset.transitionDirection = direction;
+    if (!ElementClass.prototype.swapView) {
+      ElementClass.prototype.swapView = async function(newElement, options = {}) {
+        const nameAttr = this.getAttribute('name') || tag.toLowerCase();
+        const transitionOpt = options.transition !== undefined
+          ? options.transition
+          : ElementClass.transitionConfig;
 
-      const doSwap = () => {
-        this.replaceChildren(newElement);
-        delete this.dataset.transitionDirection;
+        return runSwapTransition(this, () => {
+          this.replaceChildren(newElement);
+        }, {
+          direction: options.direction ?? 'push',
+          dockName: nameAttr,
+          name: options.name ?? ElementClass.transitionName,
+          transition: transitionOpt,
+          skip: options.skip,
+          enabled: options.enabled,
+          signal: options.signal
+        });
       };
-
-      // Only use element-scoped view transitions. Document-level
-      // startViewTransition() captures the entire page and causes
-      // chrome flicker — never use it as a fallback.
-      if (typeof this.startViewTransition === 'function') {
-        try {
-          const vt = this.startViewTransition(doSwap);
-          await vt.ready;
-        } catch (err) {
-          if (err?.name !== 'AbortError') console.warn('[UI Container] Scoped VT aborted:', err);
-        }
-        return;
-      }
-
-      doSwap();
-    };
+    }
   }
 }

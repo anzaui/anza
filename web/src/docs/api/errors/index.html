@@ -1,123 +1,85 @@
-<!-- Main Content -->
 <h1>Errors</h1>
-<p>
-  Every failure in the API client is normalized to a <code>PlatformError</code>. This gives you structured error
-  handling with codes, context, and recovery guidance.
-</p>
-
-<!-- PlatformError Section -->
+<p>Every failure in the API client is normalized to a <code>PlatformError</code>. This gives you structured error handling with codes, context, and recovery guidance.</p>
+<hr />
 <h2>PlatformError</h2>
-<view-code language="javascript">
-  class PlatformError extends Error {
-    name: 'PlatformError',
-    code: string, // error category
-    message: string, // human-readable description
-    cause: Error | null, // original error (if any)
-    context: object, // request context (url, method, status, etc.)
-    recoverable: boolean // can retry help?
-  }
+<view-code language="javascript">class PlatformError extends Error {
+  name: 'PlatformError',
+  code: string,          // error category
+  message: string,       // human-readable description
+  cause: Error | null,  // original error (if any)
+  context: object,      // request context (url, method, status, etc.)
+  recoverable: boolean  // can retry help?
+}
 </view-code>
-
-<!-- Error Codes Section -->
+<hr />
 <h2>Error Codes</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Code</th>
-        <th>Meaning</th>
-        <th>Recoverable</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>HTTP_ERROR</code></td>
-        <td>Server returned non-2xx status</td>
-        <td>5xx yes, 4xx no</td>
-      </tr>
-      <tr>
-        <td><code>NETWORK_ERROR</code></td>
-        <td>Fetch failed (offline, DNS, CORS)</td>
-        <td>yes</td>
-      </tr>
-      <tr>
-        <td><code>NETWORK_TIMEOUT</code></td>
-        <td>Request exceeded timeout limit</td>
-        <td>yes</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Handling Errors Section -->
+<div class="table-wrap"><table><thead><tr><th>Code</th><th>Meaning</th><th>Recoverable</th></tr></thead><tbody>
+<tr><td><code>HTTP_ERROR</code></td><td>Server returned non-2xx status</td><td>5xx yes, 4xx no</td></tr>
+<tr><td><code>NETWORK_ERROR</code></td><td>Fetch failed (offline, DNS, CORS)</td><td>yes</td></tr>
+<tr><td><code>NETWORK_TIMEOUT</code></td><td>Request exceeded timeout limit</td><td>yes</td></tr>
+</tbody></table></div>
+<hr />
 <h2>Handling Errors</h2>
-<view-code language="javascript">
-  import { api } from '@adukiorg/anza/api';
+<view-code language="javascript">import { api } from '@adukiorg/anza/api';
 
-  try {
-    await api.get('/user/profile');
-  } catch (err) {
-    if (err.code === 'HTTP_ERROR') {
-      console.log('Server error:', err.context.status);
-      if (err.context.status === 404) {
-        showNotFound();
-      }
-    }
-    if (err.code === 'NETWORK_TIMEOUT') {
-      showToast('Slow connection — please try again');
-    }
-    if (err.code === 'NETWORK_ERROR') {
-      showToast('You are offline');
+try {
+  await api.get('/user/profile');
+} catch (err) {
+  if (err.code === 'HTTP_ERROR') {
+    console.log('Server error:', err.context.status);
+    if (err.context.status === 404) {
+      showNotFound();
     }
   }
+  if (err.code === 'NETWORK_TIMEOUT') {
+    showToast('Slow connection — please try again');
+  }
+  if (err.code === 'NETWORK_ERROR') {
+    showToast('You are offline');
+  }
+}
 </view-code>
-
-<!-- Recovery Patterns Section -->
+<hr />
 <h2>Recovery Patterns</h2>
 <h3>Retry on Transient Failures</h3>
 <p>The client retries automatically for:</p>
 <ul>
-  <li><code>NETWORK_TIMEOUT</code></li>
-  <li><code>NETWORK_ERROR</code></li>
-  <li><code>HTTP_ERROR</code> with status &gt;= 500</li>
+<li><code>NETWORK_TIMEOUT</code></li>
+<li><code>NETWORK_ERROR</code></li>
+<li><code>HTTP_ERROR</code> with status &gt;= 500</li>
 </ul>
 <p>Client errors (4xx) are not retried. Adjust <code>retries</code> per request:</p>
-<view-code language="javascript">
-  await api.get('/critical', { retries: 5 });
+<view-code language="javascript">await api.get('/critical', { retries: 5 });
 </view-code>
 <h3>Custom Retry Logic</h3>
 <p>For advanced cases, use the <code>retry</code> utility directly:</p>
-<view-code language="javascript">
-  import { retry } from '@adukiorg/anza/api';
+<view-code language="javascript">import { retry } from '@adukiorg/anza/api';
 
-  const result = await retry(
-    () =&gt; api.get('/unstable'),
-    { attempts: 5, base: 200, maxDelay: 5000 }
-  );
+const result = await retry(
+  () =&gt; api.get('/unstable'),
+  { attempts: 5, base: 200, maxDelay: 5000 }
+);
 </view-code>
-
-<!-- Error Events Section -->
+<hr />
 <h2>Error Events</h2>
 <p>Listen for errors via telemetry:</p>
-<view-code language="javascript">
-  api.on('error', (event) =&gt; {
-    console.error('Network error:', event.detail.error);
-  });
+<view-code language="javascript">api.on('error', (event) =&gt; {
+  console.error('Network error:', event.detail.error);
+});
 
-  api.on('failed', (event) =&gt; {
-    console.error('Request failed:', event.detail.error || event.detail.response);
-  });
+api.on('failed', (event) =&gt; {
+  console.error('Request failed:', event.detail.error || event.detail.response);
+});
 
-  api.on('timeout', (event) =&gt; {
-    console.error('Timed out:', event.detail.error);
-  });
+api.on('timeout', (event) =&gt; {
+  console.error('Timed out:', event.detail.error);
+});
 </view-code>
-
-<!-- Non-Recoverable Errors Section -->
+<hr />
 <h2>Non-Recoverable Errors</h2>
 <p>Some errors are marked <code>recoverable: false</code>. These include:</p>
 <ul>
-  <li>Aborted requests</li>
-  <li>4xx client errors (the server rejected the request as invalid)</li>
+<li>Aborted requests</li>
+<li>4xx client errors (the server rejected the request as invalid)</li>
 </ul>
 <p>Do not retry these automatically. Fix the request or notify the user.</p>

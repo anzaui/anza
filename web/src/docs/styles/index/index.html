@@ -1,37 +1,26 @@
-<!-- Main Content -->
 <h1>Styles</h1>
-<p>Styles are applied per element to its shadow root. The factory leverages constructable stylesheets when supported by
-  the browser, falling back to inline <code>&lt;style&gt;</code> injection.</p>
-
-<!-- Defining Styles Section -->
+<p>Styles are applied per element to its shadow root. The factory leverages constructable stylesheets when supported by the browser, falling back to inline <code>&lt;style&gt;</code> injection.</p>
+<hr />
 <h2>Defining Styles</h2>
 <p>Styles can be defined using inline CSS strings or references to stylesheet files.</p>
-
 <h3>Inline Styles</h3>
 <view-code language="javascript">view('styled-box', {
-  template: '&lt;div class=&quot;box&quot;&gt;&lt;/div&gt;',
+  template: '&lt;div class="box"&gt;&lt;/div&gt;',
   style: `
     :host { display: block; padding: var(--space-4); }
     .box { background: var(--color-surface-elevated); border: var(--space-px) solid var(--color-border-default); }
   `
 });
 </view-code>
-
 <h3>File-Based Styles</h3>
 <view-code language="javascript">view('styled-box', {
   template: { html: './box.html', css: './box.css' }
-  }, import.meta.url);
+}, import.meta.url);
 </view-code>
-
-<!-- Multiple & Shared Stylesheets Section -->
+<hr />
 <h2>Multiple &amp; Shared Stylesheets</h2>
-<p>Definitions for <code>view()</code>, <code>dock()</code>, and <code>page()</code> accept an array of styles. This is
-  useful for combining common utility or theme sheets with element-specific layouts.</p>
-<p>Additionally, stylesheets can be loaded from any folder in the project, using either relative paths
-  (<code>../</code>) or root-relative absolute paths starting with <code>/</code> (e.g.,
-  <code>/styles/shared.css</code>). The compiler automatically resolves these paths, mirrors the files into
-  <code>dist/</code>, and registers them for preloading.</p>
-
+<p>Definitions for <code>view()</code>, <code>dock()</code>, and <code>page()</code> accept an array of styles. This is useful for combining common utility or theme sheets with element-specific layouts.</p>
+<p>Additionally, stylesheets can be loaded from any folder in the project, using either relative paths (<code>../</code>) or root-relative absolute paths starting with <code>/</code> (e.g., <code>/styles/shared.css</code>). The compiler automatically resolves these paths, mirrors the files into <code>dist/</code>, and registers them for preloading.</p>
 <h3>Array of Inline Styles</h3>
 <view-code language="javascript">view('themed-button', {
   template: '&lt;button&gt;&lt;slot&gt;&lt;/slot&gt;&lt;/button&gt;',
@@ -41,62 +30,51 @@
   ]
 });
 </view-code>
-
 <h3>Array of Stylesheet Files (via <code>style</code>)</h3>
 <p>You can define multiple file-based stylesheets directly inside the <code>style</code> property:</p>
 <view-code language="javascript">page('blog-post', {
   template: { html: './post.html' },
   style: [
-    '/styles/shared.css', // Absolute path from src/ root
-    '../../styles/base.css', // Relative path
-    './post.css' // Local relative path
+    '/styles/shared.css',      // Absolute path from src/ root
+    '../../styles/base.css',   // Relative path
+    './post.css'               // Local relative path
   ]
 }, import.meta.url);
 </view-code>
-
 <h3>Array of Stylesheet Files (via <code>template.css</code>)</h3>
 <p>Alternatively, they can be referenced inside the <code>template.css</code> field:</p>
 <view-code language="javascript">page('blog-post', {
-  template: {
-    html: './post.html',
-    css: ['../../styles/base.css', './post.css']
+  template: { 
+    html: './post.html', 
+    css: ['../../styles/base.css', './post.css'] 
   }
 }, import.meta.url);
 </view-code>
-<p>When files are referenced, the compiler resolves each relative path independently against the component's file
-  directory (and absolute paths against the project's source root), copies them into <code>dist/</code>, and preloads
-  them in the specified sequence.</p>
-
-<!-- Adopted Stylesheets Section -->
+<p>When files are referenced, the compiler resolves each relative path independently against the component's file directory (and absolute paths against the project's source root), copies them into <code>dist/</code>, and preloads them in the specified sequence.</p>
+<hr />
 <h2>Adopted Stylesheets</h2>
 <p>When the browser supports <code>CSSStyleSheet</code> and <code>adoptedStyleSheets</code>:</p>
 <ol>
-  <li>Each CSS resource is fetched once per unique URL across the application.</li>
-  <li>A single <code>CSSStyleSheet</code> object is instantiated and cached globally.</li>
-  <li>Every instance of the element adopts the stylesheet by assigning it to <code>shadowRoot.adoptedStyleSheets</code>.
-  </li>
+<li>Each CSS resource is fetched once per unique URL across the application.</li>
+<li>A single <code>CSSStyleSheet</code> object is instantiated and cached globally.</li>
+<li>Every instance of the element adopts the stylesheet by assigning it to <code>shadowRoot.adoptedStyleSheets</code>.</li>
 </ol>
-<p>This design minimizes duplicate network requests and reduces the memory footprint by sharing a single stylesheet
-  instance among all custom elements of the same type.</p>
-
+<p>This design minimizes duplicate network requests and reduces the memory footprint by sharing a single stylesheet instance among all custom elements of the same type.</p>
 <h3>Fallback Behavior</h3>
-<p>For browsers without constructable stylesheet support:
-  1. CSS assets are fetched as raw text strings.
-  2. The factory prepends a <code>&lt;style&gt;</code> element containing the CSS text directly inside the shadow root
-  of each instance.</p>
-
-<!-- Hot Module Replacement Section -->
+<p>For browsers without constructable stylesheet support:</p>
+<ol>
+<li>CSS assets are fetched as raw text strings.</li>
+<li>The factory prepends a <code>&lt;style&gt;</code> element containing the CSS text directly inside the shadow root of each instance.</li>
+</ol>
+<hr />
 <h2>Hot Module Replacement (HMR)</h2>
-<p>During development, updates to CSS files trigger HMR events. The dev environment captures stylesheet modifications
-  and updates the cached constructable stylesheet directly:</p>
+<p>During development, updates to CSS files trigger HMR events. The dev environment captures stylesheet modifications and updates the cached constructable stylesheet directly:</p>
 <view-code language="javascript">window.dispatchEvent(new CustomEvent('native:hmr:css', {
   detail: { path: './box.css', css: '/* modified styles */' }
 }));
 </view-code>
-<p>Using <code>replaceSync()</code>, changes are pushed to the live stylesheet instance, updating all active elements on
-  the screen without triggering a full page reload or layout remount.</p>
-
-<!-- Scoped Styles Section -->
+<p>Using <code>replaceSync()</code>, changes are pushed to the live stylesheet instance, updating all active elements on the screen without triggering a full page reload or layout remount.</p>
+<hr />
 <h2>Scoped Styles</h2>
 <p>Custom elements use Shadow DOM by default, isolating styles to prevent leaks:</p>
 <view-code language="css">/* Scoped to the element's shadow root. Will not affect other DOM nodes */

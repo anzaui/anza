@@ -36,12 +36,25 @@ export async function shadow(root = document) {
 }
 
 export async function anchor(floating, anchorEl, options = {}) {
-  if (supports.anchorPositioning) {
+  if (supports.anchorPositioning && options.mode !== 'fixed') {
     // Native CSS Anchor positioning handles this; no script action needed.
     return;
   }
   const { position } = await import('./polyfills/anchor.js');
   position(floating, anchorEl, options);
+}
+
+/**
+ * Position a floating element so it escapes overflow clipping.
+ * Ensures Popover API (native or polyfill) when the floating node is a popover.
+ * @returns {Promise<import('./escape.js').EscapeController>}
+ */
+export async function escape(floating, anchorEl, options = {}) {
+  if (floating?.hasAttribute?.('popover')) {
+    await popover();
+  }
+  const { escapeOverflow } = await import('./escape.js');
+  return escapeOverflow(floating, anchorEl, options);
 }
 
 export async function sanitizer() {
@@ -97,6 +110,7 @@ export default {
   popover,
   shadow,
   anchor,
+  escape,
   sanitizer,
   scheduler,
   yield: yieldTask

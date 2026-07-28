@@ -1,21 +1,14 @@
-<!-- Main Content -->
 <h1>Quick Start</h1>
 <p>Get a working route in five minutes.</p>
-
-<!-- 1. Create a Dock Section -->
+<hr />
 <h2>1. Create a Dock</h2>
-<p>A <code>dock</code> is a persistent container shell. It stays in the DOM across route changes and provides the
-  mounting point for pages.</p>
+<p>A <code>dock</code> is a persistent container shell. It stays in the DOM across route changes and provides the mounting point for pages.</p>
 <view-code language="javascript">import { dock } from '@adukiorg/anza/defs';
 
 dock('main');
 </view-code>
-<p>This registers <code>&lt;dock-main&gt;</code> as a custom element. When it connects, it registers itself in the
-  container graph under the key <code>'main'</code>. The default parent is <code>'body'</code>, so
-  <code>&lt;dock-main&gt;</code> is treated as a top-level container. You can place it directly in HTML or let the
-  router create it automatically.</p>
-
-<!-- 2. Define a Page Section -->
+<p>This registers <code>&lt;dock-main&gt;</code> as a custom element. When it connects, it registers itself in the container graph under the key <code>'main'</code>. The default parent is <code>'body'</code>, so <code>&lt;dock-main&gt;</code> is treated as a top-level container. You can place it directly in HTML or let the router create it automatically.</p>
+<hr />
 <h2>2. Define a Page</h2>
 <p>A <code>page</code> maps a URL pattern to a custom element.</p>
 <view-code language="javascript">import { page } from '@adukiorg/anza/defs';
@@ -31,14 +24,12 @@ page('/', {
 </view-code>
 <p>What happens:</p>
 <ol>
-  <li><code>page()</code> defines <code>&lt;page-home&gt;</code> as a custom element</li>
-  <li>It registers the route <code>'/'</code> with the router</li>
-  <li>It declares that this page renders through the <code>'main'</code> container</li>
-  <li>When the user visits <code>/</code>, the router creates <code>&lt;page-home&gt;</code> and mounts it inside
-    <code>&lt;dock-main&gt;</code></li>
+<li><code>page()</code> defines <code>&lt;page-home&gt;</code> as a custom element</li>
+<li>It registers the route <code>'/'</code> with the router</li>
+<li>It declares that this page renders through the <code>'main'</code> container</li>
+<li>When the user visits <code>/</code>, the router creates <code>&lt;page-home&gt;</code> and mounts it inside <code>&lt;dock-main&gt;</code></li>
 </ol>
-
-<!-- 3. Add Another Route Section -->
+<hr />
 <h2>3. Add Another Route</h2>
 <view-code language="javascript">page('/about', {
   tag: 'page-about',
@@ -46,10 +37,8 @@ page('/', {
   template: '&lt;h1&gt;About&lt;/h1&gt;'
 });
 </view-code>
-<p>Now clicking <code>&lt;a href="/about"&gt;</code> is intercepted, matched, and swapped inside <code>main</code>
-  without a full page reload.</p>
-
-<!-- 4. Route Parameters Section -->
+<p>Now clicking <code>&lt;a href="/about"&gt;</code> is intercepted, matched, and swapped inside <code>main</code> without a full page reload.</p>
+<hr />
 <h2>4. Route Parameters</h2>
 <view-code language="javascript">page('/profile/:id', {
   tag: 'page-profile',
@@ -64,10 +53,8 @@ page('/', {
   }
 });
 </view-code>
-<p>The <code>:id</code> segment is captured per the <code>params</code> contract, cast to <code>Number</code>, and
-  assigned as a property on the element.</p>
-
-<!-- 5. Nested Layouts with Via Chains Section -->
+<p>The <code>:id</code> segment is captured per the <code>params</code> contract, cast to <code>Number</code>, and assigned as a property on the element.</p>
+<hr />
 <h2>5. Nested Layouts with Via Chains</h2>
 <p>A <code>via</code> chain declares the full root-to-leaf container path:</p>
 <view-code language="javascript">dock('sidebar', { parent: 'main' });
@@ -79,11 +66,8 @@ page('/settings/profile', {
   template: '&lt;h1&gt;Profile Settings&lt;/h1&gt;'
 });
 </view-code>
-<p>On a cold hard refresh, the router cascades through the chain: it ensures <code>main</code> exists, then
-  <code>sidebar</code> inside <code>main</code>, then <code>content</code> inside <code>sidebar</code>, then mounts the
-  page inside <code>content</code>.</p>
-
-<!-- 6. File Templates Section -->
+<p>On a cold hard refresh, the router cascades through the chain: it ensures <code>main</code> exists, then <code>sidebar</code> inside <code>main</code>, then <code>content</code> inside <code>sidebar</code>, then mounts the page inside <code>content</code>.</p>
+<hr />
 <h2>6. File Templates</h2>
 <p>For IDE support, use real <code>.html</code> and <code>.css</code> files:</p>
 <view-code language="javascript">page('/dashboard', {
@@ -92,10 +76,8 @@ page('/settings/profile', {
   template: { html: './dashboard.html', css: './dashboard.css' }
 }, import.meta.url);
 </view-code>
-<p>Paths are resolved relative to the third argument (<code>import.meta.url</code>). The native toolchain copies these
-  assets during build and generates type declarations.</p>
-
-<!-- 7. Programmatic Navigation Section -->
+<p>Paths are resolved relative to the third argument (<code>import.meta.url</code>). The native toolchain copies these assets during build and generates type declarations.</p>
+<hr />
 <h2>7. Programmatic Navigation</h2>
 <view-code language="javascript">import { router } from '@adukiorg/anza/router';
 
@@ -111,8 +93,7 @@ router.back();
 // Check if back is possible
 if (router.canBack()) router.back();
 </view-code>
-
-<!-- 8. Navigation Guard Section -->
+<hr />
 <h2>8. Navigation Guard</h2>
 <view-code language="javascript">router.guard((destination, controller) =&gt; {
   if (destination.url.pathname.startsWith('/admin') &amp;&amp; !isAdmin()) {
@@ -121,8 +102,7 @@ if (router.canBack()) router.back();
 });
 </view-code>
 <p>Return a URL string to redirect. Return nothing (or <code>null</code>) to allow.</p>
-
-<!-- Complete Working Example Section -->
+<hr />
 <h2>Complete Working Example</h2>
 <view-code language="javascript">// app.js
 import { router } from '@adukiorg/anza/router';

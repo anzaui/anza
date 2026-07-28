@@ -76,6 +76,33 @@ on: {
 
 The `AbortController` (`ctrl`) is aborted automatically, so any listeners or observers bound to `ctrl.signal` clean up without manual work.
 
+### Soft-nav contract
+
+Soft-nav swaps only the **page leaf** (`replaceChildren` / `swapView`). Parent docks stay mounted.
+
+```
+connect / mount
+  ctrl = new AbortController()
+  on + watch bind to shadowRoot with defaultSignal = ctrl.signal
+
+soft-nav (same via chain)
+  parent docks: keep their on / watch / globals
+  old leaf: disconnect → unmount → ctrl.abort()
+    → on registries clear; watch buckets disconnect; tags MO disconnect
+    → events.listen / delegate / observe that used ctrl.signal dispose
+  new leaf: fresh ctrl + fresh on / watch
+
+hard refresh
+  new document; adopt open DSD; same connect path
+```
+
+Author rules:
+
+1. Never `document.addEventListener` / `new MutationObserver` in `mount` without `{ signal: ctrl.signal }` or a disposer from `unmount`.
+2. Prefer `on` / `watch` inside components; prefer `events.*` + signal outside.
+3. Do not observe `document` / `body` for leaf concerns — lift to a parent dock or use events/store.
+4. Framework globals (`router.nav-click`, `router.container-mo`, `popover.*`) stay stable across soft-nav — see [advanced.md](advanced.md#framework-global-listeners--observers).
+
 ---
 
 ## change

@@ -234,6 +234,43 @@ describe('ui.element DSD hydration (adopt-don\'t-wipe)', () => {
     }
   });
 
+  it('binds watch.attr on adopted DSD without duplicating root listeners on remount path', async () => {
+    const tag = 'test-hydrate-watch-attr';
+    const el = createWithDsd(tag, '<button ref="btn" class="go">Go</button>');
+
+    const { getAttachmentStats } = await import('../../../src/core/ui/define/proxy.js');
+    let watchCalls = 0;
+    let clickCalls = 0;
+
+    ui.element(tag, {
+      template: '<button ref="btn" class="go">Go</button>',
+      mount({ on, watch, refs, adopted }) {
+        if (!adopted) throw new Error('Expected adopted');
+        on.click('.go', () => { clickCalls++; });
+        watch.attr(refs.btn, 'disabled', () => { watchCalls++; });
+      }
+    });
+
+    container.appendChild(el);
+    await wait();
+
+    const stats = getAttachmentStats(el.shadowRoot);
+    if (!stats || stats.onRootListeners !== 1 || stats.watchBuckets !== 1) {
+      throw new Error(`Expected single on/watch attachments after adopt, got ${JSON.stringify(stats)}`);
+    }
+
+    el.shadowRoot.querySelector('.go').click();
+    if (clickCalls !== 1) {
+      throw new Error(`Expected on.click once, got ${clickCalls}`);
+    }
+
+    el.shadowRoot.querySelector('.go').setAttribute('disabled', '');
+    await wait(10);
+    if (watchCalls !== 1) {
+      throw new Error(`Expected watch.attr once on adopted node, got ${watchCalls}`);
+    }
+  });
+
   it('adopts lingering light-DOM DSD template when shadow is not yet attached', async () => {
     const tag = 'test-hydrate-polyfill-tpl';
     const el = document.createElement(tag);

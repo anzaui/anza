@@ -66,15 +66,3 @@ library/bin/anza/anza-*
 
 # ── cargo-deny / audit ────────────────────────────────────────────────────────
 advisory-db/
-.junie
-plans_refs/
-plans_refs/*
-all.text
-all.rust
-.agents
-webtest/
-.codexweb/
-testbranch/
-.agent/
-.gemini/
-.gemini/*

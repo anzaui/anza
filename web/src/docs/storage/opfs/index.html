@@ -1,21 +1,17 @@
 <h1>OPFS</h1>
 <p>The Origin Private File System facade offloads operations to an inline Web Worker, leveraging synchronous file access handles for high-performance reads and writes. Cross-tab invalidation is handled via BroadcastChannel.</p>
-
-<!-- Requirements Section -->
+<hr />
 <h2>Requirements</h2>
 <p>OPFS requires a secure context (HTTPS) and browser support for <code>navigator.storage.getDirectory</code>. Check with the platform layer:</p>
-<view-code language="javascript">
-import { supports } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { supports } from '@adukiorg/anza/platform';
 
 if (supports.opfs) {
   await storage.set('file', buffer, 'opfs');
 }
 </view-code>
-
-<!-- Read and Write Section -->
+<hr />
 <h2>Read and Write</h2>
-<view-code language="javascript">
-import { storage } from '@adukiorg/anza/storage';
+<view-code language="javascript">import { storage } from '@adukiorg/anza/storage';
 
 // Write
 const buffer = new Uint8Array([1, 2, 3]);
@@ -25,35 +21,29 @@ await storage.set('data.bin', buffer, 'opfs');
 const data = await storage.get('data.bin', 'opfs');
 </view-code>
 <p>Values are JSON-serialized before writing. Binary data should be wrapped in an object or use ArrayBuffer directly.</p>
-
-<!-- Delete and Clear Section -->
+<hr />
 <h2>Delete and Clear</h2>
-<view-code language="javascript">
-await storage.delete('data.bin', 'opfs');
+<view-code language="javascript">await storage.delete('data.bin', 'opfs');
 </view-code>
 <p>Clear all OPFS entries directly via the internal manager (not exposed through the facade).</p>
-
-<!-- Cross-Tab Invalidation Section -->
+<hr />
 <h2>Cross-Tab Invalidation</h2>
 <p>When an OPFS entry is written or deleted, a BroadcastChannel message invalidates the same key in other tabs:</p>
-<view-code language="javascript">
-window.addEventListener('message', (e) => {
-  if (e.data.op === 'set' && e.data.key === 'data.bin') {
+<view-code language="javascript">window.addEventListener('message', (e) =&gt; {
+  if (e.data.op === 'set' &amp;&amp; e.data.key === 'data.bin') {
     console.log('File updated in another tab');
   }
 });
 </view-code>
-
-<!-- Web Worker Internals Section -->
+<hr />
 <h2>Web Worker Internals</h2>
 <p>OPFS operations run in a dedicated inline worker to avoid blocking the main thread. The worker:</p>
 <ol>
-  <li>Opens the OPFS root directory</li>
-  <li>Creates or opens the file handle</li>
-  <li>Uses <code>createSyncAccessHandle</code> for fast synchronous I/O</li>
-  <li>Serializes values to JSON via TextEncoder</li>
+<li>Opens the OPFS root directory</li>
+<li>Creates or opens the file handle</li>
+<li>Uses <code>createSyncAccessHandle</code> for fast synchronous I/O</li>
+<li>Serializes values to JSON via TextEncoder</li>
 </ol>
-
-<!-- Locks Section -->
+<hr />
 <h2>Locks</h2>
 <p>File operations are coordinated with <code>navigator.locks</code> when available. Each key gets its own named lock (<code>opfs:{key}</code>) to prevent concurrent writes.</p>

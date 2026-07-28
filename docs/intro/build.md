@@ -16,10 +16,11 @@ This runs `anza dev` under the hood. It starts a server on `http://localhost:300
 2. Copies reachable modules into `dist/`
 3. Writes `dist/importmap.json` with resolved library mappings
 4. Injects `<script type="importmap" src="/importmap.json">` into HTML
-5. Watches `src/` for changes and rebuilds incrementally
-6. Pushes HMR events via SSE
+5. Emits **Mode A SSG** for public routes (same contract as production — see below)
+6. Watches `src/` for changes and rebuilds incrementally
+7. Pushes HMR events via SSE
 
-CSS files are hot-swapped. JS and HTML changes trigger a reload.
+CSS files are hot-swapped. JS and HTML changes trigger a reload. A hard refresh serves the SSG HTML from `dist/`; soft-nav loads page fragments (not full SSG documents).
 
 Override the port:
 
@@ -50,6 +51,25 @@ npm run build
 ```
 
 This runs `anza build`. Same graph resolution, but starts from a clean `dist/` and fails on unresolved imports or syntax errors.
+
+Public routes get **Mode A SSG** (also during `anza dev`): contentful HTML with open Declarative Shadow DOM under `dist/<route>/index.html`, so hard refresh works on a plain static server. Publish `dist/` as the **document root**. Asset URLs are site-root paths (`/app.js`, `/tokens/...`) — never `/dist/...`.
+
+When the page’s CSR fragment path would collide with that SSG `index.html`, the emitter keeps the fragment as `template.html` and rewrites the built page module plus `routes.json` so soft-nav fetches the fragment — not the full document. Overview: [ssg/index.md](../ssg/index.md). Contract: [ssg/contract.md](../ssg/contract.md). Hydration: [ui/hydration.md](../ui/hydration.md).
+
+### SEO extras (`ssg.json`)
+
+Optional `ssg.json` next to (or inside) `src/` configures site origin and build-time SEO files:
+
+```json
+{
+  "origin": "https://example.com",
+  "siteName": "Anza"
+}
+```
+
+- **`origin`** (or env `ANZA_SITE_ORIGIN`) — absolute canonicals, `og:url`, sitemap `<loc>`, and robots `Sitemap:`
+- Always emits `dist/sitemap.xml` + `dist/robots.txt` for Mode A routes (unless disabled in `ssg.json`)
+- Emits JSON-LD `WebSite` / `WebPage` in the SSG document `<head>` (light DOM; does not affect DSD hydration)
 
 ---
 
@@ -100,4 +120,4 @@ dist/
     index.d.ts           # Global HTMLElementTagNameMap augmentation
 ```
 
-The folder structure inside `dist/` mirrors `src/`. The browser resolves imports natively.
+The folder structure inside `dist/` mirrors `src/`. Serve `dist/` as the site root; the browser resolves `/app.js` and friends natively (no `/dist` prefix).

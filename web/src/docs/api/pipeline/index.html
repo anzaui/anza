@@ -1,87 +1,69 @@
-<!-- Main Content -->
 <h1>Pipeline</h1>
-<p>
-  The API client processes every request through a composable interceptor chain. Outbound interceptors modify the
-  request descriptor. Inbound interceptors normalize the response or error.
-</p>
-
-<!-- Outbound Interceptors Section -->
+<p>The API client processes every request through a composable interceptor chain. Outbound interceptors modify the request descriptor. Inbound interceptors normalize the response or error.</p>
+<hr />
 <h2>Outbound Interceptors</h2>
 <p>Modify the request before it hits the network, or short-circuit with a cached/mock response:</p>
-<view-code language="javascript">
-  import { api } from '@adukiorg/anza/api';
+<view-code language="javascript">import { api } from '@adukiorg/anza/api';
 
-  api.pipeline.outbound((descriptor) =&gt; {
-    // Add an auth header to every request
-    descriptor.headers.set('X-Request-ID', descriptor.requestId);
-    return descriptor;
-  });
+api.pipeline.outbound((descriptor) =&gt; {
+  // Add an auth header to every request
+  descriptor.headers.set('X-Request-ID', descriptor.requestId);
+  return descriptor;
+});
 </view-code>
 <p>Return a <code>Response</code> to short-circuit the pipeline entirely:</p>
-<view-code language="javascript">
-  api.pipeline.outbound((descriptor) =&gt; {
-    if (descriptor.url === '/mock/user') {
-      return new Response(JSON.stringify({ name: 'Mock' }));
-    }
-    return descriptor;
-  });
+<view-code language="javascript">api.pipeline.outbound((descriptor) =&gt; {
+  if (descriptor.url === '/mock/user') {
+    return new Response(JSON.stringify({ name: 'Mock' }));
+  }
+  return descriptor;
+});
 </view-code>
-
-<!-- Inbound Interceptors Section -->
+<hr />
 <h2>Inbound Interceptors</h2>
 <p>Normalize responses or errors after the network call:</p>
-<view-code language="javascript">
-  api.pipeline.inbound((responseOrError) =&gt; {
-    if (responseOrError instanceof Error) {
-      console.error('Pipeline caught error:', responseOrError.code);
-    } else {
-      console.log('Pipeline saw response:', responseOrError.status);
-    }
-    return responseOrError;
-  });
+<view-code language="javascript">api.pipeline.inbound((responseOrError) =&gt; {
+  if (responseOrError instanceof Error) {
+    console.error('Pipeline caught error:', responseOrError.code);
+  } else {
+    console.log('Pipeline saw response:', responseOrError.status);
+  }
+  return responseOrError;
+});
 </view-code>
-<p>
-  Inbound interceptors receive either a <code>Response</code> or an <code>Error</code>. They must return a
-  <code>Response</code> or throw. The final interceptor's return value is what the caller receives.
-</p>
-
-<!-- Chaining Section -->
+<p>Inbound interceptors receive either a <code>Response</code> or an <code>Error</code>. They must return a <code>Response</code> or throw. The final interceptor's return value is what the caller receives.</p>
+<hr />
 <h2>Chaining</h2>
 <p><code>outbound</code> and <code>inbound</code> return the pipeline instance for chaining:</p>
-<view-code language="javascript">
-  api.pipeline
-    .outbound(addAuthHeader)
-    .outbound(addTimestamp)
-    .inbound(logMetrics)
-    .inbound(handleErrors);
+<view-code language="javascript">api.pipeline
+  .outbound(addAuthHeader)
+  .outbound(addTimestamp)
+  .inbound(logMetrics)
+  .inbound(handleErrors);
 </view-code>
 <p>Interceptors run in registration order.</p>
-
-<!-- Built-In Interceptors Section -->
+<hr />
 <h2>Built-In Interceptors</h2>
 <p>The API client registers one inbound interceptor automatically for telemetry:</p>
-<view-code language="javascript">
-  api.pipeline.inbound((responseOrError) =&gt; {
-    // Emits 'status:xxx', 'type:json', 'error', 'failed', etc.
-  });
+<view-code language="javascript">api.pipeline.inbound((responseOrError) =&gt; {
+  // Emits 'status:xxx', 'type:json', 'error', 'failed', etc.
+});
 </view-code>
 <p>You can add your own alongside it. The built-in interceptor runs first (registered at module load), then yours.</p>
-
-<!-- Request Descriptor Section -->
+<hr />
 <h2>Request Descriptor</h2>
 <p>Outbound interceptors receive and should return a descriptor object:</p>
-<view-code language="javascript">
-  {
-    requestId, // unique UUID for this request
-    url, // resolved URL after prefix routing
-    method, // HTTP method
-    headers, // Headers instance
-    body, // request body
-    signal, // AbortSignal
-    priority, // task priority
-    timeout, // timeout in ms
-    cache, // cache strategy name
-    retries, // retry attempts
-    ...opts // additional options
-  }
+<view-code language="javascript">{
+  requestId,    // unique UUID for this request
+  url,          // resolved URL after prefix routing
+  method,       // HTTP method
+  headers,      // Headers instance
+  body,         // request body
+  signal,       // AbortSignal
+  priority,     // task priority
+  timeout,      // timeout in ms
+  cache,        // cache strategy name
+  retries,      // retry attempts
+  ...opts       // additional options
+}
 </view-code>

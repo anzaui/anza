@@ -10,6 +10,7 @@
  */
 
 import { add, remove, element as graphElement, get, clear } from './graph.js';
+import { globals } from '../platform/globals.js';
 
 // Selectors we are still waiting to appear in the DOM.
 const observedSelectors = new Set();
@@ -38,13 +39,23 @@ function ensureObserver() {
           else stillWaiting = true;
         }
       }
-      if (!stillWaiting && observer) {
-        observer.disconnect();
-        observer = null;
+      if (!stillWaiting) {
+        // Dispose via globals so soft-nav / tests see a stable named set.
+        globals.detach('router.container-mo');
       }
     });
 
     observer.observe(root, { childList: true, subtree: true });
+    globals.attach('router.container-mo', {
+      type: 'observer',
+      target: root,
+      dispose: () => {
+        if (observer) {
+          observer.disconnect();
+          observer = null;
+        }
+      }
+    });
   };
 
   if (typeof requestIdleCallback !== 'undefined') {
@@ -52,6 +63,10 @@ function ensureObserver() {
   } else {
     requestAnimationFrame(attach);
   }
+}
+
+function stopContainerObserver() {
+  globals.detach('router.container-mo');
 }
 
 /**
@@ -138,10 +153,7 @@ function isSelector(name) {
 export function clearContainers() {
   clear();
   observedSelectors.clear();
-  if (observer) {
-    observer.disconnect();
-    observer = null;
-  }
+  stopContainerObserver();
 }
 
 // Re-export the graph node accessor for modules that need topology directly.

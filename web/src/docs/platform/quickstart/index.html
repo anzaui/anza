@@ -1,8 +1,6 @@
-<!-- Main Content -->
 <h1>Quick Start</h1>
 <p>Get working with platform detection and polyfills in five minutes.</p>
-
-<!-- Step 1: Check a Capability -->
+<hr />
 <h2>1. Check a Capability</h2>
 <view-code language="javascript">import { supports } from '@adukiorg/anza/platform';
 
@@ -13,8 +11,7 @@ if (supports.viewTransitions) {
 }
 </view-code>
 <p>Flags are lazily evaluated on first access and cached. Subsequent reads are instant.</p>
-
-<!-- Step 2: Assert a Requirement -->
+<hr />
 <h2>2. Assert a Requirement</h2>
 <view-code language="javascript">import { typeGuard } from '@adukiorg/anza/platform';
 
@@ -22,8 +19,7 @@ if (supports.viewTransitions) {
 typeGuard('opfs', 'This feature requires file system access');
 </view-code>
 <p>Use <code>typeGuard</code> in critical paths where continuing without the feature would be meaningless.</p>
-
-<!-- Step 3: Lazy-Load a Polyfill -->
+<hr />
 <h2>3. Lazy-Load a Polyfill</h2>
 <view-code language="javascript">import { guard } from '@adukiorg/anza/platform';
 
@@ -32,8 +28,7 @@ const URLPattern = await guard.urlPattern();
 const pattern = new URLPattern({ pathname: '/user/:id' });
 </view-code>
 <p>The guard checks native support first. Only if missing does it dynamically import the polyfill.</p>
-
-<!-- Step 4: Use the Scheduler -->
+<hr />
 <h2>4. Use the Scheduler</h2>
 <view-code language="javascript">import { guard } from '@adukiorg/anza/platform';
 
@@ -44,8 +39,7 @@ scheduler.postTask(() =&gt; {
 }, { priority: 'user-blocking' });
 </view-code>
 <p>If native <code>scheduler</code> is available, it is returned directly. Otherwise the polyfill is loaded.</p>
-
-<!-- Step 5: Yield in a Loop -->
+<hr />
 <h2>5. Yield in a Loop</h2>
 <view-code language="javascript">import { guard } from '@adukiorg/anza/platform';
 
@@ -58,8 +52,7 @@ async function processLargeDataset(items) {
   }
 }
 </view-code>
-
-<!-- Complete Working Example -->
+<hr />
 <h2>Complete Working Example</h2>
 <view-code language="javascript">import { supports, guard, typeGuard } from '@adukiorg/anza/platform';
 

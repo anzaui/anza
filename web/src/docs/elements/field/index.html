@@ -1,0 +1,31 @@
+<h1>Field</h1>
+<p>Field wrapper that coordinates label, required marker, hint, error, and a control slot.</p>
+<p><strong>Tag:</strong> <code>ui-field</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/field</code></p>
+<hr />
+<h2>Import</h2>
+<view-code language="javascript">import '@adukiorg/anza/elements/field';
+</view-code>
+<hr />
+<h2>Basic usage</h2>
+<view-code language="html">&lt;ui-field label="Email" required&gt;
+  &lt;ui-input name="email" type="email" required&gt;&lt;/ui-input&gt;
+  &lt;span slot="hint"&gt;We'll never share this.&lt;/span&gt;
+  &lt;span slot="error"&gt;Enter a valid email.&lt;/span&gt;
+&lt;/ui-field&gt;
+</view-code>
+<hr />
+<h2>Props</h2>
+<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>label</code></td><td>String</td><td>Reflect</td><td>Label text when the <code>label</code> slot is empty</td></tr>
+<tr><td><code>required</code></td><td>Boolean</td><td>Reflect</td><td>Shows the required marker</td></tr>
+</tbody></table></div>
+<h2>Notes</h2>
+<p>Slots: <code>label</code>, <code>hint</code>, default (control), <code>error</code>. Not form-associated itself — wrap form controls inside.</p>
+<hr />
+<h2>Related</h2>
+<ul>
+<li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="/docs/elements/forms">Forms</a></li>
+<li><a href="/docs/elements/input">Input</a></li>
+<li><a href="../../plans/ELEMENTS.md">Planning: ELEMENTS.md</a></li>
+</ul>

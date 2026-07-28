@@ -1,0 +1,37 @@
+<h1>Input</h1>
+<p>Form-participating text control wrapping a native <code>&lt;input&gt;</code> with ElementInternals validation and form value sync.</p>
+<p><strong>Tag:</strong> <code>ui-input</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/input</code></p>
+<hr />
+<h2>Import</h2>
+<view-code language="javascript">import '@adukiorg/anza/elements/input';
+</view-code>
+<hr />
+<h2>Basic usage</h2>
+<view-code language="html">&lt;ui-input name="email" type="email" placeholder="you@example.com" required&gt;&lt;/ui-input&gt;
+&lt;ui-input type="password" minlength="8"&gt;&lt;/ui-input&gt;
+</view-code>
+<hr />
+<h2>Props</h2>
+<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>type</code></td><td>String</td><td>Reflect, default <code>text</code></td><td>Forwarded to the inner input (<code>text</code>, <code>email</code>, <code>password</code>, <code>number</code>, …)</td></tr>
+<tr><td><code>value</code></td><td>String</td><td>Reflect</td><td>Current value; synced on <code>input</code></td></tr>
+<tr><td><code>placeholder</code></td><td>String</td><td>Reflect</td><td>Placeholder text</td></tr>
+<tr><td><code>disabled</code></td><td>Boolean</td><td>Reflect + custom state</td><td>Disables the control</td></tr>
+<tr><td><code>required</code></td><td>Boolean</td><td>Reflect</td><td>HTML required</td></tr>
+<tr><td><code>minlength / maxlength</code></td><td>Number</td><td>Reflect</td><td>Length constraints</td></tr>
+<tr><td><code>min / max</code></td><td>Number</td><td>Reflect</td><td>Numeric constraints</td></tr>
+<tr><td><code>pattern</code></td><td>String</td><td>Reflect</td><td>Validation pattern</td></tr>
+</tbody></table></div>
+<h2>Events</h2>
+<div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody>
+<tr><td><code>change</code></td><td>Bubbles when the inner input fires <code>change</code></td></tr>
+</tbody></table></div>
+<h2>Notes</h2>
+<p>Named <code>error</code> slot for validation messaging. Form reset restores the attribute <code>value</code> (or empty).</p>
+<hr />
+<h2>Related</h2>
+<ul>
+<li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="/docs/ui/forms">Form association</a> (when <code>form: true</code>)</li>
+<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
+</ul>

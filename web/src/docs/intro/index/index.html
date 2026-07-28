@@ -1,151 +1,69 @@
-<!-- Main Content -->
 <h1>Intro</h1>
-<p>
-  Anza is a web platform library built on browser-native APIs. It gives you
-  reactive state, client-side routing, custom elements, offline sync, and
-  animations — all as plain ES modules the browser resolves directly. No
-  bundler, no virtual DOM, no framework lock-in.
-</p>
-<p>
-  A Rust CLI (<code>anza</code>) handles the development server, import-graph
-  resolution, and build. It copies only the modules you actually import into
-  <code>dist/</code>, generates type declarations, and serves everything with
-  hot module replacement.
-</p>
-
-<!-- Features Section -->
+<p>Anza is a web platform library built on browser-native APIs. It gives you reactive state, client-side routing, custom elements, offline sync, and animations — all as plain ES modules the browser resolves directly. No bundler, no virtual DOM, no framework lock-in.</p>
+<p>A Rust CLI (<code>anza</code>) handles the development server, import-graph resolution, and build. It copies only the modules you actually import into <code>dist/</code>, generates type declarations, and serves everything with hot module replacement.</p>
+<hr />
 <h2>What You Get</h2>
-<ul class="install">
-  <li>
-    <strong>Pure ESM modules</strong>
-    <span class="text">— authored as <code>.js</code> files,
-    resolved by the browser natively</span>
-  </li>
-  <li>
-    <strong>Reactive state</strong> <span class="text">— typed stores with batched updates and
-    cross-tab sync</span>
-  </li>
-  <li>
-    <strong>Declarative components</strong> <span class="text">— <code>page()</code>,
-    <code>dock()</code>, <code>view()</code>, <code>part()</code> instead of
-    classes</span>
-  </li>
-  <li>
-    <strong>File templates</strong> <span class="text">— split markup, styles, and logic into
-    <code>.html</code>, <code>.css</code>, and <code>.js</code></span>
-  </li>
-  <li>
-    <strong>Client-side router</strong> <span class="text">— AOT matching tree compiled by Rust,
-    design-by-contract typed validations, URLPattern-based matching with
-    hierarchical container layouts</span>
-  </li>
-  <li>
-    <strong>Offline queue</strong> <span class="text">— IndexedDB-backed operation queue with retry
-    and conflict resolution</span>
-  </li>
-  <li>
-    <strong>Service Worker toolkit</strong> <span class="text">— caching strategies, route
-    interception, background sync, and push notifications</span>
-  </li>
-  <li>
-    <strong>Automatic theme switching</strong> <span class="text">— light, dark, and high-contrast
-    with OS preference detection and localStorage persistence</span>
-  </li>
-  <li>
-    <strong>Animation helpers</strong> <span class="text">— WAAPI wrappers, stagger groups, and
-    view transitions</span>
-  </li>
-  <li>
-    <strong>Real-browser tests</strong> <span class="text">— <code>@web/test-runner</code> with
-    Playwright, no jsdom</span>
-  </li>
+<ul>
+<li><strong>Pure ESM modules</strong> — authored as <code>.js</code> files, resolved by the browser natively</li>
+<li><strong>Reactive state</strong> — typed stores with batched updates and cross-tab sync</li>
+<li><strong>Declarative components</strong> — <code>page()</code>, <code>dock()</code>, <code>view()</code>, <code>part()</code> instead of classes</li>
+<li><strong>File templates</strong> — split markup, styles, and logic into <code>.html</code>, <code>.css</code>, and <code>.js</code></li>
+<li><strong>Client-side router</strong> — AOT matching tree compiled by Rust, design-by-contract typed validations, URLPattern-based matching with hierarchical container layouts</li>
+<li><strong>Offline queue</strong> — IndexedDB-backed operation queue with retry and conflict resolution</li>
+<li><strong>Service Worker toolkit</strong> — caching strategies, route interception, background sync, and push notifications</li>
+<li><strong>Automatic theme switching</strong> — light, dark, and high-contrast with OS preference detection and localStorage persistence</li>
+<li><strong>Animation helpers</strong> — WAAPI wrappers, stagger groups, and view transitions</li>
+<li><strong>Real-browser tests</strong> — <code>@web/test-runner</code> with Playwright, no jsdom</li>
 </ul>
-
-<!-- Package Section -->
+<hr />
 <h2>Package</h2>
-<view-code language="javascript">
-  // to use
-  import { state } from '@adukiorg/anza/state';
-  import { router } from '@adukiorg/anza/router';
-  import { page, dock, view } from '@adukiorg/anza/ui';
+<view-code language="javascript">import { state } from '@adukiorg/anza/state';
+import { router } from '@adukiorg/anza/router';
+import { page, dock, view } from '@adukiorg/anza/ui';
 </view-code>
-
-<!-- File Map Section -->
+<hr />
 <h2>File Map</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>File</th>
-        <th>What It Covers</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a href="/docs/intro/install">install.md</a></td>
-        <td>Install the library and build the CLI</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/intro/start">start.md</a></td>
-        <td>Scaffold your first app</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/intro/build">build.md</a></td>
-        <td>Dev server, production build, and diagnostics</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/intro/structure">structure.md</a></td>
-        <td>Project folder conventions</td>
-      </tr>
-      <tr>
-        <td><code>docs/sw/</code></td>
-        <td>Service Worker caching, routing, sync, and push</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Example Section -->
+<div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
+<tr><td><a href="/docs/intro/install">install.md</a></td><td>Install the library and build the CLI</td></tr>
+<tr><td><a href="/docs/intro/start">start.md</a></td><td>Scaffold your first app</td></tr>
+<tr><td><a href="/docs/intro/build">build.md</a></td><td>Dev server, production build, and diagnostics</td></tr>
+<tr><td><a href="/docs/intro/structure">structure.md</a></td><td>Project folder conventions</td></tr>
+<tr><td><code>docs/sw/</code></td><td>Service Worker caching, routing, sync, and push</td></tr>
+</tbody></table></div>
+<hr />
 <h2>One-File Example</h2>
-<view-code language="html">
-  &lt;!-- src/index.html --&gt;
-  &lt;!DOCTYPE html&gt;
-  &lt;html lang=&quot;en&quot;&gt;
-  &lt;head&gt; &lt;meta charset=&quot;utf-8&quot;&gt;
+<view-code language="html">&lt;!-- src/index.html --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+  &lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
     &lt;title&gt;Hello&lt;/title&gt;
-    &lt;link rel=&quot;stylesheet&quot; href=&quot;/tokens/index.css&quot;&gt;
-    &lt;script type=&quot;module&quot; src=&quot;/app.js&quot;&gt; &lt;/script&gt;
+    &lt;link rel="stylesheet" href="/tokens/index.css"&gt;
+    &lt;script type="module" src="/app.js"&gt;&lt;/script&gt;
   &lt;/head&gt;
   &lt;body&gt;&lt;/body&gt;
-  &lt;/html&gt;
+&lt;/html&gt;
 </view-code>
-<view-code language="javascript">
-  // src/app.js import '@adukiorg/anza/ui';
-  import { dock, page } from '@adukiorg/anza/ui';
-  dock('main'); page('/',
-    {
-      tag: 'page-home',
-      via: ['main'],
-      template: '&lt;h1&gt;Hello, Anza&lt;/h1&gt;'
-    }
-  );
-</view-code>
-<p>
-  That is a complete app. Run <code>anza dev</code> and open
-  <code>http://localhost:3000</code>.
-</p>
+<view-code language="javascript">// src/app.js
+import '@adukiorg/anza/ui';
+import { dock, page } from '@adukiorg/anza/ui';
 
-<!-- Next Steps Section -->
+dock('main');
+
+page('/', {
+  tag: 'page-home',
+  via: ['main'],
+  template: '&lt;h1&gt;Hello, Anza&lt;/h1&gt;'
+});
+</view-code>
+<p>That is a complete app. Run <code>anza dev</code> and open <code>http://localhost:3000</code>.</p>
+<hr />
 <h2>Next Steps</h2>
 <ul>
-  <li>
-    New here? Read <a href="/docs/intro/install">install.md</a> then
-    <a href="/docs/intro/start">start.md</a>.
-  </li>
-  <li>Want the router? See <code>docs/router/</code>.</li>
-  <li>Want the UI layer? See <code>docs/ui/</code>.</li>
-  <li>Need offline and caching? See <code>docs/sw/</code>.</li>
-  <li>
-    Need the API surface? Check the per-module docs in <code>docs/</code>.
-  </li>
+<li>New here? Read <a href="/docs/intro/install">install.md</a> then <a href="/docs/intro/start">start.md</a>.</li>
+<li>Want the router? See <code>docs/router/</code>.</li>
+<li>Want the UI layer? See <code>docs/ui/</code>.</li>
+<li>Shipping public pages? See <a href="/docs/ssg/contract">ssg/contract.md</a> (site-root URLs, open DSD) and <a href="/docs/ui/hydration">ui/hydration.md</a>.</li>
+<li>Need offline and caching? See <code>docs/sw/</code>.</li>
+<li>Need the API surface? Check the per-module docs in <code>docs/</code>.</li>
 </ul>

@@ -50,6 +50,7 @@ import {
 } from './container.js';
 
 import { cache, prefetch } from './cache.js';
+import { transitions } from './transitions.js';
 
 export const router = {
   // Registration and boundary hooks
@@ -89,6 +90,9 @@ export const router = {
   // Cache API integration (route/view asset caching)
   cache,
   prefetch,
+
+  // View Transitions (document morph + shared helpers)
+  transitions,
 
   // Event-driven subscription and navigation controllers
   on,
@@ -176,5 +180,7 @@ export {
   hasContainer,
   // cache sub-module
   cache,
-  prefetch
+  prefetch,
+  // transitions
+  transitions
 };

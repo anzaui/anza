@@ -37,7 +37,8 @@ export default {
               "@adukiorg/anza/ui":          "/src/core/ui/index.js",
               "@adukiorg/anza/elements":    "/src/elements/index.js",
               "@adukiorg/anza/elements/dialog":   "/src/elements/overlay/dialog/index.js",
-              "@adukiorg/anza/elements/popover":  "/src/elements/overlay/popover/index.js"
+              "@adukiorg/anza/elements/popover":  "/src/elements/overlay/popover/index.js",
+              "@adukiorg/anza/elements/tooltip":  "/src/elements/overlay/tooltip/index.js"
             }
           }
         </script>

@@ -24,6 +24,17 @@ Priorities:
 
 Uses `scheduler.postTask` when available, falling back to `setTimeout` or `requestIdleCallback`.
 
+Pass an `AbortSignal` so soft-nav / leaf teardown cancels pending work:
+
+```javascript
+await ui.schedule(() => indexChunk(), {
+  priority: ui.Priority.VISIBLE,
+  signal: ctrl.signal
+});
+```
+
+Already-aborted signals reject with `AbortError` immediately.
+
 ---
 
 ## scheduleFrame
@@ -36,9 +47,11 @@ ui.scheduleFrame(() => {
 }).then(() => {
   applyStyles();
 });
+
+await ui.scheduleFrame(() => measure(), { signal: ctrl.signal });
 ```
 
-Returns a promise that resolves with the callback's return value.
+Returns a promise that resolves with the callback's return value. Pass `{ signal }` so soft-nav abort cancels the pending frame.
 
 ---
 
@@ -49,17 +62,17 @@ Yield control to the browser mid-task:
 ```javascript
 import { ui } from '@adukiorg/anza/ui';
 
-async function processLargeDataset(rows) {
+async function processLargeDataset(rows, { signal } = {}) {
   for (const row of rows) {
     process(row);
     if (rows.indexOf(row) % 100 === 0) {
-      await ui.yield(); // let the browser breathe
+      await ui.yield({ signal }); // let the browser breathe; abort on soft-nav
     }
   }
 }
 ```
 
-Uses `scheduler.yield()` when available, falling back to `setTimeout(..., 0)`.
+Uses `scheduler.yield()` when available, falling back to `setTimeout(..., 0)`. Already-aborted signals reject with `AbortError`.
 
 ---
 

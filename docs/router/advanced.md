@@ -167,9 +167,9 @@ import { addGuard } from '@adukiorg/anza/router/intercept';
 
 ---
 
-## SSR Considerations
+## Non-browser / Mode A · Mode B
 
-The router checks `typeof window !== 'undefined'` before touching DOM APIs. On the server:
+The router checks `typeof window !== 'undefined'` before touching DOM APIs. Outside the browser:
 
 - Registration works (`register`, `load`, `clear`)
 - Matching works (`match`)
@@ -177,4 +177,4 @@ The router checks `typeof window !== 'undefined'` before touching DOM APIs. On t
 - The boot gate never fires (no `document`)
 - `setup()` is a no-op
 
-For server-side rendering, register routes during build or server startup, then use `match()` to resolve the requested URL to a tag string for rendering.
+Anza does **not** ship a Node SSR runtime or crawler-UA cloaking. Public HTML comes from Mode A (`anza build` SSG) or Mode B (any-language templates) with the same [page HTML contract](../ssg/contract.md). Use `match()` at build or request time to resolve a URL to a tag; emit contentful open-DSD HTML for every client — never an empty SPA shell for humans and SSR only for bots.

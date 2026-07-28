@@ -148,3 +148,10 @@ These names cannot be used in `spec.methods`:
 - `mount`, `unmount`, `constructor`
 
 Using a reserved name logs a warning and the method is skipped.
+
+---
+
+## Related
+
+- Shipped kit elements (ready-made `ui-*`): [Elements overview](../elements/index.md)
+- Overlay architecture (native popover / dialog top-layer vs toast portal): [Overlay patterns](../elements/overlay.md)

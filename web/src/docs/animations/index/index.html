@@ -1,108 +1,56 @@
-<!-- Main Content -->
 <h1>Animations</h1>
-<p>
-  The Anza animations layer wraps the Web Animations API (WAAPI) with a declarative, memory-safe interface. It provides
-  registered animation templates, staggered multi-element orchestration, scroll-driven and view-driven timelines, and
-  CSS token synchronization so JavaScript animations and stylesheets share the same timing values.
-</p>
-
-<!-- Features Section -->
+<p>The Anza animations layer wraps the Web Animations API (WAAPI) with a declarative, memory-safe interface. It provides registered animation templates, staggered multi-element orchestration, scroll-driven and view-driven timelines, and CSS token synchronization so JavaScript animations and stylesheets share the same timing values.</p>
+<hr />
 <h2>What You Get</h2>
 <ul>
-  <li><strong>Element animation</strong> — <code>animate(el, keyframes, options)</code> with AbortSignal cleanup</li>
-  <li><strong>Stagger</strong> — animate a list of elements with cascading delays</li>
-  <li><strong>Sequence</strong> — chain animations one after another</li>
-  <li><strong>Template registry</strong> — register and reuse named animation presets</li>
-  <li><strong>Scroll/view timelines</strong> — <code>scroll()</code> and <code>view()</code> for scroll-driven
-    animations</li>
-  <li><strong>CSS token sync</strong> — <code>duration()</code> and <code>ease()</code> read CSS custom properties at
-    runtime</li>
-  <li><strong>Reduced motion</strong> — <code>reduced()</code> respects <code>prefers-reduced-motion</code></li>
+<li><strong>Element animation</strong> — <code>animate(el, keyframes, options)</code> with AbortSignal cleanup</li>
+<li><strong>Stagger</strong> — animate a list of elements with cascading delays</li>
+<li><strong>Sequence</strong> — chain animations one after another</li>
+<li><strong>Template registry</strong> — register and reuse named animation presets</li>
+<li><strong>Scroll/view timelines</strong> — <code>scroll()</code> and <code>view()</code> for scroll-driven animations</li>
+<li><strong>CSS token sync</strong> — <code>duration()</code> and <code>ease()</code> read CSS custom properties at runtime</li>
+<li><strong>Reduced motion</strong> — <code>reduced()</code> respects <code>prefers-reduced-motion</code></li>
 </ul>
-
-<!-- Package Section -->
+<hr />
 <h2>Package</h2>
-<view-code language="javascript">
-  import { animations } from '@adukiorg/anza/animations';
+<view-code language="javascript">import { animations } from '@adukiorg/anza/animations';
 </view-code>
-
-<!-- File Map Section -->
+<hr />
 <h2>File Map</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>File</th>
-        <th>What It Covers</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a href="/docs/animations/quickstart">quickstart.md</a></td>
-        <td>Your first animation in five minutes</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/animations/animate">animate.md</a></td>
-        <td>Single-element animation with WAAPI</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/animations/stagger">stagger.md</a></td>
-        <td>Multi-element staggered orchestration</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/animations/sequence">sequence.md</a></td>
-        <td>Chained step-by-step animations</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/animations/registry">registry.md</a></td>
-        <td>Named animation templates and presets</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/animations/scroll">scroll.md</a></td>
-        <td>ScrollTimeline and ViewTimeline wrappers</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/animations/tokens">tokens.md</a></td>
-        <td>CSS motion token synchronization</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/animations/api">api.md</a></td>
-        <td>Complete API reference</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/animations/troubleshooting">troubleshooting.md</a></td>
-        <td>Common problems and how to fix them</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Example Section -->
+<div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
+<tr><td><a href="/docs/animations/quickstart">quickstart.md</a></td><td>Your first animation in five minutes</td></tr>
+<tr><td><a href="/docs/animations/animate">animate.md</a></td><td>Single-element animation with WAAPI</td></tr>
+<tr><td><a href="/docs/animations/stagger">stagger.md</a></td><td>Multi-element staggered orchestration</td></tr>
+<tr><td><a href="/docs/animations/sequence">sequence.md</a></td><td>Chained step-by-step animations</td></tr>
+<tr><td><a href="/docs/animations/registry">registry.md</a></td><td>Named animation templates and presets</td></tr>
+<tr><td><a href="/docs/animations/scroll">scroll.md</a></td><td>ScrollTimeline and ViewTimeline wrappers</td></tr>
+<tr><td><a href="/docs/animations/tokens">tokens.md</a></td><td>CSS motion token synchronization</td></tr>
+<tr><td><a href="/docs/animations/api">api.md</a></td><td>Complete API reference</td></tr>
+<tr><td><a href="/docs/animations/troubleshooting">troubleshooting.md</a></td><td>Common problems and how to fix them</td></tr>
+</tbody></table></div>
+<hr />
 <h2>One-File Example</h2>
-<view-code language="javascript">
-  import { animations } from '@adukiorg/anza/animations';
+<view-code language="javascript">import { animations } from '@adukiorg/anza/animations';
 
-  // Animate a single element
-  const anim = animations.animate(el, 'fade', { duration: 300 });
-  await anim.finished;
+// Animate a single element
+const anim = animations.animate(el, 'fade', { duration: 300 });
+await anim.finished;
 
-  // Stagger a list
-  const group = animations.stagger(items, 'slide', { staggerDelay: 50 });
-  await group.finished;
+// Stagger a list
+const group = animations.stagger(items, 'slide', { staggerDelay: 50 });
+await group.finished;
 
-  // Respect reduced motion
-  if (!animations.reduced()) {
-    animations.animate(el, 'zoom', { duration: animations.duration('slow') });
-  }
+// Respect reduced motion
+if (!animations.reduced()) {
+  animations.animate(el, 'zoom', { duration: animations.duration('slow') });
+}
 </view-code>
-
-<!-- Next Steps Section -->
+<hr />
 <h2>Next Steps</h2>
 <ul>
-  <li>New to animations? Start with <a href="/docs/animations/quickstart">quickstart.md</a>.</li>
-  <li>Building UI transitions? Read <a href="/docs/animations/animate">animate.md</a> and <a
-      href="/docs/animations/stagger">stagger.md</a>.</li>
-  <li>Need scroll effects? <a href="/docs/animations/scroll">scroll.md</a>.</li>
-  <li>Want reusable presets? <a href="/docs/animations/registry">registry.md</a>.</li>
-  <li>Prefer a single reference page? <a href="/docs/animations/api">api.md</a>.</li>
+<li>New to animations? Start with <a href="/docs/animations/quickstart">quickstart.md</a>.</li>
+<li>Building UI transitions? Read <a href="/docs/animations/animate">animate.md</a> and <a href="/docs/animations/stagger">stagger.md</a>.</li>
+<li>Need scroll effects? <a href="/docs/animations/scroll">scroll.md</a>.</li>
+<li>Want reusable presets? <a href="/docs/animations/registry">registry.md</a>.</li>
+<li>Prefer a single reference page? <a href="/docs/animations/api">api.md</a>.</li>
 </ul>

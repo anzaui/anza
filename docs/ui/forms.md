@@ -128,3 +128,10 @@ view('rating-input', {
 ```
 
 The `restore` callback receives the saved state string when the browser restores form data (e.g., after back/forward).
+
+---
+
+## Related
+
+- Kit form controls: [Elements → Forms](../elements/forms.md) (`ui-input`, `ui-select`, `ui-checkbox`, …)
+- [UI `element()` factory](elements.md)

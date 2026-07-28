@@ -2,5 +2,5 @@
 
 pub mod runner;
 pub use runner::{
-  ChangeKind, ExtractedSpec, HmrMessage, ParamDecl, PropConfig, QueryDecl, SeoDecl,
+  ChangeKind, ExtractedSpec, HmrMessage, ParamDecl, PropConfig, QueryDecl, SeoDecl, SsgDecl,
 };

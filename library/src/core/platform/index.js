@@ -40,3 +40,6 @@ if (typeof window !== 'undefined') {
 }
 
 export { supports, reset, typeGuard, guard };
+export { escapeOverflow } from './escape.js';
+export { globals, attach, detach, count, list, clear as clearGlobals } from './globals.js';
+

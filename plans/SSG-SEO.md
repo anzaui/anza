@@ -2,7 +2,32 @@
 
 Planning document for Anza’s HTML-first, SEO-friendly delivery model. Implements the architecture researched for multi-file ESM + portable static HTML (no Next/Nuxt-owned runtime).
 
-**Related:** [plans/PHASE-II.md](./PHASE-II.md) (client DSD adoption / hydration) · [GitHub issue #3](https://github.com/aduki-org/anza/issues/3)
+**Related:** [plans/PHASE-II.md](./PHASE-II.md) (client DSD adoption / hydration) · [GitHub issue #3](https://github.com/aduki-org/anza/issues/3) (closed) · [plans/NEXT.md](./NEXT.md) (remaining checklist)
+
+---
+
+## Status (2026-07-28)
+
+| Phase | Name | Status |
+|-------|------|--------|
+| **0** | Portable site-root assets | **Done** (verified) |
+| **1** | Mode A SSG HTML per public route | **Done** (verified) |
+| **2** | Client DSD adopt / soft-nav leaf swap | **Done** (verified) |
+| **3** | Mode B HTML contract + examples + goldens | **Done** (verified) |
+| **4** | Nested docks + soft-nav / SSG coexistence | **Done** (verified) |
+| **5** | Parametric public-route expansion | **Done** (verified) |
+| **6** | SEO hardening extras (optional) | **Done** (verified) |
+
+**SSG / SEO track: complete.** Phases **0–6** are verified. There is **no Phase 7** — do not invent further numbered SSG phases.
+
+**Priority for next implementer:** element library docs ([ELEMENTS.md](./ELEMENTS.md) / [NEXT.md](./NEXT.md)). Reopen SSG only for regressions against acceptance in this doc.
+
+### Residual optional (not phases)
+
+| Item | Notes |
+|------|--------|
+| Cloudflare Worker SPA fallback polish | `web/worker.js` already has **no** `/dist/` strip (removed with portable site-root). Extension-less paths still force root `/index.html` shell — optional host glue to try `pathname/index.html` (SSG) before SPA fallback. **Not** product acceptance; plain `python3 -m http.server` from `dist/` remains the gate. |
+| Mode B language packages | Demand-driven; Phase 3 was contract + examples only — see [NEXT.md](./NEXT.md) |
 
 ---
 
@@ -44,7 +69,7 @@ anza build
 Any static server (python, nginx, Pages, S3+CDN)
   └─ GET /docs/... → file exists → SEO HTML
 
-Mode B (later): any-lang templates
+Mode B (Phase 3): any-lang templates
   └─ emit SAME HTML contract; assets still from dist/
 ```
 
@@ -143,7 +168,7 @@ Depends on **Phase 0** portable URLs.
   - Injects `<title>`, meta description, canonical, OG/Twitter; optional JSON-LD in light DOM
   - Injects import map + **route-scoped** `<link rel="modulepreload">` (logic today in `tools/src/server/runner.rs` moves into **build-emitted** HTML)
   - Deferred `<script type="module" src="/app.js">` (or route entry)
-- [x] **Parametric routes** — documented rule: public params need a **build-time expansion manifest**; no expansion → no SSG file (Mode B or 404 later). **v1:** any path with `:param` / `*` (or non-empty `params`) gets `ssg: false` even when `public: true`.
+- [x] **Parametric routes** — documented rule: public params need a **build-time expansion manifest**; no expansion → no SSG file (Mode B or CSR). **v1:** any path with `:param` / `*` (or non-empty `params`) gets `ssg: false` even when `public: true`. Expansion implementation → **Phase 5**.
 - [x] **Auth / private routes** — remain SPA shell or intentionally non-indexed; not SSG by default
 
 ### Acceptance tests (must survive)
@@ -256,6 +281,112 @@ Document and prove that any language can emit the **same** HTML shape as Mode A 
 
 ---
 
+## Phase 4 — Nested docks + soft-nav / SSG coexistence
+
+### Objective
+
+Fix the post–Phase-3 gap where Mode A SSG nested docks inside parent shadow templates (slots never project them) and soft-nav fetched the full SSG document as a page fragment (stacked docs chrome). Make hard refresh + soft-nav + `anza dev` serve the same correct tree.
+
+**Status: done (verified 2026-07-28)** — acceptance below survived on clean rebuild + live `anza` `:3000` soft-nav smoke.
+
+### Deliverables
+
+- [x] **Light-DOM via nesting** — nested hosts (`dock-docs` / `dock-doccontent` / leaf) are **siblings after** each parent’s `<template shadowrootmode="open">`, never inside it (`tools/src/build/ssg.rs` `dsd_host` / `build_dsd_tree`)
+- [x] **Light-DOM critical H1** — leaf emits extracted `<h1>` outside DSD (contract recommendation → default for Mode A)
+- [x] **CSR fragment preservation** — when page `html` path would be clobbered by `dist/<route>/index.html`, keep fragment as `template.html` and rewrite dist page module + `routes.json` `html` field
+- [x] **Client document guard** — `sanitizeTemplateHtml` refuses / strips full SSG documents used as page templates (`library/src/core/ui/define/utils.js`)
+- [x] **Dev / Axum prefers SSG** — `tools/src/server/runner.rs` serves `dist/<route>/index.html` over SPA shell when present; SSG already embeds preloads (no double-inject)
+- [x] **Dev emits SSG** — `anza build` / `anza dev` extract path calls `ssg::emit` (`tools/src/extract/runner.rs`)
+- [x] **Contract + goldens + Mode B examples** — light-DOM nest documented; goldens + Python/Go/Node templates updated; `tasks/ssg-contract-check.js` asserts nest chain
+- [x] **Tests** — soft-nav suite covers nested light-DOM docks + `sanitizeTemplateHtml` (`library/tests/core/ui/soft-nav.test.js`)
+- [x] **Land + acceptance verify** — clean rebuild + curl + soft-nav smoke stamped below (commit separately when ready)
+
+### Acceptance tests (must survive)
+
+1. **Light-DOM nest in built HTML**
+   ```bash
+   node tasks/ssg-contract-check.js --rebuild
+   ```
+   - Built `/docs/intro/start` chain: `dock-main` → `dock-docs` → `dock-doccontent` → leaf; each child host appears **after** parent `</template>`, not inside the template body
+   - Zero `<dock-content` (wrong tag); tags are `dock-doccontent`
+2. **Hard refresh adopts nested docks** — open `/docs/intro/start`, hard reload: one docs chrome (no blank flash / no stacked sidebars); cascade sees light-DOM children
+3. **Soft-nav does not nest documents** — soft-nav between two docs pages: leaf swaps only; Network (or `template.html` on disk) shows fragment fetch, not full `<!DOCTYPE`…`<dock-main>` as the page template; no second sidebar stacked in leaf shadow
+4. **Dev server serves SSG** — `anza dev`: `curl` a public docs URL returns contentful open DSD (not empty SPA shell); deep link hard refresh works without remounting from shell
+5. **Regression** — Phase 0–3 curl / contract / hydration / soft-nav suites stay green
+
+### Acceptance — verification
+
+**Verified 2026-07-28** — `node tasks/ssg-contract-check.js --rebuild`: all nest asserts green (goldens + built `/` and `/docs/intro/start`). `anza` on **:3000**: curl `/docs/intro/start/` contentful open DSD, light-DOM nest `dock-main` → `dock-docs` → `dock-doccontent` → leaf; `template.html` fragment preserved + page module/`routes.json` `html: './template.html'`. Live soft-nav start→structure: dock markers preserved (`dock-docs`/`dock-doccontent` count === 1, nestedDocs 0); Network fetched `…/structure/template.html` **200** (not SSG `index.html` as page template). Suites: soft-nav + hydration **15 passed**; Rust `build::ssg` **6 passed**.
+
+### NOT done if…
+
+- Nested hosts are still serialized inside parent `<template shadowrootmode>`
+- Soft-nav still fetches SSG `index.html` as the page template with no `template.html` rewrite and no client guard
+- Dev deep links fall through to SPA shell when SSG file exists
+- Contract check lacks light-DOM nest assertions
+
+---
+
+## Phase 5 — Parametric public-route expansion
+
+### Objective
+
+Enable Mode A SSG for public routes with `:param` / `*` by expanding them at build time. Today Phase 1 v1 correctly sets `ssg: false` for any parametric path (Mode B or CSR only).
+
+**Status: done (verified 2026-07-28)** — expansion via `page({ ssg: { expand } })` / `ssg.params.json`; fixture `/docs/ssg/expand/foo`.
+
+### Deliverables
+
+- [x] **Expansion manifest** — `page({ ssg: { expand: […] } })` and optional project-level `ssg.params.json` (object maps, single-param shorthand, or full concrete paths)
+- [x] **Extract / routes** — parametric pattern stays `ssg: false`; each expansion emits a concrete `routes.json` entry with `ssg: true` + `ssgParams`
+- [x] **SSG emitter** — writes `dist/<expanded-path>/index.html`; `{{param}}` interpolated in SEO and page HTML
+- [x] **Docs** — expand vs Mode B vs CSR in `docs/ssg/contract.md` (+ web docs page)
+- [x] **Fixture** — `/docs/ssg/expand/:slug` → `/docs/ssg/expand/foo` + contract-check coverage
+
+### Acceptance tests (must survive)
+
+1. With a checked-in expansion for e.g. `/docs/ssg/expand/:slug` → `/docs/ssg/expand/foo`, build emits `dist/docs/ssg/expand/foo/index.html`
+2. `curl` that URL (python static server) shows unique title + open DSD + primary heading
+3. Unexpanded parametric public routes still produce **no** SSG file (`ssg: false`)
+4. Soft-nav / hydrate still work on expanded pages (Phase 2 + 4 regressions)
+
+### Acceptance — verification
+
+**Verified 2026-07-28** — Clean `web` build with Phase 5 tooling: `dist/docs/ssg/expand/foo/index.html` present; `routes.json` pattern `/docs/ssg/expand/:slug` has `ssg: false`, expanded `/docs/ssg/expand/foo` has `ssg: true` + `ssgParams: { slug: foo }`. `python3 -m http.server` on **8788**: curl `/docs/ssg/expand/foo/` → `<title>SSG expand: foo — Anza</title>`, open DSD, `<h1>SSG expand: foo</h1>`; `/docs/ssg/expand/nope/` → **404**; `/app.js` **200**. `node tasks/ssg-contract-check.js` passed (incl. expand nest + routes flags). Rust bins tests **16 passed**.
+
+### NOT done if…
+
+- Every parametric route is force-SSG’d with empty or guessed params
+- Expansion only works behind `anza dev` and not in `anza build` → portable `dist/`
+
+---
+
+## Phase 6 — SEO hardening extras
+
+### Objective
+
+Nice-to-haves beyond the contentful HTML + open DSD product. Sitemap/robots, absolute URLs when origin is configured, JSON-LD, and broader CI closed-DSD gates.
+
+**Status: done (verified 2026-07-28)** — `ssg.json` / `ANZA_SITE_ORIGIN`; `dist/sitemap.xml` + `robots.txt`; absolute canonicals; JSON-LD WebSite/WebPage; corpus contract gate.
+
+### Deliverables
+
+- [x] **`sitemap.xml` / `robots.txt` emission** from Mode A SSG routes into `dist/` (absolute locs when origin set)
+- [x] **Absolute canonical / OG URLs** when `ssg.json` `origin` or `ANZA_SITE_ORIGIN` is set (path-relative without origin)
+- [x] **JSON-LD** — light-DOM `WebSite` + `WebPage` in SSG `<head>` (default on; does not touch DSD)
+- [x] **CI gate expansion** — `tasks/ssg-contract-check.js` scans all SSG `index.html` under `dist/` for closed DSD templates and `/dist/` asset hrefs; asserts sitemap/robots/JSON-LD/absolute canonicals when origin configured
+- [x] **Worker `/dist/` strip removal** — already gone from `web/worker.js` (portable site-root; strip not required for acceptance). Further Worker SPA→SSG prefer remains **optional host polish** — see Status residual table; not a Phase 7.
+
+### Acceptance — verification
+
+**Verified 2026-07-28** — `web/ssg.json` with `origin: https://example.com`. Clean build: `dist/sitemap.xml` + `robots.txt`; curl/built HTML has absolute canonical + JSON-LD; `node tasks/ssg-contract-check.js` passed (155 SSG pages corpus gate). Rust bins tests **18 passed**.
+
+### Non-goals for this phase
+
+Same as top-level non-goals: no Anza production SSR runtime, no UA cloaking, no mega-bundle, no Mode B language packages (those stay deferred product options — see [NEXT.md](./NEXT.md)).
+
+---
+
 ## Performance & SEO gates (cross-cutting)
 
 These gates apply once Phase 0–1 land; Phase 2 must not regress them.
@@ -298,6 +429,8 @@ These gates apply once Phase 0–1 land; Phase 2 must not regress them.
 | **Portable site-root asset URLs** | **Accepted** | Ship with Mode A; not a Worker-only rewrite |
 | **Mode B = same HTML contract, any language** | **Accepted** | Phase 3; Anza does not own the server |
 | **Phase 2 = adopt existing open DSD** | **Accepted** | [PHASE-II.md](./PHASE-II.md) §§1–3; [issue #3](https://github.com/aduki-org/anza/issues/3); depends on Phase 1 HTML |
+| **Nested docks as light-DOM siblings after open DSD** | **Accepted** | Phase 4; required for slot projection + cascade adopt |
+| **Soft-nav must not fetch SSG documents as page templates** | **Accepted** | Phase 4: `template.html` preserve + `sanitizeTemplateHtml` |
 | **Multi-file ESM + import maps + modulepreload** | **Accepted** | No bundling escape hatch as the SEO/perf fix |
 | **Crawler UA detection / SPA for users** | **Rejected** | Cloaking risk; public routes get contentful HTML for **everyone** |
 | **Empty SPA shell as SEO strategy** | **Rejected** | “Google will run the JS” is not the product |
@@ -308,9 +441,14 @@ These gates apply once Phase 0–1 land; Phase 2 must not regress them.
 
 ## Implementer quick-start order
 
-1. **Phase 0** — portable URLs → prove with `python3 -m http.server` from `dist/`.
-2. **Phase 1** — SSG `dist/<route>/index.html` → prove with curl + View Source + hard refresh.
-3. **Phase 2** — adopt DSD on that HTML → prove no wipe; refs/events; mismatch fallback ([PHASE-II.md](./PHASE-II.md)).
-4. **Phase 3** — contract + goldens + one Python and one Go/Node example → prove fixture diff.
+1. **Phase 0** — portable URLs → prove with `python3 -m http.server` from `dist/`. ✅
+2. **Phase 1** — SSG `dist/<route>/index.html` → prove with curl + View Source + hard refresh. ✅
+3. **Phase 2** — adopt DSD on that HTML → prove no wipe; refs/events; mismatch fallback ([PHASE-II.md](./PHASE-II.md)). ✅
+4. **Phase 3** — contract + goldens + one Python and one Go/Node example → prove fixture diff. ✅
+5. **Phase 4** — light-DOM nest + `template.html` + server SSG prefer → prove contract-check nest + soft-nav smoke. ✅
+6. **Phase 5** — parametric expansion → prove expand emit + unexpanded stay `ssg: false`. ✅
+7. **Phase 6** — sitemap/robots, absolute canonicals, JSON-LD, corpus CI gates. ✅
+
+**Track closed.** Prefer [ELEMENTS.md](./ELEMENTS.md) / [NEXT.md](./NEXT.md). Do not invent Phase 7.
 
 Do not mark a phase complete until its **Acceptance tests** section survives and none of its **NOT done if…** conditions apply.

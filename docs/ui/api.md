@@ -36,15 +36,15 @@ Container shell. See router docks.md.
 
 ### `ui.view(tag, config, base)`
 
-Stateful component. See [components.md](components.md) in router docs.
+Stateful component. See [router/components.md](../router/components.md).
 
 ### `ui.part(tag, config, base)`
 
-Stateless primitive. See [components.md](components.md) in router docs.
+Stateless primitive. See [router/components.md](../router/components.md).
 
-### `ui.schedule(fn, priority)`
+### `ui.schedule(fn, priorityOrOptions)`
 
-Cooperative task scheduling.
+Cooperative task scheduling. Second arg may be a priority string or `{ priority, signal, delay }`.
 
 | Priority | Value |
 | ---------- | ------- |
@@ -52,17 +52,25 @@ Cooperative task scheduling.
 | `ui.Priority.VISIBLE` | `'user-visible'` |
 | `ui.Priority.BACKGROUND` | `'background'` |
 
-### `ui.scheduleFrame(fn)`
+### `ui.scheduleFrame(fn, options?)`
 
-Run during next `requestAnimationFrame`. Returns a promise.
+Run during next `requestAnimationFrame`. Options: `{ signal }`. Returns a promise.
 
-### `ui.yield()`
+### `ui.yield(options?)`
 
-Yield control to the browser. Returns a promise.
+Yield control to the browser. Options: `{ signal }`. Returns a promise.
 
-### `ui.transition(fn)`
+### `ui.transition(fn, options?)`
 
-View transitions wrapper. Returns a promise resolving to a transition object.
+View transitions wrapper (document or element scope). Returns a promise resolving to a transition object. See [transitions.md](transitions.md).
+
+### `ui.runSwapTransition(host, fn, options?)`
+
+Element-scoped dock/container swap helper with direct-swap fallback.
+
+### `ui.configureTransitions(partial)`
+
+Global `{ enabled, nameFor }` controls for VT.
 
 ### `ui.template(strings, ...values)`
 
@@ -78,18 +86,38 @@ IntersectionObserver with AbortSignal cleanup.
 
 ### `ui.observe.mutation(el, fn, signal, options)`
 
-MutationObserver with AbortSignal cleanup.
+MutationObserver with AbortSignal cleanup. Default options: `{ childList: true, subtree: false }`. Prefer a scoped root over `document` / `body` with `subtree: true`. When `attributes: true` without `attributeFilter`, a development warning is emitted.
+
+### `ui.observe.mutation.scoped(shadowRoot, selector, fn, signal, options)`
+
+Filters mutation records to targets matching `selector` inside a shadow root. Refuses `document` / `body` roots (dev warn + no-op). Default observe options include `subtree: true` under that shadow.
 
 ### `ui.observe.performance(types, fn, signal, options)`
 
 PerformanceObserver with AbortSignal cleanup.
+
+### `ui.getAttachmentStats(shadowRoot)`
+
+Snapshot of live component attachments for diagnostics / soft-nav leak tests. Returns `null` if the shadow was never bound (or already aborted and cleared):
+
+```javascript
+{
+  onRootListeners,    // shadow-root listeners currently attached
+  onRegistrations,    // handler registrations across types
+  watchBuckets,       // distinct MutationObserver fingerprints
+  watchRegistrations, // active watch.* regs (not slot)
+  slotListeners       // active watch.slot slotchange listeners
+}
+```
+
+Also available as a named export: `import { getAttachmentStats } from '@adukiorg/anza/ui'`.
 
 ---
 
 ## Named Exports
 
 ```javascript
-import { BaseElement } from '@adukiorg/anza/ui';
+import { BaseElement, getAttachmentStats } from '@adukiorg/anza/ui';
 import { define, element, container, page, dock, view, part } from '@adukiorg/anza/ui';
 import { schedule, scheduleFrame, yieldTask } from '@adukiorg/anza/ui';
 import { transition } from '@adukiorg/anza/ui';
@@ -204,10 +232,24 @@ tags.prewarm(selector, element) // manual pre-warm
 on.click(selector, handler, options)
 on.submit(selector, handler, options)
 on.input(selector, handler, options)
-on[eventType](selector, handler, options)
+on[eventType](selectorOrElement, handler, options)
+on[eventType].once(selectorOrElement, handler, options)
 ```
 
-Options: `signal` (AbortSignal), `once` (boolean), `passive` (boolean), `capture` (boolean).
+Matching walks `composedPath()` within the shadow root (same matcher as `events.delegate`). Selector strings or direct Element references (inside the shadow) are accepted.
+
+| Option | Type | Description |
+| ------ | ---- | ----------- |
+| `signal` | AbortSignal | Default: component `ctrl.signal` |
+| `once` | boolean | Remove after first match |
+| `passive` | boolean | Default: true only for touch/wheel types |
+| `capture` | boolean | Capture phase (separate root listener key) |
+| `attrs` | object | Attribute predicates (`null` = must be absent) |
+| `not` | string | Skip when `closest(not)` is inside the root |
+| `key` | string\|number | Dedupe — same key replaces prior registration |
+| `scope` | `'shadow'` \| `'assigned'` | Default shadow-only; `assigned` includes slotted light DOM |
+
+Empty registry for a `(type, capture)` key removes the shadow-root listener immediately. See [context.md](context.md#on).
 
 Returns a disposer function.
 
@@ -216,9 +258,16 @@ Returns a disposer function.
 ## Mutation Watcher Methods
 
 ```javascript
-watch.text(selector, callback)      // (text, old, el) => {}
-watch.attr(selector, attr, callback) // (val, old, el) => {}
-watch.children(selector, callback)   // (mutations) => {}
+watch.attr(target, attr, handler, options)   // (attr, next, prev, el) => {}
+watch.kids(target, handler, options)         // ({ added, removed }, el) => {}
+watch.kids(target, { deep: true }, handler, options)
+watch.children(target, handler, options)     // alias of watch.kids
+watch.text(target, handler, options)         // (text, old, el) => {}
+watch.tree(target, handler, options)         // (records, target) => {}
+watch.slot(slotOrSelector, handler, options) // ({ assigned, assignedElements }, slot) => {}
+watch.attr.once(...) / kids.once / text.once / tree.once / slot.once
 ```
+
+`target` is a shadow-scoped selector or Element. Options: `{ signal, once, requirePresent }` (or a bare `AbortSignal`). Observers are bucketed by option fingerprint so a `tree` / `attr *` registration cannot widen another watch’s `attributeFilter`. `watch.slot` uses `slotchange` (not a MutationObserver). See [context.md](context.md#watch).
 
 Returns a disposer function.

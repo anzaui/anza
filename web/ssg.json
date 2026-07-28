@@ -1,0 +1,7 @@
+{
+  "origin": "https://example.com",
+  "siteName": "Anza",
+  "jsonLd": true,
+  "sitemap": true,
+  "robots": true
+}

@@ -10,6 +10,8 @@ It answers two questions: what does this browser support, and how do I use the f
 
 - **Feature detection** — 30+ lazy-evaluated boolean flags for routing, components, CSS, scheduling, storage, networking, and security
 - **Lazy polyfills** — automatic, on-demand loading for URLPattern, Navigation API, popover, shadow DOM, anchor positioning, scheduler, and sanitizer
+- **Overflow escape** — `guard.escape` / `escapeOverflow` for in-tree floating UI (used by `ui-tooltip`)
+- **Framework globals registry** — `globals` for soft-nav–stable platform listeners / observers
 - **Runtime guards** — `typeGuard` for early-fail checks in critical paths
 - **Reset for testing** — `reset(flag)` to clear cached detection values
 
@@ -18,7 +20,14 @@ It answers two questions: what does this browser support, and how do I use the f
 ## Package
 
 ```javascript
-import { supports, guard, reset, typeGuard } from '@adukiorg/anza/platform';
+import {
+  supports,
+  guard,
+  reset,
+  typeGuard,
+  globals,
+  escapeOverflow
+} from '@adukiorg/anza/platform';
 ```
 
 ---
@@ -65,3 +74,4 @@ const pattern = new URLPattern({ pathname: '/user/:id' });
 - Need polyfills? [guards.md](guards.md).
 - Working with scheduler? [scheduler.md](scheduler.md).
 - Prefer a single reference page? [api.md](api.md).
+- Building floating UI / tooltips? [guards.md#escape](guards.md#escape) and [Overlay patterns](../elements/overlay.md).

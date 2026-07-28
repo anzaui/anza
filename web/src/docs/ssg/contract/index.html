@@ -1,82 +1,158 @@
-<h1>Page HTML contract</h1>
-<p>Normative shape for every public, indexable HTML response. <strong>Mode A</strong> (<code>anza build</code> SSG) and <strong>Mode B</strong> (any-language request-time templates) must emit this same contract so client <a href="/docs/ui/hydration">hydration</a> has one adoption path.</p>
-
+<h1>Page HTML contract (Mode A SSG · Mode B templates)</h1>
+<p>Normative shape for every public, indexable HTML response. <strong>Mode A</strong> (<code>anza build</code> SSG) and <strong>Mode B</strong> (any-language request-time templates) must emit this same contract so client hydration has one adoption path.</p>
+<p>Overview of Phases 0–6: <a href="/docs/ssg/index">index.md</a>. Client adopt details: <a href="/docs/ui/hydration">ui/hydration.md</a>.</p>
+<p>Golden samples: <a href="../../plans/fixtures/ssg/">plans/fixtures/ssg/</a>. Planning context: <a href="../../plans/SSG-SEO.md">plans/SSG-SEO.md</a>.</p>
+<hr />
 <h2>Site-root asset URLs</h2>
 <p>Production treats <code>dist/</code> as the <strong>document root</strong>. Public asset URLs never include a <code>/dist</code> prefix.</p>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Correct</th>
-        <th>Incorrect</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>/app.js</code></td>
-        <td><code>/dist/app.js</code></td>
-      </tr>
-      <tr>
-        <td><code>/importmap.json</code></td>
-        <td><code>/dist/importmap.json</code></td>
-      </tr>
-      <tr>
-        <td><code>/tokens/index.css</code></td>
-        <td><code>/dist/tokens/index.css</code></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<h2>Required head</h2>
+<div class="table-wrap"><table><thead><tr><th>Correct</th><th>Incorrect</th></tr></thead><tbody>
+<tr><td><code>/app.js</code></td><td><code>/dist/app.js</code></td></tr>
+<tr><td><code>/importmap.json</code></td><td><code>/dist/importmap.json</code></td></tr>
+<tr><td><code>/tokens/index.css</code></td><td><code>/dist/tokens/index.css</code></td></tr>
+<tr><td><code>/styles/index.css</code></td><td><code>/dist/styles/index.css</code></td></tr>
+<tr><td><code>/docs/intro/start/index.js</code></td><td><code>/dist/docs/...</code></td></tr>
+</tbody></table></div>
+<p>Import map <code>imports</code> values follow the same rule (site-root paths only).</p>
+<hr />
+<h2>Required <code>&lt;head&gt;</code></h2>
+<p>Emit in this order (charset/viewport first; import map before any <code>type="module"</code> entry):</p>
 <ol>
-  <li>Charset + viewport</li>
-  <li>Unique <code>&lt;title&gt;</code> and meta description</li>
-  <li>Canonical (and optional OG/Twitter)</li>
-  <li>Import map <strong>before</strong> any <code>type="module"</code> entry</li>
-  <li><code>/tokens/index.css</code> and <code>/styles/index.css</code></li>
-  <li>Route-scoped <code>modulepreload</code></li>
-  <li>Deferred <code>&lt;script type="module" src="/app.js"&gt;</code></li>
+<li><strong>Charset + viewport</strong> — <code>&lt;meta charset="utf-8"&gt;</code>, viewport meta.</li>
+<li><strong><code>&lt;title&gt;</code></strong> — unique per route (SEO title, else H1 text, else path-derived).</li>
+<li><strong>Meta description</strong> — unique per route.</li>
+<li><strong>Canonical</strong> — <code>link rel="canonical"</code> (path or absolute URL when origin is set).</li>
+<li><strong>Optional social</strong> — <code>og:title</code>, <code>og:description</code>, <code>og:url</code>, <code>twitter:card</code>.</li>
+<li><strong>JSON-LD</strong> (Mode A default) — light-DOM <code>WebSite</code> + <code>WebPage</code> via <code>ssg.json</code> <code>jsonLd</code> (does not touch DSD).</li>
+<li><strong>Import map</strong> — inline <code>&lt;script type="importmap"&gt;…&lt;/script&gt;</code> preferred; else <code>src="/importmap.json"</code>. Must appear <strong>before</strong> module scripts.</li>
+<li><strong>Critical CSS</strong> — at least:
+<ul>
+<li><code>&lt;link rel="stylesheet" href="/tokens/index.css" /&gt;</code></li>
+<li><code>&lt;link rel="stylesheet" href="/styles/index.css" /&gt;</code></li>
+</ul>
+</li>
+<li><strong>Route-scoped <code>modulepreload</code></strong> — <code>/app.js</code>, then via-dock modules, layouts, and the leaf page module (from <code>routes.json</code>).</li>
+<li><strong>Deferred entry</strong> — <code>&lt;script type="module" src="/app.js"&gt;&lt;/script&gt;</code> (or the route entry). Not blocking first paint beyond parser work; DSD paints without waiting on the full ESM graph.</li>
 </ol>
-
-<h2>Required body</h2>
-<p>Walk the route’s <code>via</code> chain and nest custom elements with <strong>open</strong> Declarative Shadow DOM:</p>
-<view-code language="html">&lt;dock-main id="main"&gt;
-  &lt;template shadowrootmode="open"&gt;…&lt;/template&gt;
-  &lt;dock-docs&gt;
+<hr />
+<h2>Required <code>&lt;body&gt;</code></h2>
+<h3>Via-chain nesting</h3>
+<p>Walk the route’s <code>via</code> chain (outer → inner) and nest custom elements so the leaf page sits inside its docks. Example for <code>/docs/intro/start</code> with <code>via: ["main", "docs", "content"]</code> (registry key <code>content</code>, custom element tag <code>dock-doccontent</code>):</p>
+<view-code language="html">&lt;body&gt;
+  &lt;dock-main id="main"&gt;
     &lt;template shadowrootmode="open"&gt;…&lt;/template&gt;
-    &lt;!-- … leaf page with open DSD … --&gt;
-  &lt;/dock-docs&gt;
-&lt;/dock-main&gt;
+    &lt;dock-docs&gt;
+      &lt;template shadowrootmode="open"&gt;…&lt;/template&gt;
+      &lt;dock-doccontent&gt;
+        &lt;template shadowrootmode="open"&gt;…&lt;/template&gt;
+        &lt;page-…&gt;
+          &lt;template shadowrootmode="open"&gt;…&lt;/template&gt;
+          &lt;!-- optional light-DOM critical text --&gt;
+        &lt;/page-…&gt;
+      &lt;/dock-doccontent&gt;
+    &lt;/dock-docs&gt;
+  &lt;/dock-main&gt;
+&lt;/body&gt;
 </view-code>
 <ul>
-  <li><code>shadowrootmode="closed"</code> is banned for public content.</li>
-  <li>Prefer light-DOM primary heading text for weak crawlers.</li>
-  <li>Same contentful HTML for every User-Agent — no cloaking.</li>
+<li><code>dock-main</code> (or the root dock named <code>main</code>) SHOULD carry <code>id="main"</code>.</li>
+<li>Each custom element that owns encapsulated UI includes an open Declarative Shadow DOM template as a direct child.</li>
+<li><strong>Light-DOM nesting (required):</strong> nested hosts (<code>dock-docs</code>, <code>dock-doccontent</code>, leaf page) MUST be <strong>light-DOM children</strong> of their parent host — siblings <strong>after</strong> that parent's <code>&lt;template shadowrootmode="open"&gt;</code>, never inside it. Shadow + <code>&lt;slot&gt;</code> only projects light-DOM children; hosts baked into a parent shadow template will not slot, and cascade adopt (which walks <code>parent.children</code>) will miss them and wipe SSG on hard refresh.</li>
+<li>Registry keys in <code>via</code> are <code>main</code> / <code>docs</code> / <code>content</code>; custom element tags are <code>dock-main</code> / <code>dock-docs</code> / <code>dock-doccontent</code> (not <code>dock-content</code>).</li>
+<li>Leaf (and layout) template HTML/CSS are inlined into DSD so first paint does not wait on template fetches.</li>
+<li><code>/</code> nests the page leaf under <code>dock-main</code> only (no docs chrome).</li>
 </ul>
-
+<h3>Open-only Declarative Shadow DOM</h3>
+<p>Public / indexable markup MUST use:</p>
+<view-code language="html">&lt;template shadowrootmode="open"&gt;
+</view-code>
+<p><code>shadowrootmode="closed"</code> is <strong>banned</strong> for public content. Closed shadow prevents adoption-based hydration and weakens observability for tooling and some crawlers.</p>
+<h3>Light-DOM critical text (recommendation)</h3>
+<p>Prefer also exposing the primary heading (and, where practical, a short lead) as <strong>light-DOM</strong> children of the leaf page element (outside the shadow template), e.g. <code>&lt;h1&gt;…&lt;/h1&gt;</code>. That keeps critical words visible in View Source / curl even for agents that mishandle shadow trees. Encapsulated copy inside open DSD remains the visual source of truth after paint.</p>
+<hr />
+<h2>Same HTML for all user agents</h2>
+<p>No cloaking. The same URL returns the same contentful HTML for browsers, <code>curl</code>, and crawler UAs. Do <strong>not</strong> branch on <code>User-Agent</code> to serve SSR to bots and an empty SPA shell to humans.</p>
+<hr />
 <h2>Mode A vs Mode B</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Mode</th>
-        <th>When</th>
-        <th>Who emits</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>A — SSG</strong></td>
-        <td><code>anza build</code></td>
-        <td>Anza SSG emitter → <code>dist/&lt;route&gt;/index.html</code></td>
-      </tr>
-      <tr>
-        <td><strong>B — Templates</strong></td>
-        <td>Request time</td>
-        <td>Any language; <strong>same HTML shape</strong>; assets from <code>dist/</code></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-<p>Mode B must not require an Anza Node SSR runtime. See also <a href="/docs/ui/hydration">Hydration (DSD adopt)</a>.</p>
+<div class="table-wrap"><table><thead><tr><th>Mode</th><th>When</th><th>Who emits</th><th>Must emit</th></tr></thead><tbody>
+<tr><td><strong>A — SSG</strong></td><td><code>anza build</code> and <code>anza dev</code></td><td>Anza SSG emitter</td><td>This contract into <code>dist/&lt;route&gt;/index.html</code></td></tr>
+<tr><td><strong>B — Templates</strong></td><td>Request time</td><td>Jinja / EJS / HBS / Go / …</td><td><strong>This same shape</strong>; static assets still served from <code>dist/</code> as site root</td></tr>
+</tbody></table></div>
+<p>Mode B servers MUST NOT require an Anza Node SSR runtime. Templates + static files are enough. Auth / personalized routes may stay CSR or Mode B with <code>noindex</code> as appropriate — never UA-branch for indexing.</p>
+<h3>Parametric routes (Mode A expansion)</h3>
+<p>Public paths with <code>:param</code> (or <code>*</code>) are <strong>not</strong> SSG’d by default — <code>routes.json</code> keeps <code>ssg: false</code> so the client can still match them (Mode B or CSR). To emit Mode A HTML for concrete values, declare a build-time expansion:</p>
+<p><strong>In the page module</strong> (<code>page({ ssg: { expand: […] } })</code>):</p>
+<view-code language="javascript">page('/docs/ssg/expand/:slug', {
+  params: [{ name: 'slug', type: String }],
+  ssg: {
+    expand: [
+      { slug: 'foo' },
+      // or shorthand when there is a single param: 'foo'
+      // or a full concrete path: '/docs/ssg/expand/foo'
+    ]
+  },
+  seo: {
+    title: 'SSG expand: {{slug}} — Anza',
+    description: 'Example for {{slug}}'
+  },
+  // …
+})
+</view-code>
+<p><strong>Or project-level</strong> <code>ssg.params.json</code> next to <code>src/</code> (or inside <code>src/</code>):</p>
+<view-code language="json">{
+  "/docs/ssg/expand/:slug": [{ "slug": "foo" }]
+}
+</view-code>
+<p>Rules:</p>
+<div class="table-wrap"><table><thead><tr><th>Case</th><th>Result</th></tr></thead><tbody>
+<tr><td>Parametric + listed in <code>expand</code> / <code>ssg.params.json</code></td><td>Concrete path in <code>routes.json</code> with <code>ssg: true</code>; <code>dist/&lt;path&gt;/index.html</code> emitted; <code>{{param}}</code> interpolated in SEO and page HTML</td></tr>
+<tr><td>Parametric + <strong>no</strong> expansion</td><td>Pattern stays <code>ssg: false</code>; <strong>no</strong> SSG file (use Mode B templates or leave CSR)</td></tr>
+<tr><td>Personalized / auth params</td><td>Prefer Mode B or CSR — do not force-guess expansions</td></tr>
+</tbody></table></div>
+<p>Live fixture: <a href="/docs/ssg/expand/foo"><code>/docs/ssg/expand/foo</code></a> (pattern <code>/docs/ssg/expand/:slug</code>).</p>
+<h3>Site origin, sitemap, robots, JSON-LD</h3>
+<p>Optional project file <code>ssg.json</code> next to <code>src/</code> (or inside <code>src/</code>):</p>
+<view-code language="json">{
+  "origin": "https://example.com",
+  "siteName": "Anza",
+  "jsonLd": true,
+  "sitemap": true,
+  "robots": true
+}
+</view-code>
+<div class="table-wrap"><table><thead><tr><th>Field</th><th>Effect</th></tr></thead><tbody>
+<tr><td><code>origin</code></td><td>Absolute site origin (no trailing slash). When set, canonical / <code>og:url</code> / sitemap <code>&lt;loc&gt;</code> / robots <code>Sitemap:</code> become absolute. Override with env <code>ANZA_SITE_ORIGIN</code>. Without origin, path-relative URLs are used (fine for local/static preview).</td></tr>
+<tr><td><code>siteName</code></td><td>JSON-LD <code>WebSite.name</code> (default <code>Anza</code>)</td></tr>
+<tr><td><code>jsonLd</code></td><td>Emit light-DOM <code>&lt;script type="application/ld+json"&gt;</code> with <code>WebSite</code> + <code>WebPage</code> (default <code>true</code>) — does not touch DSD</td></tr>
+<tr><td><code>sitemap</code> / <code>robots</code></td><td>Write <code>dist/sitemap.xml</code> and <code>dist/robots.txt</code> for Mode A SSG routes (default <code>true</code>)</td></tr>
+</tbody></table></div>
+<h3>Soft-nav fragments vs SSG documents</h3>
+<p>Hard refresh / full load serves the SSG (or Mode B) document above. Soft-nav must <strong>not</strong> fetch that full document as a page template — it would nest docks inside the leaf shadow (stacked chrome). When the page fragment path collides with <code>dist/&lt;route&gt;/index.html</code>, Mode A preserves the CSR fragment as <code>template.html</code> and rewrites the dist page module + <code>routes.json</code> to point at it. The client also refuses full HTML documents as page templates (<code>sanitizeTemplateHtml</code>).</p>
+<hr />
+<h2>Minimal checklist (CI / review)</h2>
+<ul>
+<li><input disabled="" type="checkbox"/>
+<code>&lt;title&gt;</code> and meta description present and route-unique</li>
+<li><input disabled="" type="checkbox"/>
+Import map before <code>&lt;script type="module" src="/app.js"&gt;</code></li>
+<li><input disabled="" type="checkbox"/>
+<code>/tokens/index.css</code> and <code>/styles/index.css</code> linked</li>
+<li><input disabled="" type="checkbox"/>
+At least one <code>rel="modulepreload"</code> for <code>/app.js</code> (plus route modules)</li>
+<li><input disabled="" type="checkbox"/>
+Via-chain custom elements with nested open DSD</li>
+<li><input disabled="" type="checkbox"/>
+Zero <code>shadowrootmode="closed"</code> (contract check scans all SSG <code>index.html</code> under <code>dist/</code>)</li>
+<li><input disabled="" type="checkbox"/>
+Zero <code>/dist/</code> prefixes on <code>href</code> / <code>src</code> asset URLs</li>
+<li><input disabled="" type="checkbox"/>
+Primary heading text present in the HTML body (DSD and/or light DOM)</li>
+<li><input disabled="" type="checkbox"/>
+<code>dist/sitemap.xml</code> + <code>dist/robots.txt</code> present after build</li>
+<li><input disabled="" type="checkbox"/>
+JSON-LD <code>WebPage</code> present on Mode A pages (when <code>jsonLd</code> enabled)</li>
+</ul>
+<p>Run the lightweight checker from the repo root:</p>
+<view-code language="bash">node tasks/ssg-contract-check.js
+# optional rebuild:
+node tasks/ssg-contract-check.js --rebuild
+</view-code>

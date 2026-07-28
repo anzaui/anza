@@ -56,6 +56,8 @@ events.listen(el, 'touchmove', handler, { passive: false });
 
 This is the correct way to opt into blocking behavior when you genuinely need `preventDefault`.
 
+Component `on` uses the **same** passive defaults (touch/wheel only). Click / submit / key handlers are non-passive unless you pass `{ passive: true }`.
+
 ---
 
 ## AbortSignal Cleanup

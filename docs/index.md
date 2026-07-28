@@ -31,25 +31,90 @@ The declarative custom element system. You will spend most of your time here.
 | [ui/templates.md](ui/templates.md) | Inline, file-based, and tagged template literals |
 | [styles/index.md](styles/index.md) | CSS loading, constructable stylesheets, and HMR |
 | [styles/tokens.md](styles/tokens.md) | Primitive, registered, semantic tokens, transitions, and themes |
-| [ui/lifecycle.md](ui/lifecycle.md) | Mount, unmount, connect, disconnect, load, change |
-| [ui/context.md](ui/context.md) | The `el`, `ctrl`, `tags`, `refs`, `on`, `watch` object |
+| [ui/lifecycle.md](ui/lifecycle.md) | Mount, unmount, connect, disconnect, load, change; soft-nav abort |
+| [ui/context.md](ui/context.md) | `el`, `ctrl`, `tags`, `refs`, `on` (attrs/not/key/scope), `watch` (buckets/slot) |
 | [ui/scheduling.md](ui/scheduling.md) | Cooperative task scheduling |
-| [ui/observers.md](ui/observers.md) | Safe observer factories with AbortSignal cleanup |
-| [ui/transitions.md](ui/transitions.md) | View transitions wrapper |
+| [ui/observers.md](ui/observers.md) | Safe observer factories; `mutation.scoped` |
+| [ui/transitions.md](ui/transitions.md) | Element-scoped dock VT, `ui.transition`, CSS groups, AbortSignal |
 | [ui/forms.md](ui/forms.md) | Form-associated custom elements |
 | [ui/hydration.md](ui/hydration.md) | Adopt open DSD from SSG / Mode B HTML |
-| [ui/advanced.md](ui/advanced.md) | Internals, batching, update visual flag |
+| [ui/advanced.md](ui/advanced.md) | Internals, globals, `getAttachmentStats`, VT swap |
 | [ui/api.md](ui/api.md) | Complete API reference |
 | [ui/troubleshooting.md](ui/troubleshooting.md) | Common problems and how to fix them |
 
 ---
 
-## SSG & SEO
+## Elements
 
-Contentful HTML per public route — Mode A build-time SSG, Mode B any-language templates, client DSD adopt.
+Shipped `ui-*` custom element kit (`library/src/elements/`). Distinct from the UI `element()` factory docs.
 
 | File | What It Covers |
 | ------ | -------------- |
+| [elements/index.md](elements/index.md) | Inventory, import map pattern, docs status |
+| [elements/primitives.md](elements/primitives.md) | Primitive elements overview |
+| [elements/forms.md](elements/forms.md) | Form controls overview |
+| [elements/overlay.md](elements/overlay.md) | Overlay elements overview |
+| [elements/feedback.md](elements/feedback.md) | Feedback elements overview |
+| [elements/data.md](elements/data.md) | Data display overview |
+| [elements/navigation.md](elements/navigation.md) | Navigation overview |
+| [elements/layout.md](elements/layout.md) | Layout overview |
+| [elements/button.md](elements/button.md) | `ui-button` (full) |
+| [elements/icon.md](elements/icon.md) | `ui-icon` (full) |
+| [elements/badge.md](elements/badge.md) | `ui-badge` (full) |
+| [elements/avatar.md](elements/avatar.md) | `ui-avatar` (full) |
+| [elements/divider.md](elements/divider.md) | `ui-divider` (full) |
+| [elements/text.md](elements/text.md) | `ui-text` (full) |
+| [elements/link.md](elements/link.md) | `ui-link` (full) |
+| [elements/spinner.md](elements/spinner.md) | `ui-spinner` (full) |
+| [elements/input.md](elements/input.md) | `ui-input` (full) |
+| [elements/textarea.md](elements/textarea.md) | `ui-textarea` (full) |
+| [elements/select.md](elements/select.md) | `ui-select` (full) |
+| [elements/checkbox.md](elements/checkbox.md) | `ui-checkbox` (full) |
+| [elements/radio.md](elements/radio.md) | `ui-radio` (full) |
+| [elements/toggle.md](elements/toggle.md) | `ui-toggle` (full) |
+| [elements/field.md](elements/field.md) | `ui-field` (full) |
+| [elements/upload.md](elements/upload.md) | `ui-upload` (full) |
+| [elements/form.md](elements/form.md) | `ui-form` (full) |
+| [elements/dialog.md](elements/dialog.md) | `ui-dialog` (full) |
+| [elements/popover.md](elements/popover.md) | `ui-popover` (full) |
+| [elements/tooltip.md](elements/tooltip.md) | `ui-tooltip` (full) |
+| [elements/menu.md](elements/menu.md) | `ui-menu` (full) |
+| [elements/drawer.md](elements/drawer.md) | `ui-drawer` (full) |
+| [elements/sheet.md](elements/sheet.md) | `ui-sheet` (full) |
+| [elements/alert.md](elements/alert.md) | `ui-alert` (full) |
+| [elements/toast.md](elements/toast.md) | `ui-toast` (full) |
+| [elements/progress.md](elements/progress.md) | `ui-progress` (full) |
+| [elements/skeleton.md](elements/skeleton.md) | `ui-skeleton` (full) |
+| [elements/empty.md](elements/empty.md) | `ui-empty` (full) |
+| [elements/table.md](elements/table.md) | `ui-table` (full) |
+| [elements/list.md](elements/list.md) | `ui-list` (full) |
+| [elements/card.md](elements/card.md) | `ui-card` (full) |
+| [elements/chart.md](elements/chart.md) | `ui-chart` (full) |
+| [elements/stat.md](elements/stat.md) | `ui-stat` (full) |
+| [elements/nav.md](elements/nav.md) | `ui-nav` (full) |
+| [elements/tabs.md](elements/tabs.md) | `ui-tabs` (full) |
+| [elements/breadcrumb.md](elements/breadcrumb.md) | `ui-breadcrumb` (full) |
+| [elements/pagination.md](elements/pagination.md) | `ui-pagination` (full) |
+| [elements/steps.md](elements/steps.md) | `ui-steps` (full) |
+| [elements/app.md](elements/app.md) | `ui-app` (full) |
+| [elements/header.md](elements/header.md) | `ui-header` (full) |
+| [elements/sidebar.md](elements/sidebar.md) | `ui-sidebar` (full) |
+| [elements/stack.md](elements/stack.md) | `ui-stack` (full) |
+| [elements/grid.md](elements/grid.md) | `ui-grid` (full) |
+| [elements/split.md](elements/split.md) | `ui-split` (full) |
+| [elements/scroll.md](elements/scroll.md) | `ui-scroll` (full) |
+| [elements/surface.md](elements/surface.md) | `ui-surface` (full) |
+
+
+---
+
+## SSG & SEO
+
+Contentful HTML per public route — Mode A build-time SSG, Mode B any-language templates, client DSD adopt. Phases 0–6 complete.
+
+| File | What It Covers |
+| ------ | -------------- |
+| [ssg/index.md](ssg/index.md) | Overview: Mode A/B, phases 0–6, expand, origin/sitemap |
 | [ssg/contract.md](ssg/contract.md) | Normative page HTML contract (head, via/DSD, site-root URLs) |
 | [ui/hydration.md](ui/hydration.md) | Client adopt path after SSG / Mode B HTML paints |
 
@@ -71,7 +136,7 @@ Client-side routing with URLPattern matching, hierarchical containers, and view 
 | [router/docks.md](router/docks.md) | `dock()` — container shells with swap transitions |
 | [router/components.md](router/components.md) | `view()` and `part()` — stateful and stateless components |
 | [router/events.md](router/events.md) | `found`, `notfound`, `error`, and `on()` subscriptions |
-| [router/transitions.md](router/transitions.md) | CSS View Transitions wrapper |
+| [router/transitions.md](router/transitions.md) | Dock leaf VT (element-scoped) + `transitions.run` document morph |
 | [router/cache.md](router/cache.md) | Prefetch and route caching |
 | [router/sync.md](router/sync.md) | Cross-tab navigation synchronization |
 | [router/advanced.md](router/advanced.md) | Boot gate, trie matcher, handler contract, internals |
@@ -140,11 +205,11 @@ Event bus, delegation, namespacing, and one-shot listeners.
 | [events/quickstart.md](events/quickstart.md) | Your first event in five minutes |
 | [events/listen.md](events/listen.md) | Adding and removing listeners |
 | [events/bus.md](events/bus.md) | Global and namespaced event buses |
-| [events/delegate.md](events/delegate.md) | Selector-based event delegation |
+| [events/delegate.md](events/delegate.md) | Selector-based event delegation (`composedPath`, attrs/not/key) |
 | [events/once.md](events/once.md) | One-shot and auto-removing listeners |
 | [events/names.md](events/names.md) | Event naming conventions and namespaces |
 | [events/api.md](events/api.md) | Complete API reference |
-| [events/troubleshooting.md](events/troubleshooting.md) | Common problems and how to fix them |
+| [events/troubleshooting.md](events/troubleshooting.md) | Soft-nav orphans, passive defaults, MO thrash |
 
 ---
 

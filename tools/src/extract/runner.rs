@@ -10,7 +10,7 @@ use swc_ecma_ast::*;
 use swc_ecma_parser::{lexer::Lexer, Parser, StringInput, Syntax};
 use swc_ecma_visit::{Visit, VisitWith};
 
-use crate::types::{ExtractedSpec, ParamDecl, PropConfig, QueryDecl, SeoDecl};
+use crate::types::{ExtractedSpec, ParamDecl, PropConfig, QueryDecl, SeoDecl, SsgDecl};
 
 /// Consolidated build compilation stage.
 ///
@@ -56,11 +56,10 @@ pub fn compile(
       );
 
       // 4. Mode A SSG — contentful HTML with open DSD for public routes.
-      //    Production only: overwrites route index.html (and dist/index.html for `/`).
-      //    Requires routes.json (step 2) and copied templates/CSS under dist/src.
-      if strict {
-        crate::build::ssg::emit(src_dir, dist_dir);
-      }
+      //    Runs in build AND dev: otherwise `anza dev` recopies page fragments
+      //    over dist/<route>/index.html and soft-nav/CSR fetch nested docs chrome
+      //    (stacked dock-docs sidebars). emit() preserves fragments as template.html.
+      crate::build::ssg::emit(src_dir, dist_dir);
     }
     Err(diags) => {
       for d in &diags {
@@ -173,7 +172,8 @@ pub fn run(src_dir: &Path, dist_types_dir: &Path) {
   logs::success!("Type augmentation registry updated inside dist/types/index.d.ts");
 
   // Emit routes.json for all specs that declare a url pattern
-  super::routes::emit(&specs, dist_types_dir.parent().unwrap_or(dist_types_dir));
+  let dist_dir = dist_types_dir.parent().unwrap_or(dist_types_dir);
+  super::routes::emit(&specs, dist_dir, src_dir);
 }
 
 fn parse_element_file(file_path: &Path, cm: &Arc<SourceMap>) -> Vec<ExtractedSpec> {
@@ -282,6 +282,7 @@ impl ElementVisitor {
       name: None,
       meta: HashMap::new(),
       seo: None,
+      ssg: None,
       params: Vec::new(),
       query_params: Vec::new(),
       ..Default::default()
@@ -416,6 +417,10 @@ fn parse_spec_object(obj: &ObjectLit, spec: &mut ExtractedSpec) {
           } else if key.sym == "seo" {
             if let Expr::Object(seo_obj) = &*kv.value {
               parse_seo(seo_obj, spec);
+            }
+          } else if key.sym == "ssg" {
+            if let Expr::Object(ssg_obj) = &*kv.value {
+              parse_ssg(ssg_obj, spec);
             }
           } else if key.sym == "params" {
             // `params: [{ name: 'slug', type: String }, ...]`
@@ -684,6 +689,71 @@ fn parse_seo(obj: &ObjectLit, spec: &mut ExtractedSpec) {
     }
   }
   spec.seo = Some(seo);
+}
+
+/// Parses `ssg: { expand: […] }` — build-time parametric route expansion.
+///
+/// Expand entries may be:
+/// - `{ slug: 'foo' }` object maps
+/// - `'foo'` string when the pattern has a single `:param`
+/// - `'/docs/…/foo'` full concrete path (matched against the page pattern later)
+fn parse_ssg(obj: &ObjectLit, spec: &mut ExtractedSpec) {
+  let mut ssg = SsgDecl::default();
+  for prop in &obj.props {
+    if let PropOrSpread::Prop(p) = prop {
+      if let Prop::KeyValue(kv) = &**p {
+        if let PropName::Ident(key) = &kv.key {
+          if key.sym == "expand" {
+            if let Expr::Array(arr) = &*kv.value {
+              for elem in arr.elems.iter().flatten() {
+                if let Some(entry) = parse_expand_entry(&elem.expr) {
+                  ssg.expand.push(entry);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  spec.ssg = Some(ssg);
+}
+
+fn parse_expand_entry(expr: &Expr) -> Option<std::collections::HashMap<String, String>> {
+  match expr {
+    Expr::Object(obj) => {
+      let mut map = std::collections::HashMap::new();
+      for prop in &obj.props {
+        if let PropOrSpread::Prop(p) = prop {
+          if let Prop::KeyValue(kv) = &**p {
+            let key = match &kv.key {
+              PropName::Ident(id) => id.sym.to_string(),
+              PropName::Str(s) => s.value.as_str()?.to_string(),
+              _ => continue,
+            };
+            if let Some(val) = get_string_literal(&kv.value) {
+              map.insert(key, val);
+            } else if let Expr::Lit(Lit::Num(n)) = &*kv.value {
+              map.insert(key, n.value.to_string());
+            }
+          }
+        }
+      }
+      if map.is_empty() {
+        None
+      } else {
+        Some(map)
+      }
+    }
+    Expr::Lit(Lit::Str(s)) => {
+      let v = s.value.as_str()?.to_string();
+      // Shorthand: single bare value OR full concrete path (resolved in routes emit).
+      let mut map = std::collections::HashMap::new();
+      map.insert("__path__".to_string(), v);
+      Some(map)
+    }
+    _ => None,
+  }
 }
 
 fn generate_dts_content(spec: &ExtractedSpec) -> String {

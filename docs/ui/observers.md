@@ -48,6 +48,10 @@ view('lazy-image', {
 
 ## mutation
 
+Safe default is `{ childList: true, subtree: false }`. Prefer component `watch.*` inside a shadow; use `observe.mutation` when you need a raw record stream on an explicit root.
+
+### Simple
+
 ```javascript
 view('live-list', {
   on: {
@@ -58,11 +62,35 @@ view('live-list', {
             console.log('Children changed');
           }
         }
-      }, ctrl.signal, { childList: true, subtree: true });
+      }, ctrl.signal); // childList only, no subtree
     }
   }
 });
 ```
+
+### Advanced
+
+```javascript
+import { observe } from '@adukiorg/anza/ui';
+
+// Narrow attribute watch — always pass attributeFilter when attributes: true
+observe.mutation(panel, (records) => {
+  for (const r of records) {
+    if (r.attributeName === 'open') sync(panel);
+  }
+}, ctrl.signal, {
+  attributes: true,
+  attributeFilter: ['open'],
+  childList: false
+});
+
+// Selector filter inside a shadow (refuses document/body)
+observe.mutation.scoped(el.shadowRoot, '.row', (matched) => {
+  console.log(matched.length, 'row-related records');
+}, ctrl.signal);
+```
+
+Avoid `observe.mutation(document, …, { subtree: true })` from leaf pages — soft-nav will not clean it up unless you pass `{ signal: ctrl.signal }` (and even then, observing `document` from a leaf is an anti-pattern). Prefer parent docks, events, or `watch`.
 
 ---
 

@@ -1,39 +1,14 @@
-<!-- Main Content -->
 <h1>API Reference</h1>
 <p>Complete reference for the router facade and definition layer.</p>
-
-<!-- Router Facade Section -->
+<hr />
 <h2>Router Facade</h2>
 <h3><code>router.register(pattern, handler, meta)</code></h3>
 <p>Register a route. Returns nothing.</p>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Param</th>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>pattern</code></td>
-        <td>string</td>
-        <td>URL pattern or absolute URL</td>
-      </tr>
-      <tr>
-        <td><code>handler</code></td>
-        <td>string | function | object</td>
-        <td>See <a href="/docs/router/handlers">handlers.md</a></td>
-      </tr>
-      <tr>
-        <td><code>meta</code></td>
-        <td>object</td>
-        <td>Optional metadata (<code>container</code>, <code>parent</code>, <code>via</code>)</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+<div class="table-wrap"><table><thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>pattern</code></td><td>string</td><td>URL pattern or absolute URL</td></tr>
+<tr><td><code>handler</code></td><td>string | function | object</td><td>See <a href="/docs/router/handlers">handlers.md</a></td></tr>
+<tr><td><code>meta</code></td><td>object</td><td>Optional metadata (<code>container</code>, <code>parent</code>, <code>via</code>)</td></tr>
+</tbody></table></div>
 <view-code language="javascript">router.register('/', 'page-home');
 router.register('/user/:id', 'page-user', { container: 'main' });
 </view-code>
@@ -48,13 +23,13 @@ router.register('/user/:id', 'page-user', { container: 'main' });
 <h3><code>router.match(url)</code></h3>
 <p>Match a URL against registered routes. Returns a promise resolving to:</p>
 <view-code language="javascript">{
-  route, // matched route entry
-  tag, // resolved element tag (or null for callbacks)
-  params, // route parameters
-  query, // query object
-  hash, // hash string
-  chain, // parent chain array
-  result // URLPattern exec result
+  route,    // matched route entry
+  tag,      // resolved element tag (or null for callbacks)
+  params,   // route parameters
+  query,    // query object
+  hash,     // hash string
+  chain,    // parent chain array
+  result    // URLPattern exec result
 }
 </view-code>
 <p>Returns <code>null</code> on no match.</p>
@@ -138,8 +113,7 @@ router.navigate('/settings', { state: { tab: 'profile' } });
 <p>Attach navigation listeners. Idempotent.</p>
 <h3><code>router.destroy()</code></h3>
 <p>Remove all listeners and reset internal state.</p>
-
-<!-- Definition Layer Section -->
+<hr />
 <h2>Definition Layer</h2>
 <h3><code>page(route, config, base)</code></h3>
 <p>Define a route-bound element.</p>
@@ -152,9 +126,7 @@ router.navigate('/settings', { state: { tab: 'profile' } });
   ]
 }, import.meta.url);
 </view-code>
-<p>Config fields: <code>tag</code>, <code>via</code>, <code>container</code>, <code>template</code>, <code>style</code>,
-  <code>props</code>, <code>params</code>, <code>query</code>, <code>hash</code>, <code>on</code>, <code>guard</code>,
-  <code>meta</code>.</p>
+<p>Config fields: <code>tag</code>, <code>via</code>, <code>container</code>, <code>template</code>, <code>style</code>, <code>props</code>, <code>params</code>, <code>query</code>, <code>hash</code>, <code>on</code>, <code>guard</code>, <code>meta</code>.</p>
 <h3><code>dock(name, config, base)</code></h3>
 <p>Define a persistent container shell.</p>
 <view-code language="javascript">dock('main', {
@@ -164,8 +136,7 @@ router.navigate('/settings', { state: { tab: 'profile' } });
   notfound: '&lt;h1&gt;Page Not Found&lt;/h1&gt;'
 });
 </view-code>
-<p>Config fields: <code>tag</code>, <code>parent</code>, <code>template</code>, <code>style</code>, <code>params</code>,
-  <code>query</code>, <code>on</code>, <code>notfound</code>.</p>
+<p>Config fields: <code>tag</code>, <code>parent</code>, <code>template</code>, <code>style</code>, <code>params</code>, <code>query</code>, <code>on</code>, <code>notfound</code>.</p>
 <p>Default tag: <code>dock-&lt;name&gt;</code>. Default parent: <code>'body'</code>.</p>
 <h3><code>view(tag, config, base)</code></h3>
 <p>Define a stateful component.</p>
@@ -181,8 +152,7 @@ router.navigate('/settings', { state: { tab: 'profile' } });
   template: '&lt;svg&gt;...&lt;/svg&gt;'
 });
 </view-code>
-
-<!-- Internal Exports Section -->
+<hr />
 <h2>Internal Exports</h2>
 <p>For middleware and test utilities:</p>
 <view-code language="javascript">import { register, match, clear, getRoutes, load } from '@adukiorg/anza/router';
@@ -192,3 +162,28 @@ import { gate, boot, ready, reset } from '@adukiorg/anza/router';
 import { isCallback, resolveTag, runCallback } from '@adukiorg/anza/router';
 import { transitions } from '@adukiorg/anza/router';
 </view-code>
+<h3><code>transitions</code></h3>
+<p>Router facade over the UI View Transitions core. Soft-nav docks use <strong>element-scoped</strong> VT via <code>dock.swap</code> / <code>runSwap</code> — never document VT. Use <code>run</code> only for explicit document morphs.</p>
+<view-code language="javascript">import { transitions } from '@adukiorg/anza/router';
+
+transitions.configure({ enabled: true });
+transitions.dockName(null, 'content'); // → 'dock-content'
+await transitions.runSwap(host, () =&gt; host.replaceChildren(leaf), {
+  dockName: 'content',
+  direction: 'push',
+  signal: ctrl.signal
+});
+await transitions.run(() =&gt; panel.replaceChildren(next), {
+  sourceElement: card,
+  name: 'selected-card',
+  signal: ctrl.signal
+});
+</view-code>
+<div class="table-wrap"><table><thead><tr><th>Member</th><th>Role</th></tr></thead><tbody>
+<tr><td><code>configure</code> / <code>getConfig</code></td><td>Global enable + name resolver</td></tr>
+<tr><td><code>runSwap</code></td><td>Element-scoped dock swap (same as <code>ui.runSwapTransition</code>)</td></tr>
+<tr><td><code>run</code></td><td>Document morph + token sheet inject</td></tr>
+<tr><td><code>dockName</code></td><td>Default <code>dock-&lt;registryKey&gt;</code></td></tr>
+<tr><td><code>prefersReducedMotion</code></td><td>Motion preference helper</td></tr>
+</tbody></table></div>
+<p>Full behaviour: <a href="/docs/router/transitions">transitions.md</a>, <a href="/docs/ui/transitions">ui/transitions.md</a>.</p>

@@ -1,106 +1,52 @@
-<!-- Main Content -->
 <h1>Registry</h1>
-<p>
-  The animation registry stores reusable named templates. Built-in presets are registered at module load. You can
-  register your own for consistent animation vocabulary across the app.
-</p>
-
-<!-- Built-in Presets Section -->
+<p>The animation registry stores reusable named templates. Built-in presets are registered at module load. You can register your own for consistent animation vocabulary across the app.</p>
+<hr />
 <h2>Built-In Presets</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Keyframes</th>
-        <th>Default Duration</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>fade</code></td>
-        <td>opacity 0 → 1</td>
-        <td><code>duration('normal')</code></td>
-      </tr>
-      <tr>
-        <td><code>slide</code></td>
-        <td>translateY(20px) → 0</td>
-        <td><code>duration('normal')</code></td>
-      </tr>
-      <tr>
-        <td><code>slide-x</code></td>
-        <td>translateX(20px) → 0</td>
-        <td><code>duration('normal')</code></td>
-      </tr>
-      <tr>
-        <td><code>slide-y</code></td>
-        <td>translateY(20px) → 0</td>
-        <td><code>duration('normal')</code></td>
-      </tr>
-      <tr>
-        <td><code>scale</code></td>
-        <td>scale(0.95) → 1</td>
-        <td><code>duration('normal')</code></td>
-      </tr>
-      <tr>
-        <td><code>zoom</code></td>
-        <td>scale(1.1) → 1</td>
-        <td><code>duration('normal')</code></td>
-      </tr>
-      <tr>
-        <td><code>blur</code></td>
-        <td>blur(8px) → 0</td>
-        <td><code>duration('normal')</code></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Register Template Section -->
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Keyframes</th><th>Default Duration</th></tr></thead><tbody>
+<tr><td><code>fade</code></td><td>opacity 0 → 1</td><td><code>duration('normal')</code></td></tr>
+<tr><td><code>slide</code></td><td>translateY(20px) → 0</td><td><code>duration('normal')</code></td></tr>
+<tr><td><code>slide-x</code></td><td>translateX(20px) → 0</td><td><code>duration('normal')</code></td></tr>
+<tr><td><code>slide-y</code></td><td>translateY(20px) → 0</td><td><code>duration('normal')</code></td></tr>
+<tr><td><code>scale</code></td><td>scale(0.95) → 1</td><td><code>duration('normal')</code></td></tr>
+<tr><td><code>zoom</code></td><td>scale(1.1) → 1</td><td><code>duration('normal')</code></td></tr>
+<tr><td><code>blur</code></td><td>blur(8px) → 0</td><td><code>duration('normal')</code></td></tr>
+</tbody></table></div>
+<hr />
 <h2>Register a Template</h2>
-<view-code language="javascript">
-  import { animations } from '@adukiorg/anza/animations';
+<view-code language="javascript">import { animations } from '@adukiorg/anza/animations';
 
-  animations.register('bounce', [
-    { transform: 'translateY(0)' },
-    { transform: 'translateY(-20px)', offset: 0.5 },
-    { transform: 'translateY(0)' }
-  ], { duration: 500, easing: 'ease-in-out' });
+animations.register('bounce', [
+  { transform: 'translateY(0)' },
+  { transform: 'translateY(-20px)', offset: 0.5 },
+  { transform: 'translateY(0)' }
+], { duration: 500, easing: 'ease-in-out' });
 </view-code>
-
-<!-- Use Template Section -->
+<hr />
 <h2>Use a Registered Template</h2>
-<view-code language="javascript">
-  animations.animate(el, 'bounce');
-  animations.stagger(items, 'bounce', { staggerDelay: 50 });
+<view-code language="javascript">animations.animate(el, 'bounce');
+animations.stagger(items, 'bounce', { staggerDelay: 50 });
 </view-code>
-
-<!-- Override Defaults Section -->
+<hr />
 <h2>Overriding Defaults</h2>
 <p>Options passed to <code>animate</code> or <code>stagger</code> override the template defaults:</p>
-<view-code language="javascript">
-  // Template says 500ms, but we want 200ms
-  animations.animate(el, 'bounce', { duration: 200 });
+<view-code language="javascript">// Template says 500ms, but we want 200ms
+animations.animate(el, 'bounce', { duration: 200 });
 </view-code>
-
-<!-- Clear Templates Section -->
+<hr />
 <h2>Clear Templates</h2>
-<view-code language="javascript">
-  import { registry } from '@adukiorg/anza/animations';
+<view-code language="javascript">import { registry } from '@adukiorg/anza/animations';
 
-  registry.clear();
+registry.clear();
 </view-code>
 <p>This removes all templates including built-ins. Use with caution.</p>
-
-<!-- Direct Registry Access Section -->
+<hr />
 <h2>Direct Registry Access</h2>
-<view-code language="javascript">
-  import { registry } from '@adukiorg/anza/animations';
+<view-code language="javascript">import { registry } from '@adukiorg/anza/animations';
 
-  // Check if a template exists
-  const config = registry.get('fade');
-  console.log(config.keyframes, config.options);
+// Check if a template exists
+const config = registry.get('fade');
+console.log(config.keyframes, config.options);
 
-  // Remove one
-  registry.delete('custom');
+// Remove one
+registry.delete('custom');
 </view-code>

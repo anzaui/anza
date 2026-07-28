@@ -72,6 +72,14 @@ import { guard } from '@adukiorg/anza/platform';
 
 ---
 
+## Floating tip clipped by `overflow: hidden`
+
+**Cause:** Absolute CSS positioning inside a clipping ancestor, or missing Popover / escape helper.
+
+**Fix:** Use `ui-tooltip`, or `await guard.escape(float, anchor, opts)` / `escapeOverflow` so the tip uses Popover top-layer (or viewport-fixed fallback). Ensure `[popover]` is set when you want the popover strategy; call `await guard.popover()` before sync `escapeOverflow` in older browsers. See [guards.md#escape](guards.md#escape) and [Overlay patterns](../elements/overlay.md).
+
+---
+
 ## Still stuck?
 
 Inspect the full capability matrix:

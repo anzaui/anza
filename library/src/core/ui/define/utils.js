@@ -77,7 +77,7 @@ export async function preloadResources(tag, styleUrls, templateUrl, inlineTempla
         const res = await fetch(templateUrl);
         if (res.ok) {
           const html = await res.text();
-          templateNode = createTemplateFragment(html);
+          templateNode = createTemplateFragment(sanitizeTemplateHtml(html, tag));
           assetCache.set(templateUrl, templateNode);
         }
       } catch (err) {
@@ -145,6 +145,45 @@ export function createTemplateFragment(htmlString) {
     tpl.innerHTML = htmlString;
   }
   return tpl.content;
+}
+
+/**
+ * Guard against SSG documents being fetched as page templates.
+ * When `./index.html` collides with Mode A SSG output, CSR would nest
+ * `dock-docs` chrome inside the leaf shadow (stacked sidebars). Prefer the
+ * leaf host's open-DSD body when present; otherwise refuse the document shell.
+ *
+ * @param {string} html
+ * @param {string} [tag]
+ * @returns {string}
+ */
+export function sanitizeTemplateHtml(html, tag) {
+  const trimmed = typeof html === 'string' ? html.trim() : '';
+  if (!trimmed) return '';
+  const looksLikeDocument =
+    /^<!DOCTYPE/i.test(trimmed) ||
+    /^<html[\s>]/i.test(trimmed) ||
+    /<dock-main[\s>]/i.test(trimmed) ||
+    /<dock-docs[\s>]/i.test(trimmed);
+  if (!looksLikeDocument) return html;
+
+  if (tag && tag.includes('-')) {
+    const re = new RegExp(
+      `<${tag}[^>]*>\\s*<template[^>]*shadowrootmode=["']open["'][^>]*>([\\s\\S]*?)</template>`,
+      'i'
+    );
+    const m = trimmed.match(re);
+    if (m) {
+      // Drop the leaf's own <style> block(s) — page CSS is loaded via style URLs.
+      return m[1].replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '').trim();
+    }
+  }
+
+  console.error(
+    `[Native UI] Refusing full HTML document as template for <${tag || 'unknown'}> — ` +
+      `SSG index.html must not collide with the CSR fragment path.`
+  );
+  return '';
 }
 
 function escapeAttrValue(value) {

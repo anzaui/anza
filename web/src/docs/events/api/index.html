@@ -1,58 +1,63 @@
-<!-- Main Content -->
 <h1>API Reference</h1>
 <p>Complete reference for the events facade and internal utilities.</p>
-
-<!-- Facade Section -->
+<hr />
 <h2>Facade</h2>
 <view-code language="javascript">import { events } from '@adukiorg/anza/events';
 </view-code>
-
 <h3><code>events.on(type, handler, signal)</code></h3>
 <p>Subscribe to the global event bus. Returns a disposer.</p>
-<view-code language="javascript">const off = events.on('update', (e) => { ... });
+<view-code language="javascript">const off = events.on('update', (e) =&gt; { ... });
 off(); // remove
 </view-code>
-
 <h3><code>events.emit(type, detail)</code></h3>
 <p>Emit a global event.</p>
 <view-code language="javascript">events.emit('update', { value: 42 });
 </view-code>
-
 <h3><code>events.listen(target, type, handler, options)</code></h3>
 <p>Memory-safe DOM listener. Returns a disposer.</p>
 <view-code language="javascript">const off = events.listen(el, 'click', handler, { signal: ctrl.signal });
 </view-code>
-
 <h3><code>events.delegate(root, selector, type, handler, options)</code></h3>
-<p>Shadow-aware event delegation. Returns a disposer.</p>
-<view-code language="javascript">const off = events.delegate(document.body, '.btn', 'click', handler);
+<p>Shadow-aware event delegation via <code>composedPath()</code>. Options include <code>signal</code>, <code>attrs</code>, <code>not</code>, <code>key</code>, <code>scope</code>. Returns a disposer.</p>
+<view-code language="javascript">const off = events.delegate(document.body, '.btn', 'click', handler, {
+  signal: ctrl.signal,
+  attrs: { 'data-action': 'save' },
+  not: '.ignore',
+  key: 'save'
+});
 </view-code>
-
 <h3><code>events.once(target, type, options)</code></h3>
 <p>Promise-wrapped single event.</p>
 <view-code language="javascript">const event = await events.once(document, 'click');
 </view-code>
-
 <h3><code>events.names</code></h3>
 <p>System event name constants:</p>
-<view-code language="javascript">events.names.auth.signedin // 'auth:signedin'
-events.names.auth.signedout // 'auth:signedout'
-events.names.auth.refreshed // 'auth:refreshed'
-events.names.connectivity.online // 'connectivity:online'
+<view-code language="javascript">events.names.auth.signedin       // 'auth:signedin'
+events.names.auth.signedout      // 'auth:signedout'
+events.names.auth.refreshed      // 'auth:refreshed'
+events.names.connectivity.online  // 'connectivity:online'
 events.names.connectivity.offline // 'connectivity:offline'
 events.names.preference.changed // 'preference:changed'
-events.names.sw.updated // 'sw:updated'
-events.names.sw.message // 'sw:message'
+events.names.sw.updated          // 'sw:updated'
+events.names.sw.message          // 'sw:message'
 </view-code>
-
-<!-- Named Exports Section -->
+<hr />
 <h2>Named Exports</h2>
-<view-code language="javascript">import { bus, EventBus, delegate, once, listen, names } from '@adukiorg/anza/events';
+<view-code language="javascript">import {
+  bus,
+  EventBus,
+  delegate,
+  once,
+  listen,
+  names,
+  matchInComposedPath,
+  matchesAttrs,
+  PASSIVE_DEFAULT_TYPES,
+  resolvePassiveDefault
+} from '@adukiorg/anza/events';
 </view-code>
-
 <h3><code>bus</code></h3>
 <p>Global <code>EventBus</code> instance.</p>
-
 <h3><code>EventBus</code></h3>
 <p>Class extending <code>EventTarget</code>:</p>
 <view-code language="javascript">const myBus = new EventBus();
@@ -60,62 +65,67 @@ myBus.on('event', handler);
 myBus.emit('event', detail);
 </view-code>
 <p>Methods: <code>on(type, fn, signal)</code>, <code>emit(type, detail)</code>.</p>
-
 <h3><code>delegate(root, selector, type, handler, options)</code></h3>
 <p>Shadow-aware event delegation. Returns disposer.</p>
-
 <h3><code>listen(target, type, handler, options)</code></h3>
 <p>Memory-safe listener. Returns disposer.</p>
-
 <h3><code>once(target, type, options)</code></h3>
 <p>Promise-wrapped single event. Returns <code>Promise&lt;Event&gt;</code>.</p>
-
 <h3><code>names</code></h3>
 <p>System event constants object.</p>
+<h3>Matcher helpers (<code>match.js</code>)</h3>
+<p>Shared by <code>events.delegate</code> and component <code>on</code>. Prefer the high-level APIs; import these only for custom roots or tests:</p>
+<view-code language="javascript">import {
+  matchInComposedPath,
+  matchesAttrs,
+  PASSIVE_DEFAULT_TYPES,
+  resolvePassiveDefault
+} from '@adukiorg/anza/events';
 
-<!-- Listener Options Section -->
+const el = matchInComposedPath(event, '.btn', root, 'path'); // 'path' | 'shadow' | 'assigned'
+matchesAttrs(el, { 'data-action': 'save', 'aria-disabled': null }); // null = must be absent
+resolvePassiveDefault('touchmove', undefined); // true — touch/wheel/mousewheel only
+PASSIVE_DEFAULT_TYPES.has('wheel'); // true
+</view-code>
+<div class="table-wrap"><table><thead><tr><th>Export</th><th>Role</th></tr></thead><tbody>
+<tr><td><code>matchInComposedPath(event, selector, root, scope?)</code></td><td>First matching element in <code>composedPath()</code> before <code>root</code></td></tr>
+<tr><td><code>matchesAttrs(element, attrs)</code></td><td>Attribute predicates (<code>null</code> = absent)</td></tr>
+<tr><td><code>PASSIVE_DEFAULT_TYPES</code></td><td><code>Set</code> of scroll-critical event type strings</td></tr>
+<tr><td><code>resolvePassiveDefault(type, optionsPassive?)</code></td><td>Passive default aligned with <code>listen</code> / <code>on</code></td></tr>
+</tbody></table></div>
+<hr />
 <h2>Listener Options</h2>
-<p>All listener functions accept standard <code>addEventListener</code> options:</p>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Option</th>
-        <th>Type</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>signal</code></td>
-        <td>AbortSignal</td>
-        <td>Auto-cleanup on abort</td>
-      </tr>
-      <tr>
-        <td><code>capture</code></td>
-        <td>boolean</td>
-        <td>Capture phase</td>
-      </tr>
-      <tr>
-        <td><code>once</code></td>
-        <td>boolean</td>
-        <td>Fire once (native, not the <code>once()</code> function)</td>
-      </tr>
-      <tr>
-        <td><code>passive</code></td>
-        <td>boolean</td>
-        <td>Cannot call preventDefault</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Event Payload Section -->
+<p>All listener functions accept standard <code>addEventListener</code> options. <code>delegate</code> also accepts precision helpers:</p>
+<div class="table-wrap"><table><thead><tr><th>Option</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>signal</code></td><td>AbortSignal</td><td>Auto-cleanup on abort</td></tr>
+<tr><td><code>capture</code></td><td>boolean</td><td>Capture phase</td></tr>
+<tr><td><code>once</code></td><td>boolean</td><td>Fire once (native, not the <code>once()</code> function)</td></tr>
+<tr><td><code>passive</code></td><td>boolean</td><td>Cannot call preventDefault; <code>listen</code> defaults true for touch/wheel only</td></tr>
+<tr><td><code>attrs</code></td><td>object</td><td>(<code>delegate</code> / component <code>on</code>) attribute predicates; <code>null</code> = must be absent</td></tr>
+<tr><td><code>not</code></td><td>string</td><td>(<code>delegate</code> / <code>on</code>) skip when <code>closest(not)</code> is inside the root</td></tr>
+<tr><td><code>key</code></td><td>string|number</td><td>(<code>delegate</code> / <code>on</code>) dedupe — same key replaces prior registration</td></tr>
+<tr><td><code>scope</code></td><td>string</td><td>(<code>delegate</code>: <code>'path'</code> | <code>'assigned'</code>; component <code>on</code>: <code>'shadow'</code> | <code>'assigned'</code>)</td></tr>
+</tbody></table></div>
+<h3><code>events.delegate</code> precision (simple)</h3>
+<view-code language="javascript">events.delegate(root, '.btn', 'click', handler);
+</view-code>
+<h3>Advanced</h3>
+<view-code language="javascript">events.delegate(root, '.btn', 'click', handler, {
+  signal: ctrl.signal,
+  attrs: { 'data-action': 'save', 'aria-disabled': null },
+  not: '.ignore',
+  key: 'toolbar-save',
+  scope: 'assigned'
+});
+</view-code>
+<p>Matching walks <code>composedPath()</code> and stops at <code>root</code>. See <a href="/docs/events/delegate">delegate.md</a>.</p>
+<p>Component shadow delegation lives on context <code>on</code> — <a href="../ui/context.md#on">ui/context.md</a> — with the same <code>attrs</code> / <code>not</code> / <code>key</code> options and empty-registry teardown.</p>
+<hr />
 <h2>Event Payload</h2>
 <p>Bus and emit listeners receive a <code>CustomEvent</code>:</p>
 <view-code language="javascript">{
-  type: string, // event name
-  detail: any, // payload passed to emit
+  type: string,    // event name
+  detail: any,     // payload passed to emit
   bubbles: boolean, // false for bus events
   composed: boolean // false for bus events
 }

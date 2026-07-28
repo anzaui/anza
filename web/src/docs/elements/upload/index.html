@@ -1,0 +1,38 @@
+<h1>Upload</h1>
+<p>Drag-and-drop file picker with optional progress-tracked upload via the core upload API.</p>
+<p><strong>Tag:</strong> <code>ui-upload</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/upload</code></p>
+<hr />
+<h2>Import</h2>
+<view-code language="javascript">import '@adukiorg/anza/elements/upload';
+</view-code>
+<hr />
+<h2>Basic usage</h2>
+<view-code language="html">&lt;ui-upload accept="image/*" multiple&gt;&lt;/ui-upload&gt;
+&lt;ui-upload url="/api/upload" accept=".pdf"&gt;&lt;/ui-upload&gt;
+</view-code>
+<hr />
+<h2>Props</h2>
+<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>url</code></td><td>String</td><td>Reflect</td><td>Upload endpoint; when unset, only <code>selected</code> fires</td></tr>
+<tr><td><code>multiple</code></td><td>Boolean</td><td>Reflect</td><td>Allow multiple files</td></tr>
+<tr><td><code>accept</code></td><td>String</td><td>Reflect</td><td>Forwarded to the hidden file input</td></tr>
+</tbody></table></div>
+<h2>Events</h2>
+<div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody>
+<tr><td><code>selected</code></td><td>Files chosen with no <code>url</code> — <code>detail.files</code></td></tr>
+<tr><td><code>progress</code></td><td>Upload progress from the core upload helper</td></tr>
+<tr><td><code>success</code></td><td>Upload completed — <code>detail.files</code></td></tr>
+<tr><td><code>error</code></td><td>Upload failed — <code>detail</code> is the error</td></tr>
+</tbody></table></div>
+<h2>Notes</h2>
+<p>Click or drop onto the dropzone. With <code>url</code>, files are posted as <code>FormData</code> (<code>files</code> field) with progress UI.</p>
+<h3>Lifecycle / memory</h3>
+<p>Dropzone and upload work use the element <code>ctrl.signal</code> so disconnect / soft-nav aborts in-flight requests and removes listeners. Prefer that pattern over raw <code>document</code> drag listeners. See <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a> and <a href="/docs/events/troubleshooting">Orphan listeners after soft-nav</a>.</p>
+<hr />
+<h2>Related</h2>
+<ul>
+<li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="/docs/elements/forms">Forms</a></li>
+<li><a href="/docs/ui/advanced">Memory safety &amp; framework globals</a></li>
+<li><a href="../../plans/ELEMENTS.md">Planning: ELEMENTS.md</a></li>
+</ul>

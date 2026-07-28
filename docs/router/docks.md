@@ -104,6 +104,14 @@ The `contain: layout` declaration is required for element-scoped view transition
 
 ---
 
+## Soft-nav persistence
+
+On soft navigation within the same `via` chain, parent docks stay mounted. Only the leaf page inside the innermost dock is swapped. That is what keeps docs chrome (sidebar, header) alive while page content changes.
+
+For Mode A SSG / Mode B HTML, nested docks and the page leaf must be **light-DOM children** after each host’s `<template shadowrootmode="open">` — never baked inside the parent shadow template. Registry key `content` often maps to tag `dock-doccontent` (not `dock-content`). See [ssg/contract.md](../ssg/contract.md) and [ui/hydration.md](../ui/hydration.md).
+
+---
+
 ## Swap Method
 
 Docks expose a `swap` method that replaces child content under a view transition:
@@ -112,18 +120,21 @@ Docks expose a `swap` method that replaces child content under a view transition
 await dockElement.swap(newElement, { direction: 'push' });
 ```
 
-The swap strategy:
+The swap strategy (element-scoped only — **never** document VT for docks):
 
-1. Abort any in-flight transition on this dock (prevents half-finished animations on rapid navigation)
-2. Try element-scoped `startViewTransition` (Chrome 147+, concurrent-safe)
-3. Fall back to `document.startViewTransition`
-4. Fall back to synchronous `replaceChildren`
+1. Abort / skip any in-flight transition on this dock (rapid nav must not leave a half-finished animation)
+2. Try `host.startViewTransition` when `supports.elementViewTransitions` (Chrome 147+)
+3. Otherwise **direct** `replaceChildren` (no `document.startViewTransition` — that would snapshot sidebar/header)
 
-The `direction` option (`'push'`, `'replace'`, `'back'`, `'forward'`) is exposed as a dataset attribute for CSS directional transitions:
+Opt out with `dock(..., { transition: false })`, `swap(..., { transition: false })`, `configureTransitions({ enabled: false })`, or reduced-motion. Pass `{ signal }` so soft-nav abort calls `skipTransition` and clears names.
+
+The `direction` option (`'push'`, `'pop'`, `'replace'`; `'back'` is treated like `'pop'` for easing) is exposed as `data-transition-direction` for CSS:
 
 ```css
-:host([data-transition-direction="back"]) { ... }
+:host([data-transition-direction="pop"]) { ... }
 ```
+
+See [router/transitions.md](transitions.md) and [ui/transitions.md](../ui/transitions.md).
 
 ---
 

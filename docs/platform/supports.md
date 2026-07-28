@@ -30,6 +30,8 @@ The `supports` object contains 30+ lazy-evaluated boolean flags for browser capa
 | `supports.popoverAPI` | `popover` on `HTMLElement.prototype` |
 | `supports.anchorPositioning` | `CSS.supports('anchor-name', '--a')` |
 
+Used by `guard.popover`, `guard.anchor`, and `guard.escape` / `escapeOverflow` (floating UI). See [guards.md](guards.md) and [Overlay patterns](../elements/overlay.md).
+
 ---
 
 ## Animation
@@ -37,6 +39,7 @@ The `supports` object contains 30+ lazy-evaluated boolean flags for browser capa
 | Flag | Detects |
 | ------ | --------- |
 | `supports.viewTransitions` | `document.startViewTransition` |
+| `supports.elementViewTransitions` | `Element.prototype.startViewTransition` (dock-scoped) |
 | `supports.scrollTimeline` | `ScrollTimeline` in window |
 | `supports.viewTimeline` | `ViewTimeline` in window |
 

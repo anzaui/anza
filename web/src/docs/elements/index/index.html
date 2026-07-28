@@ -1,0 +1,147 @@
+<h1>Elements</h1>
+<p>Shipped custom element kit under <code>library/src/elements/</code>. These are ready-made <code>ui-*</code> components — distinct from the <a href="/docs/ui/elements"><code>element()</code> factory docs</a>.</p>
+<p>Import one element (registers the custom element as a side effect) or the full barrel:</p>
+<view-code language="javascript">import '@adukiorg/anza/elements/button';
+// or
+import '@adukiorg/anza/elements';
+</view-code>
+<p>Paths resolve via the package import map (<code>library/importmap.json</code>): <code>@adukiorg/anza/elements/&lt;name&gt;</code> → <code>/elements/&lt;category&gt;/&lt;name&gt;/index.js</code>.</p>
+<hr />
+<h2>Categories</h2>
+<div class="table-wrap"><table><thead><tr><th>Category</th><th>Overview</th></tr></thead><tbody>
+<tr><td><a href="/docs/elements/primitives">Primitives</a></td><td>Buttons, icons, text, badges, …</td></tr>
+<tr><td><a href="/docs/elements/forms">Forms</a></td><td>Input, select, checkbox, field, …</td></tr>
+<tr><td><a href="/docs/elements/overlay">Overlay</a></td><td>Dialog, drawer, menu, tooltip, …</td></tr>
+<tr><td><a href="/docs/elements/feedback">Feedback</a></td><td>Alert, toast, progress, skeleton, …</td></tr>
+<tr><td><a href="/docs/elements/data">Data</a></td><td>Table, list, card, chart, stat</td></tr>
+<tr><td><a href="/docs/elements/navigation">Navigation</a></td><td>Tabs, nav, breadcrumb, pagination, steps</td></tr>
+<tr><td><a href="/docs/elements/layout">Layout</a></td><td>App, header, sidebar, stack, grid, …</td></tr>
+</tbody></table></div>
+<hr />
+<h2>Full reference</h2>
+<h3>Phase 1</h3>
+<div class="table-wrap"><table><thead><tr><th>Element</th><th>Route</th></tr></thead><tbody>
+<tr><td><a href="/docs/elements/button">Button</a></td><td><code>/docs/elements/button</code></td></tr>
+<tr><td><a href="/docs/elements/input">Input</a></td><td><code>/docs/elements/input</code></td></tr>
+<tr><td><a href="/docs/elements/dialog">Dialog</a></td><td><code>/docs/elements/dialog</code></td></tr>
+<tr><td><a href="/docs/elements/alert">Alert</a></td><td><code>/docs/elements/alert</code></td></tr>
+<tr><td><a href="/docs/elements/tabs">Tabs</a></td><td><code>/docs/elements/tabs</code></td></tr>
+</tbody></table></div>
+<h3>Phase 2 — Primitives + forms</h3>
+<div class="table-wrap"><table><thead><tr><th>Element</th><th>Route</th></tr></thead><tbody>
+<tr><td><a href="/docs/elements/icon">Icon</a></td><td><code>/docs/elements/icon</code></td></tr>
+<tr><td><a href="/docs/elements/badge">Badge</a></td><td><code>/docs/elements/badge</code></td></tr>
+<tr><td><a href="/docs/elements/avatar">Avatar</a></td><td><code>/docs/elements/avatar</code></td></tr>
+<tr><td><a href="/docs/elements/divider">Divider</a></td><td><code>/docs/elements/divider</code></td></tr>
+<tr><td><a href="/docs/elements/text">Text</a></td><td><code>/docs/elements/text</code></td></tr>
+<tr><td><a href="/docs/elements/link">Link</a></td><td><code>/docs/elements/link</code></td></tr>
+<tr><td><a href="/docs/elements/spinner">Spinner</a></td><td><code>/docs/elements/spinner</code></td></tr>
+<tr><td><a href="/docs/elements/textarea">Textarea</a></td><td><code>/docs/elements/textarea</code></td></tr>
+<tr><td><a href="/docs/elements/select">Select</a></td><td><code>/docs/elements/select</code></td></tr>
+<tr><td><a href="/docs/elements/checkbox">Checkbox</a></td><td><code>/docs/elements/checkbox</code></td></tr>
+<tr><td><a href="/docs/elements/radio">Radio</a></td><td><code>/docs/elements/radio</code></td></tr>
+<tr><td><a href="/docs/elements/toggle">Toggle</a></td><td><code>/docs/elements/toggle</code></td></tr>
+<tr><td><a href="/docs/elements/field">Field</a></td><td><code>/docs/elements/field</code></td></tr>
+<tr><td><a href="/docs/elements/upload">Upload</a></td><td><code>/docs/elements/upload</code></td></tr>
+<tr><td><a href="/docs/elements/form">Form</a></td><td><code>/docs/elements/form</code></td></tr>
+</tbody></table></div>
+<h3>Phase 3 — Feedback</h3>
+<div class="table-wrap"><table><thead><tr><th>Element</th><th>Route</th></tr></thead><tbody>
+<tr><td><a href="/docs/elements/toast">Toast</a></td><td><code>/docs/elements/toast</code></td></tr>
+<tr><td><a href="/docs/elements/progress">Progress</a></td><td><code>/docs/elements/progress</code></td></tr>
+<tr><td><a href="/docs/elements/skeleton">Skeleton</a></td><td><code>/docs/elements/skeleton</code></td></tr>
+<tr><td><a href="/docs/elements/empty">Empty</a></td><td><code>/docs/elements/empty</code></td></tr>
+</tbody></table></div>
+<h3>Overlay kit (Full)</h3>
+<div class="table-wrap"><table><thead><tr><th>Element</th><th>Route</th></tr></thead><tbody>
+<tr><td><a href="/docs/elements/popover">Popover</a></td><td><code>/docs/elements/popover</code></td></tr>
+<tr><td><a href="/docs/elements/tooltip">Tooltip</a></td><td><code>/docs/elements/tooltip</code></td></tr>
+<tr><td><a href="/docs/elements/menu">Menu</a></td><td><code>/docs/elements/menu</code></td></tr>
+<tr><td><a href="/docs/elements/drawer">Drawer</a></td><td><code>/docs/elements/drawer</code></td></tr>
+<tr><td><a href="/docs/elements/sheet">Sheet</a></td><td><code>/docs/elements/sheet</code></td></tr>
+</tbody></table></div>
+<p>Architecture: <a href="/docs/elements/overlay">Overlay patterns</a>. Tooltip escape uses <code>escapeOverflow</code> / <code>guard.escape</code> (<a href="../../plans/ELEMENTS.md">plans/ELEMENTS.md</a>).</p>
+<h3>Phase 4 — Data + navigation + layout</h3>
+<div class="table-wrap"><table><thead><tr><th>Element</th><th>Route</th></tr></thead><tbody>
+<tr><td><a href="/docs/elements/table">Table</a></td><td><code>/docs/elements/table</code></td></tr>
+<tr><td><a href="/docs/elements/list">List</a></td><td><code>/docs/elements/list</code></td></tr>
+<tr><td><a href="/docs/elements/card">Card</a></td><td><code>/docs/elements/card</code></td></tr>
+<tr><td><a href="/docs/elements/chart">Chart</a></td><td><code>/docs/elements/chart</code></td></tr>
+<tr><td><a href="/docs/elements/stat">Stat</a></td><td><code>/docs/elements/stat</code></td></tr>
+<tr><td><a href="/docs/elements/nav">Nav</a></td><td><code>/docs/elements/nav</code></td></tr>
+<tr><td><a href="/docs/elements/breadcrumb">Breadcrumb</a></td><td><code>/docs/elements/breadcrumb</code></td></tr>
+<tr><td><a href="/docs/elements/pagination">Pagination</a></td><td><code>/docs/elements/pagination</code></td></tr>
+<tr><td><a href="/docs/elements/steps">Steps</a></td><td><code>/docs/elements/steps</code></td></tr>
+<tr><td><a href="/docs/elements/app">App</a></td><td><code>/docs/elements/app</code></td></tr>
+<tr><td><a href="/docs/elements/header">Header</a></td><td><code>/docs/elements/header</code></td></tr>
+<tr><td><a href="/docs/elements/sidebar">Sidebar</a></td><td><code>/docs/elements/sidebar</code></td></tr>
+<tr><td><a href="/docs/elements/stack">Stack</a></td><td><code>/docs/elements/stack</code></td></tr>
+<tr><td><a href="/docs/elements/grid">Grid</a></td><td><code>/docs/elements/grid</code></td></tr>
+<tr><td><a href="/docs/elements/split">Split</a></td><td><code>/docs/elements/split</code></td></tr>
+<tr><td><a href="/docs/elements/scroll">Scroll</a></td><td><code>/docs/elements/scroll</code></td></tr>
+<tr><td><a href="/docs/elements/surface">Surface</a></td><td><code>/docs/elements/surface</code></td></tr>
+</tbody></table></div>
+<hr />
+<h2>Inventory</h2>
+<div class="table-wrap"><table><thead><tr><th>Category</th><th>Element</th><th>Tag</th><th>Import</th><th>Status</th></tr></thead><tbody>
+<tr><td>primitives</td><td><a href="/docs/elements/button">button</a></td><td><code>ui-button</code></td><td><code>@adukiorg/anza/elements/button</code></td><td>Full</td></tr>
+<tr><td>primitives</td><td><a href="/docs/elements/icon">icon</a></td><td><code>ui-icon</code></td><td><code>@adukiorg/anza/elements/icon</code></td><td>Full</td></tr>
+<tr><td>primitives</td><td><a href="/docs/elements/badge">badge</a></td><td><code>ui-badge</code></td><td><code>@adukiorg/anza/elements/badge</code></td><td>Full</td></tr>
+<tr><td>primitives</td><td><a href="/docs/elements/avatar">avatar</a></td><td><code>ui-avatar</code></td><td><code>@adukiorg/anza/elements/avatar</code></td><td>Full</td></tr>
+<tr><td>primitives</td><td><a href="/docs/elements/divider">divider</a></td><td><code>ui-divider</code></td><td><code>@adukiorg/anza/elements/divider</code></td><td>Full</td></tr>
+<tr><td>primitives</td><td><a href="/docs/elements/text">text</a></td><td><code>ui-text</code></td><td><code>@adukiorg/anza/elements/text</code></td><td>Full</td></tr>
+<tr><td>primitives</td><td><a href="/docs/elements/link">link</a></td><td><code>ui-link</code></td><td><code>@adukiorg/anza/elements/link</code></td><td>Full</td></tr>
+<tr><td>primitives</td><td><a href="/docs/elements/spinner">spinner</a></td><td><code>ui-spinner</code></td><td><code>@adukiorg/anza/elements/spinner</code></td><td>Full</td></tr>
+<tr><td>forms</td><td><a href="/docs/elements/input">input</a></td><td><code>ui-input</code></td><td><code>@adukiorg/anza/elements/input</code></td><td>Full</td></tr>
+<tr><td>forms</td><td><a href="/docs/elements/textarea">textarea</a></td><td><code>ui-textarea</code></td><td><code>@adukiorg/anza/elements/textarea</code></td><td>Full</td></tr>
+<tr><td>forms</td><td><a href="/docs/elements/select">select</a></td><td><code>ui-select</code></td><td><code>@adukiorg/anza/elements/select</code></td><td>Full</td></tr>
+<tr><td>forms</td><td><a href="/docs/elements/checkbox">checkbox</a></td><td><code>ui-checkbox</code></td><td><code>@adukiorg/anza/elements/checkbox</code></td><td>Full</td></tr>
+<tr><td>forms</td><td><a href="/docs/elements/radio">radio</a></td><td><code>ui-radio</code></td><td><code>@adukiorg/anza/elements/radio</code></td><td>Full</td></tr>
+<tr><td>forms</td><td><a href="/docs/elements/toggle">toggle</a></td><td><code>ui-toggle</code></td><td><code>@adukiorg/anza/elements/toggle</code></td><td>Full</td></tr>
+<tr><td>forms</td><td><a href="/docs/elements/field">field</a></td><td><code>ui-field</code></td><td><code>@adukiorg/anza/elements/field</code></td><td>Full</td></tr>
+<tr><td>forms</td><td><a href="/docs/elements/upload">upload</a></td><td><code>ui-upload</code></td><td><code>@adukiorg/anza/elements/upload</code></td><td>Full</td></tr>
+<tr><td>forms</td><td><a href="/docs/elements/form">form</a></td><td><code>ui-form</code></td><td><code>@adukiorg/anza/elements/form</code></td><td>Full</td></tr>
+<tr><td>overlay</td><td><a href="/docs/elements/dialog">dialog</a></td><td><code>ui-dialog</code></td><td><code>@adukiorg/anza/elements/dialog</code></td><td>Full</td></tr>
+<tr><td>overlay</td><td><a href="/docs/elements/popover">popover</a></td><td><code>ui-popover</code></td><td><code>@adukiorg/anza/elements/popover</code></td><td>Full</td></tr>
+<tr><td>overlay</td><td><a href="/docs/elements/tooltip">tooltip</a></td><td><code>ui-tooltip</code></td><td><code>@adukiorg/anza/elements/tooltip</code></td><td>Full</td></tr>
+<tr><td>overlay</td><td><a href="/docs/elements/menu">menu</a></td><td><code>ui-menu</code></td><td><code>@adukiorg/anza/elements/menu</code></td><td>Full</td></tr>
+<tr><td>overlay</td><td><a href="/docs/elements/drawer">drawer</a></td><td><code>ui-drawer</code></td><td><code>@adukiorg/anza/elements/drawer</code></td><td>Full</td></tr>
+<tr><td>overlay</td><td><a href="/docs/elements/sheet">sheet</a></td><td><code>ui-sheet</code></td><td><code>@adukiorg/anza/elements/sheet</code></td><td>Full</td></tr>
+<tr><td>feedback</td><td><a href="/docs/elements/alert">alert</a></td><td><code>ui-alert</code></td><td><code>@adukiorg/anza/elements/alert</code></td><td>Full</td></tr>
+<tr><td>feedback</td><td><a href="/docs/elements/toast">toast</a></td><td><code>ui-toast</code></td><td><code>@adukiorg/anza/elements/toast</code></td><td>Full</td></tr>
+<tr><td>feedback</td><td><a href="/docs/elements/progress">progress</a></td><td><code>ui-progress</code></td><td><code>@adukiorg/anza/elements/progress</code></td><td>Full</td></tr>
+<tr><td>feedback</td><td><a href="/docs/elements/skeleton">skeleton</a></td><td><code>ui-skeleton</code></td><td><code>@adukiorg/anza/elements/skeleton</code></td><td>Full</td></tr>
+<tr><td>feedback</td><td><a href="/docs/elements/empty">empty</a></td><td><code>ui-empty</code></td><td><code>@adukiorg/anza/elements/empty</code></td><td>Full</td></tr>
+<tr><td>data</td><td><a href="/docs/elements/table">table</a></td><td><code>ui-table</code></td><td><code>@adukiorg/anza/elements/table</code></td><td>Full</td></tr>
+<tr><td>data</td><td><a href="/docs/elements/list">list</a></td><td><code>ui-list</code></td><td><code>@adukiorg/anza/elements/list</code></td><td>Full</td></tr>
+<tr><td>data</td><td><a href="/docs/elements/card">card</a></td><td><code>ui-card</code></td><td><code>@adukiorg/anza/elements/card</code></td><td>Full</td></tr>
+<tr><td>data</td><td><a href="/docs/elements/chart">chart</a></td><td><code>ui-chart</code></td><td><code>@adukiorg/anza/elements/chart</code></td><td>Full</td></tr>
+<tr><td>data</td><td><a href="/docs/elements/stat">stat</a></td><td><code>ui-stat</code></td><td><code>@adukiorg/anza/elements/stat</code></td><td>Full</td></tr>
+<tr><td>navigation</td><td><a href="/docs/elements/nav">nav</a></td><td><code>ui-nav</code></td><td><code>@adukiorg/anza/elements/nav</code></td><td>Full</td></tr>
+<tr><td>navigation</td><td><a href="/docs/elements/tabs">tabs</a></td><td><code>ui-tabs</code></td><td><code>@adukiorg/anza/elements/tabs</code></td><td>Full</td></tr>
+<tr><td>navigation</td><td><a href="/docs/elements/breadcrumb">breadcrumb</a></td><td><code>ui-breadcrumb</code></td><td><code>@adukiorg/anza/elements/breadcrumb</code></td><td>Full</td></tr>
+<tr><td>navigation</td><td><a href="/docs/elements/pagination">pagination</a></td><td><code>ui-pagination</code></td><td><code>@adukiorg/anza/elements/pagination</code></td><td>Full</td></tr>
+<tr><td>navigation</td><td><a href="/docs/elements/steps">steps</a></td><td><code>ui-steps</code></td><td><code>@adukiorg/anza/elements/steps</code></td><td>Full</td></tr>
+<tr><td>layout</td><td><a href="/docs/elements/app">app</a></td><td><code>ui-app</code></td><td><code>@adukiorg/anza/elements/app</code></td><td>Full</td></tr>
+<tr><td>layout</td><td><a href="/docs/elements/header">header</a></td><td><code>ui-header</code></td><td><code>@adukiorg/anza/elements/header</code></td><td>Full</td></tr>
+<tr><td>layout</td><td><a href="/docs/elements/sidebar">sidebar</a></td><td><code>ui-sidebar</code></td><td><code>@adukiorg/anza/elements/sidebar</code></td><td>Full</td></tr>
+<tr><td>layout</td><td><a href="/docs/elements/stack">stack</a></td><td><code>ui-stack</code></td><td><code>@adukiorg/anza/elements/stack</code></td><td>Full</td></tr>
+<tr><td>layout</td><td><a href="/docs/elements/grid">grid</a></td><td><code>ui-grid</code></td><td><code>@adukiorg/anza/elements/grid</code></td><td>Full</td></tr>
+<tr><td>layout</td><td><a href="/docs/elements/split">split</a></td><td><code>ui-split</code></td><td><code>@adukiorg/anza/elements/split</code></td><td>Full</td></tr>
+<tr><td>layout</td><td><a href="/docs/elements/scroll">scroll</a></td><td><code>ui-scroll</code></td><td><code>@adukiorg/anza/elements/scroll</code></td><td>Full</td></tr>
+<tr><td>layout</td><td><a href="/docs/elements/surface">surface</a></td><td><code>ui-surface</code></td><td><code>@adukiorg/anza/elements/surface</code></td><td>Full</td></tr>
+</tbody></table></div>
+<hr />
+<h2>Lifecycle / memory</h2>
+<p>Kit elements bind listeners and observers with the component <code>AbortController</code> (<code>ctrl.signal</code>). Soft-nav swaps only the page leaf — disconnect aborts that leaf’s <code>ctrl</code> and tears down its <code>on</code> / <code>watch</code> / signal-owned work. Prefer shadow-scoped helpers (<code>on</code> with <code>attrs</code> / <code>not</code> / <code>key</code> / <code>scope: 'assigned'</code>, <code>watch.slot</code> for light-DOM boundaries); do not attach raw <code>document</code> / <code>body</code> listeners from a leaf without a signal. Overlay kit uses native top-layer APIs in-tree; <strong>toast</strong> is the deliberate <code>document.body</code> portal exception. Popover polyfill attachments use framework <code>globals</code>. See <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
+<p>See <a href="/docs/ui/context">Context — on / watch</a>, <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a>, and <a href="/docs/events/troubleshooting">Orphan listeners after soft-nav</a>.</p>
+<hr />
+<h2>Related</h2>
+<ul>
+<li><a href="/docs/ui/elements">UI <code>element()</code> factory</a></li>
+<li><a href="/docs/ui/forms">Form association</a></li>
+<li><a href="/docs/ui/hydration">Hydration / DSD adopt</a></li>
+<li><a href="/docs/ui/advanced">Memory safety &amp; framework globals</a></li>
+<li><a href="/docs/events/troubleshooting">Events troubleshooting</a></li>
+<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
+</ul>

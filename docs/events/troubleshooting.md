@@ -62,15 +62,36 @@ events.delegate(document.body, 'div', 'click', handler);    // no match
 
 **Warning:** `Unable to preventDefault inside passive event listener`
 
-**Cause:** `touchstart`, `touchmove`, `wheel`, or `mousewheel` listener is passive by default.
+**Cause:** `touchstart`, `touchmove`, `wheel`, or `mousewheel` listener is passive by default (`events.listen` and component `on`).
 
 **Fix:** Override the default explicitly if you need `preventDefault`:
 
 ```javascript
 events.listen(el, 'touchmove', handler, { passive: false });
+on.touchmove('.scroller', handler, { passive: false });
 ```
 
-Only do this when you genuinely need to block scrolling. Default passive is correct for most use cases.
+Only do this when you genuinely need to block scrolling. Default passive is correct for most use cases. Click / submit / key handlers are non-passive by default.
+
+---
+
+## Orphan listeners after soft-nav
+
+**Cause:** Leaf page attached `document.addEventListener` or a `MutationObserver` without `{ signal: ctrl.signal }` (or a disposer called from `unmount`). Soft-nav swaps the leaf via `replaceChildren` / `swapView`; only `disconnectedCallback` → `ctrl.abort()` tears down leaf-owned work.
+
+**Fix:** Prefer component `on` / `watch`, or pass `ctrl.signal` to `events.listen` / `events.delegate` / `ui.observe.*`. Do not observe `document` / `body` from a leaf for component concerns.
+
+Framework-owned document attachments are registered in the internal `globals` registry (`router.nav-click`, `router.container-mo`, `popover.*`). Soft-nav must not grow that set — `globals.count()` stays stable across leaf swaps.
+
+For overlay kit ownership (in-tree top-layer vs toast body portal): [Overlay patterns](../elements/overlay.md).
+
+---
+
+## MutationObserver thrash
+
+**Cause:** `watch.tree` or `watch.attr(..., '*')` on a busy subtree, or one shared observer that used to coarsen all registrations.
+
+**Fix:** Prefer `watch.attr(ref, 'open', …)` / `watch.kids(list, …)` with named filters. Observers are bucketed by fingerprint so a wide watch cannot drop `attributeFilter` on a neighbor. Avoid `ui.observe.mutation(document, …, { subtree: true })` — use a scoped root.
 
 ---
 

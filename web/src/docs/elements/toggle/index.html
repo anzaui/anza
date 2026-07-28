@@ -1,0 +1,29 @@
+<h1>Toggle</h1>
+<p>Form-participating switch with <code>role="switch"</code> and <code>:state(on)</code> custom state.</p>
+<p><strong>Tag:</strong> <code>ui-toggle</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/toggle</code></p>
+<hr />
+<h2>Import</h2>
+<view-code language="javascript">import '@adukiorg/anza/elements/toggle';
+</view-code>
+<hr />
+<h2>Basic usage</h2>
+<view-code language="html">&lt;ui-toggle name="notifications" checked&gt;Email alerts&lt;/ui-toggle&gt;
+&lt;ui-toggle disabled&gt;Unavailable&lt;/ui-toggle&gt;
+</view-code>
+<hr />
+<h2>Props</h2>
+<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>checked</code></td><td>Boolean</td><td>Reflect + custom state <code>on</code></td><td>On/off state</td></tr>
+<tr><td><code>disabled</code></td><td>Boolean</td><td>Reflect + custom state</td><td>Disables interaction</td></tr>
+<tr><td><code>value</code></td><td>String</td><td>Reflect</td><td>Form value when on (default <code>on</code>)</td></tr>
+</tbody></table></div>
+<h2>Notes</h2>
+<p>Toggle via click or Space/Enter. Uses <code>form: true</code>. Default slot is the label content.</p>
+<hr />
+<h2>Related</h2>
+<ul>
+<li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="/docs/elements/forms">Forms</a></li>
+<li><a href="/docs/ui/forms">Form association</a></li>
+<li><a href="../../plans/ELEMENTS.md">Planning: ELEMENTS.md</a></li>
+</ul>

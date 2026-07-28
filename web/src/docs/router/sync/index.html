@@ -1,26 +1,18 @@
-<!-- Main Content -->
 <h1>Sync</h1>
-<p>Keep duplicate browser tabs in navigation sync. When the user navigates in one tab, all other same-origin tabs follow
-  automatically.</p>
-
-<!-- How It Works Section -->
+<p>Keep duplicate browser tabs in navigation sync. When the user navigates in one tab, all other same-origin tabs follow automatically.</p>
+<hr />
 <h2>How It Works</h2>
-<p>The router uses <code>BroadcastChannel</code> (<code>native-router-sync</code>) to broadcast navigation events. When
-  a <code>navigatesuccess</code> fires locally, the current URL and state are posted to the channel. Other tabs receive
-  the message and call <code>router.navigate()</code> to follow.</p>
+<p>The router uses <code>BroadcastChannel</code> (<code>native-router-sync</code>) to broadcast navigation events. When a <code>navigatesuccess</code> fires locally, the current URL and state are posted to the channel. Other tabs receive the message and call <code>router.navigate()</code> to follow.</p>
 <p>A loop guard prevents echo: the tab that initiated the navigation ignores its own broadcast.</p>
-
-<!-- Auto-Start Section -->
+<hr />
 <h2>Auto-Start</h2>
-<p>Cross-tab sync starts automatically when the module loads, provided <code>BroadcastChannel</code> and
-  <code>window.navigation</code> are available.</p>
+<p>Cross-tab sync starts automatically when the module loads, provided <code>BroadcastChannel</code> and <code>window.navigation</code> are available.</p>
 <view-code language="javascript">// Already running if the APIs exist
 if (router.sync.active()) {
   console.log('sync is active');
 }
 </view-code>
-
-<!-- Manual Controls Section -->
+<hr />
 <h2>Manual Controls</h2>
 <view-code language="javascript">// Start explicitly (idempotent)
 router.sync.start();
@@ -34,43 +26,37 @@ router.sync.start();
 // Stop and close the channel entirely
 router.sync.close();
 </view-code>
-
-<!-- State Synchronization Section -->
+<hr />
 <h2>State Synchronization</h2>
 <p>History state is included in the broadcast:</p>
 <view-code language="javascript">router.navigate('/settings', { state: { tab: 'profile' } });
 </view-code>
 <p>Receiving tabs restore the state along with the URL.</p>
-
-<!-- Echo Guard Section -->
+<hr />
 <h2>Echo Guard</h2>
-<p>A one-macrotask delay prevents the echo guard from clearing too early when a guard-triggered redirect changes the
-  URL:</p>
+<p>A one-macrotask delay prevents the echo guard from clearing too early when a guard-triggered redirect changes the URL:</p>
 <view-code language="javascript">// Tab A navigates to /admin
 // Guard redirects to /login
 // The redirect URL (/login) differs from the original broadcast (/admin)
 // Without the delay, tab A would re-broadcast /login, causing an infinite loop
 // The delay gives the redirect time to settle before clearing the echo flag
 </view-code>
-
-<!-- Browser Support Section -->
+<hr />
 <h2>Browser Support</h2>
 <p>Requires <code>BroadcastChannel</code> and <code>window.navigation</code>. Falls back silently when unavailable.</p>
-
-<!-- When to Use Section -->
+<hr />
 <h2>When to Use</h2>
 <ul>
-  <li>Multi-tab dashboards</li>
-  <li>Admin panels</li>
-  <li>Applications where the user expects consistent state across tabs</li>
-  <li>Forms that should not diverge between tabs</li>
+<li>Multi-tab dashboards</li>
+<li>Admin panels</li>
+<li>Applications where the user expects consistent state across tabs</li>
+<li>Forms that should not diverge between tabs</li>
 </ul>
-
-<!-- When to Disable Section -->
+<hr />
 <h2>When to Disable</h2>
 <ul>
-  <li>Single-page flows where each tab should be independent</li>
-  <li>Applications with heavy per-tab state that should not be overridden</li>
+<li>Single-page flows where each tab should be independent</li>
+<li>Applications with heavy per-tab state that should not be overridden</li>
 </ul>
 <view-code language="javascript">router.sync.close();
 </view-code>

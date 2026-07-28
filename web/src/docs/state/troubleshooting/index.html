@@ -1,72 +1,64 @@
-<!-- Main Content -->
 <h1>Troubleshooting</h1>
 <p>Common problems and their solutions.</p>
-
-<!-- Subscriber not firing Section -->
+<hr />
 <h2>Subscriber not firing</h2>
 <p><strong>Cause:</strong> Setting the same reference, or batching without actual change.</p>
 <p><strong>Fix:</strong> Check that the value actually changed (not <code>Object.is</code> equal):</p>
 <view-code language="javascript">// Correct — new value triggers
-  store.set('count', store.get('count') + 1);
+store.set('count', store.get('count') + 1);
 
-  // Wrong — same reference, no trigger
-  store.set('count', store.get('count'));
+// Wrong — same reference, no trigger
+store.set('count', store.get('count'));
 </view-code>
-
-<!-- Derived value stale Section -->
+<hr />
 <h2>Derived value stale</h2>
 <p><strong>Cause:</strong> The derived value was not accessed after a dependency changed.</p>
 <p><strong>Fix:</strong> Derived values recompute lazily. Access <code>.value</code> after changes:</p>
 <view-code language="javascript">store.set('count', 5);
-  console.log(doubled.value); // forces recompute
+console.log(doubled.value); // forces recompute
 </view-code>
-
-<!-- Memory leak with subscribers Section -->
+<hr />
 <h2>Memory leak with subscribers</h2>
 <p><strong>Cause:</strong> Subscribers never removed.</p>
 <p><strong>Fix:</strong> Use disposers or AbortSignal:</p>
 <view-code language="javascript">const off = store.subscribe('count', handler);
-  off();
+off();
 
-  // Or with signal
-  store.subscribe('count', handler, ctrl.signal);
+// Or with signal
+store.subscribe('count', handler, ctrl.signal);
 </view-code>
-
-<!-- Cross-tab sync not working Section -->
+<hr />
 <h2>Cross-tab sync not working</h2>
 <p><strong>Cause:</strong> <code>BroadcastChannel</code> unavailable, or different channel names.</p>
 <p><strong>Fix:</strong> Check that all tabs use the same channel name:</p>
 <view-code language="javascript">// Tab A
-  store.broadcast('app-sync', ['theme']);
+store.broadcast('app-sync', ['theme']);
 
-  // Tab B — must use same channel
-  store.broadcast('app-sync', ['theme']);
+// Tab B — must use same channel
+store.broadcast('app-sync', ['theme']);
 </view-code>
 <p>Private browsing may disable <code>BroadcastChannel</code>.</p>
-
-<!-- IndexedDB blocked Section -->
+<hr />
 <h2>IndexedDB blocked</h2>
 <p><strong>Cause:</strong> Another tab has the database open with an older version.</p>
 <p><strong>Fix:</strong> Listen for the <code>storage:blocked</code> event:</p>
 <view-code language="javascript">window.addEventListener('storage:blocked', () =&gt; {
   console.warn('IDB upgrade blocked — close other tabs');
-  });
+});
 </view-code>
-
-<!-- TTL entries returning null Section -->
+<hr />
 <h2>TTL entries returning null</h2>
 <p><strong>Cause:</strong> Entry expired between set and get.</p>
 <p><strong>Fix:</strong> Check timestamps. TTL is in milliseconds:</p>
 <view-code language="javascript">// Correct — 60 seconds
-  await state.storage.set('keyval', 'token', data, { ttl: 60000 });
+await state.storage.set('keyval', 'token', data, { ttl: 60000 });
 
-  // Wrong — 60 is 60 milliseconds
-  await state.storage.set('keyval', 'token', data, { ttl: 60 });
+// Wrong — 60 is 60 milliseconds
+await state.storage.set('keyval', 'token', data, { ttl: 60 });
 </view-code>
-
-<!-- Still stuck? Section -->
+<hr />
 <h2>Still stuck?</h2>
 <p>Inspect store state:</p>
 <view-code language="javascript">console.log(store.snapshot());
-  console.log('Subscribers:', doubled['#listeners']); // not exposed — use subscribe instead
+console.log('Subscribers:', doubled['#listeners']); // not exposed — use subscribe instead
 </view-code>

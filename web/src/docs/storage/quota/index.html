@@ -1,52 +1,41 @@
 <h1>Quota</h1>
 <p>The quota manager wraps the browser StorageManager API, providing storage estimates, persistence requests, and proactive eviction warnings.</p>
-
-<!-- Estimate Section -->
+<hr />
 <h2>Estimate</h2>
-<view-code language="javascript">
-import { quota } from '@adukiorg/anza/storage';
+<view-code language="javascript">import { quota } from '@adukiorg/anza/storage';
 
 const { usage, quota } = await quota.estimate();
 console.log(`Using ${usage} of ${quota} bytes`);
 </view-code>
 <p>Returns <code>{ usage: 0, quota: 0 }</code> if the API is unavailable.</p>
-
-<!-- Persist Section -->
+<hr />
 <h2>Persist</h2>
-<view-code language="javascript">
-const granted = await quota.persist();
+<view-code language="javascript">const granted = await quota.persist();
 console.log('Persistent storage:', granted);
 </view-code>
 <p>Requests the browser to exempt this origin from automatic storage eviction. Returns <code>false</code> if unsupported or denied.</p>
-
-<!-- Check Section -->
+<hr />
 <h2>Check</h2>
-<view-code language="javascript">
-const warning = await quota.check((data) => {
+<view-code language="javascript">const warning = await quota.check((data) =&gt; {
   console.warn('Storage 80% full:', data);
 });
 </view-code>
 <p>Returns <code>true</code> if usage exceeds 80% of quota. Triggers the callback and dispatches <code>quota</code> events to registered listeners.</p>
-
-<!-- Event Listeners Section -->
+<hr />
 <h2>Event Listeners</h2>
-<view-code language="javascript">
-const off = quota.onQuotaWarning((data) => {
+<view-code language="javascript">const off = quota.onQuotaWarning((data) =&gt; {
   showToast('Storage running low');
 });
 
 off(); // remove listener
 </view-code>
-
-<!-- Storage Facade Integration Section -->
+<hr />
 <h2>Storage Facade Integration</h2>
 <p>The storage facade calls <code>quota.check()</code> before every write. If over 80%, it triggers eviction of expired and then oldest entries.</p>
-
-<!-- Platform Detection Section -->
+<hr />
 <h2>Platform Detection</h2>
 <p>Check support before calling:</p>
-<view-code language="javascript">
-import { supports } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { supports } from '@adukiorg/anza/platform';
 
 if (supports.storageManager) {
   const est = await quota.estimate();

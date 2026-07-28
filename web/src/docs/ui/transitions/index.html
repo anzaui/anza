@@ -1,137 +1,125 @@
-<!-- Main Content -->
 <h1>Transitions</h1>
-<p>The <code>transition()</code> wrapper initiates a CSS View Transition around a DOM mutation, falling back to direct execution when unsupported or when the user prefers reduced motion.</p>
-
-<!-- Basic Use Section -->
-<h2>Basic Use</h2>
-<view-code language="javascript">import { ui } from '@adukiorg/anza/ui';
-
-await ui.transition(() => {
-  container.replaceChildren(newElement);
+<p>Anza wraps CSS View Transitions for soft-nav docks and ad-hoc DOM swaps. Dock leaf swaps prefer <strong>element-scoped</strong> VT so chrome (sidebar, header, parent docks) stays stable. When VT is missing, reduced-motion is on, the call opts out, or the API fails, the DOM update still runs as a direct swap.</p>
+<hr />
+<h2>Soft-nav docks (main → docs → content)</h2>
+<p>Nested docks keep chrome mounted; only the leaf dock runs <code>swap</code> / <code>swapView</code>:</p>
+<view-code language="text">dock-main
+  └── dock-docs          ← chrome (sidebar) stays
+        └── dock-doccontent  ← leaf swap + VT group `dock-content`
+              └── page-*
+</view-code>
+<p>Default CSS groups: <code>dock-main</code>, <code>dock-docs</code>, <code>dock-content</code> (registry key → <code>dock-&lt;key&gt;</code>). Legacy alias: <code>dock-swap</code>.</p>
+<view-code language="javascript">dock('content', {
+  parent: 'docs',
+  tag: 'dock-doccontent',
+  // optional:
+  transition: { name: 'dock-content' } // default already dock-content
+  // transition: false                 // disable VT for this dock
 });
 </view-code>
-<p>If View Transitions are supported and the user has not requested reduced motion, the DOM update is wrapped in a transition. Otherwise, the callback runs immediately.</p>
-
-<!-- Return Shape Section -->
-<h2>Return Shape</h2>
-<p><code>transition()</code> returns a promise resolving to a transition-like object:</p>
-<view-code language="javascript">const tx = await ui.transition(updateDOM);
-
-// Always available:
-tx.finished // resolves when transition ends (or immediately)
-tx.updateCallbackDone // resolves when the DOM update callback completes
-tx.skipTransition() // no-op when transitions are skipped
-</view-code>
-<p>When transitions are skipped (unsupported or reduced motion):</p>
-<ul>
-  <li><code>finished</code> resolves immediately with the callback's result</li>
-  <li><code>ready</code> rejects with "View Transitions skipped or unsupported"</li>
-  <li><code>skipTransition</code> is a no-op</li>
-</ul>
-
-<!-- Reduced Motion Section -->
-<h2>Reduced Motion</h2>
-<p>When <code>prefers-reduced-motion: reduce</code> is active, transitions are skipped entirely. The DOM update runs synchronously. This is automatic — no code change needed.</p>
-
-<!-- Inside Components Section -->
-<h2>Inside Components</h2>
-<p>Use <code>transition()</code> inside event handlers for animated swaps:</p>
-<view-code language="javascript">view('gallery', {
-  template: `
-    &lt;div class="thumbs"&gt;&lt;/div&gt;
-    &lt;img ref="main" class="main"&gt;
-  `,
-  on: {
-    connect({ on, refs }) {
-      on.click('.thumb', async (e, target) => {
-        await ui.transition(() => {
-          refs.main.src = target.dataset.full;
-        });
-      });
-    }
-  }
+<p>Per-navigation control:</p>
+<view-code language="javascript">await contentDock.swapView(pageEl, {
+  direction: 'push',           // push | pop | replace → token easing
+  transition: false,           // skip VT this once
+  name: 'dock-content',        // override view-transition-name
+  signal: ctrl.signal          // abort → skipTransition, clear names
 });
 </view-code>
+<hr />
+<h2>Library API</h2>
+<view-code language="javascript">import {
+  ui,
+  transition,
+  runSwapTransition,
+  configureTransitions,
+  prefersReducedMotion
+} from '@adukiorg/anza/ui';
 
-<!-- CSS Section -->
-<h2>CSS</h2>
-<p>Style the transition with CSS pseudo-elements:</p>
-<view-code language="css">::view-transition-old(root) {
-  animation: fade-out 200ms ease;
-}
-
-::view-transition-new(root) {
-  animation: fade-in 200ms ease;
-}
-
-@keyframes fade-out {
-  from { opacity: 1; }
-  to { opacity: 0; }
-}
-
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-</view-code>
-<p>For element-scoped transitions (dock <code>swap</code>), target the element:</p>
-<view-code language="css">::view-transition-old(dock-main) {
-  animation: slide-out 200ms ease;
-}
-</view-code>
-
-<!-- Tokens Section -->
-<h2>Tokens</h2>
-<p>View Transition timing and backdrop are controlled by semantic tokens. The library injects a token-aware stylesheet on the first transition so duration, easing, and background derive from the same layer as surfaces and content.</p>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Token</th>
-        <th>Default</th>
-        <th>Purpose</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>--transition-bg</code></td>
-        <td><code>--color-surface-page</code></td>
-        <td>Backdrop behind old and new page snapshots</td>
-      </tr>
-      <tr>
-        <td><code>--transition-duration</code></td>
-        <td><code>--duration-normal</code></td>
-        <td>How long the VT runs</td>
-      </tr>
-      <tr>
-        <td><code>--transition-easing</code></td>
-        <td><code>--ease-out</code></td>
-        <td>Default easing curve</td>
-      </tr>
-      <tr>
-        <td><code>--transition-push</code></td>
-        <td><code>--ease-out</code></td>
-        <td>Easing when navigating forward</td>
-      </tr>
-      <tr>
-        <td><code>--transition-pop</code></td>
-        <td><code>--ease-in</code></td>
-        <td>Easing when navigating back</td>
-      </tr>
-      <tr>
-        <td><code>--transition-replace</code></td>
-        <td><code>--ease-in-out</code></td>
-        <td>Easing for replace-style swaps</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-<p>Override any token in your own CSS:</p>
-<view-code language="css">@layer overrides {
-  :root {
-    --transition-duration: 400ms;
-    --transition-easing: var(--ease-spring);
+// Global opt-out / custom naming
+ui.configureTransitions({
+  enabled: true,
+  nameFor(el, { dockName, name }) {
+    return name ?? (dockName ? `dock-${dockName}` : 'dock-swap');
   }
+});
+
+// Ad-hoc document morph (shared-element optional)
+const tx = await ui.transition(() =&gt; {
+  panel.replaceChildren(next);
+}, {
+  sourceElement: card,
+  sourceName: 'selected-card',
+  signal: ctrl.signal
+});
+await tx.finished;
+
+// Same helper docks use (element-scoped only — never document for docks)
+await ui.runSwapTransition(host, () =&gt; host.replaceChildren(leaf), {
+  dockName: 'content',
+  direction: 'push',
+  signal: ctrl.signal
+});
+</view-code>
+<p>Router helper (document morph + token sheet inject):</p>
+<view-code language="javascript">import { transitions } from '@adukiorg/anza/router';
+
+await transitions.run(() =&gt; panel.replaceChildren(next), {
+  sourceElement: thumb,
+  name: 'hero-image',
+  signal: ctrl.signal
+});
+</view-code>
+<hr />
+<h2>Fallback behaviour</h2>
+<div class="table-wrap"><table><thead><tr><th>Condition</th><th>Behaviour</th></tr></thead><tbody>
+<tr><td>No <code>Element.startViewTransition</code> (dock swap)</td><td>Direct <code>replaceChildren</code></td></tr>
+<tr><td>No <code>document.startViewTransition</code> (document <code>transition()</code>)</td><td>Direct update</td></tr>
+<tr><td><code>prefers-reduced-motion: reduce</code></td><td>Direct update</td></tr>
+<tr><td><code>transition: false</code> / <code>configureTransitions({ enabled: false })</code></td><td>Direct update</td></tr>
+<tr><td>VT throws / aborts</td><td>Direct update (or skip); names + easing restored</td></tr>
+<tr><td><code>AbortSignal</code> aborted</td><td><code>AbortError</code> before start; in-flight → <code>skipTransition</code></td></tr>
+</tbody></table></div>
+<p><code>replaceChildren</code> still runs inside the VT <strong>update callback</strong> when VT is used — leaf <code>ctrl.abort()</code> happens at swap time, not after the animation finishes.</p>
+<hr />
+<h2>CSS control</h2>
+<view-code language="css">/* Target the leaf dock group — not (root) */
+::view-transition-old(dock-content) {
+  animation: 90ms ease-in both fade-out;
+}
+::view-transition-new(dock-content) {
+  animation: var(--transition-duration) var(--transition-easing) both slide-in;
+}
+
+/* Directional hint on the host during swap */
+dock-doccontent[data-transition-direction="pop"] {
+  /* optional host styling */
 }
 </view-code>
-<p>The library sets <code>background: var(--transition-bg)</code> on both <code>::view-transition-old(root)</code> and <code>::view-transition-new(root)</code> automatically. You only need to write custom CSS if you want animations beyond the default cross-fade.</p>
+<p>Tokens:</p>
+<div class="table-wrap"><table><thead><tr><th>Token</th><th>Purpose</th></tr></thead><tbody>
+<tr><td><code>--transition-duration</code></td><td>VT length</td></tr>
+<tr><td><code>--transition-easing</code></td><td>Active curve (push/pop temporarily override)</td></tr>
+<tr><td><code>--transition-push</code> / <code>--transition-pop</code> / <code>--transition-replace</code></td><td>Directional easing</td></tr>
+<tr><td><code>--transition-offset</code></td><td>Default slide distance</td></tr>
+<tr><td><code>--transition-bg</code></td><td>Snapshot backdrop</td></tr>
+</tbody></table></div>
+<p>Reduced motion zeros duration and disables the default keyframes via <code>@media (prefers-reduced-motion: reduce)</code>.</p>
+<hr />
+<h2>Scheduling (AbortSignal)</h2>
+<p>Soft-nav tears down leaf work via <code>ctrl.abort()</code>. Pass the signal into schedule helpers so pending work does not run on a detached tree:</p>
+<view-code language="javascript">await ui.schedule(() =&gt; indexChunk(), {
+  priority: ui.Priority.VISIBLE,
+  signal: ctrl.signal
+});
+
+await ui.scheduleFrame(() =&gt; measure(), { signal: ctrl.signal });
+await ui.yield({ signal: ctrl.signal });
+</view-code>
+<p>Already-aborted signals reject with <code>AbortError</code> immediately.</p>
+<hr />
+<h2>Platform flags</h2>
+<view-code language="javascript">import { supports } from '@adukiorg/anza/platform';
+
+supports.viewTransitions;         // document.startViewTransition
+supports.elementViewTransitions;  // Element.prototype.startViewTransition
+</view-code>

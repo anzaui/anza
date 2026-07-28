@@ -1,328 +1,90 @@
-<!-- Main Content -->
 <h1>Supports</h1>
 <p>The <code>supports</code> object contains 30+ lazy-evaluated boolean flags for browser capabilities. Each flag is detected on first access and cached for the lifetime of the page.</p>
-
-<!-- Routing Section -->
+<hr />
 <h2>Routing</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Flag</th>
-        <th>Detects</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>supports.navigationAPI</code></td>
-        <td><code>window.navigation</code> exists</td>
-      </tr>
-      <tr>
-        <td><code>supports.urlPattern</code></td>
-        <td><code>URLPattern</code> in global scope</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Component Model Section -->
+<div class="table-wrap"><table><thead><tr><th>Flag</th><th>Detects</th></tr></thead><tbody>
+<tr><td><code>supports.navigationAPI</code></td><td><code>window.navigation</code> exists</td></tr>
+<tr><td><code>supports.urlPattern</code></td><td><code>URLPattern</code> in global scope</td></tr>
+</tbody></table></div>
+<hr />
 <h2>Component Model</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Flag</th>
-        <th>Detects</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>supports.declarativeShadowDOM</code></td>
-        <td><code>shadowRootMode</code> on <code>HTMLTemplateElement</code></td>
-      </tr>
-      <tr>
-        <td><code>supports.customStatePseudo</code></td>
-        <td><code>ElementInternals.states</code></td>
-      </tr>
-      <tr>
-        <td><code>supports.formAssociated</code></td>
-        <td><code>HTMLElement.attachInternals</code></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Overlay / Popover Section -->
+<div class="table-wrap"><table><thead><tr><th>Flag</th><th>Detects</th></tr></thead><tbody>
+<tr><td><code>supports.declarativeShadowDOM</code></td><td><code>shadowRootMode</code> on <code>HTMLTemplateElement</code></td></tr>
+<tr><td><code>supports.customStatePseudo</code></td><td><code>ElementInternals.states</code></td></tr>
+<tr><td><code>supports.formAssociated</code></td><td><code>HTMLElement.attachInternals</code></td></tr>
+</tbody></table></div>
+<hr />
 <h2>Overlay / Popover</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Flag</th>
-        <th>Detects</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>supports.popoverAPI</code></td>
-        <td><code>popover</code> on <code>HTMLElement.prototype</code></td>
-      </tr>
-      <tr>
-        <td><code>supports.anchorPositioning</code></td>
-        <td><code>CSS.supports('anchor-name', '--a')</code></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Animation Section -->
+<div class="table-wrap"><table><thead><tr><th>Flag</th><th>Detects</th></tr></thead><tbody>
+<tr><td><code>supports.popoverAPI</code></td><td><code>popover</code> on <code>HTMLElement.prototype</code></td></tr>
+<tr><td><code>supports.anchorPositioning</code></td><td><code>CSS.supports('anchor-name', '--a')</code></td></tr>
+</tbody></table></div>
+<hr />
 <h2>Animation</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Flag</th>
-        <th>Detects</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>supports.viewTransitions</code></td>
-        <td><code>document.startViewTransition</code></td>
-      </tr>
-      <tr>
-        <td><code>supports.scrollTimeline</code></td>
-        <td><code>ScrollTimeline</code> in window</td>
-      </tr>
-      <tr>
-        <td><code>supports.viewTimeline</code></td>
-        <td><code>ViewTimeline</code> in window</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Scheduling Section -->
+<div class="table-wrap"><table><thead><tr><th>Flag</th><th>Detects</th></tr></thead><tbody>
+<tr><td><code>supports.viewTransitions</code></td><td><code>document.startViewTransition</code></td></tr>
+<tr><td><code>supports.elementViewTransitions</code></td><td><code>Element.prototype.startViewTransition</code> (dock-scoped)</td></tr>
+<tr><td><code>supports.scrollTimeline</code></td><td><code>ScrollTimeline</code> in window</td></tr>
+<tr><td><code>supports.viewTimeline</code></td><td><code>ViewTimeline</code> in window</td></tr>
+</tbody></table></div>
+<hr />
 <h2>Scheduling</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Flag</th>
-        <th>Detects</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>supports.schedulerPostTask</code></td>
-        <td><code>scheduler.postTask</code></td>
-      </tr>
-      <tr>
-        <td><code>supports.schedulerYield</code></td>
-        <td><code>scheduler.yield</code></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- CSS Section -->
+<div class="table-wrap"><table><thead><tr><th>Flag</th><th>Detects</th></tr></thead><tbody>
+<tr><td><code>supports.schedulerPostTask</code></td><td><code>scheduler.postTask</code></td></tr>
+<tr><td><code>supports.schedulerYield</code></td><td><code>scheduler.yield</code></td></tr>
+</tbody></table></div>
+<hr />
 <h2>CSS</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Flag</th>
-        <th>Detects</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>supports.contentVisibility</code></td>
-        <td><code>content-visibility: auto</code></td>
-      </tr>
-      <tr>
-        <td><code>supports.cssScope</code></td>
-        <td><code>:scope</code> selector</td>
-      </tr>
-      <tr>
-        <td><code>supports.cssLayer</code></td>
-        <td><code>@layer</code> at-rule</td>
-      </tr>
-      <tr>
-        <td><code>supports.cssModuleScripts</code></td>
-        <td>Import attributes (proxy)</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Module System Section -->
+<div class="table-wrap"><table><thead><tr><th>Flag</th><th>Detects</th></tr></thead><tbody>
+<tr><td><code>supports.contentVisibility</code></td><td><code>content-visibility: auto</code></td></tr>
+<tr><td><code>supports.cssScope</code></td><td><code>:scope</code> selector</td></tr>
+<tr><td><code>supports.cssLayer</code></td><td><code>@layer</code> at-rule</td></tr>
+<tr><td><code>supports.cssModuleScripts</code></td><td>Import attributes (proxy)</td></tr>
+</tbody></table></div>
+<hr />
 <h2>Module System</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Flag</th>
-        <th>Detects</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>supports.importMaps</code></td>
-        <td><code>HTMLScriptElement.supports('importmap')</code></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Security Section -->
+<div class="table-wrap"><table><thead><tr><th>Flag</th><th>Detects</th></tr></thead><tbody>
+<tr><td><code>supports.importMaps</code></td><td><code>HTMLScriptElement.supports('importmap')</code></td></tr>
+</tbody></table></div>
+<hr />
 <h2>Security</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Flag</th>
-        <th>Detects</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>supports.sanitizerAPI</code></td>
-        <td><code>Sanitizer</code> in window</td>
-      </tr>
-      <tr>
-        <td><code>supports.trustedTypes</code></td>
-        <td><code>trustedTypes</code> in window</td>
-      </tr>
-      <tr>
-        <td><code>supports.subtleCrypto</code></td>
-        <td><code>crypto.subtle</code></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Storage Section -->
+<div class="table-wrap"><table><thead><tr><th>Flag</th><th>Detects</th></tr></thead><tbody>
+<tr><td><code>supports.sanitizerAPI</code></td><td><code>Sanitizer</code> in window</td></tr>
+<tr><td><code>supports.trustedTypes</code></td><td><code>trustedTypes</code> in window</td></tr>
+<tr><td><code>supports.subtleCrypto</code></td><td><code>crypto.subtle</code></td></tr>
+</tbody></table></div>
+<hr />
 <h2>Storage</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Flag</th>
-        <th>Detects</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>supports.opfs</code></td>
-        <td><code>navigator.storage.getDirectory</code></td>
-      </tr>
-      <tr>
-        <td><code>supports.storageManager</code></td>
-        <td><code>navigator.storage</code></td>
-      </tr>
-      <tr>
-        <td><code>supports.fileSystemPickers</code></td>
-        <td><code>showOpenFilePicker</code></td>
-      </tr>
-      <tr>
-        <td><code>supports.compression</code></td>
-        <td><code>CompressionStream</code> and <code>DecompressionStream</code></td>
-      </tr>
-      <tr>
-        <td><code>supports.storagePersistence</code></td>
-        <td><code>navigator.storage.persist</code></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Networking / Workers Section -->
+<div class="table-wrap"><table><thead><tr><th>Flag</th><th>Detects</th></tr></thead><tbody>
+<tr><td><code>supports.opfs</code></td><td><code>navigator.storage.getDirectory</code></td></tr>
+<tr><td><code>supports.storageManager</code></td><td><code>navigator.storage</code></td></tr>
+<tr><td><code>supports.fileSystemPickers</code></td><td><code>showOpenFilePicker</code></td></tr>
+<tr><td><code>supports.compression</code></td><td><code>CompressionStream</code> and <code>DecompressionStream</code></td></tr>
+<tr><td><code>supports.storagePersistence</code></td><td><code>navigator.storage.persist</code></td></tr>
+</tbody></table></div>
+<hr />
 <h2>Networking / Workers</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Flag</th>
-        <th>Detects</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>supports.backgroundSync</code></td>
-        <td><code>ServiceWorkerRegistration.sync</code></td>
-      </tr>
-      <tr>
-        <td><code>supports.speculationRules</code></td>
-        <td><code>HTMLScriptElement.supports('speculationrules')</code></td>
-      </tr>
-      <tr>
-        <td><code>supports.sharedWorker</code></td>
-        <td><code>SharedWorker</code> in window</td>
-      </tr>
-      <tr>
-        <td><code>supports.webLocks</code></td>
-        <td><code>navigator.locks</code></td>
-      </tr>
-      <tr>
-        <td><code>supports.offscreenCanvas</code></td>
-        <td><code>OffscreenCanvas</code> in window</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Notifications / Push Section -->
+<div class="table-wrap"><table><thead><tr><th>Flag</th><th>Detects</th></tr></thead><tbody>
+<tr><td><code>supports.backgroundSync</code></td><td><code>ServiceWorkerRegistration.sync</code></td></tr>
+<tr><td><code>supports.speculationRules</code></td><td><code>HTMLScriptElement.supports('speculationrules')</code></td></tr>
+<tr><td><code>supports.sharedWorker</code></td><td><code>SharedWorker</code> in window</td></tr>
+<tr><td><code>supports.webLocks</code></td><td><code>navigator.locks</code></td></tr>
+<tr><td><code>supports.offscreenCanvas</code></td><td><code>OffscreenCanvas</code> in window</td></tr>
+</tbody></table></div>
+<hr />
 <h2>Notifications / Push</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Flag</th>
-        <th>Detects</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>supports.pushAPI</code></td>
-        <td><code>PushManager</code> in window</td>
-      </tr>
-      <tr>
-        <td><code>supports.notificationsAPI</code></td>
-        <td><code>Notification</code> in window</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Device Section -->
+<div class="table-wrap"><table><thead><tr><th>Flag</th><th>Detects</th></tr></thead><tbody>
+<tr><td><code>supports.pushAPI</code></td><td><code>PushManager</code> in window</td></tr>
+<tr><td><code>supports.notificationsAPI</code></td><td><code>Notification</code> in window</td></tr>
+</tbody></table></div>
+<hr />
 <h2>Device</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Flag</th>
-        <th>Detects</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>supports.screenWakeLock</code></td>
-        <td><code>navigator.wakeLock</code></td>
-      </tr>
-      <tr>
-        <td><code>supports.idleDetection</code></td>
-        <td><code>IdleDetector</code> in window</td>
-      </tr>
-      <tr>
-        <td><code>supports.webAuthn</code></td>
-        <td><code>PublicKeyCredential</code> in window</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Reset for Testing Section -->
+<div class="table-wrap"><table><thead><tr><th>Flag</th><th>Detects</th></tr></thead><tbody>
+<tr><td><code>supports.screenWakeLock</code></td><td><code>navigator.wakeLock</code></td></tr>
+<tr><td><code>supports.idleDetection</code></td><td><code>IdleDetector</code> in window</td></tr>
+<tr><td><code>supports.webAuthn</code></td><td><code>PublicKeyCredential</code> in window</td></tr>
+</tbody></table></div>
+<hr />
 <h2>Reset for Testing</h2>
 <p>Clear a cached flag to force re-detection:</p>
 <view-code language="javascript">import { reset } from '@adukiorg/anza/platform';

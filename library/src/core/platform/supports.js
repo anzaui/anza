@@ -58,6 +58,12 @@ lazy('anchorPositioning', () =>
 
 lazy('viewTransitions', () => 'startViewTransition' in document);
 
+// Element-scoped VT (Chrome 147+) — docks use this so chrome stays stable.
+lazy('elementViewTransitions', () =>
+  typeof Element !== 'undefined'
+  && 'startViewTransition' in Element.prototype
+);
+
 lazy('scrollTimeline', () => 'ScrollTimeline' in window);
 
 lazy('viewTimeline', () => 'ViewTimeline' in window);

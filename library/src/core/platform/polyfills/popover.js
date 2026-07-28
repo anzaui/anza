@@ -6,11 +6,30 @@
  * Source: doc 18 §12, library2.md §Phase 1-A
  */
 
+import { globals } from '../globals.js';
+
 class ToggleEvent extends Event {
   constructor(type, init = {}) {
     super(type, init);
     this.oldState = init.oldState || 'closed';
     this.newState = init.newState || 'closed';
+  }
+}
+
+let popoverMoSeq = 0;
+
+function clearPopoverAttachments(el) {
+  if (el._popoverDismiss) {
+    document.removeEventListener('pointerdown', el._popoverDismiss);
+    el._popoverDismiss = null;
+  }
+  if (el._popoverGlobalName) {
+    globals.detach(el._popoverGlobalName);
+    el._popoverGlobalName = null;
+    el._popoverObserver = null;
+  } else if (el._popoverObserver) {
+    el._popoverObserver.disconnect();
+    el._popoverObserver = null;
   }
 }
 
@@ -36,18 +55,10 @@ class PopoverPolyfill {
       }
       if (this.hasAttribute('data-popover-open')) return;
 
-      // Clean up previous event listeners or observers if any existed
-      if (this._popoverDismiss) {
-        document.removeEventListener('pointerdown', this._popoverDismiss);
-        this._popoverDismiss = null;
-      }
-      if (this._popoverObserver) {
-        this._popoverObserver.disconnect();
-        this._popoverObserver = null;
-      }
+      clearPopoverAttachments(this);
 
       this.setAttribute('data-popover-open', '');
-      
+
       // Simulating top-layer styling
       this.style.position = 'fixed';
       this.style.zIndex = '2147483647';
@@ -69,15 +80,30 @@ class PopoverPolyfill {
         }, 0);
       }
 
-      // MutationObserver to automatically clean up when popover is unmounted from DOM while open
+      // Prefer parent childList (narrow) over document.body subtree.
       if (typeof MutationObserver !== 'undefined') {
         const observer = new MutationObserver(() => {
           if (!document.contains(this)) {
             this.hidePopover();
           }
         });
-        observer.observe(document.body, { childList: true, subtree: true });
+        const parent = this.parentElement;
+        if (parent) {
+          observer.observe(parent, { childList: true, subtree: false });
+        } else if (document.body) {
+          observer.observe(document.body, { childList: true, subtree: true });
+        }
         this._popoverObserver = observer;
+        const name = `popover.body-mo:${++popoverMoSeq}`;
+        this._popoverGlobalName = name;
+        globals.attach(name, {
+          type: 'observer',
+          target: parent || document.body,
+          dispose: () => {
+            observer.disconnect();
+            if (this._popoverObserver === observer) this._popoverObserver = null;
+          }
+        });
       }
 
       this.dispatchEvent(new ToggleEvent('toggle', {
@@ -93,14 +119,7 @@ class PopoverPolyfill {
       this.style.position = '';
       this.style.zIndex = '';
 
-      if (this._popoverDismiss) {
-        document.removeEventListener('pointerdown', this._popoverDismiss);
-        this._popoverDismiss = null;
-      }
-      if (this._popoverObserver) {
-        this._popoverObserver.disconnect();
-        this._popoverObserver = null;
-      }
+      clearPopoverAttachments(this);
 
       this.dispatchEvent(new ToggleEvent('toggle', {
         oldState: 'open',
@@ -116,9 +135,9 @@ class PopoverPolyfill {
       }
     };
 
-    // Auto-setup declarative triggers
+    // Auto-setup declarative triggers (framework lifetime)
     if (typeof document !== 'undefined') {
-      document.addEventListener('click', e => {
+      const onClick = (e) => {
         const trigger = e.target.closest('[popovertarget]');
         if (!trigger) return;
         const targetId = trigger.getAttribute('popovertarget');
@@ -133,6 +152,12 @@ class PopoverPolyfill {
         } else {
           target.togglePopover();
         }
+      };
+      document.addEventListener('click', onClick);
+      globals.attach('popover.target-click', {
+        type: 'listener',
+        target: document,
+        dispose: () => document.removeEventListener('click', onClick)
       });
     }
   }

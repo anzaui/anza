@@ -6,6 +6,8 @@
  * Source: doc 18 §3, library2.md §Phase 1-A
  */
 
+import { globals } from '../globals.js';
+
 class NavigationEvent extends Event {
   constructor(type, init) {
     super(type, init);
@@ -33,14 +35,14 @@ class NavigationPolyfill extends EventTarget {
     super();
     if (typeof document !== 'undefined') {
       // Global click delegation for same-origin anchor links
-      document.addEventListener('click', e => {
+      const onClick = (e) => {
         if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
         const anchor = e.target.closest('a[href]');
         if (!anchor) return;
 
         // Skip non-HTTP links and external targets
         if (anchor.target && anchor.target !== '_self') return;
-        
+
         try {
           const url = new URL(anchor.href, globalThis.location.href);
           if (url.origin !== globalThis.location.origin) return;
@@ -54,10 +56,17 @@ class NavigationPolyfill extends EventTarget {
         } catch {
           // ignore parsing error, let native navigation handle it
         }
+      };
+
+      document.addEventListener('click', onClick);
+      globals.attach('router.nav-click', {
+        type: 'listener',
+        target: document,
+        dispose: () => document.removeEventListener('click', onClick)
       });
 
       // Browser forward/back traversal support
-      window.addEventListener('popstate', e => {
+      const onPopState = (e) => {
         const event = this._fireNavigate(globalThis.location.href, {
           navigationType: 'traverse',
           state: e.state
@@ -65,6 +74,13 @@ class NavigationPolyfill extends EventTarget {
         if (event._intercepted) {
           this._runHandlers(event);
         }
+      };
+
+      window.addEventListener('popstate', onPopState);
+      globals.attach('router.nav-popstate', {
+        type: 'listener',
+        target: window,
+        dispose: () => window.removeEventListener('popstate', onPopState)
       });
     }
   }

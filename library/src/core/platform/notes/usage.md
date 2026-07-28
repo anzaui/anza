@@ -100,7 +100,9 @@ Asynchronous wrappers that transparently route calls to native browser APIs (if 
 | `await guard.navigation()` | `navigation` Object | Bootstraps the Single Page Application Navigation API polyfill |
 | `await guard.popover()` | `undefined` | Installs HTMLElement popover prototype methods & light dismiss |
 | `await guard.shadow(root)` | `undefined` | Applies polyfill parser for Declarative Shadow DOM template nodes |
-| `await guard.anchor(float, anchor, opts)` | `undefined` | Computes high-performance dynamic anchor positioning fallback |
+| `await guard.anchor(float, anchor, opts)` | `undefined` | Computes dynamic anchor positioning fallback (`mode: 'fixed'` supported) |
+| `await guard.escape(float, anchor, opts)` | `EscapeController` | Overflow-escape show/hide/update (popover top-layer or fixed); used by `ui-tooltip` |
+| `escapeOverflow(float, anchor, opts)` | `EscapeController` | Sync form of the escape helper (ensure popover polyfill first if needed) |
 | `await guard.sanitizer()` | Sanitizer Wrapper | Exposes uniform `.sanitizeToString(html)` helper |
 | `await guard.scheduler()` | `scheduler` Object | Returns priority-aware task execution queues |
 | `await guard.yield()` | `Promise<undefined>` | Yields execution thread control back to the event loop |

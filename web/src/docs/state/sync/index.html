@@ -1,59 +1,49 @@
-<!-- Main Content -->
 <h1>Sync</h1>
-<p>Cross-tab state synchronization via <code>BroadcastChannel</code>. When a store key changes in one tab, it is
-  replicated to all other active tabs listening on the same channel.</p>
-
-<!-- Setup Section -->
+<p>Cross-tab state synchronization via <code>BroadcastChannel</code>. When a store key changes in one tab, it is replicated to all other active tabs listening on the same channel.</p>
+<hr />
 <h2>Setup</h2>
 <view-code language="javascript">import { state } from '@adukiorg/anza/state';
 
-  const store = state.create({ theme: 'light' });
+const store = state.create({ theme: 'light' });
 
-  // Sync the 'theme' key across tabs
-  store.broadcast('app-sync', ['theme']);
+// Sync the 'theme' key across tabs
+store.broadcast('app-sync', ['theme']);
 </view-code>
-
-<!-- How It Works Section -->
+<hr />
 <h2>How It Works</h2>
 <ol>
-  <li>When <code>store.set('theme', 'dark')</code> is called, the sync listener sees the mutation with source
-    <code>'local'</code></li>
-  <li>It posts <code>{ key: 'theme', value: 'dark' }</code> to the BroadcastChannel</li>
-  <li>Other tabs receive the message and call <code>store.set('theme', 'dark', 'broadcast')</code></li>
-  <li>The <code>'broadcast'</code> source prevents the originating tab from echoing the change back</li>
+<li>When <code>store.set('theme', 'dark')</code> is called, the sync listener sees the mutation with source <code>'local'</code></li>
+<li>It posts <code>{ key: 'theme', value: 'dark' }</code> to the BroadcastChannel</li>
+<li>Other tabs receive the message and call <code>store.set('theme', 'dark', 'broadcast')</code></li>
+<li>The <code>'broadcast'</code> source prevents the originating tab from echoing the change back</li>
 </ol>
-
-<!-- Whitelist Section -->
+<hr />
 <h2>Whitelist</h2>
 <p>Only specified keys are synchronized. An empty array syncs all keys:</p>
 <view-code language="javascript">store.broadcast('app-sync', ['theme', 'language']);
-  store.broadcast('app-sync', []); // sync all keys
+store.broadcast('app-sync', []); // sync all keys
 </view-code>
-
-<!-- Manual Sync Section -->
+<hr />
 <h2>Manual Sync</h2>
 <view-code language="javascript">import { sync } from '@adukiorg/anza/state';
 
-  const dispose = sync(store, ['count'], 'counter-channel');
+const dispose = sync(store, ['count'], 'counter-channel');
 
-  dispose(); // close the BroadcastChannel
+dispose(); // close the BroadcastChannel
 </view-code>
-
-<!-- Fallback Section -->
+<hr />
 <h2>Fallback</h2>
-<p>If <code>BroadcastChannel</code> is unavailable (older browsers, private mode), sync returns a no-op disposer and
-  logs nothing.</p>
-
-<!-- Example: Theme Sync Section -->
+<p>If <code>BroadcastChannel</code> is unavailable (older browsers, private mode), sync returns a no-op disposer and logs nothing.</p>
+<hr />
 <h2>Example: Theme Sync</h2>
 <view-code language="javascript">const store = state.create({ theme: 'light' });
-  store.broadcast('theme-sync', ['theme']);
+store.broadcast('theme-sync', ['theme']);
 
-  // In tab A
-  store.set('theme', 'dark');
+// In tab A
+store.set('theme', 'dark');
 
-  // In tab B, the store automatically updates to 'dark'
-  store.subscribe('theme', (val) =&gt; {
+// In tab B, the store automatically updates to 'dark'
+store.subscribe('theme', (val) =&gt; {
   document.body.className = val;
-  });
+});
 </view-code>

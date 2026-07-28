@@ -165,6 +165,93 @@ describe('Client soft-nav vs SSG adopt', () => {
     }
   });
 
+  it('does not adopt a deep nested matching tag as the leaf', async () => {
+    const tag = 'doc-soft-deep-only';
+    const wrapper = document.createElement('div');
+    const deep = createWithDsd(tag, '<h1 id="deep-h1">Deep</h1>');
+    wrapper.appendChild(deep);
+    leafDock.appendChild(wrapper);
+
+    ui.element(tag, {
+      via: ['main', 'soft-leaf'],
+      container: 'soft-leaf',
+      template: '<h1 id="csr-h1">From CSR</h1>'
+    });
+
+    emit('found', {
+      tag,
+      params: {},
+      query: {},
+      hash: '',
+      chain: [{ tag, params: {} }],
+      via: ['main', 'soft-leaf'],
+      container: 'soft-leaf',
+      url: 'http://localhost/soft-deep',
+      direction: 'load'
+    });
+    await wait(30);
+
+    const directLeaves = [...leafDock.children].filter(
+      (el) => el.tagName.toLowerCase() === tag
+    );
+    if (directLeaves.length !== 1) {
+      throw new Error('Expected exactly one direct-child leaf after found/load');
+    }
+    if (directLeaves[0] === deep) {
+      throw new Error('Expected not to adopt the deep nested matching tag');
+    }
+    await wait(20);
+    if (!directLeaves[0].shadowRoot?.querySelector('#csr-h1')) {
+      throw new Error('Expected CSR mount of a new direct-child leaf');
+    }
+  });
+
+  it('prefers a direct-child leaf over a deeper nested same tag', async () => {
+    const tag = 'doc-soft-direct-vs-deep';
+    const direct = createWithDsd(tag, '<h1 id="direct-h1">Direct</h1>');
+    const wrapper = document.createElement('div');
+    const deep = createWithDsd(tag, '<h1 id="deep-h1">Deep</h1>');
+    wrapper.appendChild(deep);
+    leafDock.appendChild(direct);
+    leafDock.appendChild(wrapper);
+
+    ui.element(tag, {
+      via: ['main', 'soft-leaf'],
+      container: 'soft-leaf',
+      template: '<h1 id="csr-h1">From CSR</h1>'
+    });
+
+    emit('found', {
+      tag,
+      params: {},
+      query: {},
+      hash: '',
+      chain: [{ tag, params: {} }],
+      via: ['main', 'soft-leaf'],
+      container: 'soft-leaf',
+      url: 'http://localhost/soft-direct',
+      direction: 'load'
+    });
+    await wait(30);
+
+    const mounted = [...leafDock.children].find((el) => el.tagName.toLowerCase() === tag);
+    if (mounted !== direct) {
+      throw new Error('Expected orchestrator to reuse the direct-child leaf, not the deep one');
+    }
+    if (!mounted.classList.contains('page-content')) {
+      throw new Error('Expected reused direct leaf to gain .page-content');
+    }
+    if (!mounted.shadowRoot?.querySelector('#direct-h1')) {
+      throw new Error('Expected direct-child DSD to survive');
+    }
+    if (mounted.shadowRoot.querySelector('#csr-h1')) {
+      throw new Error('Expected CSR template NOT to replace adopted direct leaf');
+    }
+    if (!wrapper.contains(deep)) {
+      throw new Error('Expected deep nested same-tag element to remain under wrapper');
+    }
+  });
+
   it('cascade ensure adopts pre-rendered dock child without wiping nested markers', async () => {
     clearGraph();
     router.registerContainer('main', mainEl, null);
@@ -204,6 +291,260 @@ describe('Client soft-nav vs SSG adopt', () => {
     }
     if (router.getContainer('soft-cascade') !== dockEl) {
       throw new Error('Expected ensure() to re-point registry at the pre-rendered dock');
+    }
+  });
+
+  it('three-level SSG nest: cascade adopts docks; found/load adopts leaf (no wipe)', async () => {
+    clearGraph();
+    router.registerContainer('main', mainEl, null);
+
+    const docsTag = 'dock-soft-docs';
+    const contentTag = 'dock-soft-doccontent';
+    const leafTag = 'doc-soft-nested-leaf';
+
+    // Attach open DSD before define so upgrade adopts (same as SSG parse).
+    const docsEl = createWithDsd(docsTag, '<div id="docs-chrome">docs</div><slot></slot>');
+    const contentEl = createWithDsd(contentTag, '<slot></slot>');
+    const leafEl = createWithDsd(leafTag, '<h1 id="ssg-leaf">SSG leaf</h1>');
+    contentEl.appendChild(leafEl);
+    docsEl.appendChild(contentEl);
+    mainEl.replaceChildren(docsEl);
+
+    ui.dock('soft-docs', { parent: 'main', tag: docsTag, template: '<slot></slot>' });
+    ui.dock('soft-content', { parent: 'soft-docs', tag: contentTag, template: '<slot></slot>' });
+    await customElements.whenDefined(docsTag);
+    await customElements.whenDefined(contentTag);
+    await wait(30);
+
+    // Simulate boot race: topology known, live refs cleared, DOM still present.
+    for (const name of ['soft-docs', 'soft-content']) {
+      const node = getNode(name);
+      if (node?.ref) node.ref = null;
+    }
+
+    await ensure('soft-content', 'main');
+
+    if (mainEl.querySelector(docsTag) !== docsEl) {
+      throw new Error('Expected cascade to adopt pre-rendered docs dock');
+    }
+    if (docsEl.querySelector(contentTag) !== contentEl) {
+      throw new Error('Expected cascade to adopt pre-rendered content dock as light child');
+    }
+    if (!docsEl.shadowRoot?.querySelector('#docs-chrome')) {
+      throw new Error('Expected docs dock DSD chrome to survive cascade adopt');
+    }
+    if (contentEl.querySelector(leafTag) !== leafEl) {
+      throw new Error('Expected leaf to remain light child of content dock after cascade');
+    }
+
+    ui.element(leafTag, {
+      via: ['main', 'soft-docs', 'soft-content'],
+      container: 'soft-content',
+      template: '<h1 id="csr-leaf">CSR wipe</h1>'
+    });
+
+    emit('found', {
+      tag: leafTag,
+      params: {},
+      query: {},
+      hash: '',
+      chain: [{ tag: leafTag, params: {} }],
+      via: ['main', 'soft-docs', 'soft-content'],
+      container: 'soft-content',
+      url: 'http://localhost/soft-nested',
+      direction: 'load'
+    });
+    await wait(40);
+
+    if (contentEl.querySelector(leafTag) !== leafEl) {
+      throw new Error('Expected orchestrator to reuse SSG leaf inside content dock');
+    }
+    if (!leafEl.classList.contains('page-content')) {
+      throw new Error('Expected adopted leaf to gain .page-content');
+    }
+    if (!leafEl.shadowRoot?.querySelector('#ssg-leaf')) {
+      throw new Error('Expected SSG leaf DSD to survive found/load');
+    }
+    if (leafEl.shadowRoot.querySelector('#csr-leaf')) {
+      throw new Error('Expected CSR template NOT to replace nested SSG leaf');
+    }
+
+    // Nested chrome must never appear as light siblings under main.
+    if (document.querySelectorAll(docsTag).length !== 1) {
+      throw new Error(`Expected exactly one ${docsTag}, got ${document.querySelectorAll(docsTag).length}`);
+    }
+    if (document.querySelectorAll(contentTag).length !== 1) {
+      throw new Error(`Expected exactly one ${contentTag}`);
+    }
+  });
+
+  it('sanitizeTemplateHtml strips SSG documents that collide with page templates', async () => {
+    const { sanitizeTemplateHtml } = await import('../../../src/core/ui/define/utils.js');
+    const ssg = `<!DOCTYPE html><html><body><dock-main><dock-docs></dock-docs>
+<doc-soft-sanitize class="page-content"><template shadowrootmode="open">
+<style>.x{}</style><h1 id="ok">OK</h1>
+</template></doc-soft-sanitize></dock-main></body></html>`;
+    const out = sanitizeTemplateHtml(ssg, 'doc-soft-sanitize');
+    if (!out.includes('id="ok"') || out.includes('dock-docs') || out.includes('<style')) {
+      throw new Error(`Expected leaf fragment without docks/style, got: ${out}`);
+    }
+    const plain = sanitizeTemplateHtml('<h1>Hi</h1>', 'doc-soft-sanitize');
+    if (plain !== '<h1>Hi</h1>') {
+      throw new Error('Expected plain fragments to pass through');
+    }
+  });
+
+  it('soft-nav aborts leaf ctrl and leaves zero leaf-owned on/watch work', async () => {
+    const pageA = 'doc-soft-leak-a';
+    const pageB = 'doc-soft-leak-b';
+
+    let aborted = false;
+    let clickCalls = 0;
+    let watchCalls = 0;
+    let slotCalls = 0;
+    let leafARef = null;
+    let leafARoot = null;
+
+    const { globals } = await import('../../../src/core/platform/globals.js');
+    const { getAttachmentStats } = await import('../../../src/core/ui/define/proxy.js');
+    const globalsBefore = globals.count();
+
+    ui.element(pageA, {
+      via: ['main', 'soft-leaf'],
+      container: 'soft-leaf',
+      template: '<button class="act">A</button><slot name="extra"></slot>',
+      mount({ el, ctrl, on, watch, tags }) {
+        leafARef = el;
+        leafARoot = el.shadowRoot;
+        ctrl.signal.addEventListener('abort', () => { aborted = true; });
+        on.click('.act', () => { clickCalls++; });
+        const btn = tags.one('.act');
+        watch.attr(btn, 'disabled', () => { watchCalls++; });
+        watch.slot('slot[name="extra"]', () => { slotCalls++; });
+      }
+    });
+
+    ui.element(pageB, {
+      via: ['main', 'soft-leaf'],
+      container: 'soft-leaf',
+      template: '<p id="b">B</p>'
+    });
+
+    emit('found', {
+      tag: pageA,
+      params: {},
+      query: {},
+      hash: '',
+      chain: [{ tag: pageA, params: {} }],
+      via: ['main', 'soft-leaf'],
+      container: 'soft-leaf',
+      url: 'http://localhost/soft-leak-a',
+      direction: 'push'
+    });
+    await wait(40);
+
+    const mountedA = leafDock.querySelector(pageA);
+    if (!mountedA?.shadowRoot) {
+      throw new Error('Expected leaf A mounted');
+    }
+    const liveStats = getAttachmentStats(mountedA.shadowRoot);
+    if (
+      !liveStats ||
+      liveStats.onRootListeners < 1 ||
+      liveStats.watchBuckets < 1 ||
+      liveStats.slotListeners < 1
+    ) {
+      throw new Error(`Expected live leaf attachments incl. slot, got ${JSON.stringify(liveStats)}`);
+    }
+
+    mountedA.shadowRoot.querySelector('.act').click();
+    if (clickCalls !== 1) {
+      throw new Error('Expected on.click to fire while leaf A is live');
+    }
+
+    for (let i = 0; i < 3; i++) {
+      emit('found', {
+        tag: pageB,
+        params: {},
+        query: {},
+        hash: '',
+        chain: [{ tag: pageB, params: {} }],
+        via: ['main', 'soft-leaf'],
+        container: 'soft-leaf',
+        url: `http://localhost/soft-leak-b-${i}`,
+        direction: 'push'
+      });
+      await wait(30);
+      emit('found', {
+        tag: pageA,
+        params: {},
+        query: {},
+        hash: '',
+        chain: [{ tag: pageA, params: {} }],
+        via: ['main', 'soft-leaf'],
+        container: 'soft-leaf',
+        url: `http://localhost/soft-leak-a-${i}`,
+        direction: 'push'
+      });
+      await wait(30);
+    }
+
+    emit('found', {
+      tag: pageB,
+      params: {},
+      query: {},
+      hash: '',
+      chain: [{ tag: pageB, params: {} }],
+      via: ['main', 'soft-leaf'],
+      container: 'soft-leaf',
+      url: 'http://localhost/soft-leak-b-final',
+      direction: 'push'
+    });
+    await wait(40);
+
+    if (!aborted) {
+      throw new Error('Expected soft-nav to abort leaf A ctrl');
+    }
+    if (leafARef?.ctrl) {
+      throw new Error('Expected detached leaf ctrl to be cleared after disconnect');
+    }
+    if (leafDock.querySelector(pageA)) {
+      throw new Error('Expected leaf A to be swapped out');
+    }
+
+    const afterStats = leafARoot ? getAttachmentStats(leafARoot) : null;
+    if (
+      afterStats &&
+      (afterStats.onRootListeners !== 0 ||
+        afterStats.onRegistrations !== 0 ||
+        afterStats.watchBuckets !== 0 ||
+        afterStats.watchRegistrations !== 0 ||
+        afterStats.slotListeners !== 0)
+    ) {
+      throw new Error(`Expected zero leaf attachments after soft-nav, got ${JSON.stringify(afterStats)}`);
+    }
+
+    if (globals.count() !== globalsBefore) {
+      throw new Error(
+        `Expected framework globals.count stable across soft-nav (${globalsBefore} → ${globals.count()})`
+      );
+    }
+
+    const detachedBtn = mountedA.shadowRoot?.querySelector('.act');
+    if (detachedBtn) {
+      detachedBtn.click();
+      detachedBtn.setAttribute('disabled', '');
+      await wait(10);
+    }
+
+    if (clickCalls !== 1) {
+      throw new Error('Expected no orphaned click handlers after soft-nav');
+    }
+    if (watchCalls !== 0) {
+      throw new Error('Expected no orphaned watch handlers after soft-nav');
+    }
+    if (slotCalls !== 0) {
+      throw new Error('Expected no orphaned slot handlers after soft-nav');
     }
   });
 });

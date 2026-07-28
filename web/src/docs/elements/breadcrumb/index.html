@@ -1,0 +1,28 @@
+<h1>Breadcrumb</h1>
+<p>Accessible breadcrumb trail (<code>nav</code> + ordered list). Dividers between items come from CSS.</p>
+<p><strong>Tag:</strong> <code>ui-breadcrumb</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/breadcrumb</code></p>
+<hr />
+<h2>Import</h2>
+<view-code language="javascript">import '@adukiorg/anza/elements/breadcrumb';
+</view-code>
+<hr />
+<h2>Basic usage</h2>
+<view-code language="html">&lt;ui-breadcrumb&gt;
+  &lt;li&gt;&lt;a href="/docs"&gt;Docs&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href="/docs/elements/index"&gt;Elements&lt;/a&gt;&lt;/li&gt;
+  &lt;li aria-current="page"&gt;Breadcrumb&lt;/li&gt;
+&lt;/ui-breadcrumb&gt;
+</view-code>
+<hr />
+<h2>Props</h2>
+<p><em>None — slot list items; style via CSS / parts.</em></p>
+<h2>Notes</h2>
+<p>Uses <code>aria-label="Breadcrumb"</code>. Parts: <code>nav</code>, <code>list</code>. Slot children into the ordered list (typically <code>&lt;li&gt;</code>).</p>
+<hr />
+<h2>Related</h2>
+<ul>
+<li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="/docs/elements/navigation">Navigation</a></li>
+<li><a href="/docs/elements/nav">Nav</a></li>
+<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
+</ul>

@@ -1,0 +1,28 @@
+<h1>Avatar</h1>
+<p>Profile picture with image or initials fallback, sized via tokens and labeled for accessibility.</p>
+<p><strong>Tag:</strong> <code>ui-avatar</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/avatar</code></p>
+<hr />
+<h2>Import</h2>
+<view-code language="javascript">import '@adukiorg/anza/elements/avatar';
+</view-code>
+<hr />
+<h2>Basic usage</h2>
+<view-code language="html">&lt;ui-avatar name="Ada Lovelace" src="/avatars/ada.jpg"&gt;&lt;/ui-avatar&gt;
+&lt;ui-avatar name="Grace Hopper" size="10"&gt;&lt;/ui-avatar&gt;
+</view-code>
+<hr />
+<h2>Props</h2>
+<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>src</code></td><td>String</td><td>Reflect</td><td>Image URL; falls back to initials on error or when unset</td></tr>
+<tr><td><code>name</code></td><td>String</td><td>Reflect</td><td>Display name used for initials and default <code>aria-label</code></td></tr>
+<tr><td><code>size</code></td><td>String</td><td>Reflect</td><td>CSS length or space token key</td></tr>
+</tbody></table></div>
+<h2>Notes</h2>
+<p>Sets <code>aria-label="Avatar of {name}"</code> when <code>name</code> is present and no label is set. Initials come from the first and last word of <code>name</code>.</p>
+<hr />
+<h2>Related</h2>
+<ul>
+<li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="/docs/elements/primitives">Primitives</a></li>
+<li><a href="../../plans/ELEMENTS.md">Planning: ELEMENTS.md</a></li>
+</ul>

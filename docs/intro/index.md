@@ -82,5 +82,6 @@ That is a complete app. Run `anza dev` and open `http://localhost:3000`.
 - New here? Read [install.md](install.md) then [start.md](start.md).
 - Want the router? See `docs/router/`.
 - Want the UI layer? See `docs/ui/`.
+- Shipping public pages? See [ssg/contract.md](../ssg/contract.md) (site-root URLs, open DSD) and [ui/hydration.md](../ui/hydration.md).
 - Need offline and caching? See `docs/sw/`.
 - Need the API surface? Check the per-module docs in `docs/`.

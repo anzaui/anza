@@ -1,0 +1,43 @@
+<h1>Menu</h1>
+<p>Keyboard-accessible menu built on the Popover API with roving tabindex (arrows, Home, End, Escape).</p>
+<p><strong>Tag:</strong> <code>ui-menu</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/menu</code></p>
+<p>Architecture and when-to-use: <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
+<hr />
+<h2>Import</h2>
+<view-code language="javascript">import '@adukiorg/anza/elements/menu';
+</view-code>
+<hr />
+<h2>Basic usage</h2>
+<view-code language="html">&lt;ui-button id="actions" type="button"&gt;Actions&lt;/ui-button&gt;
+&lt;ui-menu id="menu"&gt;
+  &lt;ui-button type="button"&gt;Edit&lt;/ui-button&gt;
+  &lt;ui-button type="button"&gt;Duplicate&lt;/ui-button&gt;
+  &lt;ui-button type="button"&gt;Delete&lt;/ui-button&gt;
+&lt;/ui-menu&gt;
+
+&lt;script type="module"&gt;
+  const menu = document.querySelector('#menu');
+  document.querySelector('#actions').addEventListener('click', () =&gt; menu.toggle());
+&lt;/script&gt;
+</view-code>
+<hr />
+<h2>Props</h2>
+<p>None. Open state is driven by methods.</p>
+<h2>Methods</h2>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>show()</code></td><td>Opens the menu and focuses the first item</td></tr>
+<tr><td><code>hide()</code></td><td>Closes the menu</td></tr>
+<tr><td><code>toggle()</code></td><td>Toggles open / closed</td></tr>
+</tbody></table></div>
+<h2>Notes</h2>
+<p>Slotted <code>ui-button</code> / <code>button</code> / <code>[role=menuitem]</code> get <code>role="menuitem"</code> and roving <code>tabindex</code>. Surface is <code>part="menu"</code> with <code>[popover="auto"]</code>.</p>
+<h3>Lifecycle / memory</h3>
+<p>Key handlers bind on the popover surface via component <code>on</code>. Soft-nav aborts the leaf <code>ctrl</code>. See <a href="/docs/elements/overlay">Overlay patterns</a> and <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a>.</p>
+<hr />
+<h2>Related</h2>
+<ul>
+<li><a href="/docs/elements/overlay">Overlay patterns</a></li>
+<li><a href="/docs/elements/popover">Popover</a></li>
+<li><a href="/docs/elements/index">Elements overview</a></li>
+<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
+</ul>

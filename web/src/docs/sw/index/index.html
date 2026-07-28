@@ -1,31 +1,23 @@
-<!-- Main Content -->
 <h1>SW</h1>
-<p>The Anza Service Worker toolkit handles caching, request interception, background sync, and push notifications. It
-  runs in a separate thread from your app and intercepts <code>fetch</code> events before they hit the network.</p>
+<p>The Anza Service Worker toolkit handles caching, request interception, background sync, and push notifications. It runs in a separate thread from your app and intercepts <code>fetch</code> events before they hit the network.</p>
 <p>The toolkit is split into two halves:</p>
 <ol>
-  <li><strong>Main thread</strong> (<code>@adukiorg/anza/offline</code>) — connectivity checks, task queuing, and
-    message bridge to the SW</li>
-  <li><strong>Service Worker thread</strong> (<code>@adukiorg/anza/sw</code>) — caching strategies, route interception,
-    lifecycle hooks, and sync replay</li>
+<li><strong>Main thread</strong> (<code>@adukiorg/anza/offline</code>) — connectivity checks, task queuing, and message bridge to the SW</li>
+<li><strong>Service Worker thread</strong> (<code>@adukiorg/anza/sw</code>) — caching strategies, route interception, lifecycle hooks, and sync replay</li>
 </ol>
-<p>Browsers do not support import maps in Service Worker scope, so the build tool rewrites bare specifiers to relative
-  paths when emitting <code>dist/sw.js</code>.</p>
-
-<!-- Features Section -->
+<p>Browsers do not support import maps in Service Worker scope, so the build tool rewrites bare specifiers to relative paths when emitting <code>dist/sw.js</code>.</p>
+<hr />
 <h2>What You Get</h2>
 <ul>
-  <li><strong>Caching strategies</strong> — CacheFirst, NetworkFirst, StaleRevalidate, CacheThenNetwork, NetworkOnly,
-    CacheOnly, and OfflineFallback</li>
-  <li><strong>URLPattern routing</strong> — match URLs with parameters and wildcards inside the SW</li>
-  <li><strong>TTL expiry</strong> — responses carry custom headers; expired entries are pruned automatically</li>
-  <li><strong>Install/activate helpers</strong> — precache shell assets and clean up old caches on update</li>
-  <li><strong>Background sync</strong> — queue failed requests and replay them when connectivity returns</li>
-  <li><strong>Push notifications</strong> — VAPID subscription and notification display</li>
-  <li><strong>Request serialization</strong> — store Request objects in IndexedDB for offline replay</li>
+<li><strong>Caching strategies</strong> — CacheFirst, NetworkFirst, StaleRevalidate, CacheThenNetwork, NetworkOnly, CacheOnly, and OfflineFallback</li>
+<li><strong>URLPattern routing</strong> — match URLs with parameters and wildcards inside the SW</li>
+<li><strong>TTL expiry</strong> — responses carry custom headers; expired entries are pruned automatically</li>
+<li><strong>Install/activate helpers</strong> — precache shell assets and clean up old caches on update</li>
+<li><strong>Background sync</strong> — queue failed requests and replay them when connectivity returns</li>
+<li><strong>Push notifications</strong> — VAPID subscription and notification display</li>
+<li><strong>Request serialization</strong> — store Request objects in IndexedDB for offline replay</li>
 </ul>
-
-<!-- Package Section -->
+<hr />
 <h2>Package</h2>
 <view-code language="javascript">// Service Worker thread
 import { CacheFirst, router, precache } from '@adukiorg/anza/sw';
@@ -33,43 +25,16 @@ import { CacheFirst, router, precache } from '@adukiorg/anza/sw';
 // Main thread
 import { offline } from '@adukiorg/anza/offline';
 </view-code>
-
-<!-- File Map Section -->
+<hr />
 <h2>File Map</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>File</th>
-        <th>What It Covers</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a href="/docs/sw/start">start.md</a></td>
-        <td>Writing your first <code>src/sw.js</code> and registering it from <code>app.js</code></td>
-      </tr>
-      <tr>
-        <td><a href="/docs/sw/strategies">strategies.md</a></td>
-        <td>The seven caching strategies and their behavior</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/sw/routes">routes.md</a></td>
-        <td>URLPattern routing inside the Service Worker</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/sw/sync">sync.md</a></td>
-        <td>Background sync queue and replay</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/sw/api">api.md</a></td>
-        <td>Complete API reference</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Example Section -->
+<div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
+<tr><td><a href="/docs/sw/start">start.md</a></td><td>Writing your first <code>src/sw.js</code> and registering it from <code>app.js</code></td></tr>
+<tr><td><a href="/docs/sw/strategies">strategies.md</a></td><td>The seven caching strategies and their behavior</td></tr>
+<tr><td><a href="/docs/sw/routes">routes.md</a></td><td>URLPattern routing inside the Service Worker</td></tr>
+<tr><td><a href="/docs/sw/sync">sync.md</a></td><td>Background sync queue and replay</td></tr>
+<tr><td><a href="/docs/sw/api">api.md</a></td><td>Complete API reference</td></tr>
+</tbody></table></div>
+<hr />
 <h2>One-File Example</h2>
 <view-code language="javascript">// src/sw.js
 import { precache, router, CacheFirst, NetworkFirst } from '@adukiorg/anza/sw';
@@ -95,13 +60,12 @@ navigator.serviceWorker.register('/sw.js');
 
 dock('main');
 </view-code>
-
-<!-- Next Steps Section -->
+<hr />
 <h2>Next Steps</h2>
 <ul>
-  <li>New to SW? Start with <a href="/docs/sw/start">start.md</a>.</li>
-  <li>Want caching details? Read <a href="/docs/sw/strategies">strategies.md</a>.</li>
-  <li>Need URL routing in the SW? See <a href="/docs/sw/routes">routes.md</a>.</li>
-  <li>Building offline queue replay? <a href="/docs/sw/sync">sync.md</a>.</li>
-  <li>Prefer a single reference page? <a href="/docs/sw/api">api.md</a>.</li>
+<li>New to SW? Start with <a href="/docs/sw/start">start.md</a>.</li>
+<li>Want caching details? Read <a href="/docs/sw/strategies">strategies.md</a>.</li>
+<li>Need URL routing in the SW? See <a href="/docs/sw/routes">routes.md</a>.</li>
+<li>Building offline queue replay? <a href="/docs/sw/sync">sync.md</a>.</li>
+<li>Prefer a single reference page? <a href="/docs/sw/api">api.md</a>.</li>
 </ul>

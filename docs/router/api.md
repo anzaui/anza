@@ -280,3 +280,34 @@ import { gate, boot, ready, reset } from '@adukiorg/anza/router';
 import { isCallback, resolveTag, runCallback } from '@adukiorg/anza/router';
 import { transitions } from '@adukiorg/anza/router';
 ```
+
+### `transitions`
+
+Router facade over the UI View Transitions core. Soft-nav docks use **element-scoped** VT via `dock.swap` / `runSwap` — never document VT. Use `run` only for explicit document morphs.
+
+```javascript
+import { transitions } from '@adukiorg/anza/router';
+
+transitions.configure({ enabled: true });
+transitions.dockName(null, 'content'); // → 'dock-content'
+await transitions.runSwap(host, () => host.replaceChildren(leaf), {
+  dockName: 'content',
+  direction: 'push',
+  signal: ctrl.signal
+});
+await transitions.run(() => panel.replaceChildren(next), {
+  sourceElement: card,
+  name: 'selected-card',
+  signal: ctrl.signal
+});
+```
+
+| Member | Role |
+| ------ | ---- |
+| `configure` / `getConfig` | Global enable + name resolver |
+| `runSwap` | Element-scoped dock swap (same as `ui.runSwapTransition`) |
+| `run` | Document morph + token sheet inject |
+| `dockName` | Default `dock-<registryKey>` |
+| `prefersReducedMotion` | Motion preference helper |
+
+Full behaviour: [transitions.md](transitions.md), [ui/transitions.md](../ui/transitions.md).

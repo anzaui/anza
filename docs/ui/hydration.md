@@ -2,7 +2,7 @@
 
 When a public route ships contentful HTML with open Declarative Shadow DOM (DSD), Anza **adopts** that tree on upgrade instead of clearing and re-cloning. That is the Phase 2 client path for [SSG / Mode B HTML](../ssg/contract.md).
 
-Anza does **not** own a production Node SSR runtime. HTML comes from Mode A (`anza build` SSG) or Mode B (any-language templates). The client only adopts what is already in the document.
+Anza does **not** own a production Node SSR runtime. HTML comes from Mode A (`anza build` / `anza dev` SSG) or Mode B (any-language templates). The client only adopts what is already in the document.
 
 ---
 
@@ -38,8 +38,12 @@ Also handled:
 | Path | Behavior |
 | ---- | -------- |
 | **Full load / hard refresh** | Browser fetches SSG or Mode B HTML. Orchestrator reuses a matching leaf already in the dock — it must not wipe adopted SEO content. |
-| **Soft-nav** | Client router keeps parent docks; CSR-mounts a new leaf when the page tag changes. New leaves have no DSD (CSR clone is correct). |
-| **Parent docks** | Stay mounted across soft-nav in the same `via` chain; their adopted chrome is not torn down. |
+| **Soft-nav (same via chain)** | Client router keeps parent docks; CSR-mounts a new leaf when the page tag changes. Fetches the **page fragment** (`template.html` when SSG collided with `./index.html`), never the full SSG document. New leaves have no DSD (CSR clone is correct). Adopt rebinds `on` / `watch` on the live shadow; the **old** leaf’s `disconnectedCallback` → `ctrl.abort()` tears down its listeners and observers. |
+| **Parent docks** | Stay mounted across soft-nav in the same `via` chain; their adopted chrome is not torn down. Nested docs chrome is typically `main` → `docs` (`dock-docs`) → `content` (`dock-doccontent`). |
+
+Document / `#main` / `body` attachments belong only to named framework globals (`router.nav-click`, `router.container-mo`, `popover.*`) — not leaf `mount` code.
+
+`sanitizeTemplateHtml` refuses a full HTML document (doctype / `<html>` / nested `dock-main` / `dock-docs`) as a page template so a mis-pointed fragment path cannot stack docks inside the leaf.
 
 ---
 

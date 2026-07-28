@@ -64,13 +64,15 @@ page('/', { tag: 'page-home', via: ['main'] }); // mismatch
 
 ## View transitions not running
 
-**Cause:** Browser does not support `startViewTransition`.
+**Cause:** Missing VT API, reduced motion, or an explicit opt-out.
 
-**Fix:** The router falls back to synchronous rendering automatically. Check:
+**Fix:** Soft-nav still swaps synchronously — no broken UX. Check:
 
-1. Chrome 111+ for document-scoped transitions
-2. Chrome 147+ for element-scoped transitions
-3. `prefers-reduced-motion: reduce` disables transitions
+1. Chrome 147+ for **dock** leaf swaps (`Element.prototype.startViewTransition` / `supports.elementViewTransitions`). Docks never fall back to `document.startViewTransition`.
+2. Chrome 111+ for document morphs (`ui.transition` / `transitions.run` / `supports.viewTransitions`)
+3. `prefers-reduced-motion: reduce`, `transition: false`, or `configureTransitions({ enabled: false })` force a direct swap
+
+See [router/transitions.md](transitions.md) and [ui/transitions.md](../ui/transitions.md).
 
 ---
 

@@ -21,16 +21,22 @@ watch.attr(target, '*', handler, signalOrOptions?)
 
 watch.kids(target, handler, signalOrOptions?)
 watch.kids(target, { deep: true }, handler, signalOrOptions?)
+watch.children(...) // alias of watch.kids
 
 watch.text(target, handler, signalOrOptions?)
 
 watch.tree(target, handler, signalOrOptions?)
 
+watch.slot(slotOrSelector, handler, signalOrOptions?)
+
 watch.attr.once(...)
 watch.kids.once(...)
 watch.text.once(...)
 watch.tree.once(...)
+watch.slot.once(...)
 ```
+
+Observers are bucketed by option fingerprint so a `tree` / `attr *` registration never widens another watch’s `attributeFilter` or `subtree`.
 
 `target` can be:
 
@@ -196,41 +202,23 @@ mount({ refs, watch }) {
 - A direct target outside the shadow root throws in development and returns a no-op disposer in production.
 - Cross-component observation must use `CustomEvent`, shared state, or parent-owned refs.
 
-## 8. Shared Observer Model
+## 8. Observer buckets
 
-Each component instance owns one `MutationObserver`.
-
-Registrations are stored internally:
+Each component instance owns **MutationObserver buckets** keyed by observe fingerprint (root mode + options). Registrations join the bucket whose options they need. A `tree` / `attr *` registration creates (or joins) a *wide* bucket — it must **not** widen a narrow bucket used by other regs.
 
 ```javascript
-{
-  id,
-  kind,
-  target,
-  selector,
-  attrs,
-  deep,
-  handler,
-  signal,
-  once
+fingerprint = {
+  mode,                // 'shadow' (selector late-bind) | 'direct'
+  attributes, attributeFilter|*, attributeOldValue,
+  childList, subtree,
+  characterData, characterDataOldValue
 }
 ```
 
-When a registration is added or removed, the observer options are recomputed:
-
-```javascript
-{
-  attributes: hasAttrWatch || hasTreeWatch,
-  attributeOldValue: hasAttrWatch || hasTreeWatch,
-  attributeFilter: unionOfSpecificAttrsOrUndefined,
-  childList: hasKidsWatch || hasTreeWatch,
-  characterData: hasTextWatch || hasTreeWatch,
-  characterDataOldValue: hasTextWatch || hasTreeWatch,
-  subtree: true
-}
-```
-
-If any `watch.attr(..., '*', ...)` or `watch.tree(...)` registration exists, `attributeFilter` is omitted.
+- Direct Element targets with identical narrow options share one MO observing those targets.
+- Selector targets that need late-bind observe the shadow root only in a bucket that requires it.
+- On last registration leave → `disconnect` that bucket’s observer.
+- `watch.slot` uses `slotchange` listeners (counted separately in `getAttachmentStats`), not MO buckets.
 
 ## 9. Matching Rules
 

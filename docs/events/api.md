@@ -37,10 +37,15 @@ const off = events.listen(el, 'click', handler, { signal: ctrl.signal });
 
 ### `events.delegate(root, selector, type, handler, options)`
 
-Shadow-aware event delegation. Returns a disposer.
+Shadow-aware event delegation via `composedPath()`. Options include `signal`, `attrs`, `not`, `key`, `scope`. Returns a disposer.
 
 ```javascript
-const off = events.delegate(document.body, '.btn', 'click', handler);
+const off = events.delegate(document.body, '.btn', 'click', handler, {
+  signal: ctrl.signal,
+  attrs: { 'data-action': 'save' },
+  not: '.ignore',
+  key: 'save'
+});
 ```
 
 ### `events.once(target, type, options)`
@@ -71,7 +76,18 @@ events.names.sw.message          // 'sw:message'
 ## Named Exports
 
 ```javascript
-import { bus, EventBus, delegate, once, listen, names } from '@adukiorg/anza/events';
+import {
+  bus,
+  EventBus,
+  delegate,
+  once,
+  listen,
+  names,
+  matchInComposedPath,
+  matchesAttrs,
+  PASSIVE_DEFAULT_TYPES,
+  resolvePassiveDefault
+} from '@adukiorg/anza/events';
 ```
 
 ### `bus`
@@ -106,18 +122,69 @@ Promise-wrapped single event. Returns `Promise<Event>`.
 
 System event constants object.
 
+### Matcher helpers (`match.js`)
+
+Shared by `events.delegate` and component `on`. Prefer the high-level APIs; import these only for custom roots or tests:
+
+```javascript
+import {
+  matchInComposedPath,
+  matchesAttrs,
+  PASSIVE_DEFAULT_TYPES,
+  resolvePassiveDefault
+} from '@adukiorg/anza/events';
+
+const el = matchInComposedPath(event, '.btn', root, 'path'); // 'path' | 'shadow' | 'assigned'
+matchesAttrs(el, { 'data-action': 'save', 'aria-disabled': null }); // null = must be absent
+resolvePassiveDefault('touchmove', undefined); // true — touch/wheel/mousewheel only
+PASSIVE_DEFAULT_TYPES.has('wheel'); // true
+```
+
+| Export | Role |
+| ------ | ---- |
+| `matchInComposedPath(event, selector, root, scope?)` | First matching element in `composedPath()` before `root` |
+| `matchesAttrs(element, attrs)` | Attribute predicates (`null` = absent) |
+| `PASSIVE_DEFAULT_TYPES` | `Set` of scroll-critical event type strings |
+| `resolvePassiveDefault(type, optionsPassive?)` | Passive default aligned with `listen` / `on` |
+
 ---
 
 ## Listener Options
 
-All listener functions accept standard `addEventListener` options:
+All listener functions accept standard `addEventListener` options. `delegate` also accepts precision helpers:
 
 | Option | Type | Description |
 | -------- | ------ | ------------- |
 | `signal` | AbortSignal | Auto-cleanup on abort |
 | `capture` | boolean | Capture phase |
 | `once` | boolean | Fire once (native, not the `once()` function) |
-| `passive` | boolean | Cannot call preventDefault |
+| `passive` | boolean | Cannot call preventDefault; `listen` defaults true for touch/wheel only |
+| `attrs` | object | (`delegate` / component `on`) attribute predicates; `null` = must be absent |
+| `not` | string | (`delegate` / `on`) skip when `closest(not)` is inside the root |
+| `key` | string\|number | (`delegate` / `on`) dedupe — same key replaces prior registration |
+| `scope` | string | (`delegate`: `'path'` \| `'assigned'`; component `on`: `'shadow'` \| `'assigned'`) |
+
+### `events.delegate` precision (simple)
+
+```javascript
+events.delegate(root, '.btn', 'click', handler);
+```
+
+### Advanced
+
+```javascript
+events.delegate(root, '.btn', 'click', handler, {
+  signal: ctrl.signal,
+  attrs: { 'data-action': 'save', 'aria-disabled': null },
+  not: '.ignore',
+  key: 'toolbar-save',
+  scope: 'assigned'
+});
+```
+
+Matching walks `composedPath()` and stops at `root`. See [delegate.md](delegate.md).
+
+Component shadow delegation lives on context `on` — [ui/context.md](../ui/context.md#on) — with the same `attrs` / `not` / `key` options and empty-registry teardown.
 
 ---
 

@@ -1,97 +1,86 @@
-<!-- Main Content -->
 <h1>Start</h1>
 <p>Write a Service Worker that caches your shell and intercepts API calls.</p>
-
-<!-- Create sw.js Section -->
+<hr />
 <h2>1. Create <code>src/sw.js</code></h2>
 <p>The scaffold generates this file for you. Here is what it contains:</p>
-<view-code language="javascript">import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from
-  '@adukiorg/anza/sw';
+<view-code language="javascript">import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@adukiorg/anza/sw';
 
-  const SHELL = 'shell-v1';
-  const API = 'api-v1';
+const SHELL = 'shell-v1';
+const API = 'api-v1';
 
-  self.addEventListener('install', (e) =&gt; {
-  e.waitUntil(precache(SHELL, ['/index.html', '/app.js', '/tokens/index.css',
-  '/styles/index.css']));
-  });
+self.addEventListener('install', (e) =&gt; {
+  e.waitUntil(precache(SHELL, ['/index.html', '/app.js', '/tokens/index.css', '/styles/index.css']));
+});
 
-  self.addEventListener('activate', (e) =&gt; {
+self.addEventListener('activate', (e) =&gt; {
   e.waitUntil(Promise.all([pruneStale(SHELL), claim()]));
-  });
+});
 
-  const r = router();
-  r.register('/*', new CacheFirst(SHELL));
-  r.register('/api/*', new NetworkFirst(API, { timeout: 3000 }));
+const r = router();
+r.register('/*', new CacheFirst(SHELL));
+r.register('/api/*', new NetworkFirst(API, { timeout: 3000 }));
 
-  self.addEventListener('fetch', (e) =&gt; {
+self.addEventListener('fetch', (e) =&gt; {
   if (r.handle(e)) return;
   e.respondWith(fetch(e.request));
-  });
+});
 </view-code>
 <p>What it does:</p>
 <ol>
-  <li>On <code>install</code>, precaches the app shell into a cache named <code>shell-v1</code></li>
-  <li>On <code>activate</code>, deletes old caches and claims all tabs</li>
-  <li>Registers two routes: static assets get <code>CacheFirst</code>, API calls get <code>NetworkFirst</code> with a
-    3-second timeout</li>
-  <li>On <code>fetch</code>, tries the router first; unmatched requests fall through to the network</li>
+<li>On <code>install</code>, precaches the app shell into a cache named <code>shell-v1</code></li>
+<li>On <code>activate</code>, deletes old caches and claims all tabs</li>
+<li>Registers two routes: static assets get <code>CacheFirst</code>, API calls get <code>NetworkFirst</code> with a 3-second timeout</li>
+<li>On <code>fetch</code>, tries the router first; unmatched requests fall through to the network</li>
 </ol>
-
-<!-- Register from app.js Section -->
+<hr />
 <h2>2. Register from <code>app.js</code></h2>
 <view-code language="javascript">import '@adukiorg/anza/ui';
-  import { dock } from '@adukiorg/anza/ui';
+import { dock } from '@adukiorg/anza/ui';
 
-  // Register the Service Worker
-  navigator.serviceWorker.register('/sw.js');
+// Register the Service Worker
+navigator.serviceWorker.register('/sw.js');
 
-  // Layout shell
-  dock('main');
+// Layout shell
+dock('main');
 
-  // Pages
-  import './pages/index/index.js';
+// Pages
+import './pages/index/index.js';
 </view-code>
-<p><code>navigator.serviceWorker.register('/sw.js')</code> starts the SW. The browser resolves the path relative to
-  the page origin, so <code>/sw.js</code> is correct.</p>
-
-<!-- Send Messages Section -->
+<p><code>navigator.serviceWorker.register('/sw.js')</code> starts the SW. The browser resolves the path relative to the page origin, so <code>/sw.js</code> is correct.</p>
+<hr />
 <h2>3. Send Messages from the Main Thread</h2>
 <p>Use the offline bridge to send tasks to the active SW:</p>
 <view-code language="javascript">import { offline } from '@adukiorg/anza/offline';
 
-  offline.send('sync', { action: 'flush-queue' });
+offline.send('sync', { action: 'flush-queue' });
 </view-code>
 <p>The SW receives this via <code>message</code> events. The bridge handles the response as a Promise.</p>
-
-<!-- Build Output Section -->
+<hr />
 <h2>4. Build Output</h2>
 <p>After <code>npm run build</code>:</p>
 <view-code language="text">dist/
-  sw.js # Your entry — rewritten to use relative imports
+  sw.js              # Your entry — rewritten to use relative imports
   sw/
-  index.js # Re-exports from the library
-  strategies.js # Caching strategy classes
-  routes.js # URLPattern router
-  install.js # Precache helpers
-  activate.js # Lifecycle cleanup
-  expire.js # TTL pruning
-  queue.js # Request serialization
-  sync.js # Background replay
-  push.js # Web Push helpers
+    index.js         # Re-exports from the library
+    strategies.js    # Caching strategy classes
+    routes.js        # URLPattern router
+    install.js       # Precache helpers
+    activate.js      # Lifecycle cleanup
+    expire.js        # TTL pruning
+    queue.js         # Request serialization
+    sync.js          # Background replay
+    push.js          # Web Push helpers
 </view-code>
-<p>The build tool copied these from <code>library/src/sw/</code> and rewrote bare specifiers in <code>dist/sw.js</code>
-  to relative paths like <code>./sw/index.js</code>.</p>
-
-<!-- Next Section -->
+<p>The build tool copied these from <code>library/src/sw/</code> and rewrote bare specifiers in <code>dist/sw.js</code> to relative paths like <code>./sw/index.js</code>.</p>
+<hr />
 <h2>Next</h2>
 <p>Add background sync to replay failed mutations:</p>
 <view-code language="javascript">import { replayQueue } from '@adukiorg/anza/sw';
 
-  self.addEventListener('sync', (e) =&gt; {
+self.addEventListener('sync', (e) =&gt; {
   if (e.tag === 'sync-tasks') {
-  e.waitUntil(replayQueue());
+    e.waitUntil(replayQueue());
   }
-  });
+});
 </view-code>
 <p>Read <a href="/docs/sw/sync">sync.md</a> for the full queue API.</p>

@@ -33,26 +33,63 @@ describe('View Transitions wrapper', () => {
 
   it('should transiently apply and clear viewTransitionName on sourceElement', async () => {
     let nameCheckedDuringMutation = '';
-    
+
     await transitions.run(
       async () => {
-        // Retrieve transition name during DOM update phase
         nameCheckedDuringMutation = element.style.viewTransitionName;
       },
       { sourceElement: element, name: 'custom-card' }
     );
 
-    // Verify it is securely cleared after execution completes
     if (element.style.viewTransitionName !== '') {
       throw new Error(`Expected viewTransitionName to be cleared, got "${element.style.viewTransitionName}"`);
     }
 
-    // If startViewTransition is natively supported in this test browser environment,
-    // we assert that it was set correctly during the update.
     if (typeof document.startViewTransition === 'function') {
       if (nameCheckedDuringMutation !== 'custom-card') {
         throw new Error(`Expected viewTransitionName to be "custom-card" during update, got "${nameCheckedDuringMutation}"`);
       }
+    }
+  });
+
+  it('should skip document VT under reduced motion', async () => {
+    const prev = window.matchMedia;
+    window.matchMedia = (query) => ({
+      matches: String(query).includes('prefers-reduced-motion'),
+      media: query,
+      addEventListener() {},
+      removeEventListener() {},
+      addListener() {},
+      removeListener() {},
+      dispatchEvent() { return false; }
+    });
+
+    let calls = 0;
+    const real = document.startViewTransition;
+    document.startViewTransition = () => {
+      calls += 1;
+      return {
+        finished: Promise.resolve(),
+        updateCallbackDone: Promise.resolve(),
+        ready: Promise.resolve(),
+        skipTransition() {}
+      };
+    };
+
+    let ran = false;
+    await transitions.run(() => { ran = true; });
+
+    window.matchMedia = prev;
+    if (real) document.startViewTransition = real;
+    else delete document.startViewTransition;
+
+    if (!ran) throw new Error('Expected update to run');
+    if (calls !== 0) throw new Error('Expected document VT skipped under reduced motion');
+  });
+
+  it('exposes dock naming helper', () => {
+    if (transitions.dockName(null, 'docs') !== 'dock-docs') {
+      throw new Error('Expected transitions.dockName to map docs → dock-docs');
     }
   });
 });

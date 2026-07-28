@@ -1,0 +1,20 @@
+<h1>SSG expand: {{slug}}</h1>
+<p>
+  This page is emitted at build time from the parametric pattern
+  <code>/docs/ssg/expand/:slug</code> via <code>ssg.expand</code>. Unexpanded
+  param values stay Mode B or CSR (no <code>dist/…/index.html</code>).
+</p>
+
+<h2>Declare expansions</h2>
+<view-code language="javascript">
+page('/docs/ssg/expand/:slug', {
+  params: [{ name: 'slug', type: String }],
+  ssg: { expand: [{ slug: 'foo' }] },
+  seo: { title: 'SSG expand: {{slug}} — Anza' },
+  // …
+})
+</view-code>
+<p>
+  Or list values in project-level <code>ssg.params.json</code> keyed by the
+  route pattern. See the <a href="/docs/ssg/contract">HTML contract</a>.
+</p>

@@ -187,6 +187,13 @@ Available in match results as `result.route.meta`.
 
 ---
 
+## Soft-nav vs hard refresh
+
+- **Soft-nav** — the router keeps parent docks; only the page leaf inside the leaf dock is swapped (CSR mount when the tag changes). Soft-nav loads the page **fragment** (often `template.html` after Mode A preserves it), never the full SSG document.
+- **Hard refresh / full load** — the browser fetches contentful SSG or Mode B HTML (`anza build` and `anza dev`); the client adopts open DSD and must not wipe SEO content. See [ui/hydration.md](../ui/hydration.md).
+
+---
+
 ## Boot Gate
 
 `page()` automatically gates the initial route match on the element's custom element definition:

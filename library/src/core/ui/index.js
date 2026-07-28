@@ -10,11 +10,23 @@
 
 import { BaseElement } from './base.js';
 import { define, element, container, page, dock, view, part } from './define/index.js';
-import { schedule, scheduleFrame, yieldTask } from './schedule.js';
-import { transition } from './transitions.js';
+import { schedule, scheduleFrame, yieldTask, Priority } from './schedule.js';
+import {
+  transition,
+  runSwapTransition,
+  configureTransitions,
+  getTransitionConfig,
+  prefersReducedMotion,
+  shouldAnimate,
+  dockTransitionName,
+  skipHostTransition,
+  hasDocumentViewTransition,
+  hasElementViewTransition
+} from './transitions.js';
 import { template } from './template.js';
 import * as observe from './observe.js';
 import { theme } from '../theme/index.js';
+import { getAttachmentStats } from './define/proxy.js';
 
 export * from './defs/index.js';
 
@@ -29,10 +41,18 @@ export const ui = {
   schedule,
   scheduleFrame,
   yield: yieldTask,
+  Priority,
   transition,
+  runSwapTransition,
+  configureTransitions,
+  getTransitionConfig,
+  prefersReducedMotion,
+  shouldAnimate,
+  dockTransitionName,
   template,
   observe,
-  theme
+  theme,
+  getAttachmentStats
 };
 
 export {
@@ -47,8 +67,19 @@ export {
   schedule,
   scheduleFrame,
   yieldTask,
+  Priority,
   transition,
+  runSwapTransition,
+  configureTransitions,
+  getTransitionConfig,
+  prefersReducedMotion,
+  shouldAnimate,
+  dockTransitionName,
+  skipHostTransition,
+  hasDocumentViewTransition,
+  hasElementViewTransition,
   template,
   observe,
-  theme
+  theme,
+  getAttachmentStats
 };

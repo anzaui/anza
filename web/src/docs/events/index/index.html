@@ -1,110 +1,56 @@
-<!-- Main Content -->
 <h1>Events</h1>
-<p>
-  The Anza events layer is a thin, memory-safe wrapper around the DOM EventTarget. It provides a global event bus,
-  high-performance delegation through Shadow DOM boundaries, promise-wrapped single-event awaits, automatic passive
-  defaults for scroll-critical events, and a centralized registry of system event names.
-</p>
-<p>
-  Everything is built on the browser's native <code>EventTarget</code> and <code>CustomEvent</code>. No polyfills, no
-  heavy abstractions.
-</p>
-
-<!-- Features Section -->
+<p>The Anza events layer is a thin, memory-safe wrapper around the DOM EventTarget. It provides a global event bus, high-performance delegation through Shadow DOM boundaries, promise-wrapped single-event awaits, automatic passive defaults for scroll-critical events, and a centralized registry of system event names.</p>
+<p>Everything is built on the browser's native <code>EventTarget</code> and <code>CustomEvent</code>. No polyfills, no heavy abstractions.</p>
+<hr />
 <h2>What You Get</h2>
 <ul>
-  <li><strong>Global event bus</strong> — <code>events.emit</code> and <code>events.on</code> for application-wide
-    pub/sub</li>
-  <li><strong>Shadow-aware delegation</strong> — <code>events.delegate</code> traverses <code>composedPath()</code>
-    through nested shadow roots</li>
-  <li><strong>Memory-safe listening</strong> — <code>events.listen</code> with automatic passive defaults and
-    AbortSignal cleanup</li>
-  <li><strong>Promise-wrapped single event</strong> — <code>events.once</code> for <code>await</code> on a single event
-  </li>
-  <li><strong>System event names</strong> — <code>events.names.auth.signedin</code>,
-    <code>events.names.connectivity.online</code>, and so on</li>
+<li><strong>Global event bus</strong> — <code>events.emit</code> and <code>events.on</code> for application-wide pub/sub</li>
+<li><strong>Shadow-aware delegation</strong> — <code>events.delegate</code> traverses <code>composedPath()</code> through nested shadow roots (<code>attrs</code> / <code>not</code> / <code>key</code> / <code>scope</code>)</li>
+<li><strong>Memory-safe listening</strong> — <code>events.listen</code> with automatic passive defaults (touch/wheel) and AbortSignal cleanup</li>
+<li><strong>Promise-wrapped single event</strong> — <code>events.once</code> for <code>await</code> on a single event</li>
+<li><strong>System event names</strong> — <code>events.names.auth.signedin</code>, <code>events.names.connectivity.online</code>, and so on</li>
+<li><strong>Component <code>on</code></strong> — shadow-scoped delegation with the same matcher; empty registries tear down root listeners (<a href="../ui/context.md#on">ui/context</a>)</li>
 </ul>
-
-<!-- Package Section -->
+<hr />
 <h2>Package</h2>
-<view-code language="javascript">
-  import { events } from '@adukiorg/anza/events';
+<view-code language="javascript">import { events } from '@adukiorg/anza/events';
 </view-code>
-
-<!-- File Map Section -->
+<hr />
 <h2>File Map</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>File</th>
-        <th>What It Covers</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><a href="/docs/events/quickstart">quickstart.md</a></td>
-        <td>Your first event in five minutes</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/events/bus">bus.md</a></td>
-        <td>Global event bus — emit, on, and the EventBus class</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/events/delegate">delegate.md</a></td>
-        <td>High-performance event delegation through shadow DOM</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/events/listen">listen.md</a></td>
-        <td>Memory-safe listeners with passive defaults</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/events/once">once.md</a></td>
-        <td>Promise-wrapped single-event awaits</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/events/names">names.md</a></td>
-        <td>System event name constants</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/events/api">api.md</a></td>
-        <td>Complete API reference</td>
-      </tr>
-      <tr>
-        <td><a href="/docs/events/troubleshooting">troubleshooting.md</a></td>
-        <td>Common problems and how to fix them</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- Example Section -->
+<div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
+<tr><td><a href="/docs/events/quickstart">quickstart.md</a></td><td>Your first event in five minutes</td></tr>
+<tr><td><a href="/docs/events/bus">bus.md</a></td><td>Global event bus — emit, on, and the EventBus class</td></tr>
+<tr><td><a href="/docs/events/delegate">delegate.md</a></td><td>High-performance event delegation through shadow DOM</td></tr>
+<tr><td><a href="/docs/events/listen">listen.md</a></td><td>Memory-safe listeners with passive defaults</td></tr>
+<tr><td><a href="/docs/events/once">once.md</a></td><td>Promise-wrapped single-event awaits</td></tr>
+<tr><td><a href="/docs/events/names">names.md</a></td><td>System event name constants</td></tr>
+<tr><td><a href="/docs/events/api">api.md</a></td><td>Complete API reference (incl. <code>matchInComposedPath</code> / passive helpers)</td></tr>
+<tr><td><a href="/docs/events/troubleshooting">troubleshooting.md</a></td><td>Common problems and how to fix them</td></tr>
+</tbody></table></div>
+<hr />
 <h2>One-File Example</h2>
-<view-code language="javascript">
-  import { events } from '@adukiorg/anza/events';
+<view-code language="javascript">import { events } from '@adukiorg/anza/events';
 
-  // Global pub/sub
-  const off = events.on('user:login', (e) =&gt; {
-    console.log('User logged in:', e.detail);
-  });
+// Global pub/sub
+const off = events.on('user:login', (e) =&gt; {
+  console.log('User logged in:', e.detail);
+});
 
-  events.emit('user:login', { id: 42 });
+events.emit('user:login', { id: 42 });
 
-  // Stop listening
-  off();
+// Stop listening
+off();
 
-  // Await a single event
-  const click = await events.once(document.body, 'click');
-  console.log('Clicked at', click.clientX, click.clientY);
+// Await a single event
+const click = await events.once(document.body, 'click');
+console.log('Clicked at', click.clientX, click.clientY);
 </view-code>
-
-<!-- Next Steps Section -->
+<hr />
 <h2>Next Steps</h2>
 <ul>
-  <li>New to the events layer? Start with <a href="/docs/events/quickstart">quickstart.md</a>.</li>
-  <li>Building global pub/sub? Read <a href="/docs/events/bus">bus.md</a>.</li>
-  <li>Working with shadow DOM? <a href="/docs/events/delegate">delegate.md</a>.</li>
-  <li>Need memory-safe cleanup? <a href="/docs/events/listen">listen.md</a> and <a href="/docs/events/once">once.md</a>.
-  </li>
-  <li>Prefer a single reference page? <a href="/docs/events/api">api.md</a>.</li>
+<li>New to the events layer? Start with <a href="/docs/events/quickstart">quickstart.md</a>.</li>
+<li>Building global pub/sub? Read <a href="/docs/events/bus">bus.md</a>.</li>
+<li>Working with shadow DOM? <a href="/docs/events/delegate">delegate.md</a> and component <a href="../ui/context.md#on">on</a> / <a href="../ui/context.md#watch">watch</a>.</li>
+<li>Need memory-safe cleanup? <a href="/docs/events/listen">listen.md</a>, <a href="/docs/events/once">once.md</a>, and <a href="troubleshooting.md#orphan-listeners-after-soft-nav">soft-nav orphans</a>.</li>
+<li>Prefer a single reference page? <a href="/docs/events/api">api.md</a>.</li>
 </ul>

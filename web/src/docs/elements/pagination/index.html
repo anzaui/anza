@@ -1,0 +1,43 @@
+<h1>Pagination</h1>
+<p>Prev / next pagination. Uses <code>page</code> when set; otherwise syncs with the URL <code>?page=</code> query via the router.</p>
+<p><strong>Tag:</strong> <code>ui-pagination</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/pagination</code></p>
+<hr />
+<h2>Import</h2>
+<view-code language="javascript">import '@adukiorg/anza/elements/pagination';
+</view-code>
+<hr />
+<h2>Basic usage</h2>
+<view-code language="html">&lt;!-- Controlled via props --&gt;
+&lt;ui-pagination page="2" total="100" limit="10"&gt;&lt;/ui-pagination&gt;
+
+&lt;!-- URL query mode (omit page — reads/writes ?page=) --&gt;
+&lt;ui-pagination total="48" limit="12"&gt;&lt;/ui-pagination&gt;
+</view-code>
+<view-code language="javascript">document.querySelector('ui-pagination').addEventListener('page-change', (e) =&gt; {
+  console.log(e.detail.page);
+});
+</view-code>
+<hr />
+<h2>Props</h2>
+<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>page</code></td><td>Number</td><td>Reflect</td><td>Current page (when set, controls locally instead of URL)</td></tr>
+<tr><td><code>total</code></td><td>Number</td><td>Reflect</td><td>Total item count</td></tr>
+<tr><td><code>limit</code></td><td>Number</td><td>Reflect</td><td>Items per page (default <code>10</code>)</td></tr>
+</tbody></table></div>
+<h2>Events</h2>
+<div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody>
+<tr><td><code>page-change</code></td><td>After prev/next; <code>detail.page</code> is the new page</td></tr>
+</tbody></table></div>
+<h2>Notes</h2>
+<p>Parts: <code>button</code>, <code>prev</code>, <code>next</code>, <code>indicator</code>. Click handlers use shadow-scoped <code>on</code> (signal-owned). Navigation API <code>navigate</code> listener uses <code>{ signal: el.ctrl.signal }</code> when URL-synced.</p>
+<h3>Lifecycle / memory</h3>
+<p>Prev/next <code>on.click</code> and the Navigation API listener abort with the component <code>ctrl</code>. Soft-nav disconnect clears them. Prefer this over raw <code>document</code> listeners for page changes.</p>
+<hr />
+<h2>Related</h2>
+<ul>
+<li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="/docs/elements/navigation">Navigation</a></li>
+<li><a href="/docs/elements/tabs">Tabs</a></li>
+<li><a href="/docs/ui/advanced">Memory safety &amp; framework globals</a></li>
+<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
+</ul>

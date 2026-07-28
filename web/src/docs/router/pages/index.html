@@ -1,18 +1,13 @@
-<!-- Main Content -->
 <h1>Pages</h1>
-<p><code>page(route, config, base)</code> defines a route-bound custom element. It is the primary way to declare
-  navigable views in an Anza application.</p>
-
-<!-- Signature Section -->
+<p><code>page(route, config, base)</code> defines a route-bound custom element. It is the primary way to declare navigable views in an Anza application.</p>
+<hr />
 <h2>Signature</h2>
 <view-code language="javascript">page(route, config, base);
 </view-code>
-<p>| <code>route</code> | string | string[] | yes | Dynamic URL pattern(s), e.g. <code>'/'</code>,
-  <code>'/profile/:id'</code>, or <code>['/blog', '/blog/:slug']</code> |
-  | <code>config</code> | object | yes | Page definition (see below) |
-  | <code>base</code> | string | no | <code>import.meta.url</code> of the caller; required for file templates |</p>
-
-<!-- Config Fields Section -->
+<p>| <code>route</code> | string | string[] | yes | Dynamic URL pattern(s), e.g. <code>'/'</code>, <code>'/profile/:id'</code>, or <code>['/blog', '/blog/:slug']</code> |
+| <code>config</code> | object | yes | Page definition (see below) |
+| <code>base</code> | string | no | <code>import.meta.url</code> of the caller; required for file templates |</p>
+<hr />
 <h2>Config Fields</h2>
 <h3><code>tag</code></h3>
 <p>The custom element tag. Must contain a hyphen.</p>
@@ -42,8 +37,7 @@
 </view-code>
 <p>Setting <code>shadow: false</code> renders into the light DOM instead of a shadow root.</p>
 <h3><code>style</code></h3>
-<p>Inline CSS string, a file path, or an array containing CSS strings or stylesheet paths (both relative and
-  root-relative starting with <code>/</code>).</p>
+<p>Inline CSS string, a file path, or an array containing CSS strings or stylesheet paths (both relative and root-relative starting with <code>/</code>).</p>
 <view-code language="javascript">// Inline CSS
 style: ':host { display: block; padding: 1rem; }'
 
@@ -54,31 +48,26 @@ style: './home.css'
 style: ['/styles/shared.css', './home.css']
 </view-code>
 <h3><code>props</code></h3>
-<p>Generic reactive properties for the component. For route-specific parameters, use the dedicated <code>params</code>
-  and <code>query</code> contract arrays.</p>
+<p>Generic reactive properties for the component. For route-specific parameters, use the dedicated <code>params</code> and <code>query</code> contract arrays.</p>
 <view-code language="javascript">props: {
   theme: { type: String, default: 'light' }
 }
 </view-code>
 <h3><code>params</code></h3>
-<p>An array defining the path parameter contract. The library casts parameter values automatically to the specified
-  type:</p>
+<p>An array defining the path parameter contract. The library casts parameter values automatically to the specified type:</p>
 <view-code language="javascript">params: [
   { name: 'id', type: Number }
 ]
 </view-code>
-<p>Path parameter values are extracted in order, and pushed reactively onto the element (as attributes/properties) when
-  navigation occurs.</p>
+<p>Path parameter values are extracted in order, and pushed reactively onto the element (as attributes/properties) when navigation occurs.</p>
 <h3><code>query</code></h3>
-<p>An array defining the query parameters contract. Mapped parameters are cast and pushed reactively onto the element
-  properties:</p>
+<p>An array defining the query parameters contract. Mapped parameters are cast and pushed reactively onto the element properties:</p>
 <view-code language="javascript">query: [
-  { name: 'tab', type: String },
+  { name: 'tab',    type: String },
   { name: 'search', type: String }
 ]
 </view-code>
-<p>Visiting <code>/settings?tab=profile&amp;search=alice</code> sets <code>this.tab = 'profile'</code> and
-  <code>this.search = 'alice'</code> on the element instance.</p>
+<p>Visiting <code>/settings?tab=profile&amp;search=alice</code> sets <code>this.tab = 'profile'</code> and <code>this.search = 'alice'</code> on the element instance.</p>
 <h3><code>hash</code></h3>
 <p>Declare a <code>hash</code> prop to receive the URL hash:</p>
 <view-code language="javascript">props: { hash: { type: String } }
@@ -92,7 +81,7 @@ style: ['/styles/shared.css', './home.css']
     // params and query are ordered accessor arrays:
     const userId = params.id ?? params[0];
     const activeTab = query.tab ?? query[0];
-
+    
     return fetchUser(userId, activeTab);
   },
   connect({ el }) {
@@ -106,12 +95,8 @@ style: ['/styles/shared.css', './home.css']
   }
 }
 </view-code>
-<p>All hooks receive a context object. The <code>load</code> hook receives the route-derived <code>params</code> (typed
-  ordered array with <code>.first</code>, <code>.last</code>, and named segment getters), <code>query</code> (typed
-  ordered array with the same getters), <code>raw</code> (the raw <code>URLSearchParams</code> object),
-  <code>hash</code>, and <code>ctrl</code> (whose signal aborts if the element disconnects).</p>
-<p><code>load</code> may return a promise. The router does not wait for it — the element mounts immediately and the
-  promise resolves asynchronously. Use this for data fetching that should not block rendering.</p>
+<p>All hooks receive a context object. The <code>load</code> hook receives the route-derived <code>params</code> (typed ordered array with <code>.first</code>, <code>.last</code>, and named segment getters), <code>query</code> (typed ordered array with the same getters), <code>raw</code> (the raw <code>URLSearchParams</code> object), <code>hash</code>, and <code>ctrl</code> (whose signal aborts if the element disconnects).</p>
+<p><code>load</code> may return a promise. The router does not wait for it — the element mounts immediately and the promise resolves asynchronously. Use this for data fetching that should not block rendering.</p>
 <h3><code>guard</code></h3>
 <p>Route-scoped navigation guard:</p>
 <view-code language="javascript">page('/checkout', {
@@ -128,23 +113,25 @@ style: ['/styles/shared.css', './home.css']
 <view-code language="javascript">meta: { analytics: 'checkout' }
 </view-code>
 <p>Available in match results as <code>result.route.meta</code>.</p>
-
-<!-- Boot Gate Section -->
+<hr />
+<h2>Soft-nav vs hard refresh</h2>
+<ul>
+<li><strong>Soft-nav</strong> — the router keeps parent docks; only the page leaf inside the leaf dock is swapped (CSR mount when the tag changes). Soft-nav loads the page <strong>fragment</strong> (often <code>template.html</code> after Mode A preserves it), never the full SSG document.</li>
+<li><strong>Hard refresh / full load</strong> — the browser fetches contentful SSG or Mode B HTML (<code>anza build</code> and <code>anza dev</code>); the client adopts open DSD and must not wipe SEO content. See <a href="/docs/ui/hydration">ui/hydration.md</a>.</li>
+</ul>
+<hr />
 <h2>Boot Gate</h2>
 <p><code>page()</code> automatically gates the initial route match on the element's custom element definition:</p>
 <view-code language="javascript">gate(customElements.whenDefined(tag));
 </view-code>
-<p>This means a hard refresh on <code>/user/42</code> will wait for <code>&lt;page-user&gt;</code> to be defined before
-  running the initial match, eliminating the race condition that plagued earlier router architectures.</p>
-
-<!-- Route Registration Section -->
+<p>This means a hard refresh on <code>/user/42</code> will wait for <code>&lt;page-user&gt;</code> to be defined before running the initial match, eliminating the race condition that plagued earlier router architectures.</p>
+<hr />
 <h2>Route Registration</h2>
 <p><code>page()</code> registers the route internally:</p>
 <view-code language="javascript">router.register(route, tag, { via, container: target, ...meta });
 </view-code>
 <p>The tag is both the custom element name and the route handler.</p>
-
-<!-- Example: Full Page Definition Section -->
+<hr />
 <h2>Example: Full Page Definition</h2>
 <view-code language="javascript">page('/user/:id', {
   tag: 'page-user',

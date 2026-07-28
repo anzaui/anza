@@ -1,0 +1,19 @@
+<h1>Feedback</h1>
+<p>Alerts, toasts, progress, and empty / loading states.</p>
+<p>Import pattern:</p>
+<view-code language="javascript">import '@adukiorg/anza/elements/&lt;name&gt;';
+</view-code>
+<p>Full docs in this category: <a href="/docs/elements/alert">alert</a>, <a href="/docs/elements/toast">toast</a>, <a href="/docs/elements/progress">progress</a>, <a href="/docs/elements/skeleton">skeleton</a>, <a href="/docs/elements/empty">empty</a>.</p>
+<p>Toast’s <code>show</code> helper is the kit’s deliberate <code>document.body</code> portal; other layered UI stays on native top-layer APIs — see <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
+<h3>Lifecycle / memory</h3>
+<p>Toasts and similar feedback that may append a container under <code>body</code> must dispose with the creator’s abort signal — not a long-lived document listener. Soft-nav aborts only the detached leaf’s <code>ctrl</code>. Skeleton’s reduced-motion listener is signal-owned. See <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a> and <a href="/docs/events/troubleshooting">Orphan listeners after soft-nav</a>.</p>
+<hr />
+<h2>Elements</h2>
+<div class="table-wrap"><table><thead><tr><th>Element</th><th>Tag</th><th>Import</th><th>Status</th></tr></thead><tbody>
+<tr><td><a href="/docs/elements/alert">alert</a></td><td><code>ui-alert</code></td><td><code>@adukiorg/anza/elements/alert</code></td><td>Full</td></tr>
+<tr><td><a href="/docs/elements/toast">toast</a></td><td><code>ui-toast</code></td><td><code>@adukiorg/anza/elements/toast</code></td><td>Full</td></tr>
+<tr><td><a href="/docs/elements/progress">progress</a></td><td><code>ui-progress</code></td><td><code>@adukiorg/anza/elements/progress</code></td><td>Full</td></tr>
+<tr><td><a href="/docs/elements/skeleton">skeleton</a></td><td><code>ui-skeleton</code></td><td><code>@adukiorg/anza/elements/skeleton</code></td><td>Full</td></tr>
+<tr><td><a href="/docs/elements/empty">empty</a></td><td><code>ui-empty</code></td><td><code>@adukiorg/anza/elements/empty</code></td><td>Full</td></tr>
+</tbody></table></div>
+<p>See the <a href="/docs/elements/index">full inventory</a> and <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a> for phase status.</p>

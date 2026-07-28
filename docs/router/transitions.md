@@ -1,181 +1,81 @@
 # Transitions
 
-The router wraps every DOM mutation in the browser's CSS View Transitions API when available, falling back instantly to synchronous rendering when unsupported or when the user prefers reduced motion.
+Soft-nav leaf swaps use **element-scoped** View Transitions on the target dock so parent chrome stays put. Document-level `transitions.run` is for explicit shared-element morphs — not the default dock path.
 
 ---
 
-## How It Works
+## Dock leaf swaps
 
-When the router emits `found`, it calls:
+The orchestrator calls `swapView` / `swap` on the leaf container (`dock-doccontent` for docs). That path:
 
-```javascript
-await transitions.run(async () => {
-  // mount the new element
-}, { sourceElement, name });
-```
-
-The `transitions.run` wrapper:
-
-1. Checks `prefers-reduced-motion: reduce`
-2. Checks for `document.startViewTransition`
-3. If both pass, starts a view transition around the DOM update
-4. Otherwise, runs the update synchronously
-
----
-
-## Dock-Level Transitions
-
-Docks use their own `swap` method for container-scoped transitions:
+1. Skips any in-flight transition on the host
+2. Sets `view-transition-name` to `dock-<registryKey>` (e.g. `dock-content`)
+3. Uses `host.startViewTransition` when available
+4. Otherwise **direct** `replaceChildren` (never document VT — that flickers sidebar/header)
 
 ```javascript
-// Inside a dock element
-await this.swap(newElement, { direction: 'push' });
-```
-
-The dock tries three strategies in order:
-
-1. **Element-scoped** `startViewTransition` (Chrome 147+) — isolated to this subtree, concurrent with other docks
-2. **Document-scoped** `startViewTransition` — full-page transition
-3. **Synchronous** `replaceChildren` — instant swap
-
-Element-scoped transitions require `contain: layout` on the container. Every dock automatically receives this style.
-
----
-
-## Shared Element Morphing
-
-Morph a specific element between outgoing and incoming views:
-
-```javascript
-await transitions.run(() => {
-  container.replaceChildren(detail);
-}, {
-  sourceElement: card,
-  name: 'selected-card'
+await contentDock.swapView(pageEl, {
+  direction: 'push',
+  transition: { name: 'dock-content' },
+  signal: leafAbort.signal
 });
 ```
 
-Before the transition, `sourceElement.style.viewTransitionName` is set to `'selected-card'`. After the transition completes (or fails), the name is cleared.
-
-Use this for list-to-detail animations, card expansions, and any cross-view element continuity.
-
----
-
-## Directional Hints
-
-The `direction` option is passed through to the dock's `swap` method and exposed as a dataset attribute:
+Configure at dock definition:
 
 ```javascript
-await container.swap(newElement, { direction: 'back' });
-```
-
-In CSS:
-
-```css
-:host {
-  transition: transform 300ms ease;
-}
-
-:host([data-transition-direction="back"]) {
-  transform: translateX(-20px);
-}
+dock('content', {
+  parent: 'docs',
+  tag: 'dock-doccontent',
+  transition: true, // default; or false / { name, enabled }
+});
 ```
 
 ---
 
-## Reduced Motion
-
-When `prefers-reduced-motion: reduce` is active, transitions are skipped entirely. The DOM update runs synchronously. This is automatic — you do not need to handle it.
-
----
-
-## Abort Safety
-
-Rapid navigation can abort an in-flight transition. The router catches `AbortError` and silences it. The dock's `swap` method additionally aborts any previous transition before starting a new one, so rapid clicks do not leave half-finished animations.
-
----
-
-## Manual Use
-
-You can use `transitions.run` directly for non-router DOM updates:
+## Document morph (`transitions.run`)
 
 ```javascript
 import { transitions } from '@adukiorg/anza/router';
 
-await transitions.run(() => {
-  panel.replaceChildren(newContent);
-});
-```
-
-With shared element:
-
-```javascript
-await transitions.run(() => {
-  panel.replaceChildren(newContent);
+await transitions.run(async () => {
+  panel.replaceChildren(detail);
 }, {
-  sourceElement: thumbnail,
-  name: 'hero-image'
+  sourceElement: card,
+  name: 'selected-card',
+  signal: ctrl.signal
 });
 ```
 
----
+Skips when unsupported, reduced-motion, disabled, or aborted. Injects a token stylesheet on first successful document VT.
 
-## Tokens
-
-View Transition timing and backdrop are controlled by semantic tokens. The library injects a token-aware stylesheet on the first transition so duration, easing, and background derive from the same layer as surfaces and content.
-
-| Token | Default | Purpose |
-| ------ | ------- | ------- |
-| `--transition-bg` | `--color-surface-page` | Backdrop behind old and new page snapshots |
-| `--transition-duration` | `--duration-normal` | How long the VT runs |
-| `--transition-easing` | `--ease-out` | Default easing curve |
-| `--transition-push` | `--ease-out` | Easing when navigating forward |
-| `--transition-pop` | `--ease-in` | Easing when navigating back |
-| `--transition-replace` | `--ease-in-out` | Easing for replace-style swaps |
-
-The dock `swap` method reads `--transition-push` or `--transition-pop` based on the `direction` option and temporarily overrides `--transition-easing` on `:root` before starting the transition. This means back-navigation feels physically different from forward-navigation without writing any custom CSS.
-
-Override any token in your own CSS:
-
-```css
-@layer overrides {
-  :root {
-    --transition-duration: 400ms;
-    --transition-easing: var(--ease-spring);
-  }
-}
-```
+Helpers: `transitions.configure`, `transitions.dockName`, `transitions.runSwap`, `transitions.prefersReducedMotion`.
 
 ---
 
-## CSS Transition Basics
+## CSS
 
-View transitions work by taking GPU snapshots of the old and new DOM states and interpolating between them. Style the transition with CSS:
+Style **named dock groups**, not `(root)`, for soft-nav:
 
 ```css
-::view-transition-old(root) {
-  animation: fade-out 300ms ease;
+::view-transition-old(dock-content) {
+  animation: 90ms ease-in both fade-out;
 }
-
-::view-transition-new(root) {
-  animation: fade-in 300ms ease;
-}
-
-@keyframes fade-out {
-  from { opacity: 1; }
-  to   { opacity: 0; }
-}
-
-@keyframes fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+::view-transition-new(dock-content) {
+  animation: var(--transition-duration) var(--transition-easing) both slide-in;
 }
 ```
 
-For element-scoped transitions, target the container instead of `root`:
+Groups: `dock-main`, `dock-docs`, `dock-content`, plus legacy `dock-swap`.
 
-```css
-dock-main::part(view-transition-old) {
-  animation: slide-out 200ms ease;
-}
-```
+Direction is exposed as `data-transition-direction` on the host during the swap; push/pop temporarily override `--transition-easing` from `--transition-push` / `--transition-pop`.
+
+---
+
+## Reduced motion & abort
+
+- `prefers-reduced-motion: reduce` → direct swap
+- Rapid nav skips the previous host transition before starting the next
+- `AbortSignal` aborts before start or calls `skipTransition` in-flight; names/easing always restored
+
+See [UI transitions](../ui/transitions.md) for the full JS + CSS control surface and scheduling AbortSignal notes.

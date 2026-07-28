@@ -1,11 +1,9 @@
 <h1>LRU</h1>
 <p>Two in-memory cache implementations: a standard LRU for any value type, and a WeakRef-based variant that yields to the garbage collector under memory pressure.</p>
-
-<!-- LRUCache Section -->
+<hr />
 <h2>LRUCache</h2>
 <p>Standard least-recently-used cache with TTL support.</p>
-<view-code language="javascript">
-import { LRUCache } from '@adukiorg/anza/storage';
+<view-code language="javascript">import { LRUCache } from '@adukiorg/anza/storage';
 
 const cache = new LRUCache(100); // max 100 entries
 
@@ -16,12 +14,10 @@ console.log(cache.get('a')); // 1 (moves to front)
 console.log(cache.get('c')); // null
 </view-code>
 <p>When the cache is full, the least recently accessed entry is evicted.</p>
-
-<!-- WeakLRUCache Section -->
+<hr />
 <h2>WeakLRUCache</h2>
 <p>Uses <code>WeakRef</code> so values can be garbage collected. Values must be objects or functions.</p>
-<view-code language="javascript">
-import { WeakLRUCache } from '@adukiorg/anza/storage';
+<view-code language="javascript">import { WeakLRUCache } from '@adukiorg/anza/storage';
 
 const cache = new WeakLRUCache(100);
 
@@ -31,53 +27,26 @@ const obj = cache.get('obj');
 // If GC runs and collects the object, subsequent get returns null
 </view-code>
 <p>Use <code>WeakLRUCache</code> for large objects where you prefer GC reclaiming memory over strict LRU eviction.</p>
-
-<!-- TTL Section -->
+<hr />
 <h2>TTL</h2>
 <p>Both caches support TTL:</p>
-<view-code language="javascript">
-cache.set('temp', data, 60000); // expires after 60 seconds
+<view-code language="javascript">cache.set('temp', data, 60000); // expires after 60 seconds
 </view-code>
 <p>Expired entries return <code>null</code> on access and are removed from the cache.</p>
-
-<!-- Storage Integration Section -->
+<hr />
 <h2>Storage Integration</h2>
 <p>The storage facade uses <code>LRUCache</code> as the memory tier fronting IDB reads:</p>
-<view-code language="javascript">
-// First read hits IDB
+<view-code language="javascript">// First read hits IDB
 await storage.get('profile');
 
 // Second read hits LRU cache
 await storage.get('profile');
 </view-code>
-
-<!-- Methods Section -->
+<hr />
 <h2>Methods</h2>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Method</th>
-        <th>Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>get(key)</code></td>
-        <td>Read and refresh position</td>
-      </tr>
-      <tr>
-        <td><code>set(key, value, ttlMs)</code></td>
-        <td>Write</td>
-      </tr>
-      <tr>
-        <td><code>delete(key)</code></td>
-        <td>Remove</td>
-      </tr>
-      <tr>
-        <td><code>clear()</code></td>
-        <td>Remove all</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>get(key)</code></td><td>Read and refresh position</td></tr>
+<tr><td><code>set(key, value, ttlMs)</code></td><td>Write</td></tr>
+<tr><td><code>delete(key)</code></td><td>Remove</td></tr>
+<tr><td><code>clear()</code></td><td>Remove all</td></tr>
+</tbody></table></div>

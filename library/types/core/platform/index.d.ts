@@ -75,15 +75,39 @@ export interface SanitizerWrapper {
   sanitizeToString(input: string): string;
 }
 
+export interface EscapeOptions {
+  placement?: string;
+  offset?: number;
+  signal?: AbortSignal;
+  cssAnchor?: boolean;
+  strategy?: 'popover' | 'fixed';
+}
+
+export interface EscapeController {
+  show(): void;
+  hide(): void;
+  update(): void;
+  release(): void;
+  readonly strategy: 'popover' | 'fixed';
+  readonly open: boolean;
+}
+
 export interface Guard {
   urlPattern(): Promise<typeof URLPattern>;
   navigation(): Promise<Navigation>;
   popover(): Promise<void>;
   shadow(root?: Document | ShadowRoot): Promise<void>;
   anchor(floating: HTMLElement, anchorEl: HTMLElement, options?: object): Promise<void>;
+  escape(floating: HTMLElement, anchorEl: HTMLElement, options?: EscapeOptions): Promise<EscapeController>;
   sanitizer(): Promise<SanitizerWrapper>;
   scheduler(): Promise<Scheduler>;
   yield(): Promise<void>;
 }
 
 export const guard: Guard;
+
+export function escapeOverflow(
+  floating: HTMLElement,
+  anchor: HTMLElement,
+  options?: EscapeOptions
+): EscapeController;

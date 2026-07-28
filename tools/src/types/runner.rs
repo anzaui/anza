@@ -52,6 +52,15 @@ pub struct SeoDecl {
   pub image: Option<String>,
 }
 
+/// Build-time SSG options from `page(..., { ssg: { expand: […] } })`.
+///
+/// Parametric public routes stay `ssg: false` unless listed here (or in
+/// `ssg.params.json`). Each expand entry is a param-name → concrete value map.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct SsgDecl {
+  pub expand: Vec<std::collections::HashMap<String, String>>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ExtractedSpec {
   pub tag: String,
@@ -74,6 +83,8 @@ pub struct ExtractedSpec {
   pub meta: std::collections::HashMap<String, String>,
   /// SEO metadata from `page(..., { seo })` for SSG HTML head emission.
   pub seo: Option<SeoDecl>,
+  /// Optional build-time SSG expansion for parametric routes.
+  pub ssg: Option<SsgDecl>,
   pub file: Option<String>,
   pub html: Option<String>,
   #[serde(default)]

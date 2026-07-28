@@ -80,6 +80,23 @@ async function processLargeDataset(items) {
 
 ---
 
+## 6. Escape Overflow (Floating UI)
+
+```javascript
+import { guard } from '@adukiorg/anza/platform';
+
+const tip = document.querySelector('#tip');       // [popover="manual"]
+const anchor = document.querySelector('#anchor');
+
+const ctrl = await guard.escape(tip, anchor, { placement: 'top', offset: 8 });
+ctrl.show();  // Popover top-layer, or fixed fallback — stays in-tree
+ctrl.hide();
+```
+
+Prefer `ui-tooltip` when you need a ready-made hint. Details: [guards.md#escape](guards.md#escape), [API](api.md#escapeoverflowfloating-anchor-options), [Overlay patterns](../elements/overlay.md).
+
+---
+
 ## Complete Working Example
 
 ```javascript

@@ -66,9 +66,27 @@ export function intersection(el, fn, signal, options = {}) {
 
 /**
  * MutationObserver with automatic AbortSignal cleanup.
+ * Safe default: `{ childList: true, subtree: false }`. Prefer a scoped root
+ * over `document` / `body` with `subtree: true`.
  */
-export function mutation(el, fn, signal, options = { childList: true }) {
+export function mutation(el, fn, signal, options) {
   if (signal?.aborted) return () => {};
+
+  const observeOptions = {
+    childList: true,
+    subtree: false,
+    ...(options || {})
+  };
+
+  if (
+    observeOptions.attributes &&
+    !observeOptions.attributeFilter &&
+    typeof console !== 'undefined'
+  ) {
+    console.warn(
+      '[Native UI] observe.mutation: attributes:true without attributeFilter observes all attributes.'
+    );
+  }
 
   const observer = new MutationObserver((mutations) => {
     try {
@@ -78,7 +96,7 @@ export function mutation(el, fn, signal, options = { childList: true }) {
     }
   });
 
-  observer.observe(el, options);
+  observer.observe(el, observeOptions);
 
   const dispose = () => {
     observer.disconnect();
@@ -89,6 +107,46 @@ export function mutation(el, fn, signal, options = { childList: true }) {
 
   return dispose;
 }
+
+/**
+ * Observe elements matching `selector` inside a shadow root only.
+ * Refuses document / body roots in environments with console (dev warning + no-op).
+ */
+mutation.scoped = function mutationScoped(shadowRoot, selector, fn, signal, options) {
+  if (
+    !shadowRoot ||
+    shadowRoot === document ||
+    shadowRoot === document.documentElement ||
+    shadowRoot === document.body
+  ) {
+    if (typeof console !== 'undefined') {
+      console.warn(
+        '[Native UI] observe.mutation.scoped refuses document/body roots; pass a shadowRoot.'
+      );
+    }
+    return () => {};
+  }
+
+  return mutation(
+    shadowRoot,
+    (records) => {
+      const matched = records.filter((record) => {
+        const target = record.target?.nodeType === Node.TEXT_NODE
+          ? record.target.parentElement
+          : record.target;
+        if (!target || typeof target.matches !== 'function') return false;
+        try {
+          return target.matches(selector) || Boolean(target.closest?.(selector));
+        } catch {
+          return false;
+        }
+      });
+      if (matched.length) fn(matched);
+    },
+    signal,
+    { childList: true, subtree: true, ...(options || {}) }
+  );
+};
 
 /**
  * PerformanceObserver with automatic AbortSignal cleanup.
