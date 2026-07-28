@@ -37,9 +37,21 @@ The declarative custom element system. You will spend most of your time here.
 | [ui/observers.md](ui/observers.md) | Safe observer factories with AbortSignal cleanup |
 | [ui/transitions.md](ui/transitions.md) | View transitions wrapper |
 | [ui/forms.md](ui/forms.md) | Form-associated custom elements |
+| [ui/hydration.md](ui/hydration.md) | Adopt open DSD from SSG / Mode B HTML |
 | [ui/advanced.md](ui/advanced.md) | Internals, batching, update visual flag |
 | [ui/api.md](ui/api.md) | Complete API reference |
 | [ui/troubleshooting.md](ui/troubleshooting.md) | Common problems and how to fix them |
+
+---
+
+## SSG & SEO
+
+Contentful HTML per public route — Mode A build-time SSG, Mode B any-language templates, client DSD adopt.
+
+| File | What It Covers |
+| ------ | -------------- |
+| [ssg/contract.md](ssg/contract.md) | Normative page HTML contract (head, via/DSD, site-root URLs) |
+| [ui/hydration.md](ui/hydration.md) | Client adopt path after SSG / Mode B HTML paints |
 
 ---
 

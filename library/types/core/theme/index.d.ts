@@ -19,3 +19,9 @@ export interface ThemeApi {
 }
 
 export const theme: ThemeApi;
+
+/**
+ * Move legacy `theme` localStorage key to `anza-theme` when the new key is absent.
+ * Called automatically on theme module load; safe to call repeatedly.
+ */
+export function migrateThemeStorage(storage?: Storage): void;

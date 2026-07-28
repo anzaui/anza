@@ -1,0 +1,82 @@
+<h1>Page HTML contract</h1>
+<p>Normative shape for every public, indexable HTML response. <strong>Mode A</strong> (<code>anza build</code> SSG) and <strong>Mode B</strong> (any-language request-time templates) must emit this same contract so client <a href="/docs/ui/hydration">hydration</a> has one adoption path.</p>
+
+<h2>Site-root asset URLs</h2>
+<p>Production treats <code>dist/</code> as the <strong>document root</strong>. Public asset URLs never include a <code>/dist</code> prefix.</p>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Correct</th>
+        <th>Incorrect</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>/app.js</code></td>
+        <td><code>/dist/app.js</code></td>
+      </tr>
+      <tr>
+        <td><code>/importmap.json</code></td>
+        <td><code>/dist/importmap.json</code></td>
+      </tr>
+      <tr>
+        <td><code>/tokens/index.css</code></td>
+        <td><code>/dist/tokens/index.css</code></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>Required head</h2>
+<ol>
+  <li>Charset + viewport</li>
+  <li>Unique <code>&lt;title&gt;</code> and meta description</li>
+  <li>Canonical (and optional OG/Twitter)</li>
+  <li>Import map <strong>before</strong> any <code>type="module"</code> entry</li>
+  <li><code>/tokens/index.css</code> and <code>/styles/index.css</code></li>
+  <li>Route-scoped <code>modulepreload</code></li>
+  <li>Deferred <code>&lt;script type="module" src="/app.js"&gt;</code></li>
+</ol>
+
+<h2>Required body</h2>
+<p>Walk the route’s <code>via</code> chain and nest custom elements with <strong>open</strong> Declarative Shadow DOM:</p>
+<view-code language="html">&lt;dock-main id="main"&gt;
+  &lt;template shadowrootmode="open"&gt;…&lt;/template&gt;
+  &lt;dock-docs&gt;
+    &lt;template shadowrootmode="open"&gt;…&lt;/template&gt;
+    &lt;!-- … leaf page with open DSD … --&gt;
+  &lt;/dock-docs&gt;
+&lt;/dock-main&gt;
+</view-code>
+<ul>
+  <li><code>shadowrootmode="closed"</code> is banned for public content.</li>
+  <li>Prefer light-DOM primary heading text for weak crawlers.</li>
+  <li>Same contentful HTML for every User-Agent — no cloaking.</li>
+</ul>
+
+<h2>Mode A vs Mode B</h2>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Mode</th>
+        <th>When</th>
+        <th>Who emits</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>A — SSG</strong></td>
+        <td><code>anza build</code></td>
+        <td>Anza SSG emitter → <code>dist/&lt;route&gt;/index.html</code></td>
+      </tr>
+      <tr>
+        <td><strong>B — Templates</strong></td>
+        <td>Request time</td>
+        <td>Any language; <strong>same HTML shape</strong>; assets from <code>dist/</code></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<p>Mode B must not require an Anza Node SSR runtime. See also <a href="/docs/ui/hydration">Hydration (DSD adopt)</a>.</p>

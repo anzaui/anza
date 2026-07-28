@@ -16,6 +16,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - **Mode A SSG** — `anza build` emits contentful HTML with open Declarative Shadow DOM (DSD) per public route (`dist/<route>/index.html`), including title/meta and route-scoped `modulepreload`.
 - **Client DSD adopt / hydrate** — custom elements adopt existing open shadow trees instead of wiping; soft-nav swaps the leaf only while parent docks stay mounted.
 - **Mode B HTML contract** — normative contract in `docs/ssg/contract.md`, golden fixtures, contract check harness, and minimal Python / Go / Node example servers.
+- **Hydration & SSG docs** — `docs/ui/hydration.md` plus web routes for hydration and the HTML contract; legacy `theme` → `anza-theme` localStorage migration.
 - **Docs UI** — theme via `@adukiorg/anza/theme`, fuller sidebar coverage, active-link fix, search removed; docs home canonical path is `/docs`.
 
 ### Planned

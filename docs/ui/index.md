@@ -52,6 +52,7 @@ import { BaseElement } from '@adukiorg/anza/ui';
 | [observers.md](observers.md) | Safe observer factories with AbortSignal cleanup |
 | [transitions.md](transitions.md) | View transitions wrapper |
 | [forms.md](forms.md) | Form-associated custom elements |
+| [hydration.md](hydration.md) | Adopt open DSD from SSG / Mode B HTML |
 | [advanced.md](advanced.md) | Internals, batching, update visual flag, internals |
 | [api.md](api.md) | Complete API reference |
 | [troubleshooting.md](troubleshooting.md) | Common problems and how to fix them |

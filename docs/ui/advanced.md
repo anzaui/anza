@@ -127,16 +127,16 @@ Passive vs non-passive is auto-detected. If any handler for an event type is non
 
 ---
 
-## SSR Considerations
+## Non-browser / hydration
 
-The UI layer checks `typeof customElements !== 'undefined'` before defining elements. On the server:
+The UI layer checks `typeof customElements !== 'undefined'` before defining elements. Outside the browser:
 
 - `element()` is a no-op
 - `template()` returns a frozen empty object
 - `observe` factories return no-op disposers
 - `transition()` returns a resolved promise
 
-For SSR, define elements during build or client hydration. The factory is safe to import in any environment.
+Public SEO HTML comes from Mode A SSG or Mode B templates ([contract](../ssg/contract.md)). The client **adopts** open DSD — see [hydration.md](hydration.md). The factory is safe to import in any environment.
 
 ---
 

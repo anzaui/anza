@@ -88,16 +88,16 @@ observer.observe(shadowRoot, { childList: true, subtree: false });
 </view-code>
 <p>Passive vs non-passive is auto-detected. If any handler for an event type is non-passive, the root listener is registered as non-passive.</p>
 
-<!-- SSR Considerations Section -->
-<h2>SSR Considerations</h2>
-<p>The UI layer checks <code>typeof customElements !== 'undefined'</code> before defining elements. On the server:</p>
+<!-- Non-browser / hydration -->
+<h2>Non-browser / hydration</h2>
+<p>The UI layer checks <code>typeof customElements !== 'undefined'</code> before defining elements. Outside the browser:</p>
 <ul>
   <li><code>element()</code> is a no-op</li>
   <li><code>template()</code> returns a frozen empty object</li>
   <li><code>observe</code> factories return no-op disposers</li>
   <li><code>transition()</code> returns a resolved promise</li>
 </ul>
-<p>For SSR, define elements during build or client hydration. The factory is safe to import in any environment.</p>
+<p>Public SEO HTML comes from Mode A SSG or Mode B templates (<a href="/docs/ssg/contract">contract</a>). The client <strong>adopts</strong> open DSD — see <a href="/docs/ui/hydration">Hydration</a>. The factory is safe to import in any environment.</p>
 
 <!-- Extending BaseElement Section -->
 <h2>Extending BaseElement</h2>

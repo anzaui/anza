@@ -1,6 +1,6 @@
 # Page HTML contract (Mode A SSG · Mode B templates)
 
-Normative shape for every public, indexable HTML response. **Mode A** (`anza build` SSG) and **Mode B** (any-language request-time templates) must emit this same contract so client hydration has one adoption path.
+Normative shape for every public, indexable HTML response. **Mode A** (`anza build` SSG) and **Mode B** (any-language request-time templates) must emit this same contract so client hydration has one adoption path. Client adopt details: [ui/hydration.md](../ui/hydration.md).
 
 Golden samples: [plans/fixtures/ssg/](../../plans/fixtures/ssg/). Planning context: [plans/SSG-SEO.md](../../plans/SSG-SEO.md) Phase 3.
 

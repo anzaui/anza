@@ -8,16 +8,38 @@
  */
 
 const KEY = 'anza-theme';
+/** Pre-`anza-theme` persistence key; migrated once on restore. */
+const LEGACY_KEY = 'theme';
 
 function root() {
   return document.documentElement;
 }
 
-function restore() {
-  let saved;
+/**
+ * Move legacy `theme` → `anza-theme` when the new key is absent.
+ * Exported for unit tests; safe to call repeatedly.
+ */
+export function migrateThemeStorage(storage = localStorage) {
   try {
-    saved = localStorage.getItem(KEY);
+    if (storage.getItem(KEY) != null) return;
+    const legacy = storage.getItem(LEGACY_KEY);
+    if (legacy == null) return;
+    storage.setItem(KEY, legacy);
+    storage.removeItem(LEGACY_KEY);
   } catch (_) {}
+}
+
+function readSavedTheme() {
+  try {
+    migrateThemeStorage();
+    return localStorage.getItem(KEY);
+  } catch (_) {
+    return null;
+  }
+}
+
+function restore() {
+  const saved = readSavedTheme();
 
   if (saved && saved !== 'auto') {
     root().dataset.theme = saved;
