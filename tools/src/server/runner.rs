@@ -9,7 +9,8 @@ use axum::{
   body::Body,
   extract::State,
   handler::Handler,
-  http::{header, Response, StatusCode},
+  http::{header, Request, Response, StatusCode, Uri},
+  middleware::{self, Next},
   response::sse::{Event, KeepAlive, Sse},
   routing::get,
   Router,
@@ -25,12 +26,51 @@ use crate::types::HmrMessage;
 pub struct ServerState {
   pub tx: broadcast::Sender<HmrMessage>,
   pub src_dir: PathBuf,
+  /// Deploy base from ssg.json (e.g. `/anza`) — strip from incoming paths in dev.
+  pub deploy_base: String,
+}
+
+/// Mirror GitHub Pages subpath hosting: `/anza/styles/...` → `/styles/...`.
+async fn strip_deploy_base(
+  State(state): State<Arc<ServerState>>,
+  mut req: Request<Body>,
+  next: Next,
+) -> Response<Body> {
+  let deploy_base = &state.deploy_base;
+  if deploy_base.is_empty() {
+    return next.run(req).await;
+  }
+
+  let path = req.uri().path();
+  let stripped = crate::build::base::strip_base_prefix(path, deploy_base);
+  if stripped != path {
+    let path_and_query = if let Some(q) = req.uri().query() {
+      format!("{stripped}?{q}")
+    } else {
+      stripped
+    };
+    if let Ok(next_uri) = path_and_query.parse::<Uri>() {
+      *req.uri_mut() = next_uri;
+    }
+  }
+
+  next.run(req).await
 }
 
 pub async fn run(port: u16, src_dir: &Path, tx: broadcast::Sender<HmrMessage>) {
+  let deploy_base = crate::build::base::load_deploy_base(src_dir);
+  if !deploy_base.is_empty() {
+    anza_logs::info!(
+      "Dev server mirrors deploy base {:?} — requests may use either /… or /{}/…",
+      deploy_base,
+      deploy_base.trim_start_matches('/')
+    );
+  }
+
   let state = Arc::new(ServerState {
     tx,
     src_dir: src_dir.to_path_buf(),
+    deploy_base: deploy_base.clone(),
   });
 
   let serve_dir = ServeDir::new(src_dir)
@@ -42,6 +82,7 @@ pub async fn run(port: u16, src_dir: &Path, tx: broadcast::Sender<HmrMessage>) {
     .nest_service("/dist", serve_dir.clone())
     .fallback_service(serve_dir)
     .layer(CorsLayer::permissive())
+    .layer(middleware::from_fn_with_state(state.clone(), strip_deploy_base))
     .with_state(state);
 
   let (listener, bound_port) = match bind_port("0.0.0.0", port).await {

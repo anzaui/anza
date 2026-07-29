@@ -12,7 +12,8 @@ import {
   configureLoading,
   resetLoading,
   resolveLoading,
-  normalizeLoading
+  normalizeLoading,
+  ensureLoadingStyles
 } from '../../../src/core/router/loading.js';
 import { registerContainer, clearContainers } from '../../../src/core/router/container.js';
 import { reset as resetBoot } from '../../../src/core/router/boot.js';
@@ -70,6 +71,15 @@ describe('Router loading (dock-scoped)', () => {
     shell?.remove();
   });
 
+  it('ensureLoadingStyles injects fallback CSS once', () => {
+    document.getElementById('anza-loading-style')?.remove();
+    ensureLoadingStyles();
+    ensureLoadingStyles();
+    if (!document.getElementById('anza-loading-style')) {
+      throw new Error('expected anza-loading-style in document head');
+    }
+  });
+
   it('normalizeLoading accepts tag, html, and false', () => {
     if (normalizeLoading(false)?.disabled !== true) {
       throw new Error('false should disable loading');
@@ -103,6 +113,11 @@ describe('Router loading (dock-scoped)', () => {
     if (contentEl.querySelector('.dock-loading')) {
       throw new Error('no loading UI on boot');
     }
+  });
+
+  it('skips loading on direction reload (Navigation API hard refresh)', async () => {
+    const ctx = await beginLoading(['main', 'content'], null, 'reload');
+    if (!ctx.skipped) throw new Error('reload direction should skip loading');
   });
 
   it('respects dock loading: false', async () => {

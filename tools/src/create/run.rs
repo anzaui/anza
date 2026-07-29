@@ -8,6 +8,7 @@ const DIRS: &[&str] = &[
   "src/pages",
   "src/pages/entry",
   "src/docks",
+  "src/docks/main",
   "src/views",
   "src/parts",
   "src/tokens",
@@ -41,7 +42,6 @@ const APP: &str = r#"/**
  * dist/ into usage order (library → docks → views → parts → pages).
  */
 import '@adukiorg/anza/ui';
-import { dock } from '@adukiorg/anza/ui';
 import '@adukiorg/anza/theme';
 
 import './docks/index.js';
@@ -51,9 +51,6 @@ import './pages/index.js';
 
 // Service Worker
 navigator.serviceWorker.register('/sw.js', { type: 'module' });
-
-// Layout shell
-dock('main');
 "#;
 
 const SW: &str = r#"/**
@@ -111,6 +108,18 @@ const DOCKS_BARREL: &str = r#"/**
  * Barrel — import each dock module from this folder.
  * Co-located views under docks/ are organization only; custom element tags stay global.
  */
+import './main/index.js';
+"#;
+
+const DOCK_MAIN: &str = r#"/**
+ * src/docks/main/index.js — root layout shell
+ */
+import { dock } from '@adukiorg/anza/ui';
+import '@adukiorg/anza/elements/spinner';
+
+dock('main', {
+  loading: { tag: 'ui-spinner' }
+});
 "#;
 
 const VIEWS_BARREL: &str = r#"/**
@@ -247,6 +256,10 @@ pub fn run(target: &Path, name: &str) {
   write::write(
     target.join("src").join("docks").join("index.js"),
     DOCKS_BARREL,
+  );
+  write::write(
+    target.join("src").join("docks").join("main").join("index.js"),
+    DOCK_MAIN,
   );
   write::write(
     target.join("src").join("views").join("index.js"),

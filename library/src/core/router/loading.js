@@ -22,30 +22,26 @@ const DEFAULT_LOADING_HTML = `
   </div>
 `;
 
-const DEFAULT_LOADING_STYLE = `
-  .anza-loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 12rem;
-    padding: 2rem;
-    width: 100%;
-  }
-  .anza-loading__ring {
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
-    border: 2px solid color-mix(in srgb, var(--color-content-secondary, #888) 25%, transparent);
-    border-top-color: var(--color-interactive, currentColor);
-    animation: anza-loading-spin 0.7s linear infinite;
-  }
-  @keyframes anza-loading-spin {
-    to { transform: rotate(360deg); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .anza-loading__ring { animation: none; opacity: 0.6; }
-  }
-`;
+/** Navigation kinds that already have (or should keep) document content visible. */
+function isBootNavigation(direction) {
+  return direction === 'load' || direction === 'reload';
+}
+
+/** Inject fallback loading CSS when shell did not link styles/loading.css. Idempotent. */
+export function ensureLoadingStyles() {
+  if (typeof document === 'undefined') return;
+  if (document.getElementById('anza-loading-style')) return;
+  const style = document.createElement('style');
+  style.id = 'anza-loading-style';
+  style.textContent = `
+    [data-loading]{position:relative}
+    [data-loading]>.dock-loading,.anza-loading{display:flex;align-items:center;justify-content:center;min-height:12rem;padding:2rem;width:100%}
+    .anza-loading__ring{width:2rem;height:2rem;border-radius:50%;border:2px solid color-mix(in srgb,var(--color-content-secondary,#888) 25%,transparent);border-top-color:var(--color-interactive,currentColor);animation:anza-loading-spin .7s linear infinite}
+    @keyframes anza-loading-spin{to{transform:rotate(360deg)}}
+    @media (prefers-reduced-motion:reduce){.anza-loading__ring{animation:none;opacity:.6}}
+  `;
+  document.head.appendChild(style);
+}
 
 /** @type {any} */
 let appConfig = null;
@@ -171,22 +167,17 @@ async function materializeLoading(override) {
   wrapper.setAttribute('aria-live', 'polite');
   wrapper.innerHTML = (resolved?.html ?? DEFAULT_LOADING_HTML).trim();
 
-  if (!document.getElementById('anza-loading-style')) {
-    const style = document.createElement('style');
-    style.id = 'anza-loading-style';
-    style.textContent = DEFAULT_LOADING_STYLE;
-    document.head.appendChild(style);
-  }
+  ensureLoadingStyles();
 
   return wrapper;
 }
 
 /**
  * Begin loading UI for a soft-nav into `via`. Returns { gen, host, hostName }.
- * Skips when `direction === 'load'` (hard refresh / boot).
+ * Skips when `direction` is boot/reload (hard refresh / SSG already in document).
  */
 export async function beginLoading(via = [], pageTag = null, direction = 'push') {
-  if (direction === 'load') {
+  if (isBootNavigation(direction)) {
     return { gen: navGeneration, host: null, hostName: null, skipped: true };
   }
 
@@ -284,5 +275,10 @@ export const loadingApi = {
   configure: configureLoading,
   show: beginLoading,
   hide: endLoading,
-  clear: clearLoading
+  clear: clearLoading,
+  ensureStyles: ensureLoadingStyles
 };
+
+if (typeof document !== 'undefined') {
+  ensureLoadingStyles();
+}

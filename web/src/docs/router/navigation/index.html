@@ -84,8 +84,9 @@ await result.finished;
 <p>If the Navigation API is unavailable, both promises resolve immediately.</p>
 <hr />
 <h2>Loading UI (soft-nav)</h2>
-<p>While a soft-nav fetch is in flight (page module, <code>template.html</code>, styles), the <strong>leaf</strong> dock can show a loading indicator. Hard refresh / boot (<code>direction: 'load'</code>) skips loading so SSG content is not covered.</p>
+<p>While a soft-nav fetch is in flight (page module, <code>template.html</code>, styles), the <strong>leaf</strong> dock can show a loading indicator. Hard refresh / boot (<code>direction: 'load'</code> or Navigation API <code>reload</code>) skips loading so SSG content is not covered.</p>
 <p>Override ladder (highest wins): page <code>loading</code> → dock <code>loading</code> (leaf→root) → <code>router.loading.configure</code> → built-in spinner.</p>
+<p><strong>Bootstrap:</strong> shell <code>index.html</code> should link <code>/styles/index.css</code> (includes <code>loading.css</code>). Import loader custom elements in dock modules before the first soft-nav (see scaffold <code>src/docks/main/index.js</code>). <code>router.loading.ensureStyles()</code> is a fallback if <code>loading.css</code> is omitted.</p>
 <view-code language="javascript">import { dock, page } from '@adukiorg/anza/ui';
 import { router } from '@adukiorg/anza/router';
 

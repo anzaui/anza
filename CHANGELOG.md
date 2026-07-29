@@ -12,6 +12,20 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.4.6] — 2026-07-29
+
+### Added
+
+- **Per-dock loading bootstrap** — `styles/loading.css` for dock loading chrome; scaffold wires `dock('main', { loading: { tag: 'ui-spinner' } })`; hard refresh / reload skips the loading overlay so SSG content stays visible.
+- **Token CSS aliases** — scaffold-friendly spacing / typography / semantic light-dark variable aliases for loading and layout shells.
+
+### Fixed
+
+- **Soft-nav CSS under deploy base** — when a base-prefixed stylesheet / template URL 404s (common in local `anza dev` with Pages `__ANZA_BASE__`), retry without the base prefix; dev server strips base from asset requests so soft-nav styles resolve under `/anza`.
+- **Loading style injection** — `ensureLoadingStyles` / `loading.ensureStyles` so fallback spinner CSS is available even when the shell did not link `loading.css`.
+
+---
+
 ## [0.4.5] — 2026-07-29
 
 ### Added

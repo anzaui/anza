@@ -1,10 +1,55 @@
 import { assetCache } from './state.js';
+import { getBase } from '../../router/base.js';
 
 // Detect constructable stylesheet + adoptedStyleSheets support once.
 const supportsSheets =
   typeof CSSStyleSheet !== 'undefined' &&
   'adoptedStyleSheets' in Document.prototype &&
   'adoptedStyleSheets' in ShadowRoot.prototype;
+
+/**
+ * Fetch a same-origin text asset. When a deploy-base-prefixed URL 404s (common
+ * in local dev while SSG HTML already injects __ANZA_BASE__), retry without the
+ * base prefix so soft-nav page CSS/template fetches still resolve.
+ */
+async function fetchTextResource(url, tag, kind) {
+  const attempt = async (target) => {
+    const res = await fetch(target);
+    if (res.ok) return res.text();
+    return { status: res.status, url: target };
+  };
+
+  try {
+    let result = await attempt(url);
+    if (typeof result === 'string') return result;
+
+    const base = getBase();
+    if (base && result.status === 404) {
+      let fallback = null;
+      try {
+        const origin = globalThis.location?.origin || 'http://localhost';
+        const parsed = new URL(url, origin);
+        if (parsed.pathname === base || parsed.pathname.startsWith(`${base}/`)) {
+          parsed.pathname = parsed.pathname.slice(base.length) || '/';
+          fallback = parsed.href;
+        }
+      } catch {
+        // keep single attempt
+      }
+      if (fallback && fallback !== url) {
+        result = await attempt(fallback);
+        if (typeof result === 'string') return result;
+      }
+    }
+
+    console.error(
+      `Failed to load ${kind} resource ${url} for element ${tag}: HTTP ${result.status}`
+    );
+  } catch (err) {
+    console.error(`Failed to load ${kind} resource ${url} for element ${tag}:`, err);
+  }
+  return null;
+}
 
 /**
  * Preloads style and HTML template resources asynchronously exactly once.
@@ -30,22 +75,17 @@ export async function preloadResources(tag, styleUrls, templateUrl, inlineTempla
         cssTextAcc += cached + '\n';
       }
     } else {
-      try {
-        const res = await fetch(url);
-        if (res.ok) {
-          const css = await res.text();
-          if (supportsSheets) {
-            const sheet = new CSSStyleSheet();
-            sheet.replaceSync(css);
-            assetCache.set(url, sheet);
-            stylesheets.push(sheet);
-          } else {
-            assetCache.set(url, css);
-            cssTextAcc += css + '\n';
-          }
+      const css = await fetchTextResource(url, tag, 'style');
+      if (css != null) {
+        if (supportsSheets) {
+          const sheet = new CSSStyleSheet();
+          sheet.replaceSync(css);
+          assetCache.set(url, sheet);
+          stylesheets.push(sheet);
+        } else {
+          assetCache.set(url, css);
+          cssTextAcc += css + '\n';
         }
-      } catch (err) {
-        console.error(`Failed to load style resource ${url} for element ${tag}:`, err);
       }
     }
   }));
@@ -74,9 +114,8 @@ export async function preloadResources(tag, styleUrls, templateUrl, inlineTempla
       templateNode = assetCache.get(templateUrl);
     } else {
       try {
-        const res = await fetch(templateUrl);
-        if (res.ok) {
-          const html = await res.text();
+        const html = await fetchTextResource(templateUrl, tag, 'template');
+        if (html != null) {
           templateNode = createTemplateFragment(sanitizeTemplateHtml(html, tag));
           assetCache.set(templateUrl, templateNode);
         }

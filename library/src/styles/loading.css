@@ -1,0 +1,45 @@
+/**
+ * styles/loading.css
+ *
+ * Default soft-nav loading UI — linked from styles/index.css at app bootstrap
+ * so spinners are styled before the first navigation (no inline-style flash).
+ */
+
+[data-loading] {
+  position: relative;
+}
+
+[data-loading] > .dock-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 12rem;
+  padding: 2rem;
+  width: 100%;
+}
+
+.anza-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 12rem;
+  padding: 2rem;
+  width: 100%;
+}
+
+.anza-loading__ring {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--color-content-secondary, #888) 25%, transparent);
+  border-top-color: var(--color-interactive, currentColor);
+  animation: anza-loading-spin 0.7s linear infinite;
+}
+
+@keyframes anza-loading-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anza-loading__ring { animation: none; opacity: 0.6; }
+}

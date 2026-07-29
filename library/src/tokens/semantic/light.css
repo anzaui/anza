@@ -9,8 +9,13 @@
   --color-surface-elevated: var(--color-white);
   --color-content-primary:  var(--gray-900);
   --color-content-secondary:var(--gray-800);
+  --color-content-link:     var(--brand);
   --color-interactive:      var(--brand);
   --color-border-default:   var(--gray-200);
+
+  /* Aliases used by base.css and scaffold pages */
+  --background:             var(--color-surface-page);
+  --text-color:             var(--color-content-primary);
 
   /* Automatic theme morph configuration */
   transition:

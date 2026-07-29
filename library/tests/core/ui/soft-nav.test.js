@@ -394,6 +394,112 @@ describe('Client soft-nav vs SSG adopt', () => {
     }
   });
 
+  it('soft-nav CSR leaf applies page CSS fetched via style URLs', async () => {
+    const tag = 'doc-soft-css-leaf';
+    const cssBody = 'h1 { color: rgb(1, 2, 3); }';
+    const stylePath = '/styles/soft-nav-test.css';
+    const styleUrl = `${window.location.origin}${stylePath}`;
+
+    const origFetch = window.fetch;
+    window.fetch = async (input) => {
+      const href = typeof input === 'string' ? input : input.url;
+      if (href.endsWith(stylePath)) {
+        return new Response(cssBody, { status: 200, headers: { 'Content-Type': 'text/css' } });
+      }
+      return origFetch(input);
+    };
+
+    try {
+      ui.element(tag, {
+        via: ['main', 'soft-leaf'],
+        container: 'soft-leaf',
+        template: '<h1 id="css-h1">Styled</h1>',
+        style: [stylePath]
+      }, import.meta.url);
+
+      emit('found', {
+        tag,
+        params: {},
+        query: {},
+        hash: '',
+        chain: [{ tag, params: {} }],
+        via: ['main', 'soft-leaf'],
+        container: 'soft-leaf',
+        url: 'http://localhost/soft-css',
+        direction: 'push'
+      });
+      await wait(60);
+
+      const leaf = leafDock.querySelector(tag);
+      if (!leaf?.shadowRoot) {
+        throw new Error('Expected CSR leaf to mount on soft-nav');
+      }
+      const sheets = leaf.shadowRoot.adoptedStyleSheets?.length ?? 0;
+      const styleTag = leaf.shadowRoot.querySelector('style');
+      if (sheets === 0 && !styleTag) {
+        throw new Error('Expected soft-nav leaf to adopt fetched page CSS');
+      }
+      if (!leaf.shadowRoot.querySelector('#css-h1')) {
+        throw new Error('Expected CSR template in soft-nav leaf');
+      }
+    } finally {
+      window.fetch = origFetch;
+    }
+  });
+
+  it('soft-nav CSR leaf retries style fetch without deploy base on 404', async () => {
+    const tag = 'doc-soft-css-base-leaf';
+    const cssBody = 'h1 { letter-spacing: 0.02em; }';
+    const stylePath = '/styles/soft-nav-base-test.css';
+    const prevBase = globalThis.__ANZA_BASE__;
+    globalThis.__ANZA_BASE__ = '/anza';
+
+    const origFetch = window.fetch;
+    window.fetch = async (input) => {
+      const href = typeof input === 'string' ? input : input.url;
+      if (href.includes('/anza/styles/soft-nav-base-test.css')) {
+        return new Response('missing', { status: 404 });
+      }
+      if (href.endsWith(stylePath)) {
+        return new Response(cssBody, { status: 200, headers: { 'Content-Type': 'text/css' } });
+      }
+      return origFetch(input);
+    };
+
+    try {
+      ui.element(tag, {
+        via: ['main', 'soft-leaf'],
+        container: 'soft-leaf',
+        template: '<h1 id="base-css-h1">Base</h1>',
+        style: [stylePath]
+      }, import.meta.url);
+
+      emit('found', {
+        tag,
+        params: {},
+        query: {},
+        hash: '',
+        chain: [{ tag, params: {} }],
+        via: ['main', 'soft-leaf'],
+        container: 'soft-leaf',
+        url: 'http://localhost/soft-css-base',
+        direction: 'push'
+      });
+      await wait(60);
+
+      const leaf = leafDock.querySelector(tag);
+      const sheets = leaf?.shadowRoot?.adoptedStyleSheets?.length ?? 0;
+      const styleTag = leaf?.shadowRoot?.querySelector('style');
+      if (!leaf?.shadowRoot || (sheets === 0 && !styleTag)) {
+        throw new Error('Expected deploy-base 404 retry to still load page CSS on soft-nav');
+      }
+    } finally {
+      window.fetch = origFetch;
+      if (prevBase === undefined) delete globalThis.__ANZA_BASE__;
+      else globalThis.__ANZA_BASE__ = prevBase;
+    }
+  });
+
   it('soft-nav aborts leaf ctrl and leaves zero leaf-owned on/watch work', async () => {
     const pageA = 'doc-soft-leak-a';
     const pageB = 'doc-soft-leak-b';

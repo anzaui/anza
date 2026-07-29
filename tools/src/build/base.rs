@@ -4,6 +4,59 @@
 
 use std::path::{Path, PathBuf};
 
+/// Read deploy base from `ssg.json` beside the project root (parent of `dist/`).
+pub fn load_deploy_base(dist_dir: &Path) -> String {
+  let candidates = [
+    dist_dir
+      .parent()
+      .map(|p| p.join("ssg.json"))
+      .unwrap_or_else(|| dist_dir.join("ssg.json")),
+    dist_dir.join("ssg.json"),
+  ];
+  for path in candidates {
+    let Ok(content) = std::fs::read_to_string(&path) else {
+      continue;
+    };
+    let Ok(json) = serde_json::from_str::<serde_json::Value>(&content) else {
+      continue;
+    };
+    if let Some(base) = json.get("base").and_then(|v| v.as_str()) {
+      let normalized = normalize_base(base);
+      if !normalized.is_empty() {
+        return normalized;
+      }
+    }
+  }
+  if let Ok(env_base) = std::env::var("ANZA_BASE_PATH") {
+    let normalized = normalize_base(&env_base);
+    if !normalized.is_empty() {
+      return normalized;
+    }
+  }
+  String::new()
+}
+
+/// Strip a deploy base prefix from an incoming request path (dev server mirror).
+pub fn strip_base_prefix(path: &str, base: &str) -> String {
+  let base = normalize_base(base);
+  if base.is_empty() {
+    return path.to_string();
+  }
+  if path == base {
+    return "/".to_string();
+  }
+  let prefix = format!("{}/", base);
+  if path.starts_with(&prefix) {
+    let rest = &path[base.len()..];
+    return if rest.is_empty() {
+      "/".to_string()
+    } else {
+      rest.to_string()
+    };
+  }
+  path.to_string()
+}
+
 /// Normalized deploy base path: `""` for site root, otherwise `/anza` (no trailing slash).
 pub fn normalize_base(raw: &str) -> String {
   let mut s = raw.trim().to_string();
@@ -390,6 +443,20 @@ mod tests {
     let twice = rewrite_importmap_json_paths(&once, "/anza");
     assert_eq!(once, twice);
     assert!(!twice.contains("//anza/"), "got: {twice}");
+  }
+
+  #[test]
+  fn load_deploy_base_reads_ssg_json() {
+    let dist = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../web/dist");
+    assert_eq!(load_deploy_base(&dist), "/anza");
+  }
+
+  #[test]
+  fn strip_base_prefix_for_dev_requests() {
+    assert_eq!(strip_base_prefix("/docs/start", "/anza"), "/docs/start");
+    assert_eq!(strip_base_prefix("/anza/styles/shared.css", "/anza"), "/styles/shared.css");
+    assert_eq!(strip_base_prefix("/anza", "/anza"), "/");
+    assert_eq!(strip_base_prefix("/anza/", "/anza"), "/");
   }
 
   #[test]
