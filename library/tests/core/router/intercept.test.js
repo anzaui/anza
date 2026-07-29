@@ -253,4 +253,52 @@ describe('Router Interceptor', () => {
       throw new Error(`Expected container phase, got ${errorDetail.phase}`);
     }
   });
+
+  it('setup() loads Navigation polyfill when window.navigation is missing', async () => {
+    // Simulate Firefox: no Navigation API until the platform polyfill installs.
+    globalThis.navigation = undefined;
+    const { supports, reset } = await import('../../../src/core/platform/supports.js');
+    const descNav = Object.getOwnPropertyDescriptor(supports, 'navigationAPI');
+    Object.defineProperty(supports, 'navigationAPI', { value: false, configurable: true });
+    reset('navigationAPI');
+
+    try {
+      router.setup();
+
+      const deadline = Date.now() + 3000;
+      while (!globalThis.navigation && Date.now() < deadline) {
+        await new Promise((r) => setTimeout(r, 10));
+      }
+      if (!globalThis.navigation) {
+        throw new Error('Expected Navigation polyfill to install after setup()');
+      }
+
+      // Allow the scheduled setup() retry to attach listeners.
+      await new Promise((r) => setTimeout(r, 30));
+
+      const nav = globalThis.navigation;
+      let removed = 0;
+      const origRemove = nav.removeEventListener.bind(nav);
+      nav.removeEventListener = (type, cb) => {
+        removed += 1;
+        return origRemove(type, cb);
+      };
+      try {
+        router.destroy();
+      } finally {
+        nav.removeEventListener = origRemove;
+      }
+
+      if (removed < 1) {
+        throw new Error(
+          'Expected setup() to attach navigate listeners after polyfill load (destroy removed none)'
+        );
+      }
+    } finally {
+      if (descNav) Object.defineProperty(supports, 'navigationAPI', descNav);
+      reset('navigationAPI');
+      globalThis.navigation = originalNavigation;
+      router.destroy();
+    }
+  });
 });

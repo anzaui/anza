@@ -12,6 +12,22 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.4.9] — 2026-07-29
+
+### Fixed
+
+- **Firefox SW registration** — `normalize()` in `sw/routes.js` no longer evaluates `instanceof URLPattern` when `URLPattern` is undefined (throws during SW module evaluation and aborts registration). Catch-all `*` / `/*` patterns always use the portable fallback matcher.
+- **Firefox soft-nav / Navigation polyfill race** — router `setup()` and client bootstrap await the Navigation polyfill when `window.navigation` is missing, so click interception and `event.intercept()` attach instead of falling through to full page loads. `destroy()` bumps an epoch so a pending polyfill load cannot re-setup after teardown.
+- **Shadow DOM soft-nav clicks** — Navigation polyfill click delegation walks `composedPath()` so anchors inside open/closed shadow trees (e.g. docs docks) are found despite retargeted `event.target`.
+
+### Tests
+
+- Router intercept: `setup()` loads Navigation polyfill when `window.navigation` is missing.
+- Navigation polyfill: composedPath / shadow-root anchor resolution.
+- SW routes: URLPattern-undefined and catch-all normalize behavior.
+
+---
+
 ## [0.4.8] — 2026-07-29
 
 ### Fixed

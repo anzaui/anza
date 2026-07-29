@@ -52,6 +52,7 @@ import {
 import { cache, prefetch } from './cache.js';
 import { transitions } from './transitions.js';
 import { loadingApi } from './loading.js';
+import { guard } from '../platform/index.js';
 
 export const router = {
   // Registration and boundary hooks
@@ -123,7 +124,9 @@ export const router = {
   win:   getWin      // router.win()   → window
 };
 
-// Auto-bootstrap client-side navigation listeners on client load
+// Auto-bootstrap client-side navigation listeners on client load.
+// Await Navigation polyfill before setup/tab-sync so Firefox (no native
+// Navigation API) gets soft-nav click interception instead of full reloads.
 if (typeof window !== 'undefined') {
   // Expose the router globally so non-module scripts, devtools, and definition
   // helpers (page/dock) can reach it without importing. Non-enumerable and
@@ -138,8 +141,22 @@ if (typeof window !== 'undefined') {
   }
 
   registerNavigator(navigate);
-  setup();
-  setupTabSync(router);
+
+  const bootstrap = () => {
+    setup();
+    setupTabSync(router);
+  };
+
+  if (window.navigation) {
+    bootstrap();
+  } else {
+    guard
+      .navigation()
+      .then(bootstrap)
+      .catch((err) => {
+        console.error('Failed to bootstrap Navigation API for router:', err);
+      });
+  }
 }
 
 export {

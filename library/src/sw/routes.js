@@ -12,9 +12,15 @@
  * Normalizes an input pattern descriptor into a standard URLPattern instance.
  * Falls back to a minimal matcher when URLPattern is missing or rejects the
  * pattern (avoids SW script-evaluation failures under subpath hosts).
+ *
+ * Critical: never evaluate `instanceof URLPattern` when the constructor is
+ * undefined — that throws during SW module evaluation (Firefox without
+ * URLPattern in ServiceWorkerGlobalScope) and aborts registration entirely.
  */
 function normalize(pattern) {
-  if (pattern instanceof URLPattern) {
+  const hasURLPattern = typeof URLPattern !== 'undefined';
+
+  if (hasURLPattern && pattern instanceof URLPattern) {
     return pattern;
   }
 
@@ -23,8 +29,12 @@ function normalize(pattern) {
       ? (pattern === '*' || pattern === '/*' ? '*' : pattern)
       : (pattern && typeof pattern === 'object' ? pattern : { pathname: '*' });
 
-  if (typeof URLPattern === 'undefined') {
-    return createFallbackMatcher(typeof pathname === 'string' ? pathname : pathname.pathname || '*');
+  const pathStr = typeof pathname === 'string' ? pathname : pathname?.pathname || '*';
+
+  // Catch-all patterns vary across URLPattern implementations; use the
+  // portable matcher so `r.register('*', …)` never throws at SW eval time.
+  if (!hasURLPattern || pathStr === '*' || pathStr === '/*') {
+    return createFallbackMatcher(pathStr);
   }
 
   try {
@@ -34,8 +44,7 @@ function normalize(pattern) {
     return new URLPattern(pathname);
   } catch (err) {
     console.error('[anza/sw] Invalid route pattern; using fallback matcher:', pattern, err);
-    const path = typeof pathname === 'string' ? pathname : pathname?.pathname || '*';
-    return createFallbackMatcher(path);
+    return createFallbackMatcher(pathStr);
   }
 }
 

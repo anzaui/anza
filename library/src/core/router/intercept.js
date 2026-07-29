@@ -311,6 +311,8 @@ export function getWin()   { return win; }
 let navListener = null;
 let successListener = null;
 let errorListener = null;
+/** Bumped on destroy() so a pending Navigation polyfill load cannot re-setup. */
+let setupEpoch = 0;
 
 const listeners = {
   found: new Set(),
@@ -387,10 +389,29 @@ export const guardsApi = {
 /**
  * Attaches the global window.navigation navigate listener.
  * Idempotent — safe to call multiple times.
+ *
+ * Firefox (and any engine without the Navigation API) has no
+ * `window.navigation` until the platform polyfill installs. Soft-nav for
+ * plain `<a href>` clicks depends on that polyfill's click interceptor
+ * *and* this listener calling `event.intercept()`. If we no-op here, clicks
+ * fall through to full page loads. Schedule the polyfill and retry.
  */
 export function setup() {
   if (ready) return;
-  if (typeof window === 'undefined' || !window.navigation) return;
+  if (typeof window === 'undefined') return;
+  if (!window.navigation) {
+    const epoch = setupEpoch;
+    import('../platform/guard.js')
+      .then((m) => m.default.navigation())
+      .then(() => {
+        if (epoch !== setupEpoch) return;
+        setup();
+      })
+      .catch((err) => {
+        console.error('Failed to load Navigation polyfill for router setup:', err);
+      });
+    return;
+  }
   ready = true;
 
   win   = window;
@@ -566,6 +587,7 @@ export function setup() {
  * Useful for test isolation and SSR teardown.
  */
 export function destroy() {
+  setupEpoch += 1;
   if (!ready) return;
   ready = false;
   win   = null;

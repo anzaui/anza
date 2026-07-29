@@ -8,6 +8,25 @@
 
 import { globals } from '../globals.js';
 
+/**
+ * Resolve the clicked anchor, including those inside open/closed shadow trees.
+ * Document-level listeners see retargeted `event.target` (the host), so
+ * `closest('a')` alone cannot find soft-nav links in dock templates.
+ */
+function findAnchor(event) {
+  const path = typeof event.composedPath === 'function' ? event.composedPath() : [];
+  for (const node of path) {
+    if (node && node.tagName === 'A' && node.hasAttribute('href')) {
+      return node;
+    }
+  }
+  const target = event.target;
+  if (target && typeof target.closest === 'function') {
+    return target.closest('a[href]');
+  }
+  return null;
+}
+
 class NavigationEvent extends Event {
   constructor(type, init) {
     super(type, init);
@@ -34,10 +53,12 @@ class NavigationPolyfill extends EventTarget {
   constructor() {
     super();
     if (typeof document !== 'undefined') {
-      // Global click delegation for same-origin anchor links
+      // Global click delegation for same-origin anchor links.
+      // Docs docks put <a> inside shadow roots; click retargets to the host, so
+      // e.target.closest('a') misses — walk composedPath instead (Firefox soft-nav).
       const onClick = (e) => {
         if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-        const anchor = e.target.closest('a[href]');
+        const anchor = findAnchor(e);
         if (!anchor) return;
 
         // Skip non-HTTP links and external targets

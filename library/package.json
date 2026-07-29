@@ -1,6 +1,6 @@
 {
   "name": "@adukiorg/anza",
-  "version": "0.4.8",
+  "version": "0.4.9",
   "description": "Anza web platform library — reactive state, networking, offline, animations, custom elements. Instant build step. Pure browser ESM.",
   "author": "fescii",
   "license": "MIT",
@@ -107,7 +107,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "test":  "npx @web/test-runner",
+    "test": "npx @web/test-runner",
     "serve": "npx @web/dev-server --port 8080 --node-resolve false",
     "check": "tsc --noEmit -p tsconfig.json"
   }
