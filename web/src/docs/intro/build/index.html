@@ -31,7 +31,7 @@
 </view-code>
 <p>This runs <code>anza build</code>. Same graph resolution, but starts from a clean <code>dist/</code> and fails on unresolved imports or syntax errors.</p>
 <p>Public routes get <strong>Mode A SSG</strong> (also during <code>anza dev</code>): contentful HTML with open Declarative Shadow DOM under <code>dist/&lt;route&gt;/index.html</code>, so hard refresh works on a plain static server. Publish <code>dist/</code> as the <strong>document root</strong>. Asset URLs are site-root paths (<code>/app.js</code>, <code>/tokens/...</code>) — never <code>/dist/...</code>.</p>
-<p>When the page’s CSR fragment path would collide with that SSG <code>index.html</code>, the emitter keeps the fragment as <code>template.html</code> and rewrites the built page module plus <code>routes.json</code> so soft-nav fetches the fragment — not the full document. Overview: <a href="/docs/ssg/index">Overview</a>. Contract: <a href="/docs/ssg/contract">SSG contract</a>. Hydration: <a href="/docs/ui/hydration">Hydration</a>.</p>
+<p>When the page’s CSR fragment path would collide with that SSG <code>index.html</code>, the emitter keeps the fragment as <code>template.html</code> and rewrites the built page module plus <code>routes.json</code> so soft-nav fetches the fragment — not the full document. Overview: <a href="/docs/ssg/index">ssg/index.md</a>. Contract: <a href="/docs/ssg/contract">ssg/contract.md</a>. Hydration: <a href="/docs/ui/hydration">ui/hydration.md</a>.</p>
 <h3>SEO extras (<code>ssg.json</code>)</h3>
 <p>Optional <code>ssg.json</code> next to (or inside) <code>src/</code> configures site origin and build-time SEO files:</p>
 <view-code language="json">{
@@ -54,7 +54,7 @@ npx anza check
 <tr><td><code>anza doctor --strict</code></td><td>Same findings as check — warnings fail</td></tr>
 <tr><td><code>anza check</code></td><td>Strict structure check for CI (<code>anza check &amp;&amp; anza build</code>)</td></tr>
 </tbody></table></div>
-<p>Validates required spine (<code>package.json</code>, <code>src/index.html</code>, <code>src/app.js</code>), recommended tokens/styles/SW/importmap, optional slots + index-per-folder barrels, optional <code>anza.json</code> (incl. <code>sw</code> string|array), legacy <code>elements/</code> coexistence, undeclared page trees, and <strong>via → dock</strong> consistency (<code>rootDock</code> warn; unknown <code>via</code> error). Contract: <a href="/docs/intro/structure">Structure</a> (single source of truth + Troubleshooting).</p>
+<p>Validates required spine (<code>package.json</code>, <code>src/index.html</code>, <code>src/app.js</code>), recommended tokens/styles/SW/importmap, optional slots + index-per-folder barrels, optional <code>anza.json</code> (incl. <code>sw</code> string|array), legacy <code>elements/</code> coexistence, undeclared page trees, and <strong>via → dock</strong> consistency (<code>rootDock</code> warn; unknown <code>via</code> error). Contract: <a href="/docs/intro/structure">structure.md</a> (single source of truth + Troubleshooting).</p>
 <h3>CI</h3>
 <view-code language="bash">anza check &amp;&amp; anza build
 </view-code>
@@ -64,7 +64,24 @@ npx anza check
   }
 }
 </view-code>
-<p>Doctor/check findings append <code>docs/<a href="/docs/intro/structure">Structure</a></code> so CI logs link back to the contract.</p>
+<p>Doctor/check findings append <code>docs/intro/structure.md</code> so CI logs link back to the contract.</p>
+<h3>Deploy (GitHub Pages)</h3>
+<p>The docs app lives in <code>web/</code>. CI builds <code>web/dist/</code> and deploys it on every push to <code>main</code>.</p>
+<div class="table-wrap"><table><thead><tr><th>Trigger</th><th>Workflow</th><th>Output</th></tr></thead><tbody>
+<tr><td>Push to <code>main</code></td><td><code>.github/workflows/pages.yml</code></td><td>Static site at GitHub Pages</td></tr>
+<tr><td>Tag <code>v*.*.*</code></td><td><code>.github/workflows/release.yml</code></td><td>npm packages + CLI binaries on GitHub Releases</td></tr>
+</tbody></table></div>
+<p><strong>One-time repo setup:</strong> Settings → Pages → Source: <strong>GitHub Actions</strong>.</p>
+<p><strong>Public URL:</strong> <code>https://aduki-org.github.io/anza/</code> — a <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages#types-of-github-pages-sites">GitHub Pages project site</a> is always served under <code>/&lt;repository&gt;/</code> (user/org sites use <code>owner.github.io</code> at <code>/</code>). Root-absolute browser URLs like <code>/styles/shared.css</code> resolve against the <strong>domain</strong> root (<a href="https://developer.mozilla.org/en-US/docs/Web/API/URL_API/Resolving_relative_references">URL standard</a>), so they 404 on project Pages unless rewritten.</p>
+<p>Set <code>"base": "/anza"</code> in <code>web/ssg.json</code> (or <code>ANZA_BASE_PATH</code>) so the build injects <code>globalThis.__ANZA_BASE__</code>, rewrites asset URLs in SSG HTML, and soft-nav style/template fetches hit <code>/anza/styles/...</code>. Publish <code>web/dist/</code> as the artifact <strong>document root</strong> — do not nest files under an <code>anza/</code> folder; Pages adds the repo prefix. Workflow: <code>.github/workflows/pages.yml</code> (<code>upload-pages-artifact</code> + <code>deploy-pages</code>).</p>
+<p><strong>Custom domain:</strong> attaching a custom domain to the project (or inheriting one from the org/user site) changes the published URL so the site is no longer under <code>/anza/</code> — see <a href="https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages">About custom domains and GitHub Pages</a>. In that case clear <code>base</code> / <code>ANZA_BASE_PATH</code> so assets resolve at <code>/</code>.</p>
+<p>Set canonical / sitemap origin in <code>web/ssg.json</code> (<code>origin</code>) or env <code>ANZA_SITE_ORIGIN</code> at build time.</p>
+<p><strong>Release a version</strong> (rebuilds all platform binaries and publishes npm):</p>
+<view-code language="bash"># Bump library/package.json (+ create/package.json), update CHANGELOG, then:
+git tag v0.4.4
+git push origin v0.4.4
+</view-code>
+<p>The tag must match <code>library/package.json</code>. Release requires <code>NPM_TOKEN</code> in repo secrets.</p>
 <hr />
 <h2>Generate</h2>
 <p>Thin helpers (not a Nest schematic platform). Writes into convention slots or <code>anza.json</code> remaps and updates the slot <code>index.js</code> barrel:</p>

@@ -115,7 +115,11 @@ The docs app lives in `web/`. CI builds `web/dist/` and deploys it on every push
 
 **One-time repo setup:** Settings → Pages → Source: **GitHub Actions**.
 
-**Public URL:** `https://aduki-org.github.io/anza/` (project site). Set `"base": "/anza"` in `web/ssg.json` so SSG injects `globalThis.__ANZA_BASE__`, rewrites asset URLs, and soft-nav style/template fetches resolve under `/anza/...` (for example `/anza/styles/shared.css`). Without `base`, root-absolute paths assume the site is hosted at the domain root.
+**Public URL:** `https://aduki-org.github.io/anza/` — a [GitHub Pages project site](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages#types-of-github-pages-sites) is always served under `/<repository>/` (user/org sites use `owner.github.io` at `/`). Root-absolute browser URLs like `/styles/shared.css` resolve against the **domain** root ([URL standard](https://developer.mozilla.org/en-US/docs/Web/API/URL_API/Resolving_relative_references)), so they 404 on project Pages unless rewritten.
+
+Set `"base": "/anza"` in `web/ssg.json` (or `ANZA_BASE_PATH`) so the build injects `globalThis.__ANZA_BASE__`, rewrites asset URLs in SSG HTML, and soft-nav style/template fetches hit `/anza/styles/...`. Publish `web/dist/` as the artifact **document root** — do not nest files under an `anza/` folder; Pages adds the repo prefix. Workflow: `.github/workflows/pages.yml` (`upload-pages-artifact` + `deploy-pages`).
+
+**Custom domain:** attaching a custom domain to the project (or inheriting one from the org/user site) changes the published URL so the site is no longer under `/anza/` — see [About custom domains and GitHub Pages](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages). In that case clear `base` / `ANZA_BASE_PATH` so assets resolve at `/`.
 
 Set canonical / sitemap origin in `web/ssg.json` (`origin`) or env `ANZA_SITE_ORIGIN` at build time.
 

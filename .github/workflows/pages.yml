@@ -56,8 +56,11 @@ jobs:
       - name: Prepare Pages artifact
         run: touch web/dist/.nojekyll
 
+      # Official Pages Actions pattern: package dist/ as the site document root.
+      # Project sites are published at /<repo>/ automatically — do not nest under anza/.
+      # https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: web/dist
 
