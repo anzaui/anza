@@ -288,6 +288,8 @@ pub fn rewrite_js_root_literals(source: &str, base: &str) -> String {
     ("'/favicon.ico'", &format!("'{}/favicon.ico'", base)),
     ("\"/favicon.ico\"", &format!("\"{}/favicon.ico\"", base)),
     ("path === '/favicon.ico'", &format!("path === '{}/favicon.ico'", base)),
+    ("'/api/*'", &format!("'{}/api/*'", base)),
+    ("\"/api/*\"", &format!("\"{}/api/*\"", base)),
   ];
   for (from, to) in replacements {
     out = out.replace(from, to);

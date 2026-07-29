@@ -19,7 +19,7 @@ const r = router();
 ## Register Patterns
 
 ```javascript
-r.register('/*', new CacheFirst('shell-v1'));
+r.register('*', new CacheFirst('shell-v1'));
 r.register('/api/users/:id', new NetworkFirst('api-v1'));
 r.register('*', new NetworkOnly());
 ```

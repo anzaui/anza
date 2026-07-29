@@ -447,21 +447,23 @@ describe('Client soft-nav vs SSG adopt', () => {
     }
   });
 
-  it('soft-nav CSR leaf retries style fetch without deploy base on 404', async () => {
+  it('soft-nav CSR leaf fetches styles under deploy base', async () => {
     const tag = 'doc-soft-css-base-leaf';
     const cssBody = 'h1 { letter-spacing: 0.02em; }';
-    const stylePath = '/styles/soft-nav-base-test.css';
+    const stylePath = '/styles/shared.css';
     const prevBase = globalThis.__ANZA_BASE__;
     globalThis.__ANZA_BASE__ = '/anza';
 
+    const fetched = [];
     const origFetch = window.fetch;
     window.fetch = async (input) => {
       const href = typeof input === 'string' ? input : input.url;
-      if (href.includes('/anza/styles/soft-nav-base-test.css')) {
-        return new Response('missing', { status: 404 });
-      }
-      if (href.endsWith(stylePath)) {
+      fetched.push(href);
+      if (href.includes('/anza/styles/shared.css')) {
         return new Response(cssBody, { status: 200, headers: { 'Content-Type': 'text/css' } });
+      }
+      if (href.includes('/styles/shared.css') && !href.includes('/anza/')) {
+        return new Response('missing at site root', { status: 404 });
       }
       return origFetch(input);
     };
@@ -487,11 +489,31 @@ describe('Client soft-nav vs SSG adopt', () => {
       });
       await wait(60);
 
+      const hitBase = fetched.some((u) => u.includes('/anza/styles/shared.css'));
+      const hitRoot = fetched.some((u) => {
+        try {
+          const path = new URL(u, 'http://localhost').pathname;
+          return path === '/styles/shared.css';
+        } catch {
+          return u === '/styles/shared.css' || u.endsWith('://localhost/styles/shared.css');
+        }
+      });
+      if (!hitBase) {
+        throw new Error(
+          `Expected style fetch under /anza/styles/shared.css, got: ${JSON.stringify(fetched)}`
+        );
+      }
+      if (hitRoot) {
+        throw new Error(
+          `Must not fetch site-root /styles/shared.css when __ANZA_BASE__=/anza; got: ${JSON.stringify(fetched)}`
+        );
+      }
+
       const leaf = leafDock.querySelector(tag);
       const sheets = leaf?.shadowRoot?.adoptedStyleSheets?.length ?? 0;
       const styleTag = leaf?.shadowRoot?.querySelector('style');
       if (!leaf?.shadowRoot || (sheets === 0 && !styleTag)) {
-        throw new Error('Expected deploy-base 404 retry to still load page CSS on soft-nav');
+        throw new Error('Expected soft-nav page CSS loaded from deploy-base URL');
       }
     } finally {
       window.fetch = origFetch;

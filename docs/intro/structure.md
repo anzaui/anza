@@ -213,7 +213,7 @@ self.addEventListener('activate', (e) => {
 });
 
 const r = router();
-r.register('/*', new CacheFirst(SHELL));
+r.register('*', new CacheFirst(SHELL));
 r.register('/api/*', new NetworkFirst(API, { timeout: 3000 }));
 
 self.addEventListener('fetch', (e) => {

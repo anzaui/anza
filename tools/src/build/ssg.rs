@@ -455,6 +455,12 @@ fn build_head(
     head.push_str(&json_ld_script(site, title, description, canonical, &route.path));
   }
 
+  // Favicon under deploy base so browsers do not request origin-root /favicon.ico.
+  head.push_str(&format!(
+    "  <link rel=\"icon\" href=\"{}\" type=\"image/x-icon\" />\n",
+    escape_attr(&asset_href(site.base.as_deref(), "/favicon.ico"))
+  ));
+
   // Import map before any module scripts (inline — same as production graph inject).
   if !importmap.is_empty() {
     head.push_str("  <script type=\"importmap\">\n");

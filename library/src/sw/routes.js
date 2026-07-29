@@ -10,23 +10,56 @@
 
 /**
  * Normalizes an input pattern descriptor into a standard URLPattern instance.
+ * Falls back to a minimal matcher when URLPattern is missing or rejects the
+ * pattern (avoids SW script-evaluation failures under subpath hosts).
  */
 function normalize(pattern) {
   if (pattern instanceof URLPattern) {
     return pattern;
   }
 
-  if (typeof pattern === 'string') {
-    // Explicit wildcard string maps to match-all pathnames
-    if (pattern === '*') {
-      return new URLPattern({ pathname: '*' });
-    }
-    // Simple string route compiles to a pathname match
-    return new URLPattern({ pathname: pattern });
+  const pathname =
+    typeof pattern === 'string'
+      ? (pattern === '*' || pattern === '/*' ? '*' : pattern)
+      : (pattern && typeof pattern === 'object' ? pattern : { pathname: '*' });
+
+  if (typeof URLPattern === 'undefined') {
+    return createFallbackMatcher(typeof pathname === 'string' ? pathname : pathname.pathname || '*');
   }
 
-  // Object-based pattern parameters
-  return new URLPattern(pattern);
+  try {
+    if (typeof pathname === 'string') {
+      return new URLPattern({ pathname });
+    }
+    return new URLPattern(pathname);
+  } catch (err) {
+    console.error('[anza/sw] Invalid route pattern; using fallback matcher:', pattern, err);
+    const path = typeof pathname === 'string' ? pathname : pathname?.pathname || '*';
+    return createFallbackMatcher(path);
+  }
+}
+
+/** Minimal pathname matcher used when native URLPattern cannot be constructed. */
+function createFallbackMatcher(pathnamePattern) {
+  const matchAll = !pathnamePattern || pathnamePattern === '*' || pathnamePattern === '/*';
+  let regex;
+  if (matchAll) {
+    regex = /^/;
+  } else {
+    const escaped = String(pathnamePattern)
+      .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
+      .replace(/\*/g, '.*');
+    regex = new RegExp(`^${escaped}$`);
+  }
+  return {
+    test(url) {
+      try {
+        return regex.test(new URL(url).pathname);
+      } catch {
+        return false;
+      }
+    }
+  };
 }
 
 export class Router {

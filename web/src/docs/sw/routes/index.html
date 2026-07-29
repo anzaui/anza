@@ -9,7 +9,7 @@ const r = router();
 <p><code>router()</code> is a factory that returns a new <code>Router</code> instance.</p>
 <hr />
 <h2>Register Patterns</h2>
-<view-code language="javascript">r.register('/*', new CacheFirst('shell-v1'));
+<view-code language="javascript">r.register('*', new CacheFirst('shell-v1'));
 r.register('/api/users/:id', new NetworkFirst('api-v1'));
 r.register('*', new NetworkOnly());
 </view-code>

@@ -12,6 +12,17 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.4.7] — 2026-07-29
+
+### Fixed
+
+- **Soft-nav CSS on GitHub Pages** — `resolveAppUrl` / `resolveAssetUrl` no longer drop the deploy base for root-absolute paths (`new URL('/styles/...', origin + '/anza/')` previously resolved to `/styles/...`). Soft-nav now fetches `/anza/styles/shared.css` when `__ANZA_BASE__='/anza'`.
+- **No client 404 strip-base retry** — removed the client retry that stripped `__ANZA_BASE__` on stylesheet/template 404s (unsafe on `*.github.io`); local `anza dev` still strips the base on the server.
+- **Favicon under deploy base** — SSG head emits `/anza/favicon.ico`; connectivity probes use `withBase('/favicon.ico')`.
+- **Service Worker under `/anza/`** — catch-all route uses `*`; URLPattern construction is guarded so SW script evaluation cannot throw on pattern init; `/api/*` is rewritten with the deploy base.
+
+---
+
 ## [0.4.6] — 2026-07-29
 
 ### Added

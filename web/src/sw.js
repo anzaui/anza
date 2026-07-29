@@ -15,7 +15,7 @@ self.addEventListener('activate', (e) => {
 });
 
 const r = router();
-r.register('/*', new CacheFirst(SHELL));
+r.register('*', new CacheFirst(SHELL));
 r.register('/api/*', new NetworkFirst(API, { timeout: 3000 }));
 
 /** CSR fragments + navigations bypass SW — avoids body-lock races in CacheFirst. */

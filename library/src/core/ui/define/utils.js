@@ -1,5 +1,4 @@
 import { assetCache } from './state.js';
-import { getBase } from '../../router/base.js';
 
 // Detect constructable stylesheet + adoptedStyleSheets support once.
 const supportsSheets =
@@ -8,42 +7,18 @@ const supportsSheets =
   'adoptedStyleSheets' in ShadowRoot.prototype;
 
 /**
- * Fetch a same-origin text asset. When a deploy-base-prefixed URL 404s (common
- * in local dev while SSG HTML already injects __ANZA_BASE__), retry without the
- * base prefix so soft-nav page CSS/template fetches still resolve.
+ * Fetch a same-origin text asset (style / template). Callers must pass URLs
+ * already resolved via `resolveAssetUrl` so deploy-base hosts (e.g. GitHub
+ * Pages `/anza/`) request `/anza/styles/...`, not site-root `/styles/...`.
+ * Do not strip `__ANZA_BASE__` on 404 — that would hit the wrong host path
+ * on Pages. Local `anza dev` strips the base on the server instead.
  */
 async function fetchTextResource(url, tag, kind) {
-  const attempt = async (target) => {
-    const res = await fetch(target);
-    if (res.ok) return res.text();
-    return { status: res.status, url: target };
-  };
-
   try {
-    let result = await attempt(url);
-    if (typeof result === 'string') return result;
-
-    const base = getBase();
-    if (base && result.status === 404) {
-      let fallback = null;
-      try {
-        const origin = globalThis.location?.origin || 'http://localhost';
-        const parsed = new URL(url, origin);
-        if (parsed.pathname === base || parsed.pathname.startsWith(`${base}/`)) {
-          parsed.pathname = parsed.pathname.slice(base.length) || '/';
-          fallback = parsed.href;
-        }
-      } catch {
-        // keep single attempt
-      }
-      if (fallback && fallback !== url) {
-        result = await attempt(fallback);
-        if (typeof result === 'string') return result;
-      }
-    }
-
+    const res = await fetch(url);
+    if (res.ok) return res.text();
     console.error(
-      `Failed to load ${kind} resource ${url} for element ${tag}: HTTP ${result.status}`
+      `Failed to load ${kind} resource ${url} for element ${tag}: HTTP ${res.status}`
     );
   } catch (err) {
     console.error(`Failed to load ${kind} resource ${url} for element ${tag}:`, err);

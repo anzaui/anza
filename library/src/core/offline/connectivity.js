@@ -11,6 +11,7 @@
 import { state } from './state.js';
 import { bus } from '../events/bus.js';
 import { names } from '../events/types/index.js';
+import { withBase } from '../router/base.js';
 
 let lastCheck = 0;
 let isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
@@ -37,7 +38,7 @@ export async function check(force = false) {
     lastCheck = now;
     try {
       // Dispatch HEAD request with cache-busting parameter to verify external access
-      await fetch('/favicon.ico?_probe=' + now, {
+      await fetch(`${withBase('/favicon.ico')}?_probe=${now}`, {
         method: 'HEAD',
         cache: 'no-store',
         mode: 'no-cors' // Prevents CORS blockages

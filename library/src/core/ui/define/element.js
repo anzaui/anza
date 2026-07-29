@@ -59,14 +59,15 @@ export function element(tag, spec, base) {
   const isStyleUrl = s => typeof s === 'string' && (s.endsWith('.css') || ((s.startsWith('./') || s.startsWith('/')) && !s.startsWith('/*') && !s.includes('{')));
   const isTemplateUrl = s => typeof s === 'string' && (s.endsWith('.html') || ((s.startsWith('./') || s.startsWith('/')) && !s.startsWith('<!--') && !s.includes('<')));
 
-  // Resolve absolute URLs relative to import.meta.url (base)
-  const styleUrls = Array.isArray(spec.style) 
-    ? spec.style.filter(s => s && base && isStyleUrl(s)).map(s => resolveAssetUrl(s, base))
-    : (spec.style && base && isStyleUrl(spec.style)
-      ? [resolveAssetUrl(spec.style, base)]
-      : []);
-      
-  const templateUrl = spec.template && base && isTemplateUrl(spec.template)
+  // Resolve style/template URLs. Root-absolute paths (`/styles/...`) use the
+  // deploy base via resolveAssetUrl even when import.meta.url is omitted.
+  const canResolveStyle = (s) => s && isStyleUrl(s) && (base || (typeof s === 'string' && s.startsWith('/')));
+  const styleUrls = Array.isArray(spec.style)
+    ? spec.style.filter(canResolveStyle).map(s => resolveAssetUrl(s, base))
+    : (canResolveStyle(spec.style) ? [resolveAssetUrl(spec.style, base)] : []);
+
+  const canResolveTemplate = (s) => s && isTemplateUrl(s) && (base || (typeof s === 'string' && s.startsWith('/')));
+  const templateUrl = canResolveTemplate(spec.template)
     ? resolveAssetUrl(spec.template, base)
     : null;
 

@@ -56,6 +56,8 @@ export function withBase(path) {
 
 /**
  * Resolve a same-origin URL string against the deploy base.
+ * Root-absolute paths must go through `withBase` — `new URL('/x', origin + base)`
+ * drops the deploy-base pathname (URL standard).
  * @param {string} url
  */
 export function resolveAppUrl(url) {
@@ -63,12 +65,21 @@ export function resolveAppUrl(url) {
   if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//')) {
     return url;
   }
+  if (url.startsWith('#') || url.startsWith('?')) {
+    return url;
+  }
   try {
     const base = getBase();
-    if (!base) return url;
     const origin = globalThis.location?.origin || 'http://localhost';
-    const resolved = new URL(url, `${origin}${base}/`);
-    return resolved.href;
+    if (!base) {
+      return url.startsWith('/') ? new URL(url, origin).href : url;
+    }
+    // Root-absolute: prefix deploy base, then absolutize against origin only.
+    if (url.startsWith('/')) {
+      return new URL(withBase(url), origin).href;
+    }
+    // Relative: resolve against the deploy base as a directory.
+    return new URL(url, `${origin}${base}/`).href;
   } catch {
     return withBase(url);
   }
@@ -85,10 +96,7 @@ export function resolveAssetUrl(url, moduleBase) {
     return url;
   }
   if (url.startsWith('/')) {
-    const base = getBase();
-    if (base) {
-      return resolveAppUrl(url);
-    }
+    return resolveAppUrl(url);
   }
   if (moduleBase) {
     try {

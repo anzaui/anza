@@ -115,7 +115,7 @@ The docs app lives in `web/`. CI builds `web/dist/` and deploys it on every push
 
 **One-time repo setup:** Settings → Pages → Source: **GitHub Actions**.
 
-**Public URL:** `https://aduki-org.github.io/anza/` (project site). Asset URLs in `dist/` are site-root paths (`/app.js`, `/tokens/...`). For production, configure a **custom domain** on GitHub Pages so those paths resolve at the domain root; the default `*.github.io/<repo>/` URL serves HTML but absolute asset paths need a root domain (or future base-path support).
+**Public URL:** `https://aduki-org.github.io/anza/` (project site). Set `"base": "/anza"` in `web/ssg.json` so SSG injects `globalThis.__ANZA_BASE__`, rewrites asset URLs, and soft-nav style/template fetches resolve under `/anza/...` (for example `/anza/styles/shared.css`). Without `base`, root-absolute paths assume the site is hosted at the domain root.
 
 Set canonical / sitemap origin in `web/ssg.json` (`origin`) or env `ANZA_SITE_ORIGIN` at build time.
 

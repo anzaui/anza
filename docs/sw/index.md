@@ -58,7 +58,7 @@ self.addEventListener('install', (e) => {
 });
 
 const r = router();
-r.register('/*', new CacheFirst('shell-v1'));
+r.register('*', new CacheFirst('shell-v1'));
 r.register('/api/*', new NetworkFirst('api-v1', { timeout: 3000 }));
 
 self.addEventListener('fetch', (e) => {
