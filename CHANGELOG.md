@@ -12,6 +12,24 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.4.11] — 2026-07-29
+
+### Fixed
+
+- **Docs custom domain base path** — `anza.aduki.org` serves the project site at the **domain root**, so `web/ssg.json` no longer sets `"base": "/anza"` and CI/Pages drop `ANZA_BASE_PATH`. Asset and nav URLs are `/styles/...`, `/app.js`, `/docs/...` again (not `/anza/...`).
+- **Pages CNAME** — ship `web/CNAME` (`anza.aduki.org`) into the Actions artifact so the custom domain stays bound on deploy.
+- **Stale SW after base clear** — docs Service Worker bumped to `shell-v3` / `api-v3` so returning visitors drop CacheFirst-pinned JS that still resolved under `/anza`.
+
+### Changed
+
+- **Deploy docs** — clarify `*.github.io/<repo>` needs a base path; a **project** custom domain must clear base. Origin/canonicals use `https://anza.aduki.org`.
+
+### Tests
+
+- Router base: `resolveAssetUrl` with empty / unset `__ANZA_BASE__` leaves root-absolute asset paths unchanged.
+
+---
+
 ## [0.4.10] — 2026-07-29
 
 ### Changed

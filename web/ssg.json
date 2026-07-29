@@ -1,6 +1,5 @@
 {
-  "origin": "https://aduki-org.github.io/anza",
-  "base": "/anza",
+  "origin": "https://anza.aduki.org",
   "siteName": "Anza",
   "jsonLd": true,
   "sitemap": true,

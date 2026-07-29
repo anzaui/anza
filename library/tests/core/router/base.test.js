@@ -74,6 +74,22 @@ describe('Router deploy base', () => {
     }
   });
 
+  it('resolveAssetUrl keeps root-absolute paths when __ANZA_BASE__ is empty', () => {
+    delete globalThis.__ANZA_BASE__;
+    for (const asset of ['/styles/shared.css', '/tokens/index.css', '/app.js', '/docs/intro/start']) {
+      const href = resolveAssetUrl(asset);
+      const path = new URL(href, 'http://localhost').pathname;
+      if (path !== asset) {
+        throw new Error(`Expected ${asset} with empty base, got ${href}`);
+      }
+    }
+
+    globalThis.__ANZA_BASE__ = '';
+    if (new URL(resolveAssetUrl('/styles/shared.css'), 'http://localhost').pathname !== '/styles/shared.css') {
+      throw new Error('Expected empty-string __ANZA_BASE__ to leave /styles/... unchanged');
+    }
+  });
+
   it('resolveAssetUrl prefixes /styles and /tokens under __ANZA_BASE__', () => {
     globalThis.__ANZA_BASE__ = '/anza';
     for (const asset of ['/styles/shared.css', '/tokens/index.css', '/favicon.ico']) {

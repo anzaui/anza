@@ -15,8 +15,9 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  ANZA_SITE_ORIGIN: https://aduki-org.github.io/anza
-  ANZA_BASE_PATH: /anza
+  # Custom domain on this project site → published at domain root (no /anza base).
+  # github.io/anza project URLs need ANZA_BASE_PATH=/anza instead.
+  ANZA_SITE_ORIGIN: https://anza.aduki.org
 
 jobs:
   build:
@@ -54,10 +55,13 @@ jobs:
         run: cd web && ../tools/target/release/anza build
 
       - name: Prepare Pages artifact
-        run: touch web/dist/.nojekyll
+        run: |
+          touch web/dist/.nojekyll
+          cp web/CNAME web/dist/CNAME
 
       # Official Pages Actions pattern: package dist/ as the site document root.
-      # Project sites are published at /<repo>/ automatically — do not nest under anza/.
+      # With a project custom domain the site is at the domain root — leave base empty.
+      # Without a custom domain, project sites are at /<repo>/ and need ANZA_BASE_PATH.
       # https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4

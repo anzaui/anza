@@ -112,11 +112,11 @@ After `npm run build`, publish `dist/` as the **document root** of any static ho
 
 A [GitHub Pages project site](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages#types-of-github-pages-sites) is served under `/<repository>/` (user/org sites use `owner.github.io` at `/`). Root-absolute browser URLs like `/styles/shared.css` resolve against the **domain** root ([URL standard](https://developer.mozilla.org/en-US/docs/Web/API/URL_API/Resolving_relative_references)), so they 404 on project Pages unless rewritten.
 
-Set `"base": "/your-repo"` in `ssg.json` (next to or inside `src/`) or env `ANZA_BASE_PATH` so the build injects `globalThis.__ANZA_BASE__`, rewrites asset URLs in SSG HTML, and soft-nav style/template fetches hit `/your-repo/styles/...`. Publish `dist/` as the artifact **document root** — do not nest files under a `your-repo/` folder; Pages adds the repo prefix.
+**`*.github.io/<repo>` (no custom domain):** set `"base": "/your-repo"` in `ssg.json` (next to or inside `src/`) or env `ANZA_BASE_PATH` so the build injects `globalThis.__ANZA_BASE__`, rewrites asset URLs in SSG HTML, and soft-nav style/template fetches hit `/your-repo/styles/...`. Publish `dist/` as the artifact **document root** — do not nest files under a `your-repo/` folder; Pages adds the repo prefix.
+
+**Custom domain on the project:** Pages serves the site at the **domain root** (e.g. `https://anza.aduki.org/`), not under `/your-repo/` — see [About custom domains and GitHub Pages](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages). Clear `base` / `ANZA_BASE_PATH` (omit or `""`) so assets resolve at `/styles/...`, `/app.js`, `/docs/...`. Include a `CNAME` in the published artifact when deploying via Actions.
 
 **One-time repo setup:** Settings → Pages → Source: **GitHub Actions** (or your preferred Pages source).
-
-**Custom domain:** attaching a custom domain to the project (or inheriting one from the org/user site) changes the published URL so the site is no longer under `/your-repo/` — see [About custom domains and GitHub Pages](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages). In that case clear `base` / `ANZA_BASE_PATH` so assets resolve at `/`.
 
 Set canonical / sitemap origin in `ssg.json` (`origin`) or env `ANZA_SITE_ORIGIN` at build time.
 

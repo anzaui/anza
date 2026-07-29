@@ -5,8 +5,8 @@
 <p>The scaffold generates this file for you. Here is what it contains:</p>
 <view-code language="javascript">import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@adukiorg/anza/sw';
 
-const SHELL = 'shell-v2';
-const API = 'api-v2';
+const SHELL = 'shell-v3';
+const API = 'api-v3';
 
 self.addEventListener('install', (e) =&gt; {
   e.waitUntil(
@@ -32,8 +32,8 @@ self.addEventListener('fetch', (e) =&gt; {
 </view-code>
 <p>What it does:</p>
 <ol>
-<li>On <code>install</code>, precaches the app shell into a cache named <code>shell-v2</code>, then <code>skipWaiting()</code> so the new worker can activate without closing every tab</li>
-<li>On <code>activate</code>, deletes other cache names (e.g. an older <code>shell-v1</code>) and claims all tabs</li>
+<li>On <code>install</code>, precaches the app shell into a cache named <code>shell-v3</code>, then <code>skipWaiting()</code> so the new worker can activate without closing every tab</li>
+<li>On <code>activate</code>, deletes other cache names (e.g. an older <code>shell-v2</code>) and claims all tabs</li>
 <li>Registers two routes: static assets get <code>CacheFirst</code>, API calls get <code>NetworkFirst</code> with a 3-second timeout</li>
 <li>On <code>fetch</code>, tries the router first; unmatched requests fall through to the network</li>
 </ol>

@@ -5,8 +5,8 @@ import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@
 
 // Bump SHELL/API names when shipping path-breaking asset fixes so pruneStale
 // drops CacheFirst entries that would otherwise pin stale JS forever.
-const SHELL = 'shell-v2';
-const API = 'api-v2';
+const SHELL = 'shell-v3';
+const API = 'api-v3';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(

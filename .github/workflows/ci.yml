@@ -58,8 +58,7 @@ jobs:
     needs: build-rust
     runs-on: ubuntu-latest
     env:
-      ANZA_SITE_ORIGIN: https://aduki-org.github.io/anza
-      ANZA_BASE_PATH: /anza
+      ANZA_SITE_ORIGIN: https://anza.aduki.org
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4

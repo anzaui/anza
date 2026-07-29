@@ -11,8 +11,8 @@ The scaffold generates this file for you. Here is what it contains:
 ```javascript
 import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@adukiorg/anza/sw';
 
-const SHELL = 'shell-v2';
-const API = 'api-v2';
+const SHELL = 'shell-v3';
+const API = 'api-v3';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -39,8 +39,8 @@ self.addEventListener('fetch', (e) => {
 
 What it does:
 
-1. On `install`, precaches the app shell into a cache named `shell-v2`, then `skipWaiting()` so the new worker can activate without closing every tab
-2. On `activate`, deletes other cache names (e.g. an older `shell-v1`) and claims all tabs
+1. On `install`, precaches the app shell into a cache named `shell-v3`, then `skipWaiting()` so the new worker can activate without closing every tab
+2. On `activate`, deletes other cache names (e.g. an older `shell-v2`) and claims all tabs
 3. Registers two routes: static assets get `CacheFirst`, API calls get `NetworkFirst` with a 3-second timeout
 4. On `fetch`, tries the router first; unmatched requests fall through to the network
 
