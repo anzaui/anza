@@ -13,7 +13,8 @@ import {
   resetLoading,
   resolveLoading,
   normalizeLoading,
-  ensureLoadingStyles
+  ensureLoadingStyles,
+  replaceKeepingLoading
 } from '../../../src/core/router/loading.js';
 import { registerContainer, clearContainers } from '../../../src/core/router/container.js';
 import { reset as resetBoot } from '../../../src/core/router/boot.js';
@@ -145,6 +146,33 @@ describe('Router loading (dock-scoped)', () => {
     }
   });
 
+  it('uses built-in spinner when nothing is configured', async () => {
+    const ctx = await beginLoading(['main', 'content'], null, 'push');
+    if (ctx.skipped) throw new Error('default loading should show');
+    if (!contentEl.querySelector('.anza-loading__ring')) {
+      throw new Error('expected built-in .anza-loading__ring');
+    }
+    endLoading(contentEl, ctx.gen);
+  });
+
+  it('replaceKeepingLoading preserves spinner across page mount', async () => {
+    const ctx = await beginLoading(['main', 'content'], null, 'push');
+    const page = document.createElement('div');
+    page.className = 'page-content';
+    page.textContent = 'next';
+    replaceKeepingLoading(contentEl, page);
+    if (!contentEl.querySelector('.dock-loading')) {
+      throw new Error('spinner must survive page mount');
+    }
+    if (!contentEl.querySelector('.page-content')) {
+      throw new Error('page leaf should be present');
+    }
+    endLoading(contentEl, ctx.gen);
+    if (contentEl.querySelector('.dock-loading')) {
+      throw new Error('spinner should clear after endLoading');
+    }
+  });
+
   it('superseded navigation clears prior loading', async () => {
     const first = await beginLoading(['main', 'content'], null, 'push');
     const second = await beginLoading(['main', 'content'], null, 'push');
@@ -154,5 +182,21 @@ describe('Router loading (dock-scoped)', () => {
     }
     endLoading(contentEl, second.gen);
     clearLoading(contentEl);
+  });
+
+  it('leaf dock is preferred over parent for host', () => {
+    const { host, hostName } = resolveLoading(['main', 'content']);
+    if (host !== contentEl || hostName !== 'content') {
+      throw new Error('expected leaf content dock as host');
+    }
+  });
+
+  it('dock override wins over app configure', () => {
+    configureLoading({ html: '<p>app</p>' });
+    contentEl.constructor.loading = { html: '<p>dock</p>' };
+    const { override } = resolveLoading(['main', 'content']);
+    if (override?.html !== '<p>dock</p>') {
+      throw new Error('dock loading should win over app configure');
+    }
   });
 });

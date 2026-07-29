@@ -138,13 +138,14 @@ import './main/index.js';
 
 const DOCK_MAIN = `/**
  * src/docks/main/index.js — root layout shell
+ *
+ * Soft-nav shows the built-in \`.anza-loading\` spinner in this dock by default
+ * (styles/loading.css is linked from styles/index.css on first load).
+ * Override with dock({ loading }) / page({ loading }) / router.loading.configure().
  */
 import { dock } from '@adukiorg/anza/ui';
-import '@adukiorg/anza/elements/spinner';
 
-dock('main', {
-  loading: { tag: 'ui-spinner' }
-});
+dock('main');
 `;
 
 const VIEWS_BARREL = `/**

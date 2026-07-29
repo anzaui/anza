@@ -13,7 +13,7 @@
  */
 
 import { getContainer } from './container.js';
-import { specRegistry } from '../ui/define/state.js';
+import { specRegistry, initializedMap } from '../ui/define/state.js';
 import { normalizeOverride } from './pages.js';
 
 const DEFAULT_LOADING_HTML = `
@@ -35,7 +35,8 @@ export function ensureLoadingStyles() {
   style.id = 'anza-loading-style';
   style.textContent = `
     [data-loading]{position:relative}
-    [data-loading]>.dock-loading,.anza-loading{display:flex;align-items:center;justify-content:center;min-height:12rem;padding:2rem;width:100%}
+    [data-loading]>.page-content{display:none!important}
+    [data-loading]>.dock-loading,.anza-loading{display:flex;align-items:center;justify-content:center;min-height:12rem;padding:2rem;width:100%;box-sizing:border-box}
     .anza-loading__ring{width:2rem;height:2rem;border-radius:50%;border:2px solid color-mix(in srgb,var(--color-content-secondary,#888) 25%,transparent);border-top-color:var(--color-interactive,currentColor);animation:anza-loading-spin .7s linear infinite}
     @keyframes anza-loading-spin{to{transform:rotate(360deg)}}
     @media (prefers-reduced-motion:reduce){.anza-loading__ring{animation:none;opacity:.6}}
@@ -173,8 +174,24 @@ async function materializeLoading(override) {
 }
 
 /**
+ * Replace dock children while keeping active `.dock-loading` nodes.
+ * Soft-nav mounts must not wipe the spinner before template/CSS fetch finishes.
+ * @param {Element} host
+ * @param {...Node} nodes
+ */
+export function replaceKeepingLoading(host, ...nodes) {
+  if (!host) return;
+  const kept = [];
+  for (const child of host.children) {
+    if (child.classList?.contains('dock-loading')) kept.push(child);
+  }
+  host.replaceChildren(...kept, ...nodes);
+}
+
+/**
  * Begin loading UI for a soft-nav into `via`. Returns { gen, host, hostName }.
  * Skips when `direction` is boot/reload (hard refresh / SSG already in document).
+ * Call after the via chain is ensured so the leaf dock exists.
  */
 export async function beginLoading(via = [], pageTag = null, direction = 'push') {
   if (isBootNavigation(direction)) {
@@ -246,12 +263,14 @@ export function clearLoading(hostOrName) {
 
 /**
  * Wait for a page element to finish resource load + mount.
+ * Resolves immediately if `anza:ready` already fired (cached resources).
  * @param {HTMLElement} el
  * @param {AbortSignal} [signal]
  */
 export function waitForPageReady(el, signal) {
   if (!el || !el.isConnected) return Promise.resolve();
   if (signal?.aborted) return Promise.resolve();
+  if (initializedMap.get(el) === true) return Promise.resolve();
 
   return new Promise((resolve) => {
     const done = () => {
@@ -268,6 +287,9 @@ export function waitForPageReady(el, signal) {
     const timer = setTimeout(done, 15000);
     el.addEventListener('anza:ready', onReady, { once: true });
     signal?.addEventListener('abort', done, { once: true });
+
+    // Race: connectedCallback may have finished between the map check and the listener.
+    if (initializedMap.get(el) === true) done();
   });
 }
 
@@ -276,7 +298,8 @@ export const loadingApi = {
   show: beginLoading,
   hide: endLoading,
   clear: clearLoading,
-  ensureStyles: ensureLoadingStyles
+  ensureStyles: ensureLoadingStyles,
+  replaceKeepingLoading
 };
 
 if (typeof document !== 'undefined') {

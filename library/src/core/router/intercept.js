@@ -207,10 +207,7 @@ async function pipe(event, precommitted) {
       ? meta.via
       : (meta.container ? [meta.container] : []);
 
-    try {
-      loadingCtx = await beginLoading(chain, routeMatch.tag, event.navigationType);
-    } catch (_) { /* non-fatal */ }
-
+    // Ensure via docks first so beginLoading can target the leaf host.
     try {
       for (let i = 0; i < chain.length; i++) {
         if (!getContainer(chain[i])) {
@@ -218,10 +215,14 @@ async function pipe(event, precommitted) {
         }
       }
     } catch (err) {
-      if (loadingCtx?.host) endLoading(loadingCtx.host, loadingCtx.gen);
       await fail('container', err, destination.url, routeMatch.route, chain);
       return;
     }
+
+    // Soft-nav only (skips load/reload). Stays until page fires anza:ready.
+    try {
+      loadingCtx = await beginLoading(chain, routeMatch.tag, event.navigationType);
+    } catch (_) { /* non-fatal */ }
   }
 
   if (!precommitted) {

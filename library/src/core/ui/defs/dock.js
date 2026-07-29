@@ -41,7 +41,9 @@ function assignFallback(Cls, key, value) {
  * @param {string|object} [config.error] - 5xx-class fallback (same shapes).
  * @param {string|object} [config.offline] - offline fallback (same shapes).
  * @param {string|object|false} [config.loading] - soft-nav loading UI for this dock.
- *   `false` disables; `{ tag }`, `{ html }`, or tag string. Deepest dock in via wins.
+ *   Omit to use the built-in `.anza-loading` spinner (or app `router.loading.configure`).
+ *   Set `false` to disable for this subtree. Shapes: `{ tag }`, `{ html }`, or tag string.
+ *   Deepest dock in via that defines loading wins (after page-level override).
  * @param {string} [base] - import.meta.url of the caller (file templates).
  */
 export function dock(name, config = {}, base) {
@@ -136,7 +138,12 @@ async function swap(el, options = {}) {
     : classTx;
 
   return runSwapTransition(this, () => {
-    this.replaceChildren(el);
+    // Keep soft-nav `.dock-loading` until orchestrator ends loading on anza:ready.
+    const kept = [];
+    for (const child of this.children) {
+      if (child.classList?.contains('dock-loading')) kept.push(child);
+    }
+    this.replaceChildren(...kept, el);
   }, {
     direction: options.direction ?? 'push',
     dockName,

@@ -18,7 +18,7 @@
 
 import { getContainer } from './container.js';
 import { root as graphRoot } from './graph.js';
-import { clearLoading } from './loading.js';
+import { clearLoading, replaceKeepingLoading } from './loading.js';
 
 const DEFAULT_NOTFOUND_HTML = `
   <div style="
@@ -306,7 +306,7 @@ export async function renderPageKind(kind, ctx = {}) {
   } else if (typeof host.swapView === 'function') {
     await host.swapView(node, swapOpts);
   } else {
-    host.replaceChildren(node);
+    replaceKeepingLoading(host, node);
   }
 }
 

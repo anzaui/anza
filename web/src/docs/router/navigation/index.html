@@ -84,12 +84,13 @@ await result.finished;
 <p>If the Navigation API is unavailable, both promises resolve immediately.</p>
 <hr />
 <h2>Loading UI (soft-nav)</h2>
-<p>While a soft-nav fetch is in flight (page module, <code>template.html</code>, styles), the <strong>leaf</strong> dock can show a loading indicator. Hard refresh / boot (<code>direction: 'load'</code> or Navigation API <code>reload</code>) skips loading so SSG content is not covered.</p>
-<p>Override ladder (highest wins): page <code>loading</code> → dock <code>loading</code> (leaf→root) → <code>router.loading.configure</code> → built-in spinner.</p>
-<p><strong>Bootstrap:</strong> shell <code>index.html</code> should link <code>/styles/index.css</code> (includes <code>loading.css</code>). Import loader custom elements in dock modules before the first soft-nav (see scaffold <code>src/docks/main/index.js</code>). <code>router.loading.ensureStyles()</code> is a fallback if <code>loading.css</code> is omitted.</p>
+<p>While a soft-nav fetch is in flight (page module, <code>template.html</code>, styles), the <strong>leaf</strong> dock shows a loading indicator by default (built-in <code>.anza-loading</code> CSS spinner). Hard refresh / boot (<code>direction: 'load'</code> or Navigation API <code>reload</code>) skips loading so SSG content is not covered.</p>
+<p>No dock/page config is required — create apps get the default automatically. Override ladder (highest wins): page <code>loading</code> → dock <code>loading</code> (leaf→root) → <code>router.loading.configure</code> → built-in spinner.</p>
+<p><strong>Bootstrap:</strong> shell <code>index.html</code> links <code>/styles/index.css</code> (includes <code>loading.css</code>) so spinner styles exist on first load. Import custom loader elements only when overriding with a tag. <code>router.loading.ensureStyles()</code> is a fallback if <code>loading.css</code> is omitted.</p>
 <view-code language="javascript">import { dock, page } from '@adukiorg/anza/ui';
 import { router } from '@adukiorg/anza/router';
 
+// Optional — default built-in spinner works with bare dock('main')
 dock('content', {
   parent: 'docs',
   loading: { tag: 'ui-spinner' }  // or { html: '...' }, or loading: false
@@ -104,4 +105,4 @@ page('/docs/:slug', {
 
 router.loading.configure({ tag: 'ui-spinner' });
 </view-code>
-<p>Style via <code>[data-loading]</code> on the dock host or <code>.dock-loading</code> on the injected node.</p>
+<p>Style via <code>[data-loading]</code> on the dock host or <code>.dock-loading</code> on the injected node. While loading, <code>[data-loading] &gt; .page-content</code> is hidden.</p>

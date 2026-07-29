@@ -1,6 +1,6 @@
 import { router } from '../../router/index.js';
 import { specRegistry } from './state.js';
-import { endLoading, waitForPageReady } from '../../router/loading.js';
+import { endLoading, replaceKeepingLoading, waitForPageReady } from '../../router/loading.js';
 
 let dispose = null; // One-word module-level disposer variable (RT-11)
 
@@ -138,12 +138,12 @@ export function initOrchestrator() {
         pageEl[key] = value;
       }
 
-      // Delegated UI Swap: If the container implements swapView, let it handle the DOM transitions
+      // Delegated UI Swap: If the container implements swapView, let it handle the DOM transitions.
+      // Both paths must preserve `.dock-loading` until waitForPageReady completes.
       if (typeof containerEl.swapView === 'function') {
         await containerEl.swapView(pageEl, { params: props, direction });
       } else {
-        // Fallback to standard atomic replace
-        containerEl.replaceChildren(pageEl);
+        replaceKeepingLoading(containerEl, pageEl);
       }
 
       await waitForPageReady(pageEl);

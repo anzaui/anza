@@ -12,6 +12,25 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.4.10] — 2026-07-29
+
+### Changed
+
+- **Default soft-nav leaf-dock loaders** — omit `dock({ loading })` to get the built-in `.anza-loading` spinner on the deepest via dock; create scaffolds use `dock('main')` with zero loading config.
+- **loading.css bootstrap** — scaffold `styles/index.css` links `styles/loading.css` on first load so dock loading chrome is available without a separate import.
+- **Loading override ladder** — page → deepest dock that defines `loading` → `router.loading.configure()` → built-in spinner; `loading: false` disables for that subtree.
+
+### Fixed
+
+- **Keep loader through fetch** — soft-nav mounts preserve `.dock-loading` (`replaceKeepingLoading` / dock `swap`) until template/CSS fetch finishes and `anza:ready`; `waitForPageReady` resolves immediately when the page is already initialized.
+
+### Tests
+
+- Router loading: keep-loader-through-fetch / `replaceKeepingLoading` behavior.
+- Router intercept: soft-nav loading lifecycle coverage aligned with leaf-dock defaults.
+
+---
+
 ## [0.4.9] — 2026-07-29
 
 ### Fixed

@@ -10,8 +10,11 @@ import { reset as resetBoot } from '../../../src/core/router/boot.js';
 
 /** Pipe runs in a queueMicrotask after handler() returns — flush it. */
 async function flushPipe() {
-  await new Promise((r) => queueMicrotask(r));
-  await new Promise((r) => queueMicrotask(r));
+  // match → ensure → beginLoading (async materialize) → emit; drain a few ticks.
+  for (let i = 0; i < 6; i++) {
+    await new Promise((r) => queueMicrotask(r));
+  }
+  await new Promise((r) => setTimeout(r, 0));
 }
 
 describe('Router Interceptor', () => {

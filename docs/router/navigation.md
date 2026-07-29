@@ -137,16 +137,17 @@ If the Navigation API is unavailable, both promises resolve immediately.
 
 ## Loading UI (soft-nav)
 
-While a soft-nav fetch is in flight (page module, `template.html`, styles), the **leaf** dock can show a loading indicator. Hard refresh / boot (`direction: 'load'` or Navigation API `reload`) skips loading so SSG content is not covered.
+While a soft-nav fetch is in flight (page module, `template.html`, styles), the **leaf** dock shows a loading indicator by default (built-in `.anza-loading` CSS spinner). Hard refresh / boot (`direction: 'load'` or Navigation API `reload`) skips loading so SSG content is not covered.
 
-Override ladder (highest wins): page `loading` → dock `loading` (leaf→root) → `router.loading.configure` → built-in spinner.
+No dock/page config is required — create apps get the default automatically. Override ladder (highest wins): page `loading` → dock `loading` (leaf→root) → `router.loading.configure` → built-in spinner.
 
-**Bootstrap:** shell `index.html` should link `/styles/index.css` (includes `loading.css`). Import loader custom elements in dock modules before the first soft-nav (see scaffold `src/docks/main/index.js`). `router.loading.ensureStyles()` is a fallback if `loading.css` is omitted.
+**Bootstrap:** shell `index.html` links `/styles/index.css`, which includes `loading.css`, so spinner styles exist on first load before any soft-nav. Import custom loader elements only when overriding with a tag. `router.loading.ensureStyles()` is a fallback if `loading.css` is omitted.
 
 ```javascript
 import { dock, page } from '@adukiorg/anza/ui';
 import { router } from '@adukiorg/anza/router';
 
+// Optional — default built-in spinner works with bare dock('main')
 dock('content', {
   parent: 'docs',
   loading: { tag: 'ui-spinner' }  // or { html: '...' }, or loading: false
@@ -162,4 +163,4 @@ page('/docs/:slug', {
 router.loading.configure({ tag: 'ui-spinner' });
 ```
 
-Style via `[data-loading]` on the dock host or `.dock-loading` on the injected node.
+Style via `[data-loading]` on the dock host or `.dock-loading` on the injected node. While loading, `[data-loading] > .page-content` is hidden.
