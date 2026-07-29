@@ -201,11 +201,16 @@ The shell loads the import map, design tokens, global styles, and the app entry.
 ```javascript
 import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@adukiorg/anza/sw';
 
-const SHELL = 'shell-v1';
-const API = 'api-v1';
+const SHELL = 'shell-v2';
+const API = 'api-v2';
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(precache(SHELL, ['/index.html', '/app.js', '/tokens/index.css', '/styles/index.css']));
+  e.waitUntil(
+    (async () => {
+      await precache(SHELL, ['/index.html', '/app.js', '/tokens/index.css', '/styles/index.css']);
+      await self.skipWaiting();
+    })()
+  );
 });
 
 self.addEventListener('activate', (e) => {
@@ -222,7 +227,7 @@ self.addEventListener('fetch', (e) => {
 });
 ```
 
-Pre-caches the app shell. Static assets use `CacheFirst`; API calls use `NetworkFirst` with a 3-second timeout. See [sw/start.md](../sw/start.md).
+Pre-caches the app shell. Static assets use `CacheFirst`; API calls use `NetworkFirst` with a 3-second timeout. Bump `SHELL` / `API` when shipping path-breaking asset URL changes. See [sw/start.md](../sw/start.md).
 
 ### `src/pages/entry/index.js`
 

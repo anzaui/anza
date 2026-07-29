@@ -11,11 +11,16 @@ The scaffold generates this file for you. Here is what it contains:
 ```javascript
 import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@adukiorg/anza/sw';
 
-const SHELL = 'shell-v1';
-const API = 'api-v1';
+const SHELL = 'shell-v2';
+const API = 'api-v2';
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(precache(SHELL, ['/index.html', '/app.js', '/tokens/index.css', '/styles/index.css']));
+  e.waitUntil(
+    (async () => {
+      await precache(SHELL, ['/index.html', '/app.js', '/tokens/index.css', '/styles/index.css']);
+      await self.skipWaiting();
+    })()
+  );
 });
 
 self.addEventListener('activate', (e) => {
@@ -34,10 +39,12 @@ self.addEventListener('fetch', (e) => {
 
 What it does:
 
-1. On `install`, precaches the app shell into a cache named `shell-v1`
-2. On `activate`, deletes old caches and claims all tabs
+1. On `install`, precaches the app shell into a cache named `shell-v2`, then `skipWaiting()` so the new worker can activate without closing every tab
+2. On `activate`, deletes other cache names (e.g. an older `shell-v1`) and claims all tabs
 3. Registers two routes: static assets get `CacheFirst`, API calls get `NetworkFirst` with a 3-second timeout
 4. On `fetch`, tries the router first; unmatched requests fall through to the network
+
+Bump `SHELL` / `API` cache names when you ship path-breaking asset URL changes — `CacheFirst` with no TTL otherwise pins stale JS forever. `pruneStale` only removes *other* cache names, not entries inside the current one.
 
 Keep helpers in optional `src/sw/` and `import` them from `src/sw.js` — that folder is **modules only**, not extra registrations. Multi-scope workers (advanced) use `anza.json` `sw` arrays — see [intro/structure.md](../intro/structure.md#service-workers).
 

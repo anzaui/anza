@@ -5,11 +5,16 @@
 <p>The scaffold generates this file for you. Here is what it contains:</p>
 <view-code language="javascript">import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@adukiorg/anza/sw';
 
-const SHELL = 'shell-v1';
-const API = 'api-v1';
+const SHELL = 'shell-v2';
+const API = 'api-v2';
 
 self.addEventListener('install', (e) =&gt; {
-  e.waitUntil(precache(SHELL, ['/index.html', '/app.js', '/tokens/index.css', '/styles/index.css']));
+  e.waitUntil(
+    (async () =&gt; {
+      await precache(SHELL, ['/index.html', '/app.js', '/tokens/index.css', '/styles/index.css']);
+      await self.skipWaiting();
+    })()
+  );
 });
 
 self.addEventListener('activate', (e) =&gt; {
@@ -27,11 +32,12 @@ self.addEventListener('fetch', (e) =&gt; {
 </view-code>
 <p>What it does:</p>
 <ol>
-<li>On <code>install</code>, precaches the app shell into a cache named <code>shell-v1</code></li>
-<li>On <code>activate</code>, deletes old caches and claims all tabs</li>
+<li>On <code>install</code>, precaches the app shell into a cache named <code>shell-v2</code>, then <code>skipWaiting()</code> so the new worker can activate without closing every tab</li>
+<li>On <code>activate</code>, deletes other cache names (e.g. an older <code>shell-v1</code>) and claims all tabs</li>
 <li>Registers two routes: static assets get <code>CacheFirst</code>, API calls get <code>NetworkFirst</code> with a 3-second timeout</li>
 <li>On <code>fetch</code>, tries the router first; unmatched requests fall through to the network</li>
 </ol>
+<p>Bump <code>SHELL</code> / <code>API</code> cache names when you ship path-breaking asset URL changes — <code>CacheFirst</code> with no TTL otherwise pins stale JS forever. <code>pruneStale</code> only removes <em>other</em> cache names, not entries inside the current one.</p>
 <p>Keep helpers in optional <code>src/sw/</code> and <code>import</code> them from <code>src/sw.js</code> — that folder is <strong>modules only</strong>, not extra registrations. Multi-scope workers (advanced) use <code>anza.json</code> <code>sw</code> arrays — see <a href="/docs/intro/structure#service-workers">Structure</a>.</p>
 <hr />
 <h2>2. Register from <code>app.js</code></h2>

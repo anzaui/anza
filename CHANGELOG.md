@@ -12,6 +12,15 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.4.8] — 2026-07-29
+
+### Fixed
+
+- **Stale SW CacheFirst pins old JS** — docs / scaffold Service Worker bumped to `shell-v2` / `api-v2` and calls `skipWaiting()` on install so `pruneStale` drops poisoned `shell-v1` entries. Returning Pages visitors were still fetching `/styles/shared.css` (no `/anza`) from cached pre-0.4.7 `base.js` / `element.js` even after deploy.
+- **preloadResources resolves deploy base** — style / template / `.tags.json` fetches always run through `resolveAssetUrl`, so root-absolute `/styles/...` cannot bypass `__ANZA_BASE__` even if a caller passes an unresolved URL.
+
+---
+
 ## [0.4.7] — 2026-07-29
 
 ### Fixed

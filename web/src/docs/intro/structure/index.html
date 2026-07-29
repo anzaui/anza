@@ -144,11 +144,16 @@ dock('main');
 <h3><code>src/sw.js</code></h3>
 <view-code language="javascript">import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@adukiorg/anza/sw';
 
-const SHELL = 'shell-v1';
-const API = 'api-v1';
+const SHELL = 'shell-v2';
+const API = 'api-v2';
 
 self.addEventListener('install', (e) =&gt; {
-  e.waitUntil(precache(SHELL, ['/index.html', '/app.js', '/tokens/index.css', '/styles/index.css']));
+  e.waitUntil(
+    (async () =&gt; {
+      await precache(SHELL, ['/index.html', '/app.js', '/tokens/index.css', '/styles/index.css']);
+      await self.skipWaiting();
+    })()
+  );
 });
 
 self.addEventListener('activate', (e) =&gt; {
@@ -164,7 +169,7 @@ self.addEventListener('fetch', (e) =&gt; {
   e.respondWith(fetch(e.request));
 });
 </view-code>
-<p>Pre-caches the app shell. Static assets use <code>CacheFirst</code>; API calls use <code>NetworkFirst</code> with a 3-second timeout. See <a href="/docs/sw/start">Start</a>.</p>
+<p>Pre-caches the app shell. Static assets use <code>CacheFirst</code>; API calls use <code>NetworkFirst</code> with a 3-second timeout. Bump <code>SHELL</code> / <code>API</code> when shipping path-breaking asset URL changes. See <a href="/docs/sw/start">Start</a>.</p>
 <h3><code>src/pages/entry/index.js</code></h3>
 <view-code language="javascript">import { page } from '@adukiorg/anza/ui';
 

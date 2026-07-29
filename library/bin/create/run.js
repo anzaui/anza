@@ -68,11 +68,16 @@ const SW = `/**
  */
 import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@adukiorg/anza/sw';
 
-const SHELL = 'shell-v1';
-const API = 'api-v1';
+const SHELL = 'shell-v2';
+const API = 'api-v2';
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(precache(SHELL, ['/index.html', '/app.js', '/tokens/index.css', '/styles/index.css']));
+  e.waitUntil(
+    (async () => {
+      await precache(SHELL, ['/index.html', '/app.js', '/tokens/index.css', '/styles/index.css']);
+      await self.skipWaiting();
+    })()
+  );
 });
 
 self.addEventListener('activate', (e) => {

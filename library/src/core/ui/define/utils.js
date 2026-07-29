@@ -1,3 +1,4 @@
+import { resolveAssetUrl } from '../../router/base.js';
 import { assetCache } from './state.js';
 
 // Detect constructable stylesheet + adoptedStyleSheets support once.
@@ -7,21 +8,22 @@ const supportsSheets =
   'adoptedStyleSheets' in ShadowRoot.prototype;
 
 /**
- * Fetch a same-origin text asset (style / template). Callers must pass URLs
- * already resolved via `resolveAssetUrl` so deploy-base hosts (e.g. GitHub
- * Pages `/anza/`) request `/anza/styles/...`, not site-root `/styles/...`.
- * Do not strip `__ANZA_BASE__` on 404 — that would hit the wrong host path
- * on Pages. Local `anza dev` strips the base on the server instead.
+ * Fetch a same-origin text asset (style / template). Always run URLs through
+ * `resolveAssetUrl` so deploy-base hosts (e.g. GitHub Pages `/anza/`) request
+ * `/anza/styles/...`, not site-root `/styles/...` — even if a caller forgot
+ * to resolve. Do not strip `__ANZA_BASE__` on 404 — that would hit the wrong
+ * host path on Pages. Local `anza dev` strips the base on the server instead.
  */
 async function fetchTextResource(url, tag, kind) {
+  const href = resolveAssetUrl(url);
   try {
-    const res = await fetch(url);
+    const res = await fetch(href);
     if (res.ok) return res.text();
     console.error(
-      `Failed to load ${kind} resource ${url} for element ${tag}: HTTP ${res.status}`
+      `Failed to load ${kind} resource ${href} for element ${tag}: HTTP ${res.status}`
     );
   } catch (err) {
-    console.error(`Failed to load ${kind} resource ${url} for element ${tag}:`, err);
+    console.error(`Failed to load ${kind} resource ${href} for element ${tag}:`, err);
   }
   return null;
 }
@@ -38,9 +40,10 @@ export async function preloadResources(tag, styleUrls, templateUrl, inlineTempla
   let cssTextAcc = '';
   let tagsDescriptor = null;
 
-  // Compile / Fetch styles
-  const urls = Array.isArray(styleUrls) ? styleUrls : (styleUrls ? [styleUrls] : []);
-  
+  // Compile / Fetch styles — resolve under __ANZA_BASE__ before cache/fetch.
+  const rawUrls = Array.isArray(styleUrls) ? styleUrls : (styleUrls ? [styleUrls] : []);
+  const urls = rawUrls.map((u) => resolveAssetUrl(u));
+
   await Promise.all(urls.map(async (url) => {
     if (assetCache.has(url)) {
       const cached = assetCache.get(url);
@@ -85,14 +88,15 @@ export async function preloadResources(tag, styleUrls, templateUrl, inlineTempla
 
   // Compile / Fetch Template markup
   if (templateUrl) {
-    if (assetCache.has(templateUrl)) {
-      templateNode = assetCache.get(templateUrl);
+    const resolvedTemplate = resolveAssetUrl(templateUrl);
+    if (assetCache.has(resolvedTemplate)) {
+      templateNode = assetCache.get(resolvedTemplate);
     } else {
       try {
-        const html = await fetchTextResource(templateUrl, tag, 'template');
+        const html = await fetchTextResource(resolvedTemplate, tag, 'template');
         if (html != null) {
           templateNode = createTemplateFragment(sanitizeTemplateHtml(html, tag));
-          assetCache.set(templateUrl, templateNode);
+          assetCache.set(resolvedTemplate, templateNode);
         }
       } catch (err) {
         console.error(`Failed to fetch template resource for element ${tag}:`, err);
@@ -100,7 +104,7 @@ export async function preloadResources(tag, styleUrls, templateUrl, inlineTempla
     }
 
     // Fetch Tags Descriptor
-    const tagsUrl = templateUrl.replace(/\.html$/, '.tags.json');
+    const tagsUrl = resolveAssetUrl(resolvedTemplate.replace(/\.html$/, '.tags.json'));
     if (assetCache.has(tagsUrl)) {
       tagsDescriptor = assetCache.get(tagsUrl);
     } else {
