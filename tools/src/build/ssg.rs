@@ -817,17 +817,25 @@ fn extract_h1_inner_html(html: &str) -> Option<String> {
 }
 
 fn extract_first_p_text(html: &str) -> Option<String> {
-  extract_tag_inner(html, "p").map(|inner| {
-    let text = strip_tags(&inner).trim().to_string();
-    if text.len() > 160 {
-      format!("{}…", &text[..157])
-    } else {
-      text
-    }
-  })
+  extract_first_p_text_with_limit(html, 160)
+}
+
+fn truncate_chars(text: &str, max_chars: usize) -> String {
+  if text.chars().count() <= max_chars {
+    return text.to_string();
+  }
+  let truncated: String = text.chars().take(max_chars).collect();
+  format!("{}…", truncated)
+}
+
+fn extract_first_p_text_with_limit(html: &str, max_chars: usize) -> Option<String> {
+  extract_tag_inner(html, "p").map(|inner| truncate_chars(strip_tags(&inner).trim(), max_chars))
 }
 
 fn extract_tag_inner(html: &str, tag: &str) -> Option<String> {
+  // Mask docs `<view-code>` samples first so nested `</p>` / `<button>` inside
+  // snippets cannot confuse open/close matching or SEO truncation.
+  let html = crate::build::html::opaque_view_code(html);
   let open = format!("<{}", tag);
   let close = format!("</{}>", tag);
   let lower = html.to_ascii_lowercase();
@@ -850,7 +858,7 @@ fn extract_tag_inner(html: &str, tag: &str) -> Option<String> {
       search_from = after_lt;
       continue;
     }
-    let gt = match html[after_lt..].find('>') {
+    let gt = match html.get(after_lt..).and_then(|s| s.find('>')) {
       Some(i) => after_lt + i,
       None => return None,
     };
@@ -860,11 +868,11 @@ fn extract_tag_inner(html: &str, tag: &str) -> Option<String> {
       continue;
     }
     let content_start = gt + 1;
-    let end = match lower[content_start..].find(&close_l) {
+    let end = match lower.get(content_start..).and_then(|s| s.find(&close_l)) {
       Some(i) => content_start + i,
       None => return None,
     };
-    return Some(html[content_start..end].to_string());
+    return html.get(content_start..end).map(|s| s.to_string());
   }
   None
 }
@@ -1296,5 +1304,52 @@ mod tests {
     assert!(script.contains("WebSite"));
     assert!(script.contains("WebPage"));
     assert!(script.contains("https://example.com/docs/x"));
+  }
+
+  #[test]
+  fn extract_first_p_text_truncates_on_char_boundary() {
+    let em_dash = "—";
+    let html = format!("<p>{}</p>", "a".repeat(157) + em_dash + "tail");
+    let text = extract_first_p_text(&html).expect("paragraph");
+    assert!(text.ends_with('…'));
+    assert!(text.chars().count() <= 161);
+  }
+
+  #[test]
+  fn extract_first_p_ignores_tags_inside_view_code() {
+    let html = r#"
+<p>Real intro about dialogs.</p>
+<view-code language="html">
+</p>
+<button></button>
+<dialog></dialog>
+</view-code>
+<p>Should not win.</p>
+"#;
+    let text = extract_first_p_text(html).expect("paragraph");
+    assert_eq!(text, "Real intro about dialogs.");
+  }
+
+  #[test]
+  fn extract_h1_ignores_closers_inside_view_code() {
+    let html = r#"
+<h1>Dialog</h1>
+<view-code language="html"></h1><button></button></view-code>
+"#;
+    assert_eq!(extract_h1_text(html).as_deref(), Some("Dialog"));
+  }
+
+  #[test]
+  fn extract_ignores_nested_closing_tags_inside_view_code() {
+    let html = r#"
+<h1>Nested</h1>
+<p>Real intro.</p>
+<view-code language="html"><another-el></some-el></some-el></another-el></view-code>
+"#;
+    assert_eq!(extract_h1_text(html).as_deref(), Some("Nested"));
+    assert_eq!(
+      extract_first_p_text(html).as_deref(),
+      Some("Real intro.")
+    );
   }
 }

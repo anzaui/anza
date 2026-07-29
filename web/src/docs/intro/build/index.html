@@ -31,7 +31,7 @@
 </view-code>
 <p>This runs <code>anza build</code>. Same graph resolution, but starts from a clean <code>dist/</code> and fails on unresolved imports or syntax errors.</p>
 <p>Public routes get <strong>Mode A SSG</strong> (also during <code>anza dev</code>): contentful HTML with open Declarative Shadow DOM under <code>dist/&lt;route&gt;/index.html</code>, so hard refresh works on a plain static server. Publish <code>dist/</code> as the <strong>document root</strong>. Asset URLs are site-root paths (<code>/app.js</code>, <code>/tokens/...</code>) — never <code>/dist/...</code>.</p>
-<p>When the page’s CSR fragment path would collide with that SSG <code>index.html</code>, the emitter keeps the fragment as <code>template.html</code> and rewrites the built page module plus <code>routes.json</code> so soft-nav fetches the fragment — not the full document. Overview: <a href="/docs/ssg/index">ssg/index.md</a>. Contract: <a href="/docs/ssg/contract">ssg/contract.md</a>. Hydration: <a href="/docs/ui/hydration">ui/hydration.md</a>.</p>
+<p>When the page’s CSR fragment path would collide with that SSG <code>index.html</code>, the emitter keeps the fragment as <code>template.html</code> and rewrites the built page module plus <code>routes.json</code> so soft-nav fetches the fragment — not the full document. Overview: <a href="/docs/ssg/index">Overview</a>. Contract: <a href="/docs/ssg/contract">SSG contract</a>. Hydration: <a href="/docs/ui/hydration">Hydration</a>.</p>
 <h3>SEO extras (<code>ssg.json</code>)</h3>
 <p>Optional <code>ssg.json</code> next to (or inside) <code>src/</code> configures site origin and build-time SEO files:</p>
 <view-code language="json">{
@@ -47,8 +47,40 @@
 <hr />
 <h2>Diagnostics</h2>
 <view-code language="bash">npx anza doctor
+npx anza check
 </view-code>
-<p>Checks your project for common issues: missing entry points, missing tokens/styles, conflicting layouts.</p>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>Behavior</th></tr></thead><tbody>
+<tr><td><code>anza doctor</code></td><td>Structure contract — soft mode: <strong>errors</strong> exit non-zero; <strong>warnings</strong> print but exit 0</td></tr>
+<tr><td><code>anza doctor --strict</code></td><td>Same findings as check — warnings fail</td></tr>
+<tr><td><code>anza check</code></td><td>Strict structure check for CI (<code>anza check &amp;&amp; anza build</code>)</td></tr>
+</tbody></table></div>
+<p>Validates required spine (<code>package.json</code>, <code>src/index.html</code>, <code>src/app.js</code>), recommended tokens/styles/SW/importmap, optional slots + index-per-folder barrels, optional <code>anza.json</code> (incl. <code>sw</code> string|array), legacy <code>elements/</code> coexistence, undeclared page trees, and <strong>via → dock</strong> consistency (<code>rootDock</code> warn; unknown <code>via</code> error). Contract: <a href="/docs/intro/structure">Structure</a> (single source of truth + Troubleshooting).</p>
+<h3>CI</h3>
+<view-code language="bash">anza check &amp;&amp; anza build
+</view-code>
+<view-code language="json">{
+  "scripts": {
+    "ci": "anza check &amp;&amp; anza build"
+  }
+}
+</view-code>
+<p>Doctor/check findings append <code>docs/<a href="/docs/intro/structure">Structure</a></code> so CI logs link back to the contract.</p>
+<hr />
+<h2>Generate</h2>
+<p>Thin helpers (not a Nest schematic platform). Writes into convention slots or <code>anza.json</code> remaps and updates the slot <code>index.js</code> barrel:</p>
+<view-code language="bash">anza generate page about
+anza generate page docs-home --tree docs --route /docs --via main,docs,content
+anza generate dock sidebar --parent main
+anza generate view card
+anza generate part button
+</view-code>
+<div class="table-wrap"><table><thead><tr><th>Kind</th><th>Default slot</th><th>Files</th></tr></thead><tbody>
+<tr><td><code>page</code></td><td>first <code>pages[]</code> (usually <code>pages/</code>)</td><td><code>index.js</code> + <code>index.html</code> + <code>index.css</code></td></tr>
+<tr><td><code>dock</code></td><td><code>docks/</code></td><td>same; <strong>no</strong> <code>404.html</code> (fallbacks by reference)</td></tr>
+<tr><td><code>view</code></td><td><code>views/</code></td><td>same</td></tr>
+<tr><td><code>part</code></td><td><code>parts/</code></td><td>same</td></tr>
+</tbody></table></div>
+<p>Flags: <code>--tree</code>, <code>--route</code>, <code>--via</code> (comma-separated), <code>--parent</code>, <code>-s/--src</code>.</p>
 <hr />
 <h2>Flags</h2>
 <div class="table-wrap"><table><thead><tr><th>Flag</th><th>Default</th><th>Description</th></tr></thead><tbody>
@@ -56,6 +88,11 @@
 <tr><td><code>-p, --port</code></td><td><code>3000</code></td><td>Dev server port</td></tr>
 <tr><td><code>--dist</code></td><td><code>dist</code></td><td>Output directory</td></tr>
 <tr><td><code>-e, --entry</code></td><td><code>src/app.js</code></td><td>Additional entry modules</td></tr>
+<tr><td><code>--strict</code></td><td>off</td><td>With <code>doctor</code> — promote warnings to failures</td></tr>
+<tr><td><code>--tree</code></td><td>first <code>pages[]</code></td><td>With <code>generate page</code> — page tree under <code>src</code></td></tr>
+<tr><td><code>--route</code></td><td><code>/{name}</code></td><td>With <code>generate page</code> — route path</td></tr>
+<tr><td><code>--via</code></td><td><code>rootDock</code></td><td>With <code>generate page</code> — comma-separated via chain</td></tr>
+<tr><td><code>--parent</code></td><td><code>rootDock</code></td><td>With <code>generate dock</code> — parent registry key</td></tr>
 </tbody></table></div>
 <hr />
 <h2>Output</h2>

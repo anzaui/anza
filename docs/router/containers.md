@@ -24,7 +24,7 @@ When `<dock-main>` connects, it registers itself in the graph under the key `'ma
 
 The graph is a tree of nodes. Each node holds a `WeakRef` to its element, so unmounted containers can be garbage-collected.
 
-```
+```text
 body (virtual root)
 └── main
     ├── sidebar
@@ -55,7 +55,7 @@ The last entry (`content`) is the render target. The router ensures every preced
 
 When a navigation targets a container chain whose intermediate containers are not yet in the DOM, the router walks the graph path from the deepest live ancestor down to the target, creating each missing dock in order and yielding a frame between each so `connectedCallback` (and self-registration) can run.
 
-```
+```text
 Target:  /settings/profile  →  via: ['main', 'sidebar', 'content']
 Current: /dashboard         →  only 'main' is mounted
 
@@ -93,7 +93,7 @@ The LCA computation is O(d) where d is tree depth. Real UI trees rarely exceed d
 
 Two containers with the same name cannot coexist in the DOM at the same time:
 
-```
+```text
 ContainerError: Singleton violation — 'main' is already mounted.
                  A second instance cannot register while the first is active.
 ```
@@ -142,7 +142,7 @@ In most cases, `dock()` handles registration and unregistration automatically vi
 
 If a plain registry key shadows a real DOM element with the same tag name, the router warns:
 
-```
+```text
 [Router] Container name "main" is ambiguous: it exists in the DOM as a selector
 but is being treated as a registry key. Use a selector prefix (e.g., "#main")
 to explicitly target the DOM element, or ensure it is registered via registerContainer().

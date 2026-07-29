@@ -16,7 +16,7 @@
 <hr />
 <h2>Sanitize returns empty string</h2>
 <p><strong>Cause:</strong> Input contained no allowed tags.</p>
-<p><strong>Fix:</strong> Check the allowed tag list in <a href="/docs/security/sanitize">sanitize.md</a>. Plain text is preserved. Only disallowed tags are stripped:</p>
+<p><strong>Fix:</strong> Check the allowed tag list in <a href="/docs/security/sanitize">Sanitize</a>. Plain text is preserved. Only disallowed tags are stripped:</p>
 <view-code language="javascript">const safe = String(sanitize('&lt;script&gt;alert(1)&lt;/script&gt;Hello'));
 // 'Hello' — script removed, text kept
 </view-code>

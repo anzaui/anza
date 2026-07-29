@@ -10,9 +10,24 @@
 page(route, config, base);
 ```
 
+| Argument | Type | Required | Meaning |
+| -------- | ---- | -------- | ------- |
 | `route` | string \| string[] | yes | Dynamic URL pattern(s), e.g. `'/'`, `'/profile/:id'`, or `['/blog', '/blog/:slug']` |
 | `config` | object | yes | Page definition (see below) |
 | `base` | string | no | `import.meta.url` of the caller; required for file templates |
+
+### Route forms
+
+`page()` accepts one pattern or several aliases that all mount the same tag:
+
+```javascript
+page(['/docs', '/docs/:slug'], {
+  tag: 'page-doc',
+  via: ['main', 'docs', 'content']
+});
+```
+
+Use one tag when the screen and lifecycle are shared, and branch inside `params`, `query`, or `hash`. Prefer separate pages when the route trees have different shells or different fallback/error behavior.
 
 ---
 
@@ -37,6 +52,8 @@ page('/settings/profile', {
 });
 ```
 
+Soft-nav keeps the ancestors in this chain mounted and swaps only the leaf. That is why docs chrome survives navigation while the page body changes.
+
 ### `container`
 
 Single container (back-compat for `via` with one entry):
@@ -44,6 +61,8 @@ Single container (back-compat for `via` with one entry):
 ```javascript
 page('/', { tag: 'page-home', container: 'main' });
 ```
+
+Prefer `via` for new work. `container` is normalized to a one-item chain and cannot express nested chrome.
 
 ### `template`
 
@@ -68,6 +87,8 @@ template: { html: './home.html', css: './home.css', shadow: false }
 ```
 
 Setting `shadow: false` renders into the light DOM instead of a shadow root.
+
+For public/indexable pages, build-time SSG still emits the route HTML contract around the page host. Soft-nav continues to fetch only the page fragment (`index.html` or preserved `template.html`), not the full SSG document. See [SSG contract](../ssg/contract.md).
 
 ### `style`
 
@@ -106,6 +127,16 @@ params: [
 
 Path parameter values are extracted in order, and pushed reactively onto the element (as attributes/properties) when navigation occurs.
 
+If the route pattern declares `:slug` or `:id`, declare the matching param contract so tooling can warn early when the route and page drift:
+
+```javascript
+page('/blog/:slug', {
+  tag: 'page-blog-post',
+  via: ['main'],
+  params: [{ name: 'slug', type: String }]
+});
+```
+
 ### `query`
 
 An array defining the query parameters contract. Mapped parameters are cast and pushed reactively onto the element properties:
@@ -118,6 +149,8 @@ query: [
 ```
 
 Visiting `/settings?tab=profile&search=alice` sets `this.tab = 'profile'` and `this.search = 'alice'` on the element instance.
+
+Unlike route params, query keys remain optional by default. Declare the ones your page actually consumes so `change()` receives typed values instead of ad-hoc parsing everywhere.
 
 ### `hash`
 
@@ -159,6 +192,23 @@ All hooks receive a context object. The `load` hook receives the route-derived `
 
 `load` may return a promise. The router does not wait for it — the element mounts immediately and the promise resolves asynchronously. Use this for data fetching that should not block rendering.
 
+Pass `ctrl.signal` into any long-lived work that can outlive the page leaf:
+
+```javascript
+import { ui } from '@adukiorg/anza/ui';
+
+on: {
+  async load({ ctrl }) {
+    await ui.schedule(() => warmCache(), {
+      priority: ui.Priority.BACKGROUND,
+      signal: ctrl.signal
+    });
+  }
+}
+```
+
+Soft-nav aborts the detached leaf controller. Scheduled work, frame work, and transitions should fail closed rather than mutate a disconnected tree. See [Scheduling](../ui/scheduling.md) and [Transitions](../ui/transitions.md).
+
 ### `guard`
 
 Route-scoped navigation guard:
@@ -175,6 +225,41 @@ page('/checkout', {
 
 See [guards.md](guards.md) for full guard documentation.
 
+### `error`
+
+Optional override when this route matches but the guard or handler throws. Same shapes as dock fallbacks (`{ tag }`, HTML, …). Without it, the resolver still mounts the shared library built-in (or a dock / `configure` override) into the **leaf** dock — you do not need per-route error HTML files.
+
+```javascript
+page('/admin/:id', {
+  tag: 'page-admin',
+  via: ['main'],
+  error: { tag: 'page-admin-error' }
+});
+```
+
+See [fallbacks.md](fallbacks.md) for defaults and the full ladder.
+
+### `ssg`
+
+Optional build-time SSG controls for public routes:
+
+```javascript
+page('/docs/ssg/expand/:slug', {
+  tag: 'doc-ssg-expand',
+  via: ['main', 'docs', 'content'],
+  params: [{ name: 'slug', type: String }],
+  ssg: {
+    expand: [{ slug: 'foo' }]
+  }
+}, import.meta.url);
+```
+
+Use `ssg.expand` only for routes whose concrete param values are known at build time. Unexpanded param patterns stay client-matchable but do not emit `dist/<route>/index.html`. See [SSG overview](../ssg/index.md) and the [SSG contract](../ssg/contract.md).
+
+### Scaffold / generate
+
+`anza generate page <name>` writes `index.js` + HTML/CSS into a page tree and updates the barrel — it does **not** create error-page files. Fallbacks stay by reference on docks/pages. Layout contract: [intro/structure.md](../intro/structure.md).
+
 ### `meta`
 
 Additional metadata passed to the route registry:
@@ -184,6 +269,19 @@ meta: { analytics: 'checkout' }
 ```
 
 Available in match results as `result.route.meta`.
+
+---
+
+## How `page()` participates in navigation
+
+| Stage | What `page()` contributes |
+| ----- | ------------------------- |
+| Registration | Calls `router.register(...)` with the route pattern, resolved tag, and route metadata |
+| Boot | Gates the initial match on `customElements.whenDefined(tag)` so refreshes do not race the CE definition |
+| Match | Declares the `via` / `container` target and typed `params` / `query` contract |
+| Soft-nav | Swaps only the page leaf under the deepest live dock in the route chain |
+| Error | May supply a route-scoped `error` override before dock/app/built-in fallbacks |
+| SSG | May declare `seo` / `ssg.expand` for build-time HTML emission |
 
 ---
 

@@ -70,6 +70,23 @@ export interface MissApi {
   clear(): void;
 }
 
+export type PageFallback =
+  | string
+  | { tag: string; props?: Record<string, unknown> }
+  | { html: string };
+
+export interface PagesApi {
+  configure(config: {
+    notfound?: PageFallback;
+    error?: PageFallback;
+    offline?: PageFallback;
+  }): Disposer;
+  show(kind: 'notfound' | 'error' | 'offline', ctx?: Record<string, unknown>): Promise<void>;
+  onError(handler: (ctx: Record<string, unknown>) => any): Disposer;
+  suppressDefault(suppress?: boolean): void;
+  notFound(handler: (event: any) => any): Disposer;
+}
+
 export interface SyncApi {
   start(r?: any): void;
   stop(): void;
@@ -104,6 +121,7 @@ export interface RouterApi {
 
   guards: GuardsApi;
   miss: MissApi;
+  pages: PagesApi;
   links: LinksApi;
   sync: SyncApi;
 

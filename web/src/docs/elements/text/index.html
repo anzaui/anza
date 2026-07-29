@@ -1,5 +1,5 @@
 <h1>Text</h1>
-<p>Typography primitive that maps size, weight, color, and family to design tokens, with optional semantic tag swapping.</p>
+<p>Typography primitive that maps size, weight, color, and family to design tokens, with optional semantic tag swapping via the <code>as</code> prop.</p>
 <p><strong>Tag:</strong> <code>ui-text</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/text</code></p>
 <hr />
 <h2>Import</h2>
@@ -11,6 +11,18 @@
 &lt;ui-text as="p" color="muted" block&gt;Supporting copy.&lt;/ui-text&gt;
 </view-code>
 <hr />
+<h2>Advanced usage</h2>
+<view-code language="html">&lt;ui-card&gt;
+  &lt;span slot="header"&gt;
+    &lt;ui-text as="h2" size="xl" weight="bold"&gt;Quarterly report&lt;/ui-text&gt;
+  &lt;/span&gt;
+  &lt;ui-text as="p" color="muted" block&gt;
+    Revenue grew 12% year over year.
+  &lt;/ui-text&gt;
+&lt;/ui-card&gt;
+</view-code>
+<p>Changing <code>as</code> recreates the inner root element so semantic tags stay correct. Token props map to <code>--text-*</code> CSS custom properties.</p>
+<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>as</code></td><td>String</td><td>Reflect, default <code>span</code></td><td>Inner semantic tag (<code>span</code>, <code>p</code>, <code>h2</code>, …)</td></tr>
@@ -20,13 +32,18 @@
 <tr><td><code>family</code></td><td>String</td><td>Reflect</td><td>Maps to <code>var(--font-family-{family})</code></td></tr>
 <tr><td><code>block</code></td><td>Boolean</td><td>Reflect</td><td>Block display when set</td></tr>
 </tbody></table></div>
+<h2>Slots / parts</h2>
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
+<tr><td><em>(default)</em></td><td>slot</td><td>Text content</td></tr>
+<tr><td><code>text</code></td><td>part</td><td>Dynamic root element</td></tr>
+</tbody></table></div>
 <h2>Notes</h2>
-<p>Default slot content is projected into the dynamic root (<code>part="text"</code>).</p>
+<p>Purely presentational. Prefer token props over inline styles so theme changes propagate.</p>
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/elements/index">Elements overview</a></li>
 <li><a href="/docs/elements/primitives">Primitives</a></li>
 <li><a href="/docs/styles/tokens">Tokens</a></li>
-<li><a href="../../plans/ELEMENTS.md">Planning: ELEMENTS.md</a></li>
+<li><a href="/docs/elements/card">Card</a></li>
+<li><a href="/docs/elements/index">Elements overview</a></li>
 </ul>

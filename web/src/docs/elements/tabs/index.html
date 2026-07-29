@@ -1,5 +1,5 @@
 <h1>Tabs</h1>
-<p>Accessible tablist with roving tabindex, arrow / Home / End keys, and optional URL-synced <code>active</code> value.</p>
+<p>Accessible tablist with roving tabindex, ArrowLeft/Right and Home/End keyboard navigation, and <code>aria-selected</code> / <code>aria-hidden</code> sync.</p>
 <p><strong>Tag:</strong> <code>ui-tabs</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/tabs</code></p>
 <hr />
 <h2>Import</h2>
@@ -15,20 +15,44 @@
 &lt;/ui-tabs&gt;
 </view-code>
 <hr />
+<h2>Advanced usage</h2>
+<view-code language="html">&lt;ui-tabs id="settings" active="profile"&gt;
+  &lt;button slot="tab" value="profile"&gt;Profile&lt;/button&gt;
+  &lt;button slot="tab" value="security"&gt;Security&lt;/button&gt;
+  &lt;button slot="tab" value="billing"&gt;Billing&lt;/button&gt;
+  &lt;div role="tabpanel"&gt;&lt;ui-input name="name"&gt;&lt;/ui-input&gt;&lt;/div&gt;
+  &lt;div role="tabpanel"&gt;&lt;ui-toggle name="2fa"&gt;2FA&lt;/ui-toggle&gt;&lt;/div&gt;
+  &lt;div role="tabpanel"&gt;Billing details…&lt;/div&gt;
+&lt;/ui-tabs&gt;
+
+&lt;script type="module"&gt;
+  const tabs = document.querySelector('#settings');
+  // Sync active tab to URL hash
+  tabs.addEventListener('click', () =&gt; {
+    location.hash = tabs.active;
+  });
+&lt;/script&gt;
+</view-code>
+<p>Named <code>tab</code> slot for triggers; default slot for panels (<code>role="tabpanel"</code> or <code>ui-tab-panel</code>). Clicking sets <code>active</code> from <code>value</code> or text content.</p>
+<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>active</code></td><td>String</td><td>Reflect</td><td>Selected tab value (falls back to first tab)</td></tr>
 </tbody></table></div>
-<h2>Notes</h2>
-<p>Named <code>tab</code> slot for tab triggers; default slot for panels (<code>role="tabpanel"</code> or <code>ui-tab-panel</code>). Clicking a tab sets <code>active</code> from <code>value</code> or text content.</p>
+<h2>Slots / parts</h2>
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>tab</code></td><td>slot</td><td>Tab trigger buttons</td></tr>
+<tr><td><em>(default)</em></td><td>slot</td><td>Tab panels</td></tr>
+<tr><td><code>tablist</code> / <code>panels</code></td><td>parts</td><td>Tab list and panel container</td></tr>
+</tbody></table></div>
 <h3>Lifecycle / memory</h3>
-<p>Keyboard and click handlers are shadow-scoped and abort with the component <code>ctrl</code> on disconnect (including soft-nav leaf swap). See <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a>.</p>
+<p>Keyboard and click handlers are shadow-scoped and abort with <code>ctrl</code> on disconnect. See <a href="/docs/ui/advanced">Memory safety</a>.</p>
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/elements/index">Elements overview</a></li>
 <li><a href="/docs/elements/navigation">Navigation</a></li>
-<li><a href="/docs/ui/forms">Form association</a> (when <code>form: true</code>)</li>
+<li><a href="/docs/elements/nav">Nav</a></li>
+<li><a href="/docs/elements/steps">Steps</a></li>
 <li><a href="/docs/ui/advanced">Memory safety &amp; framework globals</a></li>
-<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
+<li><a href="/docs/elements/index">Elements overview</a></li>
 </ul>

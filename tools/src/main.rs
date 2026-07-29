@@ -6,8 +6,11 @@ use tokio::sync::broadcast;
 
 mod build;
 mod create;
+mod docs;
 mod extract;
+mod generate;
 mod server;
+mod structure;
 mod types;
 mod watcher;
 
@@ -77,10 +80,52 @@ enum Command {
   Doctor {
     #[arg(short, long, default_value = "src")]
     src: String,
+
+    /// Promote warnings to failures (same severity as `anza check`).
+    #[arg(long)]
+    strict: bool,
+  },
+  /// Strict structure contract check for CI (`anza check && anza build`).
+  Check {
+    #[arg(short, long, default_value = "src")]
+    src: String,
   },
   Create {
     /// Name of the new app directory.
     name: String,
+  },
+  /// Thin filesystem generator into structure slots (respects anza.json remaps).
+  Generate {
+    /// page | dock | view | part
+    kind: String,
+    /// Folder / registry name (kebab-case).
+    name: String,
+    #[arg(short, long, default_value = "src")]
+    src: String,
+    /// Page tree under src (must be listed in anza.json pages[] when set).
+    #[arg(long)]
+    tree: Option<String>,
+    /// Page route (default /{name}).
+    #[arg(long)]
+    route: Option<String>,
+    /// Comma-separated page via chain (default rootDock).
+    #[arg(long)]
+    via: Option<String>,
+    /// Dock parent registry key (default rootDock).
+    #[arg(long)]
+    parent: Option<String>,
+  },
+  /// Generate docs site from markdown + docs/config.toml → dist-first tree.
+  Docs {
+    /// Path to docs/config.toml or docs/ directory.
+    #[arg(long, default_value = "docs/config.toml")]
+    config: String,
+    /// Output directory (overrides config site.out).
+    #[arg(long)]
+    out: Option<String>,
+    /// Emit every markdown under docs/ (default: sidebar + entry only).
+    #[arg(long)]
+    all: bool,
   },
 }
 
@@ -121,14 +166,79 @@ async fn main() {
         let entries: Vec<PathBuf> = entry.into_iter().map(PathBuf::from).collect();
         run_dev(PathBuf::from(src), PathBuf::from(dist), port, entries).await;
       }
-      Command::Doctor { src } => {
-        run_doctor(PathBuf::from(src));
+      Command::Doctor { src, strict } => {
+        run_structure(PathBuf::from(src), if strict {
+          structure::Mode::Check
+        } else {
+          structure::Mode::Doctor
+        });
+      }
+      Command::Check { src } => {
+        run_structure(PathBuf::from(src), structure::Mode::Check);
       }
       Command::Create { name } => {
         let target = std::env::current_dir()
           .unwrap_or_else(|_| PathBuf::from("."))
           .join(&name);
         create::run(&target, &name);
+        return;
+      }
+      Command::Generate {
+        kind,
+        name,
+        src,
+        tree,
+        route,
+        via,
+        parent,
+      } => {
+        let kind = match generate::Kind::parse(&kind) {
+          Ok(k) => k,
+          Err(e) => {
+            logs::error!("{}", e);
+            std::process::exit(1);
+          }
+        };
+        let via = via.map(|v| {
+          v.split(',')
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty())
+            .collect::<Vec<_>>()
+        });
+        let opts = generate::Options {
+          name,
+          tree,
+          route,
+          via,
+          parent,
+        };
+        match generate::run(&PathBuf::from(src), kind, &opts) {
+          Ok(g) => {
+            logs::success!(
+              "Generated {} '{}' -> {}",
+              g.kind.as_str(),
+              g.name,
+              g.dir.display()
+            );
+            logs::info!("Barrel updated: {}", g.barrel.display());
+          }
+          Err(e) => {
+            logs::error!("{}", e);
+            std::process::exit(1);
+          }
+        }
+        return;
+      }
+      Command::Docs { config, out, all } => {
+        let opts = docs::DocsOptions {
+          config: PathBuf::from(config),
+          out: out.map(PathBuf::from),
+          sidebar_only: !all,
+        };
+        if let Err(e) = docs::run(&opts) {
+          logs::error!("{}", e);
+          std::process::exit(1);
+        }
         return;
       }
     }
@@ -171,70 +281,36 @@ async fn run_dev(src: PathBuf, dist: PathBuf, port: u16, entries: Vec<PathBuf>) 
   logs::info!("Shutting down native pipeline safely.");
 }
 
-fn run_doctor(src: PathBuf) {
-  logs::info!("Running anza doctor check...");
-  logs::info!("Source directory: {}", src.display());
+fn run_structure(src: PathBuf, mode: structure::Mode) {
+  let label = match mode {
+    structure::Mode::Doctor => "doctor",
+    structure::Mode::Check => "check",
+  };
+  logs::info!("Running anza {}…", label);
 
-  // Check if src directory exists
-  if !src.exists() {
-    logs::error!("Source directory does not exist: {}", src.display());
-    return;
+  let (project, hint) = structure::project_from_src(&src);
+  logs::info!("Project: {}", project.display());
+  logs::info!("Source hint: {}", hint);
+
+  let report = structure::check(&project, &hint, mode);
+  report.print();
+
+  let errors = report.error_count();
+  let warns = report.warn_count();
+  if report.failed(mode) {
+    logs::error!(
+      "{} failed: {} error(s), {} warning(s) — see {} (Troubleshooting + required tables)",
+      label,
+      errors,
+      warns,
+      structure::DOC
+    );
+    std::process::exit(1);
   }
-
-  // Check for index.js
-  let index = src.join("index.js");
-  if index.exists() {
-    logs::success!("Entry point found: src/index.js");
-  } else {
-    logs::warn!("No src/index.js found - check for HTML entry points");
-  }
-
-  // Check for importmap.json
-  let importmap = src
-    .parent()
-    .map(|p| p.join("importmap.json"))
-    .unwrap_or_else(|| PathBuf::from("importmap.json"));
-  if importmap.exists() {
-    logs::success!("Custom import map found: {}", importmap.display());
-  } else {
-    logs::success!("Using automatic library import map resolution");
-  }
-
-  // Check for tokens directory
-  let tokens = src.join("tokens");
-  if tokens.exists() {
-    logs::success!("Design tokens directory found: src/tokens");
-  } else {
-    logs::warn!("No src/tokens directory found");
-  }
-
-  // Check for elements directory
-  let elements = src.join("elements");
-  if elements.exists() {
-    logs::success!("Elements directory found: src/elements");
-  } else {
-    logs::warn!("No src/elements directory found");
-  }
-
-  // Check for the definition-layer directories (page/dock/view/part).
-  for dir in ["pages", "docks", "views", "parts"] {
-    if src.join(dir).exists() {
-      logs::success!("Definition directory found: src/{}", dir);
-    }
-  }
-
-  // Suggest migrating legacy elements/ to the new definition layer.
-  if elements.exists() && src.join("pages").exists() {
-    logs::warn!("Both src/elements and src/pages exist — consider migrating legacy ui.element definitions to page/dock/view/part.");
-  }
-
-  // Check for core directory
-  let core = src.join("core");
-  if core.exists() {
-    logs::success!("Core directory found: src/core");
-  } else {
-    logs::warn!("No src/core directory found");
-  }
-
-  logs::info!("Doctor check complete");
+  logs::success!(
+    "{} passed ({} error(s), {} warning(s))",
+    label,
+    errors,
+    warns
+  );
 }

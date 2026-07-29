@@ -33,6 +33,8 @@ Both modes must satisfy the [page HTML contract](contract.md) so hydration has o
 
 There is **no Phase 7**. Residual host polish (Worker preferring SSG over SPA fallback) is optional and not product acceptance.
 
+**CSR fallbacks:** unknown paths may get a host `404` body or SPA shell HTML. Once the client boots, [router/fallbacks.md](../router/fallbacks.md) paints a not-found / error leaf inside the **leaf** dock (shared library built-in, or a dock/page override) — separate from Mode A SSG emission. Do not bake a `404.html` into every dock folder.
+
 ---
 
 ## Simple: Mode A page SEO
@@ -99,6 +101,8 @@ Without `origin`, path-relative URLs are fine for local preview; sitemap locs st
 ## Soft-nav coexistence (Phase 4)
 
 Hard refresh serves the SSG (or Mode B) document. Soft-nav must **not** use that document as a page template — nested docks would stack inside the leaf shadow. Mode A preserves the CSR fragment as `template.html` when paths collide, and the client `sanitizeTemplateHtml` refuses full HTML documents. Nested hosts must be light-DOM children **after** each parent’s `<template shadowrootmode="open">`.
+
+Project layout (folders, `anza.json`, doctor/check) is a separate contract: [intro/structure.md](../intro/structure.md). Fallbacks after CSR miss are leaf-scoped: [router/fallbacks.md](../router/fallbacks.md).
 
 ---
 

@@ -2,6 +2,8 @@
 
 The Anza storage layer provides a unified, tiered storage surface. It integrates LRU memory caching, IndexedDB, Origin Private File System (OPFS), and the Cache API under a single facade with automatic tier fallback, TTL support, and transparent gzip compression.
 
+**vs `state.storage`:** use `@adukiorg/anza/storage` for general key/value, files, and HTTP cache tiers. Use `state.storage` (`PlatformStorage`) for reactive-store snapshots keyed by object-store name — including filter-function `query`. If you use both, give them **different IndexedDB database names** (both default to `platform-db` — see [troubleshooting.md](troubleshooting.md)).
+
 ---
 
 ## What You Get
@@ -9,9 +11,10 @@ The Anza storage layer provides a unified, tiered storage surface. It integrates
 - **Unified API** — `storage.get`, `storage.set`, `storage.delete` with tier selection
 - **Multiple tiers** — `memory` (LRU), `idb` (IndexedDB), `opfs` (file system), `cache` (Cache API)
 - **TTL** — per-key expiry honored across all tiers
-- **Compression** — automatic gzip for values over 64KB in IndexedDB
-- **Write journaling** — localStorage-backed journal for crash recovery
-- **Quota management** — proactive checks and eviction warnings
+- **Compression** — automatic gzip for values over 64KB in IndexedDB (when Compression Streams exist)
+- **Write journaling** — localStorage-backed journal for crash recovery on IDB writes
+- **Quota management** — proactive checks, eviction, and warning callbacks
+- **List / clear / estimate** — `storage.list`, `storage.clear`, `storage.estimate` / `persist`
 
 ---
 
@@ -20,6 +23,8 @@ The Anza storage layer provides a unified, tiered storage surface. It integrates
 ```javascript
 import { storage } from '@adukiorg/anza/storage';
 ```
+
+Call `storage.configure({ idb: { name: 'app-kv' } })` before first use when sharing a page with `state.storage`.
 
 ---
 
@@ -44,6 +49,8 @@ import { storage } from '@adukiorg/anza/storage';
 ```javascript
 import { storage } from '@adukiorg/anza/storage';
 
+storage.configure({ idb: { name: 'app-kv' } });
+
 // Basic IDB read/write
 await storage.set('user', { name: 'Alice' });
 const user = await storage.get('user');
@@ -59,6 +66,8 @@ await storage.set('blob', fileBuffer, 'opfs');
 
 // Cache tier
 await storage.set('config', settings, 'cache');
+
+const keys = await storage.list();
 ```
 
 ---
@@ -70,3 +79,4 @@ await storage.set('config', settings, 'cache');
 - Need migrations? [idb.md](idb.md).
 - Large files? [opfs.md](opfs.md).
 - Prefer a single reference page? [api.md](api.md).
+- Persisting reactive stores? [state/persist.md](../state/persist.md).

@@ -1,7 +1,27 @@
 <h1>Troubleshooting</h1>
 <p>Common problems and their solutions.</p>
+<p>Use this page when the storage facade behaves differently from <code>state.storage</code>, when a tier returns <code>null</code> unexpectedly, or when browser capability / quota constraints leak into app behavior.</p>
+<div class="table-wrap"><table><thead><tr><th>Symptom</th><th>Likely cause</th><th>Jump to</th></tr></thead><tbody>
+<tr><td>Wrong data shape / missing stores</td><td>Both packages opened <code>platform-db</code></td><td><a href="#clash">Clash with state.storage</a></td></tr>
+<tr><td><code>get</code> returns <code>null</code></td><td>Wrong tier, TTL expiry, never set</td><td><a href="#get-null">storage.get returns null</a></td></tr>
+<tr><td>Upgrade stuck / stale schema</td><td>Another tab holds IDB open</td><td><a href="#blocked">IndexedDB blocked</a></td></tr>
+<tr><td>OPFS throws</td><td>Not secure context or unsupported</td><td><a href="#opfs">OPFS not available</a></td></tr>
+<tr><td>Writes vanish on reload</td><td><code>memory</code> tier or private mode</td><td><a href="#persist">Data not persisting</a></td></tr>
+</tbody></table></div>
 <hr />
-<h2>storage.get returns null</h2>
+<h2 id="clash">Clash with <code>state.storage</code> / <code>platform-db</code></h2>
+<p><strong>Cause:</strong> <code>@adukiorg/anza/storage</code> and <code>state.storage</code> (<code>PlatformStorage</code>) both default to IndexedDB name <code>platform-db</code>.</p>
+<p><strong>Fix:</strong> Configure distinct names before first use:</p>
+<view-code language="javascript">import { storage } from '@adukiorg/anza/storage';
+import { state } from '@adukiorg/anza/state';
+
+storage.configure({ idb: { name: 'app-kv' } });
+state.storage.setDatabaseName('app-state');
+</view-code>
+<p>Use <code>storage</code> for tiered KV/blobs; use <code>state.storage</code> for store persistence. See <a href="/docs/state/persist">State persist</a>.</p>
+<p>If one package creates object stores and the other later opens the same DB name with a different migration plan, you can end up debugging the wrong abstraction. Separate names early and keep them stable.</p>
+<hr />
+<h2 id="get-null">storage.get returns null</h2>
 <p><strong>Cause:</strong> Key never set, expired, or wrong tier.</p>
 <p><strong>Fix:</strong> Check tier and TTL:</p>
 <view-code language="javascript">// Wrong tier — wrote to 'memory', reading from default 'idb'
@@ -11,16 +31,30 @@ await storage.get('temp'); // null — reads from idb
 // Correct
 await storage.get('temp', 'memory');
 </view-code>
+<p>Quick checklist:</p>
+<ul>
+<li>Verify the key was written to the tier you are reading.</li>
+<li>Check whether the key had a TTL and may have expired.</li>
+<li>Remember that default reads use <code>idb</code>, fronted by the memory LRU.</li>
+<li>For cache/OPFS flows, confirm the current browser actually supports the tier you selected.</li>
+</ul>
 <hr />
-<h2>IndexedDB blocked</h2>
+<h2 id="blocked">IndexedDB blocked</h2>
 <p><strong>Cause:</strong> Another tab has an older version open.</p>
 <p><strong>Fix:</strong> Listen for blocked events and close other tabs:</p>
 <view-code language="javascript">window.addEventListener('storage:blocked', () =&gt; {
   alert('Please close other tabs to update storage');
 });
 </view-code>
+<p>This event is emitted by the IndexedDB wrapper when an upgrade is waiting on another open connection. Typical triggers are:</p>
+<ul>
+<li>another tab still holding the old DB version open</li>
+<li>a long-lived test/dev tab after you changed migrations</li>
+<li>two apps accidentally sharing the same DB name</li>
+</ul>
+<p>If it repeats in development, close stale tabs and hard-reload after the upgrade completes.</p>
 <hr />
-<h2>OPFS not available</h2>
+<h2 id="opfs">OPFS not available</h2>
 <p><strong>Cause:</strong> Not a secure context, or browser lacks support.</p>
 <p><strong>Fix:</strong> Check support first:</p>
 <view-code language="javascript">import { supports } from '@adukiorg/anza/platform';
@@ -30,14 +64,22 @@ if (!supports.opfs) {
   await storage.set('file', data, 'idb');
 }
 </view-code>
+<p>OPFS generally requires a secure context and browser support. If the app must work broadly, decide the fallback tier up front instead of letting writes fail ad hoc.</p>
 <hr />
-<h2>Data not persisting</h2>
+<h2 id="persist">Data not persisting</h2>
 <p><strong>Cause:</strong> Using <code>memory</code> tier, or private browsing mode.</p>
 <p><strong>Fix:</strong> Use <code>idb</code> or <code>opfs</code> for durable storage. Private browsing may disable IndexedDB.</p>
+<p>Also remember:</p>
+<ul>
+<li><code>storage.clear('all')</code> always empties the memory LRU first.</li>
+<li><code>storage.delete(key)</code> clears the memory copy even when you target another durable tier.</li>
+<li>Cache-tier values are stored as <code>Response</code> bodies; JSON parses back to objects, otherwise you get text.</li>
+</ul>
 <hr />
 <h2>Compression failed</h2>
 <p><strong>Cause:</strong> Compression Streams API unavailable, or non-serializable value.</p>
 <p><strong>Fix:</strong> The facade falls back to uncompressed storage automatically. Check that values are serializable (no circular references, no functions).</p>
+<p>Only large IDB writes are candidates for gzip, and only when serialized size exceeds <code>storage.compressionThreshold</code> (default <code>65536</code>). Compression failure should not lose the write; it should only skip the optimization path.</p>
 <hr />
 <h2>Quota exceeded</h2>
 <p><strong>Cause:</strong> Storage is full.</p>
@@ -48,6 +90,14 @@ if (!supports.opfs) {
 <view-code language="javascript">import { quota } from '@adukiorg/anza/storage';
 await quota.persist();
 </view-code>
+<p>Or subscribe once and surface pressure in your own UI:</p>
+<view-code language="javascript">import { storage } from '@adukiorg/anza/storage';
+
+const dispose = storage.onQuotaWarning(({ usage, quota }) =&gt; {
+  console.warn('Storage pressure', { usage, quota });
+});
+</view-code>
+<p>Automatic eviction first removes expired records, then evicts the least-recently-accessed wrapped IDB entries until usage drops back under the threshold.</p>
 <hr />
 <h2>Write journal not replaying</h2>
 <p><strong>Cause:</strong> <code>localStorage</code> is disabled or full.</p>
@@ -55,14 +105,27 @@ await quota.persist();
 <view-code language="javascript">await storage.set('critical', data);
 const confirmed = await storage.get('critical');
 </view-code>
+<p>The write journal is best-effort crash recovery for IDB writes. It relies on <code>localStorage</code>, so it can be unavailable in hardened privacy setups. Treat it as resilience, not as a transactional guarantee.</p>
+<hr />
+<h2>Still not sure which layer is failing?</h2>
+<p>Use the smallest possible probe against each tier:</p>
+<view-code language="javascript">await storage.set('probe', { ok: true }, 'memory');
+await storage.set('probe', { ok: true }, 'idb');
+await storage.set('probe', { ok: true }, 'cache');
+
+console.log(await storage.get('probe', 'memory'));
+console.log(await storage.get('probe', 'idb'));
+console.log(await storage.get('probe', 'cache'));
+</view-code>
+<p>If memory works but IDB does not, inspect migrations / blocked upgrades / private mode. If IDB works but OPFS does not, it is usually capability or secure-context related.</p>
 <hr />
 <h2>Still stuck?</h2>
 <p>Inspect storage state:</p>
-<view-code language="javascript">const est = await quota.estimate();
-console.log('Usage:', est.usage, 'Quota:', est.quota);
+<view-code language="javascript">import { storage } from '@adukiorg/anza/storage';
 
-// List all IDB keys
-const db = new Database('platform-db', 1);
-const keys = await db.keys('keyval');
+const est = await storage.estimate();
+console.log('Usage:', est.usage, 'Quota:', est.quota, 'Persisted:', est.persisted);
+
+const keys = await storage.list('idb');
 console.log(keys);
 </view-code>

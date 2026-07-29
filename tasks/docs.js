@@ -91,19 +91,23 @@ function mdHrefToRoute(href, currentMdPath) {
  * href="intro/start.md" → href="/docs/intro/start"
  * href="../router/api.md" → href="/docs/router/api"
  * href="../styles/index.md" → href="/docs/styles/index"
+ * href="guards.md#escape" → href="/docs/platform/guards#escape"
  */
 function rewriteLinks(html, currentMdPath) {
   return html.replace(/href="([^"]+)"/g, (match, href) => {
-    if (!href.endsWith('.md')) return match;
+    const hashIdx = href.indexOf('#');
+    const pathPart = hashIdx === -1 ? href : href.slice(0, hashIdx);
+    const hash = hashIdx === -1 ? '' : href.slice(hashIdx);
+    if (!pathPart.endsWith('.md')) return match;
     // Ignore links that escape the docs tree (e.g. plans/)
-    const route = mdHrefToRoute(href, currentMdPath);
+    const route = mdHrefToRoute(pathPart, currentMdPath);
     if (!route.startsWith('/docs')) return match;
     // plans/ and other repo paths resolve outside docsDir → may not start cleanly;
     // reject if the resolved file is outside docs/
-    const targetFs = join(dirname(currentMdPath), href);
+    const targetFs = join(dirname(currentMdPath), pathPart);
     const resolved = relative(docsDir, targetFs);
     if (resolved.startsWith('..') || resolved.includes('..' + '/')) return match;
-    return `href="${route}"`;
+    return `href="${route}${hash}"`;
   });
 }
 

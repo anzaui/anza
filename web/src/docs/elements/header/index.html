@@ -1,5 +1,5 @@
 <h1>Header</h1>
-<p>Top bar with brand and actions slots.</p>
+<p>Top bar with brand and actions slots. Use inside <a href="/docs/elements/app">ui-app</a> or standalone for page chrome.</p>
 <p><strong>Tag:</strong> <code>ui-header</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/header</code></p>
 <hr />
 <h2>Import</h2>
@@ -13,19 +13,32 @@
 &lt;/ui-header&gt;
 </view-code>
 <hr />
+<h2>Advanced usage</h2>
+<view-code language="html">&lt;ui-header&gt;
+  &lt;ui-link href="/" slot="brand"&gt;
+    &lt;ui-icon name="logo" size="6" aria-hidden="true"&gt;&lt;/ui-icon&gt;
+    Acme
+  &lt;/ui-link&gt;
+  &lt;ui-stack gap="sm" style="flex-direction: row; align-items: center;"&gt;
+    &lt;ui-link href="/docs/index"&gt;Docs&lt;/ui-link&gt;
+    &lt;ui-avatar name="Jane Doe" size="8"&gt;&lt;/ui-avatar&gt;
+  &lt;/ui-stack&gt;
+&lt;/ui-header&gt;
+</view-code>
+<hr />
 <h2>Props</h2>
 <p><em>None — composition via slots.</em></p>
 <h2>Slots / parts</h2>
 <div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>brand</code></td><td>slot</td><td>Logo / product name</td></tr>
-<tr><td><em>(default)</em></td><td>slot</td><td>Actions</td></tr>
+<tr><td><em>(default)</em></td><td>slot</td><td>Actions (right side)</td></tr>
 <tr><td><code>header</code> / <code>brand</code> / <code>actions</code></td><td>parts</td><td>Region wrappers</td></tr>
 </tbody></table></div>
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/elements/index">Elements overview</a></li>
 <li><a href="/docs/elements/layout">Layout</a></li>
 <li><a href="/docs/elements/app">App</a></li>
-<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
+<li><a href="/docs/elements/breadcrumb">Breadcrumb</a></li>
+<li><a href="/docs/elements/index">Elements overview</a></li>
 </ul>

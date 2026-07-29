@@ -43,7 +43,7 @@ Cascade:
   6. Mount 'page-profile' inside 'content'
 </view-code>
 <p>This is what makes a hard refresh on a deep route work without error.</p>
-<p>When public HTML already shipped the via chain (Mode A SSG or Mode B), the client <strong>adopts</strong> those docks instead of recreating an empty shell. Soft-nav then only swaps the page leaf inside the leaf dock; intermediate docks persist. Nested hosts in SSG HTML must be light-DOM children after each open DSD template — see <a href="/docs/ssg/contract">ssg/contract.md</a>.</p>
+<p>When public HTML already shipped the via chain (Mode A SSG or Mode B), the client <strong>adopts</strong> those docks instead of recreating an empty shell. Soft-nav then only swaps the page leaf inside the leaf dock; intermediate docks persist. Nested hosts in SSG HTML must be light-DOM children after each open DSD template — see <a href="/docs/ssg/contract">SSG contract</a>.</p>
 <hr />
 <h2>Lowest Common Ancestor (LCA)</h2>
 <p>Cross-branch navigation uses LCA to minimize DOM churn:</p>

@@ -1,0 +1,13 @@
+{
+  "Anza project manifest": {
+    "prefix": "anza-manifest",
+    "description": "Optional anza.json structure remaps",
+    "body": [
+      "{",
+      "  \"$schema\": \"./node_modules/@adukiorg/anza/schemas/anza.schema.json\",",
+      "  \"pages\": [\"pages\"$0],",
+      "  \"rootDock\": \"main\"",
+      "}"
+    ]
+  }
+}

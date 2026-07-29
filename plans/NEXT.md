@@ -58,12 +58,15 @@ Residual optional SSG host polish only (not product phases):
 | Option | Why now / why later |
 | ------ | ------------------- |
 | **Element library docs** | **Done** — 46 Full (including overlay kit) + Overlay patterns; tooltip uses `escapeOverflow`. |
+| **Storage / state / guards / default dock pages** | **Next product track** — harden storage↔state contracts, clarify platform vs router guards, finish 404/5xx/offline dock defaults + override ladder. Canonical plan: [STORAGE-STATE-GUARDS-PAGES.md](./STORAGE-STATE-GUARDS-PAGES.md). |
+| **Project structure contract** | **Complete (Phases 0–5)** — doctor/check, via/dock, DX, `anza generate`. Canonical plan: [STRUCTURE.md](./STRUCTURE.md). |
+| **Docs generator (MD → `dist/`)** | **Tooling track — Phase 0–1 MVP** — `docs/` + `docs/config.toml` → `anza docs` → test dist `tmp/docs-site/` (not live `web/`). Folder assets; no hand-maintained docs tree. Canonical: [DOCS-GENERATOR.md](./DOCS-GENERATOR.md). |
 | **Bundlers / compilers** ([issue #2](https://github.com/aduki-org/anza/issues/2)) | **Deferred** — tooling DX; product bet stays multi-file ESM. Do not work on bundlers from this plan. |
 | **Mode B language packages** | Demand-driven; not required for SEO contract. |
 | **Worker SPA→SSG prefer** | Optional Cloudflare host polish only; `/dist/` strip already gone. |
 | **View Transitions** | **Done** — element-scoped dock VT, CSS groups, fallback, schedule signals ([VIEW-TRANSITIONS.md](./VIEW-TRANSITIONS.md)). |
 
-**Rationale:** SSG/SEO delivery is complete through Phase 6 (no Phase 7). Element kit docs are complete (46 Full). Bundlers stay deferred ([#2](https://github.com/aduki-org/anza/issues/2)). Next demand-driven bets are Mode B packages or other product work — not Worker/host polish and not bundlers.
+**Rationale:** SSG/SEO delivery is complete through Phase 6 (no Phase 7). Element kit docs are complete (46 Full). Bundlers stay deferred ([#2](https://github.com/aduki-org/anza/issues/2)). Preferred next **product** engineering track is [STORAGE-STATE-GUARDS-PAGES.md](./STORAGE-STATE-GUARDS-PAGES.md). Tooling track [STRUCTURE.md](./STRUCTURE.md) is **complete** (Phases 0–5). Parallel tooling track (dist-first docs site from markdown): [DOCS-GENERATOR.md](./DOCS-GENERATOR.md) (plan only). Mode B packages remain demand-driven; not Worker/host polish and not bundlers.
 
 ---
 

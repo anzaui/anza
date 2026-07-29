@@ -1,48 +1,109 @@
 <h1>API Reference</h1>
 <p>Complete reference for the storage facade and internal classes.</p>
+<p><strong>vs <code>state.storage</code>:</strong> this package is the tiered KV / OPFS / Cache facade. <code>state.storage</code> (<code>PlatformStorage</code>) persists reactive-store snapshots and supports a filter-function <code>query</code>. Give each a distinct IndexedDB database name (both default to <code>platform-db</code>) — see <a href="/docs/storage/troubleshooting">Troubleshooting</a>.</p>
 <hr />
 <h2>Facade</h2>
 <view-code language="javascript">import { storage } from '@adukiorg/anza/storage';
 </view-code>
+<h3>Tier overview</h3>
+<div class="table-wrap"><table><thead><tr><th>Tier</th><th>Durable</th><th>Typical use</th><th>Notes</th></tr></thead><tbody>
+<tr><td><code>memory</code> (LRU)</td><td>no</td><td>Hot keys, session cache</td><td>Fronts IDB reads; cleared on every <code>clear()</code></td></tr>
+<tr><td><code>idb</code> (default)</td><td>yes</td><td>Structured KV in <code>keyval</code> store</td><td>Write journal + optional gzip; proactive quota check</td></tr>
+<tr><td><code>opfs</code></td><td>yes</td><td>Large blobs, files</td><td>Requires secure context + <code>supports.opfs</code></td></tr>
+<tr><td><code>cache</code></td><td>yes</td><td>HTTP-like cached responses</td><td>TTL via <code>x-expires-at</code> header; JSON parse on read when possible</td></tr>
+</tbody></table></div>
+<p>Second argument to <code>get</code> / <code>set</code> / <code>delete</code>: tier string or <code>{ tier, ttl }</code>. TTL applies across all tiers via an expiry envelope.</p>
 <h3><code>storage.configure(options)</code></h3>
-<p>Reconfigure pools before first use.</p>
+<p>Reconfigure pools before first use. Returns <code>storage</code> for chaining.</p>
 <view-code language="javascript">storage.configure({
   idb: { name: 'my-app', version: 2, migrations: [] },
   lru: { maxSize: 500 },
   cache: { name: 'my-cache' }
 });
 </view-code>
+<div class="table-wrap"><table><thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>idb.name</code></td><td><code>'platform-db'</code></td><td>IndexedDB database name</td></tr>
+<tr><td><code>idb.version</code></td><td><code>1</code></td><td>Schema version</td></tr>
+<tr><td><code>idb.migrations</code></td><td>built-in <code>keyval</code></td><td>Upgrade callbacks</td></tr>
+<tr><td><code>lru.maxSize</code></td><td><code>200</code></td><td>In-memory LRU capacity</td></tr>
+<tr><td><code>cache.name</code></td><td><code>'platform-cache'</code></td><td>Cache API bucket name</td></tr>
+</tbody></table></div>
 <h3><code>storage.get(key, tierOrOptions)</code></h3>
-<p>Read from a tier.</p>
-<view-code language="javascript">await storage.get('name');           // default idb
+<p>Read from a tier. Second arg: <code>'memory' \| 'idb' \| 'opfs' \| 'cache'</code> or <code>{ tier }</code>.</p>
+<view-code language="javascript">await storage.get('name');           // default idb (+ LRU fronting)
 await storage.get('name', 'memory');
 await storage.get('name', { tier: 'idb' });
 </view-code>
+<p>IDB reads populate the memory LRU. OPFS / cache honor TTL wrappers; expired keys delete and return <code>null</code>. Cache tier parses JSON when possible, else text.</p>
 <h3><code>storage.set(key, value, tierOrOptions)</code></h3>
-<p>Write to a tier.</p>
+<p>Write to a tier. Options: <code>{ tier, ttl }</code> (TTL in ms, honored across tiers).</p>
 <view-code language="javascript">await storage.set('name', 'Alice');
 await storage.set('name', 'Alice', 'memory');
 await storage.set('name', 'Alice', { tier: 'idb', ttl: 60000 });
 </view-code>
+<p>IDB path: localStorage write journal (crash recovery), optional gzip when serialized size exceeds <code>storage.compressionThreshold</code> (64KB) and Compression Streams are available, then IDB + LRU. Proactive quota check runs before write.</p>
+<div class="table-wrap"><table><thead><tr><th>IDB write step</th><th>Detail</th></tr></thead><tbody>
+<tr><td>1. Quota check</td><td><code>quota.check()</code> — may evict expired / LRU entries when over 80%</td></tr>
+<tr><td>2. Journal</td><td><code>localStorage['storage:journal:&lt;key&gt;']</code> until IDB commit succeeds</td></tr>
+<tr><td>3. Compress</td><td>Optional gzip when size &gt; threshold and <code>supports.compression</code></td></tr>
+<tr><td>4. Persist</td><td><code>idb.set('keyval', key, wrapExpiry(value, ttl))</code></td></tr>
+<tr><td>5. LRU</td><td>Memory cache updated with the uncompressed value</td></tr>
+</tbody></table></div>
+<h3>OPFS example</h3>
+<view-code language="javascript">const blob = new Blob([jsonText], { type: 'application/json' });
+await storage.set('exports/report.json', blob, 'opfs');
+const roundTrip = await storage.get('exports/report.json', 'opfs');
+</view-code>
 <h3><code>storage.delete(key, tierOrOptions)</code></h3>
-<p>Remove from a tier.</p>
-<h3><code>storage.query(storeName, filterFn)</code></h3>
-<p>Query IDB store with filter.</p>
+<p>Remove from the requested tier. Always clears the memory LRU entry for that key.</p>
+<h3><code>storage.query(storeName, queryOpts)</code></h3>
+<p>Advanced IndexedDB <strong>cursor</strong> query (not a filter callback — that is <code>state.storage.query</code>).</p>
+<view-code language="javascript">const rows = await storage.query('keyval', {
+  index: 'by-status',   // optional
+  range: IDBKeyRange.bound('a', 'z'),
+  direction: 'next',    // IDBCursorDirection
+  limit: 50
+});
+</view-code>
+<h3><code>storage.transaction(storeNames, mode, callback)</code></h3>
+<p>Multi-store IDB transaction.</p>
+<view-code language="javascript">await storage.transaction(['keyval'], 'readwrite', (store, tx) =&gt; {
+  store('keyval').put({ id: 1 }, 'one');
+});
+</view-code>
+<h3><code>storage.list(tier)</code></h3>
+<p>List keys. Default <code>idb</code> → <code>keyval</code> keys. <code>opfs</code> → OPFS paths. <code>cache</code> → request URLs.</p>
+<h3><code>storage.clear(tier)</code></h3>
+<p><code>tier</code>: <code>'all'</code> (default) | <code>'memory'</code> (via LRU clear on all clears) | <code>'idb'</code> | <code>'opfs'</code> | <code>'cache'</code>. Clearing always empties the LRU; then clears the named durable tier(s).</p>
+<h3><code>storage.estimate()</code> / <code>persist()</code> / <code>persisted()</code></h3>
+<view-code language="javascript">const { usage, quota, persisted } = await storage.estimate();
+await storage.persist();
+const ok = await storage.persisted();
+</view-code>
+<h3><code>storage.onQuotaWarning(handler)</code></h3>
+<p>Registers a quota warning listener; returns a disposer. Also see <a href="/docs/storage/quota">Quota</a>.</p>
+<h3><code>storage.compressionThreshold</code></h3>
+<p>Number (default <code>65536</code>). Values whose serialized length exceeds this may be gzip-compressed on IDB write when Compression Streams are available.</p>
 <hr />
 <h2>Database</h2>
 <view-code language="javascript">import { Database } from '@adukiorg/anza/storage';
 </view-code>
 <h3><code>new Database(name, version, migrations)</code></h3>
+<p>Low-level IndexedDB wrapper. Migrations run sequentially on <code>upgradeneeded</code>.</p>
 <h3><code>db.open()</code></h3>
-<p>Returns <code>Promise&lt;IDBDatabase&gt;</code>.</p>
-<h3><code>db.get(storeName, key)</code></h3>
-<h3><code>db.set(storeName, key, value)</code></h3>
-<h3><code>db.delete(storeName, key)</code></h3>
-<h3><code>db.clear(storeName)</code></h3>
-<h3><code>db.getAll(storeName)</code></h3>
-<h3><code>db.keys(storeName)</code></h3>
+<p>Returns <code>Promise&lt;IDBDatabase&gt;</code>. Idempotent when already open.</p>
+<h3><code>db.get(storeName, key)</code> / <code>db.set(storeName, key, value)</code> / <code>db.delete(storeName, key)</code></h3>
+<p>Single-store CRUD helpers — each opens a short-lived transaction.</p>
+<h3><code>db.clear(storeName)</code> / <code>db.getAll(storeName)</code> / <code>db.keys(storeName)</code></h3>
+<p>Store-wide read and purge utilities.</p>
 <h3><code>db.query(storeName, options)</code></h3>
-<p>Options: <code>{ index, range, direction, limit }</code>.</p>
+<p>Cursor query with optional index, key range, direction, and limit.</p>
+<view-code language="javascript">const rows = await db.query('keyval', {
+  index: 'by-updated',
+  range: IDBKeyRange.lowerBound(Date.now() - 86400000),
+  limit: 100
+});
+</view-code>
 <h3><code>db.transaction(storeNames, mode, callback)</code></h3>
 <p>Multi-store transactional callback.</p>
 <hr />
@@ -50,27 +111,26 @@ await storage.set('name', 'Alice', { tier: 'idb', ttl: 60000 });
 <view-code language="javascript">import { CacheStorage } from '@adukiorg/anza/storage';
 </view-code>
 <h3><code>new CacheStorage(name)</code></h3>
-<h3><code>cache.get(request)</code></h3>
-<p>Returns <code>Promise&lt;Response | null&gt;</code>.</p>
+<h3><code>cache.get(request)</code> → <code>Promise&lt;Response | null&gt;</code></h3>
 <h3><code>cache.set(request, response, ttlMs)</code></h3>
-<h3><code>cache.delete(request)</code></h3>
-<h3><code>cache.clear()</code></h3>
+<h3><code>cache.delete(request)</code> / <code>cache.clear()</code></h3>
+<p>TTL is stored via an <code>x-expires-at</code> header on cached responses.</p>
 <hr />
-<h2>LRUCache</h2>
-<h3><code>new LRUCache(maxSize)</code></h3>
-<h3><code>cache.get(key)</code></h3>
-<h3><code>cache.set(key, value, ttlMs)</code></h3>
-<h3><code>cache.delete(key)</code></h3>
-<h3><code>cache.clear()</code></h3>
-<hr />
-<h2>WeakLRUCache</h2>
-<h3><code>new WeakLRUCache(maxSize)</code></h3>
-<p>Values must be objects or functions.</p>
+<h2>LRUCache / WeakLRUCache</h2>
+<h3><code>new LRUCache(maxSize)</code> — <code>get</code> / <code>set(key, value, ttlMs)</code> / <code>delete</code> / <code>clear</code></h3>
+<h3><code>new WeakLRUCache(maxSize)</code> — values must be objects or functions</h3>
 <hr />
 <h2>QuotaManager</h2>
 <view-code language="javascript">import { quota } from '@adukiorg/anza/storage';
 </view-code>
-<h3><code>quota.estimate()</code></h3>
-<h3><code>quota.persist()</code></h3>
-<h3><code>quota.check(onWarning)</code></h3>
-<h3><code>quota.onQuotaWarning(handler)</code></h3>
+<h3><code>quota.estimate()</code> / <code>quota.persist()</code> / <code>quota.check(onWarning)</code> / <code>quota.onQuotaWarning(handler)</code></h3>
+<hr />
+<h2>Package exports</h2>
+<div class="table-wrap"><table><thead><tr><th>Export</th><th>Role</th></tr></thead><tbody>
+<tr><td><code>storage</code></td><td>Unified tiered facade (default export path)</td></tr>
+<tr><td><code>Database</code></td><td>Low-level IndexedDB wrapper with migrations</td></tr>
+<tr><td><code>CacheStorage</code></td><td>Cache API bucket with TTL headers</td></tr>
+<tr><td><code>LRUCache</code> / <code>WeakLRUCache</code></td><td>In-memory caches used internally and for direct use</td></tr>
+<tr><td><code>quota</code></td><td>Estimate, persist, and warning helpers</td></tr>
+<tr><td><code>opfs</code></td><td>Direct OPFS helpers (also reachable via <code>storage.*</code> tier)</td></tr>
+</tbody></table></div>

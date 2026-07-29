@@ -1,68 +1,112 @@
 <h1>API Reference</h1>
 <p>Complete reference for the state facade and internal classes.</p>
+<p><strong>vs <code>@adukiorg/anza/storage</code>:</strong> use <code>state.storage</code> (<code>PlatformStorage</code>) for reactive-store snapshots with filter-function <code>query</code>. Use the storage package for general tiered KV / OPFS / Cache. Give each a distinct IndexedDB database name — see <a href="/docs/storage/troubleshooting">Storage troubleshooting</a>.</p>
 <hr />
 <h2>Facade</h2>
 <view-code language="javascript">import { state } from '@adukiorg/anza/state';
 </view-code>
 <h3><code>state.create(initial, options)</code></h3>
-<p>Creates a <code>ReactiveStore</code>.</p>
-<view-code language="javascript">const store = state.create({ count: 0 }, { deep: false });
+<p>Creates a proxy-based <code>ReactiveStore</code>. Reads inside an active subscriber context (derived compute, nested derived) register dependencies automatically.</p>
+<div class="table-wrap"><table><thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>deep</code></td><td><code>false</code></td><td>Wrap nested objects in reactive proxies (top-level key still triggers)</td></tr>
+<tr><td><code>clone</code></td><td>built-in</td><td>Custom clone fn for <code>snapshot()</code></td></tr>
+</tbody></table></div>
+<view-code language="javascript">const store = state.create({ count: 0, user: { name: 'Ada' } }, { deep: true });
+
+store.get('count');           // 0
+store.set('count', 1);        // notifies subscribers
+store.subscribe('count', (val, key, prev) =&gt; {
+  console.log(key, prev, '→', val);
+}, ctrl.signal);
 </view-code>
 <h3><code>state.derived(compute)</code></h3>
-<p>Creates a <code>DerivedValue</code>.</p>
-<view-code language="javascript">const doubled = state.derived(() =&gt; store.get('count') * 2);
+<p>Creates a lazy <code>DerivedValue</code>. Recomputes when tracked store keys change.</p>
+<view-code language="javascript">const store = state.create({ count: 0 });
+const doubled = state.derived(() =&gt; store.get('count') * 2);
+
+doubled.value; // 0 — first read runs compute
+store.set('count', 3);
+doubled.value; // 6
+
+doubled.subscribe(() =&gt; render(doubled.value));
+doubled.dispose(); // tear down dependency listeners
 </view-code>
 <h3><code>state.sync(store, keys, channelName)</code></h3>
-<p>Returns disposer. See <a href="/docs/state/sync">sync.md</a>.</p>
+<p>Cross-tab replication via <code>BroadcastChannel</code>. Returns a disposer. Empty <code>keys</code> syncs all keys.</p>
+<view-code language="javascript">const stop = state.sync(store, ['theme', 'locale'], 'app-settings');
+// other tab: store.set('theme', 'dark') → replicated with source 'broadcast'
+stop();
+</view-code>
 <h3><code>state.storage</code></h3>
-<p><code>PlatformStorage</code> instance. See <a href="/docs/state/persist">persist.md</a>.</p>
+<p>Singleton <code>PlatformStorage</code> for IndexedDB-backed store snapshots. See <a href="/docs/state/persist">State persist</a>.</p>
+<view-code language="javascript">state.storage.setDatabaseName('my-app-state');
+await state.storage.set('profiles', 'user-1', { name: 'Ada' }, { ttl: 86400000 });
+const rows = await state.storage.query('profiles', (p) =&gt; p.active);
+</view-code>
 <hr />
 <h2>ReactiveStore</h2>
-<h3><code>get(key)</code></h3>
-<p>Read a property value.</p>
-<h3><code>set(key, value, source)</code></h3>
-<p>Write a property value. <code>source</code> defaults to <code>'local'</code>.</p>
-<h3><code>subscribe(key, callback, signal)</code></h3>
-<p>Subscribe to a key. Returns disposer.</p>
-<p>Callback: <code>(val, key, prev) =&gt; void</code></p>
-<h3><code>batch(fn)</code></h3>
-<p>Batch multiple mutations into one notification.</p>
-<h3><code>snapshot()</code></h3>
-<p>Returns deep-cloned current state.</p>
-<h3><code>hydrate(data)</code></h3>
-<p>Restore state from a snapshot.</p>
-<h3><code>reset(initial)</code></h3>
-<p>Clear all keys, then set from initial object.</p>
-<h3><code>broadcast(channelName, keys)</code></h3>
-<p>Sync keys across tabs. Returns disposer.</p>
-<h3><code>sync(keys, channelName)</code></h3>
-<p>Alias for <code>broadcast</code>.</p>
-<h3><code>onMutation(callback)</code></h3>
-<p>Register global mutation listener: <code>(key, value, source) =&gt; void</code></p>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>get(key)</code></td><td>any</td><td>Read value; tracks dependency when subscriber active</td></tr>
+<tr><td><code>set(key, value, source?)</code></td><td>void</td><td>Write value. <code>source</code> defaults to <code>'local'</code>; use <code>'broadcast'</code> internally for sync echo prevention</td></tr>
+<tr><td><code>subscribe(key, callback, signal?)</code></td><td>disposer</td><td><code>(val, key, prev) =&gt; void</code> — batched per microtask flush</td></tr>
+<tr><td><code>batch(fn)</code></td><td>void</td><td>Coalesce multiple sets into one notification wave</td></tr>
+<tr><td><code>snapshot()</code></td><td>object</td><td>Deep clone of current state</td></tr>
+<tr><td><code>hydrate(data)</code></td><td>void</td><td>Restore from snapshot inside a batch (no redundant triggers)</td></tr>
+<tr><td><code>reset(initial?)</code></td><td>void</td><td>Clear all keys, then apply <code>initial</code> object</td></tr>
+<tr><td><code>broadcast(channelName, keys?)</code></td><td>disposer</td><td>Tab sync — alias target: <code>sync(keys, channelName)</code></td></tr>
+<tr><td><code>onMutation(callback)</code></td><td>void</td><td><code>(key, value, source) =&gt; void</code> — used by sync layer</td></tr>
+<tr><td><code>derived(compute)</code></td><td>DerivedValue</td><td>Store-scoped derived node</td></tr>
+</tbody></table></div>
+<h4>Advanced: batch + hydrate</h4>
+<view-code language="javascript">const saved = store.snapshot();
+// … later, after navigation abort …
+store.hydrate(saved);
+
+store.batch(() =&gt; {
+  store.set('a', 1);
+  store.set('b', 2);
+}); // subscribers notified once
+</view-code>
 <hr />
 <h2>DerivedValue</h2>
-<h3><code>value</code></h3>
-<p>Lazy getter. Recomputes if dirty.</p>
-<h3><code>subscribe(callback)</code></h3>
-<p>Notify when value changes. Returns disposer.</p>
-<h3><code>dispose()</code></h3>
-<p>Clean up all subscriptions.</p>
+<div class="table-wrap"><table><thead><tr><th>Member</th><th>Kind</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>value</code></td><td>getter</td><td>Lazy read — recomputes when dirty</td></tr>
+<tr><td><code>subscribe(callback)</code></td><td>method</td><td>Notify on invalidation. Returns disposer</td></tr>
+<tr><td><code>dispose()</code></td><td>method</td><td>Release store subscriptions and listeners</td></tr>
+</tbody></table></div>
 <hr />
 <h2>PlatformStorage</h2>
-<h3><code>setDatabaseName(name)</code></h3>
-<p>Configure database name before first use.</p>
-<h3><code>registerMigrations(migrations)</code></h3>
-<p>Register schema migration functions.</p>
-<h3><code>get(storeName, key)</code></h3>
-<p>Read a record.</p>
-<h3><code>set(storeName, key, value, options)</code></h3>
-<p>Write a record. Options: <code>{ ttl }</code>.</p>
-<h3><code>delete(storeName, key)</code></h3>
-<p>Remove a record.</p>
-<h3><code>query(storeName, filterFn)</code></h3>
-<p>Filter records by predicate.</p>
-<h3><code>persist()</code></h3>
-<p>Request persistent storage.</p>
+<p>Transaction-aware IndexedDB wrapper with write queue, TTL envelopes, and proactive quota eviction at 80% usage.</p>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>setDatabaseName(name)</code></td><td>void</td><td>Configure before first <code>open()</code> (default <code>platform-db</code>)</td></tr>
+<tr><td><code>registerMigrations(migrations)</code></td><td>void</td><td>Sequential upgrade callbacks; sets version to <code>length + 1</code></td></tr>
+<tr><td><code>get(storeName, key)</code></td><td>Promise&lt;any&gt;</td><td>Read record; unwraps <code>{ value, lastAccessed, expires }</code> envelope</td></tr>
+<tr><td><code>set(storeName, key, value, options?)</code></td><td>Promise&lt;void&gt;</td><td>Write with optional <code>{ ttl }</code> ms expiry</td></tr>
+<tr><td><code>delete(storeName, key)</code></td><td>Promise&lt;void&gt;</td><td>Remove record</td></tr>
+<tr><td><code>query(storeName, filterFn?)</code></td><td>Promise&lt;any[]&gt;</td><td><strong>Filter callback</strong> over all unwrapped values (not IDB cursors)</td></tr>
+<tr><td><code>estimate()</code></td><td>Promise&lt;{ usage, quota }&gt;</td><td>StorageManager estimate</td></tr>
+<tr><td><code>persist()</code></td><td>Promise&lt;boolean&gt;</td><td>Request persistent storage</td></tr>
+<tr><td><code>isPersisted()</code></td><td>Promise&lt;boolean&gt;</td><td>Check persistence status</td></tr>
+</tbody></table></div>
+<h4>Simple persist flow</h4>
+<view-code language="javascript">import { state } from '@adukiorg/anza/state';
+
+state.storage.setDatabaseName('notes-app');
+await state.storage.set('notes', 'draft-1', { text: 'Hello' }, { ttl: 3600000 });
+
+const draft = await state.storage.get('notes', 'draft-1');
+const active = await state.storage.query('notes', (n) =&gt; n.text?.length &gt; 0);
+</view-code>
+<h4>Advanced: migrations</h4>
+<view-code language="javascript">state.storage.registerMigrations([
+  (db, tx) =&gt; {
+    if (!db.objectStoreNames.contains('profiles')) {
+      db.createObjectStore('profiles');
+    }
+  }
+]);
+await state.storage.set('profiles', 'me', { theme: 'dark' });
+</view-code>
 <hr />
 <h2>Named Exports</h2>
 <view-code language="javascript">import {
@@ -75,3 +119,4 @@
   storage
 } from '@adukiorg/anza/state';
 </view-code>
+<p><code>setActiveSubscriber</code> / <code>getActiveSubscriber</code> are framework internals for derived dependency tracking — app code should use <code>state.derived</code> or <code>store.derived</code>.</p>

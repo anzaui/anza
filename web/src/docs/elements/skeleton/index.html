@@ -1,5 +1,5 @@
 <h1>Skeleton</h1>
-<p>Loading placeholder with a WAAPI shimmer; pauses when <code>prefers-reduced-motion: reduce</code>.</p>
+<p>Loading placeholder with a WAAPI opacity shimmer. Pauses when <code>prefers-reduced-motion: reduce</code> and is hidden from assistive tech.</p>
 <p><strong>Tag:</strong> <code>ui-skeleton</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/skeleton</code></p>
 <hr />
 <h2>Import</h2>
@@ -12,22 +12,37 @@
 &lt;ui-skeleton variant="circle" width="48px" height="48px"&gt;&lt;/ui-skeleton&gt;
 </view-code>
 <hr />
+<h2>Advanced usage</h2>
+<view-code language="html">&lt;ui-card&gt;
+  &lt;span slot="header"&gt;Loading profile…&lt;/span&gt;
+  &lt;ui-stack gap="sm"&gt;
+    &lt;ui-skeleton variant="circle" width="48px" height="48px"&gt;&lt;/ui-skeleton&gt;
+    &lt;ui-skeleton width="8rem" height="1rem"&gt;&lt;/ui-skeleton&gt;
+    &lt;ui-skeleton width="100%" height="0.75rem"&gt;&lt;/ui-skeleton&gt;
+    &lt;ui-skeleton width="80%" height="0.75rem"&gt;&lt;/ui-skeleton&gt;
+  &lt;/ui-stack&gt;
+&lt;/ui-card&gt;
+</view-code>
+<p>Swap skeleton placeholders for real content when data loads. <code>width</code> / <code>height</code> map to <code>--skeleton-width</code> / <code>--skeleton-height</code>.</p>
+<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>variant</code></td><td>String</td><td>Reflect</td><td>Visual shape hint (theme / CSS; e.g. circle)</td></tr>
-<tr><td><code>width</code></td><td>String</td><td>Reflect</td><td>Sets <code>--skeleton-width</code> (CSS length, <code>%</code>, or space token name)</td></tr>
-<tr><td><code>height</code></td><td>String</td><td>Reflect</td><td>Sets <code>--skeleton-height</code> (same resolution as <code>width</code>)</td></tr>
+<tr><td><code>variant</code></td><td>String</td><td>Reflect</td><td>Shape hint (e.g. <code>circle</code> — theme/CSS)</td></tr>
+<tr><td><code>width</code></td><td>String</td><td>Reflect</td><td>Sets <code>--skeleton-width</code></td></tr>
+<tr><td><code>height</code></td><td>String</td><td>Reflect</td><td>Sets <code>--skeleton-height</code></td></tr>
 </tbody></table></div>
-<h2>Notes</h2>
-<p>Defaults <code>aria-hidden="true"</code>. Shimmer uses <code>part="shimmer"</code>. <code>matchMedia</code> change listener and animation cleanup use <code>el.ctrl.signal</code>.</p>
+<h2>Slots / parts</h2>
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>shimmer</code></td><td>part</td><td>Animated shimmer surface</td></tr>
+</tbody></table></div>
 <h3>Lifecycle / memory</h3>
-<p>The reduced-motion listener is signal-owned. Soft-nav disconnect aborts the leaf <code>ctrl</code> and tears down the listener; pause the WAAPI animation via the same abort path rather than leaving orphan <code>matchMedia</code> handlers.</p>
+<p>WAAPI shimmer (1500ms) and <code>prefers-reduced-motion</code> listener use <code>el.ctrl.signal</code>. Soft-nav disconnect aborts the leaf and tears down the listener.</p>
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/elements/index">Elements overview</a></li>
 <li><a href="/docs/elements/feedback">Feedback</a></li>
 <li><a href="/docs/elements/spinner">Spinner</a></li>
+<li><a href="/docs/elements/card">Card</a></li>
 <li><a href="/docs/ui/advanced">Memory safety &amp; framework globals</a></li>
-<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
+<li><a href="/docs/elements/index">Elements overview</a></li>
 </ul>

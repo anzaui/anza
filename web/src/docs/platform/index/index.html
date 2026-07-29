@@ -6,22 +6,31 @@
 <ul>
 <li><strong>Feature detection</strong> — 30+ lazy-evaluated boolean flags for routing, components, CSS, scheduling, storage, networking, and security</li>
 <li><strong>Lazy polyfills</strong> — automatic, on-demand loading for URLPattern, Navigation API, popover, shadow DOM, anchor positioning, scheduler, and sanitizer</li>
+<li><strong>Overflow escape</strong> — <code>guard.escape</code> / <code>escapeOverflow</code> for in-tree floating UI (used by <code>ui-tooltip</code>)</li>
+<li><strong>Framework globals registry</strong> — <code>globals</code> for soft-nav–stable platform listeners / observers</li>
 <li><strong>Runtime guards</strong> — <code>typeGuard</code> for early-fail checks in critical paths</li>
 <li><strong>Reset for testing</strong> — <code>reset(flag)</code> to clear cached detection values</li>
 </ul>
 <hr />
 <h2>Package</h2>
-<view-code language="javascript">import { supports, guard, reset, typeGuard } from '@adukiorg/anza/platform';
+<view-code language="javascript">import {
+  supports,
+  guard,
+  reset,
+  typeGuard,
+  globals,
+  escapeOverflow
+} from '@adukiorg/anza/platform';
 </view-code>
 <hr />
 <h2>File Map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
-<tr><td><a href="/docs/platform/quickstart">quickstart.md</a></td><td>Feature detection and polyfills in five minutes</td></tr>
-<tr><td><a href="/docs/platform/supports">supports.md</a></td><td>Full supports registry and detection flags</td></tr>
-<tr><td><a href="/docs/platform/guards">guards.md</a></td><td>Lazy polyfill loaders and usage patterns</td></tr>
-<tr><td><a href="/docs/platform/scheduler">scheduler.md</a></td><td>Prioritized task scheduling and yielding</td></tr>
-<tr><td><a href="/docs/platform/api">api.md</a></td><td>Complete API reference</td></tr>
-<tr><td><a href="/docs/platform/troubleshooting">troubleshooting.md</a></td><td>Common problems and how to fix them</td></tr>
+<tr><td><a href="/docs/platform/quickstart">Quickstart</a></td><td>Feature detection and polyfills in five minutes</td></tr>
+<tr><td><a href="/docs/platform/supports">Supports</a></td><td>Full supports registry and detection flags</td></tr>
+<tr><td><a href="/docs/platform/guards">Guards</a></td><td>Lazy polyfill loaders and usage patterns</td></tr>
+<tr><td><a href="/docs/platform/scheduler">Scheduler</a></td><td>Prioritized task scheduling and yielding</td></tr>
+<tr><td><a href="/docs/platform/api">API reference</a></td><td>Complete API reference</td></tr>
+<tr><td><a href="/docs/platform/troubleshooting">Troubleshooting</a></td><td>Common problems and how to fix them</td></tr>
 </tbody></table></div>
 <hr />
 <h2>One-File Example</h2>
@@ -44,9 +53,10 @@ const pattern = new URLPattern({ pathname: '/user/:id' });
 <hr />
 <h2>Next Steps</h2>
 <ul>
-<li>New to the platform layer? Start with <a href="/docs/platform/quickstart">quickstart.md</a>.</li>
-<li>Want the full capability matrix? Read <a href="/docs/platform/supports">supports.md</a>.</li>
-<li>Need polyfills? <a href="/docs/platform/guards">guards.md</a>.</li>
-<li>Working with scheduler? <a href="/docs/platform/scheduler">scheduler.md</a>.</li>
-<li>Prefer a single reference page? <a href="/docs/platform/api">api.md</a>.</li>
+<li>New to the platform layer? Start with <a href="/docs/platform/quickstart">Quickstart</a>.</li>
+<li>Want the full capability matrix? Read <a href="/docs/platform/supports">Supports</a>.</li>
+<li>Need polyfills? <a href="/docs/platform/guards">Guards</a>.</li>
+<li>Working with scheduler? <a href="/docs/platform/scheduler">Scheduler</a>.</li>
+<li>Prefer a single reference page? <a href="/docs/platform/api">API reference</a>.</li>
+<li>Building floating UI / tooltips? <a href="/docs/platform/guards#escape">Guards — Escape</a> and <a href="/docs/elements/overlay">Overlay patterns</a>.</li>
 </ul>

@@ -167,6 +167,9 @@ pub fn load_map(dir: &Path) -> HashMap<String, String> {
 
 fn extract(path: &Path) -> Option<HashMap<String, String>> {
   let content = std::fs::read_to_string(path).ok()?;
+  // Mask docs `<view-code>` samples so nested `<script type=importmap>` snippets
+  // cannot be mistaken for the real shell import map.
+  let content = crate::build::html::opaque_view_code(&content);
   let doc = scraper::Html::parse_document(&content);
   let sel = scraper::Selector::parse("script[type=\"importmap\"]").ok()?;
   

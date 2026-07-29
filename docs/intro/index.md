@@ -37,8 +37,8 @@ import { page, dock, view } from '@adukiorg/anza/ui';
 | ------ | -------------- |
 | [install.md](install.md) | Install the library and build the CLI |
 | [start.md](start.md) | Scaffold your first app |
-| [build.md](build.md) | Dev server, production build, and diagnostics |
-| [structure.md](structure.md) | Project folder conventions |
+| [build.md](build.md) | Dev server, production build, `doctor` / `check` / `generate` |
+| [structure.md](structure.md) | **Project structure contract** — required slots, `anza.json`, doctor/check, `anza generate` |
 | `docs/sw/` | Service Worker caching, routing, sync, and push |
 
 ---
@@ -80,6 +80,7 @@ That is a complete app. Run `anza dev` and open `http://localhost:3000`.
 ## Next Steps
 
 - New here? Read [install.md](install.md) then [start.md](start.md).
+- What must exist on disk? See [structure.md](structure.md) — single source of truth (`anza doctor` / `anza check`).
 - Want the router? See `docs/router/`.
 - Want the UI layer? See `docs/ui/`.
 - Shipping public pages? See [ssg/contract.md](../ssg/contract.md) (site-root URLs, open DSD) and [ui/hydration.md](../ui/hydration.md).

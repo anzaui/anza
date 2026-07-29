@@ -138,15 +138,17 @@ import { page, dock, view, part } from '@adukiorg/anza/defs';
 Define a route-bound element.
 
 - **`route`**: `string | string[]` - A single route pattern or an array of route patterns (e.g. `'/blog'` or `['/blog', '/blog/:slug']`).
-- **`config` fields**: `tag`, `via`, `container`, `template`, `style`, `props`, `params`, `query`, `hash`, `on`, `guard`, `meta`.
+- **`config` fields**: `tag`, `via`, `container`, `template`, `style`, `props`, `params`, `query`, `hash`, `on`, `guard`, `error`, `meta`.
   - `params`: `Array<{ name: string, type: Function }>` - path parameter contract (e.g., `[{ name: 'slug', type: String }]`).
   - `query`: `Array<{ name: string, type: Function }>` - query parameter contract (e.g., `[{ name: 'tab', type: String }]`).
+  - `error` (optional): route-scoped error leaf override — see [router/fallbacks.md](../router/fallbacks.md).
 
 ### `dock(name, config, base)`
 
 Define a container shell.
 
-- **`config` fields**: `tag`, `parent`, `template`, `style`, `params`, `query`, `on`, `notfound`.
+- **`config` fields**: `tag`, `parent`, `template`, `style`, `params`, `query`, `on`, `notfound`, `error`, `offline`.
+  - `notfound` / `error` / `offline` (optional): branded overrides only — bare docks use shared library built-ins; see [router/fallbacks.md](../router/fallbacks.md).
   - `params`: `Array<{ name: string, type: Function }>` - path parameter contract.
   - `query`: `Array<{ name: string, type: Function }>` - query parameter contract.
 

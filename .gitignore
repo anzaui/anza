@@ -1,5 +1,6 @@
 # generated
 node_modules/
+tmp/
 
 # OS
 .DS_Store

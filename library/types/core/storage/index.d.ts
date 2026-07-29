@@ -12,10 +12,26 @@ export interface StorageQuotaEstimate {
 
 export type StorageTier = 'memory' | 'idb' | 'opfs' | 'cache';
 
+export type StorageTierOrOptions =
+  | StorageTier
+  | { tier?: StorageTier; ttl?: number | null };
+
+export interface StorageConfigureOptions {
+  idb?: {
+    name?: string;
+    version?: number;
+    migrations?: Array<(db: IDBDatabase) => void>;
+  };
+  lru?: { maxSize?: number };
+  cache?: { name?: string };
+}
+
 export const storage: {
-  get(key: string, tier?: StorageTier): Promise<any>;
-  set(key: string, value: any, tier?: StorageTier, ttl?: number | null): Promise<void>;
-  delete(key: string, tier?: StorageTier): Promise<void>;
+  compressionThreshold: number;
+  configure(options?: StorageConfigureOptions): typeof storage;
+  get(key: string, tierOrOptions?: StorageTierOrOptions): Promise<any>;
+  set(key: string, value: any, tierOrOptions?: StorageTierOrOptions): Promise<void>;
+  delete(key: string, tierOrOptions?: StorageTierOrOptions): Promise<void>;
   query(
     storeName: string,
     queryOpts?: {
@@ -37,4 +53,3 @@ export const storage: {
   ): Promise<any>;
   onQuotaWarning(handler: (estimate: { usage: number; quota: number }) => void): () => void;
 };
-

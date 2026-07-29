@@ -2,6 +2,8 @@
 
 Normative shape for every public, indexable HTML response. **Mode A** (`anza build` SSG) and **Mode B** (any-language request-time templates) must emit this same contract so client hydration has one adoption path.
 
+Sibling: the **folder** contract (required / recommended / optional project slots, optional `anza.json`) lives in [intro/structure.md](../intro/structure.md).
+
 Overview of Phases 0–6: [index.md](index.md). Client adopt details: [ui/hydration.md](../ui/hydration.md).
 
 Golden samples: [plans/fixtures/ssg/](../../plans/fixtures/ssg/). Planning context: [plans/SSG-SEO.md](../../plans/SSG-SEO.md).
@@ -111,7 +113,7 @@ Public paths with `:param` (or `*`) are **not** SSG’d by default — `routes.j
 
 **In the page module** (`page({ ssg: { expand: […] } })`):
 
-```js
+```javascript
 page('/docs/ssg/expand/:slug', {
   params: [{ name: 'slug', type: String }],
   ssg: {
@@ -126,7 +128,7 @@ page('/docs/ssg/expand/:slug', {
     description: 'Example for {{slug}}'
   },
   // …
-})
+});
 ```
 
 **Or project-level** `ssg.params.json` next to `src/` (or inside `src/`):

@@ -1,0 +1,84 @@
+# docs/config.toml — docs site manifest for `anza docs`
+# App structure remains anza.json; this file is docs-site build only.
+#
+# Expand the sidebar: copy more [[sidebar.section]] / [[sidebar.section.items]]
+# blocks from web/src/docks/docs/index.html (or plans/DOCS-GENERATOR.md sample).
+# MVP ships a Getting Started subset so generate stays fast to try.
+
+[site]
+title = "Anza Documentation"
+base = "/docs"
+# Default product out is "dist"; MVP try uses a test folder (override with --out).
+out = "tmp/docs-site"
+
+[entry]
+home = "index.md"
+route = "/docs"
+landing = true
+shell = "index.html"
+root_dock = "main"
+via = ["main", "docs", "content"]
+
+[files]
+roots = ["."]
+include = ["**/*.md"]
+exclude = []
+
+[assets]
+# Folder roots only — generator copies whole directories into dist (site-root URLs).
+# Prefer a future pack = "../tools/assets/docs-site" with styles/, tokens/, views/, images/, docks/.
+# Bootstrap from current web/ until that pack exists.
+styles = "../web/src/styles"
+tokens = "../web/src/tokens"
+view_code = "../web/src/views/code"
+docks = "../web/src/docks"
+# images = "../web/src/images"   # optional; copy whole folder when present
+landing = "../web/src/pages/entry"
+
+[seo]
+site_name = "Anza"
+sitemap = false
+robots = false
+json_ld = false
+
+# ── Sidebar (MVP subset — expand by adding sections/items) ──────────────
+
+[[sidebar.section]]
+id = "getting-started"
+title = "Getting Started"
+
+[[sidebar.section.items]]
+path = "intro/index.md"
+label = "Introduction"
+
+[[sidebar.section.items]]
+path = "intro/install.md"
+label = "Installation"
+
+[[sidebar.section.items]]
+path = "intro/start.md"
+label = "Quick Start"
+
+[[sidebar.section.items]]
+path = "intro/build.md"
+label = "Build"
+
+[[sidebar.section.items]]
+path = "intro/structure.md"
+label = "Folder Structure"
+
+[[sidebar.section]]
+id = "ssg"
+title = "SSG & SEO"
+
+[[sidebar.section.items]]
+path = "ssg/index.md"
+label = "Overview"
+
+[[sidebar.section.items]]
+path = "ssg/contract.md"
+label = "HTML contract"
+
+[[redirect]]
+from = "/docs/index"
+to = "/docs"

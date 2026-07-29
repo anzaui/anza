@@ -1,5 +1,5 @@
 <h1>Scroll</h1>
-<p>Scroll viewport with optional scroll-snap.</p>
+<p>Scroll viewport with optional scroll-snap. Use for contained overflow regions and horizontal carousels.</p>
 <p><strong>Tag:</strong> <code>ui-scroll</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/scroll</code></p>
 <hr />
 <h2>Import</h2>
@@ -16,17 +16,34 @@
 &lt;/ui-scroll&gt;
 </view-code>
 <hr />
+<h2>Advanced usage</h2>
+<view-code language="html">&lt;ui-split ratio="1-2" style="height: 20rem;"&gt;
+  &lt;ui-sidebar&gt;Filters&lt;/ui-sidebar&gt;
+  &lt;ui-scroll&gt;
+    &lt;ui-list bordered&gt;
+      &lt;div role="listitem"&gt;Item 1&lt;/div&gt;
+      &lt;div role="listitem"&gt;Item 2&lt;/div&gt;
+      &lt;!-- many more items --&gt;
+    &lt;/ui-list&gt;
+  &lt;/ui-scroll&gt;
+&lt;/ui-split&gt;
+</view-code>
+<p>Set an explicit height on the host or parent so the viewport can scroll. <code>snap</code> enables CSS scroll-snap on child sections.</p>
+<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>snap</code></td><td>Boolean</td><td>Reflect</td><td>Enables scroll-snap behavior when set</td></tr>
 </tbody></table></div>
-<h2>Notes</h2>
-<p>Content lives in <code>part="viewport"</code>.</p>
+<h2>Slots / parts</h2>
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
+<tr><td><em>(default)</em></td><td>slot</td><td>Scrollable content</td></tr>
+<tr><td><code>viewport</code></td><td>part</td><td>Scroll container</td></tr>
+</tbody></table></div>
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/elements/index">Elements overview</a></li>
 <li><a href="/docs/elements/layout">Layout</a></li>
-<li><a href="/docs/elements/surface">Surface</a></li>
-<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
+<li><a href="/docs/elements/split">Split</a></li>
+<li><a href="/docs/elements/list">List</a></li>
+<li><a href="/docs/elements/index">Elements overview</a></li>
 </ul>

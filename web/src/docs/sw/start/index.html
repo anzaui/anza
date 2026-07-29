@@ -32,6 +32,7 @@ self.addEventListener('fetch', (e) =&gt; {
 <li>Registers two routes: static assets get <code>CacheFirst</code>, API calls get <code>NetworkFirst</code> with a 3-second timeout</li>
 <li>On <code>fetch</code>, tries the router first; unmatched requests fall through to the network</li>
 </ol>
+<p>Keep helpers in optional <code>src/sw/</code> and <code>import</code> them from <code>src/sw.js</code> — that folder is <strong>modules only</strong>, not extra registrations. Multi-scope workers (advanced) use <code>anza.json</code> <code>sw</code> arrays — see <a href="/docs/intro/structure#service-workers">Structure</a>.</p>
 <hr />
 <h2>2. Register from <code>app.js</code></h2>
 <view-code language="javascript">import '@adukiorg/anza/ui';
@@ -83,4 +84,4 @@ self.addEventListener('sync', (e) =&gt; {
   }
 });
 </view-code>
-<p>Read <a href="/docs/sw/sync">sync.md</a> for the full queue API.</p>
+<p>Read <a href="/docs/sw/sync">Sync</a> for the full queue API.</p>

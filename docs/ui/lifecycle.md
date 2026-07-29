@@ -80,7 +80,7 @@ The `AbortController` (`ctrl`) is aborted automatically, so any listeners or obs
 
 Soft-nav swaps only the **page leaf** (`replaceChildren` / `swapView`). Parent docks stay mounted.
 
-```
+```text
 connect / mount
   ctrl = new AbortController()
   on + watch bind to shadowRoot with defaultSignal = ctrl.signal

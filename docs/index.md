@@ -14,8 +14,8 @@ Install the library, scaffold your first app, and understand the project layout.
 | ------ | -------------- |
 | [intro/install.md](intro/install.md) | Install the npm package and build the Rust CLI |
 | [intro/start.md](intro/start.md) | Scaffold your first app with `npm create @adukiorg/anza` |
-| [intro/build.md](intro/build.md) | Dev server, production build, and diagnostics |
-| [intro/structure.md](intro/structure.md) | Project folder conventions and what each file does |
+| [intro/build.md](intro/build.md) | Dev server, production build, `anza doctor` / `check` / `generate` |
+| [intro/structure.md](intro/structure.md) | **Project structure contract** — required / recommended / optional slots, optional `anza.json`, service workers |
 
 ---
 
@@ -133,6 +133,7 @@ Client-side routing with URLPattern matching, hierarchical containers, and view 
 | [router/navigation.md](router/navigation.md) | Programmatic navigation and history |
 | [router/containers.md](router/containers.md) | The container graph, via chains, and cascade mounting |
 | [router/pages.md](router/pages.md) | `page()` — route-bound element definitions |
+| [router/fallbacks.md](router/fallbacks.md) | Shared library 404 / 5xx / offline defaults; override ladder |
 | [router/docks.md](router/docks.md) | `dock()` — container shells with swap transitions |
 | [router/components.md](router/components.md) | `view()` and `part()` — stateful and stateless components |
 | [router/events.md](router/events.md) | `found`, `notfound`, `error`, and `on()` subscriptions |
@@ -154,7 +155,7 @@ Reactive stores with batched updates, derived values, persistence, and cross-tab
 | [state/quickstart.md](state/quickstart.md) | Your first store in five minutes |
 | [state/store.md](state/store.md) | Creating and updating stores |
 | [state/derived.md](state/derived.md) | Computed values that auto-update |
-| [state/persist.md](state/persist.md) | Saving state to localStorage or IndexedDB |
+| [state/persist.md](state/persist.md) | `state.storage` — IndexedDB snapshots, TTL, migrations (not the tiered facade) |
 | [state/sync.md](state/sync.md) | Cross-tab state synchronization via BroadcastChannel |
 | [state/api.md](state/api.md) | Complete API reference |
 | [state/troubleshooting.md](state/troubleshooting.md) | Common problems and how to fix them |
@@ -215,10 +216,11 @@ Event bus, delegation, namespacing, and one-shot listeners.
 
 ## Storage
 
-IndexedDB, OPFS, LRU cache, quota management, and tiered persistence.
+IndexedDB, OPFS, LRU cache, quota management, and tiered persistence. Distinct from `state.storage` — see [storage/index.md](storage/index.md) and [state/persist.md](state/persist.md).
 
 | File | What It Covers |
 | ------ | -------------- |
+| [storage/index.md](storage/index.md) | Tiered facade overview (`storage` vs `state.storage`) |
 | [storage/quickstart.md](storage/quickstart.md) | Your first store in five minutes |
 | [storage/idb.md](storage/idb.md) | IndexedDB wrappers and schemas |
 | [storage/opfs.md](storage/opfs.md) | Origin Private File System access |
@@ -291,7 +293,7 @@ Feature detection, browser support matrix, scheduler, and runtime guards.
 | ------ | -------------- |
 | [platform/quickstart.md](platform/quickstart.md) | Detecting features at runtime |
 | [platform/supports.md](platform/supports.md) | Feature detection helpers |
-| [platform/guards.md](platform/guards.md) | Runtime guards and graceful degradation |
+| [platform/guards.md](platform/guards.md) | Runtime feature gates, polyfills, `escapeOverflow` / `guard.escape` |
 | [platform/scheduler.md](platform/scheduler.md) | Task scheduling and idle callbacks |
 | [platform/api.md](platform/api.md) | Complete API reference |
 | [platform/troubleshooting.md](platform/troubleshooting.md) | Common problems and how to fix them |

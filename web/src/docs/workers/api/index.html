@@ -5,17 +5,33 @@
 <view-code language="javascript">import { workers } from '@adukiorg/anza/workers';
 </view-code>
 <h3><code>workers.run(script, task, opts)</code></h3>
-<p>Run a task in a worker pool. Returns <code>Promise&lt;result&gt;</code>.</p>
+<p>Run a task in a worker pool. Returns <code>Promise&lt;result&gt;</code>. Reuses warm workers per script URL.</p>
+<view-code language="javascript">const hash = await workers.run('/workers/hash.js', 'sha256', {
+  payload: fileBuffer,
+  transferables: [fileBuffer],
+  signal: ctrl.signal,
+  timeout: 30000,
+  priority: 'user-visible'
+});
+</view-code>
 <h3><code>workers.dedicated(script)</code></h3>
-<p>Create a raw <code>Dedicated</code> worker. Returns <code>Dedicated</code> instance.</p>
+<p>Create a raw <code>Dedicated</code> worker instance for long-lived sessions.</p>
 <h3><code>workers.shared(script, name)</code></h3>
-<p>Create a <code>Shared</code> connection. Falls back to dedicated worker.</p>
+<p>Create a <code>Shared</code> connection. Falls back to dedicated worker when <code>SharedWorker</code> is unavailable.</p>
 <h3><code>workers.lock(name, fn, opts)</code></h3>
-<p>Acquire a Web Lock. Returns <code>Promise&lt;fn_result&gt;</code>.</p>
+<p>Acquire a Web Lock around <code>fn</code>. Returns the function result.</p>
+<view-code language="javascript">await workers.lock('db-write', async () =&gt; {
+  await persistBatch(rows);
+}, { mode: 'exclusive', signal: ctrl.signal, ifAvailable: true });
+</view-code>
 <h3><code>workers.broadcast(name, payload)</code></h3>
-<p>Send to a BroadcastChannel. No-op if unsupported.</p>
+<p>Send to a <code>BroadcastChannel</code>. No-op when unsupported.</p>
 <h3><code>workers.subscribe(name, fn, signal)</code></h3>
-<p>Subscribe to a BroadcastChannel. Returns disposer.</p>
+<p>Subscribe to a channel. Returns disposer; auto-unsubscribes on <code>signal</code> abort.</p>
+<view-code language="javascript">const off = workers.subscribe('sync', (msg) =&gt; apply(msg), ctrl.signal);
+workers.broadcast('sync', { type: 'refresh' });
+off();
+</view-code>
 <h3><code>workers.offscreen(canvas, script, opts)</code></h3>
 <p>Transfer canvas to worker. Returns <code>Promise&lt;Offscreen&gt;</code>.</p>
 <h3><code>workers.close(script)</code></h3>

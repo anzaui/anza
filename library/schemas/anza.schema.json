@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/aduki-org/anza/schemas/anza.schema.json",
+  "title": "Anza project manifest",
+  "description": "Optional anza.json \u2014 remaps structure slots and declares extra page trees / service workers. Omit the file to use scaffold defaults (src/app.js, src/pages/, src/sw.js, \u2026). See docs/intro/structure.md and plans/STRUCTURE.md.",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema URL for editor validation (optional)."
+    },
+    "src": {
+      "type": "string",
+      "description": "App source root relative to the project root.",
+      "default": "src",
+      "minLength": 1
+    },
+    "entry": {
+      "type": "string",
+      "description": "Module entry filename relative to src.",
+      "default": "app.js",
+      "minLength": 1
+    },
+    "shell": {
+      "type": "string",
+      "description": "HTML shell filename relative to src.",
+      "default": "index.html",
+      "minLength": 1
+    },
+    "rootDock": {
+      "type": "string",
+      "description": "Name of the root dock registration (dock(...)).",
+      "default": "main",
+      "minLength": 1
+    },
+    "pages": {
+      "type": "array",
+      "description": "Page tree directories relative to src. Default is [\"pages\"]. Extra trees (e.g. \"docs\") are blessed when imported from entry/barrels; list them here for tooling hints. Each meaningful folder should expose an index barrel.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true,
+      "default": [
+        "pages"
+      ]
+    },
+    "docks": {
+      "type": "string",
+      "description": "Docks slot directory relative to src. Optional at runtime \u2014 dock() may live in app.js. Each meaningful folder should expose an index barrel.",
+      "default": "docks",
+      "minLength": 1
+    },
+    "views": {
+      "type": "string",
+      "description": "Optional global views slot directory relative to src (recommended model). Remap this path; do not treat views as a per-dock custom-element registry. Co-location under docks/user folders is organization only \u2014 tags stay global. Each meaningful folder should expose an index barrel.",
+      "default": "views",
+      "minLength": 1
+    },
+    "parts": {
+      "type": "string",
+      "description": "Parts slot directory relative to src. Each meaningful folder should expose an index barrel.",
+      "default": "parts",
+      "minLength": 1
+    },
+    "tokens": {
+      "type": "string",
+      "description": "Design tokens directory relative to src.",
+      "default": "tokens",
+      "minLength": 1
+    },
+    "styles": {
+      "type": "string",
+      "description": "Global styles directory relative to src.",
+      "default": "styles",
+      "minLength": 1
+    },
+    "sw": {
+      "description": "Service Worker entry or entries relative to src. String = single entry (scaffold back-compat). Array = paths and/or { path, scope } for multi-scope registrations. Default when omitted: src/sw.js if present. Optional src/sw/ holds shared modules only \u2014 not auto-registered workers.",
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/swEntry"
+          }
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "swEntry": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "description": "SW script path relative to src; scope defaults to the script URL directory at register time."
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "description": "SW script path relative to src."
+            },
+            "scope": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Registration scope for navigator.serviceWorker.register(url, { scope }). Advisory for tooling; registration stays in app code."
+            }
+          }
+        }
+      ]
+    }
+  },
+  "examples": [
+    {
+      "$schema": "./node_modules/@adukiorg/anza/schemas/anza.schema.json",
+      "src": "src",
+      "entry": "app.js",
+      "shell": "index.html",
+      "rootDock": "main",
+      "pages": [
+        "pages",
+        "docs"
+      ],
+      "docks": "docks",
+      "views": "views",
+      "parts": "parts",
+      "tokens": "tokens",
+      "styles": "styles",
+      "sw": "sw.js"
+    },
+    {
+      "sw": [
+        "sw.js",
+        {
+          "path": "admin/sw.js",
+          "scope": "/admin/"
+        }
+      ]
+    }
+  ]
+}

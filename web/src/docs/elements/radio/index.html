@@ -1,5 +1,5 @@
 <h1>Radio</h1>
-<p>Form-participating radio that coordinates selection with siblings sharing the same <code>name</code>.</p>
+<p>Form-participating radio that coordinates selection with siblings sharing the same <code>name</code> in the root node. Supports keyboard selection (Space/Enter).</p>
 <p><strong>Tag:</strong> <code>ui-radio</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/radio</code></p>
 <hr />
 <h2>Import</h2>
@@ -11,6 +11,22 @@
 &lt;ui-radio name="plan" value="pro"&gt;Pro&lt;/ui-radio&gt;
 </view-code>
 <hr />
+<h2>Advanced usage</h2>
+<view-code language="html">&lt;ui-field label="Billing cycle"&gt;
+  &lt;ui-stack gap="sm"&gt;
+    &lt;ui-radio name="cycle" value="monthly" checked&gt;Monthly&lt;/ui-radio&gt;
+    &lt;ui-radio name="cycle" value="annual"&gt;Annual (save 20%)&lt;/ui-radio&gt;
+  &lt;/ui-stack&gt;
+&lt;/ui-field&gt;
+
+&lt;script type="module"&gt;
+  document.querySelectorAll('ui-radio[name="cycle"]').forEach(r =&gt; {
+    r.addEventListener('change', () =&gt; console.log('Selected:', r.value));
+  });
+&lt;/script&gt;
+</view-code>
+<p>Checking one radio unchecks siblings with the same <code>name</code> and fires <code>change</code> on the previously selected sibling.</p>
+<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>checked</code></td><td>Boolean</td><td>Reflect + custom state</td><td>Selected state</td></tr>
@@ -20,15 +36,21 @@
 </tbody></table></div>
 <h2>Events</h2>
 <div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody>
-<tr><td><code>change</code></td><td>Fired on siblings that become unchecked when this radio is selected</td></tr>
+<tr><td><code>change</code></td><td>Bubbles, composed — fired on siblings that become unchecked when this radio is selected</td></tr>
+</tbody></table></div>
+<h2>Slots / parts</h2>
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
+<tr><td><em>(default)</em></td><td>slot</td><td>Label content</td></tr>
+<tr><td><code>circle</code></td><td>part</td><td>Radio visual surface</td></tr>
 </tbody></table></div>
 <h2>Notes</h2>
-<p>Defaults <code>role="radio"</code> and <code>aria-checked</code>. Uses <code>form: true</code>.</p>
+<p>Defaults <code>role="radio"</code> and syncs <code>aria-checked</code>. Uses <code>form: true</code>.</p>
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/elements/index">Elements overview</a></li>
 <li><a href="/docs/elements/forms">Forms</a></li>
+<li><a href="/docs/elements/checkbox">Checkbox</a></li>
+<li><a href="/docs/elements/toggle">Toggle</a></li>
 <li><a href="/docs/ui/forms">Form association</a></li>
-<li><a href="../../plans/ELEMENTS.md">Planning: ELEMENTS.md</a></li>
+<li><a href="/docs/elements/index">Elements overview</a></li>
 </ul>

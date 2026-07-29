@@ -1,35 +1,40 @@
 <h1>Storage</h1>
 <p>The Anza storage layer provides a unified, tiered storage surface. It integrates LRU memory caching, IndexedDB, Origin Private File System (OPFS), and the Cache API under a single facade with automatic tier fallback, TTL support, and transparent gzip compression.</p>
+<p><strong>vs <code>state.storage</code>:</strong> use <code>@adukiorg/anza/storage</code> for general key/value, files, and HTTP cache tiers. Use <code>state.storage</code> (<code>PlatformStorage</code>) for reactive-store snapshots keyed by object-store name — including filter-function <code>query</code>. If you use both, give them <strong>different IndexedDB database names</strong> (both default to <code>platform-db</code> — see <a href="/docs/storage/troubleshooting">Troubleshooting</a>).</p>
 <hr />
 <h2>What You Get</h2>
 <ul>
 <li><strong>Unified API</strong> — <code>storage.get</code>, <code>storage.set</code>, <code>storage.delete</code> with tier selection</li>
 <li><strong>Multiple tiers</strong> — <code>memory</code> (LRU), <code>idb</code> (IndexedDB), <code>opfs</code> (file system), <code>cache</code> (Cache API)</li>
 <li><strong>TTL</strong> — per-key expiry honored across all tiers</li>
-<li><strong>Compression</strong> — automatic gzip for values over 64KB in IndexedDB</li>
-<li><strong>Write journaling</strong> — localStorage-backed journal for crash recovery</li>
-<li><strong>Quota management</strong> — proactive checks and eviction warnings</li>
+<li><strong>Compression</strong> — automatic gzip for values over 64KB in IndexedDB (when Compression Streams exist)</li>
+<li><strong>Write journaling</strong> — localStorage-backed journal for crash recovery on IDB writes</li>
+<li><strong>Quota management</strong> — proactive checks, eviction, and warning callbacks</li>
+<li><strong>List / clear / estimate</strong> — <code>storage.list</code>, <code>storage.clear</code>, <code>storage.estimate</code> / <code>persist</code></li>
 </ul>
 <hr />
 <h2>Package</h2>
 <view-code language="javascript">import { storage } from '@adukiorg/anza/storage';
 </view-code>
+<p>Call <code>storage.configure({ idb: { name: 'app-kv' } })</code> before first use when sharing a page with <code>state.storage</code>.</p>
 <hr />
 <h2>File Map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
-<tr><td><a href="/docs/storage/quickstart">quickstart.md</a></td><td>Your first get/set in five minutes</td></tr>
-<tr><td><a href="/docs/storage/tiers">tiers.md</a></td><td>Storage tiers and when to use each</td></tr>
-<tr><td><a href="/docs/storage/idb">idb.md</a></td><td>IndexedDB adapter, migrations, transactions</td></tr>
-<tr><td><a href="/docs/storage/opfs">opfs.md</a></td><td>Origin Private File System via Web Worker</td></tr>
-<tr><td><a href="/docs/storage/cache">cache.md</a></td><td>Cache API wrapper with TTL</td></tr>
-<tr><td><a href="/docs/storage/lru">lru.md</a></td><td>In-memory LRU and WeakLRU caches</td></tr>
-<tr><td><a href="/docs/storage/quota">quota.md</a></td><td>Quota estimation, persistence, warnings</td></tr>
-<tr><td><a href="/docs/storage/api">api.md</a></td><td>Complete API reference</td></tr>
-<tr><td><a href="/docs/storage/troubleshooting">troubleshooting.md</a></td><td>Common problems and how to fix them</td></tr>
+<tr><td><a href="/docs/storage/quickstart">Quickstart</a></td><td>Your first get/set in five minutes</td></tr>
+<tr><td><a href="/docs/storage/tiers">Tiers</a></td><td>Storage tiers and when to use each</td></tr>
+<tr><td><a href="/docs/storage/idb">Idb</a></td><td>IndexedDB adapter, migrations, transactions</td></tr>
+<tr><td><a href="/docs/storage/opfs">Opfs</a></td><td>Origin Private File System via Web Worker</td></tr>
+<tr><td><a href="/docs/storage/cache">Cache</a></td><td>Cache API wrapper with TTL</td></tr>
+<tr><td><a href="/docs/storage/lru">Lru</a></td><td>In-memory LRU and WeakLRU caches</td></tr>
+<tr><td><a href="/docs/storage/quota">Quota</a></td><td>Quota estimation, persistence, warnings</td></tr>
+<tr><td><a href="/docs/storage/api">API reference</a></td><td>Complete API reference</td></tr>
+<tr><td><a href="/docs/storage/troubleshooting">Troubleshooting</a></td><td>Common problems and how to fix them</td></tr>
 </tbody></table></div>
 <hr />
 <h2>One-File Example</h2>
 <view-code language="javascript">import { storage } from '@adukiorg/anza/storage';
+
+storage.configure({ idb: { name: 'app-kv' } });
 
 // Basic IDB read/write
 await storage.set('user', { name: 'Alice' });
@@ -46,13 +51,16 @@ await storage.set('blob', fileBuffer, 'opfs');
 
 // Cache tier
 await storage.set('config', settings, 'cache');
+
+const keys = await storage.list();
 </view-code>
 <hr />
 <h2>Next Steps</h2>
 <ul>
-<li>New to storage? Start with <a href="/docs/storage/quickstart">quickstart.md</a>.</li>
-<li>Choosing a tier? Read <a href="/docs/storage/tiers">tiers.md</a>.</li>
-<li>Need migrations? <a href="/docs/storage/idb">idb.md</a>.</li>
-<li>Large files? <a href="/docs/storage/opfs">opfs.md</a>.</li>
-<li>Prefer a single reference page? <a href="/docs/storage/api">api.md</a>.</li>
+<li>New to storage? Start with <a href="/docs/storage/quickstart">Quickstart</a>.</li>
+<li>Choosing a tier? Read <a href="/docs/storage/tiers">Tiers</a>.</li>
+<li>Need migrations? <a href="/docs/storage/idb">Idb</a>.</li>
+<li>Large files? <a href="/docs/storage/opfs">Opfs</a>.</li>
+<li>Prefer a single reference page? <a href="/docs/storage/api">API reference</a>.</li>
+<li>Persisting reactive stores? <a href="/docs/state/persist">State persist</a>.</li>
 </ul>

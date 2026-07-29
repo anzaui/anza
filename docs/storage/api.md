@@ -2,6 +2,8 @@
 
 Complete reference for the storage facade and internal classes.
 
+**vs `state.storage`:** this package is the tiered KV / OPFS / Cache facade. `state.storage` (`PlatformStorage`) persists reactive-store snapshots and supports a filter-function `query`. Give each a distinct IndexedDB database name (both default to `platform-db`) — see [troubleshooting.md](troubleshooting.md).
+
 ---
 
 ## Facade
@@ -12,7 +14,7 @@ import { storage } from '@adukiorg/anza/storage';
 
 ### `storage.configure(options)`
 
-Reconfigure pools before first use.
+Reconfigure pools before first use. Returns `storage` for chaining.
 
 ```javascript
 storage.configure({
@@ -22,19 +24,29 @@ storage.configure({
 });
 ```
 
+| Option | Default | Description |
+| ------ | ------- | ----------- |
+| `idb.name` | `'platform-db'` | IndexedDB database name |
+| `idb.version` | `1` | Schema version |
+| `idb.migrations` | built-in `keyval` | Upgrade callbacks |
+| `lru.maxSize` | `200` | In-memory LRU capacity |
+| `cache.name` | `'platform-cache'` | Cache API bucket name |
+
 ### `storage.get(key, tierOrOptions)`
 
-Read from a tier.
+Read from a tier. Second arg: `'memory' \| 'idb' \| 'opfs' \| 'cache'` or `{ tier }`.
 
 ```javascript
-await storage.get('name');           // default idb
+await storage.get('name');           // default idb (+ LRU fronting)
 await storage.get('name', 'memory');
 await storage.get('name', { tier: 'idb' });
 ```
 
+IDB reads populate the memory LRU. OPFS / cache honor TTL wrappers; expired keys delete and return `null`. Cache tier parses JSON when possible, else text.
+
 ### `storage.set(key, value, tierOrOptions)`
 
-Write to a tier.
+Write to a tier. Options: `{ tier, ttl }` (TTL in ms, honored across tiers).
 
 ```javascript
 await storage.set('name', 'Alice');
@@ -42,13 +54,58 @@ await storage.set('name', 'Alice', 'memory');
 await storage.set('name', 'Alice', { tier: 'idb', ttl: 60000 });
 ```
 
+IDB path: localStorage write journal (crash recovery), optional gzip when serialized size exceeds `storage.compressionThreshold` (64KB) and Compression Streams are available, then IDB + LRU. Proactive quota check runs before write.
+
 ### `storage.delete(key, tierOrOptions)`
 
-Remove from a tier.
+Remove from the requested tier. Always clears the memory LRU entry for that key.
 
-### `storage.query(storeName, filterFn)`
+### `storage.query(storeName, queryOpts)`
 
-Query IDB store with filter.
+Advanced IndexedDB **cursor** query (not a filter callback — that is `state.storage.query`).
+
+```javascript
+const rows = await storage.query('keyval', {
+  index: 'by-status',   // optional
+  range: IDBKeyRange.bound('a', 'z'),
+  direction: 'next',    // IDBCursorDirection
+  limit: 50
+});
+```
+
+### `storage.transaction(storeNames, mode, callback)`
+
+Multi-store IDB transaction.
+
+```javascript
+await storage.transaction(['keyval'], 'readwrite', (store, tx) => {
+  store('keyval').put({ id: 1 }, 'one');
+});
+```
+
+### `storage.list(tier)`
+
+List keys. Default `idb` → `keyval` keys. `opfs` → OPFS paths. `cache` → request URLs.
+
+### `storage.clear(tier)`
+
+`tier`: `'all'` (default) \| `'memory'` (via LRU clear on all clears) \| `'idb'` \| `'opfs'` \| `'cache'`. Clearing always empties the LRU; then clears the named durable tier(s).
+
+### `storage.estimate()` / `persist()` / `persisted()`
+
+```javascript
+const { usage, quota, persisted } = await storage.estimate();
+await storage.persist();
+const ok = await storage.persisted();
+```
+
+### `storage.onQuotaWarning(handler)`
+
+Registers a quota warning listener; returns a disposer. Also see [quota.md](quota.md).
+
+### `storage.compressionThreshold`
+
+Number (default `65536`). Values whose serialized length exceeds this may be gzip-compressed on IDB write when Compression Streams are available.
 
 ---
 
@@ -64,17 +121,7 @@ import { Database } from '@adukiorg/anza/storage';
 
 Returns `Promise<IDBDatabase>`.
 
-### `db.get(storeName, key)`
-
-### `db.set(storeName, key, value)`
-
-### `db.delete(storeName, key)`
-
-### `db.clear(storeName)`
-
-### `db.getAll(storeName)`
-
-### `db.keys(storeName)`
+### `db.get(storeName, key)` / `db.set` / `db.delete` / `db.clear` / `db.getAll` / `db.keys`
 
 ### `db.query(storeName, options)`
 
@@ -94,37 +141,21 @@ import { CacheStorage } from '@adukiorg/anza/storage';
 
 ### `new CacheStorage(name)`
 
-### `cache.get(request)`
-
-Returns `Promise<Response | null>`.
+### `cache.get(request)` → `Promise<Response | null>`
 
 ### `cache.set(request, response, ttlMs)`
 
-### `cache.delete(request)`
+### `cache.delete(request)` / `cache.clear()`
 
-### `cache.clear()`
-
----
-
-## LRUCache
-
-### `new LRUCache(maxSize)`
-
-### `cache.get(key)`
-
-### `cache.set(key, value, ttlMs)`
-
-### `cache.delete(key)`
-
-### `cache.clear()`
+TTL is stored via an `x-expires-at` header on cached responses.
 
 ---
 
-## WeakLRUCache
+## LRUCache / WeakLRUCache
 
-### `new WeakLRUCache(maxSize)`
+### `new LRUCache(maxSize)` — `get` / `set(key, value, ttlMs)` / `delete` / `clear`
 
-Values must be objects or functions.
+### `new WeakLRUCache(maxSize)` — values must be objects or functions
 
 ---
 
@@ -134,10 +165,4 @@ Values must be objects or functions.
 import { quota } from '@adukiorg/anza/storage';
 ```
 
-### `quota.estimate()`
-
-### `quota.persist()`
-
-### `quota.check(onWarning)`
-
-### `quota.onQuotaWarning(handler)`
+### `quota.estimate()` / `quota.persist()` / `quota.check(onWarning)` / `quota.onQuotaWarning(handler)`

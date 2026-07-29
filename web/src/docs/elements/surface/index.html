@@ -1,5 +1,5 @@
 <h1>Surface</h1>
-<p>Styled surface for flat, elevated, or bordered panels.</p>
+<p>Elevated container with variant-driven border and shadow tokens. Use as a card-like panel or content backdrop.</p>
 <p><strong>Tag:</strong> <code>ui-surface</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/surface</code></p>
 <hr />
 <h2>Import</h2>
@@ -7,22 +7,44 @@
 </view-code>
 <hr />
 <h2>Basic usage</h2>
-<view-code language="html">&lt;ui-surface&gt;Flat content&lt;/ui-surface&gt;
-&lt;ui-surface variant="elevated"&gt;Elevated panel&lt;/ui-surface&gt;
-&lt;ui-surface variant="bordered"&gt;Bordered panel&lt;/ui-surface&gt;
+<view-code language="html">&lt;ui-surface variant="flat"&gt;
+  &lt;p&gt;Flat panel content.&lt;/p&gt;
+&lt;/ui-surface&gt;
+&lt;ui-surface variant="raised"&gt;
+  &lt;p&gt;Raised panel with elevation.&lt;/p&gt;
+&lt;/ui-surface&gt;
 </view-code>
+<hr />
+<h2>Advanced usage</h2>
+<view-code language="html">&lt;ui-grid cols="2" gap="md"&gt;
+  &lt;ui-surface variant="outlined"&gt;
+    &lt;ui-stat trend="up"&gt;
+      &lt;span slot="label"&gt;Users&lt;/span&gt;
+      1,204
+    &lt;/ui-stat&gt;
+  &lt;/ui-surface&gt;
+  &lt;ui-surface variant="raised"&gt;
+    &lt;ui-chart type="bar" data='[{"label":"Q1","value":40}]'&gt;&lt;/ui-chart&gt;
+  &lt;/ui-surface&gt;
+&lt;/ui-grid&gt;
+</view-code>
+<p><code>variant</code> controls elevation/border styling via theme tokens. Style the surface via <code>::part(surface)</code>.</p>
 <hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>variant</code></td><td>String</td><td>Reflect</td><td>Surface treatment (default <code>flat</code>; theme may define <code>elevated</code>, <code>bordered</code>, …)</td></tr>
+<tr><td><code>variant</code></td><td>String</td><td>Reflect, default <code>flat</code></td><td>Surface style: <code>flat</code> · <code>raised</code> · <code>outlined</code> (theme-dependent)</td></tr>
 </tbody></table></div>
-<h2>Notes</h2>
-<p>Default slot / <code>part="surface"</code>.</p>
+<h2>Slots / parts</h2>
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
+<tr><td><em>(default)</em></td><td>slot</td><td>Panel content</td></tr>
+<tr><td><code>surface</code></td><td>part</td><td>Styled container surface</td></tr>
+</tbody></table></div>
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/elements/index">Elements overview</a></li>
 <li><a href="/docs/elements/layout">Layout</a></li>
 <li><a href="/docs/elements/card">Card</a></li>
-<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
+<li><a href="/docs/elements/grid">Grid</a></li>
+<li><a href="/docs/styles/tokens">Tokens</a></li>
+<li><a href="/docs/elements/index">Elements overview</a></li>
 </ul>

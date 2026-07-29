@@ -38,6 +38,10 @@ console.log(scheduler); // should have postTask and yield
 // This loads polyfills eagerly if native support is missing
 </view-code>
 <hr />
+<h2>Floating tip clipped by <code>overflow: hidden</code></h2>
+<p><strong>Cause:</strong> Absolute CSS positioning inside a clipping ancestor, or missing Popover / escape helper.</p>
+<p><strong>Fix:</strong> Use <code>ui-tooltip</code>, or <code>await guard.escape(float, anchor, opts)</code> / <code>escapeOverflow</code> so the tip uses Popover top-layer (or viewport-fixed fallback). Ensure <code>[popover]</code> is set when you want the popover strategy; call <code>await guard.popover()</code> before sync <code>escapeOverflow</code> in older browsers. See <a href="/docs/platform/guards#escape">Guards — Escape</a> and <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
+<hr />
 <h2>Still stuck?</h2>
 <p>Inspect the full capability matrix:</p>
 <view-code language="javascript">import { supports } from '@adukiorg/anza/platform';

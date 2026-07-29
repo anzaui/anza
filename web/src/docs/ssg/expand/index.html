@@ -18,3 +18,89 @@ page('/docs/ssg/expand/:slug', {
   Or list values in project-level <code>ssg.params.json</code> keyed by the
   route pattern. See the <a href="/docs/ssg/contract">HTML contract</a>.
 </p>
+
+<hr />
+
+<h2>What actually gets emitted</h2>
+<div class="table-wrap"><table><thead><tr><th>Route entry</th><th>Result</th></tr></thead><tbody>
+<tr><td><code>/docs/ssg/expand/:slug</code></td><td>Pattern remains client-matchable, but is not itself emitted as a concrete HTML file</td></tr>
+<tr><td><code>{ slug: 'foo' }</code></td><td>Build emits <code>dist/docs/ssg/expand/foo/index.html</code> and marks that concrete route as SSG-backed</td></tr>
+<tr><td>Unlisted slug</td><td>No Mode A HTML file; serve with Mode B templates or leave CSR-only</td></tr>
+</tbody></table></div>
+<p>
+  This keeps one parametric route definition in source while letting the build
+  output only the concrete public URLs you explicitly declare.
+</p>
+
+<hr />
+
+<h2>Module-level vs project-level expansion</h2>
+<p>Use the page module when the expansion list belongs to that route:</p>
+<view-code language="javascript">page('/docs/ssg/expand/:slug', {
+  params: [{ name: 'slug', type: String }],
+  ssg: {
+    expand: [
+      { slug: 'foo' },
+      { slug: 'bar' }
+    ]
+  },
+  seo: {
+    title: 'SSG expand: {{slug}} — Anza',
+    description: 'Build-time parametric expansion example for {{slug}}.'
+  }
+}, import.meta.url);
+</view-code>
+<p>
+  Use <code>ssg.params.json</code> when content inventory is better maintained
+  outside the page module:
+</p>
+<view-code language="json">{
+  "/docs/ssg/expand/:slug": [
+    { "slug": "foo" },
+    { "slug": "bar" }
+  ]
+}
+</view-code>
+
+<hr />
+
+<h2>Rules to remember</h2>
+<ul>
+  <li>Expand only public values you can know at build time.</li>
+  <li>Do not guess authenticated or personalized params just to force SSG.</li>
+  <li><code>{{slug}}</code> placeholders in SEO fields interpolate per concrete expansion.</li>
+  <li>Soft-nav still fetches the page fragment, not the full SSG document.</li>
+</ul>
+
+<hr />
+
+<h2>Verify</h2>
+<view-code language="bash">npm run build
+test -f dist/docs/ssg/expand/foo/index.html
+node tasks/ssg-contract-check.js
+</view-code>
+<p>
+  For a local smoke test, serve <code>dist/</code> as the site root and open
+  <a href="/docs/ssg/expand/foo"><code>/docs/ssg/expand/foo</code></a>.
+</p>
+
+<hr />
+
+<h2>Build pipeline</h2>
+<p>Route extraction (<code>tools/src/extract</code>) reads <code>page({ ssg: { expand } })</code> from each module and merges project-level <code>ssg.params.json</code>. For every expand entry whose params fully substitute the pattern, the build emits a concrete <code>RouteInfo</code> path — parametric patterns with remaining <code>:</code> segments are client-matchable only.</p>
+<div class="table-wrap"><table><thead><tr><th>Source</th><th>Precedence</th></tr></thead><tbody>
+<tr><td><code>page({ ssg: { expand: [...] } })</code></td><td>Co-located with the route module</td></tr>
+<tr><td><code>ssg.params.json</code></td><td>Keyed by route pattern string; merged at extract time</td></tr>
+<tr><td><code>page({ seo: { … } })</code></td><td><code>{{param}}</code> placeholders interpolate per concrete expansion in emitted HTML head</td></tr>
+</tbody></table></div>
+<p>Warnings log when an expand entry does not match the pattern or omits a required param name — the build continues but skips invalid entries.</p>
+
+<hr />
+
+<h2>Soft-nav vs SSG document</h2>
+<div class="table-wrap"><table><thead><tr><th>Load type</th><th>What the browser fetches</th></tr></thead><tbody>
+<tr><td>Hard refresh / crawler</td><td>Full contentful <code>dist/.../index.html</code> with SEO head from <code>routes.json</code></td></tr>
+<tr><td>Soft-nav to same route</td><td>Page fragment only (<code>template.html</code> when preserved to avoid colliding with SSG <code>index.html</code>)</td></tr>
+<tr><td>Unexpanded param URL</td><td>No Mode A file — Mode B shell or CSR match after boot</td></tr>
+</tbody></table></div>
+<p>See <a href="/docs/ssg/contract">SSG contract</a> for fragment vs document rules.</p>

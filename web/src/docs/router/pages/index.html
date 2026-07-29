@@ -4,9 +4,19 @@
 <h2>Signature</h2>
 <view-code language="javascript">page(route, config, base);
 </view-code>
-<p>| <code>route</code> | string | string[] | yes | Dynamic URL pattern(s), e.g. <code>'/'</code>, <code>'/profile/:id'</code>, or <code>['/blog', '/blog/:slug']</code> |
-| <code>config</code> | object | yes | Page definition (see below) |
-| <code>base</code> | string | no | <code>import.meta.url</code> of the caller; required for file templates |</p>
+<div class="table-wrap"><table><thead><tr><th>Argument</th><th>Type</th><th>Required</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>route</code></td><td>string | string[]</td><td>yes</td><td>Dynamic URL pattern(s), e.g. <code>'/'</code>, <code>'/profile/:id'</code>, or <code>['/blog', '/blog/:slug']</code></td></tr>
+<tr><td><code>config</code></td><td>object</td><td>yes</td><td>Page definition (see below)</td></tr>
+<tr><td><code>base</code></td><td>string</td><td>no</td><td><code>import.meta.url</code> of the caller; required for file templates</td></tr>
+</tbody></table></div>
+<h3>Route forms</h3>
+<p><code>page()</code> accepts one pattern or several aliases that all mount the same tag:</p>
+<view-code language="javascript">page(['/docs', '/docs/:slug'], {
+  tag: 'page-doc',
+  via: ['main', 'docs', 'content']
+});
+</view-code>
+<p>Use one tag when the screen and lifecycle are shared, and branch inside <code>params</code>, <code>query</code>, or <code>hash</code>. Prefer separate pages when the route trees have different shells or different fallback/error behavior.</p>
 <hr />
 <h2>Config Fields</h2>
 <h3><code>tag</code></h3>
@@ -20,10 +30,12 @@
   via: ['main', 'sidebar', 'content']
 });
 </view-code>
+<p>Soft-nav keeps the ancestors in this chain mounted and swaps only the leaf. That is why docs chrome survives navigation while the page body changes.</p>
 <h3><code>container</code></h3>
 <p>Single container (back-compat for <code>via</code> with one entry):</p>
 <view-code language="javascript">page('/', { tag: 'page-home', container: 'main' });
 </view-code>
+<p>Prefer <code>via</code> for new work. <code>container</code> is normalized to a one-item chain and cannot express nested chrome.</p>
 <h3><code>template</code></h3>
 <p>HTML template. Three forms:</p>
 <p><strong>Inline string:</strong></p>
@@ -36,6 +48,7 @@
 <view-code language="javascript">template: { html: './home.html', css: './home.css', shadow: false }
 </view-code>
 <p>Setting <code>shadow: false</code> renders into the light DOM instead of a shadow root.</p>
+<p>For public/indexable pages, build-time SSG still emits the route HTML contract around the page host. Soft-nav continues to fetch only the page fragment (<code>index.html</code> or preserved <code>template.html</code>), not the full SSG document. See <a href="/docs/ssg/contract">SSG contract</a>.</p>
 <h3><code>style</code></h3>
 <p>Inline CSS string, a file path, or an array containing CSS strings or stylesheet paths (both relative and root-relative starting with <code>/</code>).</p>
 <view-code language="javascript">// Inline CSS
@@ -60,6 +73,13 @@ style: ['/styles/shared.css', './home.css']
 ]
 </view-code>
 <p>Path parameter values are extracted in order, and pushed reactively onto the element (as attributes/properties) when navigation occurs.</p>
+<p>If the route pattern declares <code>:slug</code> or <code>:id</code>, declare the matching param contract so tooling can warn early when the route and page drift:</p>
+<view-code language="javascript">page('/blog/:slug', {
+  tag: 'page-blog-post',
+  via: ['main'],
+  params: [{ name: 'slug', type: String }]
+});
+</view-code>
 <h3><code>query</code></h3>
 <p>An array defining the query parameters contract. Mapped parameters are cast and pushed reactively onto the element properties:</p>
 <view-code language="javascript">query: [
@@ -68,6 +88,7 @@ style: ['/styles/shared.css', './home.css']
 ]
 </view-code>
 <p>Visiting <code>/settings?tab=profile&amp;search=alice</code> sets <code>this.tab = 'profile'</code> and <code>this.search = 'alice'</code> on the element instance.</p>
+<p>Unlike route params, query keys remain optional by default. Declare the ones your page actually consumes so <code>change()</code> receives typed values instead of ad-hoc parsing everywhere.</p>
 <h3><code>hash</code></h3>
 <p>Declare a <code>hash</code> prop to receive the URL hash:</p>
 <view-code language="javascript">props: { hash: { type: String } }
@@ -96,7 +117,30 @@ style: ['/styles/shared.css', './home.css']
 }
 </view-code>
 <p>All hooks receive a context object. The <code>load</code> hook receives the route-derived <code>params</code> (typed ordered array with <code>.first</code>, <code>.last</code>, and named segment getters), <code>query</code> (typed ordered array with the same getters), <code>raw</code> (the raw <code>URLSearchParams</code> object), <code>hash</code>, and <code>ctrl</code> (whose signal aborts if the element disconnects).</p>
+<h3>Route context accessors</h3>
+<p><code>params</code> and <code>query</code> are plain arrays augmented with non-enumerable getters — the same shape in <code>load</code>, <code>change</code>, and router events:</p>
+<div class="table-wrap"><table><thead><tr><th>Accessor</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>params.first</code> / <code>query.first</code></td><td>First declared segment value</td></tr>
+<tr><td><code>params.last</code> / <code>query.last</code></td><td>Last declared segment value</td></tr>
+<tr><td><code>params.id</code> (named)</td><td>Value for declared param <code>id</code> (cast per contract)</td></tr>
+<tr><td><code>params[0]</code></td><td>Index fallback when you prefer numeric access</td></tr>
+<tr><td><code>raw</code></td><td>Full <code>URLSearchParams</code> for keys outside the <code>query</code> contract</td></tr>
+</tbody></table></div>
+<p>Undeclared path segments still appear on the array (as strings) after declared ones. Declare <code>params</code> / <code>query</code> contracts so tooling and casts stay aligned with your route patterns.</p>
 <p><code>load</code> may return a promise. The router does not wait for it — the element mounts immediately and the promise resolves asynchronously. Use this for data fetching that should not block rendering.</p>
+<p>Pass <code>ctrl.signal</code> into any long-lived work that can outlive the page leaf:</p>
+<view-code language="javascript">import { ui } from '@adukiorg/anza/ui';
+
+on: {
+  async load({ ctrl }) {
+    await ui.schedule(() =&gt; warmCache(), {
+      priority: ui.Priority.BACKGROUND,
+      signal: ctrl.signal
+    });
+  }
+}
+</view-code>
+<p>Soft-nav aborts the detached leaf controller. Scheduled work, frame work, and transitions should fail closed rather than mutate a disconnected tree. See <a href="/docs/ui/scheduling">Scheduling</a> and <a href="/docs/ui/transitions">Transitions</a>.</p>
 <h3><code>guard</code></h3>
 <p>Route-scoped navigation guard:</p>
 <view-code language="javascript">page('/checkout', {
@@ -107,17 +151,66 @@ style: ['/styles/shared.css', './home.css']
   }
 });
 </view-code>
-<p>See <a href="/docs/router/guards">guards.md</a> for full guard documentation.</p>
+<p>See <a href="/docs/router/guards">Guards</a> for full guard documentation.</p>
+<h3><code>error</code></h3>
+<p>Optional override when this route matches but the guard or handler throws. Same shapes as dock fallbacks (<code>{ tag }</code>, HTML, …). Without it, the resolver still mounts the shared library built-in (or a dock / <code>configure</code> override) into the <strong>leaf</strong> dock — you do not need per-route error HTML files.</p>
+<view-code language="javascript">page('/admin/:id', {
+  tag: 'page-admin',
+  via: ['main'],
+  error: { tag: 'page-admin-error' }
+});
+</view-code>
+<p>See <a href="/docs/router/fallbacks">Fallbacks</a> for defaults and the full ladder.</p>
+<h3><code>ssg</code></h3>
+<p>Optional build-time SSG controls for public routes:</p>
+<view-code language="javascript">page('/docs/ssg/expand/:slug', {
+  tag: 'doc-ssg-expand',
+  via: ['main', 'docs', 'content'],
+  params: [{ name: 'slug', type: String }],
+  ssg: {
+    expand: [{ slug: 'foo' }]
+  }
+}, import.meta.url);
+</view-code>
+<p>Use <code>ssg.expand</code> only for routes whose concrete param values are known at build time. Unexpanded param patterns stay client-matchable but do not emit <code>dist/&lt;route&gt;/index.html</code>. See <a href="/docs/ssg/index">SSG overview</a> and the <a href="/docs/ssg/contract">SSG contract</a>.</p>
+<h3><code>seo</code></h3>
+<p>Build-time head metadata extracted into <code>routes.json</code> for SSG HTML emission. Placeholders like <code>{{slug}}</code> interpolate per concrete expansion:</p>
+<view-code language="javascript">page('/blog/:slug', {
+  tag: 'page-blog-post',
+  via: ['main'],
+  params: [{ name: 'slug', type: String }],
+  seo: {
+    title: '{{slug}} — My Blog',
+    description: 'Post about {{slug}}',
+    canonical: 'https://example.com/blog/{{slug}}',
+    image: '/og/{{slug}}.png'
+  },
+  ssg: { expand: [{ slug: 'hello-world' }] }
+}, import.meta.url);
+</view-code>
+<p>SEO fields do not affect CSR soft-nav — they shape the contentful HTML document on hard refresh / crawlers.</p>
+<h3>Scaffold / generate</h3>
+<p><code>anza generate page &lt;name&gt;</code> writes <code>index.js</code> + HTML/CSS into a page tree and updates the barrel — it does <strong>not</strong> create error-page files. Fallbacks stay by reference on docks/pages. Layout contract: <a href="/docs/intro/structure">Structure</a>.</p>
 <h3><code>meta</code></h3>
 <p>Additional metadata passed to the route registry:</p>
 <view-code language="javascript">meta: { analytics: 'checkout' }
 </view-code>
 <p>Available in match results as <code>result.route.meta</code>.</p>
 <hr />
+<h2>How <code>page()</code> participates in navigation</h2>
+<div class="table-wrap"><table><thead><tr><th>Stage</th><th>What <code>page()</code> contributes</th></tr></thead><tbody>
+<tr><td>Registration</td><td>Calls <code>router.register(...)</code> with the route pattern, resolved tag, and route metadata</td></tr>
+<tr><td>Boot</td><td>Gates the initial match on <code>customElements.whenDefined(tag)</code> so refreshes do not race the CE definition</td></tr>
+<tr><td>Match</td><td>Declares the <code>via</code> / <code>container</code> target and typed <code>params</code> / <code>query</code> contract</td></tr>
+<tr><td>Soft-nav</td><td>Swaps only the page leaf under the deepest live dock in the route chain</td></tr>
+<tr><td>Error</td><td>May supply a route-scoped <code>error</code> override before dock/app/built-in fallbacks</td></tr>
+<tr><td>SSG</td><td>May declare <code>seo</code> / <code>ssg.expand</code> for build-time HTML emission</td></tr>
+</tbody></table></div>
+<hr />
 <h2>Soft-nav vs hard refresh</h2>
 <ul>
 <li><strong>Soft-nav</strong> — the router keeps parent docks; only the page leaf inside the leaf dock is swapped (CSR mount when the tag changes). Soft-nav loads the page <strong>fragment</strong> (often <code>template.html</code> after Mode A preserves it), never the full SSG document.</li>
-<li><strong>Hard refresh / full load</strong> — the browser fetches contentful SSG or Mode B HTML (<code>anza build</code> and <code>anza dev</code>); the client adopts open DSD and must not wipe SEO content. See <a href="/docs/ui/hydration">ui/hydration.md</a>.</li>
+<li><strong>Hard refresh / full load</strong> — the browser fetches contentful SSG or Mode B HTML (<code>anza build</code> and <code>anza dev</code>); the client adopts open DSD and must not wipe SEO content. See <a href="/docs/ui/hydration">Hydration</a>.</li>
 </ul>
 <hr />
 <h2>Boot Gate</h2>
@@ -131,6 +224,8 @@ style: ['/styles/shared.css', './home.css']
 <view-code language="javascript">router.register(route, tag, { via, container: target, ...meta });
 </view-code>
 <p>The tag is both the custom element name and the route handler.</p>
+<h3>Dev-time <code>via</code> validation</h3>
+<p>After registration, <code>page()</code> schedules a microtask check: every name in <code>via</code> (except <code>main</code>) must already have a matching <code>dock()</code> in the container graph. Missing docks log a console error with the tag and dock name — import order within a module is fine because the check is deferred.</p>
 <hr />
 <h2>Example: Full Page Definition</h2>
 <view-code language="javascript">page('/user/:id', {

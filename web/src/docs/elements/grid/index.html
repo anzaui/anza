@@ -1,5 +1,5 @@
 <h1>Grid</h1>
-<p>Responsive CSS grid with column template and gap.</p>
+<p>Responsive CSS grid with column template and gap. Numeric <code>cols</code> expands to <code>repeat(N, minmax(0, 1fr))</code>.</p>
 <p><strong>Tag:</strong> <code>ui-grid</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/grid</code></p>
 <hr />
 <h2>Import</h2>
@@ -16,19 +16,36 @@
 &lt;/ui-grid&gt;
 </view-code>
 <hr />
+<h2>Advanced usage</h2>
+<view-code language="html">&lt;ui-grid cols="3" gap="md"&gt;
+  &lt;ui-card interactive&gt;
+    &lt;ui-stat trend="up"&gt;&lt;span slot="label"&gt;Users&lt;/span&gt;1,204&lt;/ui-stat&gt;
+  &lt;/ui-card&gt;
+  &lt;ui-card interactive&gt;
+    &lt;ui-stat trend="neutral"&gt;&lt;span slot="label"&gt;Sessions&lt;/span&gt;8.2k&lt;/ui-stat&gt;
+  &lt;/ui-card&gt;
+  &lt;ui-card interactive&gt;
+    &lt;ui-stat trend="down"&gt;&lt;span slot="label"&gt;Bounce&lt;/span&gt;32%&lt;/ui-stat&gt;
+  &lt;/ui-card&gt;
+&lt;/ui-grid&gt;
+</view-code>
+<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>cols</code></td><td>String</td><td>Reflect</td><td>Numeric → <code>repeat(N, minmax(0, 1fr))</code>; otherwise raw CSS track list</td></tr>
-<tr><td><code>gap</code></td><td>String</td><td>Reflect</td><td>Sets <code>--grid-gap</code> (length/<code>rem</code>, or space token name)</td></tr>
+<tr><td><code>gap</code></td><td>String</td><td>Reflect</td><td>Sets <code>--grid-gap</code> (length or space token)</td></tr>
 </tbody></table></div>
-<h2>Notes</h2>
-<p>Default slot / <code>part="grid"</code>.</p>
+<h2>Slots / parts</h2>
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
+<tr><td><em>(default)</em></td><td>slot</td><td>Grid children</td></tr>
+<tr><td><code>grid</code></td><td>part</td><td>Grid container</td></tr>
+</tbody></table></div>
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/elements/index">Elements overview</a></li>
 <li><a href="/docs/elements/layout">Layout</a></li>
 <li><a href="/docs/elements/stack">Stack</a></li>
 <li><a href="/docs/elements/split">Split</a></li>
-<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
+<li><a href="/docs/elements/card">Card</a></li>
+<li><a href="/docs/elements/index">Elements overview</a></li>
 </ul>

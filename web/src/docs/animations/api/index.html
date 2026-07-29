@@ -5,11 +5,33 @@
 <view-code language="javascript">import { animations } from '@adukiorg/anza/animations';
 </view-code>
 <h3><code>animations.register(name, keyframes, defaultOpts)</code></h3>
-<p>Register a named animation template.</p>
+<p>Register a named animation template in the global registry.</p>
+<view-code language="javascript">animations.register('fade-up', [
+  { opacity: 0, transform: 'translateY(8px)' },
+  { opacity: 1, transform: 'translateY(0)' }
+], { duration: 300, easing: 'ease-out', fill: 'both' });
+</view-code>
 <h3><code>animations.animate(el, input, options)</code></h3>
-<p>Animate an element. Returns <code>Animation</code>.</p>
+<p>Animate an element. <code>input</code> may be keyframes, a registered name string, or preset type. Returns Web Animations <code>Animation</code>.</p>
+<div class="table-wrap"><table><thead><tr><th>Option</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>duration</code></td><td>Ms — also accepts token names via <code>animations.duration()</code></td></tr>
+<tr><td><code>easing</code></td><td>CSS easing or token via <code>animations.ease()</code></td></tr>
+<tr><td><code>fill</code></td><td><code>'none'</code> | <code>'forwards'</code> | <code>'backwards'</code> | <code>'both'</code></td></tr>
+<tr><td><code>delay</code></td><td>Start delay in ms</td></tr>
+</tbody></table></div>
+<view-code language="javascript">animations.animate(card, 'fade-up');
+animations.animate(card, animations.keyframes('fade', { from: 0, to: 1 }), {
+  duration: animations.duration('fast'),
+  easing: animations.ease('out')
+});
+</view-code>
 <h3><code>animations.stagger(elements, input, options)</code></h3>
-<p>Staggered multi-element animation. Returns <code>{ animations, cancel, finish, finished }</code>.</p>
+<p>Staggered multi-element animation. Returns control handle.</p>
+<view-code language="javascript">const { finished, cancel } = animations.stagger(cards, 'fade-up', {
+  staggerDelay: 50
+});
+await finished;
+</view-code>
 <h3><code>animations.sequence(steps)</code></h3>
 <p>Chained animation sequence. Returns <code>{ finished }</code>.</p>
 <h3><code>animations.scroll(options)</code></h3>

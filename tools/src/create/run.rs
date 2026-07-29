@@ -10,7 +10,6 @@ const DIRS: &[&str] = &[
   "src/docks",
   "src/views",
   "src/parts",
-  "src/elements",
   "src/tokens",
   "src/styles",
 ];
@@ -37,23 +36,30 @@ const HTML: &str = r#"<!DOCTYPE html>
 
 const APP: &str = r#"/**
  * src/app.js — app entry point
+ *
+ * Import order here is free-form. `anza build` rewrites static imports in
+ * dist/ into usage order (library → docks → views → parts → pages).
  */
 import '@adukiorg/anza/ui';
 import { dock } from '@adukiorg/anza/ui';
 import '@adukiorg/anza/theme';
+
+import './docks/index.js';
+import './views/index.js';
+import './parts/index.js';
+import './pages/index.js';
 
 // Service Worker
 navigator.serviceWorker.register('/sw.js', { type: 'module' });
 
 // Layout shell
 dock('main');
-
-// Pages
-import './pages/index.js';
 "#;
 
 const SW: &str = r#"/**
  * src/sw.js — Service Worker entry
+ *
+ * Optional helpers live under src/sw/ (modules only — not extra registrations).
  */
 import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@adukiorg/anza/sw';
 
@@ -79,7 +85,7 @@ self.addEventListener('fetch', (e) => {
 "#;
 
 const PAGE: &str = r#"/**
- * src/entry/index.js — landing page
+ * src/pages/entry/index.js — landing page
  */
 import { page } from '@adukiorg/anza/ui';
 
@@ -90,12 +96,36 @@ page('/', {
 }, import.meta.url);
 "#;
 
-const BARREL: &str = r#"/**
+const PAGES_BARREL: &str = r#"/**
  * src/pages/index.js
  *
- * Barrel — imports all app pages.
+ * Barrel — each meaningful folder should expose an index (convention).
+ * Import page modules from this tree (and extra trees via their own barrels).
  */
 import './entry/index.js';
+"#;
+
+const DOCKS_BARREL: &str = r#"/**
+ * src/docks/index.js
+ *
+ * Barrel — import each dock module from this folder.
+ * Co-located views under docks/ are organization only; custom element tags stay global.
+ */
+"#;
+
+const VIEWS_BARREL: &str = r#"/**
+ * src/views/index.js
+ *
+ * Barrel — optional global views slot (remap via anza.json `views`).
+ * Co-location under docks/user trees is organization only — not a per-dock CE registry.
+ */
+"#;
+
+const PARTS_BARREL: &str = r#"/**
+ * src/parts/index.js
+ *
+ * Barrel — import each part module from this folder.
+ */
 "#;
 
 const MARKUP: &str = r#"<article class="welcome">
@@ -143,7 +173,12 @@ const STYLE: &str = r#".welcome {
 
 const IGNORE: &str = "node_modules/\ndist/\n.anzacache.json\n";
 
+const IMPORTMAP: &str = "{}\n";
+
 /// Scaffolds a new anza app at `target` with the given `name`.
+///
+/// Omits `anza.json` on purpose — zero-config defaults. Add the file only when
+/// remapping slots or declaring extra page trees / SW entries.
 pub fn run(target: &Path, name: &str) {
   if target.exists() {
     logs::error!("Target directory already exists: {}", target.display());
@@ -207,7 +242,19 @@ pub fn run(target: &Path, name: &str) {
   );
   write::write(
     target.join("src").join("pages").join("index.js"),
-    BARREL,
+    PAGES_BARREL,
+  );
+  write::write(
+    target.join("src").join("docks").join("index.js"),
+    DOCKS_BARREL,
+  );
+  write::write(
+    target.join("src").join("views").join("index.js"),
+    VIEWS_BARREL,
+  );
+  write::write(
+    target.join("src").join("parts").join("index.js"),
+    PARTS_BARREL,
   );
 
   let manifest = format!(
@@ -228,6 +275,7 @@ pub fn run(target: &Path, name: &str) {
     name
   );
   write::write(target.join("package.json"), &manifest);
+  write::write(target.join("importmap.json"), IMPORTMAP);
   write::write(target.join(".gitignore"), IGNORE);
 
   logs::success!("Created {}", target.display());

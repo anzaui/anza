@@ -1,5 +1,5 @@
 <h1>Upload</h1>
-<p>Drag-and-drop file picker with optional progress-tracked upload via the core upload API.</p>
+<p>Drag-and-drop file picker with optional progress-tracked upload via the core upload API. Fires <code>selected</code> when no <code>url</code> is set, or uploads automatically when <code>url</code> is provided.</p>
 <p><strong>Tag:</strong> <code>ui-upload</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/upload</code></p>
 <hr />
 <h2>Import</h2>
@@ -10,6 +10,24 @@
 <view-code language="html">&lt;ui-upload accept="image/*" multiple&gt;&lt;/ui-upload&gt;
 &lt;ui-upload url="/api/upload" accept=".pdf"&gt;&lt;/ui-upload&gt;
 </view-code>
+<hr />
+<h2>Advanced usage</h2>
+<view-code language="html">&lt;ui-upload id="avatar" url="/api/avatar" accept="image/*"&gt;&lt;/ui-upload&gt;
+
+&lt;script type="module"&gt;
+  const uploader = document.querySelector('#avatar');
+  uploader.addEventListener('progress', (e) =&gt; {
+    console.log('Uploading…', e.detail);
+  });
+  uploader.addEventListener('success', (e) =&gt; {
+    console.log('Done', e.detail.files);
+  });
+  uploader.addEventListener('error', (e) =&gt; {
+    console.error('Failed', e.detail);
+  });
+&lt;/script&gt;
+</view-code>
+<p>Without <code>url</code>, handle files yourself via the <code>selected</code> event (<code>detail.files</code>). With <code>url</code>, files post as <code>FormData</code> with a visible progress bar.</p>
 <hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
@@ -24,15 +42,22 @@
 <tr><td><code>success</code></td><td>Upload completed — <code>detail.files</code></td></tr>
 <tr><td><code>error</code></td><td>Upload failed — <code>detail</code> is the error</td></tr>
 </tbody></table></div>
+<h2>Slots / parts</h2>
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>dropzone</code></td><td>part</td><td>Click/drop target area</td></tr>
+<tr><td><code>progress</code></td><td>part</td><td>Progress bar track</td></tr>
+<tr><td><code>progress-fill</code></td><td>part</td><td>Progress bar fill</td></tr>
+</tbody></table></div>
 <h2>Notes</h2>
-<p>Click or drop onto the dropzone. With <code>url</code>, files are posted as <code>FormData</code> (<code>files</code> field) with progress UI.</p>
+<p>Click or drop onto the dropzone. Hidden file input handles native file selection.</p>
 <h3>Lifecycle / memory</h3>
-<p>Dropzone and upload work use the element <code>ctrl.signal</code> so disconnect / soft-nav aborts in-flight requests and removes listeners. Prefer that pattern over raw <code>document</code> drag listeners. See <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a> and <a href="/docs/events/troubleshooting">Orphan listeners after soft-nav</a>.</p>
+<p>Dropzone and upload work use <code>el.ctrl.signal</code> so disconnect / soft-nav aborts in-flight requests and removes listeners. See <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a>.</p>
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/elements/index">Elements overview</a></li>
 <li><a href="/docs/elements/forms">Forms</a></li>
+<li><a href="/docs/elements/progress">Progress</a></li>
 <li><a href="/docs/ui/advanced">Memory safety &amp; framework globals</a></li>
-<li><a href="../../plans/ELEMENTS.md">Planning: ELEMENTS.md</a></li>
+<li><a href="/docs/events/troubleshooting">Orphan listeners after soft-nav</a></li>
+<li><a href="/docs/elements/index">Elements overview</a></li>
 </ul>

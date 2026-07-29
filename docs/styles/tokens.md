@@ -8,7 +8,7 @@ Anza implements a minimal design token architecture based on CSS custom properti
 
 The token system is structured into three layers:
 
-```
+```text
 [Primitives]   -> Raw, immutable design constants (e.g., base colors, timings, fonts)
      |
 [Registered]   -> Houdini typed declarations enabling GPU-accelerated theme morphing

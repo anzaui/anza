@@ -1,5 +1,5 @@
 <h1>Events</h1>
-<p>The router emits three events: <code>found</code>, <code>notfound</code>, and <code>error</code>. Subscribe with <code>router.on()</code>.</p>
+<p>The router emits three events: <code>found</code>, <code>notfound</code>, and <code>error</code>. Subscribe with <code>router.on()</code>. After <code>notfound</code> / <code>error</code>, the <a href="/docs/router/fallbacks">fallback resolver</a> mounts a leaf into the deepest live dock unless an escape hatch handled it.</p>
 <hr />
 <h2>Found</h2>
 <p>Emitted when a route matches successfully:</p>
@@ -22,9 +22,10 @@
   console.warn('No route for', url);
 });
 </view-code>
-<p>If a <code>notFound</code> handler is registered, it runs after the event:</p>
-<view-code language="javascript">router.notFound((event) =&gt; {
-  document.body.innerHTML = '&lt;h1&gt;404&lt;/h1&gt;';
+<p>After the event, the resolver mounts the <strong>notfound</strong> leaf into the deepest live dock (shared library built-in, or a dock / <code>configure</code> override). Soft-nav does not wipe the shell. Prefer <code>dock({ notfound })</code> / <code>router.pages.configure</code> over a full handler; see <a href="/docs/router/fallbacks">Fallbacks</a>.</p>
+<p>Optional escape hatch (<code>return false</code> falls through to auto-mount):</p>
+<view-code language="javascript">router.notFound(async (ctx) =&gt; {
+  // full manual control — or return false
 });
 </view-code>
 <hr />
@@ -42,6 +43,16 @@
 <tr><td><code>'handler'</code></td><td>A callback handler threw an exception</td></tr>
 <tr><td><code>'navigation'</code></td><td>The Navigation API emitted <code>navigateerror</code></td></tr>
 </tbody></table></div>
+<p>After the event, the router renders the <strong>error</strong> fallback leaf unless <code>router.pages.suppressDefault(true)</code> or an <code>onError</code> handler handled it. Explicit offline UI: <code>router.pages.show('offline')</code>. See <a href="/docs/router/fallbacks">Fallbacks</a>.</p>
+<p>Simple analytics + branded leaf:</p>
+<view-code language="javascript">router.on('error', ({ error, phase }) =&gt; {
+  reportNavError({ message: error?.message, phase });
+});
+
+router.pages.configure({
+  error: { tag: 'page-server-error' }
+});
+</view-code>
 <hr />
 <h2>Subscription and Cleanup</h2>
 <p><code>router.on()</code> returns a disposer:</p>
@@ -54,6 +65,7 @@ dispose();
 router.on('found', handler, controller.signal);
 controller.abort(); // removes the listener
 </view-code>
+<p>Inside a page leaf, prefer <code>ctrl.signal</code> from lifecycle context so soft-nav tears the subscription down with the element.</p>
 <hr />
 <h2>Clearing Listeners</h2>
 <p>There is no bulk clear for event listeners. Each subscription is independent. Use <code>AbortController</code> for grouped cleanup:</p>
@@ -72,16 +84,22 @@ ctrl.abort();
 <li>Guards run (pre-commit or post-commit)</li>
 <li><code>match()</code> resolves the route</li>
 <li>Cascade ensures container chain</li>
-<li>View transition starts</li>
+<li>View transition starts (dock leaf VT when applicable)</li>
 <li><code>found</code> event emits</li>
 <li>Orchestrator mounts the element</li>
 <li>View transition finishes</li>
 </ol>
+<p>During a miss:</p>
+<ol>
+<li><code>match()</code> returns null</li>
+<li><code>notfound</code> event emits</li>
+<li>Fallback resolver mounts notfound leaf into deepest live dock</li>
+</ol>
 <p>During a failed navigation:</p>
 <ol>
-<li>Guard throws or returns redirect</li>
-<li><code>error</code> event emits with phase <code>'guard'</code></li>
-<li>Navigation is aborted or redirected</li>
+<li>Guard throws or handler fails</li>
+<li><code>error</code> event emits with the appropriate <code>phase</code></li>
+<li>Fallback resolver mounts error leaf (unless suppressed / handled)</li>
 </ol>
 <hr />
 <h2>Listening Inside Components</h2>
@@ -90,16 +108,22 @@ ctrl.abort();
   tag: 'page-dashboard',
   via: ['main'],
   on: {
-    connect({ el }) {
+    connect({ el, ctrl }) {
       this._dispose = router.on('found', ({ tag }) =&gt; {
         if (tag !== 'page-dashboard') {
           this.pauseLiveUpdates();
         }
-      });
-    },
-    disconnect({ el }) {
-      this._dispose?.();
+      }, ctrl.signal);
     }
   }
 });
 </view-code>
+<p>Prefer <code>ctrl.signal</code> over a manual disposer in <code>disconnect</code> — soft-nav aborts the leaf controller automatically.</p>
+<hr />
+<h2>Related</h2>
+<ul>
+<li><a href="/docs/router/fallbacks">Fallbacks</a> — leaf mount after miss / error</li>
+<li><a href="/docs/router/guards">Guards</a> — throws → <code>error</code> with <code>phase: 'guard'</code></li>
+<li><a href="/docs/router/api">API reference</a> — <code>router.on</code> / <code>router.pages</code></li>
+<li><a href="/docs/events/troubleshooting">Events troubleshooting</a> — soft-nav orphans (app event bus)</li>
+</ul>

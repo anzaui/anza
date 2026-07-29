@@ -8,6 +8,8 @@ import './card/index.js';
 import './chart/index.js';
 import './checkbox/index.js';
 import './data/index.js';
+import './dialog/index.js';
+import './divider/index.js';
 import './drawer/index.js';
 import './empty/index.js';
 import './feedback/index.js';

@@ -1,5 +1,5 @@
 <h1>Split</h1>
-<p>Two-pane split layout controlled by a ratio token.</p>
+<p>Two-pane split layout controlled by a ratio token. Expects exactly two children in the default slot.</p>
 <p><strong>Tag:</strong> <code>ui-split</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/split</code></p>
 <hr />
 <h2>Import</h2>
@@ -17,18 +17,33 @@
 &lt;/ui-split&gt;
 </view-code>
 <hr />
+<h2>Advanced usage</h2>
+<view-code language="html">&lt;ui-split ratio="1-3" style="height: 24rem;"&gt;
+  &lt;ui-sidebar&gt;
+    &lt;ui-nav orientation="vertical"&gt;…&lt;/ui-nav&gt;
+  &lt;/ui-sidebar&gt;
+  &lt;ui-scroll&gt;
+    &lt;ui-table&gt;…&lt;/ui-table&gt;
+  &lt;/ui-scroll&gt;
+&lt;/ui-split&gt;
+</view-code>
+<p><code>ratio</code> values like <code>1-1</code> (default) or <code>1-2</code> control pane proportions via CSS.</p>
+<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>ratio</code></td><td>String</td><td>Reflect</td><td>Pane ratio token (default <code>1-1</code>; e.g. <code>1-2</code>)</td></tr>
+<tr><td><code>ratio</code></td><td>String</td><td>Reflect, default <code>1-1</code></td><td>Pane ratio token (e.g. <code>1-2</code>)</td></tr>
 </tbody></table></div>
-<h2>Notes</h2>
-<p>Two children in the default slot; <code>part="split"</code> wraps them.</p>
+<h2>Slots / parts</h2>
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
+<tr><td><em>(default)</em></td><td>slot</td><td>Two pane children</td></tr>
+<tr><td><code>split</code></td><td>part</td><td>Split container</td></tr>
+</tbody></table></div>
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/elements/index">Elements overview</a></li>
 <li><a href="/docs/elements/layout">Layout</a></li>
 <li><a href="/docs/elements/grid">Grid</a></li>
 <li><a href="/docs/elements/sidebar">Sidebar</a></li>
-<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
+<li><a href="/docs/elements/scroll">Scroll</a></li>
+<li><a href="/docs/elements/index">Elements overview</a></li>
 </ul>

@@ -1,6 +1,6 @@
 # Events
 
-The router emits three events: `found`, `notfound`, and `error`. Subscribe with `router.on()`.
+The router emits three events: `found`, `notfound`, and `error`. Subscribe with `router.on()`. After `notfound` / `error`, the [fallback resolver](fallbacks.md) mounts a leaf into the deepest live dock unless an escape hatch handled it.
 
 ---
 
@@ -35,11 +35,13 @@ router.on('notfound', ({ url }) => {
 });
 ```
 
-If a `notFound` handler is registered, it runs after the event:
+After the event, the resolver mounts the **notfound** leaf into the deepest live dock (shared library built-in, or a dock / `configure` override). Soft-nav does not wipe the shell. Prefer `dock({ notfound })` / `router.pages.configure` over a full handler; see [fallbacks.md](fallbacks.md).
+
+Optional escape hatch (`return false` falls through to auto-mount):
 
 ```javascript
-router.notFound((event) => {
-  document.body.innerHTML = '<h1>404</h1>';
+router.notFound(async (ctx) => {
+  // full manual control — or return false
 });
 ```
 
@@ -65,6 +67,20 @@ Phase values:
 | `'handler'` | A callback handler threw an exception |
 | `'navigation'` | The Navigation API emitted `navigateerror` |
 
+After the event, the router renders the **error** fallback leaf unless `router.pages.suppressDefault(true)` or an `onError` handler handled it. Explicit offline UI: `router.pages.show('offline')`. See [fallbacks.md](fallbacks.md).
+
+Simple analytics + branded leaf:
+
+```javascript
+router.on('error', ({ error, phase }) => {
+  reportNavError({ message: error?.message, phase });
+});
+
+router.pages.configure({
+  error: { tag: 'page-server-error' }
+});
+```
+
 ---
 
 ## Subscription and Cleanup
@@ -84,6 +100,8 @@ const controller = new AbortController();
 router.on('found', handler, controller.signal);
 controller.abort(); // removes the listener
 ```
+
+Inside a page leaf, prefer `ctrl.signal` from lifecycle context so soft-nav tears the subscription down with the element.
 
 ---
 
@@ -110,16 +128,22 @@ During a successful navigation:
 2. Guards run (pre-commit or post-commit)
 3. `match()` resolves the route
 4. Cascade ensures container chain
-5. View transition starts
+5. View transition starts (dock leaf VT when applicable)
 6. `found` event emits
 7. Orchestrator mounts the element
 8. View transition finishes
 
+During a miss:
+
+1. `match()` returns null
+2. `notfound` event emits
+3. Fallback resolver mounts notfound leaf into deepest live dock
+
 During a failed navigation:
 
-1. Guard throws or returns redirect
-2. `error` event emits with phase `'guard'`
-3. Navigation is aborted or redirected
+1. Guard throws or handler fails
+2. `error` event emits with the appropriate `phase`
+3. Fallback resolver mounts error leaf (unless suppressed / handled)
 
 ---
 
@@ -132,16 +156,24 @@ page('/dashboard', {
   tag: 'page-dashboard',
   via: ['main'],
   on: {
-    connect({ el }) {
+    connect({ el, ctrl }) {
       this._dispose = router.on('found', ({ tag }) => {
         if (tag !== 'page-dashboard') {
           this.pauseLiveUpdates();
         }
-      });
-    },
-    disconnect({ el }) {
-      this._dispose?.();
+      }, ctrl.signal);
     }
   }
 });
 ```
+
+Prefer `ctrl.signal` over a manual disposer in `disconnect` — soft-nav aborts the leaf controller automatically.
+
+---
+
+## Related
+
+- [fallbacks.md](fallbacks.md) — leaf mount after miss / error
+- [guards.md](guards.md) — throws → `error` with `phase: 'guard'`
+- [api.md](api.md) — `router.on` / `router.pages`
+- [events/troubleshooting.md](../events/troubleshooting.md) — soft-nav orphans (app event bus)

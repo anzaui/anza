@@ -1,5 +1,6 @@
 <h1>Scheduling</h1>
-<p>Cooperative task scheduling for main-thread-friendly work. Prevents long tasks that hurt Interaction to Next Paint (INP).</p>
+<p>Cooperative task scheduling for main-thread-friendly work. Prevents long tasks that hurt Interaction to Next Paint (INP). Soft-nav aborts the leaf’s <code>ctrl</code> — pass that signal into schedule helpers so pending work does not run on a detached tree.</p>
+<p>Related: <a href="/docs/ui/transitions">Transitions</a> (VT + <code>AbortSignal</code>), <a href="/docs/ui/lifecycle">Lifecycle</a> (soft-nav abort contract), platform <a href="/docs/platform/guards"><code>guard.scheduler</code> / <code>guard.yield</code></a>.</p>
 <hr />
 <h2>schedule</h2>
 <view-code language="javascript">import { ui } from '@adukiorg/anza/ui';
@@ -8,13 +9,13 @@ ui.schedule(() =&gt; {
   renderChunk();
 }, ui.Priority.VISIBLE);
 </view-code>
-<p>Priorities:</p>
-<div class="table-wrap"><table><thead><tr><th>Priority</th><th>Fallback Latency</th><th>Use Case</th></tr></thead><tbody>
-<tr><td><code>BLOCKING</code></td><td>0ms</td><td>Critical path work</td></tr>
-<tr><td><code>VISIBLE</code></td><td>16ms</td><td>UI updates</td></tr>
-<tr><td><code>BACKGROUND</code></td><td><code>requestIdleCallback</code></td><td>Offscreen work</td></tr>
+<p>Priorities (also accepted as <code>{ priority, signal }</code>):</p>
+<div class="table-wrap"><table><thead><tr><th>Priority</th><th>Fallback latency</th><th>Use case</th></tr></thead><tbody>
+<tr><td><code>BLOCKING</code> / <code>ui.Priority.BLOCKING</code></td><td>0ms</td><td>Critical path work</td></tr>
+<tr><td><code>VISIBLE</code> / <code>ui.Priority.VISIBLE</code></td><td>~16ms</td><td>UI updates</td></tr>
+<tr><td><code>BACKGROUND</code> / <code>ui.Priority.BACKGROUND</code></td><td><code>requestIdleCallback</code></td><td>Offscreen / analytics</td></tr>
 </tbody></table></div>
-<p>Uses <code>scheduler.postTask</code> when available, falling back to <code>setTimeout</code> or <code>requestIdleCallback</code>.</p>
+<p>Uses <code>scheduler.postTask</code> when available (via platform guard), falling back to <code>setTimeout</code> or <code>requestIdleCallback</code>.</p>
 <p>Pass an <code>AbortSignal</code> so soft-nav / leaf teardown cancels pending work:</p>
 <view-code language="javascript">await ui.schedule(() =&gt; indexChunk(), {
   priority: ui.Priority.VISIBLE,
@@ -40,30 +41,56 @@ await ui.scheduleFrame(() =&gt; measure(), { signal: ctrl.signal });
 <view-code language="javascript">import { ui } from '@adukiorg/anza/ui';
 
 async function processLargeDataset(rows, { signal } = {}) {
-  for (const row of rows) {
-    process(row);
-    if (rows.indexOf(row) % 100 === 0) {
+  for (let i = 0; i &lt; rows.length; i++) {
+    process(rows[i]);
+    if (i % 100 === 0) {
       await ui.yield({ signal }); // let the browser breathe; abort on soft-nav
     }
   }
 }
 </view-code>
 <p>Uses <code>scheduler.yield()</code> when available, falling back to <code>setTimeout(..., 0)</code>. Already-aborted signals reject with <code>AbortError</code>.</p>
+<p>Platform equivalent without the UI facade: <code>await guard.yield()</code> from <code>@adukiorg/anza/platform</code>.</p>
 <hr />
-<h2>When to Use Each</h2>
-<ul>
-<li><strong><code>schedule()</code></strong> — defer non-critical work: analytics, logging, non-urgent rendering</li>
-<li><strong><code>scheduleFrame()</code></strong> — layout measurement, animation frame work, visual updates</li>
-<li><strong><code>yield()</code></strong> — chunk heavy computation inside loops</li>
-</ul>
+<h2>When to use each</h2>
+<div class="table-wrap"><table><thead><tr><th>Helper</th><th>Prefer for</th></tr></thead><tbody>
+<tr><td><code>schedule()</code></td><td>Defer non-critical work: analytics, logging, non-urgent rendering</td></tr>
+<tr><td><code>scheduleFrame()</code></td><td>Layout measurement, animation frame work, visual updates</td></tr>
+<tr><td><code>yield()</code></td><td>Chunk heavy computation inside loops</td></tr>
+</tbody></table></div>
+<p>Do <strong>not</strong> schedule unbounded work without a signal from a page leaf — soft-nav will leave orphan tasks otherwise.</p>
 <hr />
-<h2>Example: Chunked Rendering</h2>
+<h2>Soft-nav + AbortSignal (advanced)</h2>
+<view-code language="javascript">page('/reports', {
+  tag: 'page-reports',
+  via: ['main'],
+  on: {
+    async load({ el, ctrl }) {
+      await ui.schedule(() =&gt; buildIndex(el.rows), {
+        priority: ui.Priority.BACKGROUND,
+        signal: ctrl.signal
+      });
+    },
+    async change({ name, val, refs, ctrl }) {
+      if (name !== 'rows') return;
+      refs.body.replaceChildren();
+      for (let i = 0; i &lt; val.length; i += 50) {
+        refs.body.append(...val.slice(i, i + 50).map(createRow));
+        await ui.yield({ signal: ctrl.signal });
+      }
+    }
+  }
+});
+</view-code>
+<p>When soft-nav swaps this leaf, <code>ctrl.abort()</code> rejects pending <code>schedule</code> / <code>scheduleFrame</code> / <code>yield</code> with <code>AbortError</code>. Catch only if you need cleanup; otherwise let it fail closed.</p>
+<hr />
+<h2>Example: chunked rendering</h2>
 <view-code language="javascript">view('data-grid', {
   props: {
     rows: { type: Array, default: [] }
   },
   on: {
-    async change({ name, val, refs }) {
+    async change({ name, val, refs, ctrl }) {
       if (name !== 'rows') return;
 
       refs.body.innerHTML = '';
@@ -76,10 +103,10 @@ async function processLargeDataset(rows, { signal } = {}) {
           fragment.appendChild(createRow(row));
         }
         refs.body.appendChild(fragment);
-        await ui.yield();
+        await ui.yield({ signal: ctrl.signal });
       }
     }
   }
 });
 </view-code>
-<p>The grid renders in chunks, yielding between each so the browser stays responsive.</p>
+<p>The grid renders in chunks, yielding between each so the browser stays responsive — and soft-nav abort stops mid-chunk.</p>

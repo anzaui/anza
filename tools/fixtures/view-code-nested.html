@@ -1,0 +1,10 @@
+<!-- Regression: raw nested / stray closers inside view-code must not panic tooling. -->
+<h1>Opaque view-code</h1>
+<p>Intro paragraph stays structural.</p>
+<view-code language="html">
+</some-el></some-el>
+<button></button>
+<dialog open></dialog>
+<another-el><ui-button>Ok</ui-button></another-el>
+</view-code>
+<p>After.</p>

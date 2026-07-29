@@ -1,5 +1,9 @@
 <h1>Guards</h1>
+<blockquote>
+<p><strong>Not platform feature-gates.</strong> Navigation guards (<code>router.guard</code>, <code>page({ guard })</code>) block or redirect navigations. For polyfills and capability checks, see <a href="/docs/platform/guards">Platform guards</a>.</p>
+</blockquote>
 <p>Guards block or redirect navigation before the DOM changes. They run at two points in the navigation lifecycle: pre-commit (before the URL updates) and post-commit (after, as a Safari fallback).</p>
+<p>When a guard <strong>throws</strong>, the router emits <code>error</code> with <code>phase: 'guard'</code> and renders the <strong>error</strong> fallback leaf (shared library built-in, or a dock / <code>configure</code> / route override). See <a href="/docs/router/fallbacks">Fallbacks</a>.</p>
 <hr />
 <h2>Global Guards</h2>
 <p>Register a guard that runs on every navigation:</p>
@@ -18,6 +22,31 @@ const dispose = router.guard(async (destination, controller) =&gt; {
 <li><code>controller</code> — the intercept controller; on modern browsers you can call <code>controller.redirect(url)</code> for an atomic pre-commit redirect</li>
 </ul>
 <p>Guards are evaluated in registration order. The first guard to return a redirect wins; remaining guards are skipped.</p>
+<h3>Return values</h3>
+<div class="table-wrap"><table><thead><tr><th>Return</th><th>Effect</th></tr></thead><tbody>
+<tr><td><code>null</code> / <code>undefined</code> / nothing</td><td>Allow navigation to continue to the next guard</td></tr>
+<tr><td>URL string (absolute or path)</td><td>Redirect — pre-commit uses <code>controller.redirect(url)</code>; post-commit uses silent <code>history: 'replace'</code></td></tr>
+<tr><td>Thrown error</td><td>Navigation aborts; router emits <code>error</code> with <code>phase: 'guard'</code> and mounts the error fallback leaf</td></tr>
+</tbody></table></div>
+<p>Guards may be <code>async</code>. The interceptor awaits each guard before moving on.</p>
+<view-code language="javascript">router.guard(async (destination) =&gt; {
+  const session = await refreshSession(); // ok — but keep it fast
+  if (!session) return '/login?next=' + encodeURIComponent(destination.url.pathname);
+});
+</view-code>
+<h3>Atomic redirect (pre-commit)</h3>
+<p>On cancelable navigations (link clicks, <code>router.navigate</code>), guards run in <code>precommitHandler</code> and receive the intercept <code>controller</code>:</p>
+<view-code language="javascript">router.guard((destination, controller) =&gt; {
+  if (needsAuth(destination.url)) {
+    // Prefer controller.redirect when available — address bar never shows the blocked URL
+    if (controller?.redirect) {
+      controller.redirect('/login');
+      return; // redirect already applied
+    }
+    return '/login'; // post-commit fallback on Safari / non-cancelable nav
+  }
+});
+</view-code>
 <hr />
 <h2>Removing a Guard</h2>
 <p><code>router.guard()</code> returns a disposer function:</p>
@@ -49,6 +78,11 @@ dispose(); // removes this guard
 <p><strong>Pre-commit</strong> (<code>precommitHandler</code>) runs before the browser updates the URL. On Chrome and Firefox, a redirect here is atomic — the user never sees the blocked URL in the address bar.</p>
 <p><strong>Post-commit</strong> runs after the URL has already changed. This is the Safari fallback, since Safari currently ignores <code>precommitHandler</code>. If a guard triggers post-commit, the router performs a silent <code>history: 'replace'</code> to correct the URL without adding a broken history entry.</p>
 <p>Your guard function runs in both phases. You do not need to handle the difference yourself.</p>
+<div class="table-wrap"><table><thead><tr><th>Phase</th><th>When</th><th>Redirect mechanism</th><th><code>controller</code></th></tr></thead><tbody>
+<tr><td>Pre-commit</td><td>Cancelable navigations (clicks, programmatic push)</td><td><code>controller.redirect(url)</code> — atomic</td><td>Intercept controller</td></tr>
+<tr><td>Post-commit</td><td>Safari fallback, back/forward, non-cancelable</td><td><code>navigation.navigate(url, { history: 'replace' })</code></td><td><code>null</code></td></tr>
+</tbody></table></div>
+<p>Non-cancelable navigations omit <code>precommitHandler</code> entirely (Navigation API spec). The router never attaches it when <code>event.cancelable</code> is false, avoiding <code>InvalidStateError</code>.</p>
 <hr />
 <h2>Guard Best Practices</h2>
 <p>Keep guards fast. They run on every navigation, including back/forward traversals.</p>
@@ -63,3 +97,22 @@ const dispose = router.guard(fn);
 router.guards.add(fn);     // same as router.guard(fn)
 router.guards.clear();     // remove all guards
 </view-code>
+<hr />
+<h2>Guard throws → error leaf</h2>
+<p>When a guard throws (instead of returning a redirect URL), the interceptor calls the shared error path with <code>phase: 'guard'</code>:</p>
+<view-code language="javascript">router.on('error', ({ error, phase, url }) =&gt; {
+  if (phase === 'guard') {
+    console.warn('Guard blocked navigation:', url, error);
+  }
+});
+</view-code>
+<p>The resolver mounts the <strong>error</strong> fallback into the deepest live dock — same ladder as handler failures. See <a href="/docs/router/fallbacks">Fallbacks</a>.</p>
+<p>Prefer returning a redirect URL over throwing for expected auth / validation flows. Reserve throws for truly exceptional guard bugs.</p>
+<hr />
+<h2>Related</h2>
+<ul>
+<li><a href="/docs/router/pages">Pages</a> — route-scoped <code>page({ guard })</code></li>
+<li><a href="/docs/router/fallbacks">Fallbacks</a> — guard throws → error leaf</li>
+<li><a href="/docs/platform/guards">Platform guards</a> — feature detection (not navigation)</li>
+<li><a href="/docs/router/events">Events</a> — <code>error</code> payload with <code>phase</code></li>
+</ul>

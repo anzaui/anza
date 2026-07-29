@@ -27,23 +27,37 @@
 <tr><td><code>iterations</code></td><td><code>600000</code></td><td>PBKDF2 iterations</td></tr>
 </tbody></table></div>
 <h3><code>security.encrypt(key, data)</code></h3>
-<p>Returns <code>Promise&lt;ArrayBuffer&gt;</code> (IV + ciphertext).</p>
+<p>AES-GCM encrypt. Returns <code>Promise&lt;ArrayBuffer&gt;</code> — IV prepended to ciphertext.</p>
+<view-code language="javascript">const key = await security.generateKey('AES-GCM');
+const sealed = await security.encrypt(key, new TextEncoder().encode('secret'));
+const plain = await security.decrypt(key, sealed);
+</view-code>
 <h3><code>security.decrypt(key, combinedData)</code></h3>
-<p>Returns <code>Promise&lt;ArrayBuffer&gt;</code> (plaintext).</p>
+<p>Decrypt AES-GCM payload from <code>encrypt()</code>. Returns <code>Promise&lt;ArrayBuffer&gt;</code>.</p>
 <h3><code>security.seal(key, text)</code></h3>
-<p>Returns <code>Promise&lt;string&gt;</code> (base64).</p>
+<p>Encrypt a string and return base64 for storage.</p>
+<view-code language="javascript">const b64 = await security.seal(key, JSON.stringify({ token: 'abc' }));
+const json = await security.unseal(key, b64);
+</view-code>
 <h3><code>security.unseal(key, b64)</code></h3>
-<p>Returns <code>Promise&lt;string&gt;</code> (plaintext).</p>
+<p>Decrypt base64 string from <code>seal()</code>. Returns <code>Promise&lt;string&gt;</code>.</p>
 <h3><code>security.sign(key, data)</code></h3>
-<p>Returns <code>Promise&lt;ArrayBuffer&gt;</code>.</p>
+<p>HMAC or ECDSA sign. Returns <code>Promise&lt;ArrayBuffer&gt;</code>.</p>
 <h3><code>security.verify(key, signature, data)</code></h3>
-<p>Returns <code>Promise&lt;boolean&gt;</code>.</p>
+<p>Verify signature. Returns <code>Promise&lt;boolean&gt;</code>.</p>
 <h3><code>security.sanitize(html, config)</code></h3>
-<p>Returns <code>TrustedHTML | string</code>.</p>
+<p>Sanitize HTML for safe insertion. Returns <code>TrustedHTML</code> when Trusted Types are enabled, else string.</p>
+<view-code language="javascript">const safe = String(security.sanitize(userHtml));
+host.innerHTML = safe;
+</view-code>
 <h3><code>security.permission(name)</code></h3>
-<p>Returns <code>Promise&lt;'granted' | 'denied' | 'prompt'&gt;</code>.</p>
+<p>Query a Permissions API name. Returns <code>Promise&lt;'granted' | 'denied' | 'prompt'&gt;</code>.</p>
 <h3><code>security.watchPermission(name, fn, signal)</code></h3>
-<p>Returns disposer function.</p>
+<p>Watch permission changes. Returns disposer; respects <code>AbortSignal</code>.</p>
+<view-code language="javascript">const stop = security.watchPermission('notifications', (state) =&gt; {
+  banner.hidden = state !== 'granted';
+}, ctrl.signal);
+</view-code>
 <hr />
 <h2>Named Exports</h2>
 <view-code language="javascript">import {

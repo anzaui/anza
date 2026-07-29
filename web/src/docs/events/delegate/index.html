@@ -1,5 +1,5 @@
 <h1>Delegate</h1>
-<p>Event delegation registers one listener on an ancestor element to handle events from matching descendants. It traverses <code>composedPath()</code> so it works through shadow DOM boundaries. Component <code>on</code> uses the same matcher inside the shadow root (<a href="../ui/context.md#on">context</a>).</p>
+<p>Event delegation registers one listener on an ancestor element to handle events from matching descendants. It traverses <code>composedPath()</code> so it works through shadow DOM boundaries. Component <code>on</code> uses the same matcher inside the shadow root (<a href="/docs/ui/context#on">context</a>).</p>
 <hr />
 <h2>Signature</h2>
 <view-code language="javascript">delegate(root, selector, type, handler, options);
@@ -83,4 +83,4 @@ events.delegate(container, '.item', 'click', (event, target) =&gt; {
 <p><code>element.matches()</code> results are cached in a two-level <code>WeakMap</code> shared with component <code>on</code>, so repeated events on the same node + selector avoid redundant selector work.</p>
 <hr />
 <h2>Soft-nav</h2>
-<p>Always pass <code>{ signal: ctrl.signal }</code> (or call the disposer from <code>unmount</code>) when registering from a page leaf. Soft-nav aborts only the detached leaf — see <a href="troubleshooting.md#orphan-listeners-after-soft-nav">Orphan listeners after soft-nav</a>.</p>
+<p>Always pass <code>{ signal: ctrl.signal }</code> (or call the disposer from <code>unmount</code>) when registering from a page leaf. Soft-nav aborts only the detached leaf — see <a href="/docs/events/troubleshooting#orphan-listeners-after-soft-nav">Orphan listeners after soft-nav</a>.</p>

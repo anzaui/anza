@@ -1,0 +1,6 @@
+[
+  {
+    "fileMatch": ["anza.json"],
+    "url": "./anza.schema.json"
+  }
+]

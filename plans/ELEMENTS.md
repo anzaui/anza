@@ -187,6 +187,13 @@ Ship a navigable Elements docs section with inventory, category overviews, and 5
 
 **Related:** lifecycle / soft-nav ownership contract is complete in [MUTATIONS-EVENTS.md](./MUTATIONS-EVENTS.md) (closed track).
 
+## Follow-up (2026-07-29) — Comprehensive web HTML pass
+
+- [x] Audited all 46 shipped elements against `library/importmap.json` — **0 missing**
+- [x] Enhanced every `web/src/docs/elements/<name>/index.html` with advanced `view-code` samples, slots/parts tables, lifecycle/memory notes where relevant, and sibling cross-links
+- [x] Navigation already wired: `web/src/docs/elements/index.js` barrel, `web/src/docks/docs/index.html` sidebar (46 elements + 7 category overviews + overlay patterns)
+- [x] Inventory remains **46 Full** · **0 listed**
+
 ---
 
 ## Decision log

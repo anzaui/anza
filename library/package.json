@@ -28,6 +28,7 @@
   "files": [
     "src/",
     "types/",
+    "schemas/",
     "importmap.json",
     "README.md",
     "CHANGELOG.md",
@@ -39,6 +40,9 @@
       "types": "./types/index.d.ts",
       "default": "./src/index.js"
     },
+    "./schemas/anza.schema.json": "./schemas/anza.schema.json",
+    "./schemas/vscode-json-schemas.json": "./schemas/vscode-json-schemas.json",
+    "./schemas/anza.code-snippets": "./schemas/anza.code-snippets",
     "./api": {
       "types": "./types/core/api/index.d.ts",
       "default": "./src/core/api/index.js"

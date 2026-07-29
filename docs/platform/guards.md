@@ -1,5 +1,7 @@
 # Guards
 
+> **Not navigation guards.** Platform `guard` / `typeGuard` / `supports` load polyfills and assert capabilities. For route protection and redirects, see [router/guards.md](../router/guards.md).
+
 The `guard` object provides asynchronous feature gates. Each method checks native support and either returns the native API or dynamically imports a polyfill.
 
 ```javascript

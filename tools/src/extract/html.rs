@@ -20,7 +20,10 @@ pub struct TagsDescriptor {
 }
 
 pub fn parse_html(content: &str) -> TagsDescriptor {
-  let document = Html::parse_fragment(content);
+  // Docs `<view-code>` embeds raw HTML/JS samples — treat interiors as opaque
+  // text so nested sample tags are not collected into the descriptor.
+  let content = crate::build::html::opaque_view_code(content);
+  let document = Html::parse_fragment(&content);
 
   let mut refs = HashSet::new();
   let mut ids = HashSet::new();
@@ -162,5 +165,79 @@ mod tests {
       descriptor.ref_types.get("email").map(String::as_str),
       Some("HTMLInputElement")
     );
+  }
+
+  #[test]
+  fn view_code_samples_are_opaque_to_tag_descriptor() {
+    let descriptor = parse_html(
+      r#"
+			<h1>Dialog</h1>
+			<p>Intro.</p>
+			<view-code language="html">
+			<button></button>
+			<dialog></dialog>
+			</some-el></some-el>
+			</view-code>
+			"#,
+    );
+
+    assert!(descriptor.tags.contains(&"view-code".to_string()));
+    assert!(descriptor.tags.contains(&"h1".to_string()));
+    assert!(descriptor.tags.contains(&"p".to_string()));
+    assert!(
+      !descriptor.tags.contains(&"button".to_string()),
+      "sample <button> must not appear in tags: {:?}",
+      descriptor.tags
+    );
+    assert!(
+      !descriptor.tags.contains(&"dialog".to_string()),
+      "sample <dialog> must not appear in tags: {:?}",
+      descriptor.tags
+    );
+    assert!(!descriptor.tags.iter().any(|t| t == "some-el"));
+  }
+
+  #[test]
+  fn view_code_with_raw_close_tags_does_not_panic() {
+    let html = r#"
+      <h1>Title</h1>
+      <p>Intro</p>
+      <view-code language="html"></some-el></some-el>
+&lt;ui-button&gt;Ok&lt;/ui-button&gt;
+</ui-x></ui-x>
+</view-code>
+      <p>After</p>
+    "#;
+    let descriptor = parse_html(html);
+    assert_eq!(descriptor.version, 1);
+    assert!(descriptor.tags.contains(&"view-code".to_string()));
+    assert!(!descriptor.tags.iter().any(|t| t == "some-el" || t == "ui-x"));
+  }
+
+  #[test]
+  fn view_code_nested_another_el_fixture() {
+    let descriptor = parse_html(
+      r#"<h1>X</h1><view-code language="html"><another-el></some-el></some-el></another-el></view-code>"#,
+    );
+    assert!(descriptor.tags.contains(&"view-code".to_string()));
+    assert!(!descriptor.tags.iter().any(|t| t == "another-el" || t == "some-el"));
+  }
+
+  #[test]
+  fn view_code_fixture_file_is_opaque() {
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+      .join("fixtures/view-code-nested.html");
+    let html = std::fs::read_to_string(&path).expect("fixture readable");
+    let descriptor = parse_html(&html);
+    assert!(descriptor.tags.contains(&"view-code".to_string()));
+    assert!(descriptor.tags.contains(&"h1".to_string()));
+    assert!(descriptor.tags.contains(&"p".to_string()));
+    for leak in ["some-el", "button", "dialog", "another-el", "ui-button"] {
+      assert!(
+        !descriptor.tags.iter().any(|t| t == leak),
+        "fixture leaked sample tag {leak}: {:?}",
+        descriptor.tags
+      );
+    }
   }
 }

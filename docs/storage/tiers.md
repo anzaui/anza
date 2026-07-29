@@ -79,3 +79,15 @@ TTL is implemented via `x-expires-at` header on cached responses.
 | Component state | `memory` |
 | Offline assets | `cache` |
 | Files, PDFs | `opfs` |
+
+---
+
+## List / clear across tiers
+
+```javascript
+const idbKeys = await storage.list();        // default idb
+const files = await storage.list('opfs');
+await storage.clear('cache');                // or 'idb' | 'opfs' | 'memory' via LRU | 'all'
+```
+
+Configure distinct DB names before first use when also opening `state.storage` — see [troubleshooting.md](troubleshooting.md).

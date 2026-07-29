@@ -38,12 +38,16 @@ await storage.get('token'); // null
 </view-code>
 <p>Deletes from all tiers (memory + the specified tier).</p>
 <hr />
-<h2>5. Query IndexedDB</h2>
-<view-code language="javascript">const results = await storage.query('keyval', (value) =&gt; {
-  return value &amp;&amp; value.active === true;
-});
+<h2>5. List keys / clear / estimate</h2>
+<view-code language="javascript">const keys = await storage.list();           // IDB keyval keys (default)
+const opfsKeys = await storage.list('opfs');
+
+await storage.clear('memory'); // or 'idb' | 'opfs' | 'cache' | 'all'
+
+const est = await storage.estimate();
+console.log(est.usage, est.quota, est.persisted);
 </view-code>
-<p>Returns all records matching the filter.</p>
+<p>Advanced IndexedDB cursor queries use options (not a filter callback) — see <a href="/docs/storage/api#storagequerystorename-queryopts">API reference</a>. For reactive-store snapshots with a filter function, use <code>state.storage.query</code> (<a href="/docs/state/persist">State persist</a>).</p>
 <hr />
 <h2>6. Configure</h2>
 <view-code language="javascript">storage.configure({

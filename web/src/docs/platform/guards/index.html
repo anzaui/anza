@@ -1,5 +1,11 @@
 <h1>Guards</h1>
+<blockquote>
+<p><strong>Not navigation guards.</strong> Platform <code>guard</code> / <code>typeGuard</code> / <code>supports</code> load polyfills and assert capabilities. For route protection and redirects, see <a href="/docs/router/guards">Router guards</a>.</p>
+</blockquote>
 <p>The <code>guard</code> object provides asynchronous feature gates. Each method checks native support and either returns the native API or dynamically imports a polyfill.</p>
+<view-code language="javascript">import { guard, escapeOverflow } from '@adukiorg/anza/platform';
+</view-code>
+<p>Full signatures: <a href="/docs/platform/api">API Reference</a>.</p>
 <hr />
 <h2>urlPattern</h2>
 <view-code language="javascript">const URLPattern = await guard.urlPattern();
@@ -17,7 +23,7 @@ nav.navigate('/settings');
 <view-code language="javascript">await guard.popover();
 document.getElementById('menu').showPopover();
 </view-code>
-<p>Installs <code>HTMLElement</code> popover prototype methods if missing. Provides light-dismiss behavior and memory-safe cleanup.</p>
+<p>Installs <code>HTMLElement</code> popover prototype methods if missing. Provides light-dismiss behavior and memory-safe cleanup via the framework <code>globals</code> registry (<code>popover.target-click</code>, <code>popover.body-mo:*</code>). Used by <code>ui-popover</code>, <code>ui-menu</code>, <code>ui-tooltip</code>, and <code>ui-select</code>.</p>
 <hr />
 <h2>shadow</h2>
 <view-code language="javascript">await guard.shadow(document);
@@ -25,17 +31,83 @@ document.getElementById('menu').showPopover();
 <p>Applies the declarative shadow DOM polyfill to a root element. Parses <code>&lt;template shadowrootmode="open"&gt;</code> nodes.</p>
 <hr />
 <h2>anchor</h2>
-<view-code language="javascript">await guard.anchor(floatingEl, anchorEl, { placement: 'bottom-start', mode: 'fixed' });
+<view-code language="javascript">await guard.anchor(floatingEl, anchorEl, {
+  placement: 'bottom-start',
+  mode: 'fixed',
+  offset: 8
+});
 </view-code>
-<p>Computes dynamic anchor positioning for floating elements when native CSS anchor positioning is unavailable. Supports <code>mode: 'absolute'</code> (default) and <code>mode: 'fixed'</code> (viewport coords).</p>
+<p>Computes dynamic anchor positioning for floating elements when native CSS anchor positioning is unavailable (or when <code>mode: 'fixed'</code>). Supports <code>mode: 'absolute'</code> (default, document coords) and <code>mode: 'fixed'</code> (viewport coords). Placement strings: <code>top</code> / <code>bottom</code> / <code>left</code> / <code>right</code> plus <code>-start</code> / <code>-end</code>.</p>
+<p>For show/hide lifecycle + overflow escape, prefer <a href="#escape"><code>guard.escape</code></a> / <code>escapeOverflow</code>.</p>
 <hr />
 <h2>escape</h2>
-<view-code language="javascript">const ctrl = await guard.escape(tipEl, anchorEl, { placement: 'top', offset: 8 });
+<p>Positions a floating node so it can escape <code>overflow</code> clipping. Prefers Popover top-layer when the floating element has <code>[popover]</code> and <code>showPopover</code> is available; otherwise uses viewport-fixed coordinates. Not a body portal — the node stays in-tree.</p>
+<view-code language="javascript">const tip = document.querySelector('.tip'); // [popover="manual"]
+const anchor = document.querySelector('.trigger');
+
+const ctrl = await guard.escape(tip, anchor, {
+  placement: 'top',
+  offset: 8,
+  signal: el.ctrl.signal
+});
+
 ctrl.show();
 // …
 ctrl.hide();
+// or ctrl.release() on teardown
 </view-code>
-<p>Positions a floating node so it can escape <code>overflow</code> clipping. Prefers Popover top-layer when the floating element has <code>[popover]</code>; otherwise uses viewport-fixed coordinates. Returns <code>{ show, hide, update, release, strategy, open }</code>. Sync form: <code>escapeOverflow</code> from <code>@adukiorg/anza/platform</code>. Used by <code>ui-tooltip</code>.</p>
+<h3>Options</h3>
+<div class="table-wrap"><table><thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>placement</code></td><td><code>'top'</code></td><td>Side relative to the anchor</td></tr>
+<tr><td><code>offset</code></td><td><code>8</code></td><td>Gap in CSS pixels</td></tr>
+<tr><td><code>signal</code></td><td>—</td><td>Abort → <code>release()</code></td></tr>
+<tr><td><code>strategy</code></td><td>auto</td><td><code>'popover'</code> | <code>'fixed'</code></td></tr>
+<tr><td><code>cssAnchor</code></td><td>unset</td><td>Pass <code>true</code> to leave placement to native CSS Anchor Positioning when supported</td></tr>
+</tbody></table></div>
+<h3>Controller</h3>
+<p><code>{ show, hide, update, release, strategy, open }</code> — see <a href="/docs/platform/api#escapeoverflowfloating-anchor-options">API Reference</a>.</p>
+<h3>Sync form</h3>
+<view-code language="javascript">import { escapeOverflow, guard } from '@adukiorg/anza/platform';
+
+await guard.popover(); // ensure polyfill if you rely on [popover]
+const ctrl = escapeOverflow(tip, anchor, { placement: 'bottom' });
+ctrl.show();
+</view-code>
+<h3>Advanced — custom floating UI (same path as <code>ui-tooltip</code>)</h3>
+<view-code language="javascript">import { guard } from '@adukiorg/anza/platform';
+
+async function bindHint(host, tip, wrapper) {
+  if (!tip.hasAttribute('popover')) {
+    tip.setAttribute('popover', 'manual');
+  }
+
+  let controller = null;
+
+  async function ensure() {
+    if (controller) return controller;
+    controller = await guard.escape(tip, wrapper, {
+      placement: host.getAttribute('placement') || 'top',
+      offset: 8,
+      signal: host.ctrl.signal
+    });
+    return controller;
+  }
+
+  wrapper.addEventListener('pointerenter', async () =&gt; {
+    (await ensure()).show();
+  }, { signal: host.ctrl.signal });
+
+  wrapper.addEventListener('pointerleave', () =&gt; {
+    controller?.hide();
+  }, { signal: host.ctrl.signal });
+
+  host.ctrl.signal.addEventListener('abort', () =&gt; {
+    controller?.release();
+    controller = null;
+  }, { once: true });
+}
+</view-code>
+<p>Used by <code>ui-tooltip</code>. Kit architecture: <a href="/docs/elements/overlay">Overlay patterns</a>. Element page: <a href="/docs/elements/tooltip">tooltip</a>.</p>
 <hr />
 <h2>sanitizer</h2>
 <view-code language="javascript">const sanitizer = await guard.sanitizer();
@@ -59,3 +131,12 @@ scheduler.postTask(fn, { priority: 'user-visible' });
   if (i % 100 === 0) await guard.yield();
 }
 </view-code>
+<hr />
+<h2>Related</h2>
+<ul>
+<li><a href="/docs/platform/api">API Reference</a></li>
+<li><a href="/docs/platform/supports">Supports</a> (<code>popoverAPI</code>, <code>anchorPositioning</code>)</li>
+<li><a href="/docs/elements/overlay">Overlay patterns</a></li>
+<li><a href="/docs/elements/tooltip">Tooltip</a></li>
+<li><a href="/docs/ui/advanced">Memory safety &amp; framework globals</a></li>
+</ul>

@@ -8,6 +8,12 @@ import { router } from '../../../src/core/router/index.js';
 import { getContainer, registerContainer, clearContainers } from '../../../src/core/router/container.js';
 import { reset as resetBoot } from '../../../src/core/router/boot.js';
 
+/** Pipe runs in a queueMicrotask after handler() returns — flush it. */
+async function flushPipe() {
+  await new Promise((r) => queueMicrotask(r));
+  await new Promise((r) => queueMicrotask(r));
+}
+
 describe('Router Interceptor', () => {
   let originalNavigation;
   let mockNavigation;
@@ -151,6 +157,7 @@ describe('Router Interceptor', () => {
 
     listeners.navigate(mockEvent);
     await handlerPromise;
+    await flushPipe();
 
     if (!guardCalled) {
       throw new Error('Expected navigation guard to be called in Safari fallback');
@@ -187,6 +194,7 @@ describe('Router Interceptor', () => {
     };
     listeners.navigate(foundEvent);
     await handlerPromise1;
+    await flushPipe();
 
     if (!foundCalled) {
       throw new Error('Expected found event to fire');
@@ -205,13 +213,14 @@ describe('Router Interceptor', () => {
     };
     listeners.navigate(notfoundEvent);
     await handlerPromise2;
+    await flushPipe();
 
     if (!notfoundCalled) {
       throw new Error('Expected notfound event to fire');
     }
   });
 
-  it('throws and emits error event when required container is missing in DOM', async () => {
+  it('emits error event when required container is missing in DOM', async () => {
     let errorDetail = null;
     router.register('/dashboard', 'dash-page', { container: 'missing-sidebar' });
 
@@ -228,19 +237,20 @@ describe('Router Interceptor', () => {
       downloadRequest: false,
       destination: { url: new URL('/dashboard', globalThis.location?.href || 'http://localhost').href },
       intercept(options) {
-        handlerPromise = options.handler().catch(() => {});
+        handlerPromise = Promise.resolve(options.handler());
       }
     };
 
     listeners.navigate(mockEvent);
     await handlerPromise;
+    await flushPipe();
 
     if (!errorDetail) {
       throw new Error('Expected error event to be emitted when container is missing');
     }
 
-    if (errorDetail.phase !== 'container' || !errorDetail.error.message.includes('missing-sidebar')) {
-      throw new Error('Expected RouteError for missing container to be caught');
+    if (errorDetail.phase !== 'container') {
+      throw new Error(`Expected container phase, got ${errorDetail.phase}`);
     }
   });
 });

@@ -13,7 +13,7 @@ import {
   setup, destroy,
   addGuard, setNotFound,
   addTransformer,
-  guardsApi, missApi,
+  guardsApi, missApi, pagesApi,
   on, nav, registerNavigator,
   getShell, getWin
 } from './intercept.js';
@@ -64,6 +64,7 @@ export const router = {
   // Grouped APIs
   guards: guardsApi,
   miss: missApi,
+  pages: pagesApi,
   links,
 
   // Sync controls
@@ -166,6 +167,7 @@ export {
   nav,
   guardsApi,
   missApi,
+  pagesApi,
   // sync sub-module
   setupTabSync,
   registerConnection,

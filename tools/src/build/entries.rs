@@ -80,6 +80,8 @@ fn module_scripts(path: &Path) -> Vec<String> {
     Ok(c) => c,
     Err(_) => return Vec::new(),
   };
+  // Ignore `<script>` samples inside `<view-code>` docs snippets.
+  let content = crate::build::html::opaque_view_code(&content);
   let doc = scraper::Html::parse_document(&content);
   let sel = match scraper::Selector::parse("script[type=module][src]") {
     Ok(s) => s,
@@ -97,6 +99,7 @@ fn stylesheets(path: &Path) -> Vec<String> {
     Ok(c) => c,
     Err(_) => return Vec::new(),
   };
+  let content = crate::build::html::opaque_view_code(&content);
   let doc = scraper::Html::parse_document(&content);
   let sel = match scraper::Selector::parse("link[rel=stylesheet][href]") {
     Ok(s) => s,

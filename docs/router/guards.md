@@ -1,6 +1,10 @@
 # Guards
 
+> **Not platform feature-gates.** Navigation guards (`router.guard`, `page({ guard })`) block or redirect navigations. For polyfills and capability checks, see [platform/guards.md](../platform/guards.md).
+
 Guards block or redirect navigation before the DOM changes. They run at two points in the navigation lifecycle: pre-commit (before the URL updates) and post-commit (after, as a Safari fallback).
+
+When a guard **throws**, the router emits `error` with `phase: 'guard'` and renders the **error** fallback leaf (shared library built-in, or a dock / `configure` / route override). See [fallbacks.md](fallbacks.md).
 
 ---
 

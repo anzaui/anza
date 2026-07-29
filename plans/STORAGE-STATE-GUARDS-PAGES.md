@@ -4,7 +4,135 @@ Planning document for hardening Anza’s **storage** and **state** contracts, cl
 
 **Related:** [NEXT.md](./NEXT.md) · [VIEW-TRANSITIONS.md](./VIEW-TRANSITIONS.md) · [MUTATIONS-EVENTS.md](./MUTATIONS-EVENTS.md) · [SSG-SEO.md](./SSG-SEO.md) · `docs/storage/*` · `docs/state/*` · `docs/router/{guards,pages,docks,events}.md` · `docs/platform/guards.md`
 
-**Status:** Plan only — not implemented. Prefer this as the **canonical** tracker for this track (no prior dedicated plan file).
+**Status:** Implementing — Phases 0–2 landed (dock/page-scoped resolver + custom `{ tag }` overrides); Phase 3 types/facade smoke done; Phase 4 docs/SSG notes partial.
+
+---
+
+## Override story — dock/page-scoped 404 / 5xx / offline
+
+**Critical constraint:** fallbacks are **scoped to docks (and route pages under them)** — not a single global shell UI. Soft-nav miss/error swaps the **leaf** inside the active dock chain; parent chrome stays mounted.
+
+**Defaults are shared library built-ins**, not per-dock scaffolding:
+
+- Built-ins live in `pages.js` (`DEFAULT_*_HTML`) — **one shared HTML** (or later tag) per kind.
+- Bare `dock('name')` gets miss/error/offline UI **for free** via the resolver; host = leaf dock in `via`.
+- Override only with dock/page `{ notfound|error|offline: { tag } }` (or HTML) when branded UI is needed.
+- Do **not** copy `404.html` into every dock folder. Scaffold creates bare docks without error-page files — that is correct.
+
+### Precedence (highest → lowest)
+
+```text
+1. Page/route   page({ error: { tag } })     // error only — matched route then failed
+2. Dock         dock('content'|'docs'|…, { notfound|error|offline })
+                // walk leaf → root; deepest dock that defines the kind supplies the template
+3. App (optional)  router.pages.configure({ … })   // when no dock in the chain defines the kind
+4. Built-in     DEFAULT_*_HTML (shared library — not copied per dock)
+```
+
+**Host vs template:** the **host** (where we `swap`) is always the **deepest live dock** in the current `via` / `lastVia` chain (the leaf). The **template** may come from that dock or a shallower ancestor — parents are never torn down just to show a 404.
+
+`router.notFound(fn)` / `router.pages.onError(fn)` are optional **escape hatches** (full manual control). Prefer dock / `configure` tags for normal apps. Escape hatches run only when you opt in; they do not redefine the product model as “one global 404.”
+
+### Nested docks — branded override per section (optional)
+
+```javascript
+import { view, dock, page } from '@adukiorg/anza/ui';
+import { router } from '@adukiorg/anza/router';
+
+view('page-docs-not-found', {
+  template: { html: './docs-404.html' }
+}, import.meta.url);
+
+view('page-app-not-found', {
+  template: { html: './app-404.html' }
+}, import.meta.url);
+
+view('page-docs-error', {
+  template: { html: './docs-error.html' },
+  props: { message: { type: String }, phase: { type: String } }
+}, import.meta.url);
+
+dock('main', {
+  template: '<slot></slot>',
+  // Shell-wide fallback — used only when a deeper dock has none
+  notfound: { tag: 'page-app-not-found' },
+  error: { tag: 'page-app-not-found' }
+});
+
+dock('docs', {
+  parent: 'main',
+  template: '<aside></aside><slot></slot>'
+});
+
+// Leaf dock — soft-nav miss under docs swaps HERE, not over <main>
+dock('content', {
+  parent: 'docs',
+  notfound: { tag: 'page-docs-not-found' },
+  error: { tag: 'page-docs-error' }
+});
+
+page('/docs/:slug', {
+  tag: 'page-doc',
+  via: ['main', 'docs', 'content'],
+  error: { tag: 'page-docs-error' },
+  template: { html: './doc.html' }
+}, import.meta.url);
+
+// Optional shared kinds when some docks omit config
+router.pages.configure({
+  offline: { tag: 'page-offline' }
+});
+```
+
+Unmatched `/docs/…` after a docs soft-nav: **content** receives `page-docs-not-found`; `docs` / `main` chrome stay.
+
+### Bare docks (library defaults — recommended start)
+
+```javascript
+dock('main');
+dock('docs', { parent: 'main' });
+dock('content', { parent: 'docs' });
+// no notfound/error files — resolver uses DEFAULT_*_HTML into the leaf
+```
+
+### App-only configure (shared branded UI, still leaf-hosted)
+
+```javascript
+view('page-not-found', {
+  template: { html: './not-found.html' }
+}, import.meta.url);
+
+router.pages.configure({
+  notfound: { tag: 'page-not-found' },
+  error: { tag: 'page-server-error' }
+});
+```
+
+Still mounts into the **leaf** dock of the active chain — not a document-level wipe. Use when docks omit a kind and you want one branded default without repeating dock config.
+
+### Escape hatch
+
+```javascript
+router.notFound(async (ctx) => {
+  const host = router.getContainer('content') ?? router.getContainer('main');
+  const el = document.createElement('page-not-found');
+  el.classList.add('page-content');
+  await host.swap(el, { direction: 'replace' });
+});
+
+router.pages.onError(async (ctx) => {
+  // return false → fall through to page → dock → configure → built-in
+});
+```
+
+### Soft-nav / SSG implications
+
+| Context | Behavior |
+| ------- | -------- |
+| Soft-nav miss in nested docks | Swap leaf inside deepest `via` dock; use that dock’s (or ancestor’s) notfound; **do not** replace the whole shell |
+| Soft-nav error | Same host = leaf dock; page `{ error }` then dock chain |
+| Hard refresh / boot miss | Same resolver; host from live graph / leaf / `main` |
+| SSG | Host may 404 the URL; CSR paints the dock-scoped leaf after boot |
 
 ---
 
@@ -62,16 +190,15 @@ Goal: one coherent story — **where defaults live, how apps override them (app 
 
 | Piece | Location | Behavior |
 | ----- | -------- | -------- |
-| Built-in 404 HTML | `intercept.js` `DEFAULT_NOTFOUND_HTML` | Minimal inline markup when nothing else configured |
-| `renderNotFound(activeContainer)` | `intercept.js` | Walks **up** from hint for first **live** host; uses `host.constructor.notfound` or default; `swap` / `replaceChildren` |
-| Dock override | `dock({ notfound })` → `Cls.notfound` | String or `{ html }` only |
-| App override | `router.notFound` / `router.miss.set` | Full handler; **skips** `renderNotFound` when set |
-| Events | `found` / `notfound` / `error` | Error phases: `match`, `container`, `guard`, `handler`, `navigation` — **emit only**, no default UI |
-| Boot miss | `intercept.js` boot path | Emits `notfound` then **always** `renderNotFound` — does **not** call `notFoundHandler` |
+| Shared built-ins | `pages.js` `DEFAULT_*_HTML` | One shared HTML per kind; bare docks use these via resolver — **not** per-dock file copies |
+| Resolver | `pages.js` `renderPageKind` | Host = leaf in `via`; template = page → dock leaf→root → `configure` → built-in |
+| Dock override | `dock({ notfound\|error\|offline })` → `Cls.*` | Optional `{ tag }` / HTML; omit for library defaults |
+| App override | `router.pages.configure` | Optional when no dock defines the kind |
+| Escape hatches | `router.notFound` / `pages.onError` | Full manual control; `return false` falls through |
+| Events | `found` / `notfound` / `error` | Error phases then default UI unless suppressed |
 | SW offline HTML | `docs/sw/*`, `OfflineFallback` | Separate document URL, not dock leaf |
 | Dev/static 404 | `tools/src/server/runner.rs` | Plain `404 Not Found` body when no SSG/SPA HTML |
-| Docs claim | `docs/router/docks.md` | “Deepest configured dock wins” — **not what code does** (uses first live host from `'main'` hint) |
-| Docs drift | `docs/ui/api.md`, some web copies | List `notfound` as if on generic element/page config; **dock-only** in code |
+| Scaffold | `library/bin/create/run.js` | Bare `dock('main')` — no error-page files (correct) |
 
 ### Soft-nav / VT / signal (already shipped; error pages must join)
 
@@ -111,7 +238,7 @@ Goal: one coherent story — **where defaults live, how apps override them (app 
 1. **One decision tree** for storage vs state persistence (when to use which; shared DB naming rules).
 2. **Stable public contracts** for storage + state (types, docs, facade tests) without rewriting working adapters.
 3. **Clear guard vocabulary** — platform feature-gates vs navigation guards; cross-links only.
-4. **Default dock pages** for **404**, **5xx** (nav/handler failure), and optionally **offline**, with a documented **override ladder**: app → dock → route.
+4. **Default dock pages** for **404**, **5xx** (nav/handler failure), and optionally **offline**, with a documented **override ladder**: page → dock → optional app → built-in (dock/page-scoped, not global shell).
 5. **Parity** — soft-nav and hard boot / hard refresh use the same miss/error resolution; swaps honor VT + AbortSignal.
 6. **SSG-aware guidance** — what static hosts should serve for unknown paths vs what the CSR router paints inside docks.
 
@@ -224,72 +351,33 @@ Platform `guard.*` needs no API change in this track (escape/tooltip already shi
 
 | Kind | Trigger | Default content |
 | ---- | ------- | --------------- |
-| `notfound` (404) | No route match (soft-nav + boot) | Built-in minimal HTML (keep) |
-| `error` (5xx-class) | `phase` in `container` \| `guard` \| `handler` \| `navigation` \| `match` after emit | New built-in minimal “Something went wrong” HTML |
-| `offline` (optional) | Soft-nav attempted while `navigator.onLine === false` **or** explicit `router.pages.show('offline')` | New minimal offline HTML; SW document fallback remains for cold loads |
+| `notfound` (404) | No route match (soft-nav + boot) | Shared library `DEFAULT_NOTFOUND_HTML` in `pages.js` (one copy for all docks) |
+| `error` (5xx-class) | `phase` in `container` \| `guard` \| `handler` \| `navigation` \| `match` after emit | Shared library `DEFAULT_ERROR_HTML` |
+| `offline` (optional) | Soft-nav attempted while `navigator.onLine === false` **or** explicit `router.pages.show('offline')` | Shared library `DEFAULT_OFFLINE_HTML`; SW document fallback remains for cold loads |
 
 HTTP status numbers are **labels for authors**, not literal `Response.status` from the Navigation API. Map: unmatched → 404 UI; thrown/failed nav pipeline → 5xx UI; connectivity → offline UI.
 
-#### Override ladder (highest wins)
+Bare `dock('name')` wires **by reference** to these shared built-ins via the resolver — **not** by scaffolding HTML into each dock folder.
+
+#### Override ladder (highest wins) — dock/page-scoped
+
+See **Override story** above. Fallbacks are **not** a single global shell UI.
 
 ```text
-1. Per-route   page({ …, pages: { notfound, error } })     // optional, later
-2. Dock        dock('content', { notfound, error, offline })
-3. App         router.pages.configure({ notfound, error, offline })
-               // or keep router.notFound(fn) as escape hatch for full control
-4. Built-in    DEFAULT_*_HTML in intercept.js
+1. Page/route   page({ error })
+2. Dock         leaf→root; deepest dock that defines the kind (template)
+3. App (optional)  router.pages.configure
+4. Built-in
 ```
 
-**Resolution algorithm for miss/error:**
+**Resolution:**
 
-1. If app registered a **function** handler (`router.notFound` / `router.pages.error`) → call it; if it returns `{ handled: true }` / non-false, stop.
-2. Else resolve **host dock**: walk the **current via chain** (last successful chain, or deepest live container under `#main`) from **leaf → root**; pick the first dock class that defines the kind template **or** custom element tag.
-3. Else use built-in HTML.
-4. Render via `host.swap(node, { direction: 'replace', signal })` when `swap` exists — **same VT + abort rules as pages**.
+1. **Host** = deepest live dock in `via` / `lastVia` (leaf). Soft-nav never replaces the whole shell.
+2. **Template** = route `error` → dock chain leaf→root → `configure` → built-in.
+3. Optional `router.notFound` / `onError`: return `false` to fall through to auto-mount into the leaf host.
+4. Materialize `{ tag }` / HTML into that host via `swap(..., { direction: 'replace', signal })`.
 
-Fix G6: implement true “deepest configured wins,” matching docs. Fix G7: boot path uses the same resolver as navigate (including app handler).
-
-#### Template shapes (additive)
-
-```javascript
-// String / { html } — today
-dock('main', {
-  notfound: '<h1>Not found</h1>',
-  error: { html: './error.html' },
-  offline: '<p>You are offline</p>'
-});
-
-// Preferred: custom element page tag (new)
-dock('content', {
-  notfound: { tag: 'page-not-found' },
-  error: { tag: 'page-server-error' }
-});
-
-// App-level
-router.pages.configure({
-  notfound: { tag: 'page-not-found' },
-  error: { tag: 'page-server-error' },
-  offline: { tag: 'page-offline' }
-});
-
-// Full escape hatch (existing)
-router.notFound(async (event) => { /* custom */ });
-```
-
-Library may ship **optional** default page modules under e.g. `library/src/core/router/pages/` (`not-found.js`, `error.js`, `offline.js`) that apps import once — not auto-registered globally (keeps ESM tree-shake friendly).
-
-#### Per-route override
-
-```javascript
-page('/admin/:rest*', {
-  tag: 'page-admin',
-  via: ['main', 'admin'],
-  // Only used when this route matched then failed in handler — or for nested miss under a section
-  error: { tag: 'page-admin-error' }
-});
-```
-
-Phase this after dock + app levels work. Route-level **notfound** is low value (miss means no route); prefer section docks.
+Fixes G6–G8 with dock-scoped host + custom view tags.
 
 #### Selection vs soft-nav / SSG / VT / AbortSignal
 
@@ -354,13 +442,13 @@ Phase this after dock + app levels work. Route-level **notfound** is low value (
 
 ## Acceptance criteria (track-level)
 
-- [ ] **Docs:** One glossary distinguishing platform `guard` vs router `guard`; storage vs `state.storage` decision tree.
-- [ ] **404:** Soft-nav and boot use the same resolver; app handler and dock overrides behave as ladder; deepest configured dock wins.
-- [ ] **5xx UI:** At least one error phase renders default or overridden error page into a live dock without blanking the shell.
-- [ ] **Overrides:** App-level + dock-level documented and tested; per-route error optional but specified.
-- [ ] **Soft-nav:** Miss/error swap leaves zero orphaned leaf listeners (reuse soft-nav test pattern); VT respects `signal` / reduced-motion.
-- [ ] **Storage types + facade tests** match runtime.
-- [ ] **No regression** to existing `router.guard` / `page({ guard })` / platform `guard.*` call shapes.
+- [x] **Docs:** Glossary platform vs router guards; storage vs `state.storage`; [fallbacks.md](../docs/router/fallbacks.md) dock-scoped ladder.
+- [x] **404:** Soft-nav and boot share resolver; leaf host + deepest dock template; nested-dock tests.
+- [x] **5xx UI:** `fail()` renders error/offline leaf; route/dock/`configure` overrides.
+- [x] **Overrides:** Page → dock → optional app → built-in; `{ tag }` custom views; escape hatch `return false`.
+- [ ] **Soft-nav:** Explicit soft-nav orphan leak assertion for miss leaf (reuse soft-nav pattern) — follow-up.
+- [x] **Storage types + facade tests** match runtime (configure / options smoke).
+- [x] **No regression** intercept suite green with microtask flush.
 
 ---
 
@@ -396,8 +484,8 @@ Phase this after dock + app levels work. Route-level **notfound** is low value (
 
 | Doc | Change |
 | --- | ------ |
-| `docs/router/docks.md` | `notfound` / `error` / `offline`; true override ladder |
-| `docs/router/pages.md` or new `docs/router/fallbacks.md` | Default pages + overrides + soft-nav/SSG notes |
+| `docs/router/docks.md` | Optional `notfound` / `error` / `offline`; bare docks use library defaults |
+| `docs/router/pages.md` or new `docs/router/fallbacks.md` | Shared built-ins + overrides + soft-nav/SSG; **no** copy-404-per-dock guidance |
 | `docs/router/guards.md` | Glossary link to platform guards; error-page on throw |
 | `docs/platform/guards.md` | Glossary link to router guards |
 | `docs/router/events.md` | Error phases → default UI |

@@ -39,6 +39,8 @@ What it does:
 3. Registers two routes: static assets get `CacheFirst`, API calls get `NetworkFirst` with a 3-second timeout
 4. On `fetch`, tries the router first; unmatched requests fall through to the network
 
+Keep helpers in optional `src/sw/` and `import` them from `src/sw.js` — that folder is **modules only**, not extra registrations. Multi-scope workers (advanced) use `anza.json` `sw` arrays — see [intro/structure.md](../intro/structure.md#service-workers).
+
 ---
 
 ## 2. Register from `app.js`

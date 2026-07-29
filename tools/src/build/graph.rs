@@ -87,10 +87,13 @@ pub fn resolve(
   let lib_src = lib_dir.as_ref().map(|d| d.join("src"));
   let lib_map = lib_dir.as_ref().map(|d| super::resolve::load_map(d)).unwrap_or_default();
   let user_map = super::resolve::load_map(&project);
+  let order_slots: super::order::Slots =
+    (&crate::structure::load_slots(&project)).into();
 
   // Load build cache for incremental rebuilds.
   let mut cache = super::cache::load(&project);
-  let version = "1.0.1";
+  // Bump when emit transforms change (e.g. import-order rewrite) so caches rebuild.
+  let version = "1.0.2";
 
   // Invalidate cache if version or mode mismatch.
   if let Some(ref c) = cache {
@@ -335,6 +338,15 @@ pub fn resolve(
         if let Ok(content) = std::fs::read_to_string(file) {
           let injected = super::html::inject_assets(&content, &importmap, dev);
           if std::fs::write(&target, injected).is_ok() {
+            copied += 1;
+          }
+        }
+      } else if is_js(file) {
+        // Rewrite static imports into usage order (library → docks → views →
+        // parts → pages). Source may import in any order; dist loads correctly.
+        if let Ok(content) = std::fs::read_to_string(file) {
+          let ordered = super::order::rewrite_with(&content, file, src, &order_slots);
+          if std::fs::write(&target, ordered).is_ok() {
             copied += 1;
           }
         }

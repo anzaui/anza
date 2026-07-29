@@ -8,18 +8,24 @@ npm install
 </view-code>
 <p>This generates:</p>
 <div class="table-wrap"><table><thead><tr><th>Path</th><th>Purpose</th></tr></thead><tbody>
-<tr><td><code>src/app.js</code></td><td>Entry point — imports the UI system and defines a layout dock</td></tr>
+<tr><td><code>src/app.js</code></td><td>Entry point — imports UI, barrels, and defines a layout dock</td></tr>
 <tr><td><code>src/index.html</code></td><td>HTML shell with importmap, tokens, styles, and module script</td></tr>
 <tr><td><code>src/sw.js</code></td><td>Service Worker entry — caching, routing, sync</td></tr>
+<tr><td><code>src/pages/index.js</code></td><td>Pages barrel</td></tr>
 <tr><td><code>src/pages/entry/index.js</code></td><td>Landing page definition</td></tr>
 <tr><td><code>src/pages/entry/index.html</code></td><td>Landing page markup</td></tr>
 <tr><td><code>src/pages/entry/index.css</code></td><td>Landing page styles</td></tr>
+<tr><td><code>src/docks/index.js</code></td><td>Docks barrel (empty until you add docks)</td></tr>
+<tr><td><code>src/views/index.js</code></td><td>Views barrel — global views slot</td></tr>
+<tr><td><code>src/parts/index.js</code></td><td>Parts barrel</td></tr>
 <tr><td><code>src/tokens/</code></td><td>Design tokens copied from the library (colors, spacing, typography)</td></tr>
 <tr><td><code>src/styles/</code></td><td>Global styles copied from the library (reset, layers, base)</td></tr>
 <tr><td><code>importmap.json</code></td><td>Empty starter for custom aliases</td></tr>
 <tr><td><code>package.json</code></td><td>Scripts: <code>dev</code> and <code>build</code></td></tr>
 </tbody></table></div>
 <p>You own <code>src/tokens/</code> and <code>src/styles/</code>. The library copies them in as starter files; change them freely.</p>
+<p>Empty <code>src/docks/</code>, <code>src/views/</code>, and <code>src/parts/</code> folders (with <code>index.js</code> barrels) are teaching affordances — optional at runtime. You may rename the landing folder, add extra page trees (e.g. <code>src/docs/</code>), or skip <code>src/sw.js</code> for static sites. Full required / recommended / optional tables, index-per-folder convention, and optional <code>anza.json</code> remaps: <a href="/docs/intro/structure">Structure</a>.</p>
+<p>Apps need <strong>no</strong> <code>anza.json</code> at create time. Add one only when remapping roots, declaring extra page trees (<code>pages[]</code>), or listing additional service workers.</p>
 <hr />
 <h2>Run</h2>
 <view-code language="bash">npm run dev
@@ -28,24 +34,40 @@ npm install
 <ul>
 <li>Import graph resolution into <code>dist/</code></li>
 <li>Separate <code>dist/importmap.json</code> linked from HTML</li>
+<li>Mode A SSG for public routes (hard refresh) + CSR fragments for soft-nav</li>
 <li>CSS hot-swapping via SSE</li>
 <li>JS and HTML auto-reload on change</li>
 </ul>
+<p>Validate the layout before shipping:</p>
+<view-code language="bash">npx anza doctor   # soft: warnings print, exit 0
+npx anza check    # CI: warnings fail
+</view-code>
+<hr />
+<h2>Generate more files</h2>
+<p>Thin helpers into convention slots (updates the slot <code>index.js</code> barrel):</p>
+<view-code language="bash">npx anza generate page about
+npx anza generate dock sidebar --parent main
+npx anza generate view card
+npx anza generate part button
+</view-code>
+<p>Flags: <code>--tree</code>, <code>--route</code>, <code>--via</code>, <code>--parent</code>, <code>-s/--src</code>. Docks are created <strong>without</strong> error-page HTML — fallbacks stay by reference (<a href="/docs/router/fallbacks">Fallbacks</a>). Details: <a href="/docs/intro/build#generate">Build</a> and <a href="/docs/intro/structure#generate-anza-generate">Structure</a>.</p>
 <hr />
 <h2>What Was Generated</h2>
 <h3><code>src/app.js</code></h3>
 <view-code language="javascript">import '@adukiorg/anza/ui';
 import { dock } from '@adukiorg/anza/ui';
+import '@adukiorg/anza/theme';
 
-// Register the Service Worker
-navigator.serviceWorker.register('/sw.js');
-
-// Layout shell
-dock('main');
-
+import './docks/index.js';
+import './views/index.js';
+import './parts/index.js';
 import './pages/index.js';
+
+navigator.serviceWorker.register('/sw.js', { type: 'module' });
+
+dock('main');
 </view-code>
-<p>This initializes the UI system, registers the Service Worker, creates a <code>main</code> dock, and loads the welcome page.</p>
+<p>This initializes the UI system, loads barrels, registers the Service Worker, and creates a <code>main</code> dock. Source import order is free-form — <code>anza build</code> rewrites <code>dist/</code> into usage order (library → docks → views → parts → pages).</p>
 <h3><code>src/pages/entry/index.js</code></h3>
 <view-code language="javascript">import { page } from '@adukiorg/anza/ui';
 
@@ -75,7 +97,7 @@ page('/', {
 </view-code>
 <hr />
 <h2>Next</h2>
-<p>Add a new page:</p>
+<p>Add a new page (hand-write or <code>anza generate page about</code>):</p>
 <view-code language="javascript">import { page } from '@adukiorg/anza/ui';
 
 page('/about', {
@@ -84,4 +106,12 @@ page('/about', {
   template: '&lt;h1&gt;About&lt;/h1&gt;'
 });
 </view-code>
-<p>Clicking <code>&lt;a href="/about"&gt;</code> is intercepted, matched, and soft-nav swaps only the page leaf inside <code>main</code> — the dock stays mounted. Both <code>anza dev</code> and <code>anza build</code> emit contentful SSG HTML per public route for hard refresh; soft-nav loads page fragments (see <a href="/docs/ssg/contract">ssg/contract.md</a>).</p>
+<p>Import it from <code>src/pages/index.js</code> if you did not use <code>generate</code> (generate updates the barrel for you).</p>
+<p>Clicking <code>&lt;a href="/about"&gt;</code> is intercepted, matched, and soft-nav swaps only the page leaf inside <code>main</code> — the dock stays mounted. Both <code>anza dev</code> and <code>anza build</code> emit contentful SSG HTML per public route for hard refresh; soft-nav loads page fragments (see <a href="/docs/ssg/contract">SSG contract</a>).</p>
+<h3>Suggested reading order</h3>
+<ol>
+<li><a href="/docs/intro/structure">Structure</a> — what must exist; <code>anza.json</code>; doctor/check</li>
+<li><a href="/docs/intro/build">Build</a> — flags, SSG, generate</li>
+<li><a href="/docs/router/pages">Pages</a> / <a href="/docs/router/docks">Docks</a> — <code>page</code> / <code>dock</code></li>
+<li><a href="/docs/router/fallbacks">Fallbacks</a> — 404 / error / offline without folder copies</li>
+</ol>

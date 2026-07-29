@@ -13,25 +13,18 @@ import { isCallback, runCallback } from './handler.js';
 
 import { ensure } from './cascade.js';
 import { getContainer } from './container.js';
-import { get as graphGet } from './graph.js';
 import { match } from './match.js';
 import { specRegistry } from '../ui/define/state.js';
+import {
+  renderPageKind,
+  setNotFound,
+  rememberVia,
+  resetPages,
+  pagesApi,
+  missApi
+} from './pages.js';
 
-/**
- * Built-in minimal 404 HTML rendered when no user notfound is configured.
- * Kept intentionally plain so it inherits the app's base typography.
- */
-const DEFAULT_NOTFOUND_HTML = `
-  <div style="
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    min-height:60vh;gap:1rem;padding:2rem;text-align:center;font-family:inherit;
-  ">
-    <span style="font-size:3rem;font-weight:800;opacity:.15;">404</span>
-    <p style="margin:0;font-size:1rem;opacity:.5;">Page not found</p>
-    <a href="/" style="font-size:.875rem;opacity:.6;text-decoration:none;">← Go home</a>
-  </div>
-`;
-
+export { setNotFound, pagesApi, missApi };
 /**
  * Wraps a plain array with non-enumerable `first`, `last`, and named
  * index getters. Mirrors spec.js makeAccessorArray for use in the router.
@@ -195,7 +188,7 @@ async function pipe(event, precommitted) {
   try {
     routeMatch = await match(destination.url);
   } catch (err) {
-    emit('error', { error: err, url: destination.url, route: null, phase: 'match' });
+    await fail('match', err, destination.url, null, []);
     return;
   }
 
@@ -219,8 +212,8 @@ async function pipe(event, precommitted) {
         }
       }
     } catch (err) {
-      emit('error', { error: err, url: destination.url, route: routeMatch.route, phase: 'container' });
-      throw err;
+      await fail('container', err, destination.url, routeMatch.route, chain);
+      return;
     }
   }
 
@@ -230,7 +223,7 @@ async function pipe(event, precommitted) {
       try {
         redirectUrl = await guardFn(destination, null);
       } catch (err) {
-        emit('error', { error: err, url: destination.url, route: routeMatch?.route ?? null, phase: 'guard' });
+        await fail('guard', err, destination.url, routeMatch?.route ?? null, chain);
         return;
       }
       if (redirectUrl) {
@@ -245,11 +238,12 @@ async function pipe(event, precommitted) {
       try {
         await runCallback(routeMatch.route.handler, routeMatch.params, event);
       } catch (err) {
-        emit('error', { error: err, url: destination.url, route: routeMatch.route, phase: 'handler' });
+        await fail('handler', err, destination.url, routeMatch.route, chain);
         return;
       }
     }
 
+    rememberVia(chain);
     const ctx = buildRouteContext(routeMatch.tag, routeMatch.params, destination.url);
     emit('found', {
       tag: routeMatch.tag,
@@ -265,62 +259,30 @@ async function pipe(event, precommitted) {
     });
   } else {
     emit('notfound', { url: destination.url });
-    if (notFoundHandler) {
-      await notFoundHandler(event);
-    } else {
-      renderNotFound('main');
-    }
+    await renderPageKind('notfound', {
+      event,
+      url: destination.url,
+      via: chain.length ? chain : undefined,
+      activeContainer: chain.at(-1) ?? 'main'
+    });
   }
 }
 
-/**
- * Renders the not-found fallback into the deepest currently-live container.
- * Walks the graph from the deepest live node upward until it finds a mounted
- * dock element, then swaps a notfound div into it.
- *
- * Each dock may expose a static `notfound` property (set by dock() when the
- * user supplies a notfound config). The deepest configured one wins.
- *
- * @param {string} [activeContainer='main'] - hint: the last-active container.
- */
-function renderNotFound(activeContainer = 'main') {
-  // Walk from the hinted container upward until we find a live element.
-  let name = activeContainer;
-  let host = null;
-  const visited = new Set();
-  while (name && !visited.has(name)) {
-    visited.add(name);
-    const el = getContainer(name);
-    if (el && el.isConnected) { host = el; break; }
-    const node = graphGet(name);
-    name = node?.parent?.name ?? null;
-  }
-  if (!host) {
-    // Last resort: use the root main element directly.
-    host = document.getElementById('main');
-  }
-  if (!host) return;
-
-  // Build the notfound element. Check for a user-defined template on the
-  // host element's class (set by dock() via the notfound config option).
-  const Cls = host.constructor;
-  const userHtml = Cls?.notfound ?? null;
-  const html = typeof userHtml === 'string' ? userHtml : DEFAULT_NOTFOUND_HTML;
-
-  const wrapper = document.createElement('div');
-  wrapper.setAttribute('role', 'status');
-  wrapper.setAttribute('aria-label', 'Page not found');
-  wrapper.innerHTML = html;
-
-  if (typeof host.swap === 'function') {
-    host.swap(wrapper);
-  } else {
-    host.replaceChildren(wrapper);
-  }
+/** Emit error event and render the error (or offline) fallback leaf. */
+async function fail(phase, error, url, route, via = []) {
+  emit('error', { error, url, route: route ?? null, phase });
+  const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
+  await renderPageKind(offline ? 'offline' : 'error', {
+    error,
+    url,
+    route,
+    phase,
+    via,
+    activeContainer: via.at?.(-1) ?? 'main'
+  });
 }
 
 let guards = [];
-let notFoundHandler = null;
 let ready = false;
 let transformers = [];
 
@@ -412,22 +374,6 @@ export const guardsApi = {
 };
 
 /**
- * Sets the default handler for unmatched routes (404 page). Returns a disposer.
- */
-export function setNotFound(handler) {
-  notFoundHandler = handler;
-  return () => {
-    if (notFoundHandler === handler) notFoundHandler = null;
-  };
-}
-
-/** Grouped miss API. */
-export const missApi = {
-  set: setNotFound,
-  clear() { notFoundHandler = null; }
-};
-
-/**
  * Attaches the global window.navigation navigate listener.
  * Idempotent — safe to call multiple times.
  */
@@ -515,14 +461,21 @@ export function setup() {
     }
 
     console.error('Navigation error caught globally:', error);
-    emit('error', { error, url: window.navigation.currentEntry?.url ?? null, route: null, phase: 'navigation' });
+    const url = window.navigation.currentEntry?.url ?? null;
+    const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
+    emit('error', { error, url, route: null, phase: 'navigation' });
+    renderPageKind(offline ? 'offline' : 'error', {
+      error,
+      url,
+      phase: 'navigation'
+    }).catch(() => {});
 
     import('../events/index.js').then(({ events }) => {
       events.emit('core:error', {
         code: 'NAVIGATION_FAILED',
         message: error?.message || 'Navigation failed',
         cause: error,
-        context: { url: window.navigation.currentEntry?.url },
+        context: { url },
         recoverable: true
       });
     }).catch(() => {});
@@ -570,13 +523,13 @@ export function setup() {
         try {
           await mountChain();
         } catch (retryErr) {
-          // Both attempts failed — emit error but do NOT throw so the router
-          // can still attempt a notfound render rather than leaving a blank page.
-          emit('error', { error: retryErr, url, route: routeMatch.route, phase: 'container' });
+          // Both attempts failed — emit error + error leaf (do not throw).
+          await fail('container', retryErr, url, routeMatch.route, chain);
           return;
         }
       }
 
+      rememberVia(chain);
       const ctx = buildRouteContext(routeMatch.tag, routeMatch.params, url);
       emit('found', {
         tag: routeMatch.tag,
@@ -592,7 +545,7 @@ export function setup() {
       });
     } else {
       emit('notfound', { url });
-      renderNotFound('main');
+      await renderPageKind('notfound', { url, activeContainer: 'main' });
     }
   });
 }
@@ -618,7 +571,7 @@ export function destroy() {
 
   guards = [];
   transformers = [];
-  notFoundHandler = null;
+  resetPages();
   resetBoot();
 
   for (const set of Object.values(listeners)) {

@@ -80,15 +80,24 @@ dock('detail', {
 });
 ```
 
-### `notfound`
+### `notfound` / `error` / `offline`
 
-Custom HTML or template config to render inside the dock when a 404 (route not found) is encountered. The deepest configured dock in the container chain wins at runtime:
+**Optional overrides.** Bare `dock('name')` already gets miss / error / offline UI from the **shared library built-ins** (`pages.js`) — do **not** copy `404.html` into every dock folder. Scaffold correctly creates docks without error-page files. The `src/docks/` folder itself is an **optional** structure slot — `dock()` may live in `app.js` ([structure.md](../intro/structure.md)).
+
+Soft-nav swaps the **leaf** dock only; parent chrome stays. Walk leaf → root: the deepest dock that defines the kind supplies the template (may paint into a deeper leaf host). Override only for branded UI:
 
 ```javascript
-dock('main', {
-  notfound: '<div class="error-404"><h1>Oops! Page Not Found</h1></div>'
+dock('content', {
+  parent: 'docs',
+  notfound: { tag: 'page-docs-not-found' },
+  error: { tag: 'page-docs-error' },
+  offline: { tag: 'page-offline' }
 });
 ```
+
+HTML strings and `{ html }` still work. Full ladder + bare-dock sample: [fallbacks.md](fallbacks.md).
+
+`anza generate dock <name>` creates a leaf under `src/docks/` **without** `404.html` — that is intentional.
 
 ---
 

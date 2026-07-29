@@ -59,15 +59,19 @@ Deletes from all tiers (memory + the specified tier).
 
 ---
 
-## 5. Query IndexedDB
+## 5. List keys / clear / estimate
 
 ```javascript
-const results = await storage.query('keyval', (value) => {
-  return value && value.active === true;
-});
+const keys = await storage.list();           // IDB keyval keys (default)
+const opfsKeys = await storage.list('opfs');
+
+await storage.clear('memory'); // or 'idb' | 'opfs' | 'cache' | 'all'
+
+const est = await storage.estimate();
+console.log(est.usage, est.quota, est.persisted);
 ```
 
-Returns all records matching the filter.
+Advanced IndexedDB cursor queries use options (not a filter callback) — see [api.md](api.md#storagequerystorename-queryopts). For reactive-store snapshots with a filter function, use `state.storage.query` ([state/persist.md](../state/persist.md)).
 
 ---
 

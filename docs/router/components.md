@@ -57,7 +57,7 @@ Parts are lighter than views because they skip the reactive `on.change` loop. If
 
 The router warns you if you declare `on.change` on a part:
 
-```
+```text
 [Native UI] <icon-star> is a 'part' but declares on.change.
 Parts are stateless — promote it to a 'view' if it needs reactive re-rendering.
 ```

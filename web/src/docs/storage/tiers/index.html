@@ -48,3 +48,10 @@ const cached = await storage.get('config', 'cache'); // returns Response
 <tr><td>Offline assets</td><td><code>cache</code></td></tr>
 <tr><td>Files, PDFs</td><td><code>opfs</code></td></tr>
 </tbody></table></div>
+<hr />
+<h2>List / clear across tiers</h2>
+<view-code language="javascript">const idbKeys = await storage.list();        // default idb
+const files = await storage.list('opfs');
+await storage.clear('cache');                // or 'idb' | 'opfs' | 'memory' via LRU | 'all'
+</view-code>
+<p>Configure distinct DB names before first use when also opening <code>state.storage</code> — see <a href="/docs/storage/troubleshooting">Troubleshooting</a>.</p>

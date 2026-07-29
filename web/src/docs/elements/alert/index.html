@@ -1,5 +1,5 @@
 <h1>Alert</h1>
-<p>Inline severity notification with <code>role="alert"</code> and optional dismiss control.</p>
+<p>Inline feedback banner with variant styling, ARIA live region semantics, and optional dismiss.</p>
 <p><strong>Tag:</strong> <code>ui-alert</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/alert</code></p>
 <hr />
 <h2>Import</h2>
@@ -7,25 +7,48 @@
 </view-code>
 <hr />
 <h2>Basic usage</h2>
-<view-code language="html">&lt;ui-alert variant="success"&gt;Saved successfully.&lt;/ui-alert&gt;
+<view-code language="html">&lt;ui-alert variant="info"&gt;Your changes were saved.&lt;/ui-alert&gt;
 &lt;ui-alert variant="error" dismissible&gt;Something went wrong.&lt;/ui-alert&gt;
 </view-code>
 <hr />
+<h2>Advanced usage</h2>
+<view-code language="html">&lt;ui-form id="profile" action="/api/profile" method="POST"&gt;
+  &lt;ui-input name="name" required&gt;&lt;/ui-input&gt;
+  &lt;ui-button type="submit"&gt;Save&lt;/ui-button&gt;
+&lt;/ui-form&gt;
+&lt;ui-alert id="status" variant="success" dismissible hidden&gt;&lt;/ui-alert&gt;
+
+&lt;script type="module"&gt;
+  const form = document.querySelector('#profile');
+  const status = document.querySelector('#status');
+  form.addEventListener('success', () =&gt; {
+    status.textContent = 'Profile updated.';
+    status.removeAttribute('hidden');
+  });
+  status.addEventListener('dismiss', () =&gt; status.setAttribute('hidden', ''));
+&lt;/script&gt;
+</view-code>
+<p>Dismissible alerts fire <code>dismiss</code> then remove themselves from the DOM. Use <code>role="alert"</code> for important messages.</p>
+<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>variant</code></td><td>String</td><td>Reflect</td><td>Visual severity (e.g. info / success / warning / error — theme-dependent)</td></tr>
-<tr><td><code>dismissible</code></td><td>Boolean</td><td>Reflect</td><td>Shows the close control when set</td></tr>
+<tr><td><code>variant</code></td><td>String</td><td>Reflect</td><td>Visual tone: <code>info</code> · <code>success</code> · <code>warning</code> · <code>error</code></td></tr>
+<tr><td><code>dismissible</code></td><td>Boolean</td><td>Reflect</td><td>Show close button; removes element on dismiss</td></tr>
 </tbody></table></div>
 <h2>Events</h2>
 <div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody>
-<tr><td><code>dismiss</code></td><td>Fired when the close button is clicked; element then removes itself</td></tr>
+<tr><td><code>dismiss</code></td><td>User clicks close; element is removed after</td></tr>
 </tbody></table></div>
-<h2>Notes</h2>
-<p>Default slot is the alert body. Close button uses <code>part="close-button"</code>.</p>
+<h2>Slots / parts</h2>
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
+<tr><td><em>(default)</em></td><td>slot</td><td>Alert message</td></tr>
+<tr><td><code>alert</code> / <code>body</code> / <code>close-button</code></td><td>parts</td><td>Surface, content, dismiss control</td></tr>
+</tbody></table></div>
 <hr />
 <h2>Related</h2>
 <ul>
+<li><a href="/docs/elements/feedback">Feedback</a></li>
+<li><a href="/docs/elements/toast">Toast</a> (transient, body portal)</li>
+<li><a href="/docs/elements/badge">Badge</a></li>
 <li><a href="/docs/elements/index">Elements overview</a></li>
-<li><a href="/docs/ui/forms">Form association</a> (when <code>form: true</code>)</li>
-<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
 </ul>

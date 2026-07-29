@@ -102,6 +102,24 @@
 &lt;/script&gt;
 </view-code>
 <p>Both sync <code>open</code> (Boolean, reflect) to native <code>dialog.showModal()</code> / <code>close()</code>, with a short CSS transition before close. Sheet adds drag-to-dismiss on <code>part="handle"</code> (threshold ~120px). Full pages: <a href="/docs/elements/drawer">drawer</a>, <a href="/docs/elements/sheet">sheet</a>.</p>
+<h3>Custom float with <code>guard.escape</code> (same helper as tooltip)</h3>
+<p>Prefer <code>ui-tooltip</code> for hints. For a custom tip / chip that must escape <code>overflow</code> clipping without a body portal:</p>
+<view-code language="javascript">import { guard } from '@adukiorg/anza/platform';
+
+const tip = document.querySelector('#hint');     // [popover="manual"]
+const anchor = document.querySelector('#target');
+
+const ctrl = await guard.escape(tip, anchor, {
+  placement: 'top',
+  offset: 8,
+  signal: host.ctrl.signal // soft-nav / disconnect → release()
+});
+
+ctrl.show();   // popover top-layer, or fixed fallback
+ctrl.update(); // after layout changes
+ctrl.hide();   // clears position + scroll/resize listeners
+</view-code>
+<p>Strategies: <code>'popover'</code> when <code>showPopover</code> + <code>[popover]</code> exist; otherwise <code>'fixed'</code> (<code>position: fixed</code> + <code>data-escape-open</code>). Sync form: <code>escapeOverflow</code> from <code>@adukiorg/anza/platform</code> (call <code>await guard.popover()</code> first if you need the polyfill). Full API: <a href="/docs/platform/api">Platform API</a>, <a href="/docs/platform/guards#escape">Guards → escape</a>.</p>
 <hr />
 <h2>Lifecycle / memory / globals</h2>
 <ul>
@@ -133,7 +151,7 @@
 <tr><td><a href="/docs/elements/sheet">sheet</a></td><td><code>ui-sheet</code></td><td><code>@adukiorg/anza/elements/sheet</code></td><td>Full</td></tr>
 </tbody></table></div>
 <p>Related feedback portal: <a href="/docs/elements/toast">toast</a> (<code>ui-toast</code>).</p>
-<p>See the <a href="/docs/elements/index">full inventory</a> and <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a> for phase status.</p>
+<p>See the <a href="/docs/elements/index">full inventory</a> and <a href="/docs/elements/index">Elements inventory</a> for phase status.</p>
 <hr />
 <h2>Related</h2>
 <ul>
@@ -146,7 +164,9 @@
 <li><a href="/docs/elements/toast">Toast</a></li>
 <li><a href="/docs/elements/select">Select</a> (Popover API dropdown)</li>
 <li><a href="/docs/platform/api">Platform API</a> (<code>escapeOverflow</code> / <code>guard.escape</code>)</li>
+<li><a href="/docs/platform/guards">Guards</a> (<code>guard.popover</code>, <code>guard.escape</code>, <code>guard.anchor</code>)</li>
+<li><a href="/docs/platform/supports">Supports</a> (<code>popoverAPI</code>, <code>anchorPositioning</code>)</li>
 <li><a href="/docs/ui/advanced">Memory safety &amp; framework globals</a></li>
 <li><a href="/docs/events/troubleshooting">Orphan listeners after soft-nav</a></li>
-<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
+<li>Planning: <a href="/docs/elements/index">Elements inventory</a></li>
 </ul>

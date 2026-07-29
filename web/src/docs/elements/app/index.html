@@ -1,5 +1,5 @@
 <h1>App</h1>
-<p>Application shell with header, optional sidebar, and main content slots.</p>
+<p>Application shell with header, optional sidebar, and main content slots. Responsive frame for dashboard layouts.</p>
 <p><strong>Tag:</strong> <code>ui-app</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/app</code></p>
 <hr />
 <h2>Import</h2>
@@ -12,9 +12,33 @@
     &lt;span slot="brand"&gt;Acme&lt;/span&gt;
   &lt;/ui-header&gt;
   &lt;ui-sidebar slot="sidebar"&gt;
-    &lt;a href="/"&gt;Home&lt;/a&gt;
+    &lt;ui-nav orientation="vertical"&gt;
+      &lt;ui-link href="/"&gt;Home&lt;/ui-link&gt;
+    &lt;/ui-nav&gt;
   &lt;/ui-sidebar&gt;
   &lt;p&gt;Main content&lt;/p&gt;
+&lt;/ui-app&gt;
+</view-code>
+<hr />
+<h2>Advanced usage</h2>
+<view-code language="html">&lt;ui-app&gt;
+  &lt;ui-header slot="header"&gt;
+    &lt;span slot="brand"&gt;Dashboard&lt;/span&gt;
+    &lt;ui-avatar name="Jane Doe" size="8"&gt;&lt;/ui-avatar&gt;
+  &lt;/ui-header&gt;
+  &lt;ui-sidebar slot="sidebar" id="nav"&gt;
+    &lt;ui-nav orientation="vertical"&gt;
+      &lt;ui-link href="/overview"&gt;Overview&lt;/ui-link&gt;
+      &lt;ui-link href="/reports"&gt;Reports&lt;/ui-link&gt;
+    &lt;/ui-nav&gt;
+  &lt;/ui-sidebar&gt;
+  &lt;ui-stack gap="lg"&gt;
+    &lt;ui-breadcrumb&gt;
+      &lt;li&gt;&lt;ui-link href="/"&gt;Home&lt;/ui-link&gt;&lt;/li&gt;
+      &lt;li&gt;Overview&lt;/li&gt;
+    &lt;/ui-breadcrumb&gt;
+    &lt;!-- page content --&gt;
+  &lt;/ui-stack&gt;
 &lt;/ui-app&gt;
 </view-code>
 <hr />
@@ -24,15 +48,15 @@
 <div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>header</code></td><td>slot</td><td>Top header region</td></tr>
 <tr><td><code>sidebar</code></td><td>slot</td><td>Side navigation</td></tr>
-<tr><td><em>(default)</em></td><td>slot</td><td>Main content (<code>part="main"</code>)</td></tr>
-<tr><td><code>frame</code></td><td>part</td><td>Header + sidebar + main frame</td></tr>
+<tr><td><em>(default)</em></td><td>slot</td><td>Main content</td></tr>
+<tr><td><code>frame</code> / <code>main</code></td><td>parts</td><td>Shell frame and main area</td></tr>
 </tbody></table></div>
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/elements/index">Elements overview</a></li>
 <li><a href="/docs/elements/layout">Layout</a></li>
 <li><a href="/docs/elements/header">Header</a></li>
 <li><a href="/docs/elements/sidebar">Sidebar</a></li>
-<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
+<li><a href="/docs/elements/nav">Nav</a></li>
+<li><a href="/docs/elements/index">Elements overview</a></li>
 </ul>

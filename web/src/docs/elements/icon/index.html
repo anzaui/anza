@@ -1,5 +1,5 @@
 <h1>Icon</h1>
-<p>Accessible SVG sprite icon with size tokens, name/href targets, and ARIA decoration.</p>
+<p>Accessible SVG sprite icon with size tokens, name/href targets, and ARIA decoration. Resolves icons from the shared sprite sheet or a custom <code>href</code>.</p>
 <p><strong>Tag:</strong> <code>ui-icon</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/icon</code></p>
 <hr />
 <h2>Import</h2>
@@ -11,6 +11,19 @@
 &lt;ui-icon href="/assets/icons.svg#icon-search" aria-label="Search"&gt;&lt;/ui-icon&gt;
 </view-code>
 <hr />
+<h2>Advanced usage</h2>
+<view-code language="html">&lt;ui-button type="button"&gt;
+  &lt;ui-icon name="plus" size="4" aria-hidden="true"&gt;&lt;/ui-icon&gt;
+  Add item
+&lt;/ui-button&gt;
+
+&lt;ui-link href="/settings"&gt;
+  &lt;ui-icon name="settings" size="4" stroke="muted" aria-hidden="true"&gt;&lt;/ui-icon&gt;
+  Settings
+&lt;/ui-link&gt;
+</view-code>
+<p>When nested inside interactive elements, mark decorative icons <code>aria-hidden="true"</code>. Use <code>aria-label</code> only when the icon stands alone as the control.</p>
+<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>name</code></td><td>String</td><td>Reflect</td><td>Sprite id; resolves to <code>/assets/icons.svg#icon-{name}</code> when <code>href</code> is unset</td></tr>
@@ -18,12 +31,17 @@
 <tr><td><code>size</code></td><td>String</td><td>Reflect</td><td>CSS length or space token key (e.g. <code>4</code> → <code>var(--space-4)</code>)</td></tr>
 <tr><td><code>stroke</code></td><td>String</td><td>Reflect</td><td>Stroke color via <code>--icon-stroke</code></td></tr>
 </tbody></table></div>
+<h2>Slots / parts</h2>
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>svg</code></td><td>part</td><td>Root SVG surface</td></tr>
+</tbody></table></div>
 <h2>Notes</h2>
-<p>Without <code>aria-label</code> / <code>aria-labelledby</code>, the SVG is <code>aria-hidden</code>. Provide a label when the icon is meaningful.</p>
+<p>Without <code>aria-label</code> / <code>aria-labelledby</code>, the SVG is <code>aria-hidden</code>. Provide a label when the icon is meaningful on its own.</p>
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/elements/index">Elements overview</a></li>
 <li><a href="/docs/elements/primitives">Primitives</a></li>
-<li><a href="../../plans/ELEMENTS.md">Planning: ELEMENTS.md</a></li>
+<li><a href="/docs/elements/button">Button</a></li>
+<li><a href="/docs/elements/link">Link</a></li>
+<li><a href="/docs/elements/index">Elements overview</a></li>
 </ul>

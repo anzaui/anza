@@ -74,13 +74,28 @@ Remove all guards.
 
 ### `router.notFound(fn)`
 
-Set the handler for unmatched routes. Returns a disposer.
+Set a full escape-hatch handler for unmatched routes (skips automatic leaf mount). Returns a disposer.
 
 ```javascript
 router.notFound((event) => {
-  document.body.innerHTML = '<h1>404</h1>';
+  // custom mount — or prefer router.pages.configure({ notfound: { tag } })
 });
 ```
+
+### `router.pages`
+
+Optional app-level fallback tags / HTML for `notfound`, `error`, and `offline` when no dock in the chain defines the kind. Bare docks already use shared library built-ins — see [fallbacks.md](fallbacks.md).
+
+```javascript
+router.pages.configure({
+  notfound: { tag: 'page-not-found' },
+  error: { tag: 'page-server-error' }
+});
+router.pages.show('offline');
+router.pages.onError(async (ctx) => { /* return false to fall through */ });
+```
+
+`configure()` returns a disposer that clears only the kinds you set in that call. `show(kind, ctx)` renders into the deepest live dock in the active `via` / `lastVia` chain and honors `ctx.signal` for aborted soft-nav work. `suppressDefault(true)` disables automatic error mounting while leaving manual `show('error', ...)` available.
 
 ### `router.miss.set(fn)`
 
@@ -236,11 +251,12 @@ dock('main', {
   template: '<slot></slot>',
   params: [],
   query: [],
-  notfound: '<h1>Page Not Found</h1>'
+  notfound: { tag: 'page-not-found' },
+  error: { tag: 'page-server-error' }
 });
 ```
 
-Config fields: `tag`, `parent`, `template`, `style`, `params`, `query`, `on`, `notfound`.
+Config fields: `tag`, `parent`, `template`, `style`, `params`, `query`, `on`, `notfound`, `error`, `offline`.
 
 Default tag: `dock-<name>`. Default parent: `'body'`.
 

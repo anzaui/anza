@@ -20,6 +20,15 @@ import { runSwapTransition, dockTransitionName } from '../transitions.js';
 const CONTAIN = ':host { contain: layout; display: block; }';
 
 /**
+ * Store fallback override on the dock class (string | { tag } | { html }).
+ * pages.js reads these; deepest configured live dock wins.
+ */
+function assignFallback(Cls, key, value) {
+  if (!Cls || value == null) return;
+  Cls[key] = value;
+}
+
+/**
  * @param {string} name - unique key in the container graph (e.g. 'main').
  * @param {object} [config]
  * @param {string} [config.tag] - tag name; defaults to `dock-<name>`.
@@ -27,9 +36,10 @@ const CONTAIN = ':host { contain: layout; display: block; }';
  * @param {object} [config.template] - { html, css, shadow }.
  * @param {boolean|object} [config.transition] - VT opt-in/out / naming.
  *   `false` disables; `{ name, enabled }` overrides the default `dock-<name>`.
- * @param {string|object} [config.notfound] - fallback rendered when a 404
- *   lands in this dock. Pass a raw HTML string or { html } object.
- *   The deepest configured dock wins at runtime.
+ * @param {string|object} [config.notfound] - 404 fallback for this dock.
+ *   String HTML, `{ html }`, `{ tag: 'page-not-found' }`, or tag string.
+ * @param {string|object} [config.error] - 5xx-class fallback (same shapes).
+ * @param {string|object} [config.offline] - offline fallback (same shapes).
  * @param {string} [base] - import.meta.url of the caller (file templates).
  */
 export function dock(name, config = {}, base) {
@@ -87,12 +97,9 @@ export function dock(name, config = {}, base) {
     }
   }
 
-  // Store user-supplied notfound template on the class as a static property.
-  // intercept.js reads Cls.notfound when rendering 404 fallbacks.
-  if (Cls && config.notfound != null) {
-    const nf = config.notfound;
-    Cls.notfound = typeof nf === 'string' ? nf : (nf?.html ?? null);
-  }
+  assignFallback(Cls, 'notfound', config.notfound);
+  assignFallback(Cls, 'error', config.error);
+  assignFallback(Cls, 'offline', config.offline);
 }
 
 /**

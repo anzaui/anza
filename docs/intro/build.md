@@ -77,9 +77,55 @@ Optional `ssg.json` next to (or inside) `src/` configures site origin and build-
 
 ```bash
 npx anza doctor
+npx anza check
 ```
 
-Checks your project for common issues: missing entry points, missing tokens/styles, conflicting layouts.
+| Command | Behavior |
+| ------- | -------- |
+| `anza doctor` | Structure contract — soft mode: **errors** exit non-zero; **warnings** print but exit 0 |
+| `anza doctor --strict` | Same findings as check — warnings fail |
+| `anza check` | Strict structure check for CI (`anza check && anza build`) |
+
+Validates required spine (`package.json`, `src/index.html`, `src/app.js`), recommended tokens/styles/SW/importmap, optional slots + index-per-folder barrels, optional `anza.json` (incl. `sw` string\|array), legacy `elements/` coexistence, undeclared page trees, and **via → dock** consistency (`rootDock` warn; unknown `via` error). Contract: [structure.md](structure.md) (single source of truth + Troubleshooting).
+
+### CI
+
+```bash
+anza check && anza build
+```
+
+```json
+{
+  "scripts": {
+    "ci": "anza check && anza build"
+  }
+}
+```
+
+Doctor/check findings append `docs/intro/structure.md` so CI logs link back to the contract.
+
+---
+
+## Generate
+
+Thin helpers (not a Nest schematic platform). Writes into convention slots or `anza.json` remaps and updates the slot `index.js` barrel:
+
+```bash
+anza generate page about
+anza generate page docs-home --tree docs --route /docs --via main,docs,content
+anza generate dock sidebar --parent main
+anza generate view card
+anza generate part button
+```
+
+| Kind | Default slot | Files |
+| ---- | ------------ | ----- |
+| `page` | first `pages[]` (usually `pages/`) | `index.js` + `index.html` + `index.css` |
+| `dock` | `docks/` | same; **no** `404.html` (fallbacks by reference) |
+| `view` | `views/` | same |
+| `part` | `parts/` | same |
+
+Flags: `--tree`, `--route`, `--via` (comma-separated), `--parent`, `-s/--src`.
 
 ---
 
@@ -91,6 +137,11 @@ Checks your project for common issues: missing entry points, missing tokens/styl
 | `-p, --port` | `3000` | Dev server port |
 | `--dist` | `dist` | Output directory |
 | `-e, --entry` | `src/app.js` | Additional entry modules |
+| `--strict` | off | With `doctor` — promote warnings to failures |
+| `--tree` | first `pages[]` | With `generate page` — page tree under `src` |
+| `--route` | `/{name}` | With `generate page` — route path |
+| `--via` | `rootDock` | With `generate page` — comma-separated via chain |
+| `--parent` | `rootDock` | With `generate dock` — parent registry key |
 
 ---
 

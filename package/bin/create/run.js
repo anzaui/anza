@@ -2,6 +2,7 @@
  * bin/create/run.js
  *
  * Scaffold logic. Generates anza app files from templates.
+ * Keep in sync with tools/src/create/run.rs.
  */
 
 import { join } from 'path';
@@ -17,7 +18,6 @@ const DIRS = [
   'src/docks',
   'src/views',
   'src/parts',
-  'src/elements',
   'src/tokens',
   'src/styles',
 ];
@@ -44,23 +44,30 @@ const HTML = (name) => `<!DOCTYPE html>
 
 const APP = `/**
  * src/app.js — app entry point
+ *
+ * Import order here is free-form. \`anza build\` rewrites static imports in
+ * dist/ into usage order (library → docks → views → parts → pages).
  */
 import '@adukiorg/anza/ui';
 import { dock } from '@adukiorg/anza/ui';
 import '@adukiorg/anza/theme';
+
+import './docks/index.js';
+import './views/index.js';
+import './parts/index.js';
+import './pages/index.js';
 
 // Service Worker
 navigator.serviceWorker.register('/sw.js', { type: 'module' });
 
 // Layout shell
 dock('main');
-
-// Pages
-import './pages/index.js';
 `;
 
 const SW = `/**
  * src/sw.js — Service Worker entry
+ *
+ * Optional helpers live under src/sw/ (modules only — not extra registrations).
  */
 import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@adukiorg/anza/sw';
 
@@ -86,7 +93,7 @@ self.addEventListener('fetch', (e) => {
 `;
 
 const PAGE = `/**
- * src/entry/index.js — landing page
+ * src/pages/entry/index.js — landing page
  */
 import { page } from '@adukiorg/anza/ui';
 
@@ -97,12 +104,36 @@ page('/', {
 }, import.meta.url);
 `;
 
-const BARREL = `/**
+const PAGES_BARREL = `/**
  * src/pages/index.js
  *
- * Barrel — imports all app pages.
+ * Barrel — each meaningful folder should expose an index (convention).
+ * Import page modules from this tree (and extra trees via their own barrels).
  */
 import './entry/index.js';
+`;
+
+const DOCKS_BARREL = `/**
+ * src/docks/index.js
+ *
+ * Barrel — import each dock module from this folder.
+ * Co-located views under docks/ are organization only; custom element tags stay global.
+ */
+`;
+
+const VIEWS_BARREL = `/**
+ * src/views/index.js
+ *
+ * Barrel — optional global views slot (remap via anza.json \`views\`).
+ * Co-location under docks/user trees is organization only — not a per-dock CE registry.
+ */
+`;
+
+const PARTS_BARREL = `/**
+ * src/parts/index.js
+ *
+ * Barrel — import each part module from this folder.
+ */
 `;
 
 const MARKUP = (name) => `<article class="welcome">
@@ -150,6 +181,7 @@ const STYLE = `.welcome {
 
 const IGNORE = 'node_modules/\ndist/\n.anzacache.json\n';
 
+/** Omits anza.json on purpose — zero-config defaults. */
 export function run(target, name, library) {
   if (existsSync(target)) {
     logs.error(`Target directory already exists: ${target}`);
@@ -191,7 +223,10 @@ export function run(target, name, library) {
   write.write(join(target, 'src', 'pages', 'entry', 'index.js'), PAGE);
   write.write(join(target, 'src', 'pages', 'entry', 'index.html'), MARKUP(name));
   write.write(join(target, 'src', 'pages', 'entry', 'index.css'), STYLE);
-  write.write(join(target, 'src', 'pages', 'index.js'), BARREL);
+  write.write(join(target, 'src', 'pages', 'index.js'), PAGES_BARREL);
+  write.write(join(target, 'src', 'docks', 'index.js'), DOCKS_BARREL);
+  write.write(join(target, 'src', 'views', 'index.js'), VIEWS_BARREL);
+  write.write(join(target, 'src', 'parts', 'index.js'), PARTS_BARREL);
 
   const manifest = JSON.stringify({
     name,
@@ -208,6 +243,7 @@ export function run(target, name, library) {
   }, null, 2) + '\n';
 
   write.write(join(target, 'package.json'), manifest);
+  write.write(join(target, 'importmap.json'), '{}\n');
   write.write(join(target, '.gitignore'), IGNORE);
 
   logs.success(`Created ${target}`);

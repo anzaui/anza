@@ -28,6 +28,8 @@ import { translate } from './spec.js';
  * @param {Array<{name:string, type:Function}>} [config.params] - path param contract.
  * @param {Array<{name:string, type:Function}>} [config.query] - query param contract.
  * @param {Function} [config.guard] - route-scoped navigation guard.
+ * @param {string|object} [config.error] - fallback when this route fails
+ *   (handler/guard throw). Same shapes as dock notfound: `{ tag }`, HTML, …
  * @param {object} [config.on] - lifecycle hooks (load, connect, disconnect, change).
  * @param {{title?:string, description?:string, canonical?:string, image?:string}} [config.seo]
  *   Build-time SEO extracted into routes.json for SSG HTML head.
@@ -82,6 +84,7 @@ export function page(route, config, base) {
       ...config.meta,
       via,
       container: target,
+      ...(config.error != null ? { error: config.error } : {}),
     });
   }
 

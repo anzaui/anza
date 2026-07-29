@@ -6,7 +6,7 @@
 <p>Register a route. Returns nothing.</p>
 <div class="table-wrap"><table><thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>pattern</code></td><td>string</td><td>URL pattern or absolute URL</td></tr>
-<tr><td><code>handler</code></td><td>string | function | object</td><td>See <a href="/docs/router/handlers">handlers.md</a></td></tr>
+<tr><td><code>handler</code></td><td>string | function | object</td><td>See <a href="/docs/router/handlers">Handlers</a></td></tr>
 <tr><td><code>meta</code></td><td>object</td><td>Optional metadata (<code>container</code>, <code>parent</code>, <code>via</code>)</td></tr>
 </tbody></table></div>
 <view-code language="javascript">router.register('/', 'page-home');
@@ -22,17 +22,20 @@ router.register('/user/:id', 'page-user', { container: 'main' });
 <p>Remove all registered routes.</p>
 <h3><code>router.match(url)</code></h3>
 <p>Match a URL against registered routes. Returns a promise resolving to:</p>
+<div class="table-wrap"><table><thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>route</code></td><td>RouteRecord</td><td>Matched registry entry (<code>patternStr</code>, <code>handler</code>, <code>meta</code>)</td></tr>
+<tr><td><code>tag</code></td><td>string | null</td><td>Resolved element tag (null for callback handlers)</td></tr>
+<tr><td><code>params</code></td><td>object</td><td>Raw path segment map from URLPattern</td></tr>
+<tr><td><code>query</code></td><td>object</td><td>Parsed query key/value map</td></tr>
+<tr><td><code>hash</code></td><td>string</td><td>URL hash including <code>#</code></td></tr>
+<tr><td><code>chain</code></td><td>ChainSegment[]</td><td>Parent route chain for nested patterns</td></tr>
+<tr><td><code>result</code></td><td>URLPatternResult</td><td>Raw exec result</td></tr>
+</tbody></table></div>
 <view-code language="javascript">{
-  route,    // matched route entry
-  tag,      // resolved element tag (or null for callbacks)
-  params,   // route parameters
-  query,    // query object
-  hash,     // hash string
-  chain,    // parent chain array
-  result    // URLPattern exec result
+  route, tag, params, query, hash, chain, result
 }
 </view-code>
-<p>Returns <code>null</code> on no match.</p>
+<p>Returns <code>null</code> on no match. Use in tests and prefetch logic — runtime navigation goes through the interceptor.</p>
 <h3><code>router.guard(fn)</code></h3>
 <p>Register a global navigation guard. Returns a disposer.</p>
 <view-code language="javascript">const dispose = router.guard((destination, controller) =&gt; {
@@ -45,70 +48,118 @@ dispose(); // remove
 <h3><code>router.guards.clear()</code></h3>
 <p>Remove all guards.</p>
 <h3><code>router.notFound(fn)</code></h3>
-<p>Set the handler for unmatched routes. Returns a disposer.</p>
+<p>Set a full escape-hatch handler for unmatched routes (skips automatic leaf mount). Returns a disposer.</p>
 <view-code language="javascript">router.notFound((event) =&gt; {
-  document.body.innerHTML = '&lt;h1&gt;404&lt;/h1&gt;';
+  // custom mount — or prefer router.pages.configure({ notfound: { tag } })
 });
 </view-code>
+<h3><code>router.pages</code></h3>
+<p>Optional app-level fallback tags / HTML for <code>notfound</code>, <code>error</code>, and <code>offline</code> when no dock in the chain defines the kind. Bare docks already use shared library built-ins — see <a href="/docs/router/fallbacks">Fallbacks</a>.</p>
+<view-code language="javascript">router.pages.configure({
+  notfound: { tag: 'page-not-found' },
+  error: { tag: 'page-server-error' }
+});
+router.pages.show('offline');
+router.pages.onError(async (ctx) =&gt; { /* return false to fall through */ });
+</view-code>
+<p><code>configure()</code> returns a disposer that clears only the kinds you set in that call. <code>show(kind, ctx)</code> renders into the deepest live dock in the active <code>via</code> / <code>lastVia</code> chain and honors <code>ctx.signal</code> for aborted soft-nav work. <code>suppressDefault(true)</code> disables automatic error mounting while leaving manual <code>show('error', ...)</code> available.</p>
+<div class="table-wrap"><table><thead><tr><th>Member</th><th>Role</th></tr></thead><tbody>
+<tr><td><code>configure({ notfound, error, offline })</code></td><td>App-level fallback templates (step 3 of the ladder)</td></tr>
+<tr><td><code>show(kind, ctx?)</code></td><td>Explicit mount — offline banner, tests, SW bridge</td></tr>
+<tr><td><code>onError(fn)</code></td><td>Escape hatch — return <code>false</code> to fall through to auto-mount</td></tr>
+<tr><td><code>suppressDefault(bool)</code></td><td>Skip automatic error leaf (manual <code>show('error')</code> still works)</td></tr>
+<tr><td><code>notFound(fn)</code></td><td>Alias of <code>router.notFound</code> on the pages namespace</td></tr>
+</tbody></table></div>
+<h3><code>router.links</code></h3>
+<p>Route-scoped background connections (WebSocket, SSE, polling). Factories run when a URL matches; disposers tear down on navigation away.</p>
+<view-code language="javascript">const stop = router.links.add('/rooms/:room', async ({ url, params }) =&gt; {
+  const ws = new WebSocket(`wss://api.example.com/rooms/${params.room}`);
+  return () =&gt; ws.close();
+});
+
+router.links.remove('/rooms/:room');
+router.links.clear();
+</view-code>
+<p>Alias: <code>router.registerConnection(pattern, factory)</code>. <code>router.getActiveConnections()</code> lists live instances.</p>
 <h3><code>router.miss.set(fn)</code></h3>
 <p>Same as <code>router.notFound(fn)</code>.</p>
 <h3><code>router.miss.clear()</code></h3>
 <p>Remove the not-found handler.</p>
 <h3><code>router.on(event, callback, signal)</code></h3>
-<p>Subscribe to router events. Returns a disposer.</p>
-<p>Events: <code>'found'</code>, <code>'notfound'</code>, <code>'error'</code>.</p>
+<p>Subscribe to router events. Returns a disposer. Optional <code>AbortSignal</code> auto-unsubscribes.</p>
+<div class="table-wrap"><table><thead><tr><th>Event</th><th>Payload highlights</th></tr></thead><tbody>
+<tr><td><code>'found'</code></td><td><code>tag</code>, <code>params</code>, <code>query</code>, <code>hash</code>, <code>chain</code>, <code>url</code>, <code>direction</code></td></tr>
+<tr><td><code>'notfound'</code></td><td><code>url</code> — emitted before the notfound leaf mounts (unless escape hatch handles it)</td></tr>
+<tr><td><code>'error'</code></td><td><code>error</code>, <code>url</code>, <code>route</code>, <code>phase</code> — <code>phase</code> is <code>'guard'</code>, handler phase, etc.</td></tr>
+</tbody></table></div>
 <view-code language="javascript">const dispose = router.on('found', (detail) =&gt; { ... });
 dispose();
 </view-code>
 <h3><code>router.navigate(url, options)</code></h3>
-<p>Push a new history entry. Returns <code>{ committed, finished }</code>.</p>
+<p>Push a new history entry. Returns <code>{ committed, finished }</code> — both are promises on the Navigation API result.</p>
 <view-code language="javascript">router.navigate('/settings');
 router.navigate('/settings', { state: { tab: 'profile' } });
 </view-code>
-<h3><code>router.replace(url, options)</code></h3>
-<p>Replace the current history entry.</p>
-<h3><code>router.back()</code></h3>
-<p>Go back one history step.</p>
-<h3><code>router.forward()</code></h3>
-<p>Go forward one history step.</p>
-<h3><code>router.go(delta)</code></h3>
-<p>Traverse by an arbitrary delta.</p>
-<h3><code>router.current()</code></h3>
-<p>Returns the current <code>NavigationHistoryEntry</code>.</p>
-<h3><code>router.entries()</code></h3>
-<p>Returns the full history entry list.</p>
-<h3><code>router.canBack()</code></h3>
-<p>Returns <code>true</code> if backward traversal is possible.</p>
-<h3><code>router.canForward()</code></h3>
-<p>Returns <code>true</code> if forward traversal is possible.</p>
 <h3><code>router.nav.to(url)</code></h3>
-<p>Chainable navigation promise.</p>
-<view-code language="javascript">router.nav.to('/settings').then(() =&gt; { ... });
+<p>Chainable navigation with event subscription. Returns a <code>TransitionController</code>:</p>
+<view-code language="javascript">router.nav.to('/settings')
+  .on('found', ({ tag }) =&gt; console.log('mounted', tag))
+  .on('error', (err) =&gt; console.error(err));
 </view-code>
+<p>Same underlying navigation as <code>router.navigate</code>, plus <code>.on(...)</code> for the in-flight transition.</p>
+<h3><code>router.replace(url, options)</code></h3>
+<p>Replace the current history entry. Same options as <code>navigate</code>. Returns <code>{ committed, finished }</code>.</p>
+<view-code language="javascript">router.replace('/login', { state: { redirect: '/dashboard' } });
+</view-code>
+<h3><code>router.back()</code> / <code>router.forward()</code> / <code>router.go(delta)</code></h3>
+<p>History traversal wrappers around the Navigation API. <code>go(-2)</code> steps back two entries.</p>
+<view-code language="javascript">if (router.canBack()) router.back();
+router.forward();
+router.go(-1);
+</view-code>
+<h3><code>router.current()</code></h3>
+<p>Returns the active <code>NavigationHistoryEntry</code> (url, key, index, sameDocument).</p>
+<h3><code>router.entries()</code></h3>
+<p>Returns the full ordered history entry list for the current session.</p>
+<h3><code>router.canBack()</code> / <code>router.canForward()</code></h3>
+<p>Boolean helpers — use before showing back/forward UI affordances.</p>
 <h3><code>router.getContainer(name)</code></h3>
-<p>Resolve a container by registry key or CSS selector.</p>
+<p>Resolve a live container element by registry key or CSS selector. Returns <code>Element | null</code>.</p>
 <h3><code>router.registerContainer(name, element, parent)</code></h3>
-<p>Manually register a container in the graph.</p>
+<p>Manually register a container in the graph (tests and advanced layouts).</p>
+<div class="table-wrap"><table><thead><tr><th>Param</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td>Registry key used in <code>via</code> chains</td></tr>
+<tr><td><code>element</code></td><td>Live DOM node (usually a dock custom element)</td></tr>
+<tr><td><code>parent</code></td><td>Parent registry key or selector</td></tr>
+</tbody></table></div>
 <h3><code>router.unregisterContainer(name, element)</code></h3>
-<p>Manually unregister a container.</p>
+<p>Remove one container registration.</p>
 <h3><code>router.clearContainers()</code></h3>
-<p>Clear the entire container registry.</p>
-<h3><code>router.cache.get(url)</code></h3>
-<p>Read a cached response.</p>
-<h3><code>router.cache.set(url, response, ttl)</code></h3>
-<p>Store a response in the cache.</p>
-<h3><code>router.cache.prefetch(url, options)</code></h3>
-<p>Prefetch a URL into the cache.</p>
-<h3><code>router.cache.purge(url?)</code></h3>
-<p>Purge one URL or the entire cache.</p>
-<h3><code>router.sync.start()</code></h3>
-<p>Start cross-tab sync.</p>
-<h3><code>router.sync.stop()</code></h3>
-<p>Pause cross-tab sync.</p>
-<h3><code>router.sync.active()</code></h3>
-<p>Returns <code>true</code> if sync is running.</p>
-<h3><code>router.sync.close()</code></h3>
-<p>Stop sync and close the BroadcastChannel.</p>
+<p>Reset the entire container registry (tests / teardown).</p>
+<h3><code>router.cache</code></h3>
+<p>In-memory route response cache for prefetch and offline-friendly navigation.</p>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>get(url)</code></td><td>Read cached <code>Response</code> or <code>null</code></td></tr>
+<tr><td><code>set(url, response, ttl)</code></td><td>Store with optional TTL ms</td></tr>
+<tr><td><code>prefetch(url, options?)</code></td><td>Fetch and cache in background</td></tr>
+<tr><td><code>purge(url?)</code></td><td>Drop one URL or entire cache</td></tr>
+</tbody></table></div>
+<view-code language="javascript">await router.cache.prefetch('/docs/intro/start');
+const hit = router.cache.get('/docs/intro/start');
+router.cache.purge(); // clear all
+</view-code>
+<h3><code>router.sync</code></h3>
+<p>Cross-tab navigation sync over <code>BroadcastChannel</code>.</p>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>start()</code></td><td>Begin listening and broadcasting navigations</td></tr>
+<tr><td><code>stop()</code></td><td>Pause without closing the channel</td></tr>
+<tr><td><code>active()</code></td><td><code>true</code> when sync is running</td></tr>
+<tr><td><code>close()</code></td><td>Stop and close the channel permanently</td></tr>
+</tbody></table></div>
+<view-code language="javascript">router.sync.start();
+// tab B follows tab A navigations
+router.sync.stop();
+</view-code>
 <h3><code>router.setup()</code></h3>
 <p>Attach navigation listeners. Idempotent.</p>
 <h3><code>router.destroy()</code></h3>
@@ -126,31 +177,42 @@ router.navigate('/settings', { state: { tab: 'profile' } });
   ]
 }, import.meta.url);
 </view-code>
-<p>Config fields: <code>tag</code>, <code>via</code>, <code>container</code>, <code>template</code>, <code>style</code>, <code>props</code>, <code>params</code>, <code>query</code>, <code>hash</code>, <code>on</code>, <code>guard</code>, <code>meta</code>.</p>
+<p>Config fields: <code>tag</code>, <code>via</code>, <code>container</code>, <code>template</code>, <code>style</code>, <code>props</code>, <code>params</code>, <code>query</code>, <code>on</code>, <code>guard</code>, <code>error</code>, <code>seo</code>, <code>ssg</code>, <code>meta</code>. Full reference: <a href="/docs/router/pages">Pages</a>.</p>
 <h3><code>dock(name, config, base)</code></h3>
 <p>Define a persistent container shell.</p>
 <view-code language="javascript">dock('main', {
   template: '&lt;slot&gt;&lt;/slot&gt;',
   params: [],
   query: [],
-  notfound: '&lt;h1&gt;Page Not Found&lt;/h1&gt;'
+  notfound: { tag: 'page-not-found' },
+  error: { tag: 'page-server-error' }
 });
 </view-code>
-<p>Config fields: <code>tag</code>, <code>parent</code>, <code>template</code>, <code>style</code>, <code>params</code>, <code>query</code>, <code>on</code>, <code>notfound</code>.</p>
+<p>Config fields: <code>tag</code>, <code>parent</code>, <code>template</code>, <code>style</code>, <code>params</code>, <code>query</code>, <code>on</code>, <code>notfound</code>, <code>error</code>, <code>offline</code>.</p>
 <p>Default tag: <code>dock-&lt;name&gt;</code>. Default parent: <code>'body'</code>.</p>
 <h3><code>view(tag, config, base)</code></h3>
-<p>Define a stateful component.</p>
+<p>Define a stateful component with lifecycle hooks, reactive props, and shadow-scoped <code>on</code> / <code>watch</code>.</p>
+<div class="table-wrap"><table><thead><tr><th>Config key</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>tag</code></td><td>Custom element tag (required)</td></tr>
+<tr><td><code>template</code> / <code>style</code></td><td>Inline or file-based markup and CSS</td></tr>
+<tr><td><code>props</code></td><td>Reactive property definitions</td></tr>
+<tr><td><code>on</code></td><td>Lifecycle map: <code>mount</code>, <code>unmount</code>, <code>update</code>, …</td></tr>
+<tr><td><code>methods</code></td><td>Instance methods exposed on the element</td></tr>
+</tbody></table></div>
 <view-code language="javascript">view('user-card', {
   props: { name: { type: String } },
-  template: '&lt;span&gt;{{ name }}&lt;/span&gt;'
-});
+  template: '&lt;span&gt;{{ name }}&lt;/span&gt;',
+  on: {
+    mount(ctx) { /* ctx.tags, ctx.on, ctx.watch */ }
+  }
+}, import.meta.url);
 </view-code>
 <h3><code>part(tag, config, base)</code></h3>
-<p>Define a stateless primitive.</p>
+<p>Define a stateless primitive — no reactive state machine; ideal for icons and presentational markup.</p>
 <view-code language="javascript">part('icon-star', {
   props: { color: { type: String } },
   template: '&lt;svg&gt;...&lt;/svg&gt;'
-});
+}, import.meta.url);
 </view-code>
 <hr />
 <h2>Internal Exports</h2>
@@ -186,4 +248,4 @@ await transitions.run(() =&gt; panel.replaceChildren(next), {
 <tr><td><code>dockName</code></td><td>Default <code>dock-&lt;registryKey&gt;</code></td></tr>
 <tr><td><code>prefersReducedMotion</code></td><td>Motion preference helper</td></tr>
 </tbody></table></div>
-<p>Full behaviour: <a href="/docs/router/transitions">transitions.md</a>, <a href="/docs/ui/transitions">ui/transitions.md</a>.</p>
+<p>Full behaviour: <a href="/docs/router/transitions">Router transitions</a>, <a href="/docs/ui/transitions">UI transitions</a>.</p>

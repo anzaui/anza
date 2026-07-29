@@ -1,1 +1,1 @@
-{"version":1,"refs":[],"ids":[],"classes":[],"tags":["a","code","em","h1","h2","hr","li","p","strong","ul","view-code"],"compound":[],"attrs":["href","language"],"refTypes":{}}
+{"version":1,"refs":[],"ids":[],"classes":["table-wrap"],"tags":["a","code","div","em","h1","h2","h3","hr","li","p","strong","table","tbody","td","th","thead","tr","ul","view-code"],"compound":["div.table-wrap"],"attrs":["class","href","language"],"refTypes":{}}
