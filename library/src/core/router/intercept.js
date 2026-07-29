@@ -23,6 +23,7 @@ import {
   pagesApi,
   missApi
 } from './pages.js';
+import { beginLoading, clearLoading, endLoading, resetLoading } from './loading.js';
 
 export { setNotFound, pagesApi, missApi };
 /**
@@ -185,6 +186,7 @@ function pushToElement(el, tag, rawParams, url) {
 async function pipe(event, precommitted) {
   const destination = event.destination;
   let routeMatch = null;
+  let loadingCtx = null;
   try {
     routeMatch = await match(destination.url);
   } catch (err) {
@@ -206,12 +208,17 @@ async function pipe(event, precommitted) {
       : (meta.container ? [meta.container] : []);
 
     try {
+      loadingCtx = await beginLoading(chain, routeMatch.tag, event.navigationType);
+    } catch (_) { /* non-fatal */ }
+
+    try {
       for (let i = 0; i < chain.length; i++) {
         if (!getContainer(chain[i])) {
           await ensure(chain[i], chain[i - 1] ?? 'main');
         }
       }
     } catch (err) {
+      if (loadingCtx?.host) endLoading(loadingCtx.host, loadingCtx.gen);
       await fail('container', err, destination.url, routeMatch.route, chain);
       return;
     }
@@ -223,10 +230,12 @@ async function pipe(event, precommitted) {
       try {
         redirectUrl = await guardFn(destination, null);
       } catch (err) {
+        if (loadingCtx?.host) endLoading(loadingCtx.host, loadingCtx.gen);
         await fail('guard', err, destination.url, routeMatch?.route ?? null, chain);
         return;
       }
       if (redirectUrl) {
+        if (loadingCtx?.host) endLoading(loadingCtx.host, loadingCtx.gen);
         window.navigation.navigate(redirectUrl, { history: 'replace' });
         return;
       }
@@ -255,7 +264,8 @@ async function pipe(event, precommitted) {
       via: chain,
       container: chain.at(-1) ?? null,
       url: destination.url,
-      direction: event.navigationType
+      direction: event.navigationType,
+      _loading: loadingCtx
     });
   } else {
     emit('notfound', { url: destination.url });
@@ -270,6 +280,7 @@ async function pipe(event, precommitted) {
 
 /** Emit error event and render the error (or offline) fallback leaf. */
 async function fail(phase, error, url, route, via = []) {
+  clearLoading(via.at?.(-1) ?? 'main');
   emit('error', { error, url, route: route ?? null, phase });
   const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
   await renderPageKind(offline ? 'offline' : 'error', {
@@ -573,6 +584,7 @@ export function destroy() {
   transformers = [];
   resetPages();
   resetBoot();
+  resetLoading();
 
   for (const set of Object.values(listeners)) {
     set.clear();

@@ -283,6 +283,10 @@ pub fn resolve(
     return Err(errors);
   }
 
+  // Follow CSS @import chains so nested token/style files land in dist even when
+  // only the entry index.css is linked from HTML.
+  collect_css_imports(src, &mut reached);
+
   // Populate hashes for all reached files (including assets and HTML).
   for file in &reached {
     if let Some(hash) = super::cache::hash(file) {
@@ -417,6 +421,59 @@ fn is_js(path: &Path) -> bool {
   path.extension().map_or(false, |e| e == "js" || e == "mjs")
 }
 
+fn is_css(path: &Path) -> bool {
+  path.extension().map_or(false, |e| e == "css")
+}
+
+/// Walk `@import` url(...) from reachable CSS files under `src`.
+fn collect_css_imports(src: &Path, reached: &mut HashSet<PathBuf>) {
+  let css_files: Vec<PathBuf> = reached
+    .iter()
+    .filter(|p| is_css(p) && p.starts_with(src))
+    .cloned()
+    .collect();
+
+  let mut queue: VecDeque<PathBuf> = css_files.into();
+  while let Some(file) = queue.pop_front() {
+    let Ok(content) = std::fs::read_to_string(&file) else {
+      continue;
+    };
+    let parent = file.parent().unwrap_or(src);
+    for url in css_import_urls(&content) {
+      let resolved = normalize(&parent.join(&url));
+      if resolved.starts_with(src) && reached.insert(resolved.clone()) {
+        queue.push_back(resolved);
+      }
+    }
+  }
+}
+
+/// Extract relative paths from `@import url('./x.css')` / `@import './x.css'`.
+fn css_import_urls(content: &str) -> Vec<String> {
+  let mut out = Vec::new();
+  for line in content.lines() {
+    let trimmed = line.trim();
+    if !trimmed.starts_with("@import") {
+      continue;
+    }
+    let rest = trimmed.trim_start_matches("@import").trim();
+    let path = if let Some(start) = rest.find("url(") {
+      let inner = &rest[start + 4..];
+      let end = inner.find(')').unwrap_or(inner.len());
+      inner[..end]
+        .trim()
+        .trim_matches(|c| c == '"' || c == '\'' || c == ' ')
+    } else {
+      rest.trim_end_matches(';').trim()
+        .trim_matches(|c| c == '"' || c == '\'' || c == ' ')
+    };
+    if path.starts_with("./") || path.starts_with("../") {
+      out.push(path.to_string());
+    }
+  }
+  out
+}
+
 /// Normalize a path by resolving `.` and `..` components without touching disk.
 fn normalize(path: &Path) -> PathBuf {
   let mut out = PathBuf::new();
@@ -448,4 +505,40 @@ fn is_asset(path: &Path) -> bool {
     .extension()
     .and_then(|e| e.to_str())
     .map_or(false, |e| ASSET_EXT.contains(&e))
+}
+
+#[cfg(test)]
+mod css_import_tests {
+  use super::*;
+
+  #[test]
+  fn css_import_urls_parses_relative() {
+    let css = r#"
+@import './layers.css';
+@import url("./reset.css");
+@import url('../other/x.css');
+"#;
+    let urls = css_import_urls(css);
+    assert!(urls.contains(&"./layers.css".to_string()));
+    assert!(urls.contains(&"./reset.css".to_string()));
+    assert!(urls.contains(&"../other/x.css".to_string()));
+  }
+
+  #[test]
+  fn collect_css_imports_follows_chain() {
+    let dir = std::env::temp_dir().join("anza-css-import-test");
+    let _ = std::fs::remove_dir_all(&dir);
+    let src = dir.join("src");
+    std::fs::create_dir_all(src.join("tokens")).unwrap();
+    std::fs::write(
+      src.join("tokens/index.css"),
+      "@import './child.css';\n",
+    )
+    .unwrap();
+    std::fs::write(src.join("tokens/child.css"), ":root {}\n").unwrap();
+
+    let mut reached = HashSet::from([normalize(&src.join("tokens/index.css"))]);
+    collect_css_imports(&src, &mut reached);
+    assert!(reached.contains(&normalize(&src.join("tokens/child.css"))));
+  }
 }

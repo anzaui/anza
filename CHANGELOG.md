@@ -12,6 +12,20 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.4.5] — 2026-07-29
+
+### Added
+
+- **Soft-nav loading UI** — leaf docks can show a loading indicator while page module / `template.html` / styles fetch; override ladder: page → dock (leaf→root) → `router.loading.configure` → built-in spinner; hard refresh / boot skips loading. Docs site uses `ui-spinner` on the content dock.
+- **CSS `@import` graph walk** — build follows relative `@import` / `url(...)` chains so nested token and style files are copied into `dist`.
+
+### Fixed
+
+- **GitHub Pages base path** — subpath hosting for `/anza/` deploys (`base` in router + build/SSG), so asset and route URLs resolve under the Pages project path.
+- **Tools crate rustc warnings** — clean up unused/dead-code warnings in the anza tools crate.
+
+---
+
 ## [0.4.4] — 2026-07-29
 
 ### Added

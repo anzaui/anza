@@ -40,6 +40,8 @@ function assignFallback(Cls, key, value) {
  *   String HTML, `{ html }`, `{ tag: 'page-not-found' }`, or tag string.
  * @param {string|object} [config.error] - 5xx-class fallback (same shapes).
  * @param {string|object} [config.offline] - offline fallback (same shapes).
+ * @param {string|object|false} [config.loading] - soft-nav loading UI for this dock.
+ *   `false` disables; `{ tag }`, `{ html }`, or tag string. Deepest dock in via wins.
  * @param {string} [base] - import.meta.url of the caller (file templates).
  */
 export function dock(name, config = {}, base) {
@@ -100,6 +102,16 @@ export function dock(name, config = {}, base) {
   assignFallback(Cls, 'notfound', config.notfound);
   assignFallback(Cls, 'error', config.error);
   assignFallback(Cls, 'offline', config.offline);
+
+  if (Cls) {
+    if (config.loading === false) {
+      Cls.loadingDisabled = true;
+      Cls.loading = undefined;
+    } else if (config.loading != null) {
+      Cls.loadingDisabled = false;
+      Cls.loading = config.loading;
+    }
+  }
 }
 
 /**

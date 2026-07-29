@@ -82,3 +82,25 @@ await result.committed;
 await result.finished;
 </view-code>
 <p>If the Navigation API is unavailable, both promises resolve immediately.</p>
+<hr />
+<h2>Loading UI (soft-nav)</h2>
+<p>While a soft-nav fetch is in flight (page module, <code>template.html</code>, styles), the <strong>leaf</strong> dock can show a loading indicator. Hard refresh / boot (<code>direction: 'load'</code>) skips loading so SSG content is not covered.</p>
+<p>Override ladder (highest wins): page <code>loading</code> → dock <code>loading</code> (leaf→root) → <code>router.loading.configure</code> → built-in spinner.</p>
+<view-code language="javascript">import { dock, page } from '@adukiorg/anza/ui';
+import { router } from '@adukiorg/anza/router';
+
+dock('content', {
+  parent: 'docs',
+  loading: { tag: 'ui-spinner' }  // or { html: '...' }, or loading: false
+});
+
+page('/docs/:slug', {
+  tag: 'page-doc',
+  via: ['main', 'docs', 'content'],
+  loading: { html: '&lt;p&gt;Loading doc…&lt;/p&gt;' },
+  template: { html: './doc.html' }
+}, import.meta.url);
+
+router.loading.configure({ tag: 'ui-spinner' });
+</view-code>
+<p>Style via <code>[data-loading]</code> on the dock host or <code>.dock-loading</code> on the injected node.</p>

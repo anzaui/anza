@@ -18,6 +18,7 @@
 
 import { getContainer } from './container.js';
 import { root as graphRoot } from './graph.js';
+import { clearLoading } from './loading.js';
 
 const DEFAULT_NOTFOUND_HTML = `
   <div style="
@@ -263,6 +264,8 @@ export async function renderPageKind(kind, ctx = {}) {
   const { host, hostName, override: dockOverride } = resolveHost(kind, viaHint);
 
   if (!host) return;
+
+  clearLoading(host);
 
   const routeOverride = readRouteOverride(kind, ctx.route);
   // page → dock → optional app → built-in (null → DEFAULTS in materialize)

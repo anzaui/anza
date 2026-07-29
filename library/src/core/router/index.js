@@ -51,6 +51,7 @@ import {
 
 import { cache, prefetch } from './cache.js';
 import { transitions } from './transitions.js';
+import { loadingApi } from './loading.js';
 
 export const router = {
   // Registration and boundary hooks
@@ -65,6 +66,7 @@ export const router = {
   guards: guardsApi,
   miss: missApi,
   pages: pagesApi,
+  loading: loadingApi,
   links,
 
   // Sync controls
@@ -168,6 +170,7 @@ export {
   guardsApi,
   missApi,
   pagesApi,
+  loadingApi,
   // sync sub-module
   setupTabSync,
   registerConnection,

@@ -314,6 +314,7 @@ export function element(tag, spec, base) {
       this._watch = context.watch;
 
       initializedMap.set(this, true);
+      this.dispatchEvent(new CustomEvent('anza:ready', { bubbles: false, composed: false }));
 
       // Mount hook trigger passed with unified AbortController signal
       if (spec.mount) {

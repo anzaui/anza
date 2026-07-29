@@ -1,5 +1,6 @@
 import { router } from '../../router/index.js';
 import { specRegistry } from './state.js';
+import { endLoading, waitForPageReady } from '../../router/loading.js';
 
 let dispose = null; // One-word module-level disposer variable (RT-11)
 
@@ -41,7 +42,7 @@ function findMountedPage(containerEl, topTag) {
 export function initOrchestrator() {
   if (typeof window !== 'undefined') {
     dispose?.();
-    dispose = router.on('found', async ({ tag, params, query, hash, chain, via, container, direction }) => {
+    dispose = router.on('found', async ({ tag, params, query, hash, chain, via, container, direction, _loading }) => {
       // Resolve the top-level layout element in the chain
       const topTag = chain && chain.length > 0 ? chain[0].tag : tag;
       const topParams = chain && chain.length > 0 ? chain[0].params : params;
@@ -59,6 +60,7 @@ export function initOrchestrator() {
         : spec?.container);
       if (!spec || !target) {
         console.warn('[Orchestrator] Early return: missing spec or target');
+        if (_loading?.host) endLoading(_loading.host, _loading.gen);
         return;
       }
 
@@ -71,6 +73,7 @@ export function initOrchestrator() {
           `Make sure dock('${target}', { parent: '...' }) is declared and imported before this page.\n` +
           `Full via chain expected: ${JSON.stringify(spec?.via ?? [])}`
         );
+        if (_loading?.host) endLoading(_loading.host, _loading.gen);
         return;
       }
 
@@ -124,6 +127,7 @@ export function initOrchestrator() {
         for (const [key, value] of Object.entries(props)) {
           currentChild[key] = value;
         }
+        if (_loading?.host) endLoading(_loading.host, _loading.gen);
         return;
       }
 
@@ -141,6 +145,9 @@ export function initOrchestrator() {
         // Fallback to standard atomic replace
         containerEl.replaceChildren(pageEl);
       }
+
+      await waitForPageReady(pageEl);
+      if (_loading?.host) endLoading(_loading.host, _loading.gen);
     });
   }
 }

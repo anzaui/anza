@@ -30,6 +30,8 @@ import { translate } from './spec.js';
  * @param {Function} [config.guard] - route-scoped navigation guard.
  * @param {string|object} [config.error] - fallback when this route fails
  *   (handler/guard throw). Same shapes as dock notfound: `{ tag }`, HTML, …
+ * @param {string|object|false} [config.loading] - soft-nav loading override for this page.
+ *   Same shapes as dock loading; wins over dock defaults.
  * @param {object} [config.on] - lifecycle hooks (load, connect, disconnect, change).
  * @param {{title?:string, description?:string, canonical?:string, image?:string}} [config.seo]
  *   Build-time SEO extracted into routes.json for SSG HTML head.
@@ -58,6 +60,9 @@ export function page(route, config, base) {
   spec.via = via;
   spec.container = target;
   spec.lazy = true;
+  if (config.loading !== undefined) {
+    spec.loading = config.loading;
+  }
 
   // Store the typed params/query contract on the spec for use by intercept.js.
   // Each entry: { name: string, cast: 'string' | 'number' }

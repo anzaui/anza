@@ -132,3 +132,32 @@ await result.finished;
 ```
 
 If the Navigation API is unavailable, both promises resolve immediately.
+
+---
+
+## Loading UI (soft-nav)
+
+While a soft-nav fetch is in flight (page module, `template.html`, styles), the **leaf** dock can show a loading indicator. Hard refresh / boot (`direction: 'load'`) skips loading so SSG content is not covered.
+
+Override ladder (highest wins): page `loading` → dock `loading` (leaf→root) → `router.loading.configure` → built-in spinner.
+
+```javascript
+import { dock, page } from '@adukiorg/anza/ui';
+import { router } from '@adukiorg/anza/router';
+
+dock('content', {
+  parent: 'docs',
+  loading: { tag: 'ui-spinner' }  // or { html: '...' }, or loading: false
+});
+
+page('/docs/:slug', {
+  tag: 'page-doc',
+  via: ['main', 'docs', 'content'],
+  loading: { html: '<p>Loading doc…</p>' },
+  template: { html: './doc.html' }
+}, import.meta.url);
+
+router.loading.configure({ tag: 'ui-spinner' });
+```
+
+Style via `[data-loading]` on the dock host or `.dock-loading` on the injected node.
