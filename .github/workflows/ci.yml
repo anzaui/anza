@@ -13,9 +13,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
-
 jobs:
   build-rust:
     name: Build Rust CLI
@@ -55,6 +52,34 @@ jobs:
         run: cd library && npm ci
       - name: Typecheck
         run: cd library && npm run check
+
+  build-docs:
+    name: Build docs site
+    needs: build-rust
+    runs-on: ubuntu-latest
+    env:
+      ANZA_SITE_ORIGIN: https://aduki-org.github.io/anza
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: anza-linux-x64
+          path: tools/target/release/
+      - run: chmod +x tools/target/release/anza
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install web dependencies
+        run: cd web && npm ci
+      - name: Structure check
+        run: cd web && ../tools/target/release/anza check
+      - name: Production build
+        run: cd web && ../tools/target/release/anza build
+      - name: Verify dist output
+        run: |
+          test -f web/dist/index.html
+          test -f web/dist/sitemap.xml
+          test -d web/dist/docs
 
   verify-create:
     name: Verify scaffolding

@@ -104,6 +104,31 @@ anza check && anza build
 
 Doctor/check findings append `docs/intro/structure.md` so CI logs link back to the contract.
 
+### Deploy (GitHub Pages)
+
+The docs app lives in `web/`. CI builds `web/dist/` and deploys it on every push to `main`.
+
+| Trigger | Workflow | Output |
+| ------- | -------- | ------ |
+| Push to `main` | `.github/workflows/pages.yml` | Static site at GitHub Pages |
+| Tag `v*.*.*` | `.github/workflows/release.yml` | npm packages + CLI binaries on GitHub Releases |
+
+**One-time repo setup:** Settings → Pages → Source: **GitHub Actions**.
+
+**Public URL:** `https://aduki-org.github.io/anza/` (project site). Asset URLs in `dist/` are site-root paths (`/app.js`, `/tokens/...`). For production, configure a **custom domain** on GitHub Pages so those paths resolve at the domain root; the default `*.github.io/<repo>/` URL serves HTML but absolute asset paths need a root domain (or future base-path support).
+
+Set canonical / sitemap origin in `web/ssg.json` (`origin`) or env `ANZA_SITE_ORIGIN` at build time.
+
+**Release a version** (rebuilds all platform binaries and publishes npm):
+
+```bash
+# Bump library/package.json (+ create/package.json), update CHANGELOG, then:
+git tag v0.4.4
+git push origin v0.4.4
+```
+
+The tag must match `library/package.json`. Release requires `NPM_TOKEN` in repo secrets.
+
 ---
 
 ## Generate

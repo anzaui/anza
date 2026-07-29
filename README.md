@@ -31,6 +31,21 @@ npm install
 npm test     # real-browser tests via @web/test-runner
 ```
 
+## Docs site
+
+Build the static docs app (same command CI uses):
+
+```bash
+node tasks/build.js          # compile CLI once
+cd web && npm ci && npm run build
+```
+
+Output: `web/dist/`. Deployed to GitHub Pages on push to `main` (see [docs/intro/build.md](./docs/intro/build.md#deploy-github-pages)).
+
+## Release
+
+Tag push `v*.*.*` triggers multi-platform CLI builds, npm publish, and a GitHub Release with attached binaries. Tag version must match `library/package.json`.
+
 ## License
 
 [MIT](./LICENSE) © 2026 Aduki

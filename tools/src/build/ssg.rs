@@ -316,11 +316,18 @@ fn preserve_csr_template(
     return Ok(());
   }
 
-  let preserve_path = ssg_out
-    .parent()
-    .unwrap_or_else(|| Path::new(""))
-    .join("template.html");
+  let parent = ssg_out.parent().unwrap_or_else(|| Path::new(""));
+  let preserve_path = parent.join("template.html");
   std::fs::write(&preserve_path, page_html).map_err(|e| e.to_string())?;
+
+  // Soft-nav derives tags URL as template.html → template.tags.json.
+  // CSR extract emits index.tags.json beside the fragment; copy it over.
+  let mut tags_src = fragment_dist.clone();
+  tags_src.set_extension("tags.json");
+  if tags_src.exists() {
+    let tags_dst = parent.join("template.tags.json");
+    std::fs::copy(&tags_src, &tags_dst).map_err(|e| e.to_string())?;
+  }
 
   let js_path = dist_dir.join(file);
   if js_path.exists() {

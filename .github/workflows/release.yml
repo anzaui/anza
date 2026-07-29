@@ -153,8 +153,10 @@ jobs:
               NOTES="$SECTION"
             fi
           fi
-          gh release create "$GITHUB_REF_NAME" \
-            library/bin/anza/anza-* \
-            --title "anza $VERSION" \
-            --notes "$NOTES" \
-            --generate-notes
+          ARGS=(gh release create "$GITHUB_REF_NAME" library/bin/anza/anza-* --title "anza $VERSION")
+          if [ -n "$NOTES" ]; then
+            ARGS+=(--notes "$NOTES")
+          else
+            ARGS+=(--generate-notes)
+          fi
+          "${ARGS[@]}"

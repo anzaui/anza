@@ -10,10 +10,11 @@
  */
 
 /**
- * Clones a response, modifying or appending a custom TTL expires header if requested.
+ * Returns a Response suitable for `cache.put` without locking the caller's body.
+ * Always clones (or rebuilds from a clone) so strategies can still `return response`.
  */
 async function cloneWithExpiry(response, ttl) {
-  if (!ttl) return response;
+  if (!ttl) return response.clone();
 
   // Read body as blob to prevent stream lockups
   const blob = await response.clone().blob();
@@ -43,19 +44,19 @@ export class CacheFirst {
     if (cachedResponse) {
       const expiresAt = parseInt(cachedResponse.headers.get('x-expires-at') ?? '0', 10);
       if (!expiresAt || expiresAt > Date.now()) {
-        return cachedResponse;
+        return cachedResponse.clone();
       }
     }
 
     try {
       const response = await fetch(request);
       if (response && response.ok) {
-        const storedRes = await cloneWithExpiry(response, this.options.ttl);
+        const storedRes = await cloneWithExpiry(response.clone(), this.options.ttl);
         await cache.put(request, storedRes);
       }
-      return response;
+      return response.clone();
     } catch (err) {
-      if (cachedResponse) return cachedResponse; // Return expired fallback if offline
+      if (cachedResponse) return cachedResponse.clone();
       throw err;
     }
   }
@@ -86,22 +87,22 @@ export class NetworkFirst {
       ]);
 
       if (networkResponse && networkResponse.ok) {
-        const storedRes = await cloneWithExpiry(networkResponse, this.options.ttl);
+        const storedRes = await cloneWithExpiry(networkResponse.clone(), this.options.ttl);
         await cache.put(request, storedRes);
-        return networkResponse;
+        return networkResponse.clone();
       }
     } catch (err) {
       // Fall through to cache on direct network failure
     }
 
     if (cachedResponse) {
-      return cachedResponse;
+      return cachedResponse.clone();
     }
 
     // Global navigation fallback page check
     if (request.mode === 'navigate' && this.options.fallbackUrl) {
       const fallback = await caches.match(this.options.fallbackUrl);
-      if (fallback) return fallback;
+      if (fallback) return fallback.clone();
     }
 
     throw new Error(`NetworkFirst: failed to fetch "${request.url}" and no cached copy was available.`);
@@ -125,10 +126,10 @@ export class StaleRevalidate {
       try {
         const response = await fetch(request);
         if (response && response.ok) {
-          const storedRes = await cloneWithExpiry(response, this.options.ttl);
+          const storedRes = await cloneWithExpiry(response.clone(), this.options.ttl);
           await cache.put(request, storedRes);
         }
-        return response;
+        return response.clone();
       } catch (err) {
         console.warn(`StaleRevalidate background fetch failed for "${request.url}":`, err);
         throw err;
@@ -138,7 +139,7 @@ export class StaleRevalidate {
     if (cachedResponse) {
       // Catch error in background to prevent unhandled rejection crashes
       fetchPromise.catch(() => {});
-      return cachedResponse;
+      return cachedResponse.clone();
     }
 
     return fetchPromise;
@@ -163,7 +164,7 @@ export class CacheThenNetwork {
       try {
         const response = await fetch(request);
         if (response && response.ok) {
-          const storedRes = await cloneWithExpiry(response, this.options.ttl);
+          const storedRes = await cloneWithExpiry(response.clone(), this.options.ttl);
           await cache.put(request, storedRes);
 
           // Dispatch update event to all controlled clients
@@ -173,7 +174,7 @@ export class CacheThenNetwork {
             const contentType = response.headers.get('content-type') ?? '';
             if (contentType.includes('application/json')) {
               try {
-                payload = await response.clone().json();
+                payload = await storedRes.clone().json();
               } catch {}
             }
 
@@ -186,7 +187,7 @@ export class CacheThenNetwork {
             }
           }
         }
-        return response;
+        return response.clone();
       } catch (err) {
         console.warn(`CacheThenNetwork background fetch failed for "${request.url}":`, err);
         throw err;
@@ -195,7 +196,7 @@ export class CacheThenNetwork {
 
     if (cachedResponse) {
       fetchPromise.catch(() => {});
-      return cachedResponse;
+      return cachedResponse.clone();
     }
 
     return fetchPromise;
@@ -225,7 +226,7 @@ export class CacheOnly {
     if (!cachedResponse) {
       throw new Error(`CacheOnly: response for "${request.url}" not found in cache "${this.cacheName}"`);
     }
-    return cachedResponse;
+    return cachedResponse.clone();
   }
 }
 
@@ -240,7 +241,7 @@ export class OfflineFallback {
   async handle(request, error) {
     if (request.mode === 'navigate') {
       const fallback = await caches.match(this.fallbackUrl);
-      if (fallback) return fallback;
+      if (fallback) return fallback.clone();
     }
     throw error || new Error('Request failed and offline fallback page was not available.');
   }

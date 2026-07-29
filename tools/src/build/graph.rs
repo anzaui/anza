@@ -368,6 +368,11 @@ pub fn resolve(
     let _ = crate::create::copy::copy(&src_styles, &dist.join("styles"));
   }
 
+  let favicon = src.join("favicon.ico");
+  if favicon.is_file() {
+    let _ = std::fs::copy(&favicon, dist.join("favicon.ico"));
+  }
+
   // Rewrite bare specifiers in dist/sw.js to relative paths.
   // Service Workers do not support import maps.
   super::sw::rewrite_imports(dist, &importmap);

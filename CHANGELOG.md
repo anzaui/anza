@@ -10,31 +10,43 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+---
+
+## [0.4.4] — 2026-07-29
+
 ### Added
 
 - **Portable site-root asset URLs** — production `dist/` is the document root; import maps, routes, SW, and scaffolds emit `/app.js`-style paths with no `/dist` prefix.
-- **Mode A SSG** — `anza build` and `anza dev` emit contentful HTML with open Declarative Shadow DOM (DSD) per public route (`dist/<route>/index.html`), including title/meta and route-scoped `modulepreload`. On fragment collision, CSR templates are preserved as `template.html` and soft-nav is rewritten to fetch them.
+- **Mode A SSG** — `anza build` and `anza dev` emit contentful HTML with open Declarative Shadow DOM (DSD) per public route (`dist/<route>/index.html`), including title/meta and route-scoped `modulepreload`. On fragment collision, CSR templates are preserved as `template.html` and soft-nav is rewritten to fetch them; `template.tags.json` is copied beside preserved templates for soft-nav tag derivation.
 - **Client DSD adopt / hydrate** — custom elements adopt existing open shadow trees instead of wiping; soft-nav swaps the leaf only while parent docks stay mounted.
 - **Mode B HTML contract** — normative contract in `docs/ssg/contract.md`, golden fixtures, contract check harness, and minimal Python / Go / Node example servers.
 - **Hydration & SSG docs** — `docs/ui/hydration.md` plus web routes for hydration and the HTML contract; legacy `theme` → `anza-theme` localStorage migration.
 - **Docs UI** — theme via `@adukiorg/anza/theme`, fuller sidebar coverage, active-link fix, search removed; docs home canonical path is `/docs`.
-- **Element library docs (Phase 1)** — `docs/elements/` inventory + category overviews; full pages for button, input, dialog, alert, tabs; web routes + sidebar “Elements” group. See `plans/ELEMENTS.md`.
-- **Element library docs (Phase 2)** — full pages for remaining primitives (icon, badge, avatar, divider, text, link, spinner) and forms (textarea, select, checkbox, radio, toggle, field, upload, form).
-- **Element library docs (Phases 3–5)** — feedback (toast + progress/skeleton/empty), data/navigation/layout full pages; overlay **patterns** page documenting native top-layer (popover/menu + dialog/drawer/sheet) and toast as the body-portal exception. Phase 5: UI/events cross-links + light `::part` notes. See `plans/ELEMENTS.md`.
-- **Overlay kit Full pages + tooltip escape** — thin Full docs for popover, tooltip, menu, drawer, sheet; platform `escapeOverflow` / `guard.escape` so `ui-tooltip` escapes overflow clipping (popover top-layer + fixed fallback). Bundlers remain deferred ([#2](https://github.com/aduki-org/anza/issues/2)).
-- **Mutations & events precision** — `watch` observer buckets by option fingerprint (a `tree` / `attr *` no longer widens neighbors); `watch.children` alias for `watch.kids`; `watch.slot`; `on` / `events.delegate` options `attrs`, `not`, `key`; `observe.mutation.scoped`.
-- **Framework globals registry** — internal `globals.attach|detach|count|list` for named document/`#main` attachments (`router.nav-click`, `router.container-mo`, `popover.*`); `ui.getAttachmentStats(shadowRoot)` for per-instance `on`/`watch` counters.
+- **Element library docs (Phases 1–5)** — inventory, category overviews, and full pages across primitives, forms, feedback, data, navigation, layout, and overlay patterns. See `plans/ELEMENTS.md`.
+- **Overlay kit + tooltip escape** — Full docs for popover, tooltip, menu, drawer, sheet; platform `escapeOverflow` / `guard.escape` for `ui-tooltip`.
+- **Mutations & events precision** — scoped `watch` buckets, `watch.children` / `watch.slot`, `on` / `events.delegate` options `attrs`, `not`, `key`; `observe.mutation.scoped`.
+- **Framework globals registry** — `globals.attach|detach|count|list` and `ui.getAttachmentStats(shadowRoot)`.
+- **GitHub Pages** — `.github/workflows/pages.yml` deploys `web/dist` on push to `main`; CI `build-docs` job verifies production build; docs for deploy and release in README and `docs/intro/build.md`.
+- **Favicon** — optional `src/favicon.ico` copied to `dist/` at build time.
 
 ### Changed
 
-- **`on` passive defaults** — aligned with `events.listen`: passive only for `touchstart` / `touchmove` / `wheel` / `mousewheel` unless overridden. Click / submit / key handlers can `preventDefault()` without `{ passive: false }`.
-- **`on` matching** — uses `composedPath()` within the shadow root (same as `events.delegate`), not `closest()` from `event.target`.
-- **Empty `on` teardown** — disposing the last handler for an event type removes the shadow-root listener immediately (no wait for `ctrl.abort`).
+- **`on` passive defaults** — aligned with `events.listen`; click / submit / key handlers can `preventDefault()` without `{ passive: false }`.
+- **`on` matching** — uses `composedPath()` within the shadow root (same as `events.delegate`).
+- **Empty `on` teardown** — last handler removal drops the shadow-root listener immediately.
 - **Popover polyfill unmount MO** — prefers parent `childList` (no subtree) over `document.body` subtree while open.
+- **Docs site origin** — `web/ssg.json` and CI use `https://aduki-org.github.io/anza`.
+
+### Fixed
+
+- **Service worker response bodies** — cache strategies clone responses on read/write so `cache.put` no longer locks bodies returned to fetch handlers.
+- **Soft-nav + CacheFirst** — navigations, CSR `template.html` / `.tags.json`, and `/favicon.ico` bypass the SW to avoid body-lock races.
+- **Release workflow** — use CHANGELOG section notes when present without also passing `--generate-notes`.
 
 ### Planned
 
 - Integration with external bundlers/compilers — **deferred** ([#2](https://github.com/aduki-org/anza/issues/2)); not in active scope
+
 ---
 
 ## [0.4.2] — 2026-06-15
