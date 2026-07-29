@@ -65,9 +65,12 @@ struct RoutesManifest {
   routes: Vec<RouteInfo>,
 }
 
-/// Optional project SEO config from `ssg.json` (and `ANZA_SITE_ORIGIN` override).
+/// Optional project SEO config from `ssg.json` (and env overrides).
 #[derive(Debug, Clone, Deserialize, Default)]
 struct SsgSiteConfig {
+  /// Deploy base path, e.g. `/anza` for GitHub Pages project sites (no trailing slash).
+  #[serde(default)]
+  base: Option<String>,
   /// Absolute site origin, e.g. `https://example.com` (no trailing slash).
   #[serde(default)]
   origin: Option<String>,
@@ -110,6 +113,7 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) {
     Ok(c) => c,
     Err(err) => {
       anza_logs::warn!("SSG skipped: cannot read {}: {}", routes_path.display(), err);
+      apply_base_path(dist_dir, &load_site_config(src_dir));
       return;
     }
   };
@@ -118,6 +122,7 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) {
     Ok(m) => m,
     Err(err) => {
       anza_logs::warn!("SSG skipped: invalid routes.json: {}", err);
+      apply_base_path(dist_dir, &load_site_config(src_dir));
       return;
     }
   };
@@ -151,6 +156,17 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) {
 
   if let Err(err) = emit_seo_extras(dist_dir, &site, &ssg_paths) {
     anza_logs::warn!("SSG SEO extras failed: {}", err);
+  }
+
+  apply_base_path(dist_dir, &site);
+}
+
+/// Rewrite dist asset URLs when a deploy base path is configured.
+pub fn apply_base_path(dist_dir: &Path, site: &SsgSiteConfig) {
+  if let Some(ref base) = site.base {
+    if !base.is_empty() {
+      super::base::apply_to_dist(dist_dir, base);
+    }
   }
 }
 
@@ -446,48 +462,80 @@ fn build_head(
     head.push('\n');
     head.push_str("  </script>\n");
   } else {
-    head.push_str("  <script type=\"importmap\" src=\"/importmap.json\"></script>\n");
+    head.push_str(&format!(
+      "  <script type=\"importmap\" src=\"{}\"></script>\n",
+      escape_attr(&asset_href(site.base.as_deref(), "/importmap.json"))
+    ));
   }
 
-  head.push_str("  <link rel=\"stylesheet\" href=\"/tokens/index.css\" />\n");
-  head.push_str("  <link rel=\"stylesheet\" href=\"/styles/index.css\" />\n");
+  head.push_str(&format!(
+    "  <link rel=\"stylesheet\" href=\"{}\" />\n",
+    escape_attr(&asset_href(site.base.as_deref(), "/tokens/index.css"))
+  ));
+  head.push_str(&format!(
+    "  <link rel=\"stylesheet\" href=\"{}\" />\n",
+    escape_attr(&asset_href(site.base.as_deref(), "/styles/index.css"))
+  ));
 
   // Route-scoped modulepreload (mirrors tools/src/server/runner.rs).
-  head.push_str("  <link rel=\"modulepreload\" href=\"/app.js\" />\n");
+  let app_js = asset_href(site.base.as_deref(), "/app.js");
+  head.push_str(&format!(
+    "  <link rel=\"modulepreload\" href=\"{}\" />\n",
+    escape_attr(&app_js)
+  ));
 
   let mut seen_modules = std::collections::HashSet::new();
-  seen_modules.insert("/app.js".to_string());
+  seen_modules.insert(app_js.clone());
 
+  let base = site.base.as_deref();
   for via_name in &route.via {
     if let Some(dock) = docks.get(via_name) {
       if let Some(ref f) = dock.file {
-        let href = format!("/{}", f.trim_start_matches('/'));
+        let href = asset_href(base, &format!("/{}", f.trim_start_matches('/')));
         if seen_modules.insert(href.clone()) {
-          head.push_str(&format!("  <link rel=\"modulepreload\" href=\"{}\" />\n", href));
+          head.push_str(&format!(
+            "  <link rel=\"modulepreload\" href=\"{}\" />\n",
+            escape_attr(&href)
+          ));
         }
       }
     }
   }
   for f in &route.layouts {
-    let href = if f.starts_with('/') {
+    let raw = if f.starts_with('/') {
       f.clone()
     } else {
       format!("/{}", f)
     };
+    let href = asset_href(base, &raw);
     if seen_modules.insert(href.clone()) {
-      head.push_str(&format!("  <link rel=\"modulepreload\" href=\"{}\" />\n", href));
+      head.push_str(&format!(
+        "  <link rel=\"modulepreload\" href=\"{}\" />\n",
+        escape_attr(&href)
+      ));
     }
   }
   if let Some(ref f) = route.file {
-    let href = format!("/{}", f.trim_start_matches('/'));
+    let href = asset_href(base, &format!("/{}", f.trim_start_matches('/')));
     if seen_modules.insert(href.clone()) {
-      head.push_str(&format!("  <link rel=\"modulepreload\" href=\"{}\" />\n", href));
+      head.push_str(&format!(
+        "  <link rel=\"modulepreload\" href=\"{}\" />\n",
+        escape_attr(&href)
+      ));
     }
   }
 
+  head.push_str(&super::base::base_script_tag(base.unwrap_or("")));
   // Deferred entry — parser paints DSD first; modules upgrade later.
-  head.push_str("  <script type=\"module\" src=\"/app.js\"></script>\n");
+  head.push_str(&format!(
+    "  <script type=\"module\" src=\"{}\"></script>\n",
+    escape_attr(&app_js)
+  ));
   head
+}
+
+fn asset_href(base: Option<&str>, path: &str) -> String {
+  super::base::with_base(base.unwrap_or(""), path)
 }
 
 /// Open DSD host with **light-DOM** children after the template.
@@ -953,9 +1001,10 @@ fn interpolate_params(input: &str, values: &HashMap<String, String>) -> String {
   out
 }
 
-/// Load `ssg.json` from `src_dir` or its parent; `ANZA_SITE_ORIGIN` overrides origin.
+/// Load `ssg.json` from `src_dir` or its parent; env vars override fields.
 fn load_site_config(src_dir: &Path) -> SsgSiteConfig {
   let mut cfg = SsgSiteConfig {
+    base: None,
     origin: None,
     site_name: None,
     json_ld: true,
@@ -990,12 +1039,24 @@ fn load_site_config(src_dir: &Path) -> SsgSiteConfig {
       cfg.origin = Some(trimmed.to_string());
     }
   }
+  if let Ok(env_base) = std::env::var("ANZA_BASE_PATH") {
+    let trimmed = env_base.trim();
+    if !trimmed.is_empty() {
+      cfg.base = Some(trimmed.to_string());
+    }
+  }
   if let Some(ref mut origin) = cfg.origin {
     while origin.ends_with('/') {
       origin.pop();
     }
     if origin.is_empty() {
       cfg.origin = None;
+    }
+  }
+  if let Some(ref mut base) = cfg.base {
+    *base = super::base::normalize_base(base);
+    if base.is_empty() {
+      cfg.base = None;
     }
   }
   cfg
@@ -1300,6 +1361,7 @@ mod tests {
   #[test]
   fn json_ld_contains_website_and_webpage() {
     let site = SsgSiteConfig {
+      base: None,
       origin: Some("https://example.com".into()),
       site_name: Some("Anza".into()),
       json_ld: true,

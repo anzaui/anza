@@ -6,6 +6,7 @@
 // unsupported prop types. No bundling (browser is single-threaded; that is a
 // future scope).
 
+pub mod base;
 pub mod cache;
 pub mod entries;
 pub mod graph;

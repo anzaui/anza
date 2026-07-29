@@ -57,16 +57,23 @@ function assertNoDistAssetUrls(html, label) {
   else ok(`${label}: no /dist/ asset hrefs/srcs`);
 }
 
-function checkPage(html, label, { requireTitle = true, requireJsonLd = false } = {}) {
+function checkPage(html, label, { requireTitle = true, requireJsonLd = false, requireBase = true } = {}) {
+  const base = loadSiteBase();
+  const tokensCss = requireBase ? assetPath('/tokens/index.css') : '/tokens/index.css';
+  const stylesCss = requireBase ? assetPath('/styles/index.css') : '/styles/index.css';
+  const appJs = requireBase ? assetPath('/app.js') : '/app.js';
   if (requireTitle) assertContains(html, '<title>', label);
   assertContains(html, 'shadowrootmode="open"', label);
   assertAbsent(html, 'shadowrootmode="closed"', label);
   assertNoDistAssetUrls(html, label);
-  assertContains(html, 'href="/tokens/index.css"', label);
-  assertContains(html, 'href="/styles/index.css"', label);
+  assertContains(html, `href="${tokensCss}"`, label);
+  assertContains(html, `href="${stylesCss}"`, label);
   assertContains(html, 'rel="modulepreload"', label);
-  assertContains(html, 'src="/app.js"', label);
+  assertContains(html, `src="${appJs}"`, label);
   assertContains(html, 'type="importmap"', label);
+  if (requireBase && base) {
+    assertContains(html, 'globalThis.__ANZA_BASE__', label);
+  }
   if (requireJsonLd) {
     assertContains(html, 'application/ld+json', label);
     assertContains(html, 'WebPage', label);
@@ -176,6 +183,32 @@ function loadSiteOrigin() {
   return null;
 }
 
+function loadSiteBase() {
+  if (process.env.ANZA_BASE_PATH) {
+    const raw = process.env.ANZA_BASE_PATH.trim().replace(/\/+$/, '');
+    return raw === '' || raw === '/' ? '' : (raw.startsWith('/') ? raw : `/${raw}`);
+  }
+  if (existsSync(siteConfigPath)) {
+    try {
+      const cfg = JSON.parse(readFileSync(siteConfigPath, 'utf8'));
+      if (cfg.base) {
+        const raw = String(cfg.base).trim().replace(/\/+$/, '');
+        return raw === '' || raw === '/' ? '' : (raw.startsWith('/') ? raw : `/${raw}`);
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+  return '';
+}
+
+function assetPath(path) {
+  const base = loadSiteBase();
+  if (!base) return path;
+  if (path === '/') return `${base}/`;
+  return `${base}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
 maybeRebuild();
 
 const goldens = [
@@ -185,7 +218,7 @@ const goldens = [
 
 for (const [name, path] of goldens) {
   const html = readRequired(path, name);
-  if (html) checkPage(html, `golden ${name}`);
+  if (html) checkPage(html, `golden ${name}`, { requireBase: false });
 }
 
 const goldenIntro = readRequired(join(fixturesDir, 'docs-intro-start.html'), 'docs-intro-start.html');

@@ -16,6 +16,7 @@ concurrency:
 
 env:
   ANZA_SITE_ORIGIN: https://aduki-org.github.io/anza
+  ANZA_BASE_PATH: /anza
 
 jobs:
   build:

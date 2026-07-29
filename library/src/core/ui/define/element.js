@@ -1,6 +1,7 @@
 import { BaseElement } from '../base.js';
 import { scheduleFrame, yieldTask } from '../schedule.js';
 import { router } from '../../router/index.js';
+import { resolveAssetUrl } from '../../router/base.js';
 import {
   specRegistry, internalsMap, initializedMap, pendingUpdatesMap,
   updateScheduledMap, assetCache, adoptedMap, hydrationFallbackMap
@@ -60,13 +61,13 @@ export function element(tag, spec, base) {
 
   // Resolve absolute URLs relative to import.meta.url (base)
   const styleUrls = Array.isArray(spec.style) 
-    ? spec.style.filter(s => s && base && isStyleUrl(s)).map(s => new URL(s, base).href)
+    ? spec.style.filter(s => s && base && isStyleUrl(s)).map(s => resolveAssetUrl(s, base))
     : (spec.style && base && isStyleUrl(spec.style)
-      ? [new URL(spec.style, base).href]
+      ? [resolveAssetUrl(spec.style, base)]
       : []);
       
   const templateUrl = spec.template && base && isTemplateUrl(spec.template)
-    ? new URL(spec.template, base).href
+    ? resolveAssetUrl(spec.template, base)
     : null;
 
   // Defer resource preloading until first mount or HMR rebind for cold-start performance

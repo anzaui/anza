@@ -8,6 +8,8 @@
  * Source: doc 09 — Routing §2, §10, §12
  */
 
+import { resolveAppUrl } from './base.js';
+
 /** Normalized result shape for callers that await .finished. */
 const resolved = { committed: Promise.resolve(), finished: Promise.resolve() };
 
@@ -17,7 +19,7 @@ const resolved = { committed: Promise.resolve(), finished: Promise.resolve() };
  */
 export function navigate(url, options = {}) {
   if (typeof window === 'undefined' || !window.navigation) return resolved;
-  const result = window.navigation.navigate(url, options);
+  const result = window.navigation.navigate(resolveAppUrl(url), options);
   return result ?? resolved;
 }
 
@@ -26,7 +28,7 @@ export function navigate(url, options = {}) {
  */
 export function replace(url, options = {}) {
   if (typeof window === 'undefined' || !window.navigation) return resolved;
-  const result = window.navigation.navigate(url, { history: 'replace', ...options });
+  const result = window.navigation.navigate(resolveAppUrl(url), { history: 'replace', ...options });
   return result ?? resolved;
 }
 

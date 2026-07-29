@@ -9,6 +9,7 @@
 
 import { guard } from '../platform/index.js';
 import { resolveTag } from './handler.js';
+import { stripBase } from './base.js';
 import { insert as trieInsert, find as trieFind, clear as trieClear } from './trie.js';
 
 const routes = [];
@@ -102,10 +103,11 @@ export async function match(url) {
   // Use pre-resolved Pattern class synchronously on hot path (RT-03)
   const P = Pattern || (await getURLPattern());
   const targetUrl = new URL(url, globalThis.location?.href || 'http://localhost');
+  const routePath = stripBase(targetUrl.pathname);
 
   // Fast path: O(k) radix-trie lookup on the pathname. Covers the common case
   // of plain/:param/* patterns without compiling or executing a URLPattern.
-  const trieHit = trieFind(targetUrl.pathname);
+  const trieHit = trieFind(routePath);
   if (trieHit) {
     return finalize(trieHit.route, trieHit.params, targetUrl, null);
   }
@@ -121,7 +123,9 @@ export async function match(url) {
       }
     }
 
-    const result = route.pattern.exec(targetUrl.href);
+    const execUrl = new URL(targetUrl.href);
+    execUrl.pathname = routePath;
+    const result = route.pattern.exec(execUrl.href);
     if (result) {
       return finalize(route, result.pathname.groups || {}, targetUrl, result);
     }
