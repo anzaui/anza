@@ -64,11 +64,7 @@ impl From<&crate::structure::defaults::Slots> for Slots {
 /// Rewrite `source` so static import / export-from decls appear at the top of
 /// the module in usage order. Returns the original string unchanged when parse
 /// fails or ordering is already correct and imports are already leading.
-pub fn rewrite(source: &str, file: &Path, src_root: &Path) -> String {
-  rewrite_with(source, file, src_root, &Slots::default())
-}
-
-/// Like [`rewrite`] but uses remapped slot directory names from `anza.json`.
+/// Uses remapped slot directory names from `anza.json` when `slots` is set.
 pub fn rewrite_with(source: &str, file: &Path, src_root: &Path, slots: &Slots) -> String {
   let cm = Arc::new(SourceMap::default());
   let fm = cm.new_source_file(
@@ -464,7 +460,7 @@ import './docks/index.js';
 
 dock('main');
 "#;
-    let out = rewrite(source, &file, &src());
+    let out = rewrite_with(source, &file, &src(), &Slots::default());
     let page = out.find("import './pages/index.js';").expect("pages");
     let dock = out.find("import './docks/index.js';").expect("docks");
     let lib = out.find("import '@adukiorg/anza/ui';").expect("lib");
@@ -484,7 +480,7 @@ dock('main');
 
 import './pages/index.js';
 "#;
-    let out = rewrite(source, &file, &src());
+    let out = rewrite_with(source, &file, &src(), &Slots::default());
     let page = out.find("import './pages/index.js';").expect("pages");
     let body = out.find("dock('main')").expect("body");
     assert!(page < body, "late import must hoist before body");
@@ -501,8 +497,8 @@ import './pages/index.js';
 
 dock('main');
 "#;
-    let once = rewrite(source, &file, &src());
-    let twice = rewrite(&once, &file, &src());
+    let once = rewrite_with(source, &file, &src(), &Slots::default());
+    let twice = rewrite_with(&once, &file, &src(), &Slots::default());
     assert_eq!(once, twice);
   }
 
@@ -512,7 +508,7 @@ dock('main');
     let source = r#"export { x } from './entry/index.js';
 import './other/index.js';
 "#;
-    let out = rewrite(source, &file, &src());
+    let out = rewrite_with(source, &file, &src(), &Slots::default());
     assert!(out.contains("export { x } from './entry/index.js';"));
     assert!(out.contains("import './other/index.js';"));
   }

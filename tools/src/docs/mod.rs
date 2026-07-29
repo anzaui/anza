@@ -9,7 +9,9 @@ use std::collections::BTreeSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use config::{DocsConfig, SidebarItem, SidebarSection};
+use walkdir::WalkDir;
+
+use config::{DocsConfig, Files, SidebarItem, SidebarSection};
 use transform::{md_to_html_body, route_from_md, tag_from_route};
 
 pub use config::load_config;
@@ -79,6 +81,7 @@ pub fn run(opts: &DocsOptions) -> Result<(), String> {
 
   emit_redirects(&out, &cfg)?;
   emit_root_index(&out, &cfg)?;
+  emit_seo_files(&out, &cfg, &pages)?;
 
   if cfg.entry.landing {
     emit_landing(&out, &docs_root, &cfg)?;
@@ -154,8 +157,7 @@ fn collect_pages(
   }
 
   if !sidebar_only {
-    // Future: walk include globs. MVP keeps sidebar_only default true via CLI.
-    let _ = &cfg.files;
+    collect_file_globs(docs_root, &cfg.files, &mut paths)?;
   }
 
   let mut pages = Vec::new();
@@ -185,6 +187,48 @@ fn collect_pages(
 
   pages.sort_by(|a, b| a.route.cmp(&b.route));
   Ok(pages)
+}
+
+
+fn collect_file_globs(
+  docs_root: &Path,
+  files: &Files,
+  paths: &mut BTreeSet<PathBuf>,
+) -> Result<(), String> {
+  let roots: Vec<PathBuf> = if files.roots.is_empty() {
+    vec![docs_root.to_path_buf()]
+  } else {
+    files.roots.iter().map(|r| docs_root.join(r)).collect()
+  };
+  for root in roots {
+    if !root.is_dir() {
+      anza_logs::warn!("skip missing files.roots dir: {}", root.display());
+      continue;
+    }
+    for entry in WalkDir::new(&root).into_iter().filter_map(|e| e.ok()) {
+      let path = entry.path();
+      if !path.is_file() { continue; }
+      if path.extension().and_then(|e| e.to_str()) != Some("md") { continue; }
+      let rel = path.strip_prefix(docs_root).unwrap_or(path).to_string_lossy();
+      if !files.include.is_empty() && !files.include.iter().any(|g| path_matches_glob(&rel, g)) { continue; }
+      if files.exclude.iter().any(|g| path_matches_glob(&rel, g)) { continue; }
+      paths.insert(path.to_path_buf());
+    }
+  }
+  Ok(())
+}
+
+fn path_matches_glob(path: &str, pattern: &str) -> bool {
+  let pattern = pattern.replace('\\', "/");
+  let path = path.replace('\\', "/");
+  if let Some(inner) = pattern.strip_prefix("**/") {
+    return path.ends_with(inner) || path.contains(&format!("/{inner}"));
+  }
+  if pattern.contains('*') {
+    let parts: Vec<&str> = pattern.split('*').collect();
+    if parts.len() == 2 { return path.starts_with(parts[0]) && path.ends_with(parts[1]); }
+  }
+  path == pattern || path.ends_with(&format!("/{pattern}"))
 }
 
 fn strip_frontmatter(raw: &str) -> (Option<String>, String) {
@@ -505,6 +549,7 @@ fn emit_page(out: &Path, cfg: &DocsConfig, page: &Page) -> Result<(), String> {
     .join(", ");
   let js = format!(
     r#"// Generated stub — full Anza page() wiring lands when docs emit uses library runtime.
+// source: {source}
 // route: {route}
 export const route = '{route}';
 export const tag = '{tag}';
@@ -513,6 +558,7 @@ export const template = {{ html: './index.html' }};
 export const style = ['/styles/shared.css'];
 console.debug('[anza docs]', route, tag);
 "#,
+    source = page.md_path.display(),
     route = page.route,
     tag = tag,
     via = via,
@@ -549,6 +595,38 @@ fn route_to_dist_js(route: &str, home_route: &str) -> String {
 fn render_shell(cfg: &DocsConfig, page: &Page) -> String {
   let sidebar = render_sidebar(&cfg.sidebar, &page.route, &cfg.site.base);
   let title = format!("{} — {}", page.title, cfg.seo.site_name);
+  let dock = esc(&cfg.entry.root_dock);
+  let body_class = if cfg.entry.shell.is_empty() {
+    "docs-mvp".to_string()
+  } else {
+    format!("docs-mvp {}", esc(&cfg.entry.shell))
+  };
+  let mut head_extras = String::new();
+  let origin = cfg.seo.origin.trim_end_matches('/');
+  if !origin.is_empty() {
+    let canonical = format!("{origin}{}", page.route);
+    head_extras.push_str(&format!(
+      "  <link rel=\"canonical\" href=\"{}\" />\n",
+      esc(&canonical)
+    ));
+  }
+  if cfg.seo.json_ld {
+    let url = if origin.is_empty() {
+      page.route.clone()
+    } else {
+      format!("{origin}{}", page.route)
+    };
+    let ld = serde_json::json!({
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": page.title,
+      "url": url,
+    });
+    head_extras.push_str(&format!(
+      "  <script type=\"application/ld+json\">{}</script>\n",
+      ld
+    ));
+  }
   format!(
     r#"<!DOCTYPE html>
 <html lang="en">
@@ -556,16 +634,16 @@ fn render_shell(cfg: &DocsConfig, page: &Page) -> String {
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title}</title>
-  <link rel="stylesheet" href="/tokens/index.css" />
+{head_extras}  <link rel="stylesheet" href="/tokens/index.css" />
   <link rel="stylesheet" href="/styles/index.css" />
   <link rel="stylesheet" href="/styles/shared.css" />
-  <link rel="stylesheet" href="/docks/docs/index.css" />
+  <link rel="stylesheet" href="/docks/{dock}/index.css" />
   <link rel="stylesheet" href="/styles/mvp.css" />
   <link rel="stylesheet" href="/views/code/prism.css" />
   <link rel="stylesheet" href="/views/code/index.css" />
   <script type="module" src="/app.js"></script>
 </head>
-<body class="docs-mvp">
+<body class="{body_class}">
   <header class="docs-header">
     <div class="header-inner">
       <a href="/docs" class="logo" aria-label="Docs home"><span class="version">{site}</span></a>
@@ -590,6 +668,9 @@ fn render_shell(cfg: &DocsConfig, page: &Page) -> String {
 </html>
 "#,
     title = esc(&title),
+    head_extras = head_extras,
+    dock = dock,
+    body_class = body_class,
     site = esc(&cfg.seo.site_name),
     sidebar = sidebar,
     body = page.body_html,
@@ -602,15 +683,22 @@ fn render_sidebar(sections: &[SidebarSection], active: &str, _base: &str) -> Str
     if i > 0 {
       out.push_str("        <div class=\"sidebar-divider\"></div>\n");
     }
-    out.push_str("        <details class=\"sidebar-group\" open>\n");
+    let section_id = esc(&section.id);
+    out.push_str(&format!(
+      "        <details class=\"sidebar-group\" id=\"sidebar-{section_id}\" open>\n"
+    ));
     out.push_str("          <summary class=\"sidebar-group-header\">\n");
     out.push_str(&format!("            <h3>{}</h3>\n", esc(&section.title)));
     out.push_str("          </summary>\n");
     out.push_str("          <div class=\"sidebar-group-links\">\n");
-    for item in &section.items {
-      if item.hide {
-        continue;
-      }
+    let mut items: Vec<&SidebarItem> = section.items.iter().filter(|i| !i.hide).collect();
+    items.sort_by(|a, b| match (a.order, b.order) {
+      (Some(ao), Some(bo)) => ao.cmp(&bo),
+      (Some(_), None) => std::cmp::Ordering::Less,
+      (None, Some(_)) => std::cmp::Ordering::Greater,
+      (None, None) => a.path.cmp(&b.path),
+    });
+    for item in items {
       let href = item_href(item, _base);
       let label = item
         .label
@@ -692,7 +780,18 @@ fn emit_root_index(out: &Path, cfg: &DocsConfig) -> Result<(), String> {
   fs::write(out.join("index.html"), html).map_err(|e| e.to_string())
 }
 
-fn emit_landing(out: &Path, _docs_root: &Path, cfg: &DocsConfig) -> Result<(), String> {
+fn emit_landing(out: &Path, docs_root: &Path, cfg: &DocsConfig) -> Result<(), String> {
+  let dir = out.join("home");
+  fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+  if !cfg.assets.landing.is_empty() {
+    let landing_src = resolve_asset_path(docs_root, &cfg.assets.landing);
+    let index = landing_src.join("index.html");
+    if index.is_file() {
+      fs::copy(&index, dir.join("index.html")).map_err(|e| e.to_string())?;
+      return Ok(());
+    }
+    anza_logs::warn!("assets.landing has no index.html at {}", index.display());
+  }
   // Stub landing at /home/ — root index redirects to /docs for smoke.
   let html = format!(
     r#"<!DOCTYPE html>
@@ -712,9 +811,37 @@ fn emit_landing(out: &Path, _docs_root: &Path, cfg: &DocsConfig) -> Result<(), S
 "#,
     site = esc(&cfg.seo.site_name),
   );
-  let dir = out.join("home");
-  fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
   fs::write(dir.join("index.html"), html).map_err(|e| e.to_string())
+}
+fn resolve_asset_path(docs_root: &Path, configured: &str) -> PathBuf {
+  let path = PathBuf::from(configured);
+  if path.is_absolute() {
+    path
+  } else {
+    docs_root.join(path)
+  }
+}
+
+fn emit_seo_files(out: &Path, cfg: &DocsConfig, pages: &[Page]) -> Result<(), String> {
+  let origin = cfg.seo.origin.trim_end_matches('/');
+  if cfg.seo.robots {
+    let mut robots = String::from("User-agent: *\nAllow: /\n");
+    if !origin.is_empty() && cfg.seo.sitemap {
+      robots.push_str(&format!("Sitemap: {origin}/sitemap.xml\n"));
+    }
+    fs::write(out.join("robots.txt"), robots).map_err(|e| e.to_string())?;
+  }
+  if cfg.seo.sitemap && !origin.is_empty() {
+    let mut xml = String::from(
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n",
+    );
+    for page in pages {
+      xml.push_str(&format!("  <url><loc>{}{}</loc></url>\n", origin, esc(&page.route)));
+    }
+    xml.push_str("</urlset>\n");
+    fs::write(out.join("sitemap.xml"), xml).map_err(|e| e.to_string())?;
+  }
+  Ok(())
 }
 
 fn esc(s: &str) -> String {

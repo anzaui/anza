@@ -162,7 +162,7 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) {
 }
 
 /// Rewrite dist asset URLs when a deploy base path is configured.
-pub fn apply_base_path(dist_dir: &Path, site: &SsgSiteConfig) {
+fn apply_base_path(dist_dir: &Path, site: &SsgSiteConfig) {
   if let Some(ref base) = site.base {
     if !base.is_empty() {
       super::base::apply_to_dist(dist_dir, base);
