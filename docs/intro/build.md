@@ -104,34 +104,21 @@ anza check && anza build
 
 Doctor/check findings append `docs/intro/structure.md` so CI logs link back to the contract.
 
-### Deploy (GitHub Pages)
+### Deploy
 
-The docs app lives in `web/`. CI builds `web/dist/` and deploys it on every push to `main`.
+After `npm run build`, publish `dist/` as the **document root** of any static host (nginx, Netlify, Cloudflare Pages, S3, …). Asset URLs are site-root paths (`/app.js`, `/tokens/...`) — never `/dist/...`.
 
-| Trigger | Workflow | Output |
-| ------- | -------- | ------ |
-| Push to `main` | `.github/workflows/pages.yml` | Static site at GitHub Pages |
-| Tag `v*.*.*` | `.github/workflows/release.yml` | npm packages + CLI binaries on GitHub Releases |
+#### GitHub Pages
 
-**One-time repo setup:** Settings → Pages → Source: **GitHub Actions**.
+A [GitHub Pages project site](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages#types-of-github-pages-sites) is served under `/<repository>/` (user/org sites use `owner.github.io` at `/`). Root-absolute browser URLs like `/styles/shared.css` resolve against the **domain** root ([URL standard](https://developer.mozilla.org/en-US/docs/Web/API/URL_API/Resolving_relative_references)), so they 404 on project Pages unless rewritten.
 
-**Public URL:** `https://aduki-org.github.io/anza/` — a [GitHub Pages project site](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages#types-of-github-pages-sites) is always served under `/<repository>/` (user/org sites use `owner.github.io` at `/`). Root-absolute browser URLs like `/styles/shared.css` resolve against the **domain** root ([URL standard](https://developer.mozilla.org/en-US/docs/Web/API/URL_API/Resolving_relative_references)), so they 404 on project Pages unless rewritten.
+Set `"base": "/your-repo"` in `ssg.json` (next to or inside `src/`) or env `ANZA_BASE_PATH` so the build injects `globalThis.__ANZA_BASE__`, rewrites asset URLs in SSG HTML, and soft-nav style/template fetches hit `/your-repo/styles/...`. Publish `dist/` as the artifact **document root** — do not nest files under a `your-repo/` folder; Pages adds the repo prefix.
 
-Set `"base": "/anza"` in `web/ssg.json` (or `ANZA_BASE_PATH`) so the build injects `globalThis.__ANZA_BASE__`, rewrites asset URLs in SSG HTML, and soft-nav style/template fetches hit `/anza/styles/...`. Publish `web/dist/` as the artifact **document root** — do not nest files under an `anza/` folder; Pages adds the repo prefix. Workflow: `.github/workflows/pages.yml` (`upload-pages-artifact` + `deploy-pages`).
+**One-time repo setup:** Settings → Pages → Source: **GitHub Actions** (or your preferred Pages source).
 
-**Custom domain:** attaching a custom domain to the project (or inheriting one from the org/user site) changes the published URL so the site is no longer under `/anza/` — see [About custom domains and GitHub Pages](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages). In that case clear `base` / `ANZA_BASE_PATH` so assets resolve at `/`.
+**Custom domain:** attaching a custom domain to the project (or inheriting one from the org/user site) changes the published URL so the site is no longer under `/your-repo/` — see [About custom domains and GitHub Pages](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages). In that case clear `base` / `ANZA_BASE_PATH` so assets resolve at `/`.
 
-Set canonical / sitemap origin in `web/ssg.json` (`origin`) or env `ANZA_SITE_ORIGIN` at build time.
-
-**Release a version** (rebuilds all platform binaries and publishes npm):
-
-```bash
-# Bump library/package.json (+ create/package.json), update CHANGELOG, then:
-git tag v0.4.4
-git push origin v0.4.4
-```
-
-The tag must match `library/package.json`. Release requires `NPM_TOKEN` in repo secrets.
+Set canonical / sitemap origin in `ssg.json` (`origin`) or env `ANZA_SITE_ORIGIN` at build time.
 
 ---
 

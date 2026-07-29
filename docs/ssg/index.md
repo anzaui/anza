@@ -76,7 +76,7 @@ Or project-level `ssg.params.json`. Pattern stays `ssg: false`; each expansion e
 
 ### Site origin + SEO artifacts (Phase 6)
 
-`web/ssg.json` (or next to `src/`):
+`ssg.json` next to (or inside) `src/`:
 
 ```json
 {

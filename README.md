@@ -40,11 +40,11 @@ node tasks/build.js          # compile CLI once
 cd web && npm ci && npm run build
 ```
 
-Output: `web/dist/`. Deployed to GitHub Pages on push to `main` (see [docs/intro/build.md](./docs/intro/build.md#deploy-github-pages)).
+Output: `web/dist/`. CI deploys to GitHub Pages on push to `main`.
 
 ## Release
 
-Tag push `v*.*.*` triggers multi-platform CLI builds, npm publish, and a GitHub Release with attached binaries. Tag version must match `library/package.json`.
+Tag push `v*.*.*` triggers multi-platform CLI builds, npm publish, and a GitHub Release with attached binaries. Tag version must match `library/package.json`. Details: [.github/RELEASING.md](./.github/RELEASING.md).
 
 ## License
 

@@ -15,7 +15,7 @@ This installs:
 - Library source and type declarations under `@adukiorg/anza/*`
 - The `anza` command — a Node wrapper that spawns the correct prebuilt Rust binary for your OS and CPU
 
-Releases publish to [npm](https://www.npmjs.com/package/@adukiorg/anza). Each version bundles platform binaries under `node_modules/@adukiorg/anza/bin/anza/` (linux, macOS, and Windows — x64 and arm64).
+The package is on [npm](https://www.npmjs.com/package/@adukiorg/anza). Each version bundles platform binaries under `node_modules/@adukiorg/anza/bin/anza/` (linux, macOS, and Windows — x64 and arm64).
 
 In a project with `@adukiorg/anza` as a dependency, run the CLI via `npx anza` or an npm script (see [start.md](start.md)).
 
