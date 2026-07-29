@@ -66,7 +66,7 @@ pub fn parse_html(content: &str) -> TagsDescriptor {
 
   for (reference, count) in ref_counts {
     if count > 1 {
-      logs::warn!(
+      anza_logs::warn!(
         "Duplicate template ref \"{}\" appears {} times",
         reference,
         count
@@ -103,7 +103,7 @@ pub fn emit_descriptor(html_path: &Path, descriptor: &TagsDescriptor) -> Extract
 pub fn parse_and_emit(html_path: &Path) -> ExtractResult<PathBuf> {
   let descriptor = parse_file(html_path)?;
   let json_path = emit_descriptor(html_path, &descriptor)?;
-  logs::compiler!(
+  anza_logs::compiler!(
     "Generated tags descriptor for {:?}",
     html_path.file_name().unwrap_or_default()
   );

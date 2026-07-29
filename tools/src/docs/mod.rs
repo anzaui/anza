@@ -84,16 +84,16 @@ pub fn run(opts: &DocsOptions) -> Result<(), String> {
     emit_landing(&out, &docs_root, &cfg)?;
   }
 
-  logs::success!(
+  anza_logs::success!(
     "Docs site generated → {} ({} pages)",
     out.display(),
     pages.len()
   );
-  logs::info!(
+  anza_logs::info!(
     "Smoke: cd {} && python3 -m http.server 8765  (open /docs/ or /docs/intro/start/)",
     out.display()
   );
-  logs::info!(
+  anza_logs::info!(
     "Note: python http.server needs a trailing slash for directory indexes; soft-nav app.js maps /docs/... → .../index.html"
   );
 
@@ -161,7 +161,7 @@ fn collect_pages(
   let mut pages = Vec::new();
   for md_path in paths {
     if !md_path.is_file() {
-      logs::warn!("skip missing markdown: {}", md_path.display());
+      anza_logs::warn!("skip missing markdown: {}", md_path.display());
       continue;
     }
     let raw = fs::read_to_string(&md_path).map_err(|e| format!("read {}: {e}", md_path.display()))?;
@@ -277,7 +277,7 @@ fn copy_assets(docs_root: &Path, out: &Path, cfg: &DocsConfig) -> Result<(), Str
     if images.is_dir() {
       copy_dir_all(&images, &out.join("images"))?;
     } else {
-      logs::warn!("assets.images not a directory: {}", images.display());
+      anza_logs::warn!("assets.images not a directory: {}", images.display());
     }
   }
 

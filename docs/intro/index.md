@@ -35,7 +35,7 @@ import { page, dock, view } from '@adukiorg/anza/ui';
 
 | File | What It Covers |
 | ------ | -------------- |
-| [install.md](install.md) | Install the library and build the CLI |
+| [install.md](install.md) | Install the library and prebuilt CLI |
 | [start.md](start.md) | Scaffold your first app |
 | [build.md](build.md) | Dev server, production build, `doctor` / `check` / `generate` |
 | [structure.md](structure.md) | **Project structure contract** — required slots, `anza.json`, doctor/check, `anza generate` |

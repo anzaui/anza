@@ -15,6 +15,7 @@ use axum::{
   Router,
 };
 use futures_util::stream::{self, Stream};
+use tokio::net::TcpListener;
 use tokio::sync::broadcast;
 use tower_http::cors::CorsLayer;
 use tower_http::services::ServeDir;
@@ -43,24 +44,68 @@ pub async fn run(port: u16, src_dir: &Path, tx: broadcast::Sender<HmrMessage>) {
     .layer(CorsLayer::permissive())
     .with_state(state);
 
-  let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", port))
-    .await
-    .unwrap();
-  logs::server!("Dev Server launched at http://localhost:{}", port);
+  let (listener, bound_port) = match bind_port("0.0.0.0", port).await {
+    Ok(pair) => pair,
+    Err(err) => {
+      anza_logs::error!("{}", err);
+      anza_logs::exit_with(
+        anza_logs::error::exit::BIND,
+        "Could not bind dev server — try a different --port",
+      );
+    }
+  };
 
-  axum::serve(listener, app).await.unwrap();
+  anza_logs::server!("Dev Server launched at http://localhost:{}", bound_port);
+
+  if let Err(err) = axum::serve(listener, app).await {
+    anza_logs::error!("Dev server stopped: {}", err);
+  }
+}
+
+async fn bind_port(host: &str, start_port: u16) -> Result<(TcpListener, u16), String> {
+  let mut last_err = None;
+
+  for port in anza_logs::port_attempts(start_port, anza_logs::DEFAULT_MAX_PORT_ATTEMPTS) {
+    match TcpListener::bind(format!("{host}:{port}")).await {
+      Ok(listener) => {
+        if port != start_port {
+          anza_logs::warn!(
+            "Port {} is in use; dev server listening on {} instead",
+            start_port,
+            port
+          );
+        }
+        return Ok((listener, port));
+      }
+      Err(err) if anza_logs::is_addr_in_use(&err) => {
+        last_err = Some(err);
+        continue;
+      }
+      Err(err) => return Err(format!("Failed to bind {host}:{port}: {err}")),
+    }
+  }
+
+  Err(format!(
+    "No free port in range {}–{} ({})",
+    start_port,
+    start_port
+      .saturating_add(anza_logs::DEFAULT_MAX_PORT_ATTEMPTS.saturating_sub(1)),
+    last_err
+      .map(|e| e.to_string())
+      .unwrap_or_else(|| "address already in use".to_string())
+  ))
 }
 
 async fn hmr_handler(
   State(state): State<Arc<ServerState>>,
 ) -> Sse<impl Stream<Item = Result<Event, Infallible>>> {
   let rx = state.tx.subscribe();
-  logs::server!("SSE browser client subscribed to hot reload stream");
+  anza_logs::server!("SSE browser client subscribed to hot reload stream");
 
   let stream = stream::unfold(rx, |mut rx| async move {
     match rx.recv().await {
       Ok(msg) => {
-        logs::hmr!(
+        anza_logs::hmr!(
           "Dispatched live reload event: {:?} -> {}",
           msg.kind,
           msg.path
@@ -213,7 +258,7 @@ async fn handle_html_fallback(
 
   match std::fs::read_to_string(&html_file) {
     Ok(mut html) => {
-      logs::server!("Serving HTML {}: {}", if is_ssg { "SSG" } else { "fallback" }, html_file.display());
+      anza_logs::server!("Serving HTML {}: {}", if is_ssg { "SSG" } else { "fallback" }, html_file.display());
 
       // Preload injection only for the SPA shell (SSG pages already embed preloads).
       let fallback = !is_ssg && html_file.file_name().map_or(false, |name| name == "index.html");

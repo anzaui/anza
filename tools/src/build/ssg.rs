@@ -109,7 +109,7 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) {
   let content = match std::fs::read_to_string(&routes_path) {
     Ok(c) => c,
     Err(err) => {
-      logs::warn!("SSG skipped: cannot read {}: {}", routes_path.display(), err);
+      anza_logs::warn!("SSG skipped: cannot read {}: {}", routes_path.display(), err);
       return;
     }
   };
@@ -117,7 +117,7 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) {
   let manifest: RoutesManifest = match serde_json::from_str(&content) {
     Ok(m) => m,
     Err(err) => {
-      logs::warn!("SSG skipped: invalid routes.json: {}", err);
+      anza_logs::warn!("SSG skipped: invalid routes.json: {}", err);
       return;
     }
   };
@@ -138,19 +138,19 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) {
         ssg_paths.push(normalize_route_path(&route.path));
       }
       Err(err) => {
-        logs::warn!("SSG failed for {}: {}", route.path, err);
+        anza_logs::warn!("SSG failed for {}: {}", route.path, err);
       }
     }
   }
 
   if emitted > 0 {
-    logs::success!("SSG emitted {} HTML page(s) into {}", emitted, dist_dir.display());
+    anza_logs::success!("SSG emitted {} HTML page(s) into {}", emitted, dist_dir.display());
   } else {
-    logs::info!("SSG: no eligible routes to emit");
+    anza_logs::info!("SSG: no eligible routes to emit");
   }
 
   if let Err(err) = emit_seo_extras(dist_dir, &site, &ssg_paths) {
-    logs::warn!("SSG SEO extras failed: {}", err);
+    anza_logs::warn!("SSG SEO extras failed: {}", err);
   }
 }
 
@@ -284,7 +284,7 @@ fn emit_route(
   preserve_csr_template(dist_dir, route, &out_path, &page_html)?;
 
   std::fs::write(&out_path, html).map_err(|e| e.to_string())?;
-  logs::compiler!("SSG {}", out_path.display());
+  anza_logs::compiler!("SSG {}", out_path.display());
   Ok(())
 }
 
@@ -332,7 +332,7 @@ fn preserve_csr_template(
   }
 
   rewrite_routes_html_field(dist_dir, &route.path, "./template.html")?;
-  logs::compiler!(
+  anza_logs::compiler!(
     "SSG preserved CSR fragment {} → {}",
     fragment_dist.display(),
     preserve_path.display()
@@ -969,11 +969,11 @@ fn load_site_config(src_dir: &Path) -> SsgSiteConfig {
     match serde_json::from_str::<SsgSiteConfig>(&text) {
       Ok(parsed) => {
         cfg = parsed;
-        logs::info!("Loaded SSG site config from {}", path.display());
+        anza_logs::info!("Loaded SSG site config from {}", path.display());
         break;
       }
       Err(err) => {
-        logs::warn!("Invalid ssg.json at {}: {}", path.display(), err);
+        anza_logs::warn!("Invalid ssg.json at {}: {}", path.display(), err);
       }
     }
   }
@@ -1086,7 +1086,7 @@ fn emit_seo_extras(
 
 fn emit_sitemap(dist_dir: &Path, origin: Option<&str>, paths: &[String]) -> Result<(), String> {
   if origin.is_none() {
-    logs::info!(
+    anza_logs::info!(
       "SSG sitemap: no site origin configured — <loc> uses site-root paths. Set ssg.json \"origin\" or ANZA_SITE_ORIGIN for absolute URLs."
     );
   }
@@ -1104,7 +1104,7 @@ fn emit_sitemap(dist_dir: &Path, origin: Option<&str>, paths: &[String]) -> Resu
   xml.push_str("</urlset>\n");
   let dest = dist_dir.join("sitemap.xml");
   std::fs::write(&dest, xml).map_err(|e| e.to_string())?;
-  logs::success!("SSG wrote {}", dest.display());
+  anza_logs::success!("SSG wrote {}", dest.display());
   Ok(())
 }
 
@@ -1116,7 +1116,7 @@ fn emit_robots(dist_dir: &Path, origin: Option<&str>) -> Result<(), String> {
   );
   let dest = dist_dir.join("robots.txt");
   std::fs::write(&dest, body).map_err(|e| e.to_string())?;
-  logs::success!("SSG wrote {}", dest.display());
+  anza_logs::success!("SSG wrote {}", dest.display());
   Ok(())
 }
 

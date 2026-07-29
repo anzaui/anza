@@ -1,26 +1,41 @@
 <h1>Install</h1>
-<p>There are two parts: the npm package (<code>@adukiorg/anza</code>) and the Rust CLI binary (<code>anza</code>). You need both.</p>
+<p>Install <code>@adukiorg/anza</code> from npm. The package ships the library, TypeScript types, and a <strong>prebuilt</strong> <code>anza</code> CLI binary for your platform — no Rust toolchain required.</p>
 <hr />
-<h2>npm Package</h2>
+<h2>npm (recommended)</h2>
 <view-code language="bash">npm install @adukiorg/anza
 </view-code>
-<p>This installs the library source, type declarations, and the Node wrapper scripts that spawn the Rust binary.</p>
+<p>This installs:</p>
+<ul>
+<li>Library source and type declarations under <code>@adukiorg/anza/*</code></li>
+<li>The <code>anza</code> command — a Node wrapper that spawns the correct prebuilt Rust binary for your OS and CPU</li>
+</ul>
+<p>Releases publish to <a href="https://www.npmjs.com/package/@adukiorg/anza">npm</a>. Each version bundles platform binaries under <code>node_modules/@adukiorg/anza/bin/anza/</code> (linux, macOS, and Windows — x64 and arm64).</p>
+<p>In a project with <code>@adukiorg/anza</code> as a dependency, run the CLI via <code>npx anza</code> or an npm script (see <a href="/docs/intro/start">Start</a>).</p>
 <hr />
-<h2>Rust CLI</h2>
-<p>The CLI is written in Rust. You can either build it from source or use a prebuilt binary.</p>
-<h3>Build from source</h3>
-<p>Requires Rust &gt;= 1.75 and Cargo.</p>
-<view-code language="bash">cd tools
-cargo build --release
+<h2>New projects</h2>
+<p>Scaffold an app with the create package — it adds <code>@adukiorg/anza</code> as a dependency automatically:</p>
+<view-code language="bash">npm create @adukiorg/anza myapp
+cd myapp
+npm install
 </view-code>
-<p>The binary lands at <code>tools/target/release/anza</code>.</p>
-<h3>Or use the Node wrapper</h3>
-<p>If you are developing inside the repo, the wrapper at <code>library/bin/anza/index.js</code> detects the platform and spawns the correct binary automatically. After building once:</p>
-<view-code language="bash">node library/bin/anza/index.js --help
-</view-code>
-<p>For published installs, prebuilt platform binaries ship alongside the wrapper.</p>
+<p>See <a href="/docs/intro/start">Start</a> for what gets generated and how to run <code>npm run dev</code>.</p>
+<hr />
+<h2>GitHub releases (standalone binary)</h2>
+<p>Each tagged release on <a href="https://github.com/aduki-org/anza/releases">GitHub</a> attaches the same prebuilt CLI binaries. Use this if you want the binary on your <code>PATH</code> without installing the npm package globally.</p>
+<div class="table-wrap"><table><thead><tr><th>Platform</th><th>Binary</th></tr></thead><tbody>
+<tr><td>Linux x64</td><td><code>anza-linux-x64</code></td></tr>
+<tr><td>Linux arm64</td><td><code>anza-linux-arm64</code></td></tr>
+<tr><td>macOS x64</td><td><code>anza-macos-x64</code></td></tr>
+<tr><td>macOS arm64</td><td><code>anza-macos-arm64</code></td></tr>
+<tr><td>Windows x64</td><td><code>anza-windows-x64.exe</code></td></tr>
+</tbody></table></div>
+<p>Download the file for your platform, make it executable on Unix (<code>chmod +x anza-linux-x64</code>), rename or symlink to <code>anza</code>, and put it on your <code>PATH</code>. You still need <code>@adukiorg/anza</code> in your project for library imports.</p>
+<p>There is no curl install script — use npm or download from GitHub releases.</p>
 <hr />
 <h2>Verify</h2>
-<view-code language="bash">anza --help
+<view-code language="bash">npx anza --help
 </view-code>
-<p>You should see the command list: <code>scan</code>, <code>build</code>, <code>dev</code>, <code>doctor</code>, <code>create</code>.</p>
+<p>You should see the command list: <code>scan</code>, <code>build</code>, <code>dev</code>, <code>doctor</code>, <code>create</code>, and others.</p>
+<hr />
+<h2>Building from source (contributors only)</h2>
+<p>If you are developing inside the <a href="https://github.com/aduki-org/anza">anza repo</a>, compile the CLI locally with <code>node tasks/build.js</code>. See the repo README — this is <strong>not</strong> part of the normal install path for app developers.</p>

@@ -1,9 +1,14 @@
 [package]
-name = "logs"
+name = "anza-logs"
 version = "0.1.0"
 edition = "2021"
+description = "Colorized logging, panic handling, and CLI helpers for the Anza binary"
 
 [dependencies]
+chrono = "0.4"
+owo-colors = "4"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt", "local-time", "time"] }
-chrono = "0.4"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["net", "rt", "macros"] }

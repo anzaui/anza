@@ -48,7 +48,7 @@ pub fn compile(
       for w in &report.warnings {
         crate::build::graph::report_line(w);
       }
-      logs::success!(
+      anza_logs::success!(
         "Resolved {} modules -> {} files copied into {}",
         report.modules,
         report.copied,
@@ -65,7 +65,7 @@ pub fn compile(
       for d in &diags {
         crate::build::graph::report_line(d);
       }
-      logs::error!("Build failed: {} error(s) in the import graph", diags.len());
+      anza_logs::error!("Build failed: {} error(s) in the import graph", diags.len());
       if strict {
         // Do not publish a partial dist on a failed build.
         std::fs::remove_dir_all(dist_dir).ok();
@@ -100,9 +100,9 @@ pub fn run(src_dir: &Path, dist_types_dir: &Path) {
           Some(file_specs.into_iter().map(|spec| (path.clone(), spec)).collect())
         }
       } else if path.extension().map_or(false, |ext| ext == "html") {
-        logs::compiler!("Found HTML: {:?}", path);
+        anza_logs::compiler!("Found HTML: {:?}", path);
         if let Err(err) = super::html::parse_and_emit(path) {
-          logs::error!("Failed to generate tags descriptor for {:?}: {}", path, err);
+          anza_logs::error!("Failed to generate tags descriptor for {:?}: {}", path, err);
         }
         None
       } else {
@@ -150,7 +150,7 @@ pub fn run(src_dir: &Path, dist_types_dir: &Path) {
 
     // Add to global HTMLElementTagNameMap augmentation
     let element_class_name = to_pascal_case(&spec.tag);
-    logs::compiler!(
+    anza_logs::compiler!(
       "Extracted element metadata: <{}> -> {}Element",
       spec.tag,
       element_class_name
@@ -169,7 +169,7 @@ pub fn run(src_dir: &Path, dist_types_dir: &Path) {
 
   global_typings.push_str("  }\n}\n\nexport {};\n");
   std::fs::write(dist_types_dir.join("index.d.ts"), global_typings).ok();
-  logs::success!("Type augmentation registry updated inside dist/types/index.d.ts");
+  anza_logs::success!("Type augmentation registry updated inside dist/types/index.d.ts");
 
   // Emit routes.json for all specs that declare a url pattern
   let dist_dir = dist_types_dir.parent().unwrap_or(dist_types_dir);
@@ -582,7 +582,7 @@ pub fn validate_route_contract(spec: &ExtractedSpec, file: &str) {
   for pattern in routes {
     for seg_name in extract_segment_params(pattern) {
       if !declared.contains(seg_name.as_str()) {
-        logs::warn!(
+        anza_logs::warn!(
           "[anza] WARN  <{}> in {} — route \"{}\" has dynamic segment \":{}\"\
  but no matching entry in the `params` array. \
  The library will inject it as a String. Add `{{ name: '{}', type: String }}` to silence.",
@@ -845,7 +845,7 @@ impl Visit for ImmutabilityVisitor {
       if let SimpleAssignTarget::Member(member) = simple {
         if let Expr::Ident(obj_ident) = &*member.obj {
           if self.store_vars.contains(&obj_ident.sym.to_string()) {
-            logs::warn!(
+            anza_logs::warn!(
 							"Immutability Violation in {}: mutating property '{}' of store-retrieved variable '{}' directly. Use store.set() instead.",
 							self.file_name,
 							get_member_prop_name(&member.prop),
@@ -862,7 +862,7 @@ impl Visit for ImmutabilityVisitor {
     if let Expr::Member(member) = &*node.arg {
       if let Expr::Ident(obj_ident) = &*member.obj {
         if self.store_vars.contains(&obj_ident.sym.to_string()) {
-          logs::warn!(
+          anza_logs::warn!(
 						"Immutability Violation in {}: updating property '{}' of store-retrieved variable '{}' directly. Use store.set() instead.",
 						self.file_name,
 						get_member_prop_name(&member.prop),

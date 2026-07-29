@@ -105,9 +105,9 @@ impl Report {
   pub fn print(&self) {
     for f in &self.findings {
       match f.level {
-        Level::Error => logs::error!("{}", f.message),
-        Level::Warn => logs::warn!("{}", f.message),
-        Level::Info => logs::info!("{}", f.message),
+        Level::Error => anza_logs::error!("{}", f.message),
+        Level::Warn => anza_logs::warn!("{}", f.message),
+        Level::Info => anza_logs::info!("{}", f.message),
       }
     }
   }

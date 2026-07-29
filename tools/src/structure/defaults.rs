@@ -90,7 +90,7 @@ pub fn resolve(project: &Path, src_hint: &str) -> Resolved {
       Ok(raw) => match serde_json::from_str::<AnzaManifest>(&raw) {
         Ok(m) => (m, true),
         Err(e) => {
-          logs::error!("Invalid anza.json: {}", e);
+          anza_logs::error!("Invalid anza.json: {}", e);
           (AnzaManifest::default(), true)
         }
       },

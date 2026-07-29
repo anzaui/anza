@@ -22,12 +22,12 @@ pub fn start(
   let watcher = match SystemWatcher::new(&src_path, event_tx) {
     Ok(w) => w,
     Err(err) => {
-      logs::error!("Failed to initialize file watcher: {:?}", err);
+      anza_logs::error!("Failed to initialize file watcher: {:?}", err);
       return;
     }
   };
 
-  logs::watcher!("Watching for changes in '{}' folder...", src_path.display());
+  anza_logs::watcher!("Watching for changes in '{}' folder...", src_path.display());
 
   tokio::spawn(async move {
     let debounce = Duration::from_millis(150);
@@ -105,13 +105,13 @@ pub fn start(
 
         // Broadcast each changed-file event to all connected browser clients.
         for msg in &messages {
-          logs::watcher!("HMR: {:?} -> {}", msg.kind, msg.path);
+          anza_logs::watcher!("HMR: {:?} -> {}", msg.kind, msg.path);
           let _ = tx2.send(msg.clone());
         }
       } else {
         // Non-rebuild events (e.g. assets we don't track) — just log.
         for msg in &messages {
-          logs::watcher!("Changed (no rebuild): {} ", msg.path);
+          anza_logs::watcher!("Changed (no rebuild): {} ", msg.path);
         }
       }
     }

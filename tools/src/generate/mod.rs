@@ -356,7 +356,7 @@ fn write_file(path: &Path, content: &str) {
     let _ = fs::create_dir_all(parent);
   }
   fs::write(path, content).unwrap_or_else(|e| {
-    logs::error!("Failed to write {}: {}", path.display(), e);
+    anza_logs::error!("Failed to write {}: {}", path.display(), e);
     std::process::exit(1);
   });
 }

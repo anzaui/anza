@@ -37,6 +37,10 @@ struct Args {
 
   #[arg(short, long)]
   build: bool,
+
+  /// Verbose logging (debug level, richer panic diagnostics).
+  #[arg(short, long, global = true)]
+  verbose: bool,
 }
 
 #[derive(Subcommand, Debug)]
@@ -131,10 +135,8 @@ enum Command {
 
 #[tokio::main]
 async fn main() {
-  // Bootstrap colored logger
-  logs::init();
-
   let args = Args::parse();
+  anza_logs::init(args.verbose);
 
   if let Some(command) = args.command {
     match command {
@@ -195,7 +197,7 @@ async fn main() {
         let kind = match generate::Kind::parse(&kind) {
           Ok(k) => k,
           Err(e) => {
-            logs::error!("{}", e);
+            anza_logs::error!("{}", e);
             std::process::exit(1);
           }
         };
@@ -214,16 +216,16 @@ async fn main() {
         };
         match generate::run(&PathBuf::from(src), kind, &opts) {
           Ok(g) => {
-            logs::success!(
+            anza_logs::success!(
               "Generated {} '{}' -> {}",
               g.kind.as_str(),
               g.name,
               g.dir.display()
             );
-            logs::info!("Barrel updated: {}", g.barrel.display());
+            anza_logs::info!("Barrel updated: {}", g.barrel.display());
           }
           Err(e) => {
-            logs::error!("{}", e);
+            anza_logs::error!("{}", e);
             std::process::exit(1);
           }
         }
@@ -236,7 +238,7 @@ async fn main() {
           sidebar_only: !all,
         };
         if let Err(e) = docs::run(&opts) {
-          logs::error!("{}", e);
+          anza_logs::error!("{}", e);
           std::process::exit(1);
         }
         return;
@@ -257,7 +259,7 @@ async fn main() {
 }
 
 async fn run_dev(src: PathBuf, dist: PathBuf, port: u16, entries: Vec<PathBuf>) {
-  logs::info!("Bootstrapping native dev pipeline...");
+  anza_logs::info!("Bootstrapping native dev pipeline...");
 
   // 1. Initial full compile: extraction + import-graph resolution into dist.
   //    Non-fatal so the dev server starts even with errors to iterate on.
@@ -278,7 +280,7 @@ async fn run_dev(src: PathBuf, dist: PathBuf, port: u16, entries: Vec<PathBuf>) 
 
   // 5. Run until terminate signal
   tokio::signal::ctrl_c().await.unwrap();
-  logs::info!("Shutting down native pipeline safely.");
+  anza_logs::info!("Shutting down native pipeline safely.");
 }
 
 fn run_structure(src: PathBuf, mode: structure::Mode) {
@@ -286,11 +288,11 @@ fn run_structure(src: PathBuf, mode: structure::Mode) {
     structure::Mode::Doctor => "doctor",
     structure::Mode::Check => "check",
   };
-  logs::info!("Running anza {}…", label);
+  anza_logs::info!("Running anza {}…", label);
 
   let (project, hint) = structure::project_from_src(&src);
-  logs::info!("Project: {}", project.display());
-  logs::info!("Source hint: {}", hint);
+  anza_logs::info!("Project: {}", project.display());
+  anza_logs::info!("Source hint: {}", hint);
 
   let report = structure::check(&project, &hint, mode);
   report.print();
@@ -298,7 +300,7 @@ fn run_structure(src: PathBuf, mode: structure::Mode) {
   let errors = report.error_count();
   let warns = report.warn_count();
   if report.failed(mode) {
-    logs::error!(
+    anza_logs::error!(
       "{} failed: {} error(s), {} warning(s) — see {} (Troubleshooting + required tables)",
       label,
       errors,
@@ -307,7 +309,7 @@ fn run_structure(src: PathBuf, mode: structure::Mode) {
     );
     std::process::exit(1);
   }
-  logs::success!(
+  anza_logs::success!(
     "{} passed ({} error(s), {} warning(s))",
     label,
     errors,

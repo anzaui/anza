@@ -233,7 +233,7 @@ fn load_ssg_params_manifest(src_dir: &Path) -> HashMap<String, Vec<HashMap<Strin
       }
     }
     if !out.is_empty() {
-      logs::info!("Loaded SSG param expansions from {}", path.display());
+      anza_logs::info!("Loaded SSG param expansions from {}", path.display());
       return out;
     }
   }
@@ -711,7 +711,7 @@ pub fn emit(specs: &[(std::path::PathBuf, ExtractedSpec)], dist_dir: &Path, src_
   match serde_json::to_string_pretty(&output) {
     Ok(json) => {
       std::fs::write(&dest_json, json).ok();
-      logs::success!("Route manifest written to {}", dest_json.display());
+      anza_logs::success!("Route manifest written to {}", dest_json.display());
     }
     Err(err) => {
       eprintln!(
@@ -754,7 +754,7 @@ declare global {{
 
   let dest_dts = dist_dir.join("routes.d.ts");
   if std::fs::write(&dest_dts, dts_content).is_ok() {
-    logs::success!("Route type declarations written to {}", dest_dts.display());
+    anza_logs::success!("Route type declarations written to {}", dest_dts.display());
   }
 }
 

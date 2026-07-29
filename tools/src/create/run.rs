@@ -181,16 +181,16 @@ const IMPORTMAP: &str = "{}\n";
 /// remapping slots or declaring extra page trees / SW entries.
 pub fn run(target: &Path, name: &str) {
   if target.exists() {
-    logs::error!("Target directory already exists: {}", target.display());
+    anza_logs::error!("Target directory already exists: {}", target.display());
     std::process::exit(1);
   }
 
-  logs::info!("Scaffolding anza app: {}", name);
+  anza_logs::info!("Scaffolding anza app: {}", name);
 
   for dir in DIRS {
     let path = target.join(dir);
     fs::create_dir_all(&path).unwrap_or_else(|e| {
-      logs::error!("Failed to create {}: {}", path.display(), e);
+      anza_logs::error!("Failed to create {}: {}", path.display(), e);
       std::process::exit(1);
     });
   }
@@ -205,21 +205,21 @@ pub fn run(target: &Path, name: &str) {
 
     if lib_tokens.exists() {
       if let Err(e) = copy::copy(&lib_tokens, &app_tokens) {
-        logs::warn!("Could not copy tokens: {}", e);
+        anza_logs::warn!("Could not copy tokens: {}", e);
       } else {
-        logs::compiler!("Copied library tokens -> src/tokens/");
+        anza_logs::compiler!("Copied library tokens -> src/tokens/");
       }
     }
 
     if lib_styles.exists() {
       if let Err(e) = copy::copy(&lib_styles, &app_styles) {
-        logs::warn!("Could not copy styles: {}", e);
+        anza_logs::warn!("Could not copy styles: {}", e);
       } else {
-        logs::compiler!("Copied library styles -> src/styles/");
+        anza_logs::compiler!("Copied library styles -> src/styles/");
       }
     }
   } else {
-    logs::warn!("Library directory not found; skipping token/style copy.");
+    anza_logs::warn!("Library directory not found; skipping token/style copy.");
   }
 
   write::write(
@@ -278,9 +278,9 @@ pub fn run(target: &Path, name: &str) {
   write::write(target.join("importmap.json"), IMPORTMAP);
   write::write(target.join(".gitignore"), IGNORE);
 
-  logs::success!("Created {}", target.display());
-  logs::info!("Next steps:");
-  logs::info!("  cd {}", target.file_name().unwrap_or_default().to_string_lossy());
-  logs::info!("  npm install");
-  logs::info!("  npm run dev");
+  anza_logs::success!("Created {}", target.display());
+  anza_logs::info!("Next steps:");
+  anza_logs::info!("  cd {}", target.file_name().unwrap_or_default().to_string_lossy());
+  anza_logs::info!("  npm install");
+  anza_logs::info!("  npm run dev");
 }

@@ -7,11 +7,11 @@ pub fn write(path: PathBuf, content: &str) {
     let _ = fs::create_dir_all(parent);
   }
   let mut file = fs::File::create(&path).unwrap_or_else(|e| {
-    logs::error!("Failed to create {}: {}", path.display(), e);
+    anza_logs::error!("Failed to create {}: {}", path.display(), e);
     std::process::exit(1);
   });
   file.write_all(content.as_bytes()).unwrap_or_else(|e| {
-    logs::error!("Failed to write {}: {}", path.display(), e);
+    anza_logs::error!("Failed to write {}: {}", path.display(), e);
     std::process::exit(1);
   });
 }

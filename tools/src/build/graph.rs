@@ -398,7 +398,7 @@ pub fn report_line(d: &Diagnostic) {
     Kind::Import => "import",
     Kind::Type => "type",
   };
-  logs::error!(
+  anza_logs::error!(
     "[{}] {}:{}:{} {}",
     label,
     d.file.display(),

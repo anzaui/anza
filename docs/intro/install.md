@@ -1,50 +1,68 @@
 # Install
 
-There are two parts: the npm package (`@adukiorg/anza`) and the Rust CLI binary (`anza`). You need both.
+Install `@adukiorg/anza` from npm. The package ships the library, TypeScript types, and a **prebuilt** `anza` CLI binary for your platform — no Rust toolchain required.
 
 ---
 
-## npm Package
+## npm (recommended)
 
 ```bash
 npm install @adukiorg/anza
 ```
 
-This installs the library source, type declarations, and the Node wrapper scripts that spawn the Rust binary.
+This installs:
+
+- Library source and type declarations under `@adukiorg/anza/*`
+- The `anza` command — a Node wrapper that spawns the correct prebuilt Rust binary for your OS and CPU
+
+Releases publish to [npm](https://www.npmjs.com/package/@adukiorg/anza). Each version bundles platform binaries under `node_modules/@adukiorg/anza/bin/anza/` (linux, macOS, and Windows — x64 and arm64).
+
+In a project with `@adukiorg/anza` as a dependency, run the CLI via `npx anza` or an npm script (see [start.md](start.md)).
 
 ---
 
-## Rust CLI
+## New projects
 
-The CLI is written in Rust. You can either build it from source or use a prebuilt binary.
-
-### Build from source
-
-Requires Rust >= 1.75 and Cargo.
+Scaffold an app with the create package — it adds `@adukiorg/anza` as a dependency automatically:
 
 ```bash
-cd tools
-cargo build --release
+npm create @adukiorg/anza myapp
+cd myapp
+npm install
 ```
 
-The binary lands at `tools/target/release/anza`.
+See [start.md](start.md) for what gets generated and how to run `npm run dev`.
 
-### Or use the Node wrapper
+---
 
-If you are developing inside the repo, the wrapper at `library/bin/anza/index.js` detects the platform and spawns the correct binary automatically. After building once:
+## GitHub releases (standalone binary)
 
-```bash
-node library/bin/anza/index.js --help
-```
+Each tagged release on [GitHub](https://github.com/aduki-org/anza/releases) attaches the same prebuilt CLI binaries. Use this if you want the binary on your `PATH` without installing the npm package globally.
 
-For published installs, prebuilt platform binaries ship alongside the wrapper.
+| Platform | Binary |
+| -------- | ------ |
+| Linux x64 | `anza-linux-x64` |
+| Linux arm64 | `anza-linux-arm64` |
+| macOS x64 | `anza-macos-x64` |
+| macOS arm64 | `anza-macos-arm64` |
+| Windows x64 | `anza-windows-x64.exe` |
+
+Download the file for your platform, make it executable on Unix (`chmod +x anza-linux-x64`), rename or symlink to `anza`, and put it on your `PATH`. You still need `@adukiorg/anza` in your project for library imports.
+
+There is no curl install script — use npm or download from GitHub releases.
 
 ---
 
 ## Verify
 
 ```bash
-anza --help
+npx anza --help
 ```
 
-You should see the command list: `scan`, `build`, `dev`, `doctor`, `create`.
+You should see the command list: `scan`, `build`, `dev`, `doctor`, `create`, and others.
+
+---
+
+## Building from source (contributors only)
+
+If you are developing inside the [anza repo](https://github.com/aduki-org/anza), compile the CLI locally with `node tasks/build.js`. See the repo README — this is **not** part of the normal install path for app developers.
