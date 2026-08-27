@@ -95,15 +95,28 @@ export function initOrchestrator() {
       }
 
       // 2. Map query params
-      if (spec.query && Array.isArray(spec.query) && query) {
-        for (const key of spec.query) {
+      const queryDecls = spec.query && Array.isArray(spec.query)
+        ? spec.query.map(d => typeof d === 'string' ? d : d?.name).filter(Boolean)
+        : [];
+
+      const queryKeys = new Set(queryDecls);
+      if (spec.props) {
+        for (const propKey of Object.keys(spec.props)) {
+          if (props[propKey] === undefined && query && query[propKey] !== undefined && query[propKey] !== null) {
+            queryKeys.add(propKey);
+          }
+        }
+      }
+
+      if (query) {
+        for (const key of queryKeys) {
           const val = query[key];
-          if (val !== undefined) {
+          if (val !== undefined && val !== null) {
             let casted = val;
             if (spec.props && spec.props[key]) {
               const type = spec.props[key].type;
               if (type === Boolean) {
-                casted = val === 'true' || val === '1' || val === '';
+                casted = val === 'true' || val === '1' || val === '' || val === true;
               } else if (type === Number) {
                 const num = Number(val);
                 casted = isNaN(num) ? 0 : num;

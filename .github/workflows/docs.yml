@@ -1,0 +1,30 @@
+name: Docs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-docs:
+    name: Build & Verify mdBook Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup mdBook
+        uses: peaceiris/actions-mdbook@v2
+        with:
+          mdbook-version: 'latest'
+
+      - name: Build Rust Engine Documentation
+        run: |
+          cd engines/rust/docs
+          mdbook build
+
+      - name: Build TypeScript Engine Documentation
+        run: |
+          cd engines/ts/docs
+          mdbook build

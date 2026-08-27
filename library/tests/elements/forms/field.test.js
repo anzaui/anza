@@ -11,9 +11,14 @@ import '../../../src/elements/forms/field/index.js';
 describe('<ui-field> Control Wrapper Element', () => {
   let field;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     field = document.createElement('ui-field');
     document.body.appendChild(field);
+    let count = 0;
+    while ((!field.shadowRoot || !field.shadowRoot.querySelector('slot')) && count < 100) {
+      await new Promise(resolve => setTimeout(resolve, 10));
+      count++;
+    }
   });
 
   afterEach(() => {

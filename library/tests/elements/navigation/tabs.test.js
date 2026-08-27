@@ -11,9 +11,14 @@ import '../../../src/elements/navigation/tabs/index.js';
 describe('<ui-tabs> TabPanel Component', () => {
   let tabs;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     tabs = document.createElement('ui-tabs');
     document.body.appendChild(tabs);
+    let count = 0;
+    while ((!tabs.shadowRoot || !tabs.shadowRoot.querySelector('[role="tablist"]')) && count < 100) {
+      await new Promise(resolve => setTimeout(resolve, 10));
+      count++;
+    }
   });
 
   afterEach(() => {

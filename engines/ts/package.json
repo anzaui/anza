@@ -1,0 +1,41 @@
+{
+  "name": "anza",
+  "version": "0.1.0",
+  "description": "Ultra-fast, zero-dependency, cryptographically verified Server-Templated UI (STUI) engine for JavaScript and TypeScript",
+  "type": "module",
+  "main": "./dist/src/index.js",
+  "module": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js",
+      "default": "./dist/src/index.js"
+    },
+    "./adapters/*": {
+      "types": "./dist/src/adapters/*.d.ts",
+      "import": "./dist/src/adapters/*.js",
+      "default": "./dist/src/adapters/*.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc && node --test dist/tests/*.test.js"
+  },
+  "keywords": [
+    "stui",
+    "template-engine",
+    "ssr",
+    "declarative-shadow-dom",
+    "crypto-verification",
+    "zero-dependency",
+    "web-components"
+  ],
+  "author": "Aduki",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "@types/node": "^20.0.0"
+  }
+}

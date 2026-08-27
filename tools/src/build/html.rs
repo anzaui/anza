@@ -56,7 +56,7 @@ fn opaque_element_content(html: &str, tag: &str) -> String {
       out.push_str(chunk);
     }
 
-    let gt = match html.get(after_name..).and_then(|s| s.find('>')) {
+    let gt = match memchr::memchr(b'>', html.as_bytes().get(after_name..).unwrap_or(&[])) {
       Some(i) => after_name + i,
       None => {
         if let Some(rest) = html.get(start..) {

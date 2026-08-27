@@ -25,7 +25,15 @@ const RESERVED = new Set([
  */
 export function element(tag, spec, base) {
   if (typeof customElements === 'undefined') return;
-  if (customElements.get(tag)) {
+
+  // Support single-object config overload: element({ name: 'my-el', ... })
+  if (typeof tag === 'object' && tag !== null) {
+    base = spec;
+    spec = tag;
+    tag = spec.name || spec.tag;
+  }
+
+  if (!tag || typeof tag !== 'string' || customElements.get(tag)) {
     return;
   }
 

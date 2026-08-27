@@ -1,0 +1,14 @@
+[book]
+authors = ["aduki, Labs"]
+language = "en"
+src = "src"
+title = "Anza Engine Documentation"
+
+[output.html]
+default-theme = "coal"
+preferred-dark-theme = "coal"
+mathjax-support = false
+
+[output.html.fold]
+enable = true
+level = 1

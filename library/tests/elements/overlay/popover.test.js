@@ -11,9 +11,14 @@ import '@adukiorg/anza/elements/popover';
 describe('<ui-popover> Overlay Element', () => {
   let popover;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     popover = document.createElement('ui-popover');
     document.body.appendChild(popover);
+    let count = 0;
+    while ((!popover.shadowRoot || !popover.shadowRoot.querySelector('[popover]') && !popover.shadowRoot.querySelector('div')) && count < 100) {
+      await new Promise(resolve => setTimeout(resolve, 10));
+      count++;
+    }
   });
 
   afterEach(() => {

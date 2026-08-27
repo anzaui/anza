@@ -1,6 +1,37 @@
 # generated
 node_modules/
+dist/
 tmp/
+book/
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+
+# Examples & Tests (Local Only)
+examples/
+test/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+build/
+
+# Local Dev Design Docs
+DESIGN.md
+SKILL.md
+STRUCTURE.md
+DOC.md
+**/DESIGN.md
+**/SKILL.md
+**/STRUCTURE.md
+**/DOC.md
 
 # OS
 .DS_Store
@@ -10,10 +41,11 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+*.swo
+*~
 
 # ── Rust ──────────────────────────────────────────────────────────────────────
 target/
-target
 **/*.rs.bk
 Cargo.lock
 
@@ -31,38 +63,17 @@ k8/hermes/secret.yaml
 k8/postgres/secret.yaml
 k8/mongo/secret.yaml
 
-# ── ML models (large binaries — use Git LFS or ship in image) ─────────────────
+# ── ML models ─────────────────────────────────────────────────────────────────
 *.onnx
 *.bin
 
-# ── Proto generated ───────────────────────────────────────────────────────────
-crates/proto/src/generated/
-
-# ── Editor / IDE ──────────────────────────────────────────────────────────────
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-Thumbs.db
-
-# ── OS ────────────────────────────────────────────────────────────────────────
-.DS_Store
-.AppleDouble
-.LSOverride
-desktop.ini
-
-# ── Logs ──────────────────────────────────────────────────────────────────────
+# ── Logs & Test artifacts ─────────────────────────────────────────────────────
 *.log
-
-# ── Test artifacts ────────────────────────────────────────────────────────────
-/tmp/
 *.prof
 lcov.info
 coverage/
 
-# ── Prebuilt CLI binaries (CI staging) ────────────────────────────────────────
+# ── Prebuilt CLI binaries ─────────────────────────────────────────────────────
 library/bin/anza/anza-*
 
 # ── cargo-deny / audit ────────────────────────────────────────────────────────

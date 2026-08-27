@@ -449,8 +449,14 @@ mod tests {
 
   #[test]
   fn load_deploy_base_reads_ssg_json() {
-    let dist = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../web/dist");
-    assert_eq!(load_deploy_base(&dist), "/anza");
+    let tmp = std::env::temp_dir().join(format!("anza-base-test-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&tmp);
+    let ssg_path = tmp.join("ssg.json");
+    std::fs::write(&ssg_path, r#"{"base": "/anza"}"#).unwrap();
+    let dist = tmp.join("dist");
+    let base = load_deploy_base(&dist);
+    let _ = std::fs::remove_dir_all(&tmp);
+    assert_eq!(base, "/anza");
   }
 
   #[test]

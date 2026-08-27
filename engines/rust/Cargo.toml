@@ -1,0 +1,40 @@
+[package]
+name = "anza"
+version = "0.1.0"
+edition = "2021"
+description = "Ultra-lightweight, zero-copy, cryptographically verified Server-Templated UI (STUI) engine"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# Minimal Core Dependencies
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+blake3 = "1.5"
+hmac = "0.12"
+sha2 = "0.10"
+ed25519-dalek = { version = "2.1", default-features = false, features = ["rand_core"] }
+hkdf = "0.12"
+memmap2 = "0.9"
+walkdir = "2.5"
+
+# Optional Framework & Runtime Adapters (Zero overhead by default)
+tokio = { version = "1.0", features = ["sync", "rt"], optional = true }
+notify = { version = "8.0", optional = true }
+axum = { version = "0.8", optional = true }
+actix-web = { version = "4.0", default-features = false, optional = true }
+tower = { version = "0.5", optional = true }
+futures-util = { version = "0.3", optional = true }
+
+[features]
+# Default is 100% pure, standalone, ultra-minimal (Zero web frameworks, Zero async runtimes)
+default = []
+
+# Opt-in Web Framework Adapters
+axum = ["dep:axum", "dep:tokio", "dep:futures-util"]
+actix = ["dep:actix-web"]
+tower = ["dep:tower"]
+watch = ["dep:notify"]
+full = ["axum", "actix", "tower", "watch"]
+
+[dev-dependencies]
+# Tests only

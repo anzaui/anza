@@ -11,9 +11,14 @@ import '@adukiorg/anza/elements/dialog';
 describe('<ui-dialog> Modal Element', () => {
   let dialog;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     dialog = document.createElement('ui-dialog');
     document.body.appendChild(dialog);
+    let count = 0;
+    while ((!dialog.shadowRoot || !dialog.shadowRoot.querySelector('dialog')) && count < 100) {
+      await new Promise(resolve => setTimeout(resolve, 10));
+      count++;
+    }
   });
 
   afterEach(() => {

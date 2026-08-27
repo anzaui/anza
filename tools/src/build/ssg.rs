@@ -131,19 +131,29 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) {
   let importmap = load_importmap(dist_dir);
   let docks = collect_docks(&manifest.routes);
 
-  let mut emitted = 0usize;
-  let mut ssg_paths: Vec<String> = Vec::new();
-  for route in &manifest.routes {
-    if !should_ssg(route) {
-      continue;
-    }
-    match emit_route(src_dir, dist_dir, route, &docks, &importmap, &site) {
-      Ok(()) => {
-        emitted += 1;
-        ssg_paths.push(normalize_route_path(&route.path));
+  use rayon::prelude::*;
+
+  let eligible_routes: Vec<&RouteInfo> = manifest.routes.iter().filter(|r| should_ssg(r)).collect();
+  let results: Vec<Result<String, (String, String)>> = eligible_routes
+    .par_iter()
+    .map(|route| {
+      match emit_route(src_dir, dist_dir, route, &docks, &importmap, &site) {
+        Ok(()) => Ok(normalize_route_path(&route.path)),
+        Err(err) => Err((route.path.clone(), err.to_string())),
       }
-      Err(err) => {
-        anza_logs::warn!("SSG failed for {}: {}", route.path, err);
+    })
+    .collect();
+
+  let mut emitted = 0usize;
+  let mut ssg_paths: Vec<String> = Vec::with_capacity(results.len());
+  for res in results {
+    match res {
+      Ok(path) => {
+        emitted += 1;
+        ssg_paths.push(path);
+      }
+      Err((route_path, err)) => {
+        anza_logs::warn!("SSG failed for {}: {}", route_path, err);
       }
     }
   }

@@ -75,9 +75,9 @@ function castValue(value, cast) {
  * @returns {{ params: any[], query: any[], raw: URLSearchParams }}
  */
 function buildRouteContext(tag, rawParams, url) {
-  const spec = specRegistry.get(tag);
-  const paramDecls = spec?.params ?? [];
-  const queryDecls = spec?.query ?? [];
+  const spec = specRegistry.get(tag?.toLowerCase?.() ?? tag) || specRegistry.get(tag);
+  const paramDecls = (spec?.params ?? []).map(d => typeof d === 'string' ? { name: d, cast: 'string' } : d);
+  const queryDecls = (spec?.query ?? []).map(d => typeof d === 'string' ? { name: d, cast: 'string' } : d);
 
   // Build the URLSearchParams object from the URL.
   let searchParams;
@@ -94,15 +94,16 @@ function buildRouteContext(tag, rawParams, url) {
   if (paramDecls.length > 0) {
     const declared = new Set(paramDecls.map(d => d.name));
     const declaredValues = paramDecls.map(({ name, cast }) => {
-      const raw = rawParams[name];
+      const raw = rawParams?.[name];
       return raw !== undefined ? castValue(raw, cast) : null;
     });
     // Append undeclared segments as strings so they remain accessible by index.
-    const extra = Object.entries(rawParams)
+    const extra = Object.entries(rawParams ?? {})
       .filter(([k]) => !declared.has(k))
       .map(([, v]) => v);
+    const extraNames = Object.keys(rawParams ?? {}).filter(k => !declared.has(k));
     const allValues = [...declaredValues, ...extra];
-    const allNames = [...paramDecls.map(d => d.name)];
+    const allNames = [...paramDecls.map(d => d.name), ...extraNames];
     params = makeAccessorArray(allValues, allNames);
   } else {
     // No contract declared: expose raw params as an ordered array (string values).
@@ -120,11 +121,15 @@ function buildRouteContext(tag, rawParams, url) {
     });
     // Extra undeclared query keys appended as strings.
     const extra = [];
+    const extraNames = [];
     for (const [k, v] of searchParams.entries()) {
-      if (!declared.has(k)) extra.push(v);
+      if (!declared.has(k)) {
+        extra.push(v);
+        extraNames.push(k);
+      }
     }
     const allValues = [...declaredValues, ...extra];
-    const allNames = [...queryDecls.map(d => d.name)];
+    const allNames = [...queryDecls.map(d => d.name), ...extraNames];
     query = makeAccessorArray(allValues, allNames);
   } else {
     // No contract: flat array of all query values in iteration order.
@@ -145,9 +150,9 @@ function buildRouteContext(tag, rawParams, url) {
  * @param {URL|string} url - the target URL
  */
 function pushToElement(el, tag, rawParams, url) {
-  const spec = specRegistry.get(tag);
-  const paramDecls = spec?.params ?? [];
-  const queryDecls = spec?.query ?? [];
+  const spec = specRegistry.get(tag?.toLowerCase?.() ?? tag) || specRegistry.get(tag);
+  const paramDecls = (spec?.params ?? []).map(d => typeof d === 'string' ? { name: d, cast: 'string' } : d);
+  const queryDecls = (spec?.query ?? []).map(d => typeof d === 'string' ? { name: d, cast: 'string' } : d);
 
   let searchParams;
   try {
@@ -159,7 +164,7 @@ function pushToElement(el, tag, rawParams, url) {
 
   // Push path params.
   for (const { name, cast } of paramDecls) {
-    const raw = rawParams[name];
+    const raw = rawParams?.[name];
     if (raw !== undefined) el[name] = castValue(raw, cast);
   }
   // Push any undeclared params as strings.

@@ -5,7 +5,8 @@
 // browser-native folder structure. Reports diagnostics for missing imports,
 // syntax errors, and unsupported prop types. No bundling.
 
-use std::collections::{HashMap, HashSet, VecDeque};
+use ahash::AHashSet;
+use std::collections::{HashMap, VecDeque};
 use std::path::{Component, Path, PathBuf};
 use std::sync::Arc;
 
@@ -120,7 +121,7 @@ pub fn resolve(
   let mut warnings: Vec<Diagnostic> = Vec::new();
 
   // Reachable file set (absolute, normalized paths under the project).
-  let mut reached: HashSet<PathBuf> = HashSet::new();
+  let mut reached: AHashSet<PathBuf> = AHashSet::new();
   // Queue of JS modules still to parse.
   let mut queue: VecDeque<PathBuf> = VecDeque::new();
 
@@ -426,7 +427,7 @@ fn is_css(path: &Path) -> bool {
 }
 
 /// Walk `@import` url(...) from reachable CSS files under `src`.
-fn collect_css_imports(src: &Path, reached: &mut HashSet<PathBuf>) {
+fn collect_css_imports(src: &Path, reached: &mut AHashSet<PathBuf>) {
   let css_files: Vec<PathBuf> = reached
     .iter()
     .filter(|p| is_css(p) && p.starts_with(src))
@@ -537,7 +538,7 @@ mod css_import_tests {
     .unwrap();
     std::fs::write(src.join("tokens/child.css"), ":root {}\n").unwrap();
 
-    let mut reached = HashSet::from([normalize(&src.join("tokens/index.css"))]);
+    let mut reached = AHashSet::from([normalize(&src.join("tokens/index.css"))]);
     collect_css_imports(&src, &mut reached);
     assert!(reached.contains(&normalize(&src.join("tokens/child.css"))));
   }
