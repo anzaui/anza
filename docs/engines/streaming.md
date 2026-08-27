@@ -1,39 +1,103 @@
-# Real-Time STUI Streaming
+# Real-Time Streaming
 
-Server-Sent Events (SSE) and WebSockets enable Anza backends to push live, cryptographically signed UI updates directly into browser shadow roots.
+Anza Server-Templated UI provides first-class support for real-time component streaming. Backends push signed component envelopes over **Server-Sent Events (SSE)** or **WebSockets**, updating client UI slots without full page refreshes or virtual DOM diffing.
 
-## Server-Sent Events Protocol
+---
 
-Every template update is transmitted as an atomic event frame:
+## What You Get
+
+- **Server-Sent Events (SSE)** — Standard HTTP transport with automatic reconnection and CDN pass-through
+- **WebSocket text frames** — High-frequency bidirectional streaming for real-time collaboration
+- **Declarative client listener** — `listenStream()` automatically verifies signatures and patches matching docks
+- **Async generator consumption** — Programmatic `for await` streams via `api.stream()`
+
+---
+
+## Protocol Overview
+
+### Server-Sent Events (SSE)
 
 ```http
-event: template
-data: {"slot":"feed","ts":1724771200,"html":"<article>Live Update</article>","sig":"a3f9..."}
+HTTP/1.1 200 OK
+Content-Type: text/event-stream
+Cache-Control: no-cache
+Connection: keep-alive
 
+event: template
+data: {"slot":"feed","ts":1724771234,"html":"<ui-card>...</ui-card>","sig":"3a8f4c...","css":null}
 ```
 
-1. **`event: template`**: Identifies that the event payload is an Anza STUI envelope.
-2. **`data: { ... }`**: JSON-serialized `Envelope` model.
-3. **Double Newline `\n\n`**: Standard SSE frame boundary.
+---
 
-## Client-Side Reception & Shadow Root Adoption
+## Client Integration
 
-The browser client verifies the signature and swaps the content seamlessly:
+### 1. `listenStream()`
+
+Connect to an SSE stream and automatically patch matching docks in the DOM:
 
 ```javascript
 import { listenStream } from '@anzaui/anza/ui';
 
-// Connect to real-time feed
-const eventSource = new EventSource('/feed/stream');
+const stream = listenStream('/api/live/stream', {
+  reconnect: true,
+  onUpdate(slot, envelope) {
+    console.log(`Updated slot ${slot}`);
+  },
+  onError(err) {
+    console.error('Stream error:', err);
+  },
+});
 
-eventSource.addEventListener('template', async (event) => {
-  const envelope = JSON.parse(event.data);
+// To disconnect:
+// stream.close();
+```
 
-  // 1. Locate target dock slot in the DOM
-  const dock = document.querySelector(`dock-${envelope.slot}, [data-slot="${envelope.slot}"]`);
-  if (dock) {
-    // 2. Adopt updated template fragment
-    dock.innerHTML = envelope.html;
-  }
+### 2. `api.stream()`
+
+Programmatic stream consumption in custom components:
+
+```javascript
+import { api } from '@anzaui/anza/api';
+
+for await (const chunk of api.stream('/api/live/feed')) {
+  const envelope = JSON.parse(chunk);
+  console.log('Received live envelope:', envelope.slot, envelope.html);
+}
+```
+
+---
+
+## Server Implementation
+
+### TypeScript / Hono SSE
+
+```typescript
+import { Hono } from 'hono';
+import { Setup, sseEvent } from '@anzaui/engine';
+
+const engine = await new Setup({ root: './templates' }).run();
+const app = new Hono();
+
+app.get('/api/live/stream', (c) => {
+  const stream = new ReadableStream({
+    async start(controller) {
+      const timer = setInterval(async () => {
+        const env = await engine.renderFragment('feed/card.html', 'feed', {
+          title: 'Live Notification',
+        });
+        controller.enqueue(new TextEncoder().encode(sseEvent(env)));
+      }, 2000);
+
+      c.req.raw.signal.addEventListener('abort', () => clearInterval(timer));
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    },
+  });
 });
 ```

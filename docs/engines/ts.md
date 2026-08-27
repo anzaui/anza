@@ -1,15 +1,30 @@
-# TypeScript & JavaScript STUI Template Engine
+# TypeScript Engine
 
-The **Anza TypeScript Engine** (`@anzaui/engine`) is a **zero-dependency**, JIT-optimized template and STUI streaming engine that executes identically across **Node.js**, **Bun**, **Deno**, **Cloudflare Workers**, and **Vercel Edge**.
+The Anza TypeScript Engine (`@anzaui/engine`) is a zero-dependency, JIT-optimized template and STUI streaming engine. It executes with identical behavior and wire compatibility across Node.js, Bun, Deno, Cloudflare Workers, and Vercel Edge.
+
+---
+
+## What You Get
+
+- **Zero dependencies** — Built exclusively on native Web Standards (`Request`, `Response`, `SubtleCrypto`)
+- **Universal runtime support** — Runs on Node.js (18+), Bun, Deno, Cloudflare Workers, and edge runtimes
+- **JIT closure compilation** — Compiles templates once into memory functions for maximum throughput
+- **Framework adapters** — First-class helpers for Hono, Express, Fastify, and raw Fetch API
+- **Live SSE streaming** — Built-in `sseEvent()` helper for real-time Server-Sent Events
+
+---
 
 ## Installation
 
 ```bash
 npm install @anzaui/engine
-# or: pnpm add @anzaui/engine / bun add @anzaui/engine
+# or: pnpm add @anzaui/engine
+# or: bun add @anzaui/engine
 ```
 
-## Quickstart (Web Standards / Fetch)
+---
+
+## Quickstart (Web Standards / Fetch API)
 
 ```typescript
 import { Setup, Page, Fragment, htmlResponse, jsonResponse } from '@anzaui/engine';
@@ -17,7 +32,10 @@ import { Setup, Page, Fragment, htmlResponse, jsonResponse } from '@anzaui/engin
 // 1. Initialize engine once at application startup
 const engine = await new Setup({
   root: './templates',
-  signing: { mode: 'hmac', secret: 'super-secret-key-32-chars-long!!' },
+  signing: {
+    mode: 'hmac',
+    secret: 'super-secret-key-32-chars-long!!',
+  },
 }).run();
 
 export default {
@@ -25,16 +43,16 @@ export default {
   async fetch(req: Request): Promise<Response> {
     const url = new URL(req.url);
 
-    // Full-Page SSR
+    // Mode A: Full-Page SSR with Declarative Shadow DOM
     if (url.pathname === '/') {
       const doc = await new Page('/', { title: 'TypeScript STUI' }).run(engine);
       return htmlResponse(doc);
     }
 
-    // Dynamic Signed Fragment
+    // Mode B: Dynamic Signed Fragment
     if (url.pathname === '/card') {
-      const env = await new Fragment('feed/card.html', 'feed', { title: 'Live Card' }).run(engine);
-      return jsonResponse(env);
+      const envelope = await new Fragment('feed/card.html', 'feed', { title: 'Live Card' }).run(engine);
+      return jsonResponse(envelope);
     }
 
     return new Response('Not Found', { status: 404 });
@@ -42,13 +60,15 @@ export default {
 };
 ```
 
+---
+
 ## Framework Integration
 
 ### Hono
 
 ```typescript
 import { Hono } from 'hono';
-import { Setup, htmlResponse, jsonResponse, sseEvent } from 'anza';
+import { Setup, htmlResponse, jsonResponse } from '@anzaui/engine';
 
 const engine = await new Setup({ root: './templates' }).run();
 const app = new Hono();
@@ -70,20 +90,20 @@ export default app;
 
 ```typescript
 import express from 'express';
-import { Setup, Page, Fragment } from 'anza';
-import { sendHtml, sendJson } from 'anza/adapters/express.js';
+import { Setup, Page, Fragment } from '@anzaui/engine';
 
 const engine = await new Setup({ root: './templates' }).run();
 const app = express();
 
 app.get('/', async (req, res) => {
   const doc = await new Page('/', { title: 'Express STUI' }).run(engine);
-  sendHtml(res, doc);
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.send(doc.html);
 });
 
 app.get('/card', async (req, res) => {
-  const env = await new Fragment('feed/card.html', 'feed', { title: 'Item' }).run(engine);
-  sendJson(res, env);
+  const env = await new Fragment('feed/card.html', 'feed', { title: 'Card' }).run(engine);
+  res.json(env);
 });
 
 app.listen(3000);

@@ -1,47 +1,58 @@
-<h1>Server-Templated UI (STUI) Engines</h1>
-<p>Anza provides high-performance, multi-language <strong>Server-Templated UI (STUI)</strong> engines for <strong>Rust</strong>, <strong>TypeScript / JavaScript</strong>, and <strong>Python</strong>.</p>
-<p>They enable sub-millisecond initial page renders using <strong>Open Declarative Shadow DOM (DSD)</strong> alongside cryptographically verified dynamic component updates for partial fetches and real-time streaming.</p>
-<view-code language="text">┌─────────────────┐       Mode A: Initial SSR (HTML + Open DSD)        ┌─────────────────┐
-│                 ├───────────────────────────────────────────────────►│                 │
-│  Backend Engine │                                                    │  Client Browser │
-│ (Rust / TS / Py)│       Mode B: Signed Dynamic Envelopes (SSE/Fetch) │ (Native Custom  │
-│                 ├───────────────────────────────────────────────────►│    Elements)    │
-└─────────────────┘         [ts:slot:html + Ed25519/HMAC Signature]    └─────────────────┘
-</view-code>
-<h2>Architectural Principles</h2>
-<ol>
-<li><strong>Dual-Mode Rendering</strong>:
+<h1>STUI Engines</h1>
+<p>Anza provides high-performance, multi-language <strong>Server-Templated UI (STUI)</strong> engines for <strong>Rust</strong>, <strong>TypeScript / Node.js / Bun / Deno</strong>, and <strong>Python</strong>.</p>
+<p>STUI bridges server-side rendering and client-side web components. It enables sub-millisecond initial page delivery using <strong>Open Declarative Shadow DOM (DSD)</strong> alongside cryptographically verified dynamic component updates for partial fetches, live navigation, and real-time streaming.</p>
+<hr />
+<h2>What You Get</h2>
 <ul>
-<li><strong>Mode A (Full-Page SSR)</strong>: Emits full HTML documents containing Declarative Shadow DOM (<code>&lt;template shadowrootmode="open"&gt;</code>) shells for instant first paint and SEO indexability without hydration pauses.</li>
-<li><strong>Mode B (Fragment Envelopes)</strong>: Emits signed JSON envelopes (<code>{ slot, ts, html, sig, css }</code>) for targeted partial updates and live Server-Sent Events (SSE).</li>
+<li><strong>Open Declarative Shadow DOM (DSD)</strong> — Instant initial render without client-side hydration pauses</li>
+<li><strong>Zero-copy parameter injection</strong> — Templates are pre-parsed once at startup into memory offsets</li>
+<li><strong>Cryptographic tamper-proofing</strong> — Signed JSON envelopes protect dynamic fragments across CDNs and proxies</li>
+<li><strong>Multi-language wire compatibility</strong> — Identical envelope format across Rust, TypeScript, and Python</li>
+<li><strong>Universal streaming</strong> — First-class Server-Sent Events (SSE) and WebSocket text frame support</li>
+<li><strong>Zero external runtime dependencies</strong> — Standard libraries and Web Standards across all engines</li>
 </ul>
-</li>
-<li><strong>Zero External Runtime Dependencies</strong>:
-<ul>
-<li>The TypeScript engine uses native Web Standards (<code>globalThis.crypto.subtle</code>) and standard library modules.</li>
-<li>The Python engine uses 100% standard library modules.</li>
-<li>The Rust engine uses minimal, high-throughput crate dependencies.</li>
-</ul>
-</li>
-<li><strong>Single-Pass Compilation</strong>:
-<ul>
-<li>Delimiters <code>{{slot}}</code> are extracted once during template loading, eliminating regular expression parsing on incoming HTTP requests.</li>
-</ul>
-</li>
-<li><strong>Cryptographic Tamper-Proofing</strong>:
-<ul>
-<li>Origin backend signs dynamic fragment payloads over <code>ts:slot:html</code> with asymmetric Ed25519 (to bypass intermediate CDN/proxy TLS termination), symmetric HMAC-SHA256, or HKDF per-user session keys.</li>
-</ul>
-</li>
-</ol>
-<h2>Engine Implementations</h2>
-<div class="table-wrap"><table><thead><tr><th>Engine</th><th>Package / Crate</th><th>Key Focus</th><th>Adapters</th></tr></thead><tbody>
-<tr><td><a href="/docs/engines/rust">Rust Engine</a></td><td><code>anza</code> (Cargo)</td><td>Zero-copy byte slices, maximum throughput</td><td>Axum, Actix-web, Tower</td></tr>
-<tr><td><a href="/docs/engines/ts">TypeScript Engine</a></td><td><code>anza</code> (npm)</td><td>JIT closure compilation, zero dependencies</td><td>Web Standards (Fetch), Hono, Express, Fastify</td></tr>
-<tr><td><a href="/docs/engines/py">Python Engine</a></td><td><code>anza</code> (PyPI)</td><td>Pure standard library, fast dict/dataclass binding</td><td>ASGI, WSGI, FastAPI, Flask</td></tr>
+<hr />
+<h2>Package Map</h2>
+<div class="table-wrap"><table><thead><tr><th>Engine</th><th>Package / Crate</th><th>Ecosystem</th><th>Key Feature</th></tr></thead><tbody>
+<tr><td><a href="/docs/engines/rust">rust.md</a></td><td><code>anza</code> (Cargo)</td><td>Axum, Actix-web, Tower</td><td>Zero-copy byte slices, sub-millisecond latency</td></tr>
+<tr><td><a href="/docs/engines/ts">ts.md</a></td><td><code>@anzaui/engine</code> (npm)</td><td>Node.js, Bun, Deno, Hono, Express</td><td>Zero dependencies, JIT closure compilation</td></tr>
+<tr><td><a href="/docs/engines/py">py.md</a></td><td><code>anza</code> (PyPI)</td><td>FastAPI, Starlette, Flask, Django</td><td>Pure standard library, async streaming generator</td></tr>
+<tr><td><a href="/docs/engines/crypto">crypto.md</a></td><td>Built-in</td><td>All engines</td><td>Ed25519, HMAC-SHA256, and HKDF session key derivation</td></tr>
+<tr><td><a href="/docs/engines/streaming">streaming.md</a></td><td>Built-in</td><td>All engines</td><td>Server-Sent Events (SSE) and WebSocket frame protocols</td></tr>
 </tbody></table></div>
-<h2>Related Guides</h2>
-<ul>
-<li><a href="/docs/engines/crypto">Cryptographic Verification</a> — Asymmetric Ed25519, HMAC-SHA256, and HKDF session key derivation.</li>
-<li><a href="/docs/engines/streaming">Real-Time Streaming</a> — Server-Sent Events (SSE) and WebSocket text frame protocols.</li>
-</ul>
+<hr />
+<h2>Dual-Mode Rendering</h2>
+<p>Every template in the <code>templates/</code> directory supports two rendering modes:</p>
+<h3>Mode A: Full-Page SSR (Initial Paint &amp; SEO)</h3>
+<p>Generates complete HTML documents containing root layout shells and Declarative Shadow DOM components:</p>
+<view-code language="html">&lt;!-- templates/pages/profile.html --&gt;
+&lt;page-profile id="{{user_id}}"&gt;
+  &lt;template shadowrootmode="open"&gt;
+    &lt;style&gt;
+      :host { display: block; padding: 24px; color: var(--color-text); }
+      .title { font-size: 1.5rem; font-weight: 700; }
+    &lt;/style&gt;
+    &lt;div class="title"&gt;Profile for {{user_name}}&lt;/div&gt;
+    &lt;p class="bio"&gt;{{bio}}&lt;/p&gt;
+  &lt;/template&gt;
+&lt;/page-profile&gt;
+</view-code>
+<h3>Mode B: Dynamic Fragment Envelopes (SSE &amp; Fetch)</h3>
+<p>Generates targeted JSON envelopes for real-time slot replacement and live streaming:</p>
+<view-code language="json">{
+  "slot": "feed",
+  "ts": 1724771234,
+  "html": "&lt;ui-card class=\"stream-card\"&gt;&lt;div slot=\"header\"&gt;Live Card&lt;/div&gt;&lt;/ui-card&gt;",
+  "sig": "3a8f4c2e1b...",
+  "css": null
+}
+</view-code>
+<hr />
+<h2>File Map</h2>
+<div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
+<tr><td><a href="/docs/engines/rust">rust.md</a></td><td>Rust engine setup, Axum/Actix adapters, and Serde data binding</td></tr>
+<tr><td><a href="/docs/engines/ts">ts.md</a></td><td>TypeScript engine setup, Web Standards, Hono, and Express</td></tr>
+<tr><td><a href="/docs/engines/py">py.md</a></td><td>Python engine setup, FastAPI, Flask, and dataclass binding</td></tr>
+<tr><td><a href="/docs/engines/crypto">crypto.md</a></td><td>Cryptographic signing, Ed25519, and tamper verification</td></tr>
+<tr><td><a href="/docs/engines/streaming">streaming.md</a></td><td>Real-time SSE streaming, WebSockets, and client adoption</td></tr>
+</tbody></table></div>

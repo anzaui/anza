@@ -1,31 +1,81 @@
-<h1>Real-Time STUI Streaming</h1>
-<p>Server-Sent Events (SSE) and WebSockets enable Anza backends to push live, cryptographically signed UI updates directly into browser shadow roots.</p>
-<h2>Server-Sent Events Protocol</h2>
-<p>Every template update is transmitted as an atomic event frame:</p>
-<view-code language="http">event: template
-data: {"slot":"feed","ts":1724771200,"html":"&lt;article&gt;Live Update&lt;/article&gt;","sig":"a3f9..."}
+<h1>Real-Time Streaming</h1>
+<p>Anza Server-Templated UI provides first-class support for real-time component streaming. Backends push signed component envelopes over <strong>Server-Sent Events (SSE)</strong> or <strong>WebSockets</strong>, updating client UI slots without full page refreshes or virtual DOM diffing.</p>
+<hr />
+<h2>What You Get</h2>
+<ul>
+<li><strong>Server-Sent Events (SSE)</strong> — Standard HTTP transport with automatic reconnection and CDN pass-through</li>
+<li><strong>WebSocket text frames</strong> — High-frequency bidirectional streaming for real-time collaboration</li>
+<li><strong>Declarative client listener</strong> — <code>listenStream()</code> automatically verifies signatures and patches matching docks</li>
+<li><strong>Async generator consumption</strong> — Programmatic <code>for await</code> streams via <code>api.stream()</code></li>
+</ul>
+<hr />
+<h2>Protocol Overview</h2>
+<h3>Server-Sent Events (SSE)</h3>
+<view-code language="http">HTTP/1.1 200 OK
+Content-Type: text/event-stream
+Cache-Control: no-cache
+Connection: keep-alive
 
+event: template
+data: {"slot":"feed","ts":1724771234,"html":"&lt;ui-card&gt;...&lt;/ui-card&gt;","sig":"3a8f4c...","css":null}
 </view-code>
-<ol>
-<li><strong><code>event: template</code></strong>: Identifies that the event payload is an Anza STUI envelope.</li>
-<li><strong><code>data: { ... }</code></strong>: JSON-serialized <code>Envelope</code> model.</li>
-<li><strong>Double Newline <code>\n\n</code></strong>: Standard SSE frame boundary.</li>
-</ol>
-<h2>Client-Side Reception &amp; Shadow Root Adoption</h2>
-<p>The browser client verifies the signature and swaps the content seamlessly:</p>
+<hr />
+<h2>Client Integration</h2>
+<h3>1. <code>listenStream()</code></h3>
+<p>Connect to an SSE stream and automatically patch matching docks in the DOM:</p>
 <view-code language="javascript">import { listenStream } from '@anzaui/anza/ui';
 
-// Connect to real-time feed
-const eventSource = new EventSource('/feed/stream');
+const stream = listenStream('/api/live/stream', {
+  reconnect: true,
+  onUpdate(slot, envelope) {
+    console.log(`Updated slot ${slot}`);
+  },
+  onError(err) {
+    console.error('Stream error:', err);
+  },
+});
 
-eventSource.addEventListener('template', async (event) =&gt; {
-  const envelope = JSON.parse(event.data);
+// To disconnect:
+// stream.close();
+</view-code>
+<h3>2. <code>api.stream()</code></h3>
+<p>Programmatic stream consumption in custom components:</p>
+<view-code language="javascript">import { api } from '@anzaui/anza/api';
 
-  // 1. Locate target dock slot in the DOM
-  const dock = document.querySelector(`dock-${envelope.slot}, [data-slot="${envelope.slot}"]`);
-  if (dock) {
-    // 2. Adopt updated template fragment
-    dock.innerHTML = envelope.html;
-  }
+for await (const chunk of api.stream('/api/live/feed')) {
+  const envelope = JSON.parse(chunk);
+  console.log('Received live envelope:', envelope.slot, envelope.html);
+}
+</view-code>
+<hr />
+<h2>Server Implementation</h2>
+<h3>TypeScript / Hono SSE</h3>
+<view-code language="typescript">import { Hono } from 'hono';
+import { Setup, sseEvent } from '@anzaui/engine';
+
+const engine = await new Setup({ root: './templates' }).run();
+const app = new Hono();
+
+app.get('/api/live/stream', (c) =&gt; {
+  const stream = new ReadableStream({
+    async start(controller) {
+      const timer = setInterval(async () =&gt; {
+        const env = await engine.renderFragment('feed/card.html', 'feed', {
+          title: 'Live Notification',
+        });
+        controller.enqueue(new TextEncoder().encode(sseEvent(env)));
+      }, 2000);
+
+      c.req.raw.signal.addEventListener('abort', () =&gt; clearInterval(timer));
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    },
+  });
 });
 </view-code>

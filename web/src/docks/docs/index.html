@@ -1,112 +1,31 @@
-<header class="docs-header" ref="header">
-  <div class="header-inner">
-    <a href="/" class="logo" aria-label="Anza home">
-      <div class="logo-mark">
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-        >
-          <defs>
-            <linearGradient id="header-logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#1ecf4e" />
-              <stop offset="100%" stop-color="#80DBFF" />
-            </linearGradient>
-          </defs>
-          <circle cx="12" cy="12" r="10" fill="url(#header-logo-gradient)" fill-opacity="0.12" stroke="url(#header-logo-gradient)" stroke-width="1.5"></circle>
-          <path d="M9.38886 15.1629C9.89331 15.5 10.5955 15.5 12 15.5C13.4045 15.5 14.1067 15.5 14.6111 15.1629C14.8295 15.017 15.017 14.8295 15.1629 14.6111C15.5 14.1067 15.5 13.4045 15.5 12C15.5 10.5955 15.5 9.89331 15.1629 9.38886C15.017 9.17048 14.8295 8.98298 14.6111 8.83706C14.1067 8.5 13.4045 8.5 12 8.5C10.5955 8.5 9.89331 8.5 9.38886 8.83706C9.17048 8.98298 8.98298 9.17048 8.83706 9.38886C8.5 9.89331 8.5 10.5955 8.5 12C8.5 13.4045 8.5 14.1067 8.83706 14.6111C8.98298 14.8295 9.17048 15.017 9.38886 15.1629Z"
-            fill="url(#header-logo-gradient)" fill-opacity="0.12" stroke="url(#header-logo-gradient)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-        </svg>
-      </div>
-      <span class="version">v0.5.0</span>
-    </a>
-
-    <nav class="header-nav" aria-label="Primary navigation">
-      <a href="/docs" class="nav-link active">Docs</a>
-      <a
-        href="https://github.com/anzaui/anza"
-        class="nav-link nav-link--gh"
-        target="_blank"
-        rel="noopener"
-      >
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 16 16"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0016 8c0-4.42-3.58-8-8-8z"
-          />
-        </svg>
-        GitHub
-      </a>
-    </nav>
-
-    <div class="header-actions">
-      <button
-        class="theme-toggle"
-        id="themeToggle"
-        aria-label="Toggle dark mode"
-        aria-pressed="false"
-      >
-        <div class="orbital">
-          <div class="orbital-knob">
-            <svg
-              class="icon-sun"
-              width="10"
-              height="10"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              aria-hidden="true"
-            >
-              <circle cx="12" cy="12" r="4" />
-              <path
-                d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
-              />
-            </svg>
-            <svg
-              class="icon-moon"
-              width="10"
-              height="10"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              aria-hidden="true"
-            >
-              <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
-            </svg>
-          </div>
-        </div>
-      </button>
-
-      <button
-        class="mobile-menu-btn"
-        id="mobileMenuBtn"
-        aria-label="Open navigation"
-        aria-expanded="false"
-        aria-controls="leftSidebar"
-      >
-        <div class="hamburger">
-          <span></span>
-          <span></span>
-        </div>
-      </button>
-    </div>
-  </div>
-</header>
-
 <div class="docs-container">
-  <!-- Left Sidebar: Navigation links -->
+  <!-- Left Sidebar: Full height, includes logo at top and collapsible nav groups below -->
   <aside class="docs-sidebar-left" ref="leftSidebar">
+    <div class="sidebar-header">
+      <a href="/" class="logo" aria-label="Anza home">
+        <div class="logo-mark">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <defs>
+              <linearGradient id="header-logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#1ecf4e" />
+                <stop offset="100%" stop-color="#80DBFF" />
+              </linearGradient>
+            </defs>
+            <circle cx="12" cy="12" r="10" fill="url(#header-logo-gradient)" fill-opacity="0.12" stroke="url(#header-logo-gradient)" stroke-width="1.5"></circle>
+            <path d="M9.38886 15.1629C9.89331 15.5 10.5955 15.5 12 15.5C13.4045 15.5 14.1067 15.5 14.6111 15.1629C14.8295 15.017 15.017 14.8295 15.1629 14.6111C15.5 14.1067 15.5 13.4045 15.5 12C15.5 10.5955 15.5 9.89331 15.1629 9.38886C15.017 9.17048 14.8295 8.98298 14.6111 8.83706C14.1067 8.5 13.4045 8.5 12 8.5C10.5955 8.5 9.89331 8.5 9.38886 8.83706C9.17048 8.98298 8.98298 9.17048 8.83706 9.38886C8.5 9.89331 8.5 10.5955 8.5 12C8.5 13.4045 8.5 14.1067 8.83706 14.6111C8.98298 14.8295 9.17048 15.017 9.38886 15.1629Z"
+              fill="url(#header-logo-gradient)" fill-opacity="0.12" stroke="url(#header-logo-gradient)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <span class="version">v0.5.0</span>
+      </a>
+    </div>
+
     <nav class="sidebar-nav">
       <details class="sidebar-group" open>
         <summary class="sidebar-group-header">
@@ -135,7 +54,7 @@
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>Server-Templated UI</h3>
           <svg
@@ -163,7 +82,7 @@
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>UI</h3>
           <svg
@@ -203,7 +122,7 @@
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>Elements</h3>
           <svg
@@ -279,7 +198,7 @@
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>SSG &amp; SEO</h3>
           <svg
@@ -305,7 +224,7 @@
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>Router</h3>
           <svg
@@ -344,7 +263,7 @@
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>State</h3>
           <svg
@@ -374,7 +293,7 @@
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>Service Worker</h3>
           <svg
@@ -402,7 +321,7 @@
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>API</h3>
           <svg
@@ -437,7 +356,7 @@
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>Events</h3>
           <svg
@@ -468,7 +387,7 @@
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>Storage</h3>
           <svg
@@ -500,7 +419,7 @@
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>Animations</h3>
           <svg
@@ -532,7 +451,7 @@
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>Workers</h3>
           <svg
@@ -564,7 +483,7 @@
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>Security</h3>
           <svg
@@ -594,7 +513,7 @@
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>Platform</h3>
           <svg
@@ -625,15 +544,133 @@
 
   <div class="sidebar-backdrop" ref="sidebarBackdrop" aria-hidden="true"></div>
 
-  <!-- Main Content Area -->
-  <main class="docs-content">
-    <!-- Renders dock-doccontent child in Light DOM -->
-    <slot></slot>
-  </main>
+  <!-- Main Content Column with Top Header -->
+  <div class="docs-main-wrapper">
+    <header class="docs-header" ref="header">
+      <div class="header-inner">
+        <button
+          class="mobile-menu-btn"
+          id="mobileMenuBtn"
+          aria-label="Open navigation"
+          aria-expanded="false"
+          aria-controls="leftSidebar"
+        >
+          <div class="hamburger">
+            <span></span>
+            <span></span>
+          </div>
+        </button>
 
-  <!-- Right Sidebar: Table of Contents -->
-  <aside class="docs-sidebar-right" ref="rightSidebar">
-    <h4>What's on this page</h4>
-    <ul class="toc-list" ref="tocList"></ul>
-  </aside>
+        <div class="header-breadcrumbs">
+          <a href="/docs" class="crumb-link">Docs</a>
+          <span class="crumb-sep">/</span>
+          <span class="crumb-current" ref="crumbCurrent">Overview</span>
+        </div>
+
+        <div class="header-center">
+          <div class="header-search-pill">
+            <svg
+              class="search-icon"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+            <span class="search-placeholder">Search docs...</span>
+            <kbd class="search-kbd">⌘K</kbd>
+          </div>
+        </div>
+
+        <nav class="header-nav" aria-label="Primary navigation">
+          <a href="/docs/elements/index" class="nav-link">Elements</a>
+          <a href="/docs/engines/index" class="nav-link">Engines</a>
+          <a href="/docs/api/index" class="nav-link">API</a>
+          <a
+            href="https://github.com/anzaui/anza"
+            class="nav-link nav-link--gh"
+            target="_blank"
+            rel="noopener"
+            aria-label="GitHub Repository"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0016 8c0-4.42-3.58-8-8-8z"
+              />
+            </svg>
+          </a>
+        </nav>
+
+        <div class="header-actions">
+          <button
+            class="theme-toggle"
+            id="themeToggle"
+            aria-label="Toggle dark mode"
+            aria-pressed="false"
+          >
+            <div class="orbital">
+              <div class="orbital-knob">
+                <svg
+                  class="icon-sun"
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="4" />
+                  <path
+                    d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+                  />
+                </svg>
+                <svg
+                  class="icon-moon"
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                </svg>
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="docs-body">
+      <!-- Main Content Area -->
+      <main class="docs-content" ref="content">
+        <!-- Renders dock-doccontent child in Light DOM -->
+        <slot></slot>
+      </main>
+
+      <!-- Right Sidebar: Table of Contents -->
+      <aside class="docs-sidebar-right" ref="rightSidebar">
+        <h4>What's on this page</h4>
+        <ul class="toc-list" ref="tocList"></ul>
+      </aside>
+    </div>
+  </div>
 </div>

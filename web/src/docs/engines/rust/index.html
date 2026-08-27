@@ -1,54 +1,70 @@
-<h1>Rust STUI Template Engine</h1>
-<p>The <strong>Anza Rust Engine</strong> (<code>anza</code>) is a zero-copy, cryptographically verified Server-Templated UI engine for Rust web frameworks.</p>
+<h1>Rust Engine</h1>
+<p>The Anza Rust Engine (<code>anza</code>) is a zero-copy Server-Templated UI engine built for the Rust web ecosystem. It delivers Declarative Shadow DOM documents and cryptographically verified dynamic component envelopes with minimal allocations and sub-millisecond execution times.</p>
+<hr />
+<h2>What You Get</h2>
+<ul>
+<li><strong>Zero-copy parameter injection</strong> — Templates compile once into memory offsets; parameter replacement uses borrowed slices</li>
+<li><strong>Native framework support</strong> — Pre-built converters for Axum, Actix-web, and Tower</li>
+<li><strong>Serde integration</strong> — Direct data binding from any <code>Serialize</code> struct or map</li>
+<li><strong>Real-time SSE streams</strong> — Built-in event generators for live component streaming</li>
+<li><strong>Live template reload</strong> — Optional <code>watch</code> feature for background filesystem monitoring in development</li>
+</ul>
+<hr />
 <h2>Installation</h2>
 <p>Add <code>anza</code> to your <code>Cargo.toml</code>:</p>
 <view-code language="toml">[dependencies]
 anza = { version = "0.5.0", features = ["axum"] }
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
 </view-code>
-<p>Available features:</p>
-<ul>
-<li><code>axum</code>: Native Axum response converters (<code>Html(doc)</code>, <code>Json(env)</code>).</li>
-<li><code>actix</code>: Actix-web response helpers.</li>
-<li><code>tower</code>: Tower Service middleware.</li>
-<li><code>watch</code>: Live filesystem template watching.</li>
-</ul>
+<h3>Feature Flags</h3>
+<div class="table-wrap"><table><thead><tr><th>Feature</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>axum</code></td><td>Native response conversions for Axum (<code>Html(doc)</code>, <code>Json(envelope)</code>)</td></tr>
+<tr><td><code>actix</code></td><td>Actix-web response helpers and extractors</td></tr>
+<tr><td><code>tower</code></td><td>Tower Service middleware for template rendering pipelines</td></tr>
+<tr><td><code>watch</code></td><td>Background filesystem template watcher for development hot reloading</td></tr>
+</tbody></table></div>
+<hr />
 <h2>Quickstart (Axum)</h2>
 <view-code language="rust">use anza::{Setup, Page, Fragment, SignOptions};
-use axum::{routing::get, Router, response::{Html, Json}};
+use axum::{
+    routing::get,
+    response::{Html, Json},
+    Router,
+};
 use std::sync::Arc;
 
 #[tokio::main]
 async fn main() {
-    // 1. Initialize engine once at startup
+    // 1. Initialize engine once at application startup
     let engine = Arc::new(
         Setup::new("./templates")
-            .with_signing(SignOptions::hmac("super-secret-key-32-bytes-long"))
+            .with_signing(SignOptions::hmac("super-secret-key-32-bytes-long!"))
             .run()
-            .expect("Failed to initialize anza engine")
+            .expect("Failed to initialize Anza engine")
     );
 
     let app = Router::new()
-        // Full-Page SSR with Open Declarative Shadow DOM
+        // Mode A: Full-page SSR with Declarative Shadow DOM
         .route("/", get({
             let engine = engine.clone();
             move || async move {
                 let doc = Page::new("/")
-                    .with_param("title", "Rust STUI")
-                    .with_param("count", "42")
+                    .with_param("title", "Anza Rust STUI")
                     .run(&amp;engine)
-                    .unwrap();
+                    .expect("Failed to render page");
                 Html(doc.html)
             }
         }))
-        // Dynamic Signed Partial Fragment
+        // Mode B: Dynamic partial fragment (JSON envelope)
         .route("/card", get({
             let engine = engine.clone();
             move || async move {
-                let env = Fragment::new("feed/card.html", "feed")
-                    .with_param("title", "Live Rust Card")
+                let envelope = Fragment::new("feed/card.html", "feed")
+                    .with_param("title", "Live Metric")
                     .run(&amp;engine)
-                    .unwrap();
-                Json(env)
+                    .expect("Failed to render fragment");
+                Json(envelope)
             }
         }));
 
@@ -56,23 +72,42 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 </view-code>
-<h2>Parameter Injection</h2>
-<p>The Rust engine supports both map-based parameter injection and direct <code>Serialize</code> structs:</p>
+<hr />
+<h2>Data Binding (Serde)</h2>
+<p>Bind data directly from any Rust struct deriving <code>Serialize</code>:</p>
 <view-code language="rust">use serde::Serialize;
 use anza::Page;
 
 #[derive(Serialize)]
-struct Article {
-    title: String,
-    author: String,
-    views: u32,
+struct UserProfile {
+    user_id: String,
+    user_name: String,
+    role: String,
 }
 
-let article = Article {
-    title: "Zero-Copy STUI".into(),
-    author: "Aduki Team".into(),
-    views: 1250,
+let profile = UserProfile {
+    user_id: "usr_9482".into(),
+    user_name: "Alice Developer".into(),
+    role: "Admin".into(),
 };
 
-let doc = Page::new("/article").with_data(&amp;article).run(&amp;engine).unwrap();
+let doc = Page::new("/profile")
+    .with_data(&amp;profile)
+    .run(&amp;engine)?;
+</view-code>
+<hr />
+<h2>Signing Configuration</h2>
+<h3>Ed25519 (Asymmetric)</h3>
+<view-code language="rust">use anza::{Setup, SignOptions};
+
+let engine = Setup::new("./templates")
+    .with_signing(SignOptions::ed25519_pem_file("keys/origin_private.pem")?)
+    .run()?;
+</view-code>
+<h3>HMAC-SHA256 (Symmetric)</h3>
+<view-code language="rust">use anza::{Setup, SignOptions};
+
+let engine = Setup::new("./templates")
+    .with_signing(SignOptions::hmac("pre-shared-secret-key-32-bytes"))
+    .run()?;
 </view-code>

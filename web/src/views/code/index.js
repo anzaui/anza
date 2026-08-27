@@ -20,10 +20,23 @@ export default view('view-code', {
         }
 
         if (text) {
-          const lang = el.getAttribute('language') || 'javascript';
+          const raw = (el.getAttribute('language') || 'javascript').trim().toLowerCase();
+          const aliases = {
+            js: 'javascript',
+            ts: 'typescript',
+            py: 'python',
+            rs: 'rust',
+            sh: 'bash',
+            shell: 'bash',
+            yml: 'yaml',
+            htm: 'html',
+          };
+          const lang = aliases[raw] || raw;
           codeContainer.className = `language-${lang}`;
           codeContainer.textContent = text;
-          window.Prism.highlightElement(codeContainer);
+          if (window.Prism.languages[lang]) {
+            window.Prism.highlightElement(codeContainer);
+          }
         }
       };
 

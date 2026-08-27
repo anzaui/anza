@@ -4,6 +4,7 @@ import './index/index.js';
 import './animations/index.js';
 import './api/index.js';
 import './elements/index.js';
+import './engines/index.js';
 import './events/index.js';
 import './intro/index.js';
 import './platform/index.js';

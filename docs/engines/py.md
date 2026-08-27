@@ -1,57 +1,103 @@
-# Python STUI Template Engine
+# Python Engine
 
-The **Anza Python Engine** (`anza`) is an ultra-fast, **zero-dependency** template and STUI streaming engine built 100% on the Python Standard Library.
+The Anza Python Engine (`anza`) is a pure standard library Server-Templated UI engine for the Python ecosystem. It runs on Python 3.9+ without external binary dependencies.
+
+---
+
+## What You Get
+
+- **Zero external dependencies** — Built 100% on Python standard library modules (`hashlib`, `hmac`, `secrets`, `pathlib`)
+- **Universal framework support** — Native adapters for FastAPI, Starlette, Flask, Django, ASGI, and WSGI
+- **Dataclass & Pydantic binding** — Direct parameter injection from native Python objects and dictionaries
+- **Async streaming generators** — Built-in event generators for high-concurrency Server-Sent Events (SSE)
+
+---
 
 ## Installation
 
 ```bash
 pip install anza
-# or: uv add anza / poetry add anza
 ```
 
-## Quickstart (FastAPI)
+---
+
+## Quickstart (FastAPI / ASGI)
 
 ```python
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
-from anza import Setup, Page, Fragment, SignOptions, format_event
-import asyncio
+from fastapi.responses import HTMLResponse, JSONResponse
+from anza import Setup, Page, Fragment, SignOptions
+
+# 1. Initialize engine at application startup
+engine = (
+    Setup("./templates")
+    .with_signing(SignOptions.hmac("super-secret-key-32-bytes-long!"))
+    .run()
+)
 
 app = FastAPI()
 
-# 1. Initialize engine once at application startup
-engine = Setup(
-    root="./templates",
-    signing=SignOptions(mode="hmac", secret="my-secret-key-32-chars-long!!"),
-).run()
-
-# 2. Full-Page SSR with Open Declarative Shadow DOM
+# Mode A: Full-Page SSR with Declarative Shadow DOM
 @app.get("/", response_class=HTMLResponse)
 async def home():
-    doc = Page("/", {"title": "FastAPI STUI", "count": 42}).run(engine)
-    return HTMLResponse(doc.html)
+    doc = Page("/").with_param("title", "Anza Python STUI").run(engine)
+    return doc.html
 
-# 3. Dynamic Partial Fragment (Signed JSON Envelope)
-@app.get("/card/{card_id}")
-async def get_card(card_id: str):
-    env = Fragment("feed/card.html", "feed", {"id": card_id, "title": "Live Post"}).run(engine)
-    return JSONResponse(env.to_dict())
-
-# 4. Live Server-Sent Events Stream
-@app.get("/feed/stream")
-async def stream_feed():
-    async def event_generator():
-        while True:
-            env = Fragment("feed/card.html", "feed", {"title": "Live Stream Push"}).run(engine)
-            yield format_event(env)
-            await asyncio.sleep(2)
-
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+# Mode B: Dynamic Signed Fragment
+@app.get("/card", response_class=JSONResponse)
+async def card():
+    envelope = (
+        Fragment("feed/card.html", slot="feed")
+        .with_param("title", "Live Python Card")
+        .run(engine)
+    )
+    return envelope.to_dict()
 ```
 
-## Parameter Resolution
+---
 
-The Python engine resolves parameter slots from:
-- Standard `dict` instances: `{"title": "Hello"}`
-- `dataclasses`: `@dataclass class Article: ...`
-- Pydantic models and objects with attribute lookups.
+## Flask Integration (WSGI)
+
+```python
+from flask import Flask, jsonify, Response
+from anza import Setup, Page, Fragment
+
+engine = Setup("./templates").run()
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    doc = Page("/").with_param("title", "Flask STUI").run(engine)
+    return Response(doc.html, mimetype="text/html")
+
+@app.route("/card")
+def card():
+    envelope = Fragment("feed/card.html", slot="feed").with_param("title", "Item").run(engine)
+    return jsonify(envelope.to_dict())
+
+if __name__ == "__main__":
+    app.run(port=3000)
+```
+
+---
+
+## Dataclass Binding
+
+```python
+from dataclasses import dataclass
+from anza import Page
+
+@dataclass
+class UserProfile:
+    user_id: str
+    user_name: str
+    role: str
+
+profile = UserProfile(
+    user_id="usr_102",
+    user_name="Alice",
+    role="Admin"
+)
+
+doc = Page("/profile").with_data(profile).run(engine)
+```

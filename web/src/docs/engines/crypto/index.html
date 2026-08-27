@@ -1,39 +1,79 @@
-<h1>Cryptographic Verification &amp; Tamper-Proofing</h1>
-<p>Anza enforces cryptographic signatures across all dynamic partial fetches and real-time streaming envelopes.</p>
-<h2>The Canonical Wire Payload</h2>
-<p>Every cryptographic signature is computed strictly across:</p>
+<h1>Cryptographic Verification</h1>
+<p>The cryptographic verification module protects Server-Templated UI (STUI) fragments from tampering, replay attacks, and unauthorized origin injection across reverse proxies, CDNs, and microservices.</p>
+<hr />
+<h2>Overview</h2>
+<p>When dynamic component fragments or real-time streaming updates are sent over the wire, the backend signs the payload across a canonical string:</p>
 <view-code language="text">ts:slot:html
 </view-code>
 <ul>
-<li><code>ts</code>: Unix timestamp in seconds (integer).</li>
-<li><code>slot</code>: Target shadow DOM mount point identifier.</li>
-<li><code>html</code>: Rendered HTML template fragment string.</li>
+<li><strong><code>ts</code></strong>: Unix epoch timestamp in seconds at time of generation.</li>
+<li><strong><code>slot</code></strong>: Target dock or slot identifier (e.g. <code>feed</code>, <code>main</code>).</li>
+<li><strong><code>html</code></strong>: Rendered HTML markup of the fragment.</li>
 </ul>
-<h2>Cryptographic Topologies</h2>
-<h3>1. Asymmetric Ed25519 (Universal Standard)</h3>
-<p>Used in modern micro-frontends and multi-tier architectures where traffic traverses reverse proxies, API gateways, and CDNs:</p>
-<view-code language="text">[Origin Backend] ──(Private Key Sign)──► [Edge CDN / Proxy] ──► [Client Browser]
-                                                                        │
-                                                   (Verifies via Origin Public Key)
+<p>The client runtime validates the signature before mutating the DOM. Stale or tampered payloads are rejected immediately.</p>
+<hr />
+<h2>Signing Modes</h2>
+<div class="table-wrap"><table><thead><tr><th>Mode</th><th>Algorithm</th><th>Best For</th><th>Proxy / CDN Support</th><th>Auth Dependency</th></tr></thead><tbody>
+<tr><td><strong><code>Ed25519</code></strong></td><td>Asymmetric Ed25519</td><td>Public pages, multi-tier CDNs, microfrontends</td><td>Yes (Bypasses CDN TLS termination)</td><td>None</td></tr>
+<tr><td><strong><code>SessionBound</code></strong></td><td>HKDF-SHA256 $\rightarrow$ HMAC-SHA256</td><td>Authenticated personalized streams</td><td>Yes</td><td>Derived from user session token</td></tr>
+<tr><td><strong><code>Hmac</code></strong></td><td>HMAC-SHA256</td><td>Internal VPC microservices / single origin</td><td>Yes</td><td>Pre-shared secret</td></tr>
+<tr><td><strong><code>None</code></strong></td><td>No Signature</td><td>Local development and testing</td><td>Yes</td><td>None</td></tr>
+</tbody></table></div>
+<hr />
+<h2>Asymmetric Ed25519 (Recommended)</h2>
+<p>Ed25519 uses public-key cryptography. The origin server holds the private key and signs envelopes; clients and edge proxies verify signatures using the public key without needing access to any secrets.</p>
+<h3>Backend Setup (Rust)</h3>
+<view-code language="rust">use anza::{Setup, SignOptions};
+
+let engine = Setup::new("./templates")
+    .with_signing(SignOptions::ed25519_pem_file("keys/origin_private.pem")?)
+    .run()?;
 </view-code>
-<ul>
-<li><strong>Origin</strong>: Generates signature using private key.</li>
-<li><strong>Client</strong>: Verifies signature against public key embedded in <code>&lt;meta name="anza-key"&gt;</code> or served from <code>/.well-known/anza.json</code>.</li>
-<li><strong>Security</strong>: CDN/proxy TLS termination cannot inject malicious scripts or alter DOM fragments without failing signature validation.</li>
-</ul>
-<h3>2. Symmetric HMAC-SHA256</h3>
-<p>Used for private internal services and single-tier web applications:</p>
-<ul>
-<li>Computed via <code>HMAC-SHA256(secret, message)</code>.</li>
-<li>Verified in constant time via <code>crypto.timingSafeEqual</code> / <code>hmac.compare_digest</code> to prevent timing attacks.</li>
-</ul>
-<h3>3. Per-User Session Keys (HKDF-SHA256)</h3>
-<p>For authenticated real-time channels:</p>
-<ul>
-<li>Derives a 32-byte stream key from user session credentials via HKDF:</li>
-</ul>
-<view-code language="text">stream_key = HKDF(ikm=jwt_signature, salt=session_id, info="anza-stui-session-v1")
+<h3>Backend Setup (TypeScript)</h3>
+<view-code language="typescript">import { Setup } from '@anzaui/engine';
+import { readFileSync } from 'node:fs';
+
+const engine = await new Setup({
+  root: './templates',
+  signing: {
+    mode: 'ed25519',
+    privateKey: readFileSync('keys/origin_private.pem', 'utf8'),
+  },
+}).run();
 </view-code>
-<ul>
-<li>Eliminates database session lookups during high-frequency live push broadcasts.</li>
-</ul>
+<hr />
+<h2>Symmetric HMAC-SHA256</h2>
+<p>For single-origin deployments or internal microservices sharing a secure environment secret:</p>
+<view-code language="typescript">import { Setup } from '@anzaui/engine';
+
+const engine = await new Setup({
+  root: './templates',
+  signing: {
+    mode: 'hmac',
+    secret: process.env.STUI_SIGNING_SECRET,
+  },
+}).run();
+</view-code>
+<hr />
+<h2>Wire Envelope Format</h2>
+<p>All signed fragments conform to the standard wire envelope:</p>
+<view-code language="json">{
+  "slot": "feed",
+  "ts": 1724771234,
+  "html": "&lt;ui-card class=\"stream-card\"&gt;&lt;div slot=\"header\"&gt;Live Card&lt;/div&gt;&lt;/ui-card&gt;",
+  "sig": "9f83a8b2c4e1d7f005a3e4b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8",
+  "css": null
+}
+</view-code>
+<hr />
+<h2>Client-Side Verification</h2>
+<p>When full-page SSR runs, the origin embeds its public key into the document head:</p>
+<view-code language="html">&lt;meta name="anza-key" content="ed25519:e4d9b2c3a1f09876543210fedcba9876543210fedcba9876543210fedcba9876"&gt;
+</view-code>
+<p>When receiving envelopes via <code>listenStream()</code> or <code>api.stream()</code>, the client runtime automatically:</p>
+<ol>
+<li>Assembles <code>ts:slot:html</code> from the incoming envelope.</li>
+<li>Checks timestamp freshness ($\Delta t \le 60\text{s}$).</li>
+<li>Verifies <code>sig</code> against the key in <code>&lt;meta name="anza-key"&gt;</code> via <code>globalThis.crypto.subtle</code>.</li>
+<li>Dispatches a <code>security:tamper</code> event and drops the fragment if verification fails.</li>
+</ol>

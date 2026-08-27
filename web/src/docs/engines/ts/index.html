@@ -1,16 +1,31 @@
-<h1>TypeScript &amp; JavaScript STUI Template Engine</h1>
-<p>The <strong>Anza TypeScript Engine</strong> (<code>@anzaui/engine</code>) is a <strong>zero-dependency</strong>, JIT-optimized template and STUI streaming engine that executes identically across <strong>Node.js</strong>, <strong>Bun</strong>, <strong>Deno</strong>, <strong>Cloudflare Workers</strong>, and <strong>Vercel Edge</strong>.</p>
+<h1>TypeScript Engine</h1>
+<p>The Anza TypeScript Engine (<code>@anzaui/engine</code>) is a zero-dependency, JIT-optimized template and STUI streaming engine. It executes with identical behavior and wire compatibility across Node.js, Bun, Deno, Cloudflare Workers, and Vercel Edge.</p>
+<hr />
+<h2>What You Get</h2>
+<ul>
+<li><strong>Zero dependencies</strong> — Built exclusively on native Web Standards (<code>Request</code>, <code>Response</code>, <code>SubtleCrypto</code>)</li>
+<li><strong>Universal runtime support</strong> — Runs on Node.js (18+), Bun, Deno, Cloudflare Workers, and edge runtimes</li>
+<li><strong>JIT closure compilation</strong> — Compiles templates once into memory functions for maximum throughput</li>
+<li><strong>Framework adapters</strong> — First-class helpers for Hono, Express, Fastify, and raw Fetch API</li>
+<li><strong>Live SSE streaming</strong> — Built-in <code>sseEvent()</code> helper for real-time Server-Sent Events</li>
+</ul>
+<hr />
 <h2>Installation</h2>
 <view-code language="bash">npm install @anzaui/engine
-# or: pnpm add @anzaui/engine / bun add @anzaui/engine
+# or: pnpm add @anzaui/engine
+# or: bun add @anzaui/engine
 </view-code>
-<h2>Quickstart (Web Standards / Fetch)</h2>
+<hr />
+<h2>Quickstart (Web Standards / Fetch API)</h2>
 <view-code language="typescript">import { Setup, Page, Fragment, htmlResponse, jsonResponse } from '@anzaui/engine';
 
 // 1. Initialize engine once at application startup
 const engine = await new Setup({
   root: './templates',
-  signing: { mode: 'hmac', secret: 'super-secret-key-32-chars-long!!' },
+  signing: {
+    mode: 'hmac',
+    secret: 'super-secret-key-32-chars-long!!',
+  },
 }).run();
 
 export default {
@@ -18,26 +33,27 @@ export default {
   async fetch(req: Request): Promise&lt;Response&gt; {
     const url = new URL(req.url);
 
-    // Full-Page SSR
+    // Mode A: Full-Page SSR with Declarative Shadow DOM
     if (url.pathname === '/') {
       const doc = await new Page('/', { title: 'TypeScript STUI' }).run(engine);
       return htmlResponse(doc);
     }
 
-    // Dynamic Signed Fragment
+    // Mode B: Dynamic Signed Fragment
     if (url.pathname === '/card') {
-      const env = await new Fragment('feed/card.html', 'feed', { title: 'Live Card' }).run(engine);
-      return jsonResponse(env);
+      const envelope = await new Fragment('feed/card.html', 'feed', { title: 'Live Card' }).run(engine);
+      return jsonResponse(envelope);
     }
 
     return new Response('Not Found', { status: 404 });
   },
 };
 </view-code>
+<hr />
 <h2>Framework Integration</h2>
 <h3>Hono</h3>
 <view-code language="typescript">import { Hono } from 'hono';
-import { Setup, htmlResponse, jsonResponse, sseEvent } from 'anza';
+import { Setup, htmlResponse, jsonResponse } from '@anzaui/engine';
 
 const engine = await new Setup({ root: './templates' }).run();
 const app = new Hono();
@@ -56,20 +72,20 @@ export default app;
 </view-code>
 <h3>Express.js</h3>
 <view-code language="typescript">import express from 'express';
-import { Setup, Page, Fragment } from 'anza';
-import { sendHtml, sendJson } from 'anza/adapters/express.js';
+import { Setup, Page, Fragment } from '@anzaui/engine';
 
 const engine = await new Setup({ root: './templates' }).run();
 const app = express();
 
 app.get('/', async (req, res) =&gt; {
   const doc = await new Page('/', { title: 'Express STUI' }).run(engine);
-  sendHtml(res, doc);
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.send(doc.html);
 });
 
 app.get('/card', async (req, res) =&gt; {
-  const env = await new Fragment('feed/card.html', 'feed', { title: 'Item' }).run(engine);
-  sendJson(res, env);
+  const env = await new Fragment('feed/card.html', 'feed', { title: 'Card' }).run(engine);
+  res.json(env);
 });
 
 app.listen(3000);

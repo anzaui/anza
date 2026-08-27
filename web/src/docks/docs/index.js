@@ -29,7 +29,17 @@ dock('docs', {
         }
 
         for (const link of links) {
-          link.classList.toggle('active', link === best);
+          const isActive = link === best;
+          link.classList.toggle('active', isActive);
+          if (isActive) {
+            const parentGroup = link.closest('details.sidebar-group');
+            if (parentGroup) parentGroup.open = true;
+          }
+        }
+
+        if (best && refs.crumbCurrent) {
+          const groupTitle = best.closest('details.sidebar-group')?.querySelector('h3')?.textContent?.trim();
+          refs.crumbCurrent.textContent = groupTitle ? `${groupTitle} / ${best.textContent.trim()}` : best.textContent.trim();
         }
       };
 
@@ -99,27 +109,28 @@ dock('docs', {
         if (shadowObserver) shadowObserver.disconnect();
       });
 
-      // 3. Intercept TOC link clicks to provide smooth scrolling into Shadow DOM
+      // 3. Intercept TOC link clicks to provide smooth scrolling within docs-content container
       on.click('.toc-list a', (event) => {
         event.preventDefault();
         const href = event.target.getAttribute('href');
         if (href && href.startsWith('#')) {
           const id = href.slice(1);
           const innerDock = el.querySelector('dock-doccontent');
-          const activePage = innerDock?.querySelector('.page-content');
+          const activePage = innerDock?.firstElementChild;
           const heading = activePage?.shadowRoot?.getElementById(id);
-          if (heading) {
-            heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          const contentEl = refs.content || el.shadowRoot.querySelector('.docs-content');
+
+          if (heading && contentEl) {
+            const headingRect = heading.getBoundingClientRect();
+            const contentRect = contentEl.getBoundingClientRect();
+            const targetTop = contentEl.scrollTop + (headingRect.top - contentRect.top) - 16;
+            contentEl.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
             history.replaceState(null, '', href);
 
             // Highlight current in TOC
             const links = refs.tocList.querySelectorAll('a');
             for (const link of links) {
-              if (link.getAttribute('href') === href) {
-                link.classList.add('active');
-              } else {
-                link.classList.remove('active');
-              }
+              link.classList.toggle('active', link.getAttribute('href') === href);
             }
           }
         }
@@ -163,7 +174,7 @@ dock('docs', {
       on.click('.sidebar-backdrop', () => setDrawer(false));
 
       on.click('.sidebar-nav a', () => {
-        if (window.innerWidth <= 600) setDrawer(false);
+        if (window.innerWidth <= 768) setDrawer(false);
       });
     }
   }
