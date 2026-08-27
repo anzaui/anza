@@ -12,7 +12,28 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [0.4.11] — 2026-07-29
+## [0.5.0] — 2026-08-27
+
+### Added
+
+- **Multi-Language STUI Template Engines** — native Server-Templated UI engines for Rust (`engines/rust`), TypeScript/JavaScript (`engines/ts`), and Python (`engines/py`) with unified cryptographic envelope protocols.
+- **Zero-Dependency Core Runtimes** — TypeScript engine built entirely on native Web Standards (`globalThis.crypto.subtle`); Python engine built 100% on Python Standard Library primitives.
+- **Open Declarative Shadow DOM (DSD)** — Mode A full-page server-side rendering emitting `<template shadowrootmode="open">` shells for instantaneous FCP/LCP paint and client custom element adoption without hydration overhead.
+- **Cryptographic Envelopes** — Mode B partial component updates signed over canonical wire payloads (`ts:slot:html`) supporting asymmetric Ed25519 (for CDN/proxy TLS termination bypass), HMAC-SHA256, and HKDF session-bound stream keys.
+- **Real-Time Streaming Protocol** — native Server-Sent Events (SSE) and WebSocket text frame encoders pushing live template fragment updates directly into client shadow roots.
+- **Universal Framework Adapters**:
+  - Rust: Axum, Actix-web, Tower Service layers.
+  - TypeScript: Web Standards Fetch `Response`, Hono, Express.js, Fastify.
+  - Python: ASGI, WSGI, FastAPI, Flask.
+- **Comprehensive mdBook Documentation Suites** — engineering-grade documentation books with live search, sitemaps, and architecture references for Rust (`engines/rust/docs`) and TypeScript (`engines/ts/docs`).
+
+### Changed
+
+- **CLI & Tools Version Sync** — bumped `tools/Cargo.toml`, `library/package.json`, and `create/package.json` to v0.5.0.
+
+### Tests
+
+- Multi-engine test suite: 22 Python tests, 8 TypeScript tests, and 6 Rust tests with 100% pass rate.
 
 ### Fixed
 

@@ -1,6 +1,6 @@
 {
   "name": "anza",
-  "version": "0.1.0",
+  "version": "0.5.0",
   "description": "Ultra-fast, zero-dependency, cryptographically verified Server-Templated UI (STUI) engine for JavaScript and TypeScript",
   "type": "module",
   "main": "./dist/src/index.js",
