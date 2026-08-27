@@ -1,63 +1,105 @@
 # Anza
 
-Anza is a modern web platform providing reactive custom elements, client-side routing, offline storage, and multi-language Server-Templated UI (STUI) engines with zero build-step overhead.
+Anza is a web UI toolkit for building fast web applications using standard browser features. It combines client-side custom elements, client-side routing, an offline cache layer, a Rust-based development and static build CLI, and server-side template engines for Rust, TypeScript, and Python.
 
-## Overview
+## Features
 
-- **Browser-Native ESM**: Direct ES module imports in the browser with native Declarative Shadow DOM adoption.
-- **Multi-Language STUI Engines**: High-performance template rendering and streaming engines for Rust, TypeScript, and Python.
-- **Cryptographic Security**: Asymmetric Ed25519 origin signing, HMAC-SHA256, and HKDF session key derivation for tamper-proof dynamic partials.
-- **Real-Time Streaming**: Atomic Server-Sent Events (SSE) and WebSocket text frame protocols.
-- **Rust Tooling**: Instant dev server with live HMR and static site generation (SSG).
+- **Standard Web Components**: Declarative custom elements with reactive state, Shadow DOM, and scoped styles.
+- **Client Routing**: Page and slot transitions with support for the browser View Transitions API.
+- **Offline & Cache**: Service worker cache management and IndexedDB data persistence.
+- **Static Generation (SSG)**: Fast HTML pre-rendering with Declarative Shadow DOM output.
+- **Server Template Engines**: Render full HTML pages and JSON envelope fragments from Rust, TypeScript, and Python backends with optional HMAC/Ed25519 payload signing.
 
-## Repository Organization
+## Installation
 
-| Path | Purpose |
-|---|---|
-| `library/` | Client-side reactive runtime, custom elements, and router (`@adukiorg/anza`). |
-| `tools/` | High-throughput Rust CLI binary (`anza`) for dev server, HMR, and SSG. |
-| `engines/rust/` | Standalone Rust STUI template and streaming engine crate. |
-| `engines/ts/` | Standalone TypeScript / JavaScript STUI engine with zero dependencies. |
-| `engines/py/` | Standalone Python STUI engine built 100% on the standard library. |
-| `docs/` | Comprehensive technical documentation and specifications. |
-| `web/` | Official documentation site source. |
-
-## Quick Start
-
-### Scaffold a New Application
+### Project Scaffolding
 
 ```bash
-npm create @adukiorg/anza my-app
-cd my-app
+npm create @adukiorg/anza my-project
+cd my-project
+npm install
 anza dev
 ```
 
-### Build Tools Locally
+### CLI Tooling (Rust)
+
+Install or compile the CLI binary:
+
+```bash
+cargo install --path tools
+```
+
+Or build locally:
 
 ```bash
 cargo build --release --manifest-path tools/Cargo.toml
 ```
 
-### Run Tests
+## CLI Usage
+
+The `anza` command provides development, build, and validation tools:
 
 ```bash
-# Core library tests
-cd library && npm test
+# Start the local development server with hot module reloading
+anza dev
 
-# Rust engine tests
-cd engines/rust && cargo test
+# Verify project conventions, route definitions, and element bindings
+anza check
 
-# TypeScript engine tests
-cd engines/ts && npm test
+# Build production bundle and pre-render static HTML pages
+anza build
 
-# Python engine tests
-cd engines/py && python3 -m unittest discover -s tests
+# Generate starter files for a new element, dock, or page
+anza generate element my-counter
+anza generate dock dashboard
+anza generate page settings
 ```
 
-## Documentation
+## Client Library Usage
 
-Full documentation is available at [https://anza.aduki.org](https://anza.aduki.org) or locally within the `docs/` directory.
+```html
+<script type="module" src="/src/app.js"></script>
+
+<!-- Slot containers update when routes or fragments change -->
+<anza-dock name="main">
+  <anza-page path="/" src="/src/pages/home/index.js"></anza-page>
+  <anza-page path="/about" src="/src/pages/about/index.js"></anza-page>
+</anza-dock>
+```
+
+```javascript
+// src/elements/my-counter/index.js
+export class MyCounter extends HTMLElement {
+  connectedCallback() {
+    this.attachShadow({ mode: 'open' });
+    this.count = 0;
+    this.render();
+  }
+
+  increment() {
+    this.count += 1;
+    this.render();
+  }
+
+  render() {
+    this.shadowRoot.innerHTML = `
+      <style>button { padding: 0.5rem 1rem; cursor: pointer; }</style>
+      <button>Count: ${this.count}</button>
+    `;
+    this.shadowRoot.querySelector('button').onclick = () => this.increment();
+  }
+}
+customElements.define('my-counter', MyCounter);
+```
+
+## Server Engines
+
+Server-side template rendering libraries are available in `engines/`:
+
+- **Rust**: `engines/rust` (`anza` crate on crates.io)
+- **TypeScript / JavaScript**: `engines/ts` (`anza` package on npm)
+- **Python**: `engines/py` (`anza` package on PyPI)
 
 ## License
 
-MIT © 2026 Anza Contributors.
+MIT © 2026 aduki, Labs

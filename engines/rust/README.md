@@ -1,27 +1,76 @@
-# Anza Rust Engine
+# Anza (Rust Engine)
 
-Anza is an ultra-lightweight, zero-copy, cryptographically verified Server-Templated UI (STUI) engine for Rust.
+A server-side template and dynamic fragment rendering library for Rust web applications.
 
-## Features
+## What It Does
 
-- **Zero-Copy Template Parsing**: Single-pass template extraction compiling HTML fragments into continuous string slices.
-- **Dual-Mode Rendering**:
-  - Mode A: Full-page SSR emitting `<template shadowrootmode="open">` Declarative Shadow DOM shells.
-  - Mode B: Dynamic JSON `Envelope` generation with cryptographic signatures.
-- **Cryptographic Security**: HMAC-SHA256, Ed25519 asymmetric origin signing, and HKDF session key derivation.
-- **Real-Time Streaming**: Native Server-Sent Events (SSE) and WebSocket packetization.
-- **Framework Adapters**: Direct Axum and Actix-web response types.
+1. **Full-Page Rendering**: Renders complete HTML documents configured with `<template shadowrootmode="open">` Declarative Shadow DOM shells.
+2. **Dynamic Fragment Envelopes**: Renders targeted HTML partials inside JSON `Envelope` payloads for partial UI updates.
+3. **Payload Verification**: Signs dynamic payloads using HMAC-SHA256 or Ed25519 so clients can verify partial updates.
+4. **Streaming**: Helpers for Server-Sent Events (SSE) and WebSocket message formats.
 
 ## Installation
 
-Add to your `Cargo.toml`:
+Add `anza` to your `Cargo.toml`:
+
+```toml
+[dependencies]
+anza = "0.5.0"
+```
+
+To enable Axum framework response helpers:
 
 ```toml
 [dependencies]
 anza = { version = "0.5.0", features = ["axum"] }
 ```
 
-## Quick Start (Axum)
+## Usage
+
+### 1. Initialize Engine
+
+```rust
+use std::sync::Arc;
+use anza::{Setup, SignOptions};
+
+let engine = Arc::new(
+    Setup::new("./templates")
+        .with_signing(SignOptions::hmac("your-secret-key-at-least-32-chars-long"))
+        .run()
+        .expect("Failed to initialize template engine")
+);
+```
+
+### 2. Render Full Pages
+
+```rust
+use anza::Page;
+
+// Renders full HTML document with parameters interpolated into slots
+let doc = Page::new("/")
+    .with_param("title", "My Web App")
+    .run(&engine)
+    .expect("Failed to render page");
+
+println!("{}", doc.html);
+```
+
+### 3. Render Signed JSON Fragments
+
+```rust
+use anza::Fragment;
+
+// Renders a specific template fragment targeting a slot
+let envelope = Fragment::new("card.html", "feed")
+    .with_param("title", "New Article")
+    .run(&engine)
+    .expect("Failed to render fragment");
+
+// envelope contains: slot, html, ts, and signature
+let json = serde_json::to_string(&envelope).unwrap();
+```
+
+### 4. Axum Integration Example
 
 ```rust
 use std::sync::Arc;
@@ -32,20 +81,20 @@ use axum::{routing::get, Router, response::{Html, Json}};
 async fn main() {
     let engine = Arc::new(
         Setup::new("./templates")
-            .with_signing(SignOptions::hmac("secret-key-32-bytes-long-12345"))
+            .with_signing(SignOptions::hmac("your-secret-key-at-least-32-chars-long"))
             .run()
-            .expect("Failed to initialize anza engine")
+            .unwrap()
     );
 
     let app = Router::new()
         .route("/", get({
             let engine = engine.clone();
             move || async move {
-                let doc = Page::new("/").with_param("title", "Rust STUI").run(&engine).unwrap();
+                let doc = Page::new("/").with_param("title", "Home").run(&engine).unwrap();
                 Html(doc.html)
             }
         }))
-        .route("/card", get({
+        .route("/api/card", get({
             let engine = engine.clone();
             move || async move {
                 let env = Fragment::new("card.html", "feed").run(&engine).unwrap();
@@ -60,4 +109,4 @@ async fn main() {
 
 ## License
 
-MIT OR Apache-2.0
+MIT © 2026 aduki, Labs

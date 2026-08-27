@@ -1,24 +1,57 @@
-# Anza Python Engine
+# Anza (Python Engine)
 
-Anza is an ultra-fast, zero-dependency, cryptographically verified Server-Templated UI (STUI) engine for Python built 100% on the Python Standard Library.
+A zero-dependency template and dynamic fragment rendering library for Python web applications.
 
-## Features
+## What It Does
 
-- **0 External Runtime Dependencies**: Standard library implementation with zero mandatory pip dependencies.
-- **Fast Slot Interpolation**: Pre-parsed template chunks with optimized string concatenation resolving parameters from dicts, dataclasses, and custom objects.
-- **Dual-Mode Rendering**: Mode A full-page Open Declarative Shadow DOM shells and Mode B signed JSON envelopes.
-- **Cryptographic Security**: HMAC-SHA256 with constant-time verification, RFC 8032 Ed25519 asymmetric origin signing, and HKDF stream key derivation.
-- **Framework Adapters**: Direct ASGI, WSGI, FastAPI, and Flask response helpers.
-- **Real-Time Streaming**: Atomic Server-Sent Events (SSE) and WebSocket frame generators.
+1. **Full-Page Rendering**: Renders full HTML pages with `<template shadowrootmode="open">` Declarative Shadow DOM shells.
+2. **Dynamic Fragment Envelopes**: Renders targeted HTML partials inside JSON `Envelope` payloads for partial UI updates.
+3. **Payload Signing**: Signs dynamic payloads with HMAC-SHA256 or Ed25519 so clients can verify partial updates.
+4. **Streaming**: Helpers for Server-Sent Events (SSE) and WebSocket message formats.
+5. **No Mandatory Dependencies**: Built entirely on the Python Standard Library.
 
 ## Installation
 
 ```bash
 pip install anza
-# or: uv add anza / poetry add anza
 ```
 
-## Quick Start (FastAPI)
+## Usage
+
+### 1. Initialize Engine
+
+```python
+from anza import Setup, SignOptions
+
+engine = Setup(
+    root="./templates",
+    signing=SignOptions(mode="hmac", secret="your-secret-key-at-least-32-chars-long"),
+).run()
+```
+
+### 2. Render Full Pages
+
+```python
+from anza import Page
+
+# Renders full HTML page with parameters interpolated into slots
+doc = Page("/", {"title": "My Application"}).run(engine)
+print(doc.html)
+```
+
+### 3. Render Signed JSON Fragments
+
+```python
+from anza import Fragment
+
+# Renders a specific template fragment targeting a slot
+envelope = Fragment("card.html", "feed", {"title": "New Post"}).run(engine)
+
+# envelope contains: slot, html, ts, and signature
+print(envelope.to_dict())
+```
+
+### 4. FastAPI Integration Example
 
 ```python
 from fastapi import FastAPI
@@ -29,15 +62,15 @@ app = FastAPI()
 
 engine = Setup(
     root="./templates",
-    signing=SignOptions(mode="hmac", secret="secret-key-32-chars-long-12345!"),
+    signing=SignOptions(mode="hmac", secret="your-secret-key-at-least-32-chars-long"),
 ).run()
 
 @app.get("/", response_class=HTMLResponse)
 def home():
-    doc = Page("/", {"title": "Python STUI"}).run(engine)
+    doc = Page("/", {"title": "Home"}).run(engine)
     return HTMLResponse(doc.html)
 
-@app.get("/card/{card_id}")
+@app.get("/api/card/{card_id}")
 def card(card_id: str):
     env = Fragment("card.html", "feed", {"id": card_id, "title": "Live Post"}).run(engine)
     return JSONResponse(env.to_dict())
@@ -45,4 +78,4 @@ def card(card_id: str):
 
 ## License
 
-MIT © 2026 Anza Contributors.
+MIT © 2026 aduki, Labs
