@@ -1,4 +1,8 @@
-# Anza (Python Engine)
+<p align="center">
+  <img src="logo.svg" width="64" height="64" alt="Anza Logo" />
+</p>
+
+<h1 align="center">Anza (Python Engine)</h1>
 
 A zero-dependency template and dynamic fragment rendering library for Python web applications.
 

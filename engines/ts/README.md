@@ -1,4 +1,8 @@
-# Anza (TypeScript / JavaScript Engine)
+<p align="center">
+  <img src="logo.svg" width="64" height="64" alt="Anza Logo" />
+</p>
+
+<h1 align="center">Anza (TypeScript Engine)</h1>
 
 A zero-dependency template and dynamic fragment rendering library for Node.js, Bun, Deno, and Edge runtimes.
 

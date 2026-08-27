@@ -37,7 +37,7 @@ See [start.md](start.md) for what gets generated and how to run `npm run dev`.
 
 ## GitHub releases (standalone binary)
 
-Each tagged release on [GitHub](https://github.com/aduki-org/anza/releases) attaches the same prebuilt CLI binaries. Use this if you want the binary on your `PATH` without installing the npm package globally.
+Each tagged release on [GitHub](https://github.com/anzaui/anza/releases) attaches the same prebuilt CLI binaries. Use this if you want the binary on your `PATH` without installing the npm package globally.
 
 | Platform | Binary |
 | -------- | ------ |
@@ -65,4 +65,4 @@ You should see the command list: `scan`, `build`, `dev`, `doctor`, `create`, and
 
 ## Building from source (contributors only)
 
-If you are developing inside the [anza repo](https://github.com/aduki-org/anza), compile the CLI locally with `node tasks/build.js`. See the repo README — this is **not** part of the normal install path for app developers.
+If you are developing inside the [anza repo](https://github.com/anzaui/anza), compile the CLI locally with `node tasks/build.js`. See the repo README — this is **not** part of the normal install path for app developers.

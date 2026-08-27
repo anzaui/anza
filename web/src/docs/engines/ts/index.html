@@ -1,11 +1,11 @@
 <h1>TypeScript &amp; JavaScript STUI Template Engine</h1>
-<p>The <strong>Anza TypeScript Engine</strong> (<code>anza</code>) is a <strong>zero-dependency</strong>, JIT-optimized template and STUI streaming engine that executes identically across <strong>Node.js</strong>, <strong>Bun</strong>, <strong>Deno</strong>, <strong>Cloudflare Workers</strong>, and <strong>Vercel Edge</strong>.</p>
+<p>The <strong>Anza TypeScript Engine</strong> (<code>@anzaui/engine</code>) is a <strong>zero-dependency</strong>, JIT-optimized template and STUI streaming engine that executes identically across <strong>Node.js</strong>, <strong>Bun</strong>, <strong>Deno</strong>, <strong>Cloudflare Workers</strong>, and <strong>Vercel Edge</strong>.</p>
 <h2>Installation</h2>
-<view-code language="bash">npm install anza
-# or: pnpm add anza / bun add anza
+<view-code language="bash">npm install @anzaui/engine
+# or: pnpm add @anzaui/engine / bun add @anzaui/engine
 </view-code>
 <h2>Quickstart (Web Standards / Fetch)</h2>
-<view-code language="typescript">import { Setup, Page, Fragment, htmlResponse, jsonResponse } from 'anza';
+<view-code language="typescript">import { Setup, Page, Fragment, htmlResponse, jsonResponse } from '@anzaui/engine';
 
 // 1. Initialize engine once at application startup
 const engine = await new Setup({

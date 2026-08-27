@@ -32,7 +32,9 @@ function shouldBypass(request) {
   return (
     path.endsWith('/template.html') ||
     path.endsWith('.tags.json') ||
-    path === '/favicon.ico'
+    path === '/favicon.ico' ||
+    path === '/favicon.svg' ||
+    path === '/logo.svg'
   );
 }
 

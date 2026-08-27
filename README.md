@@ -1,4 +1,8 @@
-# Anza
+<p align="center">
+  <img src="logo.svg" width="64" height="64" alt="Anza Logo" />
+</p>
+
+<h1 align="center">Anza</h1>
 
 Anza is a web UI toolkit for building fast web applications using standard browser features. It combines client-side custom elements, client-side routing, an offline cache layer, a Rust-based development and static build CLI, and server-side template engines for Rust, TypeScript, and Python.
 

@@ -628,12 +628,14 @@ fn render_shell(cfg: &DocsConfig, page: &Page) -> String {
     ));
   }
   format!(
-    r#"<!DOCTYPE html>
+    r##"<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title}</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="alternate icon" href="/favicon.ico" type="image/x-icon" />
 {head_extras}  <link rel="stylesheet" href="/tokens/index.css" />
   <link rel="stylesheet" href="/styles/index.css" />
   <link rel="stylesheet" href="/styles/shared.css" />
@@ -646,7 +648,22 @@ fn render_shell(cfg: &DocsConfig, page: &Page) -> String {
 <body class="{body_class}">
   <header class="docs-header">
     <div class="header-inner">
-      <a href="/docs" class="logo" aria-label="Docs home"><span class="version">{site}</span></a>
+      <a href="/" class="logo" aria-label="Anza home">
+        <div class="logo-mark">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="header-logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#1ecf4e" />
+                <stop offset="100%" stop-color="#80DBFF" />
+              </linearGradient>
+            </defs>
+            <circle cx="12" cy="12" r="10" fill="url(#header-logo-gradient)" fill-opacity="0.12" stroke="url(#header-logo-gradient)" stroke-width="1.5"></circle>
+            <path d="M9.38886 15.1629C9.89331 15.5 10.5955 15.5 12 15.5C13.4045 15.5 14.1067 15.5 14.6111 15.1629C14.8295 15.017 15.017 14.8295 15.1629 14.6111C15.5 14.1067 15.5 13.4045 15.5 12C15.5 10.5955 15.5 9.89331 15.1629 9.38886C15.017 9.17048 14.8295 8.98298 14.6111 8.83706C14.1067 8.5 13.4045 8.5 12 8.5C10.5955 8.5 9.89331 8.5 9.38886 8.83706C9.17048 8.98298 8.98298 9.17048 8.83706 9.38886C8.5 9.89331 8.5 10.5955 8.5 12C8.5 13.4045 8.5 14.1067 8.83706 14.6111C8.98298 14.8295 9.17048 15.017 9.38886 15.1629Z"
+              fill="url(#header-logo-gradient)" fill-opacity="0.12" stroke="url(#header-logo-gradient)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <span class="version">{site}</span>
+      </a>
       <nav class="header-nav" aria-label="Primary">
         <a href="/docs" class="nav-link active">Docs</a>
       </nav>
@@ -666,7 +683,7 @@ fn render_shell(cfg: &DocsConfig, page: &Page) -> String {
   </div>
 </body>
 </html>
-"#,
+"##,
     title = esc(&title),
     head_extras = head_extras,
     dock = dock,

@@ -1,4 +1,8 @@
-# Anza (Rust Engine)
+<p align="center">
+  <img src="logo.svg" width="64" height="64" alt="Anza Logo" />
+</p>
+
+<h1 align="center">Anza (Rust Engine)</h1>
 
 A server-side template and dynamic fragment rendering library for Rust web applications.
 
