@@ -8,6 +8,6 @@
     "build": "anza build"
   },
   "devDependencies": {
-    "@anzaui/anza": "^0.4.3"
+    "@anzaui/anza": "file:../library"
   }
 }
