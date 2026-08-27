@@ -1,11 +1,19 @@
 {
-  "name": "anza",
+  "name": "@anzaui/ts",
   "version": "0.5.0",
   "description": "Ultra-fast, zero-dependency, cryptographically verified Server-Templated UI (STUI) engine for JavaScript and TypeScript",
   "type": "module",
   "main": "./dist/src/index.js",
   "module": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
+  "homepage": "https://github.com/anzaui/ts#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anzaui/ts.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",

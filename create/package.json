@@ -19,6 +19,14 @@
     "starter",
     "init"
   ],
-  "author": "fescii",
+  "homepage": "https://github.com/anzaui/anza#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anzaui/anza.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "aduki, Labs",
   "license": "MIT"
 }
