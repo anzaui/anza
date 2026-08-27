@@ -2,14 +2,14 @@
 
 Application shell with header, optional sidebar, and main content slots.
 
-**Tag:** `ui-app` · **Import:** `@adukiorg/anza/elements/app`
+**Tag:** `ui-app` · **Import:** `@anzaui/anza/elements/app`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/app';
+import '@anzaui/anza/elements/app';
 ```
 
 ---

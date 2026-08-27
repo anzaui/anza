@@ -9,7 +9,7 @@ The Origin Private File System facade offloads operations to an inline Web Worke
 OPFS requires a secure context (HTTPS) and browser support for `navigator.storage.getDirectory`. Check with the platform layer:
 
 ```javascript
-import { supports } from '@adukiorg/anza/platform';
+import { supports } from '@anzaui/anza/platform';
 
 if (supports.opfs) {
   await storage.set('file', buffer, 'opfs');
@@ -21,7 +21,7 @@ if (supports.opfs) {
 ## Read and Write
 
 ```javascript
-import { storage } from '@adukiorg/anza/storage';
+import { storage } from '@anzaui/anza/storage';
 
 // Write
 const buffer = new Uint8Array([1, 2, 3]);

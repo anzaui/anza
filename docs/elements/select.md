@@ -2,14 +2,14 @@
 
 Form-participating dropdown built on the Popover API and anchor positioning.
 
-**Tag:** `ui-select` · **Import:** `@adukiorg/anza/elements/select`
+**Tag:** `ui-select` · **Import:** `@anzaui/anza/elements/select`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/select';
+import '@anzaui/anza/elements/select';
 ```
 
 ---

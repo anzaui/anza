@@ -7,7 +7,7 @@ The cryptography module delegates all operations to the browser's `SubtleCrypto`
 ## UUID
 
 ```javascript
-import { security } from '@adukiorg/anza/security';
+import { security } from '@anzaui/anza/security';
 
 const id = security.uuid();
 ```

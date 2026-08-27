@@ -2,7 +2,7 @@
 <p>Transfer an <code>HTMLCanvasElement</code> to a worker for off-main-thread rendering. The worker receives the canvas via <code>transferControlToOffscreen()</code>.</p>
 <hr />
 <h2>Transfer</h2>
-<view-code language="javascript">import { workers } from '@adukiorg/anza/workers';
+<view-code language="javascript">import { workers } from '@anzaui/anza/workers';
 
 const canvas = document.getElementById('canvas');
 const handle = await workers.offscreen(canvas, '/workers/renderer.js');
@@ -46,7 +46,7 @@ self.onmessage = (e) =&gt; {
 <hr />
 <h2>Requirements</h2>
 <p>Requires <code>OffscreenCanvas</code> and <code>transferControlToOffscreen()</code>. Check with the platform layer:</p>
-<view-code language="javascript">import { supports } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { supports } from '@anzaui/anza/platform';
 
 if (supports.offscreenCanvas) {
   const handle = await workers.offscreen(canvas, '/workers/renderer.js');

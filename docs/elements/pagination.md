@@ -2,14 +2,14 @@
 
 Prev / next pagination. Uses `page` when set; otherwise syncs with the URL `?page=` query via the router.
 
-**Tag:** `ui-pagination` · **Import:** `@adukiorg/anza/elements/pagination`
+**Tag:** `ui-pagination` · **Import:** `@anzaui/anza/elements/pagination`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/pagination';
+import '@anzaui/anza/elements/pagination';
 ```
 
 ---

@@ -7,7 +7,7 @@ Get reading and writing in five minutes.
 ## 1. Write and Read
 
 ```javascript
-import { storage } from '@adukiorg/anza/storage';
+import { storage } from '@anzaui/anza/storage';
 
 await storage.set('name', 'Alice');
 const name = await storage.get('name');
@@ -91,7 +91,7 @@ Call `configure` before the first read/write.
 ## Complete Working Example
 
 ```javascript
-import { storage } from '@adukiorg/anza/storage';
+import { storage } from '@anzaui/anza/storage';
 
 // Reconfigure for the app
 storage.configure({

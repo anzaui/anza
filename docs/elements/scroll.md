@@ -2,14 +2,14 @@
 
 Scroll viewport with optional scroll-snap.
 
-**Tag:** `ui-scroll` · **Import:** `@adukiorg/anza/elements/scroll`
+**Tag:** `ui-scroll` · **Import:** `@anzaui/anza/elements/scroll`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/scroll';
+import '@anzaui/anza/elements/scroll';
 ```
 
 ---

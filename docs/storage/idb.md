@@ -7,7 +7,7 @@ The IndexedDB adapter provides a Promise-based interface over the legacy IDBRequ
 ## Database
 
 ```javascript
-import { Database } from '@adukiorg/anza/storage';
+import { Database } from '@anzaui/anza/storage';
 
 const db = new Database('my-app', 1, [
   (db) => db.createObjectStore('users')    // v1

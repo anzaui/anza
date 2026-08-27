@@ -7,7 +7,7 @@ Cross-tab messaging via `BroadcastChannel`. Channels are reference-counted: open
 ## Send
 
 ```javascript
-import { workers } from '@adukiorg/anza/workers';
+import { workers } from '@anzaui/anza/workers';
 
 workers.broadcast('app-event', { type: 'theme-changed', value: 'dark' });
 ```

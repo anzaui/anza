@@ -15,7 +15,7 @@ Anza is a web UI toolkit for building fast web applications using standard brows
 ### Project Scaffolding
 
 ```bash
-npm create @adukiorg/anza my-project
+npm create @anzaui/anza my-project
 cd my-project
 npm install
 anza dev

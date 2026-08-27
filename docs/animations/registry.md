@@ -21,7 +21,7 @@ The animation registry stores reusable named templates. Built-in presets are reg
 ## Register a Template
 
 ```javascript
-import { animations } from '@adukiorg/anza/animations';
+import { animations } from '@anzaui/anza/animations';
 
 animations.register('bounce', [
   { transform: 'translateY(0)' },
@@ -55,7 +55,7 @@ animations.animate(el, 'bounce', { duration: 200 });
 ## Clear Templates
 
 ```javascript
-import { registry } from '@adukiorg/anza/animations';
+import { registry } from '@anzaui/anza/animations';
 
 registry.clear();
 ```
@@ -67,7 +67,7 @@ This removes all templates including built-ins. Use with caution.
 ## Direct Registry Access
 
 ```javascript
-import { registry } from '@adukiorg/anza/animations';
+import { registry } from '@anzaui/anza/animations';
 
 // Check if a template exists
 const config = registry.get('fade');

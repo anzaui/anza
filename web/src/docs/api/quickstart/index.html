@@ -2,7 +2,7 @@
 <p>Get a working request in five minutes.</p>
 <hr />
 <h2>1. Make a GET Request</h2>
-<view-code language="javascript">import { api } from '@adukiorg/anza/api';
+<view-code language="javascript">import { api } from '@anzaui/anza/api';
 
 const user = await api.get('/user/profile');
 console.log(user.name);
@@ -87,7 +87,7 @@ setTimeout(() =&gt; controller.abort(), 5000);
 </view-code>
 <hr />
 <h2>10. Handle Errors</h2>
-<view-code language="javascript">import { api } from '@adukiorg/anza/api';
+<view-code language="javascript">import { api } from '@anzaui/anza/api';
 
 try {
   await api.get('/protected');
@@ -106,7 +106,7 @@ try {
 <p>Every error is a <code>PlatformError</code> with <code>code</code>, <code>message</code>, <code>context</code>, and <code>recoverable</code>.</p>
 <hr />
 <h2>Complete Working Example</h2>
-<view-code language="javascript">import { api } from '@adukiorg/anza/api';
+<view-code language="javascript">import { api } from '@anzaui/anza/api';
 
 // Bootstrap
 api.prefix.add('default', 'https://api.example.com');

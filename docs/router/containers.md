@@ -11,7 +11,7 @@ A container is a DOM node that acts as a first-class mounting slot for routed vi
 Containers are created with `dock()`:
 
 ```javascript
-import { dock } from '@adukiorg/anza/defs';
+import { dock } from '@anzaui/anza/defs';
 
 dock('main');
 ```

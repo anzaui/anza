@@ -7,7 +7,7 @@ The sanitizer strips disallowed tags, event handler attributes, and `javascript:
 ## Basic Use
 
 ```javascript
-import { security } from '@adukiorg/anza/security';
+import { security } from '@anzaui/anza/security';
 
 const safe = String(security.sanitize('<p><script>alert(1)</script>Hello</p>'));
 // '<p>Hello</p>'

@@ -2,7 +2,7 @@
 <p>Complete reference for the workers facade and internal classes.</p>
 <hr />
 <h2>Facade</h2>
-<view-code language="javascript">import { workers } from '@adukiorg/anza/workers';
+<view-code language="javascript">import { workers } from '@anzaui/anza/workers';
 </view-code>
 <h3><code>workers.run(script, task, opts)</code></h3>
 <p>Run a task in a worker pool. Returns <code>Promise&lt;result&gt;</code>.</p>
@@ -24,7 +24,7 @@
 <p>Terminate all pools and close all broadcast channels.</p>
 <hr />
 <h2>Feature Detection</h2>
-<view-code language="javascript">import { has } from '@adukiorg/anza/workers';
+<view-code language="javascript">import { has } from '@anzaui/anza/workers';
 </view-code>
 <div class="table-wrap"><table><thead><tr><th>Flag</th><th>Detects</th></tr></thead><tbody>
 <tr><td><code>has.worker</code></td><td><code>Worker</code></td></tr>
@@ -48,7 +48,7 @@
 </view-code>
 <hr />
 <h2>Dedicated</h2>
-<view-code language="javascript">import { Dedicated } from '@adukiorg/anza/workers';
+<view-code language="javascript">import { Dedicated } from '@anzaui/anza/workers';
 
 const worker = new Dedicated('/worker.js');
 const result = await worker.run('task', { payload, signal, timeout });
@@ -56,7 +56,7 @@ worker.terminate();
 </view-code>
 <hr />
 <h2>Shared</h2>
-<view-code language="javascript">import { Shared } from '@adukiorg/anza/workers';
+<view-code language="javascript">import { Shared } from '@anzaui/anza/workers';
 
 const conn = new Shared('/worker.js', 'name');
 conn.connect();
@@ -66,7 +66,7 @@ conn.close();
 </view-code>
 <hr />
 <h2>Offscreen</h2>
-<view-code language="javascript">import { Offscreen } from '@adukiorg/anza/workers';
+<view-code language="javascript">import { Offscreen } from '@anzaui/anza/workers';
 
 const handle = new Offscreen(canvas, '/worker.js', { onError, onResize });
 await handle.open();

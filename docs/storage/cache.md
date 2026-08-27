@@ -7,7 +7,7 @@ The Cache API wrapper provides TTL support by attaching an `x-expires-at` header
 ## Basic Use
 
 ```javascript
-import { storage } from '@adukiorg/anza/storage';
+import { storage } from '@anzaui/anza/storage';
 
 // Cache a JSON response
 await storage.set('config', { theme: 'dark' }, 'cache');
@@ -33,7 +33,7 @@ Expired entries are evicted on read. The `x-expires-at` header stores the expiry
 ## Direct CacheStorage
 
 ```javascript
-import { CacheStorage } from '@adukiorg/anza/storage';
+import { CacheStorage } from '@anzaui/anza/storage';
 
 const cache = new CacheStorage('my-cache');
 

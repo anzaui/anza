@@ -1,11 +1,11 @@
 <h1>Elements</h1>
 <p>Shipped custom element kit under <code>library/src/elements/</code>. These are ready-made <code>ui-*</code> components — distinct from the <a href="/docs/ui/elements"><code>element()</code> factory docs</a>.</p>
 <p>Import one element (registers the custom element as a side effect) or the full barrel:</p>
-<view-code language="javascript">import '@adukiorg/anza/elements/button';
+<view-code language="javascript">import '@anzaui/anza/elements/button';
 // or
-import '@adukiorg/anza/elements';
+import '@anzaui/anza/elements';
 </view-code>
-<p>Paths resolve via the package import map (<code>library/importmap.json</code>): <code>@adukiorg/anza/elements/&lt;name&gt;</code> → <code>/elements/&lt;category&gt;/&lt;name&gt;/index.js</code>.</p>
+<p>Paths resolve via the package import map (<code>library/importmap.json</code>): <code>@anzaui/anza/elements/&lt;name&gt;</code> → <code>/elements/&lt;category&gt;/&lt;name&gt;/index.js</code>.</p>
 <hr />
 <h2>Categories</h2>
 <div class="table-wrap"><table><thead><tr><th>Category</th><th>Overview</th></tr></thead><tbody>
@@ -84,52 +84,52 @@ import '@adukiorg/anza/elements';
 <hr />
 <h2>Inventory</h2>
 <div class="table-wrap"><table><thead><tr><th>Category</th><th>Element</th><th>Tag</th><th>Import</th><th>Status</th></tr></thead><tbody>
-<tr><td>primitives</td><td><a href="/docs/elements/button">button</a></td><td><code>ui-button</code></td><td><code>@adukiorg/anza/elements/button</code></td><td>Full</td></tr>
-<tr><td>primitives</td><td><a href="/docs/elements/icon">icon</a></td><td><code>ui-icon</code></td><td><code>@adukiorg/anza/elements/icon</code></td><td>Full</td></tr>
-<tr><td>primitives</td><td><a href="/docs/elements/badge">badge</a></td><td><code>ui-badge</code></td><td><code>@adukiorg/anza/elements/badge</code></td><td>Full</td></tr>
-<tr><td>primitives</td><td><a href="/docs/elements/avatar">avatar</a></td><td><code>ui-avatar</code></td><td><code>@adukiorg/anza/elements/avatar</code></td><td>Full</td></tr>
-<tr><td>primitives</td><td><a href="/docs/elements/divider">divider</a></td><td><code>ui-divider</code></td><td><code>@adukiorg/anza/elements/divider</code></td><td>Full</td></tr>
-<tr><td>primitives</td><td><a href="/docs/elements/text">text</a></td><td><code>ui-text</code></td><td><code>@adukiorg/anza/elements/text</code></td><td>Full</td></tr>
-<tr><td>primitives</td><td><a href="/docs/elements/link">link</a></td><td><code>ui-link</code></td><td><code>@adukiorg/anza/elements/link</code></td><td>Full</td></tr>
-<tr><td>primitives</td><td><a href="/docs/elements/spinner">spinner</a></td><td><code>ui-spinner</code></td><td><code>@adukiorg/anza/elements/spinner</code></td><td>Full</td></tr>
-<tr><td>forms</td><td><a href="/docs/elements/input">input</a></td><td><code>ui-input</code></td><td><code>@adukiorg/anza/elements/input</code></td><td>Full</td></tr>
-<tr><td>forms</td><td><a href="/docs/elements/textarea">textarea</a></td><td><code>ui-textarea</code></td><td><code>@adukiorg/anza/elements/textarea</code></td><td>Full</td></tr>
-<tr><td>forms</td><td><a href="/docs/elements/select">select</a></td><td><code>ui-select</code></td><td><code>@adukiorg/anza/elements/select</code></td><td>Full</td></tr>
-<tr><td>forms</td><td><a href="/docs/elements/checkbox">checkbox</a></td><td><code>ui-checkbox</code></td><td><code>@adukiorg/anza/elements/checkbox</code></td><td>Full</td></tr>
-<tr><td>forms</td><td><a href="/docs/elements/radio">radio</a></td><td><code>ui-radio</code></td><td><code>@adukiorg/anza/elements/radio</code></td><td>Full</td></tr>
-<tr><td>forms</td><td><a href="/docs/elements/toggle">toggle</a></td><td><code>ui-toggle</code></td><td><code>@adukiorg/anza/elements/toggle</code></td><td>Full</td></tr>
-<tr><td>forms</td><td><a href="/docs/elements/field">field</a></td><td><code>ui-field</code></td><td><code>@adukiorg/anza/elements/field</code></td><td>Full</td></tr>
-<tr><td>forms</td><td><a href="/docs/elements/upload">upload</a></td><td><code>ui-upload</code></td><td><code>@adukiorg/anza/elements/upload</code></td><td>Full</td></tr>
-<tr><td>forms</td><td><a href="/docs/elements/form">form</a></td><td><code>ui-form</code></td><td><code>@adukiorg/anza/elements/form</code></td><td>Full</td></tr>
-<tr><td>overlay</td><td><a href="/docs/elements/dialog">dialog</a></td><td><code>ui-dialog</code></td><td><code>@adukiorg/anza/elements/dialog</code></td><td>Full</td></tr>
-<tr><td>overlay</td><td><a href="/docs/elements/popover">popover</a></td><td><code>ui-popover</code></td><td><code>@adukiorg/anza/elements/popover</code></td><td>Full</td></tr>
-<tr><td>overlay</td><td><a href="/docs/elements/tooltip">tooltip</a></td><td><code>ui-tooltip</code></td><td><code>@adukiorg/anza/elements/tooltip</code></td><td>Full</td></tr>
-<tr><td>overlay</td><td><a href="/docs/elements/menu">menu</a></td><td><code>ui-menu</code></td><td><code>@adukiorg/anza/elements/menu</code></td><td>Full</td></tr>
-<tr><td>overlay</td><td><a href="/docs/elements/drawer">drawer</a></td><td><code>ui-drawer</code></td><td><code>@adukiorg/anza/elements/drawer</code></td><td>Full</td></tr>
-<tr><td>overlay</td><td><a href="/docs/elements/sheet">sheet</a></td><td><code>ui-sheet</code></td><td><code>@adukiorg/anza/elements/sheet</code></td><td>Full</td></tr>
-<tr><td>feedback</td><td><a href="/docs/elements/alert">alert</a></td><td><code>ui-alert</code></td><td><code>@adukiorg/anza/elements/alert</code></td><td>Full</td></tr>
-<tr><td>feedback</td><td><a href="/docs/elements/toast">toast</a></td><td><code>ui-toast</code></td><td><code>@adukiorg/anza/elements/toast</code></td><td>Full</td></tr>
-<tr><td>feedback</td><td><a href="/docs/elements/progress">progress</a></td><td><code>ui-progress</code></td><td><code>@adukiorg/anza/elements/progress</code></td><td>Full</td></tr>
-<tr><td>feedback</td><td><a href="/docs/elements/skeleton">skeleton</a></td><td><code>ui-skeleton</code></td><td><code>@adukiorg/anza/elements/skeleton</code></td><td>Full</td></tr>
-<tr><td>feedback</td><td><a href="/docs/elements/empty">empty</a></td><td><code>ui-empty</code></td><td><code>@adukiorg/anza/elements/empty</code></td><td>Full</td></tr>
-<tr><td>data</td><td><a href="/docs/elements/table">table</a></td><td><code>ui-table</code></td><td><code>@adukiorg/anza/elements/table</code></td><td>Full</td></tr>
-<tr><td>data</td><td><a href="/docs/elements/list">list</a></td><td><code>ui-list</code></td><td><code>@adukiorg/anza/elements/list</code></td><td>Full</td></tr>
-<tr><td>data</td><td><a href="/docs/elements/card">card</a></td><td><code>ui-card</code></td><td><code>@adukiorg/anza/elements/card</code></td><td>Full</td></tr>
-<tr><td>data</td><td><a href="/docs/elements/chart">chart</a></td><td><code>ui-chart</code></td><td><code>@adukiorg/anza/elements/chart</code></td><td>Full</td></tr>
-<tr><td>data</td><td><a href="/docs/elements/stat">stat</a></td><td><code>ui-stat</code></td><td><code>@adukiorg/anza/elements/stat</code></td><td>Full</td></tr>
-<tr><td>navigation</td><td><a href="/docs/elements/nav">nav</a></td><td><code>ui-nav</code></td><td><code>@adukiorg/anza/elements/nav</code></td><td>Full</td></tr>
-<tr><td>navigation</td><td><a href="/docs/elements/tabs">tabs</a></td><td><code>ui-tabs</code></td><td><code>@adukiorg/anza/elements/tabs</code></td><td>Full</td></tr>
-<tr><td>navigation</td><td><a href="/docs/elements/breadcrumb">breadcrumb</a></td><td><code>ui-breadcrumb</code></td><td><code>@adukiorg/anza/elements/breadcrumb</code></td><td>Full</td></tr>
-<tr><td>navigation</td><td><a href="/docs/elements/pagination">pagination</a></td><td><code>ui-pagination</code></td><td><code>@adukiorg/anza/elements/pagination</code></td><td>Full</td></tr>
-<tr><td>navigation</td><td><a href="/docs/elements/steps">steps</a></td><td><code>ui-steps</code></td><td><code>@adukiorg/anza/elements/steps</code></td><td>Full</td></tr>
-<tr><td>layout</td><td><a href="/docs/elements/app">app</a></td><td><code>ui-app</code></td><td><code>@adukiorg/anza/elements/app</code></td><td>Full</td></tr>
-<tr><td>layout</td><td><a href="/docs/elements/header">header</a></td><td><code>ui-header</code></td><td><code>@adukiorg/anza/elements/header</code></td><td>Full</td></tr>
-<tr><td>layout</td><td><a href="/docs/elements/sidebar">sidebar</a></td><td><code>ui-sidebar</code></td><td><code>@adukiorg/anza/elements/sidebar</code></td><td>Full</td></tr>
-<tr><td>layout</td><td><a href="/docs/elements/stack">stack</a></td><td><code>ui-stack</code></td><td><code>@adukiorg/anza/elements/stack</code></td><td>Full</td></tr>
-<tr><td>layout</td><td><a href="/docs/elements/grid">grid</a></td><td><code>ui-grid</code></td><td><code>@adukiorg/anza/elements/grid</code></td><td>Full</td></tr>
-<tr><td>layout</td><td><a href="/docs/elements/split">split</a></td><td><code>ui-split</code></td><td><code>@adukiorg/anza/elements/split</code></td><td>Full</td></tr>
-<tr><td>layout</td><td><a href="/docs/elements/scroll">scroll</a></td><td><code>ui-scroll</code></td><td><code>@adukiorg/anza/elements/scroll</code></td><td>Full</td></tr>
-<tr><td>layout</td><td><a href="/docs/elements/surface">surface</a></td><td><code>ui-surface</code></td><td><code>@adukiorg/anza/elements/surface</code></td><td>Full</td></tr>
+<tr><td>primitives</td><td><a href="/docs/elements/button">button</a></td><td><code>ui-button</code></td><td><code>@anzaui/anza/elements/button</code></td><td>Full</td></tr>
+<tr><td>primitives</td><td><a href="/docs/elements/icon">icon</a></td><td><code>ui-icon</code></td><td><code>@anzaui/anza/elements/icon</code></td><td>Full</td></tr>
+<tr><td>primitives</td><td><a href="/docs/elements/badge">badge</a></td><td><code>ui-badge</code></td><td><code>@anzaui/anza/elements/badge</code></td><td>Full</td></tr>
+<tr><td>primitives</td><td><a href="/docs/elements/avatar">avatar</a></td><td><code>ui-avatar</code></td><td><code>@anzaui/anza/elements/avatar</code></td><td>Full</td></tr>
+<tr><td>primitives</td><td><a href="/docs/elements/divider">divider</a></td><td><code>ui-divider</code></td><td><code>@anzaui/anza/elements/divider</code></td><td>Full</td></tr>
+<tr><td>primitives</td><td><a href="/docs/elements/text">text</a></td><td><code>ui-text</code></td><td><code>@anzaui/anza/elements/text</code></td><td>Full</td></tr>
+<tr><td>primitives</td><td><a href="/docs/elements/link">link</a></td><td><code>ui-link</code></td><td><code>@anzaui/anza/elements/link</code></td><td>Full</td></tr>
+<tr><td>primitives</td><td><a href="/docs/elements/spinner">spinner</a></td><td><code>ui-spinner</code></td><td><code>@anzaui/anza/elements/spinner</code></td><td>Full</td></tr>
+<tr><td>forms</td><td><a href="/docs/elements/input">input</a></td><td><code>ui-input</code></td><td><code>@anzaui/anza/elements/input</code></td><td>Full</td></tr>
+<tr><td>forms</td><td><a href="/docs/elements/textarea">textarea</a></td><td><code>ui-textarea</code></td><td><code>@anzaui/anza/elements/textarea</code></td><td>Full</td></tr>
+<tr><td>forms</td><td><a href="/docs/elements/select">select</a></td><td><code>ui-select</code></td><td><code>@anzaui/anza/elements/select</code></td><td>Full</td></tr>
+<tr><td>forms</td><td><a href="/docs/elements/checkbox">checkbox</a></td><td><code>ui-checkbox</code></td><td><code>@anzaui/anza/elements/checkbox</code></td><td>Full</td></tr>
+<tr><td>forms</td><td><a href="/docs/elements/radio">radio</a></td><td><code>ui-radio</code></td><td><code>@anzaui/anza/elements/radio</code></td><td>Full</td></tr>
+<tr><td>forms</td><td><a href="/docs/elements/toggle">toggle</a></td><td><code>ui-toggle</code></td><td><code>@anzaui/anza/elements/toggle</code></td><td>Full</td></tr>
+<tr><td>forms</td><td><a href="/docs/elements/field">field</a></td><td><code>ui-field</code></td><td><code>@anzaui/anza/elements/field</code></td><td>Full</td></tr>
+<tr><td>forms</td><td><a href="/docs/elements/upload">upload</a></td><td><code>ui-upload</code></td><td><code>@anzaui/anza/elements/upload</code></td><td>Full</td></tr>
+<tr><td>forms</td><td><a href="/docs/elements/form">form</a></td><td><code>ui-form</code></td><td><code>@anzaui/anza/elements/form</code></td><td>Full</td></tr>
+<tr><td>overlay</td><td><a href="/docs/elements/dialog">dialog</a></td><td><code>ui-dialog</code></td><td><code>@anzaui/anza/elements/dialog</code></td><td>Full</td></tr>
+<tr><td>overlay</td><td><a href="/docs/elements/popover">popover</a></td><td><code>ui-popover</code></td><td><code>@anzaui/anza/elements/popover</code></td><td>Full</td></tr>
+<tr><td>overlay</td><td><a href="/docs/elements/tooltip">tooltip</a></td><td><code>ui-tooltip</code></td><td><code>@anzaui/anza/elements/tooltip</code></td><td>Full</td></tr>
+<tr><td>overlay</td><td><a href="/docs/elements/menu">menu</a></td><td><code>ui-menu</code></td><td><code>@anzaui/anza/elements/menu</code></td><td>Full</td></tr>
+<tr><td>overlay</td><td><a href="/docs/elements/drawer">drawer</a></td><td><code>ui-drawer</code></td><td><code>@anzaui/anza/elements/drawer</code></td><td>Full</td></tr>
+<tr><td>overlay</td><td><a href="/docs/elements/sheet">sheet</a></td><td><code>ui-sheet</code></td><td><code>@anzaui/anza/elements/sheet</code></td><td>Full</td></tr>
+<tr><td>feedback</td><td><a href="/docs/elements/alert">alert</a></td><td><code>ui-alert</code></td><td><code>@anzaui/anza/elements/alert</code></td><td>Full</td></tr>
+<tr><td>feedback</td><td><a href="/docs/elements/toast">toast</a></td><td><code>ui-toast</code></td><td><code>@anzaui/anza/elements/toast</code></td><td>Full</td></tr>
+<tr><td>feedback</td><td><a href="/docs/elements/progress">progress</a></td><td><code>ui-progress</code></td><td><code>@anzaui/anza/elements/progress</code></td><td>Full</td></tr>
+<tr><td>feedback</td><td><a href="/docs/elements/skeleton">skeleton</a></td><td><code>ui-skeleton</code></td><td><code>@anzaui/anza/elements/skeleton</code></td><td>Full</td></tr>
+<tr><td>feedback</td><td><a href="/docs/elements/empty">empty</a></td><td><code>ui-empty</code></td><td><code>@anzaui/anza/elements/empty</code></td><td>Full</td></tr>
+<tr><td>data</td><td><a href="/docs/elements/table">table</a></td><td><code>ui-table</code></td><td><code>@anzaui/anza/elements/table</code></td><td>Full</td></tr>
+<tr><td>data</td><td><a href="/docs/elements/list">list</a></td><td><code>ui-list</code></td><td><code>@anzaui/anza/elements/list</code></td><td>Full</td></tr>
+<tr><td>data</td><td><a href="/docs/elements/card">card</a></td><td><code>ui-card</code></td><td><code>@anzaui/anza/elements/card</code></td><td>Full</td></tr>
+<tr><td>data</td><td><a href="/docs/elements/chart">chart</a></td><td><code>ui-chart</code></td><td><code>@anzaui/anza/elements/chart</code></td><td>Full</td></tr>
+<tr><td>data</td><td><a href="/docs/elements/stat">stat</a></td><td><code>ui-stat</code></td><td><code>@anzaui/anza/elements/stat</code></td><td>Full</td></tr>
+<tr><td>navigation</td><td><a href="/docs/elements/nav">nav</a></td><td><code>ui-nav</code></td><td><code>@anzaui/anza/elements/nav</code></td><td>Full</td></tr>
+<tr><td>navigation</td><td><a href="/docs/elements/tabs">tabs</a></td><td><code>ui-tabs</code></td><td><code>@anzaui/anza/elements/tabs</code></td><td>Full</td></tr>
+<tr><td>navigation</td><td><a href="/docs/elements/breadcrumb">breadcrumb</a></td><td><code>ui-breadcrumb</code></td><td><code>@anzaui/anza/elements/breadcrumb</code></td><td>Full</td></tr>
+<tr><td>navigation</td><td><a href="/docs/elements/pagination">pagination</a></td><td><code>ui-pagination</code></td><td><code>@anzaui/anza/elements/pagination</code></td><td>Full</td></tr>
+<tr><td>navigation</td><td><a href="/docs/elements/steps">steps</a></td><td><code>ui-steps</code></td><td><code>@anzaui/anza/elements/steps</code></td><td>Full</td></tr>
+<tr><td>layout</td><td><a href="/docs/elements/app">app</a></td><td><code>ui-app</code></td><td><code>@anzaui/anza/elements/app</code></td><td>Full</td></tr>
+<tr><td>layout</td><td><a href="/docs/elements/header">header</a></td><td><code>ui-header</code></td><td><code>@anzaui/anza/elements/header</code></td><td>Full</td></tr>
+<tr><td>layout</td><td><a href="/docs/elements/sidebar">sidebar</a></td><td><code>ui-sidebar</code></td><td><code>@anzaui/anza/elements/sidebar</code></td><td>Full</td></tr>
+<tr><td>layout</td><td><a href="/docs/elements/stack">stack</a></td><td><code>ui-stack</code></td><td><code>@anzaui/anza/elements/stack</code></td><td>Full</td></tr>
+<tr><td>layout</td><td><a href="/docs/elements/grid">grid</a></td><td><code>ui-grid</code></td><td><code>@anzaui/anza/elements/grid</code></td><td>Full</td></tr>
+<tr><td>layout</td><td><a href="/docs/elements/split">split</a></td><td><code>ui-split</code></td><td><code>@anzaui/anza/elements/split</code></td><td>Full</td></tr>
+<tr><td>layout</td><td><a href="/docs/elements/scroll">scroll</a></td><td><code>ui-scroll</code></td><td><code>@anzaui/anza/elements/scroll</code></td><td>Full</td></tr>
+<tr><td>layout</td><td><a href="/docs/elements/surface">surface</a></td><td><code>ui-surface</code></td><td><code>@anzaui/anza/elements/surface</code></td><td>Full</td></tr>
 </tbody></table></div>
 <hr />
 <h2>Lifecycle / memory</h2>

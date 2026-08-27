@@ -7,7 +7,7 @@
 ## Seal
 
 ```javascript
-import { security } from '@adukiorg/anza/security';
+import { security } from '@anzaui/anza/security';
 
 const key = await security.generateKey('AES-GCM');
 const sealed = await security.seal(key, 'Secret message');

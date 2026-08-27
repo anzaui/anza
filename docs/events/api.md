@@ -7,7 +7,7 @@ Complete reference for the events facade and internal utilities.
 ## Facade
 
 ```javascript
-import { events } from '@adukiorg/anza/events';
+import { events } from '@anzaui/anza/events';
 ```
 
 ### `events.on(type, handler, signal)`
@@ -87,7 +87,7 @@ import {
   matchesAttrs,
   PASSIVE_DEFAULT_TYPES,
   resolvePassiveDefault
-} from '@adukiorg/anza/events';
+} from '@anzaui/anza/events';
 ```
 
 ### `bus`
@@ -132,7 +132,7 @@ import {
   matchesAttrs,
   PASSIVE_DEFAULT_TYPES,
   resolvePassiveDefault
-} from '@adukiorg/anza/events';
+} from '@anzaui/anza/events';
 
 const el = matchInComposedPath(event, '.btn', root, 'path'); // 'path' | 'shadow' | 'assigned'
 matchesAttrs(el, { 'data-action': 'save', 'aria-disabled': null }); // null = must be absent

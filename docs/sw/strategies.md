@@ -9,7 +9,7 @@ Seven caching strategies for intercepting `fetch` events inside a Service Worker
 Tries cache first. Falls back to network on miss. Stores the network response in cache.
 
 ```javascript
-import { CacheFirst } from '@adukiorg/anza/sw';
+import { CacheFirst } from '@anzaui/anza/sw';
 
 const strategy = new CacheFirst('shell-v1', { ttl: 3600000 });
 const response = await strategy.handle(request);
@@ -28,7 +28,7 @@ Use this for static assets: JS, CSS, fonts, images.
 Tries network first. Falls back to cache on failure or timeout.
 
 ```javascript
-import { NetworkFirst } from '@adukiorg/anza/sw';
+import { NetworkFirst } from '@anzaui/anza/sw';
 
 const strategy = new NetworkFirst('api-v1', { timeout: 4000, ttl: 60000 });
 ```
@@ -48,7 +48,7 @@ Use this for API endpoints and HTML navigation.
 Returns cache instantly. Refreshes in the background.
 
 ```javascript
-import { StaleRevalidate } from '@adukiorg/anza/sw';
+import { StaleRevalidate } from '@anzaui/anza/sw';
 
 const strategy = new StaleRevalidate('data-v1', { ttl: 300000 });
 ```
@@ -62,7 +62,7 @@ The user sees a cached response immediately. A background fetch updates the cach
 Returns cache instantly, fetches in background, and posts the update to all open tabs.
 
 ```javascript
-import { CacheThenNetwork } from '@adukiorg/anza/sw';
+import { CacheThenNetwork } from '@anzaui/anza/sw';
 
 const strategy = new CacheThenNetwork('live-v1', { ttl: 60000 });
 ```
@@ -76,7 +76,7 @@ After the background fetch completes, the SW sends a `cache-update` message to e
 Never uses cache. Direct pass-through to `fetch`.
 
 ```javascript
-import { NetworkOnly } from '@adukiorg/anza/sw';
+import { NetworkOnly } from '@anzaui/anza/sw';
 
 const strategy = new NetworkOnly();
 ```
@@ -90,7 +90,7 @@ Use this for real-time endpoints that must never be cached: analytics, live data
 Never uses network. Errors if the request is not in cache.
 
 ```javascript
-import { CacheOnly } from '@adukiorg/anza/sw';
+import { CacheOnly } from '@anzaui/anza/sw';
 
 const strategy = new CacheOnly('offline-v1');
 ```
@@ -104,7 +104,7 @@ Use this for offline-only pages that were precached during install.
 Returns a precached fallback page when a navigation request fails.
 
 ```javascript
-import { OfflineFallback } from '@adukiorg/anza/sw';
+import { OfflineFallback } from '@anzaui/anza/sw';
 
 const strategy = new OfflineFallback('/offline.html');
 ```
@@ -120,7 +120,7 @@ All strategies that cache responses accept a `ttl` option. The SW stores the res
 Expired entries are not deleted automatically. Use `pruneExpired` or `setupAutoPrune` to clean them up:
 
 ```javascript
-import { pruneExpired, setupAutoPrune } from '@adukiorg/anza/sw';
+import { pruneExpired, setupAutoPrune } from '@anzaui/anza/sw';
 
 // One-time cleanup
 await pruneExpired('shell-v1');

@@ -2,14 +2,14 @@
 
 Field wrapper that coordinates label, required marker, hint, error, and a control slot.
 
-**Tag:** `ui-field` · **Import:** `@adukiorg/anza/elements/field`
+**Tag:** `ui-field` · **Import:** `@anzaui/anza/elements/field`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/field';
+import '@anzaui/anza/elements/field';
 ```
 
 ---

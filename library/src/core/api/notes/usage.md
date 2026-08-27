@@ -9,7 +9,7 @@ The `core.api` networking layer is a baseline-native, local-first HTTP client de
 Import the client directly from the ESM entry point:
 
 ```javascript
-import { api } from '@adukiorg/anza/api';
+import { api } from '@anzaui/anza/api';
 
 // Simple GET request (automatically parses JSON)
 const profile = await api.get('/user/profile');
@@ -28,7 +28,7 @@ Prefixes let you map short names or sub-paths to base URLs exactly once at appli
 ### Registering Prefixes
 
 ```javascript
-import { api } from '@adukiorg/anza/api';
+import { api } from '@anzaui/anza/api';
 
 // Add configuration at startup
 api.prefix.add('auth', 'https://auth.example.com');

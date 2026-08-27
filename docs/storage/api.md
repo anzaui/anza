@@ -9,7 +9,7 @@ Complete reference for the storage facade and internal classes.
 ## Facade
 
 ```javascript
-import { storage } from '@adukiorg/anza/storage';
+import { storage } from '@anzaui/anza/storage';
 ```
 
 ### `storage.configure(options)`
@@ -112,7 +112,7 @@ Number (default `65536`). Values whose serialized length exceeds this may be gzi
 ## Database
 
 ```javascript
-import { Database } from '@adukiorg/anza/storage';
+import { Database } from '@anzaui/anza/storage';
 ```
 
 ### `new Database(name, version, migrations)`
@@ -136,7 +136,7 @@ Multi-store transactional callback.
 ## CacheStorage
 
 ```javascript
-import { CacheStorage } from '@adukiorg/anza/storage';
+import { CacheStorage } from '@anzaui/anza/storage';
 ```
 
 ### `new CacheStorage(name)`
@@ -162,7 +162,7 @@ TTL is stored via an `x-expires-at` header on cached responses.
 ## QuotaManager
 
 ```javascript
-import { quota } from '@adukiorg/anza/storage';
+import { quota } from '@anzaui/anza/storage';
 ```
 
 ### `quota.estimate()` / `quota.persist()` / `quota.check(onWarning)` / `quota.onQuotaWarning(handler)`

@@ -6,7 +6,7 @@
  * Source: plan.md Phase 6-A, core/state/store.js
  */
 
-import { ReactiveStore, setActiveSubscriber, getActiveSubscriber } from '@adukiorg/anza/state';
+import { ReactiveStore, setActiveSubscriber, getActiveSubscriber } from '@anzaui/anza/state';
 
 describe('Reactive State Store', () => {
   it('should initialize and get state properties successfully', () => {

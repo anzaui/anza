@@ -2,14 +2,14 @@
 
 Form orchestrator that validates form-associated children, submits JSON via the API pipeline, and can queue offline.
 
-**Tag:** `ui-form` · **Import:** `@adukiorg/anza/elements/form`
+**Tag:** `ui-form` · **Import:** `@anzaui/anza/elements/form`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/form';
+import '@anzaui/anza/elements/form';
 ```
 
 ---

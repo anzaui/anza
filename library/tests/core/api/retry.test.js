@@ -6,7 +6,7 @@
  * Source: plan.md Phase 6-A, core/api/retry.js
  */
 
-import { retry, PlatformError } from '@adukiorg/anza/api';
+import { retry, PlatformError } from '@anzaui/anza/api';
 
 describe('Fetch Retry Orchestration', () => {
   it('should immediately resolve successful operations', async () => {

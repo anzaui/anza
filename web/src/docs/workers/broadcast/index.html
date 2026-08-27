@@ -2,7 +2,7 @@
 <p>Cross-tab messaging via <code>BroadcastChannel</code>. Channels are reference-counted: opened on first subscriber, closed when the last subscriber leaves.</p>
 <hr />
 <h2>Send</h2>
-<view-code language="javascript">import { workers } from '@adukiorg/anza/workers';
+<view-code language="javascript">import { workers } from '@anzaui/anza/workers';
 
 workers.broadcast('app-event', { type: 'theme-changed', value: 'dark' });
 </view-code>

@@ -2,14 +2,14 @@
 
 Form-participating multi-line text control with ElementInternals validation and optional auto-resize.
 
-**Tag:** `ui-textarea` · **Import:** `@adukiorg/anza/elements/textarea`
+**Tag:** `ui-textarea` · **Import:** `@anzaui/anza/elements/textarea`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/textarea';
+import '@anzaui/anza/elements/textarea';
 ```
 
 ---

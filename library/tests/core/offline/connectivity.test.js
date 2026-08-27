@@ -6,7 +6,7 @@
  * Source: plan.md Phase 6-A, core/offline/connectivity.js
  */
 
-import { check, subscribe } from '@adukiorg/anza/offline';
+import { check, subscribe } from '@anzaui/anza/offline';
 
 describe('Connectivity Monitor', () => {
   let originalFetch;

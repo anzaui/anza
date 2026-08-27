@@ -2,7 +2,7 @@
 
 Normative **folder contract** for Anza apps: one spine humans learn once, optional slots, and an optional `anza.json` for remaps. Validate with `anza doctor` (soft) or `anza check` (strict CI). Sibling metaphor: [ssg/contract.md](../ssg/contract.md) is the HTML contract; this page is the **project layout** contract.
 
-Planning detail: [plans/STRUCTURE.md](../../plans/STRUCTURE.md). JSON Schema: [`@adukiorg/anza/schemas/anza.schema.json`](../../library/schemas/anza.schema.json).
+Planning detail: [plans/STRUCTURE.md](../../plans/STRUCTURE.md). JSON Schema: [`@anzaui/anza/schemas/anza.schema.json`](../../library/schemas/anza.schema.json).
 
 Tone: **one spine, many leaves** — same story as hierarchical docks.
 
@@ -27,7 +27,7 @@ Semantic required (not only path existence):
 3. Root dock (default name `main`) registered via `dock(...)` before pages that `via` it — `anza check` **warns** if missing; **errors** if a `via` name has no `dock()`.
 4. Shell uses **site-root** asset URLs (`/app.js`, `/tokens/...`, `/styles/...`) — see [ssg/contract.md](../ssg/contract.md).
 
-Apps need **no** `anza.json`. `anza create` / `npm create @adukiorg/anza` writes the default tree. Add `anza.json` only when remapping roots, declaring extra page trees, or listing additional service workers.
+Apps need **no** `anza.json`. `anza create` / `npm create @anzaui/anza` writes the default tree. Add `anza.json` only when remapping roots, declaring extra page trees, or listing additional service workers.
 
 ### Recommended (scaffold creates; tooling may warn if missing)
 
@@ -156,7 +156,7 @@ Each leaf gets `index.js` (+ `index.html` / `index.css`). Import the barrel from
 
 | File | Why it exists |
 | ---- | ------------- |
-| `package.json` | Lists `@adukiorg/anza`; exposes `npm run dev` / `npm run build` |
+| `package.json` | Lists `@anzaui/anza`; exposes `npm run dev` / `npm run build` |
 | `importmap.json` | Empty starter for user aliases; CLI merges library mappings at build |
 | `anza.json` | **Optional** structure remaps + extra page trees / SW list (scaffold omits it) |
 | `ssg.json` | Optional SSG / SEO settings (sibling until optional merge into `anza.json`) |
@@ -169,9 +169,9 @@ Each leaf gets `index.js` (+ `index.html` / `index.css`). Import the barrel from
 ### `src/app.js`
 
 ```javascript
-import '@adukiorg/anza/ui';
-import { dock } from '@adukiorg/anza/ui';
-import '@adukiorg/anza/theme';
+import '@anzaui/anza/ui';
+import { dock } from '@anzaui/anza/ui';
+import '@anzaui/anza/theme';
 
 import './docks/index.js';
 import './views/index.js';
@@ -199,7 +199,7 @@ The shell loads the import map, design tokens, global styles, and the app entry.
 ### `src/sw.js`
 
 ```javascript
-import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@adukiorg/anza/sw';
+import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@anzaui/anza/sw';
 
 const SHELL = 'shell-v2';
 const API = 'api-v2';
@@ -232,7 +232,7 @@ Pre-caches the app shell. Static assets use `CacheFirst`; API calls use `Network
 ### `src/pages/entry/index.js`
 
 ```javascript
-import { page } from '@adukiorg/anza/ui';
+import { page } from '@anzaui/anza/ui';
 
 page('/', {
   tag: 'page-welcome',
@@ -263,7 +263,7 @@ Declare extra trees in `anza.json` so tooling can hint without guessing:
 
 ```json
 {
-  "$schema": "./node_modules/@adukiorg/anza/schemas/anza.schema.json",
+  "$schema": "./node_modules/@anzaui/anza/schemas/anza.schema.json",
   "pages": ["pages", "docs"]
 }
 ```
@@ -309,7 +309,7 @@ Omit `sw` entirely → tooling looks for `src/sw.js`. Registration stays in app 
 
 ```json
 {
-  "$schema": "./node_modules/@adukiorg/anza/schemas/anza.schema.json",
+  "$schema": "./node_modules/@anzaui/anza/schemas/anza.schema.json",
   "src": "src",
   "entry": "app.js",
   "shell": "index.html",
@@ -328,7 +328,7 @@ All path values are relative to `src` except project-root files (`importmap.json
 
 ### Schema / IDE association
 
-Package export: `@adukiorg/anza/schemas/anza.schema.json`.
+Package export: `@anzaui/anza/schemas/anza.schema.json`.
 
 Point the `$schema` key in `anza.json` (as above), or teach the editor via `.vscode/settings.json`:
 
@@ -337,13 +337,13 @@ Point the `$schema` key in `anza.json` (as above), or teach the editor via `.vsc
   "json.schemas": [
     {
       "fileMatch": ["anza.json"],
-      "url": "./node_modules/@adukiorg/anza/schemas/anza.schema.json"
+      "url": "./node_modules/@anzaui/anza/schemas/anza.schema.json"
     }
   ]
 }
 ```
 
-A mergeable fragment ships as `@adukiorg/anza/schemas/vscode-json-schemas.json`.
+A mergeable fragment ships as `@anzaui/anza/schemas/vscode-json-schemas.json`.
 
 ---
 
@@ -359,7 +359,7 @@ Fix (pick one or both):
 
 ```json
 {
-  "$schema": "./node_modules/@adukiorg/anza/schemas/anza.schema.json",
+  "$schema": "./node_modules/@anzaui/anza/schemas/anza.schema.json",
   "pages": ["pages", "docs"]
 }
 ```

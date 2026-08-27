@@ -3,7 +3,7 @@
 <p><strong>vs <code>state.storage</code>:</strong> this package is the tiered KV / OPFS / Cache facade. <code>state.storage</code> (<code>PlatformStorage</code>) persists reactive-store snapshots and supports a filter-function <code>query</code>. Give each a distinct IndexedDB database name (both default to <code>platform-db</code>) — see <a href="/docs/storage/troubleshooting">troubleshooting.md</a>.</p>
 <hr />
 <h2>Facade</h2>
-<view-code language="javascript">import { storage } from '@adukiorg/anza/storage';
+<view-code language="javascript">import { storage } from '@anzaui/anza/storage';
 </view-code>
 <h3><code>storage.configure(options)</code></h3>
 <p>Reconfigure pools before first use. Returns <code>storage</code> for chaining.</p>
@@ -66,7 +66,7 @@ const ok = await storage.persisted();
 <p>Number (default <code>65536</code>). Values whose serialized length exceeds this may be gzip-compressed on IDB write when Compression Streams are available.</p>
 <hr />
 <h2>Database</h2>
-<view-code language="javascript">import { Database } from '@adukiorg/anza/storage';
+<view-code language="javascript">import { Database } from '@anzaui/anza/storage';
 </view-code>
 <h3><code>new Database(name, version, migrations)</code></h3>
 <h3><code>db.open()</code></h3>
@@ -78,7 +78,7 @@ const ok = await storage.persisted();
 <p>Multi-store transactional callback.</p>
 <hr />
 <h2>CacheStorage</h2>
-<view-code language="javascript">import { CacheStorage } from '@adukiorg/anza/storage';
+<view-code language="javascript">import { CacheStorage } from '@anzaui/anza/storage';
 </view-code>
 <h3><code>new CacheStorage(name)</code></h3>
 <h3><code>cache.get(request)</code> → <code>Promise&lt;Response | null&gt;</code></h3>
@@ -91,6 +91,6 @@ const ok = await storage.persisted();
 <h3><code>new WeakLRUCache(maxSize)</code> — values must be objects or functions</h3>
 <hr />
 <h2>QuotaManager</h2>
-<view-code language="javascript">import { quota } from '@adukiorg/anza/storage';
+<view-code language="javascript">import { quota } from '@anzaui/anza/storage';
 </view-code>
 <h3><code>quota.estimate()</code> / <code>quota.persist()</code> / <code>quota.check(onWarning)</code> / <code>quota.onQuotaWarning(handler)</code></h3>

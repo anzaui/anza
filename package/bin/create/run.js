@@ -48,9 +48,9 @@ const APP = `/**
  * Import order here is free-form. \`anza build\` rewrites static imports in
  * dist/ into usage order (library → docks → views → parts → pages).
  */
-import '@adukiorg/anza/ui';
-import { dock } from '@adukiorg/anza/ui';
-import '@adukiorg/anza/theme';
+import '@anzaui/anza/ui';
+import { dock } from '@anzaui/anza/ui';
+import '@anzaui/anza/theme';
 
 import './docks/index.js';
 import './views/index.js';
@@ -69,7 +69,7 @@ const SW = `/**
  *
  * Optional helpers live under src/sw/ (modules only — not extra registrations).
  */
-import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@adukiorg/anza/sw';
+import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@anzaui/anza/sw';
 
 const SHELL = 'shell-v2';
 const API = 'api-v2';
@@ -100,7 +100,7 @@ self.addEventListener('fetch', (e) => {
 const PAGE = `/**
  * src/pages/entry/index.js — landing page
  */
-import { page } from '@adukiorg/anza/ui';
+import { page } from '@anzaui/anza/ui';
 
 page('/', {
   tag: 'page-welcome',
@@ -243,7 +243,7 @@ export function run(target, name, library) {
       build: 'anza build',
     },
     devDependencies: {
-      '@adukiorg/anza': 'latest',
+      '@anzaui/anza': 'latest',
     }
   }, null, 2) + '\n';
 

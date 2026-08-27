@@ -1,11 +1,11 @@
-# @adukiorg/create-anza
+# @anzaui/create-anza
 
 Scaffold a new anza app with one command.
 
 ## Usage
 
 ```bash
-npm create @adukiorg/anza myapp
+npm create @anzaui/anza myapp
 cd myapp
 npm install
 npm run dev
@@ -22,14 +22,14 @@ This generates a complete project with:
 
 ## What it does
 
-`npm create @adukiorg/anza` installs this package, which resolves the installed `@adukiorg/anza` library and delegates to its scaffold logic. The library handles the actual file generation — this package is just the entry point.
+`npm create @anzaui/anza` installs this package, which resolves the installed `@anzaui/anza` library and delegates to its scaffold logic. The library handles the actual file generation — this package is just the entry point.
 
 ## Programmatic use
 
 ```javascript
-import { run } from '@adukiorg/anza/bin/create';
+import { run } from '@anzaui/anza/bin/create';
 
-run('/path/to/myapp', 'myapp', '/path/to/@adukiorg/anza');
+run('/path/to/myapp', 'myapp', '/path/to/@anzaui/anza');
 ```
 
 ## License

@@ -2,7 +2,7 @@
 <p>The API client emits telemetry events for every request. Subscribe globally for application-wide hooks, or per-request for scoped cleanup.</p>
 <hr />
 <h2>Global Listeners</h2>
-<view-code language="javascript">import { api } from '@adukiorg/anza/api';
+<view-code language="javascript">import { api } from '@anzaui/anza/api';
 
 const off = api.on('status:401', (event) =&gt; {
   redirectToLogin();

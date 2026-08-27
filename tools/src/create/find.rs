@@ -16,7 +16,7 @@ pub fn find() -> Option<PathBuf> {
 
   for mut current in candidates {
     loop {
-      let node = current.join("node_modules").join("@adukiorg").join("anza");
+      let node = current.join("node_modules").join("@anzaui").join("anza");
       if node.exists() {
         return Some(node);
       }
@@ -25,7 +25,7 @@ pub fn find() -> Option<PathBuf> {
         return Some(local);
       }
       if let Ok(text) = fs::read_to_string(current.join("package.json")) {
-        if text.contains(r#""name": "@adukiorg/anza""#) {
+        if text.contains(r#""name": "@anzaui/anza""#) {
           return Some(current);
         }
       }

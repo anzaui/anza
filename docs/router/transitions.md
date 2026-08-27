@@ -36,7 +36,7 @@ dock('content', {
 ## Document morph (`transitions.run`)
 
 ```javascript
-import { transitions } from '@adukiorg/anza/router';
+import { transitions } from '@anzaui/anza/router';
 
 await transitions.run(async () => {
   panel.replaceChildren(detail);

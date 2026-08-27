@@ -9,7 +9,7 @@ Programmatic control over the browser history stack. All methods return a `{ com
 Push a new history entry and navigate to a URL:
 
 ```javascript
-import { router } from '@adukiorg/anza/router';
+import { router } from '@anzaui/anza/router';
 
 router.navigate('/settings');
 router.navigate('/user/42');
@@ -144,8 +144,8 @@ No dock/page config is required — create apps get the default automatically. O
 **Bootstrap:** shell `index.html` links `/styles/index.css`, which includes `loading.css`, so spinner styles exist on first load before any soft-nav. Import custom loader elements only when overriding with a tag. `router.loading.ensureStyles()` is a fallback if `loading.css` is omitted.
 
 ```javascript
-import { dock, page } from '@adukiorg/anza/ui';
-import { router } from '@adukiorg/anza/router';
+import { dock, page } from '@anzaui/anza/ui';
+import { router } from '@anzaui/anza/router';
 
 // Optional — default built-in spinner works with bare dock('main')
 dock('content', {

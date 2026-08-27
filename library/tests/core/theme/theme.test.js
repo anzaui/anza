@@ -1,12 +1,12 @@
 /**
  * tests/core/theme/theme.test.js
  *
- * localStorage key + legacy migration for @adukiorg/anza/theme.
+ * localStorage key + legacy migration for @anzaui/anza/theme.
  */
 
 import { theme, migrateThemeStorage } from '../../../src/core/theme/index.js';
 
-describe('@adukiorg/anza/theme', () => {
+describe('@anzaui/anza/theme', () => {
   beforeEach(() => {
     localStorage.clear();
     delete document.documentElement.dataset.theme;

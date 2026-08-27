@@ -188,10 +188,10 @@ Check the internal state:
 console.log(router.getRoutes());
 
 // See if boot has fired
-import { ready } from '@adukiorg/anza/router';
+import { ready } from '@anzaui/anza/router';
 console.log(ready());
 
 // See the container graph
-import { get } from '@adukiorg/anza/router';
+import { get } from '@anzaui/anza/router';
 console.log(get('main'));
 ```

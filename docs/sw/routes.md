@@ -7,7 +7,7 @@ URLPattern-based routing inside the Service Worker. Matches incoming `fetch` eve
 ## Create a Router
 
 ```javascript
-import { router } from '@adukiorg/anza/sw';
+import { router } from '@anzaui/anza/sw';
 
 const r = router();
 ```

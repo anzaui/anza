@@ -7,7 +7,7 @@ Scroll-driven animations link element playback to scroll position or viewport in
 ## Scroll Timeline
 
 ```javascript
-import { animations } from '@adukiorg/anza/animations';
+import { animations } from '@anzaui/anza/animations';
 
 const timeline = animations.scroll({
   source: document.querySelector('.scroll-container'),
@@ -59,7 +59,7 @@ if (timeline.unsupported) {
 ## Platform Check
 
 ```javascript
-import { supports } from '@adukiorg/anza/platform';
+import { supports } from '@anzaui/anza/platform';
 
 if (supports.scrollTimeline) {
   // Use ScrollTimeline

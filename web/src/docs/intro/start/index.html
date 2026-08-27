@@ -2,7 +2,7 @@
 <p>Create a new Anza app and run it.</p>
 <hr />
 <h2>Scaffold</h2>
-<view-code language="bash">npm create @adukiorg/anza myapp
+<view-code language="bash">npm create @anzaui/anza myapp
 cd myapp
 npm install
 </view-code>
@@ -54,9 +54,9 @@ npx anza generate part button
 <hr />
 <h2>What Was Generated</h2>
 <h3><code>src/app.js</code></h3>
-<view-code language="javascript">import '@adukiorg/anza/ui';
-import { dock } from '@adukiorg/anza/ui';
-import '@adukiorg/anza/theme';
+<view-code language="javascript">import '@anzaui/anza/ui';
+import { dock } from '@anzaui/anza/ui';
+import '@anzaui/anza/theme';
 
 import './docks/index.js';
 import './views/index.js';
@@ -69,7 +69,7 @@ dock('main');
 </view-code>
 <p>This initializes the UI system, loads barrels, registers the Service Worker, and creates a <code>main</code> dock. Source import order is free-form — <code>anza build</code> rewrites <code>dist/</code> into usage order (library → docks → views → parts → pages).</p>
 <h3><code>src/pages/entry/index.js</code></h3>
-<view-code language="javascript">import { page } from '@adukiorg/anza/ui';
+<view-code language="javascript">import { page } from '@anzaui/anza/ui';
 
 page('/', {
   tag: 'page-welcome',
@@ -87,7 +87,7 @@ import './landing/index.js';   // or landing
 </view-code>
 <p>You can also define the route inline without a separate folder:</p>
 <view-code language="javascript">// src/pages/index.js
-import { page } from '@adukiorg/anza/ui';
+import { page } from '@anzaui/anza/ui';
 
 page('/', {
   tag: 'page-home',
@@ -98,7 +98,7 @@ page('/', {
 <hr />
 <h2>Next</h2>
 <p>Add a new page (hand-write or <code>anza generate page about</code>):</p>
-<view-code language="javascript">import { page } from '@adukiorg/anza/ui';
+<view-code language="javascript">import { page } from '@anzaui/anza/ui';
 
 page('/about', {
   tag: 'page-about',

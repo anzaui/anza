@@ -2,7 +2,7 @@
 <p>The worker pool lazily creates dedicated workers and schedules tasks by priority. It auto-scales up to a max, reclaims idle workers, and handles crashes with optional requeue.</p>
 <hr />
 <h2>Run</h2>
-<view-code language="javascript">import { workers } from '@adukiorg/anza/workers';
+<view-code language="javascript">import { workers } from '@anzaui/anza/workers';
 
 const result = await workers.run('/workers/calc.js', 'fib', {
   payload: { n: 40 }
@@ -57,7 +57,7 @@ workers.clear();
 <p>Pools auto-terminate on <code>pagehide</code>.</p>
 <hr />
 <h2>Pool Stats</h2>
-<view-code language="javascript">import { Pool } from '@adukiorg/anza/workers';
+<view-code language="javascript">import { Pool } from '@anzaui/anza/workers';
 
 const pool = new Pool('/workers/calc.js', { max: 4 });
 console.log(pool.size);    // current workers

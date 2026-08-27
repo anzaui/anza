@@ -9,7 +9,7 @@ Get a working route in five minutes.
 A `dock` is a persistent container shell. It stays in the DOM across route changes and provides the mounting point for pages.
 
 ```javascript
-import { dock } from '@adukiorg/anza/defs';
+import { dock } from '@anzaui/anza/defs';
 
 dock('main');
 ```
@@ -23,7 +23,7 @@ This registers `<dock-main>` as a custom element. When it connects, it registers
 A `page` maps a URL pattern to a custom element.
 
 ```javascript
-import { page } from '@adukiorg/anza/defs';
+import { page } from '@anzaui/anza/defs';
 
 page('/', {
   tag: 'page-home',
@@ -117,7 +117,7 @@ Paths are resolved relative to the third argument (`import.meta.url`). The nativ
 ## 7. Programmatic Navigation
 
 ```javascript
-import { router } from '@adukiorg/anza/router';
+import { router } from '@anzaui/anza/router';
 
 // Push a new history entry
 router.navigate('/settings');
@@ -152,8 +152,8 @@ Return a URL string to redirect. Return nothing (or `null`) to allow.
 
 ```javascript
 // app.js
-import { router } from '@adukiorg/anza/router';
-import { page, dock } from '@adukiorg/anza/defs';
+import { router } from '@anzaui/anza/router';
+import { page, dock } from '@anzaui/anza/defs';
 
 // Layout shell
 dock('main');

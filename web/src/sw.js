@@ -1,7 +1,7 @@
 /**
  * src/sw.js — Service Worker entry
  */
-import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@adukiorg/anza/sw';
+import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@anzaui/anza/sw';
 
 // Bump SHELL/API names when shipping path-breaking asset fixes so pruneStale
 // drops CacheFirst entries that would otherwise pin stale JS forever.

@@ -2,14 +2,14 @@
 
 Profile picture with image or initials fallback, sized via tokens and labeled for accessibility.
 
-**Tag:** `ui-avatar` · **Import:** `@adukiorg/anza/elements/avatar`
+**Tag:** `ui-avatar` · **Import:** `@anzaui/anza/elements/avatar`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/avatar';
+import '@anzaui/anza/elements/avatar';
 ```
 
 ---

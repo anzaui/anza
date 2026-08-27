@@ -152,7 +152,7 @@ fn gen_page(
     r#"/**
  * src/{tree}/{name}/index.js
  */
-import {{ page }} from '@adukiorg/anza/ui';
+import {{ page }} from '@anzaui/anza/ui';
 
 page('{route}', {{
   tag: '{tag}',
@@ -220,7 +220,7 @@ fn gen_dock(
  *
  * Fallbacks stay by reference (dock options / library built-ins) — no 404.html.
  */
-import {{ dock }} from '@adukiorg/anza/ui';
+import {{ dock }} from '@anzaui/anza/ui';
 
 dock('{name}', {{
   parent: '{parent}',
@@ -274,7 +274,7 @@ fn gen_ce(
     r#"/**
  * src/{slot}/{name}/index.js
  */
-import {{ {kind_fn} }} from '@adukiorg/anza/ui';
+import {{ {kind_fn} }} from '@anzaui/anza/ui';
 
 {kind_fn}('{tag}', {{
   template: {{ html: './index.html', css: './index.css' }}

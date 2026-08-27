@@ -2,17 +2,17 @@
 
 Transient status notification. Auto-dismisses after a duration; the `show` helper portals instances into a shared fixed container under `document.body`.
 
-**Tag:** `ui-toast` · **Import:** `@adukiorg/anza/elements/toast`
+**Tag:** `ui-toast` · **Import:** `@anzaui/anza/elements/toast`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/toast';
-import { show as showToast } from '@adukiorg/anza/elements/toast';
+import '@anzaui/anza/elements/toast';
+import { show as showToast } from '@anzaui/anza/elements/toast';
 // or from the kit barrel:
-// import { showToast } from '@adukiorg/anza/elements';
+// import { showToast } from '@anzaui/anza/elements';
 ```
 
 ---
@@ -20,8 +20,8 @@ import { show as showToast } from '@adukiorg/anza/elements/toast';
 ## Basic usage
 
 ```javascript
-import '@adukiorg/anza/elements/toast';
-import { show as showToast } from '@adukiorg/anza/elements/toast';
+import '@anzaui/anza/elements/toast';
+import { show as showToast } from '@anzaui/anza/elements/toast';
 
 showToast('Saved successfully.');
 showToast('Still working…', { duration: 5000 });

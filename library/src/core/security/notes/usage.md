@@ -5,13 +5,13 @@ The Native Security layer provides a unified, zero-dependency browser-native sec
 Import from the security entry point:
 
 ```javascript
-import { security } from '@adukiorg/anza/security';
+import { security } from '@anzaui/anza/security';
 ```
 
 Or import individual utilities directly:
 
 ```javascript
-import { uuid, hash, generateKey, encrypt, decrypt, seal, unseal, sign, verify, sanitize, permission, watchPermission } from '@adukiorg/anza/security';
+import { uuid, hash, generateKey, encrypt, decrypt, seal, unseal, sign, verify, sanitize, permission, watchPermission } from '@anzaui/anza/security';
 ```
 
 ---
@@ -38,7 +38,7 @@ import { uuid, hash, generateKey, encrypt, decrypt, seal, unseal, sign, verify, 
 `uuid()` is the centralized source of cryptographically secure UUIDs across all platform modules. Using it instead of calling `crypto.randomUUID()` directly makes the system mockable in tests.
 
 ```javascript
-import { uuid } from '@adukiorg/anza/security';
+import { uuid } from '@anzaui/anza/security';
 
 const id = uuid(); // e.g. "550e8400-e29b-41d4-a716-446655440000"
 ```
@@ -50,7 +50,7 @@ const id = uuid(); // e.g. "550e8400-e29b-41d4-a716-446655440000"
 Compute a SHA-256 (or other algorithm) digest of any data:
 
 ```javascript
-import { hash } from '@adukiorg/anza/security';
+import { hash } from '@anzaui/anza/security';
 
 // Hash a string
 const digest = await hash('my-payload');
@@ -68,7 +68,7 @@ const sha512 = await hash(buf, 'SHA-512');
 Generates a non-extractable 256-bit AES-GCM key, encrypts data with a fresh 12-byte IV, and prepends the IV to the ciphertext for portability:
 
 ```javascript
-import { generateKey, encrypt, decrypt } from '@adukiorg/anza/security';
+import { generateKey, encrypt, decrypt } from '@anzaui/anza/security';
 
 // Generate a key (non-extractable, in-memory only)
 const key = await generateKey('AES-GCM');
@@ -89,7 +89,7 @@ console.log(plain); // 'Secret message'
 `seal` and `unseal` are string-friendly wrappers over `encrypt`/`decrypt` that return and accept base64-encoded payloads. They are ideal for storing encrypted data in JSON, localStorage, or IndexedDB:
 
 ```javascript
-import { generateKey, seal, unseal } from '@adukiorg/anza/security';
+import { generateKey, seal, unseal } from '@anzaui/anza/security';
 
 const key = await generateKey('AES-GCM');
 
@@ -117,7 +117,7 @@ const plain = await unseal(key, retrieved);
 Derive an AES-GCM key from a user password and a salt using 600,000 PBKDF2 iterations (NIST-recommended):
 
 ```javascript
-import { deriveKey, encrypt, decrypt } from '@adukiorg/anza/security';
+import { deriveKey, encrypt, decrypt } from '@anzaui/anza/security';
 
 const key = await deriveKey('UserPassword!', 'unique-salt-string');
 
@@ -143,7 +143,7 @@ const key = await deriveKey('pw', 'salt', 1000); // for tests only
 ### HMAC (Symmetric Integrity)
 
 ```javascript
-import { generateKey, sign, verify } from '@adukiorg/anza/security';
+import { generateKey, sign, verify } from '@anzaui/anza/security';
 
 const key = await generateKey('HMAC', ['sign', 'verify']);
 const data = 'message to protect';
@@ -176,7 +176,7 @@ const valid = await verify(keyPair.publicKey, sig, data); // true
 `sanitize()` strips all disallowed tags, event handler attributes, and `javascript:` href links. When the browser supports the Trusted Types API, it wraps the output in a named `TrustedHTML` object (`core-sanitize` policy) to satisfy strict CSP directives:
 
 ```javascript
-import { sanitize } from '@adukiorg/anza/security';
+import { sanitize } from '@anzaui/anza/security';
 
 // Safe input passes through cleanly
 const safe = String(sanitize('<p class="note"><strong>Hello</strong></p>'));
@@ -203,7 +203,7 @@ const link = String(sanitize('<a href="javascript:void(0)">click</a>'));
 ### Query Current State
 
 ```javascript
-import { permission } from '@adukiorg/anza/security';
+import { permission } from '@anzaui/anza/security';
 
 const state = await permission('geolocation');
 // 'granted' | 'denied' | 'prompt'
@@ -216,7 +216,7 @@ Returns `'denied'` safely for any unrecognized or unsupported permission name.
 ### Watch for Changes
 
 ```javascript
-import { watchPermission } from '@adukiorg/anza/security';
+import { watchPermission } from '@anzaui/anza/security';
 
 const ctrl = new AbortController();
 
@@ -256,8 +256,8 @@ class MyLocation extends HTMLElement {
 ### Encrypting and Storing Sensitive Data
 
 ```javascript
-import { generateKey, seal, unseal } from '@adukiorg/anza/security';
-import { storage } from '@adukiorg/anza/storage';
+import { generateKey, seal, unseal } from '@anzaui/anza/security';
+import { storage } from '@anzaui/anza/storage';
 
 // Derive and persist key
 const key = await generateKey('AES-GCM');
@@ -273,7 +273,7 @@ const { token } = JSON.parse(plain);
 ### Sanitize Before Setting innerHTML
 
 ```javascript
-import { sanitize } from '@adukiorg/anza/security';
+import { sanitize } from '@anzaui/anza/security';
 
 function render(el, userHtml) {
   // TrustedHTML satisfies Trusted Types sinks

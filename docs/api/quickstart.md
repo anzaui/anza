@@ -7,7 +7,7 @@ Get a working request in five minutes.
 ## 1. Make a GET Request
 
 ```javascript
-import { api } from '@adukiorg/anza/api';
+import { api } from '@anzaui/anza/api';
 
 const user = await api.get('/user/profile');
 console.log(user.name);
@@ -138,7 +138,7 @@ setTimeout(() => controller.abort(), 5000);
 ## 10. Handle Errors
 
 ```javascript
-import { api } from '@adukiorg/anza/api';
+import { api } from '@anzaui/anza/api';
 
 try {
   await api.get('/protected');
@@ -162,7 +162,7 @@ Every error is a `PlatformError` with `code`, `message`, `context`, and `recover
 ## Complete Working Example
 
 ```javascript
-import { api } from '@adukiorg/anza/api';
+import { api } from '@anzaui/anza/api';
 
 // Bootstrap
 api.prefix.add('default', 'https://api.example.com');

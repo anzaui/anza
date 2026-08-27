@@ -7,7 +7,7 @@ Get a worker running in five minutes.
 ## 1. Run a Task in a Pool
 
 ```javascript
-import { workers } from '@adukiorg/anza/workers';
+import { workers } from '@anzaui/anza/workers';
 
 const result = await workers.run('/workers/calc.js', 'fibonacci', {
   payload: { n: 40 },
@@ -95,7 +95,7 @@ Other tabs calling `lock('db:write')` will wait until this callback completes.
 ## 6. Feature Detection
 
 ```javascript
-import { has } from '@adukiorg/anza/workers';
+import { has } from '@anzaui/anza/workers';
 
 if (has.worker)   console.log('Web Workers supported');
 if (has.shared)   console.log('SharedWorker supported');
@@ -109,7 +109,7 @@ if (has.offscreen) console.log('OffscreenCanvas supported');
 ## Complete Working Example
 
 ```javascript
-import { workers } from '@adukiorg/anza/workers';
+import { workers } from '@anzaui/anza/workers';
 
 // Process data in background
 async function processChunk(data) {

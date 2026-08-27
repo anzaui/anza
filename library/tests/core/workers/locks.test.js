@@ -5,7 +5,7 @@
  * Source: plan.md Phase 6 — Test Matrix
  */
 
-import { lock } from '@adukiorg/anza/workers';
+import { lock } from '@anzaui/anza/workers';
 
 describe('Web Locks Synchronization', () => {
 

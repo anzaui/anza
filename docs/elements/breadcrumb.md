@@ -2,14 +2,14 @@
 
 Accessible breadcrumb trail (`nav` + ordered list). Dividers between items come from CSS.
 
-**Tag:** `ui-breadcrumb` · **Import:** `@adukiorg/anza/elements/breadcrumb`
+**Tag:** `ui-breadcrumb` · **Import:** `@anzaui/anza/elements/breadcrumb`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/breadcrumb';
+import '@anzaui/anza/elements/breadcrumb';
 ```
 
 ---

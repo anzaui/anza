@@ -21,7 +21,7 @@ data: {"slot":"feed","ts":1724771200,"html":"<article>Live Update</article>","si
 The browser client verifies the signature and swaps the content seamlessly:
 
 ```javascript
-import { listenStream } from '@adukiorg/anza/ui';
+import { listenStream } from '@anzaui/anza/ui';
 
 // Connect to real-time feed
 const eventSource = new EventSource('/feed/stream');

@@ -5,9 +5,9 @@
  * Each `export ... from` re-export registers the element as a side-effect
  * AND exports the class reference directly — no customElements.get() needed.
  *
- * Import the full kit:     import '@adukiorg/anza/elements';
- * Import one element:      import '@adukiorg/anza/elements/button';
- * Import specific class:   import { Button } from '@adukiorg/anza/elements';
+ * Import the full kit:     import '@anzaui/anza/elements';
+ * Import one element:      import '@anzaui/anza/elements/button';
+ * Import specific class:   import { Button } from '@anzaui/anza/elements';
  */
 
 // 1. Primitives

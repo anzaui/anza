@@ -7,7 +7,7 @@ The quota manager wraps the browser StorageManager API, providing storage estima
 ## Estimate
 
 ```javascript
-import { quota } from '@adukiorg/anza/storage';
+import { quota } from '@anzaui/anza/storage';
 
 const { usage, quota } = await quota.estimate();
 console.log(`Using ${usage} of ${quota} bytes`);
@@ -63,7 +63,7 @@ The storage facade calls `quota.check()` before every write. If over 80%, it tri
 Check support before calling:
 
 ```javascript
-import { supports } from '@adukiorg/anza/platform';
+import { supports } from '@anzaui/anza/platform';
 
 if (supports.storageManager) {
   const est = await quota.estimate();

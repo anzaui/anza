@@ -15,7 +15,7 @@ self.onmessage = (e) =&gt; {
 <h2>Shared worker not sharing</h2>
 <p><strong>Cause:</strong> <code>SharedWorker</code> unavailable, so fallback to dedicated is used. Dedicated workers do not share state across tabs.</p>
 <p><strong>Fix:</strong> Check <code>has.shared</code>:</p>
-<view-code language="javascript">import { has } from '@adukiorg/anza/workers';
+<view-code language="javascript">import { has } from '@anzaui/anza/workers';
 
 if (!has.shared) {
   console.warn('SharedWorker not supported — using dedicated fallback');
@@ -46,7 +46,7 @@ workers.broadcast('channel', data); // subscriber receives this
 <h2>OffscreenCanvas fails</h2>
 <p><strong>Cause:</strong> Not supported, or canvas already has a context.</p>
 <p><strong>Fix:</strong> Check support and ensure no 2d/webgl context was created on the main thread:</p>
-<view-code language="javascript">import { supports } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { supports } from '@anzaui/anza/platform';
 
 if (supports.offscreenCanvas) {
   // Must transfer BEFORE getting context
@@ -75,7 +75,7 @@ if (supports.offscreenCanvas) {
 <hr />
 <h2>Still stuck?</h2>
 <p>Check feature support:</p>
-<view-code language="javascript">import { has } from '@adukiorg/anza/workers';
+<view-code language="javascript">import { has } from '@anzaui/anza/workers';
 console.log(has);
 
 // Inspect pool state

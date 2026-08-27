@@ -1,6 +1,6 @@
 <h1>Structure</h1>
 <p>Normative <strong>folder contract</strong> for Anza apps: one spine humans learn once, optional slots, and an optional <code>anza.json</code> for remaps. Validate with <code>anza doctor</code> (soft) or <code>anza check</code> (strict CI). Sibling metaphor: <a href="/docs/ssg/contract">ssg/contract.md</a> is the HTML contract; this page is the <strong>project layout</strong> contract.</p>
-<p>Planning detail: <a href="../../plans/STRUCTURE.md">plans/STRUCTURE.md</a>. JSON Schema: <a href="../../library/schemas/anza.schema.json"><code>@adukiorg/anza/schemas/anza.schema.json</code></a>.</p>
+<p>Planning detail: <a href="../../plans/STRUCTURE.md">plans/STRUCTURE.md</a>. JSON Schema: <a href="../../library/schemas/anza.schema.json"><code>@anzaui/anza/schemas/anza.schema.json</code></a>.</p>
 <p>Tone: <strong>one spine, many leaves</strong> — same story as hierarchical docks.</p>
 <p><strong>This page is the single source of truth</strong> for “what must exist on disk?” — start at <a href="#what-must-exist">What must exist</a>, then optional slots and <a href="#troubleshooting">Troubleshooting</a>.</p>
 <hr />
@@ -19,7 +19,7 @@
 <li>Root dock (default name <code>main</code>) registered via <code>dock(...)</code> before pages that <code>via</code> it — <code>anza check</code> <strong>warns</strong> if missing; <strong>errors</strong> if a <code>via</code> name has no <code>dock()</code>.</li>
 <li>Shell uses <strong>site-root</strong> asset URLs (<code>/app.js</code>, <code>/tokens/...</code>, <code>/styles/...</code>) — see <a href="/docs/ssg/contract">ssg/contract.md</a>.</li>
 </ol>
-<p>Apps need <strong>no</strong> <code>anza.json</code>. <code>anza create</code> / <code>npm create @adukiorg/anza</code> writes the default tree. Add <code>anza.json</code> only when remapping roots, declaring extra page trees, or listing additional service workers.</p>
+<p>Apps need <strong>no</strong> <code>anza.json</code>. <code>anza create</code> / <code>npm create @anzaui/anza</code> writes the default tree. Add <code>anza.json</code> only when remapping roots, declaring extra page trees, or listing additional service workers.</p>
 <h3>Recommended (scaffold creates; tooling may warn if missing)</h3>
 <div class="table-wrap"><table><thead><tr><th>Slot</th><th>Path</th><th>Notes</th></tr></thead><tbody>
 <tr><td>Pages barrel</td><td><code>src/pages/index.js</code></td><td>Imports page folders; not the only allowed page tree</td></tr>
@@ -111,7 +111,7 @@ anza generate part button
 <hr />
 <h2>Root files</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>Why it exists</th></tr></thead><tbody>
-<tr><td><code>package.json</code></td><td>Lists <code>@adukiorg/anza</code>; exposes <code>npm run dev</code> / <code>npm run build</code></td></tr>
+<tr><td><code>package.json</code></td><td>Lists <code>@anzaui/anza</code>; exposes <code>npm run dev</code> / <code>npm run build</code></td></tr>
 <tr><td><code>importmap.json</code></td><td>Empty starter for user aliases; CLI merges library mappings at build</td></tr>
 <tr><td><code>anza.json</code></td><td><strong>Optional</strong> structure remaps + extra page trees / SW list (scaffold omits it)</td></tr>
 <tr><td><code>ssg.json</code></td><td>Optional SSG / SEO settings (sibling until optional merge into <code>anza.json</code>)</td></tr>
@@ -120,9 +120,9 @@ anza generate part button
 <hr />
 <h2>What the scaffold generates</h2>
 <h3><code>src/app.js</code></h3>
-<view-code language="javascript">import '@adukiorg/anza/ui';
-import { dock } from '@adukiorg/anza/ui';
-import '@adukiorg/anza/theme';
+<view-code language="javascript">import '@anzaui/anza/ui';
+import { dock } from '@anzaui/anza/ui';
+import '@anzaui/anza/theme';
 
 import './docks/index.js';
 import './views/index.js';
@@ -142,7 +142,7 @@ dock('main');
 </view-code>
 <p>The shell loads the import map, design tokens, global styles, and the app entry. The CLI injects the HMR script in dev mode.</p>
 <h3><code>src/sw.js</code></h3>
-<view-code language="javascript">import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@adukiorg/anza/sw';
+<view-code language="javascript">import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@anzaui/anza/sw';
 
 const SHELL = 'shell-v2';
 const API = 'api-v2';
@@ -171,7 +171,7 @@ self.addEventListener('fetch', (e) =&gt; {
 </view-code>
 <p>Pre-caches the app shell. Static assets use <code>CacheFirst</code>; API calls use <code>NetworkFirst</code> with a 3-second timeout. Bump <code>SHELL</code> / <code>API</code> when shipping path-breaking asset URL changes. See <a href="/docs/sw/start">sw/start.md</a>.</p>
 <h3><code>src/pages/entry/index.js</code></h3>
-<view-code language="javascript">import { page } from '@adukiorg/anza/ui';
+<view-code language="javascript">import { page } from '@anzaui/anza/ui';
 
 page('/', {
   tag: 'page-welcome',
@@ -190,7 +190,7 @@ page('/', {
 <p>Pages are <strong>not</strong> required to live only under <code>src/pages/</code>. The docs site uses <code>src/pages/</code> <strong>and</strong> <code>src/docs/</code> (~197 page folders) imported from barrels. That is a blessed escape hatch.</p>
 <p>Declare extra trees in <code>anza.json</code> so tooling can hint without guessing:</p>
 <view-code language="json">{
-  "$schema": "./node_modules/@adukiorg/anza/schemas/anza.schema.json",
+  "$schema": "./node_modules/@anzaui/anza/schemas/anza.schema.json",
   "pages": ["pages", "docs"]
 }
 </view-code>
@@ -219,7 +219,7 @@ page('/', {
 <hr />
 <h2>Optional <code>anza.json</code></h2>
 <view-code language="json">{
-  "$schema": "./node_modules/@adukiorg/anza/schemas/anza.schema.json",
+  "$schema": "./node_modules/@anzaui/anza/schemas/anza.schema.json",
   "src": "src",
   "entry": "app.js",
   "shell": "index.html",
@@ -235,18 +235,18 @@ page('/', {
 </view-code>
 <p>All path values are relative to <code>src</code> except project-root files (<code>importmap.json</code>, <code>ssg.json</code>). Omit keys to keep defaults. Schema: <a href="../../library/schemas/anza.schema.json"><code>library/schemas/anza.schema.json</code></a>.</p>
 <h3>Schema / IDE association</h3>
-<p>Package export: <code>@adukiorg/anza/schemas/anza.schema.json</code>.</p>
+<p>Package export: <code>@anzaui/anza/schemas/anza.schema.json</code>.</p>
 <p>Point the <code>$schema</code> key in <code>anza.json</code> (as above), or teach the editor via <code>.vscode/settings.json</code>:</p>
 <view-code language="json">{
   "json.schemas": [
     {
       "fileMatch": ["anza.json"],
-      "url": "./node_modules/@adukiorg/anza/schemas/anza.schema.json"
+      "url": "./node_modules/@anzaui/anza/schemas/anza.schema.json"
     }
   ]
 }
 </view-code>
-<p>A mergeable fragment ships as <code>@adukiorg/anza/schemas/vscode-json-schemas.json</code>.</p>
+<p>A mergeable fragment ships as <code>@anzaui/anza/schemas/vscode-json-schemas.json</code>.</p>
 <hr />
 <h2>Troubleshooting</h2>
 <h3>Moved pages out of <code>src/pages/</code></h3>
@@ -256,7 +256,7 @@ page('/', {
 <li><strong>Declare the tree</strong> in <code>anza.json</code>:</li>
 </ol>
 <view-code language="json">{
-  "$schema": "./node_modules/@adukiorg/anza/schemas/anza.schema.json",
+  "$schema": "./node_modules/@anzaui/anza/schemas/anza.schema.json",
   "pages": ["pages", "docs"]
 }
 </view-code>

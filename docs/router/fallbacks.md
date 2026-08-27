@@ -49,7 +49,7 @@ Escape hatches (`router.notFound(fn)`, `router.pages.onError(fn)`) may return `f
 ## Simple: bare docks (library defaults)
 
 ```javascript
-import { dock, page } from '@adukiorg/anza/ui';
+import { dock, page } from '@anzaui/anza/ui';
 
 dock('main');
 dock('docs', { parent: 'main', template: '<aside></aside><slot></slot>' });
@@ -69,8 +69,8 @@ Unmatched `/docs/…`: resolver mounts the shared built-in 404 into **content**;
 ## Advanced: branded override (dock / page scoped)
 
 ```javascript
-import { view, dock, page } from '@adukiorg/anza/ui';
-import { router } from '@adukiorg/anza/router';
+import { view, dock, page } from '@anzaui/anza/ui';
+import { router } from '@anzaui/anza/router';
 
 view('page-docs-not-found', {
   template: { html: './docs-404.html' }
@@ -134,7 +134,7 @@ Still mounts into the **leaf** dock of the active chain — not a document-level
 ## API surface
 
 ```javascript
-import { router } from '@adukiorg/anza/router';
+import { router } from '@anzaui/anza/router';
 
 // App-level overrides (step 3 of the ladder)
 const dispose = router.pages.configure({

@@ -7,7 +7,7 @@ Standard `fetch` does not expose upload progress in baseline browsers. The API c
 ## Basic Upload
 
 ```javascript
-import { api } from '@adukiorg/anza/api';
+import { api } from '@anzaui/anza/api';
 
 const form = new FormData();
 form.append('file', fileBlob);

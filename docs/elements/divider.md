@@ -2,14 +2,14 @@
 
 Separating line with orientation and spacing token integration.
 
-**Tag:** `ui-divider` · **Import:** `@adukiorg/anza/elements/divider`
+**Tag:** `ui-divider` · **Import:** `@anzaui/anza/elements/divider`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/divider';
+import '@anzaui/anza/elements/divider';
 ```
 
 ---

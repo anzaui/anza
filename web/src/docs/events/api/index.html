@@ -2,7 +2,7 @@
 <p>Complete reference for the events facade and internal utilities.</p>
 <hr />
 <h2>Facade</h2>
-<view-code language="javascript">import { events } from '@adukiorg/anza/events';
+<view-code language="javascript">import { events } from '@anzaui/anza/events';
 </view-code>
 <h3><code>events.on(type, handler, signal)</code></h3>
 <p>Subscribe to the global event bus. Returns a disposer.</p>
@@ -54,7 +54,7 @@ events.names.sw.message          // 'sw:message'
   matchesAttrs,
   PASSIVE_DEFAULT_TYPES,
   resolvePassiveDefault
-} from '@adukiorg/anza/events';
+} from '@anzaui/anza/events';
 </view-code>
 <h3><code>bus</code></h3>
 <p>Global <code>EventBus</code> instance.</p>
@@ -80,7 +80,7 @@ myBus.emit('event', detail);
   matchesAttrs,
   PASSIVE_DEFAULT_TYPES,
   resolvePassiveDefault
-} from '@adukiorg/anza/events';
+} from '@anzaui/anza/events';
 
 const el = matchInComposedPath(event, '.btn', root, 'path'); // 'path' | 'shadow' | 'assigned'
 matchesAttrs(el, { 'data-action': 'save', 'aria-disabled': null }); // null = must be absent

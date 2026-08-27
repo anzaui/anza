@@ -7,7 +7,7 @@ Safe wrappers around browser observer APIs. Each observer is automatically disco
 ## resize
 
 ```javascript
-import { observe } from '@adukiorg/anza/ui';
+import { observe } from '@anzaui/anza/ui';
 
 view('responsive-box', {
   on: {
@@ -71,7 +71,7 @@ view('live-list', {
 ### Advanced
 
 ```javascript
-import { observe } from '@adukiorg/anza/ui';
+import { observe } from '@anzaui/anza/ui';
 
 // Narrow attribute watch — always pass attributeFilter when attributes: true
 observe.mutation(panel, (records) => {

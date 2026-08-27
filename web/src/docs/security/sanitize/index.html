@@ -2,7 +2,7 @@
 <p>The sanitizer strips disallowed tags, event handler attributes, and <code>javascript:</code> scheme links from HTML. When Trusted Types is available, it wraps the output in a <code>TrustedHTML</code> object.</p>
 <hr />
 <h2>Basic Use</h2>
-<view-code language="javascript">import { security } from '@adukiorg/anza/security';
+<view-code language="javascript">import { security } from '@anzaui/anza/security';
 
 const safe = String(security.sanitize('&lt;p&gt;&lt;script&gt;alert(1)&lt;/script&gt;Hello&lt;/p&gt;'));
 // '&lt;p&gt;Hello&lt;/p&gt;'

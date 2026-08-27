@@ -7,7 +7,7 @@ Create a new Anza app and run it.
 ## Scaffold
 
 ```bash
-npm create @adukiorg/anza myapp
+npm create @anzaui/anza myapp
 cd myapp
 npm install
 ```
@@ -82,9 +82,9 @@ Flags: `--tree`, `--route`, `--via`, `--parent`, `-s/--src`. Docks are created *
 ### `src/app.js`
 
 ```javascript
-import '@adukiorg/anza/ui';
-import { dock } from '@adukiorg/anza/ui';
-import '@adukiorg/anza/theme';
+import '@anzaui/anza/ui';
+import { dock } from '@anzaui/anza/ui';
+import '@anzaui/anza/theme';
 
 import './docks/index.js';
 import './views/index.js';
@@ -101,7 +101,7 @@ This initializes the UI system, loads barrels, registers the Service Worker, and
 ### `src/pages/entry/index.js`
 
 ```javascript
-import { page } from '@adukiorg/anza/ui';
+import { page } from '@anzaui/anza/ui';
 
 page('/', {
   tag: 'page-welcome',
@@ -127,7 +127,7 @@ You can also define the route inline without a separate folder:
 
 ```javascript
 // src/pages/index.js
-import { page } from '@adukiorg/anza/ui';
+import { page } from '@anzaui/anza/ui';
 
 page('/', {
   tag: 'page-home',
@@ -143,7 +143,7 @@ page('/', {
 Add a new page (hand-write or `anza generate page about`):
 
 ```javascript
-import { page } from '@adukiorg/anza/ui';
+import { page } from '@anzaui/anza/ui';
 
 page('/about', {
   tag: 'page-about',

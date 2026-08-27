@@ -1,32 +1,32 @@
 # Install
 
-Install `@adukiorg/anza` from npm. The package ships the library, TypeScript types, and a **prebuilt** `anza` CLI binary for your platform — no Rust toolchain required.
+Install `@anzaui/anza` from npm. The package ships the library, TypeScript types, and a **prebuilt** `anza` CLI binary for your platform — no Rust toolchain required.
 
 ---
 
 ## npm (recommended)
 
 ```bash
-npm install @adukiorg/anza
+npm install @anzaui/anza
 ```
 
 This installs:
 
-- Library source and type declarations under `@adukiorg/anza/*`
+- Library source and type declarations under `@anzaui/anza/*`
 - The `anza` command — a Node wrapper that spawns the correct prebuilt Rust binary for your OS and CPU
 
-The package is on [npm](https://www.npmjs.com/package/@adukiorg/anza). Each version bundles platform binaries under `node_modules/@adukiorg/anza/bin/anza/` (linux, macOS, and Windows — x64 and arm64).
+The package is on [npm](https://www.npmjs.com/package/@anzaui/anza). Each version bundles platform binaries under `node_modules/@anzaui/anza/bin/anza/` (linux, macOS, and Windows — x64 and arm64).
 
-In a project with `@adukiorg/anza` as a dependency, run the CLI via `npx anza` or an npm script (see [start.md](start.md)).
+In a project with `@anzaui/anza` as a dependency, run the CLI via `npx anza` or an npm script (see [start.md](start.md)).
 
 ---
 
 ## New projects
 
-Scaffold an app with the create package — it adds `@adukiorg/anza` as a dependency automatically:
+Scaffold an app with the create package — it adds `@anzaui/anza` as a dependency automatically:
 
 ```bash
-npm create @adukiorg/anza myapp
+npm create @anzaui/anza myapp
 cd myapp
 npm install
 ```
@@ -47,7 +47,7 @@ Each tagged release on [GitHub](https://github.com/aduki-org/anza/releases) atta
 | macOS arm64 | `anza-macos-arm64` |
 | Windows x64 | `anza-windows-x64.exe` |
 
-Download the file for your platform, make it executable on Unix (`chmod +x anza-linux-x64`), rename or symlink to `anza`, and put it on your `PATH`. You still need `@adukiorg/anza` in your project for library imports.
+Download the file for your platform, make it executable on Unix (`chmod +x anza-linux-x64`), rename or symlink to `anza`, and put it on your `PATH`. You still need `@anzaui/anza` in your project for library imports.
 
 There is no curl install script — use npm or download from GitHub releases.
 

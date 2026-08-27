@@ -32,7 +32,7 @@ class PlatformError extends Error {
 ## Handling Errors
 
 ```javascript
-import { api } from '@adukiorg/anza/api';
+import { api } from '@anzaui/anza/api';
 
 try {
   await api.get('/user/profile');
@@ -75,7 +75,7 @@ await api.get('/critical', { retries: 5 });
 For advanced cases, use the `retry` utility directly:
 
 ```javascript
-import { retry } from '@adukiorg/anza/api';
+import { retry } from '@anzaui/anza/api';
 
 const result = await retry(
   () => api.get('/unstable'),

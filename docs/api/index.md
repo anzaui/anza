@@ -23,7 +23,7 @@ It is designed for production: transient network failures self-heal, caches inva
 ## Package
 
 ```javascript
-import { api } from '@adukiorg/anza/api';
+import { api } from '@anzaui/anza/api';
 ```
 
 ---
@@ -50,7 +50,7 @@ import { api } from '@adukiorg/anza/api';
 ## One-File Example
 
 ```javascript
-import { api } from '@adukiorg/anza/api';
+import { api } from '@anzaui/anza/api';
 
 // Register a prefix once at bootstrap
 api.prefix.add('default', 'https://api.example.com');

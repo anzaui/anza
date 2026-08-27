@@ -2,14 +2,14 @@
 
 Accessible SVG sprite icon with size tokens, name/href targets, and ARIA decoration.
 
-**Tag:** `ui-icon` · **Import:** `@adukiorg/anza/elements/icon`
+**Tag:** `ui-icon` · **Import:** `@anzaui/anza/elements/icon`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/icon';
+import '@anzaui/anza/elements/icon';
 ```
 
 ---

@@ -4,7 +4,7 @@
  * Unit and integration tests for transaction-aware PlatformStorage.
  */
 
-import { storage, PlatformStorage } from '@adukiorg/anza/state';
+import { storage, PlatformStorage } from '@anzaui/anza/state';
 
 describe('Platform Storage Persistence', () => {
   let storeName = 'test-store';

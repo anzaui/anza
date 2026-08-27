@@ -1,4 +1,4 @@
-import { page } from '@adukiorg/anza/ui';
+import { page } from '@anzaui/anza/ui';
 
 page('/docs/events/api', {
   tag: 'doc-events-api',

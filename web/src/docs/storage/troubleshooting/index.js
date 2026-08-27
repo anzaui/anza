@@ -1,4 +1,4 @@
-import { page } from '@adukiorg/anza/ui';
+import { page } from '@anzaui/anza/ui';
 
 page('/docs/storage/troubleshooting', {
   tag: 'doc-storage-troubleshooting',

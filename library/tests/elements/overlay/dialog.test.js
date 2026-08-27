@@ -6,7 +6,7 @@
  * Source: plan.md Phase 6-A, elements/overlay/dialog.js
  */
 
-import '@adukiorg/anza/elements/dialog';
+import '@anzaui/anza/elements/dialog';
 
 describe('<ui-dialog> Modal Element', () => {
   let dialog;

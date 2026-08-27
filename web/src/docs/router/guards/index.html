@@ -7,7 +7,7 @@
 <hr />
 <h2>Global Guards</h2>
 <p>Register a guard that runs on every navigation:</p>
-<view-code language="javascript">import { router } from '@adukiorg/anza/router';
+<view-code language="javascript">import { router } from '@anzaui/anza/router';
 
 const dispose = router.guard(async (destination, controller) =&gt; {
   if (destination.url.pathname.startsWith('/admin') &amp;&amp; !isAdmin()) {

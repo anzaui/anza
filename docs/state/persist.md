@@ -2,16 +2,16 @@
 
 `PlatformStorage` provides transactional IndexedDB persistence for reactive state. It supports schema migrations, TTL-based expiry, and automatic eviction when storage quota exceeds 80%.
 
-This is **not** the tiered `@adukiorg/anza/storage` facade. Prefer `state.storage` for hydrating `state.create` stores; use the storage package for general KV, OPFS, and Cache API. Give each a distinct DB name if both are open (see [storage/troubleshooting.md](../storage/troubleshooting.md)).
+This is **not** the tiered `@anzaui/anza/storage` facade. Prefer `state.storage` for hydrating `state.create` stores; use the storage package for general KV, OPFS, and Cache API. Give each a distinct DB name if both are open (see [storage/troubleshooting.md](../storage/troubleshooting.md)).
 
 ---
 
 ## Bridge pattern
 
-Hydrate a store from IndexedDB, then persist on change. Prefer this over inventing a second persistence layer with `@adukiorg/anza/storage` for the same keys.
+Hydrate a store from IndexedDB, then persist on change. Prefer this over inventing a second persistence layer with `@anzaui/anza/storage` for the same keys.
 
 ```javascript
-import { state } from '@adukiorg/anza/state';
+import { state } from '@anzaui/anza/state';
 
 const store = state.create({ user: null });
 
@@ -30,7 +30,7 @@ The important split is:
 | Concern | Prefer |
 | ------- | ------ |
 | Reactive store snapshots keyed by object store + record key | `state.storage` |
-| General KV, blobs, OPFS, Cache API, tier selection | `@adukiorg/anza/storage` |
+| General KV, blobs, OPFS, Cache API, tier selection | `@anzaui/anza/storage` |
 
 Mixing both is fine, but treat them as separate persistence systems with separate database names.
 
@@ -39,7 +39,7 @@ Mixing both is fine, but treat them as separate persistence systems with separat
 ## Basic Use
 
 ```javascript
-import { state } from '@adukiorg/anza/state';
+import { state } from '@anzaui/anza/state';
 
 // Write
 await state.storage.set('keyval', 'user', { name: 'Alice' });
@@ -124,7 +124,7 @@ Eviction only applies to wrapped records in the store being written. If you want
 
 ## Query (filter function)
 
-Unlike `@adukiorg/anza/storage` cursor `query`, `state.storage.query` takes a **predicate**:
+Unlike `@anzaui/anza/storage` cursor `query`, `state.storage.query` takes a **predicate**:
 
 ```javascript
 const items = await state.storage.query('keyval', (value) => {
@@ -159,11 +159,11 @@ Persistence reduces browser eviction pressure, but it does not replace your own 
 
 ## Database Name
 
-Call **before** the first open. Required when you also use `@adukiorg/anza/storage` (both default to `platform-db`):
+Call **before** the first open. Required when you also use `@anzaui/anza/storage` (both default to `platform-db`):
 
 ```javascript
-import { storage } from '@adukiorg/anza/storage';
-import { state } from '@adukiorg/anza/state';
+import { storage } from '@anzaui/anza/storage';
+import { state } from '@anzaui/anza/state';
 
 storage.configure({ idb: { name: 'app-kv' } });
 state.storage.setDatabaseName('app-state');

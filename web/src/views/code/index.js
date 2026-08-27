@@ -1,6 +1,6 @@
 import './prism.js';
 
-import { view } from '@adukiorg/anza/ui';
+import { view } from '@anzaui/anza/ui';
 
 export default view('view-code', {
   template: { html: './index.html', css: ['./index.css', './prism.css'] },

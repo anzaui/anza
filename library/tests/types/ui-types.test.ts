@@ -4,7 +4,7 @@
  * TypeScript compilation-only tests for UI types.
  */
 
-import { ui, ComponentHost, ElementSpec } from '@adukiorg/anza/ui';
+import { ui, ComponentHost, ElementSpec } from '@anzaui/anza/ui';
 
 // Test simple property casting and element definition type inference
 const propsDef = {
@@ -69,7 +69,7 @@ const spec: ElementSpec<typeof propsDef, TestRefs, true, {
 ui.element('test-element', spec);
 
 // Test @ts-expect-error cases to verify invalid configurations are caught by compiler
-import { UnmountContext } from '@adukiorg/anza/ui';
+import { UnmountContext } from '@anzaui/anza/ui';
 const ctxMock: UnmountContext = {
   el: {} as any,
   tags: {} as any,

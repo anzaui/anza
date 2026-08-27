@@ -2,14 +2,14 @@
 
 Indeterminate loading spinner using the Web Animations API, with prefers-reduced-motion respect.
 
-**Tag:** `ui-spinner` · **Import:** `@adukiorg/anza/elements/spinner`
+**Tag:** `ui-spinner` · **Import:** `@anzaui/anza/elements/spinner`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/spinner';
+import '@anzaui/anza/elements/spinner';
 ```
 
 ---

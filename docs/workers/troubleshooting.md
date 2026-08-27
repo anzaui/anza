@@ -28,7 +28,7 @@ self.onmessage = (e) => {
 **Fix:** Check `has.shared`:
 
 ```javascript
-import { has } from '@adukiorg/anza/workers';
+import { has } from '@anzaui/anza/workers';
 
 if (!has.shared) {
   console.warn('SharedWorker not supported — using dedicated fallback');
@@ -81,7 +81,7 @@ await workers.lock('db', fn, { steal: true });
 **Fix:** Check support and ensure no 2d/webgl context was created on the main thread:
 
 ```javascript
-import { supports } from '@adukiorg/anza/platform';
+import { supports } from '@anzaui/anza/platform';
 
 if (supports.offscreenCanvas) {
   // Must transfer BEFORE getting context
@@ -128,7 +128,7 @@ Pools auto-terminate on `pagehide`, but explicit cleanup is safer.
 Check feature support:
 
 ```javascript
-import { has } from '@adukiorg/anza/workers';
+import { has } from '@anzaui/anza/workers';
 console.log(has);
 
 // Inspect pool state

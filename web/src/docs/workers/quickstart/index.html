@@ -2,7 +2,7 @@
 <p>Get a worker running in five minutes.</p>
 <hr />
 <h2>1. Run a Task in a Pool</h2>
-<view-code language="javascript">import { workers } from '@adukiorg/anza/workers';
+<view-code language="javascript">import { workers } from '@anzaui/anza/workers';
 
 const result = await workers.run('/workers/calc.js', 'fibonacci', {
   payload: { n: 40 },
@@ -66,7 +66,7 @@ off(); // unsubscribe
 <p>Other tabs calling <code>lock('db:write')</code> will wait until this callback completes.</p>
 <hr />
 <h2>6. Feature Detection</h2>
-<view-code language="javascript">import { has } from '@adukiorg/anza/workers';
+<view-code language="javascript">import { has } from '@anzaui/anza/workers';
 
 if (has.worker)   console.log('Web Workers supported');
 if (has.shared)   console.log('SharedWorker supported');
@@ -76,7 +76,7 @@ if (has.offscreen) console.log('OffscreenCanvas supported');
 </view-code>
 <hr />
 <h2>Complete Working Example</h2>
-<view-code language="javascript">import { workers } from '@adukiorg/anza/workers';
+<view-code language="javascript">import { workers } from '@anzaui/anza/workers';
 
 // Process data in background
 async function processChunk(data) {

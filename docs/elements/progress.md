@@ -2,14 +2,14 @@
 
 Determinate progress bar with percentage label and ARIA progressbar semantics.
 
-**Tag:** `ui-progress` · **Import:** `@adukiorg/anza/elements/progress`
+**Tag:** `ui-progress` · **Import:** `@anzaui/anza/elements/progress`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/progress';
+import '@anzaui/anza/elements/progress';
 ```
 
 ---

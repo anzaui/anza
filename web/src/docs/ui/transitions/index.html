@@ -33,7 +33,7 @@
   runSwapTransition,
   configureTransitions,
   prefersReducedMotion
-} from '@adukiorg/anza/ui';
+} from '@anzaui/anza/ui';
 
 // Global opt-out / custom naming
 ui.configureTransitions({
@@ -61,7 +61,7 @@ await ui.runSwapTransition(host, () =&gt; host.replaceChildren(leaf), {
 });
 </view-code>
 <p>Router helper (document morph + token sheet inject):</p>
-<view-code language="javascript">import { transitions } from '@adukiorg/anza/router';
+<view-code language="javascript">import { transitions } from '@anzaui/anza/router';
 
 await transitions.run(() =&gt; panel.replaceChildren(next), {
   sourceElement: thumb,
@@ -118,7 +118,7 @@ await ui.yield({ signal: ctrl.signal });
 <p>Already-aborted signals reject with <code>AbortError</code> immediately.</p>
 <hr />
 <h2>Platform flags</h2>
-<view-code language="javascript">import { supports } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { supports } from '@anzaui/anza/platform';
 
 supports.viewTransitions;         // document.startViewTransition
 supports.elementViewTransitions;  // Element.prototype.startViewTransition

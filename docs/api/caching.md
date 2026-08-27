@@ -9,7 +9,7 @@ The API client supports fine-grained TTL caching via the browser Cache API. Cach
 Enable caching by passing `expiry` or `ttl` (in milliseconds):
 
 ```javascript
-import { api } from '@adukiorg/anza/api';
+import { api } from '@anzaui/anza/api';
 
 // Cache for 60 seconds
 const products = await api.get('/products', { expiry: 60000 });

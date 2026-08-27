@@ -5,7 +5,7 @@ Alerts, toasts, progress, and empty / loading states.
 Import pattern:
 
 ```javascript
-import '@adukiorg/anza/elements/<name>';
+import '@anzaui/anza/elements/<name>';
 ```
 
 
@@ -23,10 +23,10 @@ Toasts and similar feedback that may append a container under `body` must dispos
 
 | Element | Tag | Import | Status |
 | ------- | --- | ------ | ------ |
-| [alert](alert.md) | `ui-alert` | `@adukiorg/anza/elements/alert` | Full |
-| [toast](toast.md) | `ui-toast` | `@adukiorg/anza/elements/toast` | Full |
-| [progress](progress.md) | `ui-progress` | `@adukiorg/anza/elements/progress` | Full |
-| [skeleton](skeleton.md) | `ui-skeleton` | `@adukiorg/anza/elements/skeleton` | Full |
-| [empty](empty.md) | `ui-empty` | `@adukiorg/anza/elements/empty` | Full |
+| [alert](alert.md) | `ui-alert` | `@anzaui/anza/elements/alert` | Full |
+| [toast](toast.md) | `ui-toast` | `@anzaui/anza/elements/toast` | Full |
+| [progress](progress.md) | `ui-progress` | `@anzaui/anza/elements/progress` | Full |
+| [skeleton](skeleton.md) | `ui-skeleton` | `@anzaui/anza/elements/skeleton` | Full |
+| [empty](empty.md) | `ui-empty` | `@anzaui/anza/elements/empty` | Full |
 
 See the [full inventory](index.md) and [ELEMENTS.md](../../plans/ELEMENTS.md) for phase status.

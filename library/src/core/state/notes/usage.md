@@ -7,13 +7,13 @@ Status: this guide documents the implemented public state contract: `state.creat
 Import from the state entry point:
 
 ```javascript
-import { state } from '@adukiorg/anza/state';
+import { state } from '@anzaui/anza/state';
 ```
 
 Or import individual components directly:
 
 ```javascript
-import { ReactiveStore, derived, sync, storage } from '@adukiorg/anza/state';
+import { ReactiveStore, derived, sync, storage } from '@anzaui/anza/state';
 ```
 
 ---

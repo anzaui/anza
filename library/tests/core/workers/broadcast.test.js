@@ -5,7 +5,7 @@
  * Source: plan.md Phase 5 — Test Matrix
  */
 
-import { broadcast } from '@adukiorg/anza/workers';
+import { broadcast } from '@anzaui/anza/workers';
 
 describe('Broadcast Channel Manager', () => {
 

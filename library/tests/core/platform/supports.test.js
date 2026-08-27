@@ -6,7 +6,7 @@
  * Source: plan.md Phase 6-A, core/platform/supports.js
  */
 
-import { supports, reset } from '@adukiorg/anza/platform';
+import { supports, reset } from '@anzaui/anza/platform';
 
 describe('Supports Feature Detection', () => {
   it('should expose valid boolean feature flags', () => {

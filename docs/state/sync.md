@@ -7,7 +7,7 @@ Cross-tab state synchronization via `BroadcastChannel`. When a store key changes
 ## Setup
 
 ```javascript
-import { state } from '@adukiorg/anza/state';
+import { state } from '@anzaui/anza/state';
 
 const store = state.create({ theme: 'light' });
 
@@ -40,7 +40,7 @@ store.broadcast('app-sync', []); // sync all keys
 ## Manual Sync
 
 ```javascript
-import { sync } from '@adukiorg/anza/state';
+import { sync } from '@anzaui/anza/state';
 
 const dispose = sync(store, ['count'], 'counter-channel');
 

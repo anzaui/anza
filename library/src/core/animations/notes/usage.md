@@ -5,7 +5,7 @@ The Native animations layer provides WAAPI (Web Animations API) helpers, easing 
 Import from the animations entry point:
 
 ```javascript
-import { animate, stagger, register, scroll, view, timing, keyframes, reduced } from '@adukiorg/anza/animations';
+import { animate, stagger, register, scroll, view, timing, keyframes, reduced } from '@anzaui/anza/animations';
 ```
 
 ## 1. Basic Animation
@@ -13,7 +13,7 @@ import { animate, stagger, register, scroll, view, timing, keyframes, reduced } 
 Animate a single element with keyframes and timing options:
 
 ```javascript
-import { animate, timing } from '@adukiorg/anza/animations';
+import { animate, timing } from '@anzaui/anza/animations';
 
 const animation = animate(
   element,
@@ -45,7 +45,7 @@ timing(300, 'ease-out', 'forwards')
 Use the `Timing` object for named easing curves:
 
 ```javascript
-import { Timing } from '@adukiorg/anza/animations';
+import { Timing } from '@anzaui/anza/animations';
 
 animate(element, keyframes, {
   duration: 250,
@@ -75,7 +75,7 @@ Available easing curves:
 Durations are read from CSS `--duration-*` tokens:
 
 ```javascript
-import { duration } from '@adukiorg/anza/animations';
+import { duration } from '@anzaui/anza/animations';
 
 const fast = duration('fast');    // --duration-fast (100ms)
 const normal = duration('normal'); // --duration-normal (200ms)
@@ -89,7 +89,7 @@ Fallback values are used when CSS tokens are unavailable (SSR, missing styles).
 Use `keyframes()` for common transition patterns:
 
 ```javascript
-import { keyframes, animate } from '@adukiorg/anza/animations';
+import { keyframes, animate } from '@anzaui/anza/animations';
 
 // Fade in/out
 animate(element, keyframes('fade'), timing());
@@ -120,7 +120,7 @@ keyframes('scale', { from: 0.8 })
 Animate a group of elements with sequential delays:
 
 ```javascript
-import { stagger } from '@adukiorg/anza/animations';
+import { stagger } from '@anzaui/anza/animations';
 
 const cards = document.querySelectorAll('.card');
 
@@ -145,7 +145,7 @@ animations.forEach(anim => anim.pause());
 Link animations to scroll position:
 
 ```javascript
-import { scroll } from '@adukiorg/anza/animations';
+import { scroll } from '@anzaui/anza/animations';
 
 const stop = scroll(element, [
   { transform: 'translateY(0)' },
@@ -167,7 +167,7 @@ stop(); // Disconnects ScrollTimeline
 Use the View Transitions API for page navigation animations:
 
 ```javascript
-import { view } from '@adukiorg/anza/animations';
+import { view } from '@anzaui/anza/animations';
 
 view(async () => {
   // Update DOM here
@@ -191,7 +191,7 @@ view(async () => {
 Check for user's motion preference:
 
 ```javascript
-import { reduced } from '@adukiorg/anza/animations';
+import { reduced } from '@anzaui/anza/animations';
 
 if (!reduced()) {
   animate(element, keyframes('fade'), timing());
@@ -245,7 +245,7 @@ anim.finished.then(() => console.log('done'));
 Common animation presets are pre-registered for convenience:
 
 ```javascript
-import { animate } from '@adukiorg/anza/animations';
+import { animate } from '@anzaui/anza/animations';
 
 // Use registered presets by name
 animate(element, 'fade');
@@ -269,7 +269,7 @@ Available presets:
 Register custom presets:
 
 ```javascript
-import { registry, keyframes, timing } from '@adukiorg/anza/animations';
+import { registry, keyframes, timing } from '@anzaui/anza/animations';
 
 registry.register('myPreset', keyframes('fade'), timing(300));
 ```
@@ -279,7 +279,7 @@ registry.register('myPreset', keyframes('fade'), timing(300));
 Chain animations sequentially, each starting when the previous finishes:
 
 ```javascript
-import { sequence } from '@adukiorg/anza/animations';
+import { sequence } from '@anzaui/anza/animations';
 
 const { finished } = sequence([
   [element1, keyframes('fade'), timing()],

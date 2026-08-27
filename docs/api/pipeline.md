@@ -9,7 +9,7 @@ The API client processes every request through a composable interceptor chain. O
 Modify the request before it hits the network, or short-circuit with a cached/mock response:
 
 ```javascript
-import { api } from '@adukiorg/anza/api';
+import { api } from '@anzaui/anza/api';
 
 api.pipeline.outbound((descriptor) => {
   // Add an auth header to every request

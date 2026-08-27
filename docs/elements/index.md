@@ -5,12 +5,12 @@ Shipped custom element kit under `library/src/elements/`. These are ready-made `
 Import one element (registers the custom element as a side effect) or the full barrel:
 
 ```javascript
-import '@adukiorg/anza/elements/button';
+import '@anzaui/anza/elements/button';
 // or
-import '@adukiorg/anza/elements';
+import '@anzaui/anza/elements';
 ```
 
-Paths resolve via the package import map (`library/importmap.json`): `@adukiorg/anza/elements/<name>` → `/elements/<category>/<name>/index.js`.
+Paths resolve via the package import map (`library/importmap.json`): `@anzaui/anza/elements/<name>` → `/elements/<category>/<name>/index.js`.
 
 ---
 
@@ -109,52 +109,52 @@ Architecture: [Overlay patterns](overlay.md). Tooltip escape uses `escapeOverflo
 
 | Category | Element | Tag | Import | Status |
 | -------- | ------- | --- | ------ | ------ |
-| primitives | [button](button.md) | `ui-button` | `@adukiorg/anza/elements/button` | Full |
-| primitives | [icon](icon.md) | `ui-icon` | `@adukiorg/anza/elements/icon` | Full |
-| primitives | [badge](badge.md) | `ui-badge` | `@adukiorg/anza/elements/badge` | Full |
-| primitives | [avatar](avatar.md) | `ui-avatar` | `@adukiorg/anza/elements/avatar` | Full |
-| primitives | [divider](divider.md) | `ui-divider` | `@adukiorg/anza/elements/divider` | Full |
-| primitives | [text](text.md) | `ui-text` | `@adukiorg/anza/elements/text` | Full |
-| primitives | [link](link.md) | `ui-link` | `@adukiorg/anza/elements/link` | Full |
-| primitives | [spinner](spinner.md) | `ui-spinner` | `@adukiorg/anza/elements/spinner` | Full |
-| forms | [input](input.md) | `ui-input` | `@adukiorg/anza/elements/input` | Full |
-| forms | [textarea](textarea.md) | `ui-textarea` | `@adukiorg/anza/elements/textarea` | Full |
-| forms | [select](select.md) | `ui-select` | `@adukiorg/anza/elements/select` | Full |
-| forms | [checkbox](checkbox.md) | `ui-checkbox` | `@adukiorg/anza/elements/checkbox` | Full |
-| forms | [radio](radio.md) | `ui-radio` | `@adukiorg/anza/elements/radio` | Full |
-| forms | [toggle](toggle.md) | `ui-toggle` | `@adukiorg/anza/elements/toggle` | Full |
-| forms | [field](field.md) | `ui-field` | `@adukiorg/anza/elements/field` | Full |
-| forms | [upload](upload.md) | `ui-upload` | `@adukiorg/anza/elements/upload` | Full |
-| forms | [form](form.md) | `ui-form` | `@adukiorg/anza/elements/form` | Full |
-| overlay | [dialog](dialog.md) | `ui-dialog` | `@adukiorg/anza/elements/dialog` | Full |
-| overlay | [popover](popover.md) | `ui-popover` | `@adukiorg/anza/elements/popover` | Full |
-| overlay | [tooltip](tooltip.md) | `ui-tooltip` | `@adukiorg/anza/elements/tooltip` | Full |
-| overlay | [menu](menu.md) | `ui-menu` | `@adukiorg/anza/elements/menu` | Full |
-| overlay | [drawer](drawer.md) | `ui-drawer` | `@adukiorg/anza/elements/drawer` | Full |
-| overlay | [sheet](sheet.md) | `ui-sheet` | `@adukiorg/anza/elements/sheet` | Full |
-| feedback | [alert](alert.md) | `ui-alert` | `@adukiorg/anza/elements/alert` | Full |
-| feedback | [toast](toast.md) | `ui-toast` | `@adukiorg/anza/elements/toast` | Full |
-| feedback | [progress](progress.md) | `ui-progress` | `@adukiorg/anza/elements/progress` | Full |
-| feedback | [skeleton](skeleton.md) | `ui-skeleton` | `@adukiorg/anza/elements/skeleton` | Full |
-| feedback | [empty](empty.md) | `ui-empty` | `@adukiorg/anza/elements/empty` | Full |
-| data | [table](table.md) | `ui-table` | `@adukiorg/anza/elements/table` | Full |
-| data | [list](list.md) | `ui-list` | `@adukiorg/anza/elements/list` | Full |
-| data | [card](card.md) | `ui-card` | `@adukiorg/anza/elements/card` | Full |
-| data | [chart](chart.md) | `ui-chart` | `@adukiorg/anza/elements/chart` | Full |
-| data | [stat](stat.md) | `ui-stat` | `@adukiorg/anza/elements/stat` | Full |
-| navigation | [nav](nav.md) | `ui-nav` | `@adukiorg/anza/elements/nav` | Full |
-| navigation | [tabs](tabs.md) | `ui-tabs` | `@adukiorg/anza/elements/tabs` | Full |
-| navigation | [breadcrumb](breadcrumb.md) | `ui-breadcrumb` | `@adukiorg/anza/elements/breadcrumb` | Full |
-| navigation | [pagination](pagination.md) | `ui-pagination` | `@adukiorg/anza/elements/pagination` | Full |
-| navigation | [steps](steps.md) | `ui-steps` | `@adukiorg/anza/elements/steps` | Full |
-| layout | [app](app.md) | `ui-app` | `@adukiorg/anza/elements/app` | Full |
-| layout | [header](header.md) | `ui-header` | `@adukiorg/anza/elements/header` | Full |
-| layout | [sidebar](sidebar.md) | `ui-sidebar` | `@adukiorg/anza/elements/sidebar` | Full |
-| layout | [stack](stack.md) | `ui-stack` | `@adukiorg/anza/elements/stack` | Full |
-| layout | [grid](grid.md) | `ui-grid` | `@adukiorg/anza/elements/grid` | Full |
-| layout | [split](split.md) | `ui-split` | `@adukiorg/anza/elements/split` | Full |
-| layout | [scroll](scroll.md) | `ui-scroll` | `@adukiorg/anza/elements/scroll` | Full |
-| layout | [surface](surface.md) | `ui-surface` | `@adukiorg/anza/elements/surface` | Full |
+| primitives | [button](button.md) | `ui-button` | `@anzaui/anza/elements/button` | Full |
+| primitives | [icon](icon.md) | `ui-icon` | `@anzaui/anza/elements/icon` | Full |
+| primitives | [badge](badge.md) | `ui-badge` | `@anzaui/anza/elements/badge` | Full |
+| primitives | [avatar](avatar.md) | `ui-avatar` | `@anzaui/anza/elements/avatar` | Full |
+| primitives | [divider](divider.md) | `ui-divider` | `@anzaui/anza/elements/divider` | Full |
+| primitives | [text](text.md) | `ui-text` | `@anzaui/anza/elements/text` | Full |
+| primitives | [link](link.md) | `ui-link` | `@anzaui/anza/elements/link` | Full |
+| primitives | [spinner](spinner.md) | `ui-spinner` | `@anzaui/anza/elements/spinner` | Full |
+| forms | [input](input.md) | `ui-input` | `@anzaui/anza/elements/input` | Full |
+| forms | [textarea](textarea.md) | `ui-textarea` | `@anzaui/anza/elements/textarea` | Full |
+| forms | [select](select.md) | `ui-select` | `@anzaui/anza/elements/select` | Full |
+| forms | [checkbox](checkbox.md) | `ui-checkbox` | `@anzaui/anza/elements/checkbox` | Full |
+| forms | [radio](radio.md) | `ui-radio` | `@anzaui/anza/elements/radio` | Full |
+| forms | [toggle](toggle.md) | `ui-toggle` | `@anzaui/anza/elements/toggle` | Full |
+| forms | [field](field.md) | `ui-field` | `@anzaui/anza/elements/field` | Full |
+| forms | [upload](upload.md) | `ui-upload` | `@anzaui/anza/elements/upload` | Full |
+| forms | [form](form.md) | `ui-form` | `@anzaui/anza/elements/form` | Full |
+| overlay | [dialog](dialog.md) | `ui-dialog` | `@anzaui/anza/elements/dialog` | Full |
+| overlay | [popover](popover.md) | `ui-popover` | `@anzaui/anza/elements/popover` | Full |
+| overlay | [tooltip](tooltip.md) | `ui-tooltip` | `@anzaui/anza/elements/tooltip` | Full |
+| overlay | [menu](menu.md) | `ui-menu` | `@anzaui/anza/elements/menu` | Full |
+| overlay | [drawer](drawer.md) | `ui-drawer` | `@anzaui/anza/elements/drawer` | Full |
+| overlay | [sheet](sheet.md) | `ui-sheet` | `@anzaui/anza/elements/sheet` | Full |
+| feedback | [alert](alert.md) | `ui-alert` | `@anzaui/anza/elements/alert` | Full |
+| feedback | [toast](toast.md) | `ui-toast` | `@anzaui/anza/elements/toast` | Full |
+| feedback | [progress](progress.md) | `ui-progress` | `@anzaui/anza/elements/progress` | Full |
+| feedback | [skeleton](skeleton.md) | `ui-skeleton` | `@anzaui/anza/elements/skeleton` | Full |
+| feedback | [empty](empty.md) | `ui-empty` | `@anzaui/anza/elements/empty` | Full |
+| data | [table](table.md) | `ui-table` | `@anzaui/anza/elements/table` | Full |
+| data | [list](list.md) | `ui-list` | `@anzaui/anza/elements/list` | Full |
+| data | [card](card.md) | `ui-card` | `@anzaui/anza/elements/card` | Full |
+| data | [chart](chart.md) | `ui-chart` | `@anzaui/anza/elements/chart` | Full |
+| data | [stat](stat.md) | `ui-stat` | `@anzaui/anza/elements/stat` | Full |
+| navigation | [nav](nav.md) | `ui-nav` | `@anzaui/anza/elements/nav` | Full |
+| navigation | [tabs](tabs.md) | `ui-tabs` | `@anzaui/anza/elements/tabs` | Full |
+| navigation | [breadcrumb](breadcrumb.md) | `ui-breadcrumb` | `@anzaui/anza/elements/breadcrumb` | Full |
+| navigation | [pagination](pagination.md) | `ui-pagination` | `@anzaui/anza/elements/pagination` | Full |
+| navigation | [steps](steps.md) | `ui-steps` | `@anzaui/anza/elements/steps` | Full |
+| layout | [app](app.md) | `ui-app` | `@anzaui/anza/elements/app` | Full |
+| layout | [header](header.md) | `ui-header` | `@anzaui/anza/elements/header` | Full |
+| layout | [sidebar](sidebar.md) | `ui-sidebar` | `@anzaui/anza/elements/sidebar` | Full |
+| layout | [stack](stack.md) | `ui-stack` | `@anzaui/anza/elements/stack` | Full |
+| layout | [grid](grid.md) | `ui-grid` | `@anzaui/anza/elements/grid` | Full |
+| layout | [split](split.md) | `ui-split` | `@anzaui/anza/elements/split` | Full |
+| layout | [scroll](scroll.md) | `ui-scroll` | `@anzaui/anza/elements/scroll` | Full |
+| layout | [surface](surface.md) | `ui-surface` | `@anzaui/anza/elements/surface` | Full |
 
 ---
 

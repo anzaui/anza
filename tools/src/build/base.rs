@@ -413,14 +413,14 @@ mod tests {
   fn rewrite_importmap_json_paths_values() {
     let json = r#"{
   "imports": {
-    "@adukiorg/anza/ui": "/core/ui/index.js",
-    "@adukiorg/anza/sw": "/sw/index.js"
+    "@anzaui/anza/ui": "/core/ui/index.js",
+    "@anzaui/anza/sw": "/sw/index.js"
   }
 }"#;
     let out = rewrite_importmap_json_paths(json, "/anza");
     assert!(out.contains("\"/anza/core/ui/index.js\""), "got: {out}");
     assert!(out.contains("\"/anza/sw/index.js\""), "got: {out}");
-    assert!(!out.contains("@adukiorg/anza/ui\": \"/core/"), "got: {out}");
+    assert!(!out.contains("@anzaui/anza/ui\": \"/core/"), "got: {out}");
   }
 
   #[test]
@@ -428,7 +428,7 @@ mod tests {
     let html = r#"  <script type="importmap">
 {
   "imports": {
-    "@adukiorg/anza/ui": "/core/ui/index.js"
+    "@anzaui/anza/ui": "/core/ui/index.js"
   }
 }
   </script>"#;
@@ -439,7 +439,7 @@ mod tests {
   #[test]
   fn rewrite_importmap_is_idempotent() {
     let once = rewrite_importmap_json_paths(
-      r#"{ "imports": { "@adukiorg/anza/ui": "/core/ui/index.js" } }"#,
+      r#"{ "imports": { "@anzaui/anza/ui": "/core/ui/index.js" } }"#,
       "/anza",
     );
     let twice = rewrite_importmap_json_paths(&once, "/anza");
@@ -476,7 +476,7 @@ mod tests {
       dir.join("importmap.json"),
       r#"{
   "imports": {
-    "@adukiorg/anza/ui": "/core/ui/index.js"
+    "@anzaui/anza/ui": "/core/ui/index.js"
   }
 }
 "#,

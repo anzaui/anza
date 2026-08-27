@@ -1,9 +1,9 @@
-# @adukiorg/anza
+# @anzaui/anza
 
 > The browser already knows how to render, route, cache, and animate. We just stopped getting in its way.
 
-[![npm](https://img.shields.io/npm/v/@adukiorg/anza)](https://www.npmjs.com/package/@adukiorg/anza)
-[![license](https://img.shields.io/npm/l/@adukiorg/anza)](./LICENSE)
+[![npm](https://img.shields.io/npm/v/@anzaui/anza)](https://www.npmjs.com/package/@anzaui/anza)
+[![license](https://img.shields.io/npm/l/@anzaui/anza)](./LICENSE)
 [![tests](https://img.shields.io/badge/tests-237%20passing-brightgreen)](#testing)
 
 ---
@@ -47,7 +47,7 @@ The Rust CLI (`anza`) resolves your ESM import graph and copies only the modules
 ## Quick Start
 
 ```bash
-npm create @adukiorg/anza myapp
+npm create @anzaui/anza myapp
 cd myapp
 npm install
 npm run dev
@@ -62,7 +62,7 @@ That is it. Your browser loads `dist/app.js` natively. No webpack. No vite. No `
 ### A Component
 
 ```javascript
-import { view } from '@adukiorg/anza/defs';
+import { view } from '@anzaui/anza/defs';
 
 view('user-card', {
   props: {
@@ -97,7 +97,7 @@ No complex build pipeline. No JSX transform. No virtual DOM reconciliation. The 
 ### A Route
 
 ```javascript
-import { page, dock } from '@adukiorg/anza/defs';
+import { page, dock } from '@anzaui/anza/defs';
 
 dock('main');
 
@@ -113,7 +113,7 @@ Click `<a href="/about">`. The router intercepts it. The view transitions. No fu
 ### Reactive State
 
 ```javascript
-import { state } from '@adukiorg/anza/state';
+import { state } from '@anzaui/anza/state';
 
 const store = state.create({ count: 0 });
 
@@ -129,7 +129,7 @@ Proxy-based reactivity. Batched updates. Cross-tab sync via `BroadcastChannel`. 
 ### Theme Switching (Automatic)
 
 ```javascript
-import { theme } from '@adukiorg/anza/theme';
+import { theme } from '@anzaui/anza/theme';
 
 theme.toggle();              // light ↔ dark
 theme.set('high-contrast');  // high-contrast mode

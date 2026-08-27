@@ -5,7 +5,7 @@ Tables, lists, cards, charts, and stats for displaying structured content.
 Import pattern:
 
 ```javascript
-import '@adukiorg/anza/elements/<name>';
+import '@anzaui/anza/elements/<name>';
 ```
 
 
@@ -21,10 +21,10 @@ Chart’s `ResizeObserver` disconnects on the component abort signal. Soft-nav d
 
 | Element | Tag | Import | Status |
 | ------- | --- | ------ | ------ |
-| [table](table.md) | `ui-table` | `@adukiorg/anza/elements/table` | Full |
-| [list](list.md) | `ui-list` | `@adukiorg/anza/elements/list` | Full |
-| [card](card.md) | `ui-card` | `@adukiorg/anza/elements/card` | Full |
-| [chart](chart.md) | `ui-chart` | `@adukiorg/anza/elements/chart` | Full |
-| [stat](stat.md) | `ui-stat` | `@adukiorg/anza/elements/stat` | Full |
+| [table](table.md) | `ui-table` | `@anzaui/anza/elements/table` | Full |
+| [list](list.md) | `ui-list` | `@anzaui/anza/elements/list` | Full |
+| [card](card.md) | `ui-card` | `@anzaui/anza/elements/card` | Full |
+| [chart](chart.md) | `ui-chart` | `@anzaui/anza/elements/chart` | Full |
+| [stat](stat.md) | `ui-stat` | `@anzaui/anza/elements/stat` | Full |
 
 See the [full inventory](index.md) and [ELEMENTS.md](../../plans/ELEMENTS.md) for phase status.

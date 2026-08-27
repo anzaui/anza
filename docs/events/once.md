@@ -23,7 +23,7 @@ Returns a `Promise<Event>`.
 ## Basic Use
 
 ```javascript
-import { events } from '@adukiorg/anza/events';
+import { events } from '@anzaui/anza/events';
 
 // Wait for one click
 const click = await events.once(document.body, 'click');

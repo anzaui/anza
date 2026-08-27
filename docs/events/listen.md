@@ -24,7 +24,7 @@ Returns a disposer function.
 ## Basic Use
 
 ```javascript
-import { events } from '@adukiorg/anza/events';
+import { events } from '@anzaui/anza/events';
 
 const dispose = events.listen(
   document.querySelector('.btn'),

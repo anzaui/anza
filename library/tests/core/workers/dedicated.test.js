@@ -5,7 +5,7 @@
  * Source: plan.md Phase 2 — Test Matrix
  */
 
-import { Dedicated } from '@adukiorg/anza/workers';
+import { Dedicated } from '@anzaui/anza/workers';
 
 // ---------------------------------------------------------------------------
 // Mock Worker

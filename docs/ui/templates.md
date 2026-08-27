@@ -39,7 +39,7 @@ Paths are resolved relative to the third argument (`import.meta.url`). The nativ
 For rapid prototyping outside the element factory:
 
 ```javascript
-import { template } from '@adukiorg/anza/ui';
+import { template } from '@anzaui/anza/ui';
 
 const fragment = template`<div class="card"><h2>Hello</h2></div>`;
 document.body.appendChild(fragment);

@@ -25,7 +25,7 @@ Returns a disposer function.
 ## Simple
 
 ```javascript
-import { events } from '@adukiorg/anza/events';
+import { events } from '@anzaui/anza/events';
 
 const dispose = events.delegate(
   document.body,

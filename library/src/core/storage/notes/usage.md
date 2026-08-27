@@ -5,13 +5,13 @@ The Native Storage layer provides a unified, multi-tiered browser storage gatewa
 Import from the storage entry point:
 
 ```javascript
-import { storage } from '@adukiorg/anza/storage';
+import { storage } from '@anzaui/anza/storage';
 ```
 
 Or import individual adapters directly:
 
 ```javascript
-import { Database, LRUCache, WeakLRUCache } from '@adukiorg/anza/storage';
+import { Database, LRUCache, WeakLRUCache } from '@anzaui/anza/storage';
 ```
 
 ---

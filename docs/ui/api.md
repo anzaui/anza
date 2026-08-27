@@ -7,7 +7,7 @@ Complete reference for the UI facade and definition layer.
 ## UI Facade
 
 ```javascript
-import { ui } from '@adukiorg/anza/ui';
+import { ui } from '@anzaui/anza/ui';
 ```
 
 ### `ui.define(tag, Class)`
@@ -110,19 +110,19 @@ Snapshot of live component attachments for diagnostics / soft-nav leak tests. Re
 }
 ```
 
-Also available as a named export: `import { getAttachmentStats } from '@adukiorg/anza/ui'`.
+Also available as a named export: `import { getAttachmentStats } from '@anzaui/anza/ui'`.
 
 ---
 
 ## Named Exports
 
 ```javascript
-import { BaseElement, getAttachmentStats } from '@adukiorg/anza/ui';
-import { define, element, container, page, dock, view, part } from '@adukiorg/anza/ui';
-import { schedule, scheduleFrame, yieldTask } from '@adukiorg/anza/ui';
-import { transition } from '@adukiorg/anza/ui';
-import { template } from '@adukiorg/anza/ui';
-import { observe } from '@adukiorg/anza/ui';
+import { BaseElement, getAttachmentStats } from '@anzaui/anza/ui';
+import { define, element, container, page, dock, view, part } from '@anzaui/anza/ui';
+import { schedule, scheduleFrame, yieldTask } from '@anzaui/anza/ui';
+import { transition } from '@anzaui/anza/ui';
+import { template } from '@anzaui/anza/ui';
+import { observe } from '@anzaui/anza/ui';
 ```
 
 ---
@@ -130,7 +130,7 @@ import { observe } from '@adukiorg/anza/ui';
 ## Definition Layer Exports
 
 ```javascript
-import { page, dock, view, part } from '@adukiorg/anza/defs';
+import { page, dock, view, part } from '@anzaui/anza/defs';
 ```
 
 ### `page(route, config, base)`

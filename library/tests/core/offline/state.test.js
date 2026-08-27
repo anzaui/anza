@@ -4,7 +4,7 @@
  * Offline state integration execution test suite.
  */
 
-import { state, check, queue } from '@adukiorg/anza/offline';
+import { state, check, queue } from '@anzaui/anza/offline';
 
 describe('Offline State Integration', () => {
   beforeEach(async () => {

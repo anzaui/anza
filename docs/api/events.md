@@ -7,7 +7,7 @@ The API client emits telemetry events for every request. Subscribe globally for 
 ## Global Listeners
 
 ```javascript
-import { api } from '@adukiorg/anza/api';
+import { api } from '@anzaui/anza/api';
 
 const off = api.on('status:401', (event) => {
   redirectToLogin();

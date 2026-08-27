@@ -7,7 +7,7 @@ Complete reference for the security facade and individual functions.
 ## Facade
 
 ```javascript
-import { security } from '@adukiorg/anza/security';
+import { security } from '@anzaui/anza/security';
 ```
 
 ### `security.uuid()`
@@ -89,7 +89,7 @@ import {
   encrypt, decrypt, seal, unseal,
   sign, verify, sanitize,
   permission, watchPermission
-} from '@adukiorg/anza/security';
+} from '@anzaui/anza/security';
 ```
 
 ---

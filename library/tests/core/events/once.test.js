@@ -7,7 +7,7 @@
  * Source: core/events/once.js
  */
 
-import { once } from '@adukiorg/anza/events';
+import { once } from '@anzaui/anza/events';
 
 describe('once() Single-Event Helper', () => {
   it('should resolve with the event when it fires', async () => {

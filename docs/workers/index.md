@@ -19,7 +19,7 @@ The Anza workers layer provides a unified interface for browser concurrency prim
 ## Package
 
 ```javascript
-import { workers } from '@adukiorg/anza/workers';
+import { workers } from '@anzaui/anza/workers';
 ```
 
 ---
@@ -43,7 +43,7 @@ import { workers } from '@adukiorg/anza/workers';
 ## One-File Example
 
 ```javascript
-import { workers } from '@adukiorg/anza/workers';
+import { workers } from '@anzaui/anza/workers';
 
 // Run a CPU task in a worker pool
 const result = await workers.run('/workers/sort.js', 'sort', {

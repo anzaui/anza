@@ -6,7 +6,7 @@
  * Source: plan.md Phase 6-A, core/storage/lru.js
  */
 
-import { LRUCache, WeakLRUCache } from '@adukiorg/anza/storage';
+import { LRUCache, WeakLRUCache } from '@anzaui/anza/storage';
 
 describe('Bounded LRU Cache', () => {
   describe('LRUCache', () => {

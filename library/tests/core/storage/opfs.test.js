@@ -4,7 +4,7 @@
  * OPFS Gateway Adapter execution test suite.
  */
 
-import { storage } from '@adukiorg/anza/storage';
+import { storage } from '@anzaui/anza/storage';
 import { opfs } from '../../../src/core/storage/opfs.js';
 
 describe('OPFS Storage Gateway Adapter', () => {

@@ -2,7 +2,7 @@
 
 Side panel overlay backed by native `<dialog>` + `showModal()` (top-layer, focus trap).
 
-**Tag:** `ui-drawer` · **Import:** `@adukiorg/anza/elements/drawer`
+**Tag:** `ui-drawer` · **Import:** `@anzaui/anza/elements/drawer`
 
 Architecture and when-to-use: [Overlay patterns](overlay.md).
 
@@ -11,7 +11,7 @@ Architecture and when-to-use: [Overlay patterns](overlay.md).
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/drawer';
+import '@anzaui/anza/elements/drawer';
 ```
 
 ---

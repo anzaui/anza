@@ -3,7 +3,7 @@
 <p><strong>Not navigation guards.</strong> Platform <code>guard</code> / <code>typeGuard</code> / <code>supports</code> load polyfills and assert capabilities. For route protection and redirects, see <a href="/docs/router/guards">router/guards.md</a>.</p>
 </blockquote>
 <p>The <code>guard</code> object provides asynchronous feature gates. Each method checks native support and either returns the native API or dynamically imports a polyfill.</p>
-<view-code language="javascript">import { guard, escapeOverflow } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { guard, escapeOverflow } from '@anzaui/anza/platform';
 </view-code>
 <p>Full signatures: <a href="/docs/platform/api">API Reference</a>.</p>
 <hr />
@@ -67,14 +67,14 @@ ctrl.hide();
 <h3>Controller</h3>
 <p><code>{ show, hide, update, release, strategy, open }</code> — see <a href="/docs/platform/api#escapeoverflowfloating-anchor-options">API Reference</a>.</p>
 <h3>Sync form</h3>
-<view-code language="javascript">import { escapeOverflow, guard } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { escapeOverflow, guard } from '@anzaui/anza/platform';
 
 await guard.popover(); // ensure polyfill if you rely on [popover]
 const ctrl = escapeOverflow(tip, anchor, { placement: 'bottom' });
 ctrl.show();
 </view-code>
 <h3>Advanced — custom floating UI (same path as <code>ui-tooltip</code>)</h3>
-<view-code language="javascript">import { guard } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { guard } from '@anzaui/anza/platform';
 
 async function bindHint(host, tip, wrapper) {
   if (!tip.hasAttribute('popover')) {

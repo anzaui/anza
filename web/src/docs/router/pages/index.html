@@ -119,7 +119,7 @@ style: ['/styles/shared.css', './home.css']
 <p>All hooks receive a context object. The <code>load</code> hook receives the route-derived <code>params</code> (typed ordered array with <code>.first</code>, <code>.last</code>, and named segment getters), <code>query</code> (typed ordered array with the same getters), <code>raw</code> (the raw <code>URLSearchParams</code> object), <code>hash</code>, and <code>ctrl</code> (whose signal aborts if the element disconnects).</p>
 <p><code>load</code> may return a promise. The router does not wait for it — the element mounts immediately and the promise resolves asynchronously. Use this for data fetching that should not block rendering.</p>
 <p>Pass <code>ctrl.signal</code> into any long-lived work that can outlive the page leaf:</p>
-<view-code language="javascript">import { ui } from '@adukiorg/anza/ui';
+<view-code language="javascript">import { ui } from '@anzaui/anza/ui';
 
 on: {
   async load({ ctrl }) {

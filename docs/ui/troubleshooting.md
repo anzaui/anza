@@ -181,7 +181,7 @@ on.input('.search', debounce((e, input) => {
 Check internal state:
 
 ```javascript
-import { specRegistry } from '@adukiorg/anza/ui';
+import { specRegistry } from '@anzaui/anza/ui';
 
 // See the spec for an element
 console.log(specRegistry.get('user-card'));

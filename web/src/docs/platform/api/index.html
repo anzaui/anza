@@ -14,7 +14,7 @@
   count,
   list,
   clearGlobals
-} from '@adukiorg/anza/platform';
+} from '@anzaui/anza/platform';
 </view-code>
 <p><code>attach</code> / <code>detach</code> / <code>count</code> / <code>list</code> / <code>clearGlobals</code> are also available as <code>globals.attach</code>, <code>globals.detach</code>, and so on.</p>
 <hr />
@@ -22,7 +22,7 @@
 <p>Lazy-evaluated feature detection object. See <a href="/docs/platform/supports">supports.md</a> for the full flag list. Overlay-related flags: <code>popoverAPI</code>, <code>anchorPositioning</code>.</p>
 <h3><code>globals</code></h3>
 <p>Internal framework attachment registry (nav polyfill, container MO, popover polyfill). App code should prefer component <code>on</code> / <code>watch</code> / <code>events.*</code> with AbortSignal. Soft-nav tests assert <code>globals.count()</code> stays stable across leaf swaps.</p>
-<view-code language="javascript">import { globals } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { globals } from '@anzaui/anza/platform';
 
 globals.count(); // number of named framework attachments
 globals.list();  // [{ name, type, target }, …]
@@ -69,7 +69,7 @@ globals.list();  // [{ name, type, target }, …]
 </tbody></table></div>
 <p>Markers while open (fixed path): <code>data-escape-fixed</code>, <code>data-escape-open</code>. Cleared on hide.</p>
 <h4>Simple sample</h4>
-<view-code language="javascript">import { guard } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { guard } from '@anzaui/anza/platform';
 
 const tip = document.querySelector('#tip');   // [popover="manual"]
 const anchor = document.querySelector('#btn');
@@ -84,7 +84,7 @@ ctrl.show();
 ctrl.hide();
 </view-code>
 <h4>Advanced sample (AbortSignal + fixed strategy)</h4>
-<view-code language="javascript">import { escapeOverflow, guard } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { escapeOverflow, guard } from '@anzaui/anza/platform';
 
 await guard.popover(); // if you use sync escapeOverflow with [popover]
 

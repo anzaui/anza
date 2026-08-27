@@ -6,7 +6,7 @@
  * Source: plan.md Phase 6-A, core/platform/polyfills/scheduler.js
  */
 
-import { guard } from '@adukiorg/anza/platform';
+import { guard } from '@anzaui/anza/platform';
 
 describe('Prioritized Task Scheduler', () => {
   let scheduler;

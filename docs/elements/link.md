@@ -2,14 +2,14 @@
 
 Router-aware hyperlink that intercepts same-origin clicks for soft navigation and tracks `aria-current`.
 
-**Tag:** `ui-link` · **Import:** `@adukiorg/anza/elements/link`
+**Tag:** `ui-link` · **Import:** `@anzaui/anza/elements/link`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/link';
+import '@anzaui/anza/elements/link';
 ```
 
 ---

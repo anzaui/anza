@@ -9,7 +9,7 @@ Two in-memory cache implementations: a standard LRU for any value type, and a We
 Standard least-recently-used cache with TTL support.
 
 ```javascript
-import { LRUCache } from '@adukiorg/anza/storage';
+import { LRUCache } from '@anzaui/anza/storage';
 
 const cache = new LRUCache(100); // max 100 entries
 
@@ -29,7 +29,7 @@ When the cache is full, the least recently accessed entry is evicted.
 Uses `WeakRef` so values can be garbage collected. Values must be objects or functions.
 
 ```javascript
-import { WeakLRUCache } from '@adukiorg/anza/storage';
+import { WeakLRUCache } from '@anzaui/anza/storage';
 
 const cache = new WeakLRUCache(100);
 

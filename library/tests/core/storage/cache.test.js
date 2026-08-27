@@ -4,7 +4,7 @@
  * Cache Storage Gateway Adapter execution test suite.
  */
 
-import { storage } from '@adukiorg/anza/storage';
+import { storage } from '@anzaui/anza/storage';
 
 describe('Cache Storage Gateway Adapter', () => {
   beforeEach(async () => {

@@ -2,14 +2,14 @@
 
 Top bar with brand and actions slots.
 
-**Tag:** `ui-header` · **Import:** `@adukiorg/anza/elements/header`
+**Tag:** `ui-header` · **Import:** `@anzaui/anza/elements/header`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/header';
+import '@anzaui/anza/elements/header';
 ```
 
 ---

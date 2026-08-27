@@ -6,7 +6,7 @@
  * Source: plan.md Phase 6-A, core/security/crypto.js
  */
 
-import { uuid, hash, generateKey, deriveKey, encrypt, decrypt, sign, verify } from '@adukiorg/anza/security';
+import { uuid, hash, generateKey, deriveKey, encrypt, decrypt, sign, verify } from '@anzaui/anza/security';
 
 describe('Web Cryptography Facade', () => {
   it('should generate valid crypto random UUID strings', () => {

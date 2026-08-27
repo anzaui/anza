@@ -2,14 +2,14 @@
 
 Styled surface for flat, elevated, or bordered panels.
 
-**Tag:** `ui-surface` · **Import:** `@adukiorg/anza/elements/surface`
+**Tag:** `ui-surface` · **Import:** `@anzaui/anza/elements/surface`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/surface';
+import '@anzaui/anza/elements/surface';
 ```
 
 ---

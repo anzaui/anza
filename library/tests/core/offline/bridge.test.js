@@ -4,7 +4,7 @@
  * Core Service Worker Message Bridge test suite.
  */
 
-import { bridge } from '@adukiorg/anza/offline';
+import { bridge } from '@anzaui/anza/offline';
 
 describe('Service Worker Message Bridge', () => {
   let originalNavigator;

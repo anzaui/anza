@@ -23,7 +23,7 @@ Returns a `Animation` instance.
 ## Using a Preset
 
 ```javascript
-import { animations } from '@adukiorg/anza/animations';
+import { animations } from '@anzaui/anza/animations';
 
 const anim = animations.animate(el, 'fade', { duration: 300 });
 await anim.finished;

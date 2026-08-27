@@ -7,7 +7,7 @@ Status: this guide documents the implemented public Workers contract: `workers.r
 Import from the workers entry point:
 
 ```javascript
-import { workers, has } from '@adukiorg/anza/workers';
+import { workers, has } from '@anzaui/anza/workers';
 ```
 
 ## 1. Feature Detection
@@ -221,7 +221,7 @@ Direct Dedicated Workers are useful for:
 Use `Pool` directly when you need a reusable pool instance with explicit lifetime.
 
 ```javascript
-import { Pool } from '@adukiorg/anza/workers';
+import { Pool } from '@anzaui/anza/workers';
 
 const pool = new Pool('/workers/image.js', {
   max: 3,
@@ -356,7 +356,7 @@ Use SharedWorker instead when state must persist or when only one connection sho
 The named `broadcast` export exposes direct channel controls.
 
 ```javascript
-import { broadcast } from '@adukiorg/anza/workers';
+import { broadcast } from '@anzaui/anza/workers';
 
 const stop = broadcast.subscribe('cache:avatar', clearAvatar);
 

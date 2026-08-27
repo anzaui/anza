@@ -5,7 +5,7 @@
  * Source: plan.md Phase 4 — Test Matrix
  */
 
-import { Shared } from '@adukiorg/anza/workers';
+import { Shared } from '@anzaui/anza/workers';
 
 describe('Shared Worker Connection', () => {
   let savedShared;

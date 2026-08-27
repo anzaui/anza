@@ -2,14 +2,14 @@
 
 Form-participating checkbox with checked / indeterminate states and ElementInternals custom states.
 
-**Tag:** `ui-checkbox` · **Import:** `@adukiorg/anza/elements/checkbox`
+**Tag:** `ui-checkbox` · **Import:** `@anzaui/anza/elements/checkbox`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/checkbox';
+import '@anzaui/anza/elements/checkbox';
 ```
 
 ---

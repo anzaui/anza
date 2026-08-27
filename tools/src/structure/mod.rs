@@ -600,7 +600,7 @@ mod tests {
     write(
       &src.join("app.js"),
       r#"import './pages/index.js';
-import { dock } from '@adukiorg/anza/ui';
+import { dock } from '@anzaui/anza/ui';
 dock('main');
 "#,
     );
@@ -611,7 +611,7 @@ dock('main');
     );
     write(
       &src.join("pages/entry/index.js"),
-      "import { page } from '@adukiorg/anza/ui';\npage('/', { tag: 'page-home', via: ['main'] });\n",
+      "import { page } from '@anzaui/anza/ui';\npage('/', { tag: 'page-home', via: ['main'] });\n",
     );
     write(&src.join("docks/index.js"), "// docks\n");
     write(&src.join("views/index.js"), "// views\n");
@@ -674,7 +674,7 @@ dock('main');
     );
     write(
       &project.join("src/docs/intro/index.js"),
-      "import { page } from '@adukiorg/anza/ui';\npage('/docs', { tag: 'page-docs' });\n",
+      "import { page } from '@anzaui/anza/ui';\npage('/docs', { tag: 'page-docs' });\n",
     );
     let report = check(&project, "src", Mode::Check);
     assert_eq!(report.error_count(), 0);
@@ -698,7 +698,7 @@ dock('main');
     );
     write(
       &project.join("src/docs/intro/index.js"),
-      "import { page } from '@adukiorg/anza/ui';\npage('/docs', { tag: 'page-docs' });\n",
+      "import { page } from '@anzaui/anza/ui';\npage('/docs', { tag: 'page-docs' });\n",
     );
     let report = check(&project, "src", Mode::Doctor);
     assert_eq!(report.error_count(), 0);
@@ -808,7 +808,7 @@ dock('main');
     minimal_scaffold(&project);
     write(
       &project.join("src/pages/entry/index.js"),
-      "import { page } from '@adukiorg/anza/ui';\npage('/', { tag: 'page-home', via: ['main', 'nope'] });\n",
+      "import { page } from '@anzaui/anza/ui';\npage('/', { tag: 'page-home', via: ['main', 'nope'] });\n",
     );
     let report = check(&project, "src", Mode::Check);
     assert!(
@@ -878,7 +878,7 @@ dock('main');
     minimal_scaffold(&project);
     write(
       &project.join("src/pages/entry/index.js"),
-      "import { page } from '@adukiorg/anza/ui';\npage('/', { tag: 'page-home', via: ['nope'] });\n",
+      "import { page } from '@anzaui/anza/ui';\npage('/', { tag: 'page-home', via: ['nope'] });\n",
     );
     let report = check(&project, "src", Mode::Check);
     assert!(

@@ -1,7 +1,7 @@
 /**
  * src/pages/index/index.js — welcome page
  */
-import { page } from '@adukiorg/anza/ui';
+import { page } from '@anzaui/anza/ui';
 
 import '../../views/code/index.js';
 

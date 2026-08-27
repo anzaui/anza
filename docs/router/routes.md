@@ -7,7 +7,7 @@ A route maps a URL pattern to a handler. The router compiles patterns lazily, so
 ## Registering a Route
 
 ```javascript
-import { router } from '@adukiorg/anza/router';
+import { router } from '@anzaui/anza/router';
 
 router.register('/members/:id', 'page-member');
 ```

@@ -6,7 +6,7 @@
  * Source: core/api/plan.md, core/api/index.js
  */
 
-import { api, prefixes, events, cache } from '@adukiorg/anza/api';
+import { api, prefixes, events, cache } from '@anzaui/anza/api';
 
 describe('API Prefix, Cache, and Events Engine', () => {
   let originalFetch;

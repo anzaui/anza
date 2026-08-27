@@ -7,7 +7,7 @@ SharedWorker connections persist across tabs. If `SharedWorker` is unavailable, 
 ## Connect
 
 ```javascript
-import { workers } from '@adukiorg/anza/workers';
+import { workers } from '@anzaui/anza/workers';
 
 const conn = workers.shared('/workers/state.js', 'app-shared');
 ```

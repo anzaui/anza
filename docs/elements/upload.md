@@ -2,14 +2,14 @@
 
 Drag-and-drop file picker with optional progress-tracked upload via the core upload API.
 
-**Tag:** `ui-upload` · **Import:** `@adukiorg/anza/elements/upload`
+**Tag:** `ui-upload` · **Import:** `@anzaui/anza/elements/upload`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/upload';
+import '@anzaui/anza/elements/upload';
 ```
 
 ---

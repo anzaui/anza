@@ -3,7 +3,7 @@
 <hr />
 <h2>LRUCache</h2>
 <p>Standard least-recently-used cache with TTL support.</p>
-<view-code language="javascript">import { LRUCache } from '@adukiorg/anza/storage';
+<view-code language="javascript">import { LRUCache } from '@anzaui/anza/storage';
 
 const cache = new LRUCache(100); // max 100 entries
 
@@ -17,7 +17,7 @@ console.log(cache.get('c')); // null
 <hr />
 <h2>WeakLRUCache</h2>
 <p>Uses <code>WeakRef</code> so values can be garbage collected. Values must be objects or functions.</p>
-<view-code language="javascript">import { WeakLRUCache } from '@adukiorg/anza/storage';
+<view-code language="javascript">import { WeakLRUCache } from '@anzaui/anza/storage';
 
 const cache = new WeakLRUCache(100);
 

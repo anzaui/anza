@@ -2,14 +2,14 @@
 
 Compact label indicator with variant mapping (info, success, warning, error) and size scaling.
 
-**Tag:** `ui-badge` · **Import:** `@adukiorg/anza/elements/badge`
+**Tag:** `ui-badge` · **Import:** `@anzaui/anza/elements/badge`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/badge';
+import '@anzaui/anza/elements/badge';
 ```
 
 ---

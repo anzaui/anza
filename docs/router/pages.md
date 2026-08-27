@@ -195,7 +195,7 @@ All hooks receive a context object. The `load` hook receives the route-derived `
 Pass `ctrl.signal` into any long-lived work that can outlive the page leaf:
 
 ```javascript
-import { ui } from '@adukiorg/anza/ui';
+import { ui } from '@anzaui/anza/ui';
 
 on: {
   async load({ ctrl }) {

@@ -3,7 +3,7 @@
 <hr />
 <h2>1. Create <code>src/sw.js</code></h2>
 <p>The scaffold generates this file for you. Here is what it contains:</p>
-<view-code language="javascript">import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@adukiorg/anza/sw';
+<view-code language="javascript">import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@anzaui/anza/sw';
 
 const SHELL = 'shell-v3';
 const API = 'api-v3';
@@ -41,8 +41,8 @@ self.addEventListener('fetch', (e) =&gt; {
 <p>Keep helpers in optional <code>src/sw/</code> and <code>import</code> them from <code>src/sw.js</code> — that folder is <strong>modules only</strong>, not extra registrations. Multi-scope workers (advanced) use <code>anza.json</code> <code>sw</code> arrays — see <a href="/docs/intro/structure#service-workers">intro/structure.md</a>.</p>
 <hr />
 <h2>2. Register from <code>app.js</code></h2>
-<view-code language="javascript">import '@adukiorg/anza/ui';
-import { dock } from '@adukiorg/anza/ui';
+<view-code language="javascript">import '@anzaui/anza/ui';
+import { dock } from '@anzaui/anza/ui';
 
 // Register the Service Worker
 navigator.serviceWorker.register('/sw.js');
@@ -57,7 +57,7 @@ import './pages/index/index.js';
 <hr />
 <h2>3. Send Messages from the Main Thread</h2>
 <p>Use the offline bridge to send tasks to the active SW:</p>
-<view-code language="javascript">import { offline } from '@adukiorg/anza/offline';
+<view-code language="javascript">import { offline } from '@anzaui/anza/offline';
 
 offline.send('sync', { action: 'flush-queue' });
 </view-code>
@@ -82,7 +82,7 @@ offline.send('sync', { action: 'flush-queue' });
 <hr />
 <h2>Next</h2>
 <p>Add background sync to replay failed mutations:</p>
-<view-code language="javascript">import { replayQueue } from '@adukiorg/anza/sw';
+<view-code language="javascript">import { replayQueue } from '@anzaui/anza/sw';
 
 self.addEventListener('sync', (e) =&gt; {
   if (e.tag === 'sync-tasks') {

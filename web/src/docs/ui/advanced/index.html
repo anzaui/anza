@@ -89,9 +89,9 @@ observer.observe(shadowRoot, { childList: true, subtree: false });
 <tr><td><code>popover.target-click</code></td><td><code>platform/polyfills/popover.js</code></td><td><code>document</code> click</td><td>framework lifetime when polyfill installs</td></tr>
 <tr><td><code>popover.body-mo:*</code></td><td><code>platform/polyfills/popover.js</code></td><td>parent (preferred) or <code>body</code></td><td>disconnect on hide</td></tr>
 </tbody></table></div>
-<p>Inspect with <code>import { globals } from '@adukiorg/anza/platform'</code> — <code>globals.count()</code> / <code>globals.list()</code> (test / diagnostics helper). Prefer <code>on</code> / <code>watch</code> / <code>events.*</code> with <code>{ signal: ctrl.signal }</code> for app code. Soft-nav aborts the detached leaf’s <code>ctrl</code>; anything attached without that signal survives <code>replaceChildren</code> / <code>swapView</code>.</p>
+<p>Inspect with <code>import { globals } from '@anzaui/anza/platform'</code> — <code>globals.count()</code> / <code>globals.list()</code> (test / diagnostics helper). Prefer <code>on</code> / <code>watch</code> / <code>events.*</code> with <code>{ signal: ctrl.signal }</code> for app code. Soft-nav aborts the detached leaf’s <code>ctrl</code>; anything attached without that signal survives <code>replaceChildren</code> / <code>swapView</code>.</p>
 <p>Per-instance attachment budget (DEV / tests):</p>
-<view-code language="javascript">import { getAttachmentStats } from '@adukiorg/anza/ui';
+<view-code language="javascript">import { getAttachmentStats } from '@anzaui/anza/ui';
 
 const stats = getAttachmentStats(el.shadowRoot);
 // { onRootListeners, onRegistrations, watchBuckets, watchRegistrations, slotListeners }
@@ -112,7 +112,7 @@ const stats = getAttachmentStats(el.shadowRoot);
 <hr />
 <h2>Extending BaseElement</h2>
 <p>Subclass <code>BaseElement</code> for imperative elements that need the AbortController pattern but not the full declarative factory:</p>
-<view-code language="javascript">import { BaseElement } from '@adukiorg/anza/ui';
+<view-code language="javascript">import { BaseElement } from '@anzaui/anza/ui';
 
 class ChartWidget extends BaseElement {
   mount() {
@@ -132,7 +132,7 @@ customElements.define('chart-widget', ChartWidget);
 <hr />
 <h2>Custom Define</h2>
 <p>The low-level <code>define(tag, Class)</code> helper skips duplicate registrations:</p>
-<view-code language="javascript">import { define } from '@adukiorg/anza/ui';
+<view-code language="javascript">import { define } from '@anzaui/anza/ui';
 
 define('my-element', MyClass);
 define('my-element', MyClass); // logs warning, skips

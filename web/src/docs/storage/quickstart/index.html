@@ -2,7 +2,7 @@
 <p>Get reading and writing in five minutes.</p>
 <hr />
 <h2>1. Write and Read</h2>
-<view-code language="javascript">import { storage } from '@adukiorg/anza/storage';
+<view-code language="javascript">import { storage } from '@anzaui/anza/storage';
 
 await storage.set('name', 'Alice');
 const name = await storage.get('name');
@@ -58,7 +58,7 @@ console.log(est.usage, est.quota, est.persisted);
 <p>Call <code>configure</code> before the first read/write.</p>
 <hr />
 <h2>Complete Working Example</h2>
-<view-code language="javascript">import { storage } from '@adukiorg/anza/storage';
+<view-code language="javascript">import { storage } from '@anzaui/anza/storage';
 
 // Reconfigure for the app
 storage.configure({

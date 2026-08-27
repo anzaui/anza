@@ -2,14 +2,14 @@
 
 Form-participating radio that coordinates selection with siblings sharing the same `name`.
 
-**Tag:** `ui-radio` · **Import:** `@adukiorg/anza/elements/radio`
+**Tag:** `ui-radio` · **Import:** `@anzaui/anza/elements/radio`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/radio';
+import '@anzaui/anza/elements/radio';
 ```
 
 ---

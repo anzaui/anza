@@ -4,7 +4,7 @@
 <h2>supports flag returns wrong value</h2>
 <p><strong>Cause:</strong> The flag was cached before a polyfill loaded, or the detection test is environment-dependent.</p>
 <p><strong>Fix:</strong> Clear the cache and retry:</p>
-<view-code language="javascript">import { reset, supports } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { reset, supports } from '@anzaui/anza/platform';
 
 reset('urlPattern');
 console.log(supports.urlPattern); // re-detects
@@ -34,7 +34,7 @@ console.log(scheduler); // should have postTask and yield
 <h2>Polyfill conflicts with existing library</h2>
 <p><strong>Cause:</strong> Another polyfill (e.g., from a CDN) already defined the API.</p>
 <p><strong>Fix:</strong> The Anza polyfills check for native support before installing. If a third-party polyfill is already present, the Anza guard will use it. To force Anza's polyfill, ensure it loads first:</p>
-<view-code language="javascript">import { guard } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { guard } from '@anzaui/anza/platform';
 // This loads polyfills eagerly if native support is missing
 </view-code>
 <hr />
@@ -44,7 +44,7 @@ console.log(scheduler); // should have postTask and yield
 <hr />
 <h2>Still stuck?</h2>
 <p>Inspect the full capability matrix:</p>
-<view-code language="javascript">import { supports } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { supports } from '@anzaui/anza/platform';
 
 for (const key of Object.keys(supports)) {
   console.log(key, supports[key]);

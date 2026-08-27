@@ -7,7 +7,7 @@ Get working with platform detection and polyfills in five minutes.
 ## 1. Check a Capability
 
 ```javascript
-import { supports } from '@adukiorg/anza/platform';
+import { supports } from '@anzaui/anza/platform';
 
 if (supports.viewTransitions) {
   console.log('View transitions are native');
@@ -23,7 +23,7 @@ Flags are lazily evaluated on first access and cached. Subsequent reads are inst
 ## 2. Assert a Requirement
 
 ```javascript
-import { typeGuard } from '@adukiorg/anza/platform';
+import { typeGuard } from '@anzaui/anza/platform';
 
 // Throws if OPFS is not supported
 typeGuard('opfs', 'This feature requires file system access');
@@ -36,7 +36,7 @@ Use `typeGuard` in critical paths where continuing without the feature would be 
 ## 3. Lazy-Load a Polyfill
 
 ```javascript
-import { guard } from '@adukiorg/anza/platform';
+import { guard } from '@anzaui/anza/platform';
 
 // Returns native URLPattern or loads the polyfill
 const URLPattern = await guard.urlPattern();
@@ -50,7 +50,7 @@ The guard checks native support first. Only if missing does it dynamically impor
 ## 4. Use the Scheduler
 
 ```javascript
-import { guard } from '@adukiorg/anza/platform';
+import { guard } from '@anzaui/anza/platform';
 
 const scheduler = await guard.scheduler();
 
@@ -66,7 +66,7 @@ If native `scheduler` is available, it is returned directly. Otherwise the polyf
 ## 5. Yield in a Loop
 
 ```javascript
-import { guard } from '@adukiorg/anza/platform';
+import { guard } from '@anzaui/anza/platform';
 
 async function processLargeDataset(items) {
   for (let i = 0; i < items.length; i++) {
@@ -83,7 +83,7 @@ async function processLargeDataset(items) {
 ## 6. Escape Overflow (Floating UI)
 
 ```javascript
-import { guard } from '@adukiorg/anza/platform';
+import { guard } from '@anzaui/anza/platform';
 
 const tip = document.querySelector('#tip');       // [popover="manual"]
 const anchor = document.querySelector('#anchor');
@@ -100,7 +100,7 @@ Prefer `ui-tooltip` when you need a ready-made hint. Details: [guards.md#escape]
 ## Complete Working Example
 
 ```javascript
-import { supports, guard, typeGuard } from '@adukiorg/anza/platform';
+import { supports, guard, typeGuard } from '@anzaui/anza/platform';
 
 // Feature-gated view transition
 async function navigate() {

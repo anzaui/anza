@@ -21,7 +21,7 @@ stagger(elements, animationInput, options);
 ## Basic Stagger
 
 ```javascript
-import { animations } from '@adukiorg/anza/animations';
+import { animations } from '@anzaui/anza/animations';
 
 const items = document.querySelectorAll('.item');
 

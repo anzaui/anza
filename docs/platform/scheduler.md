@@ -17,7 +17,7 @@ The platform scheduler provides prioritized task execution and cooperative yield
 ## Posting Tasks
 
 ```javascript
-import { guard } from '@adukiorg/anza/platform';
+import { guard } from '@anzaui/anza/platform';
 
 const scheduler = await guard.scheduler();
 
@@ -67,7 +67,7 @@ controller.abort();
 ## Yielding
 
 ```javascript
-import { guard } from '@adukiorg/anza/platform';
+import { guard } from '@anzaui/anza/platform';
 
 async function processItems(items) {
   for (const item of items) {

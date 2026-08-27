@@ -140,7 +140,7 @@ events.on('update', handler, ctrl.signal);
 **Fix:** Create isolated buses for module scope:
 
 ```javascript
-import { EventBus } from '@adukiorg/anza/events';
+import { EventBus } from '@anzaui/anza/events';
 
 const moduleBus = new EventBus();
 moduleBus.on('internal', handler);

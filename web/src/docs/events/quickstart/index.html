@@ -2,7 +2,7 @@
 <p>Get working with events in five minutes.</p>
 <hr />
 <h2>1. Global Pub/Sub</h2>
-<view-code language="javascript">import { events } from '@adukiorg/anza/events';
+<view-code language="javascript">import { events } from '@anzaui/anza/events';
 
 // Subscribe
 const off = events.on('user:login', (e) =&gt; {
@@ -60,7 +60,7 @@ console.log('Clicked element:', click.target);
 <p>One listener on <code>document.body</code> handles all <code>.item</code> clicks, even elements added after the listener is registered. The delegation traverses <code>composedPath()</code> so it works through shadow DOM boundaries.</p>
 <hr />
 <h2>6. Use System Event Names</h2>
-<view-code language="javascript">import { events } from '@adukiorg/anza/events';
+<view-code language="javascript">import { events } from '@anzaui/anza/events';
 
 events.on(events.names.auth.signedin, (e) =&gt; {
   console.log('Auth token refreshed');
@@ -73,7 +73,7 @@ events.on(events.names.connectivity.offline, () =&gt; {
 <p>System event names prevent typos and give IDE autocomplete.</p>
 <hr />
 <h2>Complete Working Example</h2>
-<view-code language="javascript">import { events } from '@adukiorg/anza/events';
+<view-code language="javascript">import { events } from '@anzaui/anza/events';
 
 // Global notifications
 events.on('notification', (e) =&gt; {

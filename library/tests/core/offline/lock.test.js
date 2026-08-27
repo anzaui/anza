@@ -4,7 +4,7 @@
  * Fallback replay lock coordination execution test suite.
  */
 
-import { sync } from '@adukiorg/anza/offline';
+import { sync } from '@anzaui/anza/offline';
 
 describe('Fallback Replay Lock Coordination', () => {
   it('should coordinate manual fallback sync triggers under a Web Lock', async () => {

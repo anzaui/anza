@@ -108,7 +108,7 @@ This separation prevents a callback from running twice.
 For advanced use, the internal handler contract is exposed:
 
 ```javascript
-import { isCallback, resolveTag, runCallback } from '@adukiorg/anza/router';
+import { isCallback, resolveTag, runCallback } from '@anzaui/anza/router';
 
 const handler = { load: async () => 'page-home' };
 

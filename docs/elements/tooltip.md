@@ -2,7 +2,7 @@
 
 Hover / focus hint. The tip stays in-tree (not a body portal) and uses the platform **escape / position** helper so it can leave `overflow` clipping via Popover top-layer, with a fixed-position fallback when APIs are missing.
 
-**Tag:** `ui-tooltip` · **Import:** `@adukiorg/anza/elements/tooltip`
+**Tag:** `ui-tooltip` · **Import:** `@anzaui/anza/elements/tooltip`
 
 Architecture and when-to-use: [Overlay patterns](overlay.md).
 
@@ -11,7 +11,7 @@ Architecture and when-to-use: [Overlay patterns](overlay.md).
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/tooltip';
+import '@anzaui/anza/elements/tooltip';
 ```
 
 ---
@@ -54,11 +54,11 @@ Optional placement (default `top`):
 ## Positioning / escape
 
 - On pointer enter / focus-within, the tip opens via `showPopover()` when the Popover API (or polyfill) is available — top-layer, so typical `overflow: hidden` ancestors do not clip it.
-- Placement is computed by `@adukiorg/anza/platform` (`escapeOverflow` / `guard.escape`) with `position: fixed` coordinates; scroll/resize keep it aligned.
+- Placement is computed by `@anzaui/anza/platform` (`escapeOverflow` / `guard.escape`) with `position: fixed` coordinates; scroll/resize keep it aligned.
 - If popover methods are unavailable, the helper falls back to fixed positioning and a `data-escape-open` marker (still not a `document.body` portal).
 - Prefer [popover](popover.md) / [menu](menu.md) for interactive panels; tooltip is for short non-interactive hints.
 
-Platform API: `import { escapeOverflow, guard } from '@adukiorg/anza/platform'`.
+Platform API: `import { escapeOverflow, guard } from '@anzaui/anza/platform'`.
 
 ### Lifecycle / memory
 

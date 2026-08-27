@@ -2,7 +2,7 @@
 <p>Animation timing values are synchronized with CSS custom properties at runtime. This ensures JavaScript animations and CSS transitions share the same duration and easing values.</p>
 <hr />
 <h2>Duration</h2>
-<view-code language="javascript">import { animations } from '@adukiorg/anza/animations';
+<view-code language="javascript">import { animations } from '@anzaui/anza/animations';
 
 const fast = animations.duration('fast');    // e.g. 100
 const normal = animations.duration('normal'); // e.g. 200
@@ -40,7 +40,7 @@ const spring = animations.ease('spring');
 <p>Checks <code>prefers-reduced-motion: reduce</code>.</p>
 <hr />
 <h2>Timing Constants</h2>
-<view-code language="javascript">import { Timing } from '@adukiorg/anza/animations';
+<view-code language="javascript">import { Timing } from '@anzaui/anza/animations';
 
 Timing.EASE;        // 'ease'
 Timing.EASE_IN;     // 'ease-in'
@@ -54,14 +54,14 @@ Timing.SPRING;      // resolves to CSS token
 <p>The router and UI layers read animation tokens automatically when running View Transitions. See <code>docs/ui/transitions.md</code> and <code>docs/router/transitions.md</code> for the <code>--transition-*</code> token layer.</p>
 <hr />
 <h2>Timing Helper</h2>
-<view-code language="javascript">import { timing } from '@adukiorg/anza/animations';
+<view-code language="javascript">import { timing } from '@anzaui/anza/animations';
 
 const opts = timing(300, 'ease-out', 'both');
 // { duration: 300, easing: 'ease-out', fill: 'both' }
 </view-code>
 <hr />
 <h2>Keyframe Builder</h2>
-<view-code language="javascript">import { keyframes } from '@adukiorg/anza/animations';
+<view-code language="javascript">import { keyframes } from '@anzaui/anza/animations';
 
 const fade = keyframes('fade');
 // [{ opacity: 0 }, { opacity: 1 }]

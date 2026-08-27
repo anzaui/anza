@@ -166,16 +166,16 @@ router.navigate('/settings', { state: { tab: 'profile' } });
 <hr />
 <h2>Internal Exports</h2>
 <p>For middleware and test utilities:</p>
-<view-code language="javascript">import { register, match, clear, getRoutes, load } from '@adukiorg/anza/router';
-import { addGuard, setNotFound, on, setup, destroy } from '@adukiorg/anza/router';
-import { navigate, replace, back, forward, go } from '@adukiorg/anza/router';
-import { gate, boot, ready, reset } from '@adukiorg/anza/router';
-import { isCallback, resolveTag, runCallback } from '@adukiorg/anza/router';
-import { transitions } from '@adukiorg/anza/router';
+<view-code language="javascript">import { register, match, clear, getRoutes, load } from '@anzaui/anza/router';
+import { addGuard, setNotFound, on, setup, destroy } from '@anzaui/anza/router';
+import { navigate, replace, back, forward, go } from '@anzaui/anza/router';
+import { gate, boot, ready, reset } from '@anzaui/anza/router';
+import { isCallback, resolveTag, runCallback } from '@anzaui/anza/router';
+import { transitions } from '@anzaui/anza/router';
 </view-code>
 <h3><code>transitions</code></h3>
 <p>Router facade over the UI View Transitions core. Soft-nav docks use <strong>element-scoped</strong> VT via <code>dock.swap</code> / <code>runSwap</code> — never document VT. Use <code>run</code> only for explicit document morphs.</p>
-<view-code language="javascript">import { transitions } from '@adukiorg/anza/router';
+<view-code language="javascript">import { transitions } from '@anzaui/anza/router';
 
 transitions.configure({ enabled: true });
 transitions.dockName(null, 'content'); // → 'dock-content'

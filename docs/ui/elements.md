@@ -123,7 +123,7 @@ The generated class extends `BaseElement`, which provides:
 Subclass `BaseElement` directly for imperative custom elements:
 
 ```javascript
-import { BaseElement } from '@adukiorg/anza/ui';
+import { BaseElement } from '@anzaui/anza/ui';
 
 class MyElement extends BaseElement {
   mount() {

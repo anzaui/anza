@@ -1,6 +1,6 @@
 # Platform Module — Developer Usage Guide
 
-The `@adukiorg/anza/platform` module acts as a smart, lazy-evaluated browser capability layer and zero-overhead polyfill manager. It exposes simple feature flags, unified asynchronous feature gates, a prioritized task scheduler, leak-proof popovers, and resilient URLPattern pathname matching.
+The `@anzaui/anza/platform` module acts as a smart, lazy-evaluated browser capability layer and zero-overhead polyfill manager. It exposes simple feature flags, unified asynchronous feature gates, a prioritized task scheduler, leak-proof popovers, and resilient URLPattern pathname matching.
 
 ---
 
@@ -9,7 +9,7 @@ The `@adukiorg/anza/platform` module acts as a smart, lazy-evaluated browser cap
 To keep your client application highly performant and structured, import everything directly from the unified platform specifier:
 
 ```javascript
-import { supports, guard, reset, typeGuard } from '@adukiorg/anza/platform';
+import { supports, guard, reset, typeGuard } from '@anzaui/anza/platform';
 ```
 
 ---
@@ -21,7 +21,7 @@ The `supports` object is a lazy-evaluated, cached registry containing 30+ boolea
 ### Example Usage
 
 ```javascript
-import { supports } from '@adukiorg/anza/platform';
+import { supports } from '@anzaui/anza/platform';
 
 // 1. OPFS support
 if (supports.opfs) {
@@ -54,7 +54,7 @@ if (supports.viewTransitions) {
 *Note: For unit testing, you can clear cached lazy-evaluated values using the `reset(flag)` method. This allows mocking feature states dynamically in tests:*
 
 ```javascript
-import { reset, supports } from '@adukiorg/anza/platform';
+import { reset, supports } from '@anzaui/anza/platform';
 
 // Force urlPattern to false for testing fallback polyfill loading
 Object.defineProperty(supports, 'urlPattern', { value: false, configurable: true });
@@ -70,7 +70,7 @@ reset('urlPattern');
 Use `typeGuard` to assert feature support at runtime. It throws an error with a custom message if the feature is not available, making it useful for early-fail checks in critical code paths:
 
 ```javascript
-import { typeGuard } from '@adukiorg/anza/platform';
+import { typeGuard } from '@anzaui/anza/platform';
 
 // Assert OPFS support before attempting file operations
 typeGuard('opfs', 'OPFS is required for this feature');
@@ -116,7 +116,7 @@ When native `globalThis.scheduler` is absent, the polyfill exposes a robust micr
 ### Prioritized Task Enqueuing
 
 ```javascript
-import { guard } from '@adukiorg/anza/platform';
+import { guard } from '@anzaui/anza/platform';
 
 const scheduler = await guard.scheduler();
 
@@ -167,7 +167,7 @@ controller.abort();
 Use `guard.yield()` inside complex, long-running loops to split execution into distinct chunks, preventing browser UI freezes and maintaining a 60fps frame rate.
 
 ```javascript
-import { guard } from '@adukiorg/anza/platform';
+import { guard } from '@anzaui/anza/platform';
 
 async function processMassiveDataset(items) {
   for (let idx = 0; idx < items.length; idx++) {
@@ -246,7 +246,7 @@ Spec-compliant URLPattern pathname parser that extracts named parameters and wil
 ### Segment Parameter & Wildcard Matching
 
 ```javascript
-import { guard } from '@adukiorg/anza/platform';
+import { guard } from '@anzaui/anza/platform';
 
 const URLPattern = await guard.urlPattern();
 

@@ -2,7 +2,7 @@
 
 Bottom sheet overlay backed by native `<dialog>` + `showModal()`, with drag-to-dismiss on the handle.
 
-**Tag:** `ui-sheet` · **Import:** `@adukiorg/anza/elements/sheet`
+**Tag:** `ui-sheet` · **Import:** `@anzaui/anza/elements/sheet`
 
 Architecture and when-to-use: [Overlay patterns](overlay.md).
 
@@ -11,7 +11,7 @@ Architecture and when-to-use: [Overlay patterns](overlay.md).
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/sheet';
+import '@anzaui/anza/elements/sheet';
 ```
 
 ---

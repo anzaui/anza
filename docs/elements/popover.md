@@ -2,7 +2,7 @@
 
 Lightweight contextual overlay using the native Popover API for top-layer rendering and light dismiss.
 
-**Tag:** `ui-popover` · **Import:** `@adukiorg/anza/elements/popover`
+**Tag:** `ui-popover` · **Import:** `@anzaui/anza/elements/popover`
 
 Architecture and when-to-use: [Overlay patterns](overlay.md).
 
@@ -11,7 +11,7 @@ Architecture and when-to-use: [Overlay patterns](overlay.md).
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/popover';
+import '@anzaui/anza/elements/popover';
 ```
 
 ---

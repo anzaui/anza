@@ -30,9 +30,9 @@ The UI layer is organized into three levels:
 ## Package
 
 ```javascript
-import { ui } from '@adukiorg/anza/ui';
-import { page, dock, view, part } from '@adukiorg/anza/defs';
-import { BaseElement } from '@adukiorg/anza/ui';
+import { ui } from '@anzaui/anza/ui';
+import { page, dock, view, part } from '@anzaui/anza/defs';
+import { BaseElement } from '@anzaui/anza/ui';
 ```
 
 ---
@@ -62,7 +62,7 @@ import { BaseElement } from '@adukiorg/anza/ui';
 ## One-File Example
 
 ```javascript
-import { view } from '@adukiorg/anza/defs';
+import { view } from '@anzaui/anza/defs';
 
 view('user-card', {
   props: {

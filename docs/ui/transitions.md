@@ -49,7 +49,7 @@ import {
   runSwapTransition,
   configureTransitions,
   prefersReducedMotion
-} from '@adukiorg/anza/ui';
+} from '@anzaui/anza/ui';
 
 // Global opt-out / custom naming
 ui.configureTransitions({
@@ -80,7 +80,7 @@ await ui.runSwapTransition(host, () => host.replaceChildren(leaf), {
 Router helper (document morph + token sheet inject):
 
 ```javascript
-import { transitions } from '@adukiorg/anza/router';
+import { transitions } from '@anzaui/anza/router';
 
 await transitions.run(() => panel.replaceChildren(next), {
   sourceElement: thumb,
@@ -158,7 +158,7 @@ Already-aborted signals reject with `AbortError` immediately.
 ## Platform flags
 
 ```javascript
-import { supports } from '@adukiorg/anza/platform';
+import { supports } from '@anzaui/anza/platform';
 
 supports.viewTransitions;         // document.startViewTransition
 supports.elementViewTransitions;  // Element.prototype.startViewTransition

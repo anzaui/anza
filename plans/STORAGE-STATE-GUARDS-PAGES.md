@@ -36,8 +36,8 @@ Planning document for hardening Anza’s **storage** and **state** contracts, cl
 ### Nested docks — branded override per section (optional)
 
 ```javascript
-import { view, dock, page } from '@adukiorg/anza/ui';
-import { router } from '@adukiorg/anza/router';
+import { view, dock, page } from '@anzaui/anza/ui';
+import { router } from '@anzaui/anza/router';
 
 view('page-docs-not-found', {
   template: { html: './docs-404.html' }
@@ -140,7 +140,7 @@ router.pages.onError(async (ctx) => {
 
 Anza already ships substantial storage, state, and guard code, plus a minimal 404 path. The product gap is not “greenfield APIs” — it is **contract clarity, override hierarchy, and missing error surfaces**:
 
-1. **Two storage stories** — `@adukiorg/anza/storage` (tiered gateway) and `state.storage` / `PlatformStorage` (store-oriented IDB). Authors must guess which to use; types and docs under-specify the relationship.
+1. **Two storage stories** — `@anzaui/anza/storage` (tiered gateway) and `state.storage` / `PlatformStorage` (store-oriented IDB). Authors must guess which to use; types and docs under-specify the relationship.
 2. **Two “guard” words** — `platform.guard` (feature + polyfill) vs `router.guard` / `page({ guard })` (navigation). Both are correct but easy to conflate in docs and search.
 3. **404 is half-finished** — built-in HTML + `dock({ notfound })` + `router.notFound` exist, but “deepest dock wins,” boot vs navigate parity, and custom-element pages are incomplete or wrong.
 4. **No first-class 5xx / CSR offline pages** — `router.on('error')` emits phases; SW has `OfflineFallback('/offline.html')`; neither mounts a dock-scoped error leaf the way 404 almost does.
@@ -153,7 +153,7 @@ Goal: one coherent story — **where defaults live, how apps override them (app 
 
 ## Current state (file pointers)
 
-### Storage (`@adukiorg/anza/storage`)
+### Storage (`@anzaui/anza/storage`)
 
 | Piece | Location | Behavior |
 | ----- | -------- | -------- |
@@ -164,7 +164,7 @@ Goal: one coherent story — **where defaults live, how apps override them (app 
 | Types | `library/types/core/storage/index.d.ts` | Partial — missing `configure`, options/`ttl` forms |
 | Tests | `library/tests/core/storage/{idb,lru,cache,opfs,quota}.test.js` | Per-adapter; **no dedicated facade integration suite** |
 
-### State (`@adukiorg/anza/state`)
+### State (`@anzaui/anza/state`)
 
 | Piece | Location | Behavior |
 | ----- | -------- | -------- |
@@ -217,7 +217,7 @@ Goal: one coherent story — **where defaults live, how apps override them (app 
 | G1 | Dual storage APIs without a documented decision tree | Wrong default DB / duplicate schemas / surprise quota |
 | G2 | Storage `.d.ts` lags facade (`configure`, `{ tier, ttl }`) | TS apps drift from runtime |
 | G3 | No facade-level storage tests | Adapter green ≠ gateway green (journal, default tier, compress) |
-| G4 | `state.storage` vs `@adukiorg/anza/storage` share names / default DB name `platform-db` | Collision risk if both opened casually |
+| G4 | `state.storage` vs `@anzaui/anza/storage` share names / default DB name `platform-db` | Collision risk if both opened casually |
 | G5 | Platform vs router “guard” naming | Docs and support confusion |
 | G6 | `renderNotFound` ≠ “deepest configured wins” | Nested docs chrome shows root 404 or wrong template |
 | G7 | Boot path ignores `router.notFound` | App branding broken on hard refresh miss |
@@ -251,7 +251,7 @@ Goal: one coherent story — **where defaults live, how apps override them (app 
 | Replacing SW `OfflineFallback` with CSR-only offline | Keep SW for cold navigations; CSR page is additive |
 | Anza-owned production SSR error pages | Rejected product shape (SSG-SEO) |
 | Bundler-driven code-splitting for error pages | Multi-file ESM; lazy `page` tags already gate |
-| Perfect HTTP status mapping for every API `fetch` 5xx | API retries stay in `@adukiorg/anza/api`; this track is **navigation / dock UI** |
+| Perfect HTTP status mapping for every API `fetch` 5xx | API retries stay in `@anzaui/anza/api`; this track is **navigation / dock UI** |
 | Auto-generating branded 404 HTML into every SSG `dist/` path | Optional host glue later; not blocking CSR contract |
 
 ---
@@ -263,7 +263,7 @@ Goal: one coherent story — **where defaults live, how apps override them (app 
 **Keep** the tiered facade as the general-purpose persistence gateway.
 
 ```javascript
-import { storage } from '@adukiorg/anza/storage';
+import { storage } from '@anzaui/anza/storage';
 
 storage.configure({
   idb: { name: 'app-db', version: 1, migrations: [/* … */] },
@@ -292,7 +292,7 @@ const session = await storage.get('session'); // memory → idb
 **Keep** `state.create` / `derived` / `sync` / `PlatformStorage` as the reactive layer.
 
 ```javascript
-import { state } from '@adukiorg/anza/state';
+import { state } from '@anzaui/anza/state';
 
 const store = state.create({ user: null, theme: 'system' }, { deep: true });
 store.subscribe('user', (u) => { /* … */ }, ctrl.signal);
@@ -318,8 +318,8 @@ Keep both APIs; **docs and glossary** make the split unmistakable:
 
 | Name | Import | Job |
 | ---- | ------ | --- |
-| Feature guard | `import { guard, typeGuard, supports } from '@adukiorg/anza/platform'` | Capability + polyfill |
-| Nav guard | `import { router } from '@adukiorg/anza/router'` · `page({ guard })` | Allow / redirect |
+| Feature guard | `import { guard, typeGuard, supports } from '@anzaui/anza/platform'` | Capability + polyfill |
+| Nav guard | `import { router } from '@anzaui/anza/router'` · `page({ guard })` | Allow / redirect |
 
 **Nav guard contract (unchanged shape, clearer failure UI):**
 
@@ -459,7 +459,7 @@ Fixes G6–G8 with dock-scoped host + custom view tags.
 | Q1 | Should `{ tag }` error pages be full `page()` routes (URL stays unmatched) or headless elements? | Headless elements mounted by resolver; URL stays the missed/failed URL |
 | Q2 | Auto-show offline page on every soft-nav while offline, or only on fetch failure? | Prefer explicit / failure-driven to avoid fighting SW + chrome banners |
 | Q3 | Map API module 5xx to dock error pages? | **No** by default — toast / inline; apps may bridge via `router.pages.show('error', detail)` |
-| Q4 | Merge `PlatformStorage` into `@adukiorg/anza/storage`? | **No** in this track — document + naming; merge only if a later storage redesign owns it |
+| Q4 | Merge `PlatformStorage` into `@anzaui/anza/storage`? | **No** in this track — document + naming; merge only if a later storage redesign owns it |
 | Q5 | Rename platform `guard` to `ensure` / `polyfill`? | **No** — docs glossary only unless a breaking major is planned |
 | Q6 | Should Axum serve branded `404.html` from `dist/`? | Optional host polish; CSR resolver is the product acceptance |
 | Q7 | `innerHTML` for string templates vs sanitizer? | Reuse existing sanitize policy for untrusted strings; app-authored templates trusted like today |

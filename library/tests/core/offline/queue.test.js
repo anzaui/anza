@@ -6,7 +6,7 @@
  * Source: plan.md Phase 6-A, core/offline/queue.js
  */
 
-import { queue } from '@adukiorg/anza/offline';
+import { queue } from '@anzaui/anza/offline';
 import { deserializeRequest } from '../../../src/sw/queue.js';
 
 describe('Offline Journal Queue', () => {

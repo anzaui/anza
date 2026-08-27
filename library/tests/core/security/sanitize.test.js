@@ -6,7 +6,7 @@
  * Source: plan.md Phase 6-A, core/security/sanitize.js
  */
 
-import { sanitize } from '@adukiorg/anza/security';
+import { sanitize } from '@anzaui/anza/security';
 
 describe('HTML Security Sanitizer', () => {
   it('should preserve safe and approved standard markup tags', () => {

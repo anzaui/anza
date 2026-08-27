@@ -16,13 +16,13 @@ The Anza security layer provides browser-native cryptography, HTML sanitization,
 ## Package
 
 ```javascript
-import { security } from '@adukiorg/anza/security';
+import { security } from '@anzaui/anza/security';
 ```
 
 Or individual functions:
 
 ```javascript
-import { uuid, hash, encrypt, decrypt, seal, unseal, sanitize, permission } from '@adukiorg/anza/security';
+import { uuid, hash, encrypt, decrypt, seal, unseal, sanitize, permission } from '@anzaui/anza/security';
 ```
 
 ---
@@ -44,7 +44,7 @@ import { uuid, hash, encrypt, decrypt, seal, unseal, sanitize, permission } from
 ## One-File Example
 
 ```javascript
-import { security } from '@adukiorg/anza/security';
+import { security } from '@anzaui/anza/security';
 
 // Hash
 const digest = await security.hash('password123');

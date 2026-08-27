@@ -2,7 +2,7 @@
 <p>Scroll-driven animations link element playback to scroll position or viewport intersection. The module wraps <code>ScrollTimeline</code> and <code>ViewTimeline</code> with graceful fallbacks for unsupported browsers.</p>
 <hr />
 <h2>Scroll Timeline</h2>
-<view-code language="javascript">import { animations } from '@adukiorg/anza/animations';
+<view-code language="javascript">import { animations } from '@anzaui/anza/animations';
 
 const timeline = animations.scroll({
   source: document.querySelector('.scroll-container'),
@@ -39,7 +39,7 @@ if (timeline.unsupported) {
 </view-code>
 <hr />
 <h2>Platform Check</h2>
-<view-code language="javascript">import { supports } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { supports } from '@anzaui/anza/platform';
 
 if (supports.scrollTimeline) {
   // Use ScrollTimeline

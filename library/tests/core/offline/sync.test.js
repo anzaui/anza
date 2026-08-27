@@ -4,7 +4,7 @@
  * Core Background Sync fallback coordinator test suite.
  */
 
-import { sync } from '@adukiorg/anza/offline';
+import { sync } from '@anzaui/anza/offline';
 
 describe('Background Sync Manager', () => {
   let originalServiceWorker;

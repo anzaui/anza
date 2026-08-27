@@ -7,7 +7,7 @@ Status: this guide documents the implemented public UI contract: `ui.define`, `u
 Import from the UI entry point:
 
 ```javascript
-import { ui } from '@adukiorg/anza/ui';
+import { ui } from '@anzaui/anza/ui';
 ```
 
 ## 1. Choosing an API
@@ -791,7 +791,7 @@ These hooks are installed on the element prototype and called automatically by t
 Use `ui.define` for a hand-written custom element class.
 
 ```javascript
-import { BaseElement, ui } from '@adukiorg/anza/ui';
+import { BaseElement, ui } from '@anzaui/anza/ui';
 
 class NativeClock extends BaseElement {
   mount() {
@@ -1000,7 +1000,7 @@ The toolchain also scans `ui.element` specs and emits `routes.json` for declarat
 The package exports TypeScript declarations for strict component contexts.
 
 ```typescript
-import { ui, type MountContext, type UpdateContext } from '@adukiorg/anza/ui';
+import { ui, type MountContext, type UpdateContext } from '@anzaui/anza/ui';
 
 interface Refs {
   button: HTMLButtonElement;

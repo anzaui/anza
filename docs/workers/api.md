@@ -7,7 +7,7 @@ Complete reference for the workers facade and internal classes.
 ## Facade
 
 ```javascript
-import { workers } from '@adukiorg/anza/workers';
+import { workers } from '@anzaui/anza/workers';
 ```
 
 ### `workers.run(script, task, opts)`
@@ -51,7 +51,7 @@ Terminate all pools and close all broadcast channels.
 ## Feature Detection
 
 ```javascript
-import { has } from '@adukiorg/anza/workers';
+import { has } from '@anzaui/anza/workers';
 ```
 
 | Flag | Detects |
@@ -84,7 +84,7 @@ workers.run(script, task, {
 ## Dedicated
 
 ```javascript
-import { Dedicated } from '@adukiorg/anza/workers';
+import { Dedicated } from '@anzaui/anza/workers';
 
 const worker = new Dedicated('/worker.js');
 const result = await worker.run('task', { payload, signal, timeout });
@@ -96,7 +96,7 @@ worker.terminate();
 ## Shared
 
 ```javascript
-import { Shared } from '@adukiorg/anza/workers';
+import { Shared } from '@anzaui/anza/workers';
 
 const conn = new Shared('/worker.js', 'name');
 conn.connect();
@@ -110,7 +110,7 @@ conn.close();
 ## Offscreen
 
 ```javascript
-import { Offscreen } from '@adukiorg/anza/workers';
+import { Offscreen } from '@anzaui/anza/workers';
 
 const handle = new Offscreen(canvas, '/worker.js', { onError, onResize });
 await handle.open();

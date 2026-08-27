@@ -6,7 +6,7 @@
  * Source: plan.md Phase 6-A, core/animations/play.js
  */
 
-import { animate, stagger } from '@adukiorg/anza/animations';
+import { animate, stagger } from '@anzaui/anza/animations';
 
 describe('WAAPI Animation Engine', () => {
   let el;

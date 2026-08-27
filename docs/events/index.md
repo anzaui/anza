@@ -20,7 +20,7 @@ Everything is built on the browser's native `EventTarget` and `CustomEvent`. No 
 ## Package
 
 ```javascript
-import { events } from '@adukiorg/anza/events';
+import { events } from '@anzaui/anza/events';
 ```
 
 ---
@@ -43,7 +43,7 @@ import { events } from '@adukiorg/anza/events';
 ## One-File Example
 
 ```javascript
-import { events } from '@adukiorg/anza/events';
+import { events } from '@anzaui/anza/events';
 
 // Global pub/sub
 const off = events.on('user:login', (e) => {

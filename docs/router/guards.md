@@ -13,7 +13,7 @@ When a guard **throws**, the router emits `error` with `phase: 'guard'` and rend
 Register a guard that runs on every navigation:
 
 ```javascript
-import { router } from '@adukiorg/anza/router';
+import { router } from '@anzaui/anza/router';
 
 const dispose = router.guard(async (destination, controller) => {
   if (destination.url.pathname.startsWith('/admin') && !isAdmin()) {

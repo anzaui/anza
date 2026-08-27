@@ -2,8 +2,8 @@
 <p>The Anza Service Worker toolkit handles caching, request interception, background sync, and push notifications. It runs in a separate thread from your app and intercepts <code>fetch</code> events before they hit the network.</p>
 <p>The toolkit is split into two halves:</p>
 <ol>
-<li><strong>Main thread</strong> (<code>@adukiorg/anza/offline</code>) — connectivity checks, task queuing, and message bridge to the SW</li>
-<li><strong>Service Worker thread</strong> (<code>@adukiorg/anza/sw</code>) — caching strategies, route interception, lifecycle hooks, and sync replay</li>
+<li><strong>Main thread</strong> (<code>@anzaui/anza/offline</code>) — connectivity checks, task queuing, and message bridge to the SW</li>
+<li><strong>Service Worker thread</strong> (<code>@anzaui/anza/sw</code>) — caching strategies, route interception, lifecycle hooks, and sync replay</li>
 </ol>
 <p>Browsers do not support import maps in Service Worker scope, so the build tool rewrites bare specifiers to relative paths when emitting <code>dist/sw.js</code>.</p>
 <hr />
@@ -20,10 +20,10 @@
 <hr />
 <h2>Package</h2>
 <view-code language="javascript">// Service Worker thread
-import { CacheFirst, router, precache } from '@adukiorg/anza/sw';
+import { CacheFirst, router, precache } from '@anzaui/anza/sw';
 
 // Main thread
-import { offline } from '@adukiorg/anza/offline';
+import { offline } from '@anzaui/anza/offline';
 </view-code>
 <hr />
 <h2>File Map</h2>
@@ -37,7 +37,7 @@ import { offline } from '@adukiorg/anza/offline';
 <hr />
 <h2>One-File Example</h2>
 <view-code language="javascript">// src/sw.js
-import { precache, router, CacheFirst, NetworkFirst } from '@adukiorg/anza/sw';
+import { precache, router, CacheFirst, NetworkFirst } from '@anzaui/anza/sw';
 
 self.addEventListener('install', (e) =&gt; {
   e.waitUntil(precache('shell-v1', ['/index.html', '/app.js']));
@@ -53,8 +53,8 @@ self.addEventListener('fetch', (e) =&gt; {
 });
 </view-code>
 <view-code language="javascript">// src/app.js
-import '@adukiorg/anza/ui';
-import { dock } from '@adukiorg/anza/ui';
+import '@anzaui/anza/ui';
+import { dock } from '@anzaui/anza/ui';
 
 navigator.serviceWorker.register('/sw.js');
 

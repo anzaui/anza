@@ -20,7 +20,7 @@
 </tbody></table></div>
 <hr />
 <h2>Handling Errors</h2>
-<view-code language="javascript">import { api } from '@adukiorg/anza/api';
+<view-code language="javascript">import { api } from '@anzaui/anza/api';
 
 try {
   await api.get('/user/profile');
@@ -53,7 +53,7 @@ try {
 </view-code>
 <h3>Custom Retry Logic</h3>
 <p>For advanced cases, use the <code>retry</code> utility directly:</p>
-<view-code language="javascript">import { retry } from '@adukiorg/anza/api';
+<view-code language="javascript">import { retry } from '@anzaui/anza/api';
 
 const result = await retry(
   () =&gt; api.get('/unstable'),

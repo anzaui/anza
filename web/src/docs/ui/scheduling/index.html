@@ -3,7 +3,7 @@
 <p>Related: <a href="/docs/ui/transitions">transitions.md</a> (VT + <code>AbortSignal</code>), <a href="/docs/ui/lifecycle">lifecycle.md</a> (soft-nav abort contract), platform <a href="/docs/platform/guards"><code>guard.scheduler</code> / <code>guard.yield</code></a>.</p>
 <hr />
 <h2>schedule</h2>
-<view-code language="javascript">import { ui } from '@adukiorg/anza/ui';
+<view-code language="javascript">import { ui } from '@anzaui/anza/ui';
 
 ui.schedule(() =&gt; {
   renderChunk();
@@ -38,7 +38,7 @@ await ui.scheduleFrame(() =&gt; measure(), { signal: ctrl.signal });
 <hr />
 <h2>yield</h2>
 <p>Yield control to the browser mid-task:</p>
-<view-code language="javascript">import { ui } from '@adukiorg/anza/ui';
+<view-code language="javascript">import { ui } from '@anzaui/anza/ui';
 
 async function processLargeDataset(rows, { signal } = {}) {
   for (let i = 0; i &lt; rows.length; i++) {
@@ -50,7 +50,7 @@ async function processLargeDataset(rows, { signal } = {}) {
 }
 </view-code>
 <p>Uses <code>scheduler.yield()</code> when available, falling back to <code>setTimeout(..., 0)</code>. Already-aborted signals reject with <code>AbortError</code>.</p>
-<p>Platform equivalent without the UI facade: <code>await guard.yield()</code> from <code>@adukiorg/anza/platform</code>.</p>
+<p>Platform equivalent without the UI facade: <code>await guard.yield()</code> from <code>@anzaui/anza/platform</code>.</p>
 <hr />
 <h2>When to use each</h2>
 <div class="table-wrap"><table><thead><tr><th>Helper</th><th>Prefer for</th></tr></thead><tbody>

@@ -16,7 +16,7 @@ The Anza state layer provides reactive in-memory stores, lazy computed values, c
 ## Package
 
 ```javascript
-import { state } from '@adukiorg/anza/state';
+import { state } from '@anzaui/anza/state';
 ```
 
 ---
@@ -38,7 +38,7 @@ import { state } from '@adukiorg/anza/state';
 ## One-File Example
 
 ```javascript
-import { state } from '@adukiorg/anza/state';
+import { state } from '@anzaui/anza/state';
 
 // Create a reactive store
 const store = state.create({ count: 0, user: null });

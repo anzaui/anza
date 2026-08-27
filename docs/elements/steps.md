@@ -2,14 +2,14 @@
 
 Linear step indicator for multi-step workflows. Marks completed / active / upcoming from `active` index.
 
-**Tag:** `ui-steps` · **Import:** `@adukiorg/anza/elements/steps`
+**Tag:** `ui-steps` · **Import:** `@anzaui/anza/elements/steps`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/steps';
+import '@anzaui/anza/elements/steps';
 ```
 
 ---

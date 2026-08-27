@@ -2,14 +2,14 @@
 
 Modal overlay wrapping the native `<dialog>` element for focus trap, backdrop, and Escape handling.
 
-**Tag:** `ui-dialog` · **Import:** `@adukiorg/anza/elements/dialog`
+**Tag:** `ui-dialog` · **Import:** `@anzaui/anza/elements/dialog`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/dialog';
+import '@anzaui/anza/elements/dialog';
 ```
 
 ---

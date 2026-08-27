@@ -22,8 +22,8 @@ It is designed for hierarchical layouts: pages declare the container chain they 
 ## Package
 
 ```javascript
-import { router } from '@adukiorg/anza/router';
-import { page, dock, view, part } from '@adukiorg/anza/defs';
+import { router } from '@anzaui/anza/router';
+import { page, dock, view, part } from '@anzaui/anza/defs';
 ```
 
 The router also exposes itself as `window.router` (non-enumerable, non-configurable) for devtools and non-module contexts.
@@ -81,7 +81,7 @@ What makes the router fast and correct. You do not call these directly unless yo
 
 ```javascript
 // app.js
-import { page, dock } from '@adukiorg/anza/defs';
+import { page, dock } from '@anzaui/anza/defs';
 
 // A persistent container shell
 dock('main');

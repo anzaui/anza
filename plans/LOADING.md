@@ -31,8 +31,8 @@ Shapes: `false` (disable), tag string, `{ tag: 'ui-spinner', props?: {} }`, `{ h
 
 ```javascript
 // Optional override — not required for create apps
-import { dock } from '@adukiorg/anza/ui';
-import '@adukiorg/anza/elements/spinner';
+import { dock } from '@anzaui/anza/ui';
+import '@anzaui/anza/elements/spinner';
 
 dock('main', { loading: { tag: 'ui-spinner' } });
 ```

@@ -1,6 +1,6 @@
-# Changelog: @adukiorg/anza
+# Changelog: @anzaui/anza
 
-All notable changes to `@adukiorg/anza` are documented here.
+All notable changes to `@anzaui/anza` are documented here.
 
 ## [0.5.0] — 2026-08-27
 

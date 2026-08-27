@@ -7,7 +7,7 @@ Get a working component in five minutes.
 ## 1. Define a Component
 
 ```javascript
-import { view } from '@adukiorg/anza/defs';
+import { view } from '@anzaui/anza/defs';
 
 view('hello-world', {
   template: '<h1>Hello, World</h1>'
@@ -130,7 +130,7 @@ view('live-counter', {
 ## 6. Observers
 
 ```javascript
-import { observe } from '@adukiorg/anza/ui';
+import { observe } from '@anzaui/anza/ui';
 
 view('lazy-image', {
   template: '<img ref="img" data-src="./photo.jpg">',
@@ -155,7 +155,7 @@ view('lazy-image', {
 ## 7. Scheduling Heavy Work
 
 ```javascript
-import { ui } from '@adukiorg/anza/ui';
+import { ui } from '@anzaui/anza/ui';
 
 view('data-table', {
   on: {
@@ -177,7 +177,7 @@ view('data-table', {
 ## 8. View Transition
 
 ```javascript
-import { ui } from '@adukiorg/anza/ui';
+import { ui } from '@anzaui/anza/ui';
 
 view('gallery', {
   on: {
@@ -199,7 +199,7 @@ view('gallery', {
 ## Complete Working Example
 
 ```javascript
-import { view } from '@adukiorg/anza/defs';
+import { view } from '@anzaui/anza/defs';
 
 view('counter-app', {
   props: {

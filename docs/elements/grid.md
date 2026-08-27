@@ -2,14 +2,14 @@
 
 Responsive CSS grid with column template and gap.
 
-**Tag:** `ui-grid` · **Import:** `@adukiorg/anza/elements/grid`
+**Tag:** `ui-grid` · **Import:** `@anzaui/anza/elements/grid`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/grid';
+import '@anzaui/anza/elements/grid';
 ```
 
 ---

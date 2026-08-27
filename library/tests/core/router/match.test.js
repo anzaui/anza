@@ -6,7 +6,7 @@
  * Source: plan.md Phase 6-A, core/router/match.js
  */
 
-import { register, match, clear, getRoutes } from '@adukiorg/anza/router';
+import { register, match, clear, getRoutes } from '@anzaui/anza/router';
 
 describe('Router Matcher', () => {
   beforeEach(() => {

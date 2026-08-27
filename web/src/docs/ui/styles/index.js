@@ -1,8 +1,8 @@
 /**
  * Legacy path — canonical styles docs live at /docs/styles/index.
  */
-import { page } from '@adukiorg/anza/ui';
-import { router } from '@adukiorg/anza/router';
+import { page } from '@anzaui/anza/ui';
+import { router } from '@anzaui/anza/router';
 
 page('/docs/ui/styles', {
   tag: 'page-styles-redirect',

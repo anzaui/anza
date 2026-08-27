@@ -125,7 +125,7 @@
   },
   "examples": [
     {
-      "$schema": "./node_modules/@adukiorg/anza/schemas/anza.schema.json",
+      "$schema": "./node_modules/@anzaui/anza/schemas/anza.schema.json",
       "src": "src",
       "entry": "app.js",
       "shell": "index.html",

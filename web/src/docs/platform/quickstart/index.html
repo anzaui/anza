@@ -2,7 +2,7 @@
 <p>Get working with platform detection and polyfills in five minutes.</p>
 <hr />
 <h2>1. Check a Capability</h2>
-<view-code language="javascript">import { supports } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { supports } from '@anzaui/anza/platform';
 
 if (supports.viewTransitions) {
   console.log('View transitions are native');
@@ -13,7 +13,7 @@ if (supports.viewTransitions) {
 <p>Flags are lazily evaluated on first access and cached. Subsequent reads are instant.</p>
 <hr />
 <h2>2. Assert a Requirement</h2>
-<view-code language="javascript">import { typeGuard } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { typeGuard } from '@anzaui/anza/platform';
 
 // Throws if OPFS is not supported
 typeGuard('opfs', 'This feature requires file system access');
@@ -21,7 +21,7 @@ typeGuard('opfs', 'This feature requires file system access');
 <p>Use <code>typeGuard</code> in critical paths where continuing without the feature would be meaningless.</p>
 <hr />
 <h2>3. Lazy-Load a Polyfill</h2>
-<view-code language="javascript">import { guard } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { guard } from '@anzaui/anza/platform';
 
 // Returns native URLPattern or loads the polyfill
 const URLPattern = await guard.urlPattern();
@@ -30,7 +30,7 @@ const pattern = new URLPattern({ pathname: '/user/:id' });
 <p>The guard checks native support first. Only if missing does it dynamically import the polyfill.</p>
 <hr />
 <h2>4. Use the Scheduler</h2>
-<view-code language="javascript">import { guard } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { guard } from '@anzaui/anza/platform';
 
 const scheduler = await guard.scheduler();
 
@@ -41,7 +41,7 @@ scheduler.postTask(() =&gt; {
 <p>If native <code>scheduler</code> is available, it is returned directly. Otherwise the polyfill is loaded.</p>
 <hr />
 <h2>5. Yield in a Loop</h2>
-<view-code language="javascript">import { guard } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { guard } from '@anzaui/anza/platform';
 
 async function processLargeDataset(items) {
   for (let i = 0; i &lt; items.length; i++) {
@@ -54,7 +54,7 @@ async function processLargeDataset(items) {
 </view-code>
 <hr />
 <h2>6. Escape Overflow (Floating UI)</h2>
-<view-code language="javascript">import { guard } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { guard } from '@anzaui/anza/platform';
 
 const tip = document.querySelector('#tip');       // [popover="manual"]
 const anchor = document.querySelector('#anchor');
@@ -66,7 +66,7 @@ ctrl.hide();
 <p>Prefer <code>ui-tooltip</code> when you need a ready-made hint. Details: <a href="/docs/platform/guards#escape">guards.md#escape</a>, <a href="/docs/platform/api#escapeoverflowfloating-anchor-options">API</a>, <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
 <hr />
 <h2>Complete Working Example</h2>
-<view-code language="javascript">import { supports, guard, typeGuard } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { supports, guard, typeGuard } from '@anzaui/anza/platform';
 
 // Feature-gated view transition
 async function navigate() {

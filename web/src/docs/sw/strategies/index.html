@@ -3,7 +3,7 @@
 <hr />
 <h2>CacheFirst</h2>
 <p>Tries cache first. Falls back to network on miss. Stores the network response in cache.</p>
-<view-code language="javascript">import { CacheFirst } from '@adukiorg/anza/sw';
+<view-code language="javascript">import { CacheFirst } from '@anzaui/anza/sw';
 
 const strategy = new CacheFirst('shell-v1', { ttl: 3600000 });
 const response = await strategy.handle(request);
@@ -15,7 +15,7 @@ const response = await strategy.handle(request);
 <hr />
 <h2>NetworkFirst</h2>
 <p>Tries network first. Falls back to cache on failure or timeout.</p>
-<view-code language="javascript">import { NetworkFirst } from '@adukiorg/anza/sw';
+<view-code language="javascript">import { NetworkFirst } from '@anzaui/anza/sw';
 
 const strategy = new NetworkFirst('api-v1', { timeout: 4000, ttl: 60000 });
 </view-code>
@@ -28,7 +28,7 @@ const strategy = new NetworkFirst('api-v1', { timeout: 4000, ttl: 60000 });
 <hr />
 <h2>StaleRevalidate</h2>
 <p>Returns cache instantly. Refreshes in the background.</p>
-<view-code language="javascript">import { StaleRevalidate } from '@adukiorg/anza/sw';
+<view-code language="javascript">import { StaleRevalidate } from '@anzaui/anza/sw';
 
 const strategy = new StaleRevalidate('data-v1', { ttl: 300000 });
 </view-code>
@@ -36,7 +36,7 @@ const strategy = new StaleRevalidate('data-v1', { ttl: 300000 });
 <hr />
 <h2>CacheThenNetwork</h2>
 <p>Returns cache instantly, fetches in background, and posts the update to all open tabs.</p>
-<view-code language="javascript">import { CacheThenNetwork } from '@adukiorg/anza/sw';
+<view-code language="javascript">import { CacheThenNetwork } from '@anzaui/anza/sw';
 
 const strategy = new CacheThenNetwork('live-v1', { ttl: 60000 });
 </view-code>
@@ -44,7 +44,7 @@ const strategy = new CacheThenNetwork('live-v1', { ttl: 60000 });
 <hr />
 <h2>NetworkOnly</h2>
 <p>Never uses cache. Direct pass-through to <code>fetch</code>.</p>
-<view-code language="javascript">import { NetworkOnly } from '@adukiorg/anza/sw';
+<view-code language="javascript">import { NetworkOnly } from '@anzaui/anza/sw';
 
 const strategy = new NetworkOnly();
 </view-code>
@@ -52,7 +52,7 @@ const strategy = new NetworkOnly();
 <hr />
 <h2>CacheOnly</h2>
 <p>Never uses network. Errors if the request is not in cache.</p>
-<view-code language="javascript">import { CacheOnly } from '@adukiorg/anza/sw';
+<view-code language="javascript">import { CacheOnly } from '@anzaui/anza/sw';
 
 const strategy = new CacheOnly('offline-v1');
 </view-code>
@@ -60,7 +60,7 @@ const strategy = new CacheOnly('offline-v1');
 <hr />
 <h2>OfflineFallback</h2>
 <p>Returns a precached fallback page when a navigation request fails.</p>
-<view-code language="javascript">import { OfflineFallback } from '@adukiorg/anza/sw';
+<view-code language="javascript">import { OfflineFallback } from '@anzaui/anza/sw';
 
 const strategy = new OfflineFallback('/offline.html');
 </view-code>
@@ -69,7 +69,7 @@ const strategy = new OfflineFallback('/offline.html');
 <h2>TTL and Expiry</h2>
 <p>All strategies that cache responses accept a <code>ttl</code> option. The SW stores the response with a custom <code>x-expires-at</code> header. When the entry is older than the TTL, the strategy treats it as a cache miss.</p>
 <p>Expired entries are not deleted automatically. Use <code>pruneExpired</code> or <code>setupAutoPrune</code> to clean them up:</p>
-<view-code language="javascript">import { pruneExpired, setupAutoPrune } from '@adukiorg/anza/sw';
+<view-code language="javascript">import { pruneExpired, setupAutoPrune } from '@anzaui/anza/sw';
 
 // One-time cleanup
 await pruneExpired('shell-v1');

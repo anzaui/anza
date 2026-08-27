@@ -2,7 +2,7 @@
 
 The Anza storage layer provides a unified, tiered storage surface. It integrates LRU memory caching, IndexedDB, Origin Private File System (OPFS), and the Cache API under a single facade with automatic tier fallback, TTL support, and transparent gzip compression.
 
-**vs `state.storage`:** use `@adukiorg/anza/storage` for general key/value, files, and HTTP cache tiers. Use `state.storage` (`PlatformStorage`) for reactive-store snapshots keyed by object-store name — including filter-function `query`. If you use both, give them **different IndexedDB database names** (both default to `platform-db` — see [troubleshooting.md](troubleshooting.md)).
+**vs `state.storage`:** use `@anzaui/anza/storage` for general key/value, files, and HTTP cache tiers. Use `state.storage` (`PlatformStorage`) for reactive-store snapshots keyed by object-store name — including filter-function `query`. If you use both, give them **different IndexedDB database names** (both default to `platform-db` — see [troubleshooting.md](troubleshooting.md)).
 
 ---
 
@@ -21,7 +21,7 @@ The Anza storage layer provides a unified, tiered storage surface. It integrates
 ## Package
 
 ```javascript
-import { storage } from '@adukiorg/anza/storage';
+import { storage } from '@anzaui/anza/storage';
 ```
 
 Call `storage.configure({ idb: { name: 'app-kv' } })` before first use when sharing a page with `state.storage`.
@@ -47,7 +47,7 @@ Call `storage.configure({ idb: { name: 'app-kv' } })` before first use when shar
 ## One-File Example
 
 ```javascript
-import { storage } from '@adukiorg/anza/storage';
+import { storage } from '@anzaui/anza/storage';
 
 storage.configure({ idb: { name: 'app-kv' } });
 

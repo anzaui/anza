@@ -2,14 +2,14 @@
 
 Typography primitive that maps size, weight, color, and family to design tokens, with optional semantic tag swapping.
 
-**Tag:** `ui-text` · **Import:** `@adukiorg/anza/elements/text`
+**Tag:** `ui-text` · **Import:** `@anzaui/anza/elements/text`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/text';
+import '@anzaui/anza/elements/text';
 ```
 
 ---

@@ -7,7 +7,7 @@ Query and watch browser permission states for device capabilities like geolocati
 ## Query
 
 ```javascript
-import { security } from '@adukiorg/anza/security';
+import { security } from '@anzaui/anza/security';
 
 const state = await security.permission('geolocation');
 // 'granted' | 'denied' | 'prompt'

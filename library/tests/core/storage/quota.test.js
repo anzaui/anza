@@ -4,7 +4,7 @@
  * Quota Warning execution test suite.
  */
 
-import { storage } from '@adukiorg/anza/storage';
+import { storage } from '@anzaui/anza/storage';
 
 describe('Storage Quota Warnings', () => {
   let originalEstimate;

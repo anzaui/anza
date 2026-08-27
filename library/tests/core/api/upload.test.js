@@ -4,7 +4,7 @@
  * Core upload progress and event telemetry test suite.
  */
 
-import { upload } from '@adukiorg/anza/api';
+import { upload } from '@anzaui/anza/api';
 
 describe('Upload Telemetry', () => {
   let originalXHR;

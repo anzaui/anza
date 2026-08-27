@@ -7,7 +7,7 @@ Status: this guide documents the implemented public router contract: `router.reg
 Import from the router entry point:
 
 ```javascript
-import { router } from '@adukiorg/anza/router';
+import { router } from '@anzaui/anza/router';
 ```
 
 Named exports are also available:
@@ -23,7 +23,7 @@ import {
   forward,
   on,
   nav
-} from '@adukiorg/anza/router';
+} from '@anzaui/anza/router';
 ```
 
 ## 1. Choosing an API
@@ -403,7 +403,7 @@ Import `page` and `dock` from the definition layer and declare the route graph
 explicitly.
 
 ```javascript
-import { page, dock } from '@adukiorg/anza/defs';
+import { page, dock } from '@anzaui/anza/defs';
 
 // A persistent container shell, registered in the graph under 'main'.
 dock('main', { parent: 'body' });
@@ -480,7 +480,7 @@ Use `dock` for router-owned layout slots. It registers the container in the
 hierarchical graph and supports LCA traversal and cascade mounting.
 
 ```javascript
-import { dock } from '@adukiorg/anza/defs';
+import { dock } from '@anzaui/anza/defs';
 
 dock('app-main', { parent: 'body' });
 ```
@@ -615,7 +615,7 @@ Connection behavior:
 For tests or manual coordination:
 
 ```javascript
-import { coordinateConnections } from '@adukiorg/anza/router';
+import { coordinateConnections } from '@anzaui/anza/router';
 
 await coordinateConnections('/rooms/general');
 ```
@@ -652,7 +652,7 @@ Rules:
 The router wraps route event work in `transitions.run`.
 
 ```javascript
-import { transitions } from '@adukiorg/anza/router';
+import { transitions } from '@anzaui/anza/router';
 
 await transitions.run(() => {
   container.replaceChildren(page);

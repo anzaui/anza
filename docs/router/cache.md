@@ -9,7 +9,7 @@ The router provides a route-level cache backed by the browser Cache API. Prefetc
 Fetch and cache a URL before the user navigates to it:
 
 ```javascript
-import { router } from '@adukiorg/anza/router';
+import { router } from '@anzaui/anza/router';
 
 // On link hover
 link.addEventListener('mouseenter', () => {

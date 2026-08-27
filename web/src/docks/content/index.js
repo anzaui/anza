@@ -1,5 +1,5 @@
-import { dock } from '@adukiorg/anza/defs';
-import '@adukiorg/anza/elements/spinner';
+import { dock } from '@anzaui/anza/defs';
+import '@anzaui/anza/elements/spinner';
 
 // The inner content area dock (projects into dock-docs slot)
 dock('content', {

@@ -2,14 +2,14 @@
 
 Form-participating text control wrapping a native `<input>` with ElementInternals validation and form value sync.
 
-**Tag:** `ui-input` · **Import:** `@adukiorg/anza/elements/input`
+**Tag:** `ui-input` · **Import:** `@anzaui/anza/elements/input`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/input';
+import '@anzaui/anza/elements/input';
 ```
 
 ---

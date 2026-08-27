@@ -131,7 +131,7 @@ Used by `guard.popover`, `guard.anchor`, and `guard.escape` / `escapeOverflow` (
 Clear a cached flag to force re-detection:
 
 ```javascript
-import { reset } from '@adukiorg/anza/platform';
+import { reset } from '@anzaui/anza/platform';
 
 reset('urlPattern'); // clears cache
 ```

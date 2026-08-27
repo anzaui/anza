@@ -1,8 +1,8 @@
 /**
  * src/app.js — app entry point
  */
-import '@adukiorg/anza/ui';
-import '@adukiorg/anza/theme';
+import '@anzaui/anza/ui';
+import '@anzaui/anza/theme';
 
 // docks
 import './docks/index.js';
@@ -12,7 +12,7 @@ import './views/index.js';
 import './pages/index.js';
 import './docs/index.js';
 
-import { dock } from '@adukiorg/anza/ui';
+import { dock } from '@anzaui/anza/ui';
 
 // Service Worker
 navigator.serviceWorker.register('/sw.js', { type: 'module' });

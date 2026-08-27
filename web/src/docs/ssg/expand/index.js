@@ -1,4 +1,4 @@
-import { page } from '@adukiorg/anza/ui';
+import { page } from '@anzaui/anza/ui';
 
 /**
  * Phase 5 fixture: public parametric route with build-time expansion.

@@ -2,7 +2,7 @@
 <p>Safe wrappers around browser observer APIs. Each observer is automatically disconnected when the provided <code>AbortSignal</code> aborts, preventing memory leaks.</p>
 <hr />
 <h2>resize</h2>
-<view-code language="javascript">import { observe } from '@adukiorg/anza/ui';
+<view-code language="javascript">import { observe } from '@anzaui/anza/ui';
 
 view('responsive-box', {
   on: {
@@ -53,7 +53,7 @@ view('responsive-box', {
 });
 </view-code>
 <h3>Advanced</h3>
-<view-code language="javascript">import { observe } from '@adukiorg/anza/ui';
+<view-code language="javascript">import { observe } from '@anzaui/anza/ui';
 
 // Narrow attribute watch — always pass attributeFilter when attributes: true
 observe.mutation(panel, (records) =&gt; {

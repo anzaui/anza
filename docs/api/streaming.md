@@ -7,7 +7,7 @@ The API client parses NDJSON (newline-delimited JSON) streams natively using the
 ## Basic Streaming
 
 ```javascript
-import { api } from '@adukiorg/anza/api';
+import { api } from '@anzaui/anza/api';
 
 for await (const chunk of api.stream('/logs/stream')) {
   console.log(chunk.timestamp, chunk.message);
@@ -48,7 +48,7 @@ for await (const chunk of api.stream('/ai/generate', {
 For direct stream manipulation, the NDJSON transform stream is exported:
 
 ```javascript
-import { createNDJSONTransform } from '@adukiorg/anza/api';
+import { createNDJSONTransform } from '@anzaui/anza/api';
 
 const response = await fetch('/stream');
 const reader = response.body

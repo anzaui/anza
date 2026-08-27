@@ -6,7 +6,7 @@
  * Source: plan.md Phase 8 — Test Matrix
  */
 
-import { workers, has } from '@adukiorg/anza/workers';
+import { workers, has } from '@anzaui/anza/workers';
 
 const originalWorker = globalThis.Worker;
 

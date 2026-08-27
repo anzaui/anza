@@ -2,7 +2,7 @@
 <p><code>seal</code> and <code>unseal</code> are string-friendly wrappers over <code>encrypt</code> and <code>decrypt</code>. They return and accept base64-encoded payloads, making them ideal for JSON storage, localStorage, and IndexedDB.</p>
 <hr />
 <h2>Seal</h2>
-<view-code language="javascript">import { security } from '@adukiorg/anza/security';
+<view-code language="javascript">import { security } from '@anzaui/anza/security';
 
 const key = await security.generateKey('AES-GCM');
 const sealed = await security.seal(key, 'Secret message');

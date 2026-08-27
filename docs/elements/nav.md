@@ -2,14 +2,14 @@
 
 Accessible navigation wrapper with horizontal or vertical orientation.
 
-**Tag:** `ui-nav` · **Import:** `@adukiorg/anza/elements/nav`
+**Tag:** `ui-nav` · **Import:** `@anzaui/anza/elements/nav`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/nav';
+import '@anzaui/anza/elements/nav';
 ```
 
 ---

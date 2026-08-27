@@ -2,14 +2,14 @@
 
 Loading placeholder with a WAAPI shimmer; pauses when `prefers-reduced-motion: reduce`.
 
-**Tag:** `ui-skeleton` · **Import:** `@adukiorg/anza/elements/skeleton`
+**Tag:** `ui-skeleton` · **Import:** `@anzaui/anza/elements/skeleton`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/skeleton';
+import '@anzaui/anza/elements/skeleton';
 ```
 
 ---

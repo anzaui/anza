@@ -2,7 +2,7 @@
 
 Keyboard-accessible menu built on the Popover API with roving tabindex (arrows, Home, End, Escape).
 
-**Tag:** `ui-menu` · **Import:** `@adukiorg/anza/elements/menu`
+**Tag:** `ui-menu` · **Import:** `@anzaui/anza/elements/menu`
 
 Architecture and when-to-use: [Overlay patterns](overlay.md).
 
@@ -11,7 +11,7 @@ Architecture and when-to-use: [Overlay patterns](overlay.md).
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/menu';
+import '@anzaui/anza/elements/menu';
 ```
 
 ---

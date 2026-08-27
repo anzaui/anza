@@ -2,14 +2,14 @@
 
 List panel with optional bordered surface. Children should use `role="listitem"` when they are list items.
 
-**Tag:** `ui-list` · **Import:** `@adukiorg/anza/elements/list`
+**Tag:** `ui-list` · **Import:** `@anzaui/anza/elements/list`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/list';
+import '@anzaui/anza/elements/list';
 ```
 
 ---

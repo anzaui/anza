@@ -2,14 +2,14 @@
 
 Vertical flex stack with configurable gap.
 
-**Tag:** `ui-stack` · **Import:** `@adukiorg/anza/elements/stack`
+**Tag:** `ui-stack` · **Import:** `@anzaui/anza/elements/stack`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/stack';
+import '@anzaui/anza/elements/stack';
 ```
 
 ---

@@ -1,4 +1,4 @@
 {
-  "$schema": "./node_modules/@adukiorg/anza/schemas/anza.schema.json",
+  "$schema": "./node_modules/@anzaui/anza/schemas/anza.schema.json",
   "pages": ["pages", "docs"]
 }

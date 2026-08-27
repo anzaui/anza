@@ -24,9 +24,9 @@ A Rust CLI (`anza`) handles the development server, import-graph resolution, and
 ## Package
 
 ```javascript
-import { state } from '@adukiorg/anza/state';
-import { router } from '@adukiorg/anza/router';
-import { page, dock, view } from '@adukiorg/anza/ui';
+import { state } from '@anzaui/anza/state';
+import { router } from '@anzaui/anza/router';
+import { page, dock, view } from '@anzaui/anza/ui';
 ```
 
 ---
@@ -61,8 +61,8 @@ import { page, dock, view } from '@adukiorg/anza/ui';
 
 ```javascript
 // src/app.js
-import '@adukiorg/anza/ui';
-import { dock, page } from '@adukiorg/anza/ui';
+import '@anzaui/anza/ui';
+import { dock, page } from '@anzaui/anza/ui';
 
 dock('main');
 

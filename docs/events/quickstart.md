@@ -7,7 +7,7 @@ Get working with events in five minutes.
 ## 1. Global Pub/Sub
 
 ```javascript
-import { events } from '@adukiorg/anza/events';
+import { events } from '@anzaui/anza/events';
 
 // Subscribe
 const off = events.on('user:login', (e) => {
@@ -91,7 +91,7 @@ One listener on `document.body` handles all `.item` clicks, even elements added 
 ## 6. Use System Event Names
 
 ```javascript
-import { events } from '@adukiorg/anza/events';
+import { events } from '@anzaui/anza/events';
 
 events.on(events.names.auth.signedin, (e) => {
   console.log('Auth token refreshed');
@@ -109,7 +109,7 @@ System event names prevent typos and give IDE autocomplete.
 ## Complete Working Example
 
 ```javascript
-import { events } from '@adukiorg/anza/events';
+import { events } from '@anzaui/anza/events';
 
 // Global notifications
 events.on('notification', (e) => {

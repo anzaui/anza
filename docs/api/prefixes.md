@@ -7,7 +7,7 @@ Prefixes map short path segments to base URLs. Register a prefix once at bootstr
 ## Registering Prefixes
 
 ```javascript
-import { api } from '@adukiorg/anza/api';
+import { api } from '@anzaui/anza/api';
 
 api.prefix.add('default', 'https://api.example.com');
 api.prefix.add('auth', 'https://auth.example.com');

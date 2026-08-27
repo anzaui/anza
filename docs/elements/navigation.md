@@ -5,7 +5,7 @@ Tabs, nav, breadcrumbs, pagination, and multi-step flows.
 Import pattern:
 
 ```javascript
-import '@adukiorg/anza/elements/<name>';
+import '@anzaui/anza/elements/<name>';
 ```
 
 
@@ -21,10 +21,10 @@ Tabs, pagination, and steps bind click / keyboard / slotchange handlers with sha
 
 | Element | Tag | Import | Status |
 | ------- | --- | ------ | ------ |
-| [nav](nav.md) | `ui-nav` | `@adukiorg/anza/elements/nav` | Full |
-| [tabs](tabs.md) | `ui-tabs` | `@adukiorg/anza/elements/tabs` | Full |
-| [breadcrumb](breadcrumb.md) | `ui-breadcrumb` | `@adukiorg/anza/elements/breadcrumb` | Full |
-| [pagination](pagination.md) | `ui-pagination` | `@adukiorg/anza/elements/pagination` | Full |
-| [steps](steps.md) | `ui-steps` | `@adukiorg/anza/elements/steps` | Full |
+| [nav](nav.md) | `ui-nav` | `@anzaui/anza/elements/nav` | Full |
+| [tabs](tabs.md) | `ui-tabs` | `@anzaui/anza/elements/tabs` | Full |
+| [breadcrumb](breadcrumb.md) | `ui-breadcrumb` | `@anzaui/anza/elements/breadcrumb` | Full |
+| [pagination](pagination.md) | `ui-pagination` | `@anzaui/anza/elements/pagination` | Full |
+| [steps](steps.md) | `ui-steps` | `@anzaui/anza/elements/steps` | Full |
 
 See the [full inventory](index.md) and [ELEMENTS.md](../../plans/ELEMENTS.md) for phase status.

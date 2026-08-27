@@ -1,10 +1,10 @@
 <h1>Persist</h1>
 <p><code>PlatformStorage</code> provides transactional IndexedDB persistence for reactive state. It supports schema migrations, TTL-based expiry, and automatic eviction when storage quota exceeds 80%.</p>
-<p>This is <strong>not</strong> the tiered <code>@adukiorg/anza/storage</code> facade. Prefer <code>state.storage</code> for hydrating <code>state.create</code> stores; use the storage package for general KV, OPFS, and Cache API. Give each a distinct DB name if both are open (see <a href="/docs/storage/troubleshooting">storage/troubleshooting.md</a>).</p>
+<p>This is <strong>not</strong> the tiered <code>@anzaui/anza/storage</code> facade. Prefer <code>state.storage</code> for hydrating <code>state.create</code> stores; use the storage package for general KV, OPFS, and Cache API. Give each a distinct DB name if both are open (see <a href="/docs/storage/troubleshooting">storage/troubleshooting.md</a>).</p>
 <hr />
 <h2>Bridge pattern</h2>
-<p>Hydrate a store from IndexedDB, then persist on change. Prefer this over inventing a second persistence layer with <code>@adukiorg/anza/storage</code> for the same keys.</p>
-<view-code language="javascript">import { state } from '@adukiorg/anza/state';
+<p>Hydrate a store from IndexedDB, then persist on change. Prefer this over inventing a second persistence layer with <code>@anzaui/anza/storage</code> for the same keys.</p>
+<view-code language="javascript">import { state } from '@anzaui/anza/state';
 
 const store = state.create({ user: null });
 
@@ -20,12 +20,12 @@ store.subscribe('user', async (user) =&gt; {
 <p>The important split is:</p>
 <div class="table-wrap"><table><thead><tr><th>Concern</th><th>Prefer</th></tr></thead><tbody>
 <tr><td>Reactive store snapshots keyed by object store + record key</td><td><code>state.storage</code></td></tr>
-<tr><td>General KV, blobs, OPFS, Cache API, tier selection</td><td><code>@adukiorg/anza/storage</code></td></tr>
+<tr><td>General KV, blobs, OPFS, Cache API, tier selection</td><td><code>@anzaui/anza/storage</code></td></tr>
 </tbody></table></div>
 <p>Mixing both is fine, but treat them as separate persistence systems with separate database names.</p>
 <hr />
 <h2>Basic Use</h2>
-<view-code language="javascript">import { state } from '@adukiorg/anza/state';
+<view-code language="javascript">import { state } from '@anzaui/anza/state';
 
 // Write
 await state.storage.set('keyval', 'user', { name: 'Alice' });
@@ -87,7 +87,7 @@ await state.storage.get('keyval', 'token'); // null if expired
 <p>Eviction only applies to wrapped records in the store being written. If you want different retention policies, split data into different object stores instead of cramming everything into <code>keyval</code>.</p>
 <hr />
 <h2>Query (filter function)</h2>
-<p>Unlike <code>@adukiorg/anza/storage</code> cursor <code>query</code>, <code>state.storage.query</code> takes a <strong>predicate</strong>:</p>
+<p>Unlike <code>@anzaui/anza/storage</code> cursor <code>query</code>, <code>state.storage.query</code> takes a <strong>predicate</strong>:</p>
 <view-code language="javascript">const items = await state.storage.query('keyval', (value) =&gt; {
   return value &amp;&amp; value.active === true;
 });
@@ -106,9 +106,9 @@ console.log('Persistent storage:', granted);
 <p>Persistence reduces browser eviction pressure, but it does not replace your own migrations, validation, or corruption handling.</p>
 <hr />
 <h2>Database Name</h2>
-<p>Call <strong>before</strong> the first open. Required when you also use <code>@adukiorg/anza/storage</code> (both default to <code>platform-db</code>):</p>
-<view-code language="javascript">import { storage } from '@adukiorg/anza/storage';
-import { state } from '@adukiorg/anza/state';
+<p>Call <strong>before</strong> the first open. Required when you also use <code>@anzaui/anza/storage</code> (both default to <code>platform-db</code>):</p>
+<view-code language="javascript">import { storage } from '@anzaui/anza/storage';
+import { state } from '@anzaui/anza/state';
 
 storage.configure({ idb: { name: 'app-kv' } });
 state.storage.setDatabaseName('app-state');

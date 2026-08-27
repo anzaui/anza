@@ -2,14 +2,14 @@
 
 KPI statistic with label, value, and optional trend/change slot.
 
-**Tag:** `ui-stat` · **Import:** `@adukiorg/anza/elements/stat`
+**Tag:** `ui-stat` · **Import:** `@anzaui/anza/elements/stat`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/stat';
+import '@anzaui/anza/elements/stat';
 ```
 
 ---

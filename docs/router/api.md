@@ -289,12 +289,12 @@ part('icon-star', {
 For middleware and test utilities:
 
 ```javascript
-import { register, match, clear, getRoutes, load } from '@adukiorg/anza/router';
-import { addGuard, setNotFound, on, setup, destroy } from '@adukiorg/anza/router';
-import { navigate, replace, back, forward, go } from '@adukiorg/anza/router';
-import { gate, boot, ready, reset } from '@adukiorg/anza/router';
-import { isCallback, resolveTag, runCallback } from '@adukiorg/anza/router';
-import { transitions } from '@adukiorg/anza/router';
+import { register, match, clear, getRoutes, load } from '@anzaui/anza/router';
+import { addGuard, setNotFound, on, setup, destroy } from '@anzaui/anza/router';
+import { navigate, replace, back, forward, go } from '@anzaui/anza/router';
+import { gate, boot, ready, reset } from '@anzaui/anza/router';
+import { isCallback, resolveTag, runCallback } from '@anzaui/anza/router';
+import { transitions } from '@anzaui/anza/router';
 ```
 
 ### `transitions`
@@ -302,7 +302,7 @@ import { transitions } from '@adukiorg/anza/router';
 Router facade over the UI View Transitions core. Soft-nav docks use **element-scoped** VT via `dock.swap` / `runSwap` — never document VT. Use `run` only for explicit document morphs.
 
 ```javascript
-import { transitions } from '@adukiorg/anza/router';
+import { transitions } from '@anzaui/anza/router';
 
 transitions.configure({ enabled: true });
 transitions.dockName(null, 'content'); // → 'dock-content'

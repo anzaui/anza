@@ -11,7 +11,7 @@ import {
   match,
   RouteRecord,
   MatchResult
-} from '@adukiorg/anza/router';
+} from '@anzaui/anza/router';
 
 // 1. Test route registration and matching types
 register('/path/:id', 'tag-name', { layout: 'main' });

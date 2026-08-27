@@ -4,7 +4,7 @@
  * Unit tests for the memory-safe passive listener aggregator.
  */
 
-import { listen, names } from '@adukiorg/anza/events';
+import { listen, names } from '@anzaui/anza/events';
 
 describe('Event Listener Aggregator', () => {
   it('should successfully subscribe and unsubscribe from events', () => {

@@ -7,7 +7,7 @@ Complete reference for the animations facade and utilities.
 ## Facade
 
 ```javascript
-import { animations } from '@adukiorg/anza/animations';
+import { animations } from '@anzaui/anza/animations';
 ```
 
 ### `animations.register(name, keyframes, defaultOpts)`
@@ -69,7 +69,7 @@ import {
   scroll, view,
   Timing, timing, keyframes,
   duration, ease, reduced
-} from '@adukiorg/anza/animations';
+} from '@anzaui/anza/animations';
 ```
 
 ---
@@ -77,7 +77,7 @@ import {
 ## AnimationRegistry
 
 ```javascript
-import { registry } from '@adukiorg/anza/animations';
+import { registry } from '@anzaui/anza/animations';
 ```
 
 ### `registry.register(name, keyframes, options)`

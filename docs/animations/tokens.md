@@ -7,7 +7,7 @@ Animation timing values are synchronized with CSS custom properties at runtime. 
 ## Duration
 
 ```javascript
-import { animations } from '@adukiorg/anza/animations';
+import { animations } from '@anzaui/anza/animations';
 
 const fast = animations.duration('fast');    // e.g. 100
 const normal = animations.duration('normal'); // e.g. 200
@@ -62,7 +62,7 @@ Checks `prefers-reduced-motion: reduce`.
 ## Timing Constants
 
 ```javascript
-import { Timing } from '@adukiorg/anza/animations';
+import { Timing } from '@anzaui/anza/animations';
 
 Timing.EASE;        // 'ease'
 Timing.EASE_IN;     // 'ease-in'
@@ -83,7 +83,7 @@ The router and UI layers read animation tokens automatically when running View T
 ## Timing Helper
 
 ```javascript
-import { timing } from '@adukiorg/anza/animations';
+import { timing } from '@anzaui/anza/animations';
 
 const opts = timing(300, 'ease-out', 'both');
 // { duration: 300, easing: 'ease-out', fill: 'both' }
@@ -94,7 +94,7 @@ const opts = timing(300, 'ease-out', 'both');
 ## Keyframe Builder
 
 ```javascript
-import { keyframes } from '@adukiorg/anza/animations';
+import { keyframes } from '@anzaui/anza/animations';
 
 const fade = keyframes('fade');
 // [{ opacity: 0 }, { opacity: 1 }]

@@ -16,7 +16,7 @@ Background Sync queues failed requests and replays them when the browser comes b
 ## Queue a Task from the Main Thread
 
 ```javascript
-import { offline } from '@adukiorg/anza/offline';
+import { offline } from '@anzaui/anza/offline';
 
 await offline.queue.push({
   url: '/api/posts',
@@ -33,7 +33,7 @@ await offline.queue.push({
 ## Replay in the Service Worker
 
 ```javascript
-import { replayQueue } from '@adukiorg/anza/sw';
+import { replayQueue } from '@anzaui/anza/sw';
 
 self.addEventListener('sync', (e) => {
   if (e.tag === 'sync-tasks') {
@@ -51,7 +51,7 @@ self.addEventListener('sync', (e) => {
 The browser does not fire `sync` events unless you request them. Use the main thread bridge:
 
 ```javascript
-import { offline } from '@adukiorg/anza/offline';
+import { offline } from '@anzaui/anza/offline';
 
 async function registerSync() {
   const reg = await navigator.serviceWorker.ready;
@@ -68,7 +68,7 @@ Call `registerSync()` after any mutation that should survive going offline.
 After a configurable number of retries, failed tasks move to a dead-letter queue where they wait for manual inspection.
 
 ```javascript
-import { requeueFailed } from '@adukiorg/anza/sw';
+import { requeueFailed } from '@anzaui/anza/sw';
 
 // After 3 failed attempts, move to dead letter
 await requeueFailed({ maxAttempts: 3 });
@@ -81,7 +81,7 @@ await requeueFailed({ maxAttempts: 3 });
 The queue stores standard `Request` objects as plain objects. Two helpers handle the conversion:
 
 ```javascript
-import { serializeRequest, deserializeRequest } from '@adukiorg/anza/sw';
+import { serializeRequest, deserializeRequest } from '@anzaui/anza/sw';
 
 const payload = await serializeRequest(request);
 const restored = await deserializeRequest(payload);

@@ -2,14 +2,14 @@
 
 Styled wrapper for a native HTML table (slot content). Use a light-DOM `<table>` inside for semantics.
 
-**Tag:** `ui-table` · **Import:** `@adukiorg/anza/elements/table`
+**Tag:** `ui-table` · **Import:** `@anzaui/anza/elements/table`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/table';
+import '@anzaui/anza/elements/table';
 ```
 
 ---

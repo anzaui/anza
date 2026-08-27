@@ -6,7 +6,7 @@
  * Source: plan.md Phase 6-A, elements/overlay/popover.js
  */
 
-import '@adukiorg/anza/elements/popover';
+import '@anzaui/anza/elements/popover';
 
 describe('<ui-popover> Overlay Element', () => {
   let popover;

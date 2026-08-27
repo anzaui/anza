@@ -14,7 +14,7 @@ The router's initial match does not fire immediately. It waits for:
 Prerequisites are registered with `gate()`:
 
 ```javascript
-import { gate } from '@adukiorg/anza/router';
+import { gate } from '@anzaui/anza/router';
 
 gate(customElements.whenDefined('page-home'));
 gate(someAsyncSetup());
@@ -25,14 +25,14 @@ gate(someAsyncSetup());
 The boot sequence is idempotent. `ready()` returns `true` once it has fired:
 
 ```javascript
-import { ready } from '@adukiorg/anza/router';
+import { ready } from '@anzaui/anza/router';
 if (ready()) { /* boot has completed */ }
 ```
 
 `reset()` clears all state for test isolation:
 
 ```javascript
-import { reset } from '@adukiorg/anza/router';
+import { reset } from '@anzaui/anza/router';
 reset();
 ```
 
@@ -161,8 +161,8 @@ router.register = (pattern, handler, meta) => {
 For deeper extension, import internal modules directly:
 
 ```javascript
-import { register, match } from '@adukiorg/anza/router/match';
-import { addGuard } from '@adukiorg/anza/router/intercept';
+import { register, match } from '@anzaui/anza/router/match';
+import { addGuard } from '@anzaui/anza/router/intercept';
 ```
 
 ---

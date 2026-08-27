@@ -6,7 +6,7 @@
  * Source: plan.md Phase 7 — Test Matrix
  */
 
-import { Offscreen } from '@adukiorg/anza/workers';
+import { Offscreen } from '@anzaui/anza/workers';
 
 // ---------------------------------------------------------------------------
 // Helpers

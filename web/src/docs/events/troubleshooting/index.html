@@ -85,7 +85,7 @@ events.on('update', handler, ctrl.signal);
 <h2>EventBus events leaking between modules</h2>
 <p><strong>Cause:</strong> Using the global bus for module-scoped communication.</p>
 <p><strong>Fix:</strong> Create isolated buses for module scope:</p>
-<view-code language="javascript">import { EventBus } from '@adukiorg/anza/events';
+<view-code language="javascript">import { EventBus } from '@anzaui/anza/events';
 
 const moduleBus = new EventBus();
 moduleBus.on('internal', handler);

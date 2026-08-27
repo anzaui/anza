@@ -333,7 +333,7 @@ mod tests {
     let _ = fs::remove_dir_all(&dir);
     write(
       &dir.join("app.js"),
-      "import { dock } from '@adukiorg/anza/ui';\ndock('main');\n",
+      "import { dock } from '@anzaui/anza/ui';\ndock('main');\n",
     );
     write(
       &dir.join("pages/x.js"),

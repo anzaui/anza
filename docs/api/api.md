@@ -7,7 +7,7 @@ Complete reference for the API client facade and internal utilities.
 ## Facade
 
 ```javascript
-import { api } from '@adukiorg/anza/api';
+import { api } from '@anzaui/anza/api';
 ```
 
 ### `api.get(url, opts)`
@@ -124,7 +124,7 @@ import {
   prefixes,      // PrefixRegistry instance
   events,        // ApiEventEmitter instance
   cache          // ApiCache instance
-} from '@adukiorg/anza/api';
+} from '@anzaui/anza/api';
 ```
 
 ---

@@ -1,6 +1,6 @@
-import { dock } from '@adukiorg/anza/defs';
-import { router } from '@adukiorg/anza/router';
-import { theme } from '@adukiorg/anza/theme';
+import { dock } from '@anzaui/anza/defs';
+import { router } from '@anzaui/anza/router';
+import { theme } from '@anzaui/anza/theme';
 
 // The persistent outer layout dock
 dock('docs', {

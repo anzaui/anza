@@ -2,7 +2,7 @@
 <p>The quota manager wraps the browser StorageManager API, providing storage estimates, persistence requests, and proactive eviction warnings.</p>
 <hr />
 <h2>Estimate</h2>
-<view-code language="javascript">import { quota } from '@adukiorg/anza/storage';
+<view-code language="javascript">import { quota } from '@anzaui/anza/storage';
 
 const { usage, quota } = await quota.estimate();
 console.log(`Using ${usage} of ${quota} bytes`);
@@ -35,7 +35,7 @@ off(); // remove listener
 <hr />
 <h2>Platform Detection</h2>
 <p>Check support before calling:</p>
-<view-code language="javascript">import { supports } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { supports } from '@anzaui/anza/platform';
 
 if (supports.storageManager) {
   const est = await quota.estimate();

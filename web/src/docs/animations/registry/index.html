@@ -13,7 +13,7 @@
 </tbody></table></div>
 <hr />
 <h2>Register a Template</h2>
-<view-code language="javascript">import { animations } from '@adukiorg/anza/animations';
+<view-code language="javascript">import { animations } from '@anzaui/anza/animations';
 
 animations.register('bounce', [
   { transform: 'translateY(0)' },
@@ -34,14 +34,14 @@ animations.animate(el, 'bounce', { duration: 200 });
 </view-code>
 <hr />
 <h2>Clear Templates</h2>
-<view-code language="javascript">import { registry } from '@adukiorg/anza/animations';
+<view-code language="javascript">import { registry } from '@anzaui/anza/animations';
 
 registry.clear();
 </view-code>
 <p>This removes all templates including built-ins. Use with caution.</p>
 <hr />
 <h2>Direct Registry Access</h2>
-<view-code language="javascript">import { registry } from '@adukiorg/anza/animations';
+<view-code language="javascript">import { registry } from '@anzaui/anza/animations';
 
 // Check if a template exists
 const config = registry.get('fade');

@@ -2,7 +2,7 @@
 <p>Cross-tab state synchronization via <code>BroadcastChannel</code>. When a store key changes in one tab, it is replicated to all other active tabs listening on the same channel.</p>
 <hr />
 <h2>Setup</h2>
-<view-code language="javascript">import { state } from '@adukiorg/anza/state';
+<view-code language="javascript">import { state } from '@anzaui/anza/state';
 
 const store = state.create({ theme: 'light' });
 
@@ -25,7 +25,7 @@ store.broadcast('app-sync', []); // sync all keys
 </view-code>
 <hr />
 <h2>Manual Sync</h2>
-<view-code language="javascript">import { sync } from '@adukiorg/anza/state';
+<view-code language="javascript">import { sync } from '@anzaui/anza/state';
 
 const dispose = sync(store, ['count'], 'counter-channel');
 

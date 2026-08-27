@@ -2,14 +2,14 @@
 
 Collapsible side panel for navigation or secondary chrome.
 
-**Tag:** `ui-sidebar` · **Import:** `@adukiorg/anza/elements/sidebar`
+**Tag:** `ui-sidebar` · **Import:** `@anzaui/anza/elements/sidebar`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/sidebar';
+import '@anzaui/anza/elements/sidebar';
 ```
 
 ---

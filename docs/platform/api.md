@@ -19,7 +19,7 @@ import {
   count,
   list,
   clearGlobals
-} from '@adukiorg/anza/platform';
+} from '@anzaui/anza/platform';
 ```
 
 `attach` / `detach` / `count` / `list` / `clearGlobals` are also available as `globals.attach`, `globals.detach`, and so on.
@@ -35,7 +35,7 @@ Lazy-evaluated feature detection object. See [supports.md](supports.md) for the 
 Internal framework attachment registry (nav polyfill, container MO, popover polyfill). App code should prefer component `on` / `watch` / `events.*` with AbortSignal. Soft-nav tests assert `globals.count()` stays stable across leaf swaps.
 
 ```javascript
-import { globals } from '@adukiorg/anza/platform';
+import { globals } from '@anzaui/anza/platform';
 
 globals.count(); // number of named framework attachments
 globals.list();  // [{ name, type, target }, …]
@@ -108,7 +108,7 @@ Markers while open (fixed path): `data-escape-fixed`, `data-escape-open`. Cleare
 #### Simple sample
 
 ```javascript
-import { guard } from '@adukiorg/anza/platform';
+import { guard } from '@anzaui/anza/platform';
 
 const tip = document.querySelector('#tip');   // [popover="manual"]
 const anchor = document.querySelector('#btn');
@@ -126,7 +126,7 @@ ctrl.hide();
 #### Advanced sample (AbortSignal + fixed strategy)
 
 ```javascript
-import { escapeOverflow, guard } from '@adukiorg/anza/platform';
+import { escapeOverflow, guard } from '@anzaui/anza/platform';
 
 await guard.popover(); // if you use sync escapeOverflow with [popover]
 

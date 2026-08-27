@@ -2,14 +2,14 @@
 
 Form-participating switch with `role="switch"` and `:state(on)` custom state.
 
-**Tag:** `ui-toggle` · **Import:** `@adukiorg/anza/elements/toggle`
+**Tag:** `ui-toggle` · **Import:** `@anzaui/anza/elements/toggle`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/toggle';
+import '@anzaui/anza/elements/toggle';
 ```
 
 ---

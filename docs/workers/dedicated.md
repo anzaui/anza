@@ -7,7 +7,7 @@ Raw dedicated worker wrapper with per-request MessageChannel isolation. Each `ru
 ## Create
 
 ```javascript
-import { workers } from '@adukiorg/anza/workers';
+import { workers } from '@anzaui/anza/workers';
 
 const worker = workers.dedicated('/workers/sort.js');
 ```

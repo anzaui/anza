@@ -7,7 +7,7 @@ The global event bus is a singleton `EventBus` instance built on the native `Eve
 ## Global Bus
 
 ```javascript
-import { events } from '@adukiorg/anza/events';
+import { events } from '@anzaui/anza/events';
 
 // Subscribe
 const off = events.on('app:theme', (e) => {
@@ -28,7 +28,7 @@ off();
 Create isolated buses for scoped communication:
 
 ```javascript
-import { EventBus } from '@adukiorg/anza/events';
+import { EventBus } from '@anzaui/anza/events';
 
 const moduleBus = new EventBus();
 

@@ -11,7 +11,7 @@ Planning document for documenting the shipped custom elements under `library/src
 ### Goals
 
 - **Discoverable element kit** — every shipped element has a tag, import path, and docs status.
-- **Import map clarity** — document `@adukiorg/anza/elements/<name>` (and the barrel).
+- **Import map clarity** — document `@anzaui/anza/elements/<name>` (and the barrel).
 - **Solid Phase 1 foundation** — index + category overviews + a few full reference pages; remaining elements listed as stubs / TODO.
 
 ### Non-goals (this phase)
@@ -31,56 +31,56 @@ All tags are `ui-*`. Package imports come from `library/importmap.json`.
 
 | Category | Element | Tag | Import | Docs status |
 |----------|---------|-----|--------|-------------|
-| primitives | button | `ui-button` | `@adukiorg/anza/elements/button` | **Full** (Phase 1) |
-| primitives | icon | `ui-icon` | `@adukiorg/anza/elements/icon` | **Full** (Phase 2) |
-| primitives | badge | `ui-badge` | `@adukiorg/anza/elements/badge` | **Full** (Phase 2) |
-| primitives | avatar | `ui-avatar` | `@adukiorg/anza/elements/avatar` | **Full** (Phase 2) |
-| primitives | divider | `ui-divider` | `@adukiorg/anza/elements/divider` | **Full** (Phase 2) |
-| primitives | text | `ui-text` | `@adukiorg/anza/elements/text` | **Full** (Phase 2) |
-| primitives | link | `ui-link` | `@adukiorg/anza/elements/link` | **Full** (Phase 2) |
-| primitives | spinner | `ui-spinner` | `@adukiorg/anza/elements/spinner` | **Full** (Phase 2) |
-| forms | input | `ui-input` | `@adukiorg/anza/elements/input` | **Full** (Phase 1) |
-| forms | textarea | `ui-textarea` | `@adukiorg/anza/elements/textarea` | **Full** (Phase 2) |
-| forms | select | `ui-select` | `@adukiorg/anza/elements/select` | **Full** (Phase 2) |
-| forms | checkbox | `ui-checkbox` | `@adukiorg/anza/elements/checkbox` | **Full** (Phase 2) |
-| forms | radio | `ui-radio` | `@adukiorg/anza/elements/radio` | **Full** (Phase 2) |
-| forms | toggle | `ui-toggle` | `@adukiorg/anza/elements/toggle` | **Full** (Phase 2) |
-| forms | field | `ui-field` | `@adukiorg/anza/elements/field` | **Full** (Phase 2) |
-| forms | upload | `ui-upload` | `@adukiorg/anza/elements/upload` | **Full** (Phase 2) |
-| forms | form | `ui-form` | `@adukiorg/anza/elements/form` | **Full** (Phase 2) |
-| overlay | dialog | `ui-dialog` | `@adukiorg/anza/elements/dialog` | **Full** (Phase 1) |
-| overlay | popover | `ui-popover` | `@adukiorg/anza/elements/popover` | **Full** |
-| overlay | tooltip | `ui-tooltip` | `@adukiorg/anza/elements/tooltip` | **Full** (escape helper) |
-| overlay | menu | `ui-menu` | `@adukiorg/anza/elements/menu` | **Full** |
-| overlay | drawer | `ui-drawer` | `@adukiorg/anza/elements/drawer` | **Full** |
-| overlay | sheet | `ui-sheet` | `@adukiorg/anza/elements/sheet` | **Full** |
-| feedback | alert | `ui-alert` | `@adukiorg/anza/elements/alert` | **Full** (Phase 1) |
-| feedback | toast | `ui-toast` | `@adukiorg/anza/elements/toast` | **Full** (Phase 3) |
-| feedback | progress | `ui-progress` | `@adukiorg/anza/elements/progress` | **Full** (Phase 3) |
-| feedback | skeleton | `ui-skeleton` | `@adukiorg/anza/elements/skeleton` | **Full** (Phase 3) |
-| feedback | empty | `ui-empty` | `@adukiorg/anza/elements/empty` | **Full** (Phase 3) |
-| data | table | `ui-table` | `@adukiorg/anza/elements/table` | **Full** (Phase 4) |
-| data | list | `ui-list` | `@adukiorg/anza/elements/list` | **Full** (Phase 4) |
-| data | card | `ui-card` | `@adukiorg/anza/elements/card` | **Full** (Phase 4) |
-| data | chart | `ui-chart` | `@adukiorg/anza/elements/chart` | **Full** (Phase 4) |
-| data | stat | `ui-stat` | `@adukiorg/anza/elements/stat` | **Full** (Phase 4) |
-| navigation | nav | `ui-nav` | `@adukiorg/anza/elements/nav` | **Full** (Phase 4) |
-| navigation | tabs | `ui-tabs` | `@adukiorg/anza/elements/tabs` | **Full** (Phase 1) |
-| navigation | breadcrumb | `ui-breadcrumb` | `@adukiorg/anza/elements/breadcrumb` | **Full** (Phase 4) |
-| navigation | pagination | `ui-pagination` | `@adukiorg/anza/elements/pagination` | **Full** (Phase 4) |
-| navigation | steps | `ui-steps` | `@adukiorg/anza/elements/steps` | **Full** (Phase 4) |
-| layout | app | `ui-app` | `@adukiorg/anza/elements/app` | **Full** (Phase 4) |
-| layout | header | `ui-header` | `@adukiorg/anza/elements/header` | **Full** (Phase 4) |
-| layout | sidebar | `ui-sidebar` | `@adukiorg/anza/elements/sidebar` | **Full** (Phase 4) |
-| layout | stack | `ui-stack` | `@adukiorg/anza/elements/stack` | **Full** (Phase 4) |
-| layout | grid | `ui-grid` | `@adukiorg/anza/elements/grid` | **Full** (Phase 4) |
-| layout | split | `ui-split` | `@adukiorg/anza/elements/split` | **Full** (Phase 4) |
-| layout | scroll | `ui-scroll` | `@adukiorg/anza/elements/scroll` | **Full** (Phase 4) |
-| layout | surface | `ui-surface` | `@adukiorg/anza/elements/surface` | **Full** (Phase 4) |
+| primitives | button | `ui-button` | `@anzaui/anza/elements/button` | **Full** (Phase 1) |
+| primitives | icon | `ui-icon` | `@anzaui/anza/elements/icon` | **Full** (Phase 2) |
+| primitives | badge | `ui-badge` | `@anzaui/anza/elements/badge` | **Full** (Phase 2) |
+| primitives | avatar | `ui-avatar` | `@anzaui/anza/elements/avatar` | **Full** (Phase 2) |
+| primitives | divider | `ui-divider` | `@anzaui/anza/elements/divider` | **Full** (Phase 2) |
+| primitives | text | `ui-text` | `@anzaui/anza/elements/text` | **Full** (Phase 2) |
+| primitives | link | `ui-link` | `@anzaui/anza/elements/link` | **Full** (Phase 2) |
+| primitives | spinner | `ui-spinner` | `@anzaui/anza/elements/spinner` | **Full** (Phase 2) |
+| forms | input | `ui-input` | `@anzaui/anza/elements/input` | **Full** (Phase 1) |
+| forms | textarea | `ui-textarea` | `@anzaui/anza/elements/textarea` | **Full** (Phase 2) |
+| forms | select | `ui-select` | `@anzaui/anza/elements/select` | **Full** (Phase 2) |
+| forms | checkbox | `ui-checkbox` | `@anzaui/anza/elements/checkbox` | **Full** (Phase 2) |
+| forms | radio | `ui-radio` | `@anzaui/anza/elements/radio` | **Full** (Phase 2) |
+| forms | toggle | `ui-toggle` | `@anzaui/anza/elements/toggle` | **Full** (Phase 2) |
+| forms | field | `ui-field` | `@anzaui/anza/elements/field` | **Full** (Phase 2) |
+| forms | upload | `ui-upload` | `@anzaui/anza/elements/upload` | **Full** (Phase 2) |
+| forms | form | `ui-form` | `@anzaui/anza/elements/form` | **Full** (Phase 2) |
+| overlay | dialog | `ui-dialog` | `@anzaui/anza/elements/dialog` | **Full** (Phase 1) |
+| overlay | popover | `ui-popover` | `@anzaui/anza/elements/popover` | **Full** |
+| overlay | tooltip | `ui-tooltip` | `@anzaui/anza/elements/tooltip` | **Full** (escape helper) |
+| overlay | menu | `ui-menu` | `@anzaui/anza/elements/menu` | **Full** |
+| overlay | drawer | `ui-drawer` | `@anzaui/anza/elements/drawer` | **Full** |
+| overlay | sheet | `ui-sheet` | `@anzaui/anza/elements/sheet` | **Full** |
+| feedback | alert | `ui-alert` | `@anzaui/anza/elements/alert` | **Full** (Phase 1) |
+| feedback | toast | `ui-toast` | `@anzaui/anza/elements/toast` | **Full** (Phase 3) |
+| feedback | progress | `ui-progress` | `@anzaui/anza/elements/progress` | **Full** (Phase 3) |
+| feedback | skeleton | `ui-skeleton` | `@anzaui/anza/elements/skeleton` | **Full** (Phase 3) |
+| feedback | empty | `ui-empty` | `@anzaui/anza/elements/empty` | **Full** (Phase 3) |
+| data | table | `ui-table` | `@anzaui/anza/elements/table` | **Full** (Phase 4) |
+| data | list | `ui-list` | `@anzaui/anza/elements/list` | **Full** (Phase 4) |
+| data | card | `ui-card` | `@anzaui/anza/elements/card` | **Full** (Phase 4) |
+| data | chart | `ui-chart` | `@anzaui/anza/elements/chart` | **Full** (Phase 4) |
+| data | stat | `ui-stat` | `@anzaui/anza/elements/stat` | **Full** (Phase 4) |
+| navigation | nav | `ui-nav` | `@anzaui/anza/elements/nav` | **Full** (Phase 4) |
+| navigation | tabs | `ui-tabs` | `@anzaui/anza/elements/tabs` | **Full** (Phase 1) |
+| navigation | breadcrumb | `ui-breadcrumb` | `@anzaui/anza/elements/breadcrumb` | **Full** (Phase 4) |
+| navigation | pagination | `ui-pagination` | `@anzaui/anza/elements/pagination` | **Full** (Phase 4) |
+| navigation | steps | `ui-steps` | `@anzaui/anza/elements/steps` | **Full** (Phase 4) |
+| layout | app | `ui-app` | `@anzaui/anza/elements/app` | **Full** (Phase 4) |
+| layout | header | `ui-header` | `@anzaui/anza/elements/header` | **Full** (Phase 4) |
+| layout | sidebar | `ui-sidebar` | `@anzaui/anza/elements/sidebar` | **Full** (Phase 4) |
+| layout | stack | `ui-stack` | `@anzaui/anza/elements/stack` | **Full** (Phase 4) |
+| layout | grid | `ui-grid` | `@anzaui/anza/elements/grid` | **Full** (Phase 4) |
+| layout | split | `ui-split` | `@anzaui/anza/elements/split` | **Full** (Phase 4) |
+| layout | scroll | `ui-scroll` | `@anzaui/anza/elements/scroll` | **Full** (Phase 4) |
+| layout | surface | `ui-surface` | `@anzaui/anza/elements/surface` | **Full** (Phase 4) |
 
 **Totals:** 46 elements · **46 full** · **0 listed**.
 
-Also: barrel `@adukiorg/anza/elements` → `library/src/elements/index.js`.
+Also: barrel `@anzaui/anza/elements` → `library/src/elements/index.js`.
 
 ---
 
@@ -103,9 +103,9 @@ docs/index.md + docs entry      Cross-links
 **Import pattern (documented everywhere):**
 
 ```javascript
-import '@adukiorg/anza/elements/button';   // registers <ui-button>
+import '@anzaui/anza/elements/button';   // registers <ui-button>
 // or
-import '@adukiorg/anza/elements';          // full kit
+import '@anzaui/anza/elements';          // full kit
 ```
 
 ---

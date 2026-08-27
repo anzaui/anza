@@ -8,18 +8,18 @@
 <li>All registered prerequisite promises to settle</li>
 </ol>
 <p>Prerequisites are registered with <code>gate()</code>:</p>
-<view-code language="javascript">import { gate } from '@adukiorg/anza/router';
+<view-code language="javascript">import { gate } from '@anzaui/anza/router';
 
 gate(customElements.whenDefined('page-home'));
 gate(someAsyncSetup());
 </view-code>
 <p><code>page()</code> and <code>dock()</code> automatically gate on their element definitions. This means a hard refresh on <code>/user/42</code> waits for <code>&lt;page-user&gt;</code> to be defined before matching.</p>
 <p>The boot sequence is idempotent. <code>ready()</code> returns <code>true</code> once it has fired:</p>
-<view-code language="javascript">import { ready } from '@adukiorg/anza/router';
+<view-code language="javascript">import { ready } from '@anzaui/anza/router';
 if (ready()) { /* boot has completed */ }
 </view-code>
 <p><code>reset()</code> clears all state for test isolation:</p>
-<view-code language="javascript">import { reset } from '@adukiorg/anza/router';
+<view-code language="javascript">import { reset } from '@anzaui/anza/router';
 reset();
 </view-code>
 <hr />
@@ -105,8 +105,8 @@ router.register = (pattern, handler, meta) =&gt; {
 };
 </view-code>
 <p>For deeper extension, import internal modules directly:</p>
-<view-code language="javascript">import { register, match } from '@adukiorg/anza/router/match';
-import { addGuard } from '@adukiorg/anza/router/intercept';
+<view-code language="javascript">import { register, match } from '@anzaui/anza/router/match';
+import { addGuard } from '@anzaui/anza/router/intercept';
 </view-code>
 <hr />
 <h2>Non-browser / Mode A · Mode B</h2>

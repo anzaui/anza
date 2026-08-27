@@ -4,7 +4,7 @@
  * <ui-tooltip> positioning / overflow escape.
  */
 
-import '@adukiorg/anza/elements/tooltip';
+import '@anzaui/anza/elements/tooltip';
 
 async function waitForTip(host) {
   let count = 0;

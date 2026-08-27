@@ -2,14 +2,14 @@
 
 Two-pane split layout controlled by a ratio token.
 
-**Tag:** `ui-split` · **Import:** `@adukiorg/anza/elements/split`
+**Tag:** `ui-split` · **Import:** `@anzaui/anza/elements/split`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/split';
+import '@anzaui/anza/elements/split';
 ```
 
 ---

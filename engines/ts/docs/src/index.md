@@ -1,6 +1,6 @@
 # Anza Engine: TypeScript & JavaScript Reference
 
-**Anza** (`@adukiorg/anza-engine` / `anza`) is a zero-dependency, JIT-optimized Server-Templated UI (STUI) template and component streaming engine for modern JavaScript and TypeScript backends.
+**Anza** (`@anzaui/anza-engine` / `anza`) is a zero-dependency, JIT-optimized Server-Templated UI (STUI) template and component streaming engine for modern JavaScript and TypeScript backends.
 
 It delivers sub-millisecond initial page renders using **Open Declarative Shadow DOM (DSD)** and provides cryptographically signed component envelopes for dynamic partial fetches and Server-Sent Events (SSE) streams.
 

@@ -5,7 +5,7 @@ Layered UI in the kit: modals, menus, drawers, sheets, popovers, and tooltips. F
 Import pattern:
 
 ```javascript
-import '@adukiorg/anza/elements/<name>';
+import '@anzaui/anza/elements/<name>';
 ```
 
 ---
@@ -54,7 +54,7 @@ The kit does **not** use a shared body portal for overlays. Rendering strategies
 </ui-dialog>
 
 <script type="module">
-  import '@adukiorg/anza/elements/dialog';
+  import '@anzaui/anza/elements/dialog';
   document.querySelector('#confirm').showModal();
 </script>
 ```
@@ -70,7 +70,7 @@ Methods: `showModal()`, `close(returnValue?)`. See [dialog](dialog.md).
 </ui-popover>
 
 <script type="module">
-  import '@adukiorg/anza/elements/popover';
+  import '@anzaui/anza/elements/popover';
   const panel = document.querySelector('#panel');
   document.querySelector('#more').addEventListener('click', () => panel.toggle());
   panel.addEventListener('toggle', (e) => {
@@ -107,7 +107,7 @@ Hover / focus shows the hint (`part="tooltip"`, `popover="manual"`). Positioning
 </ui-menu>
 
 <script type="module">
-  import '@adukiorg/anza/elements/menu';
+  import '@anzaui/anza/elements/menu';
   const menu = document.querySelector('#menu');
   document.querySelector('#actions').addEventListener('click', () => menu.toggle());
 </script>
@@ -129,8 +129,8 @@ Slotted `ui-button` / `button` / `[role=menuitem]` get `role="menuitem"` and rov
 </ui-sheet>
 
 <script type="module">
-  import '@adukiorg/anza/elements/drawer';
-  import '@adukiorg/anza/elements/sheet';
+  import '@anzaui/anza/elements/drawer';
+  import '@anzaui/anza/elements/sheet';
 
   document.querySelector('#nav-drawer').show(); // sets open → showModal()
   document.querySelector('#filters').show();
@@ -145,7 +145,7 @@ Both sync `open` (Boolean, reflect) to native `dialog.showModal()` / `close()`, 
 Prefer `ui-tooltip` for hints. For a custom tip / chip that must escape `overflow` clipping without a body portal:
 
 ```javascript
-import { guard } from '@adukiorg/anza/platform';
+import { guard } from '@anzaui/anza/platform';
 
 const tip = document.querySelector('#hint');     // [popover="manual"]
 const anchor = document.querySelector('#target');
@@ -161,7 +161,7 @@ ctrl.update(); // after layout changes
 ctrl.hide();   // clears position + scroll/resize listeners
 ```
 
-Strategies: `'popover'` when `showPopover` + `[popover]` exist; otherwise `'fixed'` (`position: fixed` + `data-escape-open`). Sync form: `escapeOverflow` from `@adukiorg/anza/platform` (call `await guard.popover()` first if you need the polyfill). Full API: [Platform API](../platform/api.md), [Guards → escape](../platform/guards.md#escape).
+Strategies: `'popover'` when `showPopover` + `[popover]` exist; otherwise `'fixed'` (`position: fixed` + `data-escape-open`). Sync form: `escapeOverflow` from `@anzaui/anza/platform` (call `await guard.popover()` first if you need the polyfill). Full API: [Platform API](../platform/api.md), [Guards → escape](../platform/guards.md#escape).
 
 ---
 
@@ -169,7 +169,7 @@ Strategies: `'popover'` when `showPopover` + `[popover]` exist; otherwise `'fixe
 
 - Prefer component `on` / `watch` inside the overlay shadow. Soft-nav aborts the detached leaf’s `ctrl` and tears down signal-owned listeners.
 - Do **not** attach raw `document` / `body` listeners from a leaf without `{ signal: ctrl.signal }`. Soft-nav will not clean those up.
-- **Popover polyfill** (when Popover API is missing) registers framework-owned globals: `popover.target-click` and per-open `popover.body-mo:*` (prefers parent `childList` over `document.body` subtree). Inspect with `globals.count()` / `globals.list()` from `@adukiorg/anza/platform`. Soft-nav must not grow that set.
+- **Popover polyfill** (when Popover API is missing) registers framework-owned globals: `popover.target-click` and per-open `popover.body-mo:*` (prefers parent `childList` over `document.body` subtree). Inspect with `globals.count()` / `globals.list()` from `@anzaui/anza/platform`. Soft-nav must not grow that set.
 - **Tooltip escape** attaches scroll/resize reposition listeners only while open and clears them on hide / `ctrl` abort — not a long-lived document attachment.
 - **Toast** portals under `body` on purpose; dismiss timeouts clear on `el.ctrl.signal` abort. Own toast lifetime where it belongs — see [toast](toast.md).
 - Deeper notes: [Memory safety & framework globals](../ui/advanced.md), [Orphan listeners after soft-nav](../events/troubleshooting.md).
@@ -193,12 +193,12 @@ Strategies: `'popover'` when `showPopover` + `[popover]` exist; otherwise `'fixe
 
 | Element | Tag | Import | Status |
 | ------- | --- | ------ | ------ |
-| [dialog](dialog.md) | `ui-dialog` | `@adukiorg/anza/elements/dialog` | Full |
-| [popover](popover.md) | `ui-popover` | `@adukiorg/anza/elements/popover` | Full |
-| [tooltip](tooltip.md) | `ui-tooltip` | `@adukiorg/anza/elements/tooltip` | Full |
-| [menu](menu.md) | `ui-menu` | `@adukiorg/anza/elements/menu` | Full |
-| [drawer](drawer.md) | `ui-drawer` | `@adukiorg/anza/elements/drawer` | Full |
-| [sheet](sheet.md) | `ui-sheet` | `@adukiorg/anza/elements/sheet` | Full |
+| [dialog](dialog.md) | `ui-dialog` | `@anzaui/anza/elements/dialog` | Full |
+| [popover](popover.md) | `ui-popover` | `@anzaui/anza/elements/popover` | Full |
+| [tooltip](tooltip.md) | `ui-tooltip` | `@anzaui/anza/elements/tooltip` | Full |
+| [menu](menu.md) | `ui-menu` | `@anzaui/anza/elements/menu` | Full |
+| [drawer](drawer.md) | `ui-drawer` | `@anzaui/anza/elements/drawer` | Full |
+| [sheet](sheet.md) | `ui-sheet` | `@anzaui/anza/elements/sheet` | Full |
 
 Related feedback portal: [toast](toast.md) (`ui-toast`).
 

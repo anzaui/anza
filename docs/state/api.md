@@ -7,7 +7,7 @@ Complete reference for the state facade and internal classes.
 ## Facade
 
 ```javascript
-import { state } from '@adukiorg/anza/state';
+import { state } from '@anzaui/anza/state';
 ```
 
 ### `state.create(initial, options)`
@@ -141,5 +141,5 @@ import {
   sync,
   PlatformStorage,
   storage
-} from '@adukiorg/anza/state';
+} from '@anzaui/anza/state';
 ```

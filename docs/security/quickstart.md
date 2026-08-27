@@ -7,7 +7,7 @@ Get working with encryption and sanitization in five minutes.
 ## 1. Generate a UUID
 
 ```javascript
-import { security } from '@adukiorg/anza/security';
+import { security } from '@anzaui/anza/security';
 
 const id = security.uuid(); // e.g. "550e8400-e29b-41d4-a716-446655440000"
 ```
@@ -82,7 +82,7 @@ const state = await security.permission('geolocation');
 ## Complete Working Example
 
 ```javascript
-import { security } from '@adukiorg/anza/security';
+import { security } from '@anzaui/anza/security';
 
 // Secure session storage
 async function storeSession(data) {

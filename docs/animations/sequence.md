@@ -19,7 +19,7 @@ Returns `{ finished: Promise }`.
 ## Basic Sequence
 
 ```javascript
-import { animations } from '@adukiorg/anza/animations';
+import { animations } from '@anzaui/anza/animations';
 
 const seq = animations.sequence([
   [el, 'fade', { duration: 200 }],

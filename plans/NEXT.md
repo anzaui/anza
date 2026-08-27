@@ -20,7 +20,7 @@ Canonical detail + acceptance criteria: [SSG-SEO.md](./SSG-SEO.md) (status table
 | **5** | Parametric Mode A expansion: `ssg.expand` / `ssg.params.json` → concrete `dist/<path>/index.html`; unexpanded stay `ssg: false` |
 | **6** | SEO extras: `ssg.json` origin, sitemap/robots, absolute canonicals, JSON-LD, corpus closed-DSD CI gate |
 
-Also shipped alongside: theme via `@adukiorg/anza/theme`; issue #3 closed.
+Also shipped alongside: theme via `@anzaui/anza/theme`; issue #3 closed.
 
 ### Remaining (priority order)
 

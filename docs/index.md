@@ -12,8 +12,8 @@ Install the library, scaffold your first app, and understand the project layout.
 
 | File | What It Covers |
 | ------ | -------------- |
-| [intro/install.md](intro/install.md) | Install `@adukiorg/anza` and the prebuilt CLI |
-| [intro/start.md](intro/start.md) | Scaffold your first app with `npm create @adukiorg/anza` |
+| [intro/install.md](intro/install.md) | Install `@anzaui/anza` and the prebuilt CLI |
+| [intro/start.md](intro/start.md) | Scaffold your first app with `npm create @anzaui/anza` |
 | [intro/build.md](intro/build.md) | Dev server, production build, `anza doctor` / `check` / `generate` |
 | [intro/structure.md](intro/structure.md) | **Project structure contract** — required / recommended / optional slots, optional `anza.json`, service workers |
 

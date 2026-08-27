@@ -2,7 +2,7 @@
 <p>The Web Locks API facade provides named exclusive or shared locks with AbortSignal and timeout support. When the Locks API is unavailable, a same-tab promise-chain fallback ensures serial execution.</p>
 <hr />
 <h2>Acquire a Lock</h2>
-<view-code language="javascript">import { workers } from '@adukiorg/anza/workers';
+<view-code language="javascript">import { workers } from '@anzaui/anza/workers';
 
 await workers.lock('db:users', async () =&gt; {
   await db.save(user);

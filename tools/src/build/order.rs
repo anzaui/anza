@@ -374,7 +374,7 @@ mod tests {
   fn classify_slots() {
     let importer = PathBuf::from("/app/src");
     assert_eq!(
-      classify("@adukiorg/anza/ui", &importer, &src()),
+      classify("@anzaui/anza/ui", &importer, &src()),
       Tier::Library
     );
     assert_eq!(
@@ -436,12 +436,12 @@ mod tests {
     let specs = vec![
       ("./pages/index.js".into(), Tier::Page),
       ("./docks/index.js".into(), Tier::Dock),
-      ("@adukiorg/anza/ui".into(), Tier::Library),
+      ("@anzaui/anza/ui".into(), Tier::Library),
     ];
     assert_eq!(
       sort_specs(&specs),
       vec![
-        "@adukiorg/anza/ui",
+        "@anzaui/anza/ui",
         "./docks/index.js",
         "./pages/index.js",
       ]
@@ -455,7 +455,7 @@ mod tests {
  * entry
  */
 import './pages/index.js';
-import '@adukiorg/anza/ui';
+import '@anzaui/anza/ui';
 import './docks/index.js';
 
 dock('main');
@@ -463,7 +463,7 @@ dock('main');
     let out = rewrite_with(source, &file, &src(), &Slots::default());
     let page = out.find("import './pages/index.js';").expect("pages");
     let dock = out.find("import './docks/index.js';").expect("docks");
-    let lib = out.find("import '@adukiorg/anza/ui';").expect("lib");
+    let lib = out.find("import '@anzaui/anza/ui';").expect("lib");
     let body = out.find("dock('main')").expect("body");
     assert!(lib < dock, "library before docks");
     assert!(dock < page, "docks before pages");
@@ -473,8 +473,8 @@ dock('main');
   #[test]
   fn rewrite_mid_file_import_hoisted() {
     let file = PathBuf::from("/app/src/app.js");
-    let source = r#"import '@adukiorg/anza/ui';
-import { dock } from '@adukiorg/anza/ui';
+    let source = r#"import '@anzaui/anza/ui';
+import { dock } from '@anzaui/anza/ui';
 
 dock('main');
 
@@ -491,7 +491,7 @@ import './pages/index.js';
   #[test]
   fn rewrite_idempotent_when_ordered() {
     let file = PathBuf::from("/app/src/app.js");
-    let source = r#"import '@adukiorg/anza/ui';
+    let source = r#"import '@anzaui/anza/ui';
 import './docks/index.js';
 import './pages/index.js';
 

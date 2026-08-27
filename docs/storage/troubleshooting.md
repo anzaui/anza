@@ -8,13 +8,13 @@ Use this page when the storage facade behaves differently from `state.storage`, 
 
 ## Clash with `state.storage` / `platform-db`
 
-**Cause:** `@adukiorg/anza/storage` and `state.storage` (`PlatformStorage`) both default to IndexedDB name `platform-db`.
+**Cause:** `@anzaui/anza/storage` and `state.storage` (`PlatformStorage`) both default to IndexedDB name `platform-db`.
 
 **Fix:** Configure distinct names before first use:
 
 ```javascript
-import { storage } from '@adukiorg/anza/storage';
-import { state } from '@adukiorg/anza/state';
+import { storage } from '@anzaui/anza/storage';
+import { state } from '@anzaui/anza/state';
 
 storage.configure({ idb: { name: 'app-kv' } });
 state.storage.setDatabaseName('app-state');
@@ -79,7 +79,7 @@ If it repeats in development, close stale tabs and hard-reload after the upgrade
 **Fix:** Check support first:
 
 ```javascript
-import { supports } from '@adukiorg/anza/platform';
+import { supports } from '@anzaui/anza/platform';
 
 if (!supports.opfs) {
   // Fall back to idb
@@ -128,14 +128,14 @@ await storage.delete('old-key');
 Or request persistent storage:
 
 ```javascript
-import { quota } from '@adukiorg/anza/storage';
+import { quota } from '@anzaui/anza/storage';
 await quota.persist();
 ```
 
 Or subscribe once and surface pressure in your own UI:
 
 ```javascript
-import { storage } from '@adukiorg/anza/storage';
+import { storage } from '@anzaui/anza/storage';
 
 const dispose = storage.onQuotaWarning(({ usage, quota }) => {
   console.warn('Storage pressure', { usage, quota });
@@ -184,7 +184,7 @@ If memory works but IDB does not, inspect migrations / blocked upgrades / privat
 Inspect storage state:
 
 ```javascript
-import { storage } from '@adukiorg/anza/storage';
+import { storage } from '@anzaui/anza/storage';
 
 const est = await storage.estimate();
 console.log('Usage:', est.usage, 'Quota:', est.quota, 'Persisted:', est.persisted);

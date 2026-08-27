@@ -4,9 +4,9 @@
  * Overflow-escape / positioning helper tests.
  */
 
-import { escapeOverflow } from '@adukiorg/anza/platform';
+import { escapeOverflow } from '@anzaui/anza/platform';
 import { position } from '/src/core/platform/polyfills/anchor.js';
-import { guard } from '@adukiorg/anza/platform';
+import { guard } from '@anzaui/anza/platform';
 
 describe('escapeOverflow / anchor position', () => {
   let anchor;

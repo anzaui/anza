@@ -2,14 +2,14 @@
 
 Empty-state panel with illustration, title, description, and optional CTA slot.
 
-**Tag:** `ui-empty` · **Import:** `@adukiorg/anza/elements/empty`
+**Tag:** `ui-empty` · **Import:** `@anzaui/anza/elements/empty`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/empty';
+import '@anzaui/anza/elements/empty';
 ```
 
 ---

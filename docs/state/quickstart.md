@@ -7,7 +7,7 @@ Get a reactive store running in five minutes.
 ## 1. Create a Store
 
 ```javascript
-import { state } from '@adukiorg/anza/state';
+import { state } from '@anzaui/anza/state';
 
 const store = state.create({
   count: 0,
@@ -113,7 +113,7 @@ const restored = await state.storage.get('keyval', 'count');
 ## Complete Working Example
 
 ```javascript
-import { state } from '@adukiorg/anza/state';
+import { state } from '@anzaui/anza/state';
 
 const cart = state.create({ items: [], total: 0 });
 

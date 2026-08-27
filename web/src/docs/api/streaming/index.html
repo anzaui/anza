@@ -2,7 +2,7 @@
 <p>The API client parses NDJSON (newline-delimited JSON) streams natively using the Streams API, yielding parsed objects as an async iterable while preserving backpressure.</p>
 <hr />
 <h2>Basic Streaming</h2>
-<view-code language="javascript">import { api } from '@adukiorg/anza/api';
+<view-code language="javascript">import { api } from '@anzaui/anza/api';
 
 for await (const chunk of api.stream('/logs/stream')) {
   console.log(chunk.timestamp, chunk.message);
@@ -32,7 +32,7 @@ for await (const chunk of api.stream('/logs/stream')) {
 <hr />
 <h2>NDJSON Transform</h2>
 <p>For direct stream manipulation, the NDJSON transform stream is exported:</p>
-<view-code language="javascript">import { createNDJSONTransform } from '@adukiorg/anza/api';
+<view-code language="javascript">import { createNDJSONTransform } from '@anzaui/anza/api';
 
 const response = await fetch('/stream');
 const reader = response.body

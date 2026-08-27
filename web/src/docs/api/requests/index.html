@@ -2,7 +2,7 @@
 <p>The API client exposes five HTTP methods. Each auto-serializes JSON bodies, parses JSON responses, and carries standard options for timeouts, signals, caching, and retries.</p>
 <hr />
 <h2>HTTP Methods</h2>
-<view-code language="javascript">import { api } from '@adukiorg/anza/api';
+<view-code language="javascript">import { api } from '@anzaui/anza/api';
 
 // GET
 const user = await api.get('/user/profile');
@@ -37,7 +37,7 @@ api.post('/upload', blob);     // Blob passes through as-is
 <tr><td>Anything else</td><td>Raw text string</td></tr>
 </tbody></table></div>
 <p>To get the raw <code>Response</code> object, use the lower-level <code>execute</code> export:</p>
-<view-code language="javascript">import { execute } from '@adukiorg/anza/api';
+<view-code language="javascript">import { execute } from '@anzaui/anza/api';
 const response = await execute({ url: '/image', method: 'GET' });
 const blob = await response.blob();
 </view-code>

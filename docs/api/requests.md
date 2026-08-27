@@ -7,7 +7,7 @@ The API client exposes five HTTP methods. Each auto-serializes JSON bodies, pars
 ## HTTP Methods
 
 ```javascript
-import { api } from '@adukiorg/anza/api';
+import { api } from '@anzaui/anza/api';
 
 // GET
 const user = await api.get('/user/profile');
@@ -54,7 +54,7 @@ The response is parsed based on `Content-Type`:
 To get the raw `Response` object, use the lower-level `execute` export:
 
 ```javascript
-import { execute } from '@adukiorg/anza/api';
+import { execute } from '@anzaui/anza/api';
 const response = await execute({ url: '/image', method: 'GET' });
 const blob = await response.blob();
 ```

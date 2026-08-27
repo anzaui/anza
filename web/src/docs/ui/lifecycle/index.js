@@ -1,4 +1,4 @@
-import { page } from '@adukiorg/anza/ui';
+import { page } from '@anzaui/anza/ui';
 
 page('/docs/ui/lifecycle', {
   tag: 'doc-ui-lifecycle',

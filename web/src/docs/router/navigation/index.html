@@ -3,7 +3,7 @@
 <hr />
 <h2>Navigate (Push)</h2>
 <p>Push a new history entry and navigate to a URL:</p>
-<view-code language="javascript">import { router } from '@adukiorg/anza/router';
+<view-code language="javascript">import { router } from '@anzaui/anza/router';
 
 router.navigate('/settings');
 router.navigate('/user/42');
@@ -87,8 +87,8 @@ await result.finished;
 <p>While a soft-nav fetch is in flight (page module, <code>template.html</code>, styles), the <strong>leaf</strong> dock shows a loading indicator by default (built-in <code>.anza-loading</code> CSS spinner). Hard refresh / boot (<code>direction: 'load'</code> or Navigation API <code>reload</code>) skips loading so SSG content is not covered.</p>
 <p>No dock/page config is required — create apps get the default automatically. Override ladder (highest wins): page <code>loading</code> → dock <code>loading</code> (leaf→root) → <code>router.loading.configure</code> → built-in spinner.</p>
 <p><strong>Bootstrap:</strong> shell <code>index.html</code> links <code>/styles/index.css</code>, which includes <code>loading.css</code>, so spinner styles exist on first load before any soft-nav. Import custom loader elements only when overriding with a tag. <code>router.loading.ensureStyles()</code> is a fallback if <code>loading.css</code> is omitted.</p>
-<view-code language="javascript">import { dock, page } from '@adukiorg/anza/ui';
-import { router } from '@adukiorg/anza/router';
+<view-code language="javascript">import { dock, page } from '@anzaui/anza/ui';
+import { router } from '@anzaui/anza/router';
 
 // Optional — default built-in spinner works with bare dock('main')
 dock('content', {

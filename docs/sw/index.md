@@ -4,8 +4,8 @@ The Anza Service Worker toolkit handles caching, request interception, backgroun
 
 The toolkit is split into two halves:
 
-1. **Main thread** (`@adukiorg/anza/offline`) — connectivity checks, task queuing, and message bridge to the SW
-2. **Service Worker thread** (`@adukiorg/anza/sw`) — caching strategies, route interception, lifecycle hooks, and sync replay
+1. **Main thread** (`@anzaui/anza/offline`) — connectivity checks, task queuing, and message bridge to the SW
+2. **Service Worker thread** (`@anzaui/anza/sw`) — caching strategies, route interception, lifecycle hooks, and sync replay
 
 Browsers do not support import maps in Service Worker scope, so the build tool rewrites bare specifiers to relative paths when emitting `dist/sw.js`.
 
@@ -27,10 +27,10 @@ Browsers do not support import maps in Service Worker scope, so the build tool r
 
 ```javascript
 // Service Worker thread
-import { CacheFirst, router, precache } from '@adukiorg/anza/sw';
+import { CacheFirst, router, precache } from '@anzaui/anza/sw';
 
 // Main thread
-import { offline } from '@adukiorg/anza/offline';
+import { offline } from '@anzaui/anza/offline';
 ```
 
 ---
@@ -51,7 +51,7 @@ import { offline } from '@adukiorg/anza/offline';
 
 ```javascript
 // src/sw.js
-import { precache, router, CacheFirst, NetworkFirst } from '@adukiorg/anza/sw';
+import { precache, router, CacheFirst, NetworkFirst } from '@anzaui/anza/sw';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(precache('shell-v1', ['/index.html', '/app.js']));
@@ -69,8 +69,8 @@ self.addEventListener('fetch', (e) => {
 
 ```javascript
 // src/app.js
-import '@adukiorg/anza/ui';
-import { dock } from '@adukiorg/anza/ui';
+import '@anzaui/anza/ui';
+import { dock } from '@anzaui/anza/ui';
 
 navigator.serviceWorker.register('/sw.js');
 

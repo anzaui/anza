@@ -2,14 +2,14 @@
 
 Content card with header, body, and footer slots. Optional interactive hover lift.
 
-**Tag:** `ui-card` · **Import:** `@adukiorg/anza/elements/card`
+**Tag:** `ui-card` · **Import:** `@anzaui/anza/elements/card`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/card';
+import '@anzaui/anza/elements/card';
 ```
 
 ---

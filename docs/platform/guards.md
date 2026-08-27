@@ -5,7 +5,7 @@
 The `guard` object provides asynchronous feature gates. Each method checks native support and either returns the native API or dynamically imports a polyfill.
 
 ```javascript
-import { guard, escapeOverflow } from '@adukiorg/anza/platform';
+import { guard, escapeOverflow } from '@anzaui/anza/platform';
 ```
 
 Full signatures: [API Reference](api.md).
@@ -108,7 +108,7 @@ ctrl.hide();
 ### Sync form
 
 ```javascript
-import { escapeOverflow, guard } from '@adukiorg/anza/platform';
+import { escapeOverflow, guard } from '@anzaui/anza/platform';
 
 await guard.popover(); // ensure polyfill if you rely on [popover]
 const ctrl = escapeOverflow(tip, anchor, { placement: 'bottom' });
@@ -118,7 +118,7 @@ ctrl.show();
 ### Advanced — custom floating UI (same path as `ui-tooltip`)
 
 ```javascript
-import { guard } from '@adukiorg/anza/platform';
+import { guard } from '@anzaui/anza/platform';
 
 async function bindHint(host, tip, wrapper) {
   if (!tip.hasAttribute('popover')) {

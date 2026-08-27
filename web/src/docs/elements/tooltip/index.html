@@ -1,10 +1,10 @@
 <h1>Tooltip</h1>
 <p>Hover / focus hint. The tip stays in-tree (not a body portal) and uses the platform <strong>escape / position</strong> helper so it can leave <code>overflow</code> clipping via Popover top-layer, with a fixed-position fallback when APIs are missing.</p>
-<p><strong>Tag:</strong> <code>ui-tooltip</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/tooltip</code></p>
+<p><strong>Tag:</strong> <code>ui-tooltip</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/tooltip</code></p>
 <p>Architecture and when-to-use: <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
 <hr />
 <h2>Import</h2>
-<view-code language="javascript">import '@adukiorg/anza/elements/tooltip';
+<view-code language="javascript">import '@anzaui/anza/elements/tooltip';
 </view-code>
 <hr />
 <h2>Basic usage</h2>
@@ -34,11 +34,11 @@
 <h2>Positioning / escape</h2>
 <ul>
 <li>On pointer enter / focus-within, the tip opens via <code>showPopover()</code> when the Popover API (or polyfill) is available — top-layer, so typical <code>overflow: hidden</code> ancestors do not clip it.</li>
-<li>Placement is computed by <code>@adukiorg/anza/platform</code> (<code>escapeOverflow</code> / <code>guard.escape</code>) with <code>position: fixed</code> coordinates; scroll/resize keep it aligned.</li>
+<li>Placement is computed by <code>@anzaui/anza/platform</code> (<code>escapeOverflow</code> / <code>guard.escape</code>) with <code>position: fixed</code> coordinates; scroll/resize keep it aligned.</li>
 <li>If popover methods are unavailable, the helper falls back to fixed positioning and a <code>data-escape-open</code> marker (still not a <code>document.body</code> portal).</li>
 <li>Prefer <a href="/docs/elements/popover">popover</a> / <a href="/docs/elements/menu">menu</a> for interactive panels; tooltip is for short non-interactive hints.</li>
 </ul>
-<p>Platform API: <code>import { escapeOverflow, guard } from '@adukiorg/anza/platform'</code>.</p>
+<p>Platform API: <code>import { escapeOverflow, guard } from '@anzaui/anza/platform'</code>.</p>
 <h3>Lifecycle / memory</h3>
 <p>Show/hide uses the host <code>AbortController</code> (<code>el.ctrl.signal</code>) for the escape controller and pointer listeners. Soft-nav aborts teardown. See <a href="/docs/elements/overlay">Overlay patterns</a> and <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a>.</p>
 <hr />

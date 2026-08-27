@@ -5,13 +5,13 @@ The Native Offline layer provides tools for building local-first, network-resili
 Import from the offline entry point:
 
 ```javascript
-import { offline } from '@adukiorg/anza/offline';
+import { offline } from '@anzaui/anza/offline';
 ```
 
 Or import individual components directly:
 
 ```javascript
-import { check, subscribe, queue, sync, bridge, state, clock } from '@adukiorg/anza/offline';
+import { check, subscribe, queue, sync, bridge, state, clock } from '@anzaui/anza/offline';
 ```
 
 ---
@@ -216,7 +216,7 @@ await offline.send('sync:force');
 Distributed local-first applications cannot rely on physical clocks due to device clock drift. The `clock` manager implements logical Lamport clocks to stamp offline mutations, ensuring Last-Write-Wins (LWW) resolution is perfectly deterministic.
 
 ```javascript
-import { clock } from '@adukiorg/anza/offline';
+import { clock } from '@anzaui/anza/offline';
 
 // 1. Retrieve the local client's persistent actor UUID
 const clientUUID = await clock.actor();
@@ -244,11 +244,11 @@ Compare logical stamps during data conflict merges:
 
 ## 7. Web Component Integration
 
-The offline modules integrate seamlessly with the declarative `@adukiorg/anza` UI elements framework. The component's `mount` hook receives an `AbortController` (`ctrl`) that is automatically aborted when the element is disconnected from the DOM, resolving all subscriber memory safety concerns.
+The offline modules integrate seamlessly with the declarative `@anzaui/anza` UI elements framework. The component's `mount` hook receives an `AbortController` (`ctrl`) that is automatically aborted when the element is disconnected from the DOM, resolving all subscriber memory safety concerns.
 
 ```javascript
-import { ui } from '@adukiorg/anza/ui';
-import { check, queue, sync, state } from '@adukiorg/anza/offline';
+import { ui } from '@anzaui/anza/ui';
+import { check, queue, sync, state } from '@anzaui/anza/offline';
 
 ui.element('offline-status-banner', {
   template: `

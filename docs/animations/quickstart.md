@@ -7,7 +7,7 @@ Get animating in five minutes.
 ## 1. Animate an Element
 
 ```javascript
-import { animations } from '@adukiorg/anza/animations';
+import { animations } from '@anzaui/anza/animations';
 
 const el = document.querySelector('.box');
 
@@ -104,7 +104,7 @@ animations.animate(el, 'fade', { duration: dur, easing });
 ## Complete Working Example
 
 ```javascript
-import { animations } from '@adukiorg/anza/animations';
+import { animations } from '@anzaui/anza/animations';
 
 async function showMenu() {
   const menu = document.querySelector('.menu');

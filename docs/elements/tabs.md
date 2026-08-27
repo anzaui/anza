@@ -2,14 +2,14 @@
 
 Accessible tablist with roving tabindex, arrow / Home / End keys, and optional URL-synced `active` value.
 
-**Tag:** `ui-tabs` · **Import:** `@adukiorg/anza/elements/tabs`
+**Tag:** `ui-tabs` · **Import:** `@anzaui/anza/elements/tabs`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/tabs';
+import '@anzaui/anza/elements/tabs';
 ```
 
 ---

@@ -7,7 +7,7 @@
 ## Create
 
 ```javascript
-import { state } from '@adukiorg/anza/state';
+import { state } from '@anzaui/anza/state';
 
 const store = state.create({ count: 0 });
 ```

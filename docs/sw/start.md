@@ -9,7 +9,7 @@ Write a Service Worker that caches your shell and intercepts API calls.
 The scaffold generates this file for you. Here is what it contains:
 
 ```javascript
-import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@adukiorg/anza/sw';
+import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@anzaui/anza/sw';
 
 const SHELL = 'shell-v3';
 const API = 'api-v3';
@@ -53,8 +53,8 @@ Keep helpers in optional `src/sw/` and `import` them from `src/sw.js` — that f
 ## 2. Register from `app.js`
 
 ```javascript
-import '@adukiorg/anza/ui';
-import { dock } from '@adukiorg/anza/ui';
+import '@anzaui/anza/ui';
+import { dock } from '@anzaui/anza/ui';
 
 // Register the Service Worker
 navigator.serviceWorker.register('/sw.js');
@@ -75,7 +75,7 @@ import './pages/index/index.js';
 Use the offline bridge to send tasks to the active SW:
 
 ```javascript
-import { offline } from '@adukiorg/anza/offline';
+import { offline } from '@anzaui/anza/offline';
 
 offline.send('sync', { action: 'flush-queue' });
 ```
@@ -112,7 +112,7 @@ The build tool copied these from `library/src/sw/` and rewrote bare specifiers i
 Add background sync to replay failed mutations:
 
 ```javascript
-import { replayQueue } from '@adukiorg/anza/sw';
+import { replayQueue } from '@anzaui/anza/sw';
 
 self.addEventListener('sync', (e) => {
   if (e.tag === 'sync-tasks') {

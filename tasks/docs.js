@@ -200,7 +200,7 @@ function generatePage(mdPath) {
   writeFileSync(join(folder, 'index.html'), htmlBody + '\n');
 
   if (!existsSync(jsPath)) {
-    const js = `import { page } from '@adukiorg/anza/ui';
+    const js = `import { page } from '@anzaui/anza/ui';
 
 page('${route}', {
   tag: '${tag}',

@@ -53,7 +53,7 @@ if (!ctrl.signal.aborted) {
 **Fix:** Check `supports.scrollTimeline` and provide fallback:
 
 ```javascript
-import { supports } from '@adukiorg/anza/platform';
+import { supports } from '@anzaui/anza/platform';
 
 if (supports.scrollTimeline) {
   // Use ScrollTimeline

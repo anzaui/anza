@@ -4,7 +4,7 @@
  * Event delegation: composedPath matching, attrs/not/key, signal teardown.
  */
 
-import { delegate } from '@adukiorg/anza/events';
+import { delegate } from '@anzaui/anza/events';
 
 describe('Event Delegation', () => {
   it('delegates events and caches selector match results', () => {

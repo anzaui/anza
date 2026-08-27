@@ -8,13 +8,13 @@ names. Every subscription supports `AbortSignal` cleanup.
 Import from the events entry point:
 
 ```javascript
-import { events } from '@adukiorg/anza/events';
+import { events } from '@anzaui/anza/events';
 ```
 
 Named exports are also available:
 
 ```javascript
-import { bus, EventBus, delegate, once, listen, names } from '@adukiorg/anza/events';
+import { bus, EventBus, delegate, once, listen, names } from '@anzaui/anza/events';
 ```
 
 ## 1. Choosing an API
@@ -52,7 +52,7 @@ Use the `names` registry instead of raw strings to avoid typos. Connectivity
 events are emitted automatically by the offline connectivity monitor.
 
 ```javascript
-import { events } from '@adukiorg/anza/events';
+import { events } from '@anzaui/anza/events';
 
 events.on(events.names.connectivity.offline, () => showOfflineBanner());
 events.on(events.names.connectivity.online,  () => hideOfflineBanner());

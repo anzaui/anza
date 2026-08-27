@@ -7,7 +7,7 @@ Transfer an `HTMLCanvasElement` to a worker for off-main-thread rendering. The w
 ## Transfer
 
 ```javascript
-import { workers } from '@adukiorg/anza/workers';
+import { workers } from '@anzaui/anza/workers';
 
 const canvas = document.getElementById('canvas');
 const handle = await workers.offscreen(canvas, '/workers/renderer.js');
@@ -75,7 +75,7 @@ Terminates the worker and releases the handle.
 Requires `OffscreenCanvas` and `transferControlToOffscreen()`. Check with the platform layer:
 
 ```javascript
-import { supports } from '@adukiorg/anza/platform';
+import { supports } from '@anzaui/anza/platform';
 
 if (supports.offscreenCanvas) {
   const handle = await workers.offscreen(canvas, '/workers/renderer.js');

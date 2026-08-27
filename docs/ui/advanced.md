@@ -139,12 +139,12 @@ These are intentional document-adjacent attachments owned by the framework (not 
 | `popover.target-click` | `platform/polyfills/popover.js` | `document` click | framework lifetime when polyfill installs |
 | `popover.body-mo:*` | `platform/polyfills/popover.js` | parent (preferred) or `body` | disconnect on hide |
 
-Inspect with `import { globals } from '@adukiorg/anza/platform'` — `globals.count()` / `globals.list()` (test / diagnostics helper). Prefer `on` / `watch` / `events.*` with `{ signal: ctrl.signal }` for app code. Soft-nav aborts the detached leaf’s `ctrl`; anything attached without that signal survives `replaceChildren` / `swapView`.
+Inspect with `import { globals } from '@anzaui/anza/platform'` — `globals.count()` / `globals.list()` (test / diagnostics helper). Prefer `on` / `watch` / `events.*` with `{ signal: ctrl.signal }` for app code. Soft-nav aborts the detached leaf’s `ctrl`; anything attached without that signal survives `replaceChildren` / `swapView`.
 
 Per-instance attachment budget (DEV / tests):
 
 ```javascript
-import { getAttachmentStats } from '@adukiorg/anza/ui';
+import { getAttachmentStats } from '@anzaui/anza/ui';
 
 const stats = getAttachmentStats(el.shadowRoot);
 // { onRootListeners, onRegistrations, watchBuckets, watchRegistrations, slotListeners }
@@ -175,7 +175,7 @@ Public SEO HTML comes from Mode A SSG or Mode B templates ([contract](../ssg/con
 Subclass `BaseElement` for imperative elements that need the AbortController pattern but not the full declarative factory:
 
 ```javascript
-import { BaseElement } from '@adukiorg/anza/ui';
+import { BaseElement } from '@anzaui/anza/ui';
 
 class ChartWidget extends BaseElement {
   mount() {
@@ -200,7 +200,7 @@ customElements.define('chart-widget', ChartWidget);
 The low-level `define(tag, Class)` helper skips duplicate registrations:
 
 ```javascript
-import { define } from '@adukiorg/anza/ui';
+import { define } from '@anzaui/anza/ui';
 
 define('my-element', MyClass);
 define('my-element', MyClass); // logs warning, skips

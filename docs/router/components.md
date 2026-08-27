@@ -9,7 +9,7 @@
 A `view` is a composable, stateful Web Component. It has reactive properties, lifecycle hooks, and a template. The router never touches it directly — it is a UI primitive.
 
 ```javascript
-import { view } from '@adukiorg/anza/defs';
+import { view } from '@anzaui/anza/defs';
 
 view('user-card', {
   props: {
@@ -43,7 +43,7 @@ Use views for:
 A `part` is an atomic, stateless UI primitive: buttons, icons, badges, chips. It has props but no reactive update loop.
 
 ```javascript
-import { part } from '@adukiorg/anza/defs';
+import { part } from '@anzaui/anza/defs';
 
 part('icon-star', {
   props: {

@@ -2,14 +2,14 @@
 
 Inline severity notification with `role="alert"` and optional dismiss control.
 
-**Tag:** `ui-alert` · **Import:** `@adukiorg/anza/elements/alert`
+**Tag:** `ui-alert` · **Import:** `@anzaui/anza/elements/alert`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/alert';
+import '@anzaui/anza/elements/alert';
 ```
 
 ---

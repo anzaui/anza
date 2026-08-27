@@ -32,7 +32,7 @@
 <p>Escape hatches (<code>router.notFound(fn)</code>, <code>router.pages.onError(fn)</code>) may return <code>false</code> to fall through to auto-mount. Prefer dock / <code>configure</code> tags for normal apps.</p>
 <hr />
 <h2>Simple: bare docks (library defaults)</h2>
-<view-code language="javascript">import { dock, page } from '@adukiorg/anza/ui';
+<view-code language="javascript">import { dock, page } from '@anzaui/anza/ui';
 
 dock('main');
 dock('docs', { parent: 'main', template: '&lt;aside&gt;&lt;/aside&gt;&lt;slot&gt;&lt;/slot&gt;' });
@@ -47,8 +47,8 @@ page('/docs/:slug', {
 <p>Unmatched <code>/docs/…</code>: resolver mounts the shared built-in 404 into <strong>content</strong>; docs sidebar and main shell stay. No per-dock error HTML files.</p>
 <hr />
 <h2>Advanced: branded override (dock / page scoped)</h2>
-<view-code language="javascript">import { view, dock, page } from '@adukiorg/anza/ui';
-import { router } from '@adukiorg/anza/router';
+<view-code language="javascript">import { view, dock, page } from '@anzaui/anza/ui';
+import { router } from '@anzaui/anza/router';
 
 view('page-docs-not-found', {
   template: { html: './docs-404.html' }
@@ -101,7 +101,7 @@ router.pages.configure({
 <p>Still mounts into the <strong>leaf</strong> dock of the active chain — not a document-level wipe. <code>configure</code> returns a disposer that clears the kinds you set. Use when several docks omit a kind and you want one branded default without repeating dock config.</p>
 <hr />
 <h2>API surface</h2>
-<view-code language="javascript">import { router } from '@adukiorg/anza/router';
+<view-code language="javascript">import { router } from '@anzaui/anza/router';
 
 // App-level overrides (step 3 of the ladder)
 const dispose = router.pages.configure({

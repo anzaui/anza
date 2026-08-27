@@ -7,7 +7,7 @@ The Web Locks API facade provides named exclusive or shared locks with AbortSign
 ## Acquire a Lock
 
 ```javascript
-import { workers } from '@adukiorg/anza/workers';
+import { workers } from '@anzaui/anza/workers';
 
 await workers.lock('db:users', async () => {
   await db.save(user);

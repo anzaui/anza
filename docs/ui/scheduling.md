@@ -9,7 +9,7 @@ Related: [transitions.md](transitions.md) (VT + `AbortSignal`), [lifecycle.md](l
 ## schedule
 
 ```javascript
-import { ui } from '@adukiorg/anza/ui';
+import { ui } from '@anzaui/anza/ui';
 
 ui.schedule(() => {
   renderChunk();
@@ -62,7 +62,7 @@ Returns a promise that resolves with the callback's return value. Pass `{ signal
 Yield control to the browser mid-task:
 
 ```javascript
-import { ui } from '@adukiorg/anza/ui';
+import { ui } from '@anzaui/anza/ui';
 
 async function processLargeDataset(rows, { signal } = {}) {
   for (let i = 0; i < rows.length; i++) {
@@ -76,7 +76,7 @@ async function processLargeDataset(rows, { signal } = {}) {
 
 Uses `scheduler.yield()` when available, falling back to `setTimeout(..., 0)`. Already-aborted signals reject with `AbortError`.
 
-Platform equivalent without the UI facade: `await guard.yield()` from `@adukiorg/anza/platform`.
+Platform equivalent without the UI facade: `await guard.yield()` from `@anzaui/anza/platform`.
 
 ---
 

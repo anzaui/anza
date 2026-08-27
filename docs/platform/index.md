@@ -27,7 +27,7 @@ import {
   typeGuard,
   globals,
   escapeOverflow
-} from '@adukiorg/anza/platform';
+} from '@anzaui/anza/platform';
 ```
 
 ---
@@ -48,7 +48,7 @@ import {
 ## One-File Example
 
 ```javascript
-import { supports, guard, typeGuard } from '@adukiorg/anza/platform';
+import { supports, guard, typeGuard } from '@anzaui/anza/platform';
 
 // Detect
 if (supports.viewTransitions) {

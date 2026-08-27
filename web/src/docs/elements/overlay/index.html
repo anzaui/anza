@@ -1,7 +1,7 @@
 <h1>Overlay</h1>
 <p>Layered UI in the kit: modals, menus, drawers, sheets, popovers, and tooltips. Full reference pages exist for every overlay tag (<a href="/docs/elements/dialog">dialog</a>, <a href="/docs/elements/popover">popover</a>, <a href="/docs/elements/tooltip">tooltip</a>, <a href="/docs/elements/menu">menu</a>, <a href="/docs/elements/drawer">drawer</a>, <a href="/docs/elements/sheet">sheet</a>) plus <a href="/docs/elements/toast">toast</a> under Feedback. This page is the architecture / patterns reference for the whole overlay kit.</p>
 <p>Import pattern:</p>
-<view-code language="javascript">import '@adukiorg/anza/elements/&lt;name&gt;';
+<view-code language="javascript">import '@anzaui/anza/elements/&lt;name&gt;';
 </view-code>
 <hr />
 <h2>Architecture (actual kit model)</h2>
@@ -36,7 +36,7 @@
 &lt;/ui-dialog&gt;
 
 &lt;script type="module"&gt;
-  import '@adukiorg/anza/elements/dialog';
+  import '@anzaui/anza/elements/dialog';
   document.querySelector('#confirm').showModal();
 &lt;/script&gt;
 </view-code>
@@ -48,7 +48,7 @@
 &lt;/ui-popover&gt;
 
 &lt;script type="module"&gt;
-  import '@adukiorg/anza/elements/popover';
+  import '@anzaui/anza/elements/popover';
   const panel = document.querySelector('#panel');
   document.querySelector('#more').addEventListener('click', () =&gt; panel.toggle());
   panel.addEventListener('toggle', (e) =&gt; {
@@ -75,7 +75,7 @@
 &lt;/ui-menu&gt;
 
 &lt;script type="module"&gt;
-  import '@adukiorg/anza/elements/menu';
+  import '@anzaui/anza/elements/menu';
   const menu = document.querySelector('#menu');
   document.querySelector('#actions').addEventListener('click', () =&gt; menu.toggle());
 &lt;/script&gt;
@@ -93,8 +93,8 @@
 &lt;/ui-sheet&gt;
 
 &lt;script type="module"&gt;
-  import '@adukiorg/anza/elements/drawer';
-  import '@adukiorg/anza/elements/sheet';
+  import '@anzaui/anza/elements/drawer';
+  import '@anzaui/anza/elements/sheet';
 
   document.querySelector('#nav-drawer').show(); // sets open → showModal()
   document.querySelector('#filters').show();
@@ -104,7 +104,7 @@
 <p>Both sync <code>open</code> (Boolean, reflect) to native <code>dialog.showModal()</code> / <code>close()</code>, with a short CSS transition before close. Sheet adds drag-to-dismiss on <code>part="handle"</code> (threshold ~120px). Full pages: <a href="/docs/elements/drawer">drawer</a>, <a href="/docs/elements/sheet">sheet</a>.</p>
 <h3>Custom float with <code>guard.escape</code> (same helper as tooltip)</h3>
 <p>Prefer <code>ui-tooltip</code> for hints. For a custom tip / chip that must escape <code>overflow</code> clipping without a body portal:</p>
-<view-code language="javascript">import { guard } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { guard } from '@anzaui/anza/platform';
 
 const tip = document.querySelector('#hint');     // [popover="manual"]
 const anchor = document.querySelector('#target');
@@ -119,13 +119,13 @@ ctrl.show();   // popover top-layer, or fixed fallback
 ctrl.update(); // after layout changes
 ctrl.hide();   // clears position + scroll/resize listeners
 </view-code>
-<p>Strategies: <code>'popover'</code> when <code>showPopover</code> + <code>[popover]</code> exist; otherwise <code>'fixed'</code> (<code>position: fixed</code> + <code>data-escape-open</code>). Sync form: <code>escapeOverflow</code> from <code>@adukiorg/anza/platform</code> (call <code>await guard.popover()</code> first if you need the polyfill). Full API: <a href="/docs/platform/api">Platform API</a>, <a href="/docs/platform/guards#escape">Guards → escape</a>.</p>
+<p>Strategies: <code>'popover'</code> when <code>showPopover</code> + <code>[popover]</code> exist; otherwise <code>'fixed'</code> (<code>position: fixed</code> + <code>data-escape-open</code>). Sync form: <code>escapeOverflow</code> from <code>@anzaui/anza/platform</code> (call <code>await guard.popover()</code> first if you need the polyfill). Full API: <a href="/docs/platform/api">Platform API</a>, <a href="/docs/platform/guards#escape">Guards → escape</a>.</p>
 <hr />
 <h2>Lifecycle / memory / globals</h2>
 <ul>
 <li>Prefer component <code>on</code> / <code>watch</code> inside the overlay shadow. Soft-nav aborts the detached leaf’s <code>ctrl</code> and tears down signal-owned listeners.</li>
 <li>Do <strong>not</strong> attach raw <code>document</code> / <code>body</code> listeners from a leaf without <code>{ signal: ctrl.signal }</code>. Soft-nav will not clean those up.</li>
-<li><strong>Popover polyfill</strong> (when Popover API is missing) registers framework-owned globals: <code>popover.target-click</code> and per-open <code>popover.body-mo:*</code> (prefers parent <code>childList</code> over <code>document.body</code> subtree). Inspect with <code>globals.count()</code> / <code>globals.list()</code> from <code>@adukiorg/anza/platform</code>. Soft-nav must not grow that set.</li>
+<li><strong>Popover polyfill</strong> (when Popover API is missing) registers framework-owned globals: <code>popover.target-click</code> and per-open <code>popover.body-mo:*</code> (prefers parent <code>childList</code> over <code>document.body</code> subtree). Inspect with <code>globals.count()</code> / <code>globals.list()</code> from <code>@anzaui/anza/platform</code>. Soft-nav must not grow that set.</li>
 <li><strong>Tooltip escape</strong> attaches scroll/resize reposition listeners only while open and clears them on hide / <code>ctrl</code> abort — not a long-lived document attachment.</li>
 <li><strong>Toast</strong> portals under <code>body</code> on purpose; dismiss timeouts clear on <code>el.ctrl.signal</code> abort. Own toast lifetime where it belongs — see <a href="/docs/elements/toast">toast</a>.</li>
 <li>Deeper notes: <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a>, <a href="/docs/events/troubleshooting">Orphan listeners after soft-nav</a>.</li>
@@ -143,12 +143,12 @@ ctrl.hide();   // clears position + scroll/resize listeners
 <hr />
 <h2>Elements</h2>
 <div class="table-wrap"><table><thead><tr><th>Element</th><th>Tag</th><th>Import</th><th>Status</th></tr></thead><tbody>
-<tr><td><a href="/docs/elements/dialog">dialog</a></td><td><code>ui-dialog</code></td><td><code>@adukiorg/anza/elements/dialog</code></td><td>Full</td></tr>
-<tr><td><a href="/docs/elements/popover">popover</a></td><td><code>ui-popover</code></td><td><code>@adukiorg/anza/elements/popover</code></td><td>Full</td></tr>
-<tr><td><a href="/docs/elements/tooltip">tooltip</a></td><td><code>ui-tooltip</code></td><td><code>@adukiorg/anza/elements/tooltip</code></td><td>Full</td></tr>
-<tr><td><a href="/docs/elements/menu">menu</a></td><td><code>ui-menu</code></td><td><code>@adukiorg/anza/elements/menu</code></td><td>Full</td></tr>
-<tr><td><a href="/docs/elements/drawer">drawer</a></td><td><code>ui-drawer</code></td><td><code>@adukiorg/anza/elements/drawer</code></td><td>Full</td></tr>
-<tr><td><a href="/docs/elements/sheet">sheet</a></td><td><code>ui-sheet</code></td><td><code>@adukiorg/anza/elements/sheet</code></td><td>Full</td></tr>
+<tr><td><a href="/docs/elements/dialog">dialog</a></td><td><code>ui-dialog</code></td><td><code>@anzaui/anza/elements/dialog</code></td><td>Full</td></tr>
+<tr><td><a href="/docs/elements/popover">popover</a></td><td><code>ui-popover</code></td><td><code>@anzaui/anza/elements/popover</code></td><td>Full</td></tr>
+<tr><td><a href="/docs/elements/tooltip">tooltip</a></td><td><code>ui-tooltip</code></td><td><code>@anzaui/anza/elements/tooltip</code></td><td>Full</td></tr>
+<tr><td><a href="/docs/elements/menu">menu</a></td><td><code>ui-menu</code></td><td><code>@anzaui/anza/elements/menu</code></td><td>Full</td></tr>
+<tr><td><a href="/docs/elements/drawer">drawer</a></td><td><code>ui-drawer</code></td><td><code>@anzaui/anza/elements/drawer</code></td><td>Full</td></tr>
+<tr><td><a href="/docs/elements/sheet">sheet</a></td><td><code>ui-sheet</code></td><td><code>@anzaui/anza/elements/sheet</code></td><td>Full</td></tr>
 </tbody></table></div>
 <p>Related feedback portal: <a href="/docs/elements/toast">toast</a> (<code>ui-toast</code>).</p>
 <p>See the <a href="/docs/elements/index">full inventory</a> and <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a> for phase status.</p>

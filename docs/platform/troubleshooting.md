@@ -11,7 +11,7 @@ Common problems and their solutions.
 **Fix:** Clear the cache and retry:
 
 ```javascript
-import { reset, supports } from '@adukiorg/anza/platform';
+import { reset, supports } from '@anzaui/anza/platform';
 
 reset('urlPattern');
 console.log(supports.urlPattern); // re-detects
@@ -66,7 +66,7 @@ console.log(scheduler); // should have postTask and yield
 **Fix:** The Anza polyfills check for native support before installing. If a third-party polyfill is already present, the Anza guard will use it. To force Anza's polyfill, ensure it loads first:
 
 ```javascript
-import { guard } from '@adukiorg/anza/platform';
+import { guard } from '@anzaui/anza/platform';
 // This loads polyfills eagerly if native support is missing
 ```
 
@@ -85,7 +85,7 @@ import { guard } from '@adukiorg/anza/platform';
 Inspect the full capability matrix:
 
 ```javascript
-import { supports } from '@adukiorg/anza/platform';
+import { supports } from '@anzaui/anza/platform';
 
 for (const key of Object.keys(supports)) {
   console.log(key, supports[key]);

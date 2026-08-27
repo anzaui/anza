@@ -5,7 +5,7 @@
  * Source: plan.md Phase 3 — Test Matrix
  */
 
-import { Pool } from '@adukiorg/anza/workers';
+import { Pool } from '@anzaui/anza/workers';
 
 // ---------------------------------------------------------------------------
 // Mock Worker (new contract: { ok, value })

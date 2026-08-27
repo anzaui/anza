@@ -2,14 +2,14 @@
 
 Form-associated button with loading and disabled states, semantic token styling, and an `activate` event.
 
-**Tag:** `ui-button` · **Import:** `@adukiorg/anza/elements/button`
+**Tag:** `ui-button` · **Import:** `@anzaui/anza/elements/button`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/button';
+import '@anzaui/anza/elements/button';
 ```
 
 ---

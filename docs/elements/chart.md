@@ -2,14 +2,14 @@
 
 Lightweight canvas chart (`bar` or `line`) with high-DPI scaling and resize redraw.
 
-**Tag:** `ui-chart` · **Import:** `@adukiorg/anza/elements/chart`
+**Tag:** `ui-chart` · **Import:** `@anzaui/anza/elements/chart`
 
 ---
 
 ## Import
 
 ```javascript
-import '@adukiorg/anza/elements/chart';
+import '@anzaui/anza/elements/chart';
 ```
 
 ---

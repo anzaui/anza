@@ -7,7 +7,7 @@
  * Source: core/security/permissions.js
  */
 
-import { permission, watchPermission } from '@adukiorg/anza/security';
+import { permission, watchPermission } from '@anzaui/anza/security';
 
 describe('Permissions API Facade', () => {
   it('should query a known permission and return a valid state string', async () => {

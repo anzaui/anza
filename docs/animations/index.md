@@ -19,7 +19,7 @@ The Anza animations layer wraps the Web Animations API (WAAPI) with a declarativ
 ## Package
 
 ```javascript
-import { animations } from '@adukiorg/anza/animations';
+import { animations } from '@anzaui/anza/animations';
 ```
 
 ---
@@ -43,7 +43,7 @@ import { animations } from '@adukiorg/anza/animations';
 ## One-File Example
 
 ```javascript
-import { animations } from '@adukiorg/anza/animations';
+import { animations } from '@anzaui/anza/animations';
 
 // Animate a single element
 const anim = animations.animate(el, 'fade', { duration: 300 });

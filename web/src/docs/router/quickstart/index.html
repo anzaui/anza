@@ -3,7 +3,7 @@
 <hr />
 <h2>1. Create a Dock</h2>
 <p>A <code>dock</code> is a persistent container shell. It stays in the DOM across route changes and provides the mounting point for pages.</p>
-<view-code language="javascript">import { dock } from '@adukiorg/anza/defs';
+<view-code language="javascript">import { dock } from '@anzaui/anza/defs';
 
 dock('main');
 </view-code>
@@ -11,7 +11,7 @@ dock('main');
 <hr />
 <h2>2. Define a Page</h2>
 <p>A <code>page</code> maps a URL pattern to a custom element.</p>
-<view-code language="javascript">import { page } from '@adukiorg/anza/defs';
+<view-code language="javascript">import { page } from '@anzaui/anza/defs';
 
 page('/', {
   tag: 'page-home',
@@ -79,7 +79,7 @@ page('/settings/profile', {
 <p>Paths are resolved relative to the third argument (<code>import.meta.url</code>). The native toolchain copies these assets during build and generates type declarations.</p>
 <hr />
 <h2>7. Programmatic Navigation</h2>
-<view-code language="javascript">import { router } from '@adukiorg/anza/router';
+<view-code language="javascript">import { router } from '@anzaui/anza/router';
 
 // Push a new history entry
 router.navigate('/settings');
@@ -105,8 +105,8 @@ if (router.canBack()) router.back();
 <hr />
 <h2>Complete Working Example</h2>
 <view-code language="javascript">// app.js
-import { router } from '@adukiorg/anza/router';
-import { page, dock } from '@adukiorg/anza/defs';
+import { router } from '@anzaui/anza/router';
+import { page, dock } from '@anzaui/anza/defs';
 
 // Layout shell
 dock('main');

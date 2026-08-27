@@ -7,7 +7,7 @@ The worker pool lazily creates dedicated workers and schedules tasks by priority
 ## Run
 
 ```javascript
-import { workers } from '@adukiorg/anza/workers';
+import { workers } from '@anzaui/anza/workers';
 
 const result = await workers.run('/workers/calc.js', 'fib', {
   payload: { n: 40 }
@@ -90,7 +90,7 @@ Pools auto-terminate on `pagehide`.
 ## Pool Stats
 
 ```javascript
-import { Pool } from '@adukiorg/anza/workers';
+import { Pool } from '@anzaui/anza/workers';
 
 const pool = new Pool('/workers/calc.js', { max: 4 });
 console.log(pool.size);    // current workers

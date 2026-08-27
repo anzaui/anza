@@ -4,8 +4,8 @@
  * Logical Clock execution test suite.
  */
 
-import { clock } from '@adukiorg/anza/offline';
-import { storage } from '@adukiorg/anza/storage';
+import { clock } from '@anzaui/anza/offline';
+import { storage } from '@anzaui/anza/storage';
 
 describe('Logical Clock', () => {
   beforeEach(async () => {

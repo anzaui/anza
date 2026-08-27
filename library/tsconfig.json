@@ -7,19 +7,19 @@
     "noEmit": true,
     "skipLibCheck": true,
     "paths": {
-      "@adukiorg/anza": ["./types/index.d.ts"],
-      "@adukiorg/anza/api": ["./types/core/api/index.d.ts"],
-      "@adukiorg/anza/state": ["./types/core/state/index.d.ts"],
-      "@adukiorg/anza/events": ["./types/core/events/index.d.ts"],
-      "@adukiorg/anza/router": ["./types/core/router/index.d.ts"],
-      "@adukiorg/anza/storage": ["./types/core/storage/index.d.ts"],
-      "@adukiorg/anza/offline": ["./types/core/offline/index.d.ts"],
-      "@adukiorg/anza/animations": ["./types/core/animations/index.d.ts"],
-      "@adukiorg/anza/workers": ["./types/core/workers/index.d.ts"],
-      "@adukiorg/anza/security": ["./types/core/security/index.d.ts"],
-      "@adukiorg/anza/platform": ["./types/core/platform/index.d.ts"],
-      "@adukiorg/anza/ui": ["./types/core/ui/index.d.ts"],
-      "@adukiorg/anza/elements": ["./types/elements/index.d.ts"]
+      "@anzaui/anza": ["./types/index.d.ts"],
+      "@anzaui/anza/api": ["./types/core/api/index.d.ts"],
+      "@anzaui/anza/state": ["./types/core/state/index.d.ts"],
+      "@anzaui/anza/events": ["./types/core/events/index.d.ts"],
+      "@anzaui/anza/router": ["./types/core/router/index.d.ts"],
+      "@anzaui/anza/storage": ["./types/core/storage/index.d.ts"],
+      "@anzaui/anza/offline": ["./types/core/offline/index.d.ts"],
+      "@anzaui/anza/animations": ["./types/core/animations/index.d.ts"],
+      "@anzaui/anza/workers": ["./types/core/workers/index.d.ts"],
+      "@anzaui/anza/security": ["./types/core/security/index.d.ts"],
+      "@anzaui/anza/platform": ["./types/core/platform/index.d.ts"],
+      "@anzaui/anza/ui": ["./types/core/ui/index.d.ts"],
+      "@anzaui/anza/elements": ["./types/elements/index.d.ts"]
     }
   },
   "include": [

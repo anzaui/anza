@@ -3,7 +3,7 @@
 <hr />
 <h2>Requirements</h2>
 <p>OPFS requires a secure context (HTTPS) and browser support for <code>navigator.storage.getDirectory</code>. Check with the platform layer:</p>
-<view-code language="javascript">import { supports } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { supports } from '@anzaui/anza/platform';
 
 if (supports.opfs) {
   await storage.set('file', buffer, 'opfs');
@@ -11,7 +11,7 @@ if (supports.opfs) {
 </view-code>
 <hr />
 <h2>Read and Write</h2>
-<view-code language="javascript">import { storage } from '@adukiorg/anza/storage';
+<view-code language="javascript">import { storage } from '@anzaui/anza/storage';
 
 // Write
 const buffer = new Uint8Array([1, 2, 3]);

@@ -3,10 +3,10 @@
 <p>Use this page when the storage facade behaves differently from <code>state.storage</code>, when a tier returns <code>null</code> unexpectedly, or when browser capability / quota constraints leak into app behavior.</p>
 <hr />
 <h2>Clash with <code>state.storage</code> / <code>platform-db</code></h2>
-<p><strong>Cause:</strong> <code>@adukiorg/anza/storage</code> and <code>state.storage</code> (<code>PlatformStorage</code>) both default to IndexedDB name <code>platform-db</code>.</p>
+<p><strong>Cause:</strong> <code>@anzaui/anza/storage</code> and <code>state.storage</code> (<code>PlatformStorage</code>) both default to IndexedDB name <code>platform-db</code>.</p>
 <p><strong>Fix:</strong> Configure distinct names before first use:</p>
-<view-code language="javascript">import { storage } from '@adukiorg/anza/storage';
-import { state } from '@adukiorg/anza/state';
+<view-code language="javascript">import { storage } from '@anzaui/anza/storage';
+import { state } from '@anzaui/anza/state';
 
 storage.configure({ idb: { name: 'app-kv' } });
 state.storage.setDatabaseName('app-state');
@@ -50,7 +50,7 @@ await storage.get('temp', 'memory');
 <h2>OPFS not available</h2>
 <p><strong>Cause:</strong> Not a secure context, or browser lacks support.</p>
 <p><strong>Fix:</strong> Check support first:</p>
-<view-code language="javascript">import { supports } from '@adukiorg/anza/platform';
+<view-code language="javascript">import { supports } from '@anzaui/anza/platform';
 
 if (!supports.opfs) {
   // Fall back to idb
@@ -80,11 +80,11 @@ if (!supports.opfs) {
 <view-code language="javascript">await storage.delete('old-key');
 </view-code>
 <p>Or request persistent storage:</p>
-<view-code language="javascript">import { quota } from '@adukiorg/anza/storage';
+<view-code language="javascript">import { quota } from '@anzaui/anza/storage';
 await quota.persist();
 </view-code>
 <p>Or subscribe once and surface pressure in your own UI:</p>
-<view-code language="javascript">import { storage } from '@adukiorg/anza/storage';
+<view-code language="javascript">import { storage } from '@anzaui/anza/storage';
 
 const dispose = storage.onQuotaWarning(({ usage, quota }) =&gt; {
   console.warn('Storage pressure', { usage, quota });
@@ -114,7 +114,7 @@ console.log(await storage.get('probe', 'cache'));
 <hr />
 <h2>Still stuck?</h2>
 <p>Inspect storage state:</p>
-<view-code language="javascript">import { storage } from '@adukiorg/anza/storage';
+<view-code language="javascript">import { storage } from '@anzaui/anza/storage';
 
 const est = await storage.estimate();
 console.log('Usage:', est.usage, 'Quota:', est.quota, 'Persisted:', est.persisted);

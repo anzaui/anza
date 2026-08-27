@@ -1,7 +1,7 @@
 /**
  * src/docs/entry/index.js — docs landing page
  */
-import { page } from '@adukiorg/anza/ui';
+import { page } from '@anzaui/anza/ui';
 
 // Docs landing page
 page('/docs', {

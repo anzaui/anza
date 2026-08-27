@@ -107,7 +107,7 @@ fn finalize(candidate: PathBuf) -> Resolution {
 pub fn library(project: &Path) -> Option<PathBuf> {
   let mut current = project.to_path_buf();
   loop {
-    let node_modules_path = current.join("node_modules").join("@adukiorg").join("anza");
+    let node_modules_path = current.join("node_modules").join("@anzaui").join("anza");
     if node_modules_path.exists() {
       return Some(node_modules_path);
     }
@@ -116,7 +116,7 @@ pub fn library(project: &Path) -> Option<PathBuf> {
       return Some(local_path);
     }
     if let Ok(text) = std::fs::read_to_string(current.join("package.json")) {
-      if text.contains(r#""name": "@adukiorg/anza""#) {
+      if text.contains(r#""name": "@anzaui/anza""#) {
         return Some(current);
       }
     }
@@ -208,8 +208,8 @@ mod tests {
           <script type="importmap">
             {
               "imports": {
-                "@adukiorg/anza": "/index.js",
-                "@adukiorg/anza/ui": "/core/ui/index.js"
+                "@anzaui/anza": "/index.js",
+                "@anzaui/anza/ui": "/core/ui/index.js"
               }
             }
           </script>
@@ -219,8 +219,8 @@ mod tests {
     fs::write(src.join("index.html"), html).unwrap();
 
     let map = load_map(&dir);
-    assert_eq!(map.get("@adukiorg/anza").unwrap(), "/index.js");
-    assert_eq!(map.get("@adukiorg/anza/ui").unwrap(), "/core/ui/index.js");
+    assert_eq!(map.get("@anzaui/anza").unwrap(), "/index.js");
+    assert_eq!(map.get("@anzaui/anza/ui").unwrap(), "/core/ui/index.js");
 
     fs::remove_dir_all(&dir).ok();
   }
@@ -234,7 +234,7 @@ mod tests {
     fs::write(src.join("user.js"), "console.log('user');").unwrap();
 
     let mut user = HashMap::new();
-    user.insert("@adukiorg/anza/ui".to_string(), "/core/ui/index.js".to_string());
+    user.insert("@anzaui/anza/ui".to_string(), "/core/ui/index.js".to_string());
     user.insert("my-comp".to_string(), "/user.js".to_string());
 
     let lib = HashMap::new();
@@ -250,7 +250,7 @@ mod tests {
       panic!("Expected Resolution::File");
     }
 
-    let res2 = spec("@adukiorg/anza/ui", &src, &src, &dir, &user, &lib, &Some(lib_src.clone()));
+    let res2 = spec("@anzaui/anza/ui", &src, &src, &dir, &user, &lib, &Some(lib_src.clone()));
     if let Resolution::File(p, _) = res2 {
       assert_eq!(p, lib_src.join("core").join("ui").join("index.js"));
     } else {
@@ -277,7 +277,7 @@ mod tests {
     fs::write(lib_src.join("core").join("ui").join("index.js"), "console.log('ui');").unwrap();
 
     let mut lib_map = HashMap::new();
-    lib_map.insert("@adukiorg/anza/ui".to_string(), "/dist/core/ui/index.js".to_string());
+    lib_map.insert("@anzaui/anza/ui".to_string(), "/dist/core/ui/index.js".to_string());
 
     let res1 = spec("my-comp", &src, &src, &dir, &user, &lib, &Some(lib_src.clone()));
     if let Resolution::File(p, _) = res1 {
@@ -286,7 +286,7 @@ mod tests {
       panic!("Expected Resolution::File for legacy /dist/ user target");
     }
 
-    let res2 = spec("@adukiorg/anza/ui", &src, &src, &dir, &user, &lib_map, &Some(lib_src.clone()));
+    let res2 = spec("@anzaui/anza/ui", &src, &src, &dir, &user, &lib_map, &Some(lib_src.clone()));
     if let Resolution::File(p, _) = res2 {
       assert_eq!(p, lib_src.join("core").join("ui").join("index.js"));
     } else {

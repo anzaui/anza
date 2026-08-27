@@ -6,7 +6,7 @@
  * Source: plan.md Phase 6-A, core/platform/guard.js
  */
 
-import { supports, guard, reset } from '@adukiorg/anza/platform';
+import { supports, guard, reset } from '@anzaui/anza/platform';
 
 describe('Platform Guard', () => {
   it('should resolve urlPattern wrapper and expose match capability', async () => {
