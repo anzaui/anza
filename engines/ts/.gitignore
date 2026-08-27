@@ -1,0 +1,26 @@
+node_modules/
+dist/
+book/
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+package-lock.json
+
+# Local dev & design docs
+DESIGN.md
+SKILL.md
+STRUCTURE.md
+DOC.md
+report.md
+reserch.md
+REPORT.md
+RESEARCH.md
+**/DESIGN.md
+**/SKILL.md
+**/STRUCTURE.md
+**/DOC.md
+**/report.md
+**/reserch.md
+**/REPORT.md
+**/RESEARCH.md

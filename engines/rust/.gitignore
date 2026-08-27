@@ -1,0 +1,25 @@
+target/
+book/
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+Cargo.lock
+
+# Local dev & design docs
+DESIGN.md
+SKILL.md
+STRUCTURE.md
+DOC.md
+report.md
+reserch.md
+REPORT.md
+RESEARCH.md
+**/DESIGN.md
+**/SKILL.md
+**/STRUCTURE.md
+**/DOC.md
+**/report.md
+**/reserch.md
+**/REPORT.md
+**/RESEARCH.md

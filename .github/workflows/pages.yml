@@ -46,7 +46,7 @@ jobs:
           node-version: 22
 
       - name: Install web dependencies
-        run: cd web && npm ci
+        run: cd web && (npm ci || npm install)
 
       - name: Structure check
         run: cd web && ../tools/target/release/anza check

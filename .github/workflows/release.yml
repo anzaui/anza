@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: write
-  id-token: write
 
 jobs:
   verify:
@@ -55,10 +54,6 @@ jobs:
             target: x86_64-pc-windows-msvc
             binary: anza-windows-x64.exe
             cross: false
-          # - os: windows-latest
-          #   target: aarch64-pc-windows-msvc
-          #   binary: anza-windows-arm64.exe
-          #   cross: true
 
     steps:
       - uses: actions/checkout@v4
@@ -95,6 +90,7 @@ jobs:
           SRC="tools/target/${{ matrix.target }}/release/anza${{ endsWith(matrix.binary, '.exe') && '.exe' || '' }}"
           DST="tools/target/${{ matrix.binary }}"
           cp "$SRC" "$DST"
+
       - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
@@ -102,8 +98,8 @@ jobs:
           path: tools/target/${{ matrix.binary }}
           retention-days: 1
 
-  publish:
-    name: Publish to npm
+  release:
+    name: GitHub Release (Binaries)
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -112,48 +108,28 @@ jobs:
       - name: Download all binaries
         uses: actions/download-artifact@v4
         with:
-          path: library/bin/anza
+          path: staged-binaries
           merge-multiple: true
 
       - name: Make binaries executable
-        run: chmod +x library/bin/anza/anza-linux-* library/bin/anza/anza-macos-* 2>/dev/null || true
+        run: chmod +x staged-binaries/anza-linux-* staged-binaries/anza-macos-* 2>/dev/null || true
 
       - name: List staged binaries
-        run: ls -la library/bin/anza/
+        run: ls -la staged-binaries/
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Publish to npm
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --access public
-        working-directory: library
-
-      - name: Publish create package
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          VERSION=${GITHUB_REF_NAME#v}
-          jq --arg v "$VERSION" '.version = $v | .dependencies["@adukiorg/anza"] = $v' create/package.json > create/package.json.tmp
-          mv create/package.json.tmp create/package.json
-          cd create && npm publish --access public
-
-      - name: Create GitHub release
+      - name: Create GitHub release with binaries
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           VERSION=${GITHUB_REF_NAME#v}
           NOTES=""
-          if [ -f library/CHANGELOG.md ]; then
-            SECTION=$(awk -v ver="## [$VERSION]" '$0 ~ ver {flag=1; next} /^## \[/ {flag=0} flag' library/CHANGELOG.md)
+          if [ -f CHANGELOG.md ]; then
+            SECTION=$(awk -v ver="## [$VERSION]" '$0 ~ ver {flag=1; next} /^## \[/ {flag=0} flag' CHANGELOG.md)
             if [ -n "$SECTION" ]; then
               NOTES="$SECTION"
             fi
           fi
-          ARGS=(gh release create "$GITHUB_REF_NAME" library/bin/anza/anza-* --title "anza $VERSION")
+          ARGS=(gh release create "$GITHUB_REF_NAME" staged-binaries/anza-* --title "anza v$VERSION")
           if [ -n "$NOTES" ]; then
             ARGS+=(--notes "$NOTES")
           else

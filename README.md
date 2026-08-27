@@ -1,51 +1,63 @@
 # Anza
 
-> The browser already knows how to render, route, cache, and animate. We just stopped getting in its way.
+Anza is a modern web platform providing reactive custom elements, client-side routing, offline storage, and multi-language Server-Templated UI (STUI) engines with zero build-step overhead.
 
-Anza gives the browser a gentle nudge — reactive state, view transitions, offline caching, and custom elements without a build step. Just import and ship.
+## Overview
 
-## Structure
+- **Browser-Native ESM**: Direct ES module imports in the browser with native Declarative Shadow DOM adoption.
+- **Multi-Language STUI Engines**: High-performance template rendering and streaming engines for Rust, TypeScript, and Python.
+- **Cryptographic Security**: Asymmetric Ed25519 origin signing, HMAC-SHA256, and HKDF session key derivation for tamper-proof dynamic partials.
+- **Real-Time Streaming**: Atomic Server-Sent Events (SSE) and WebSocket text frame protocols.
+- **Rust Tooling**: Instant dev server with live HMR and static site generation (SSG).
 
-| Folder | Contents |
-| ------ | -------- |
-| `library/` | Runtime library and custom elements (`@adukiorg/anza`) |
-| `tools/` | Rust CLI for dev server, build, and type extraction |
-| `tasks/` | Repo automation scripts |
-| `docs/` | Full documentation |
+## Repository Organization
 
-## Build
+| Path | Purpose |
+|---|---|
+| `library/` | Client-side reactive runtime, custom elements, and router (`@adukiorg/anza`). |
+| `tools/` | High-throughput Rust CLI binary (`anza`) for dev server, HMR, and SSG. |
+| `engines/rust/` | Standalone Rust STUI template and streaming engine crate. |
+| `engines/ts/` | Standalone TypeScript / JavaScript STUI engine with zero dependencies. |
+| `engines/py/` | Standalone Python STUI engine built 100% on the standard library. |
+| `docs/` | Comprehensive technical documentation and specifications. |
+| `web/` | Official documentation site source. |
 
-The CLI is a Rust binary. To compile it:
+## Quick Start
 
-```bash
-node tasks/build.js
-```
-
-This writes the release binary to `tools/target/release/anza`.
-
-## Develop
-
-```bash
-cd library
-npm install
-npm test     # real-browser tests via @web/test-runner
-```
-
-## Docs site
-
-Build the static docs app (same command CI uses):
+### Scaffold a New Application
 
 ```bash
-node tasks/build.js          # compile CLI once
-cd web && npm ci && npm run build
+npm create @adukiorg/anza my-app
+cd my-app
+anza dev
 ```
 
-Output: `web/dist/`. CI deploys to GitHub Pages on push to `main`.
+### Build Tools Locally
 
-## Release
+```bash
+cargo build --release --manifest-path tools/Cargo.toml
+```
 
-Tag push `v*.*.*` triggers multi-platform CLI builds, npm publish, and a GitHub Release with attached binaries. Tag version must match `library/package.json`. Details: [.github/RELEASING.md](./.github/RELEASING.md).
+### Run Tests
+
+```bash
+# Core library tests
+cd library && npm test
+
+# Rust engine tests
+cd engines/rust && cargo test
+
+# TypeScript engine tests
+cd engines/ts && npm test
+
+# Python engine tests
+cd engines/py && python3 -m unittest discover -s tests
+```
+
+## Documentation
+
+Full documentation is available at [https://anza.aduki.org](https://anza.aduki.org) or locally within the `docs/` directory.
 
 ## License
 
-[MIT](./LICENSE) © 2026 Aduki
+MIT © 2026 Anza Contributors.
