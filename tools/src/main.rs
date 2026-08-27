@@ -1,25 +1,19 @@
-// tools/src/main.rs
+use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
-use std::path::PathBuf;
 use tokio::sync::broadcast;
 
-mod build;
-mod create;
-mod docs;
-mod extract;
-mod generate;
-mod server;
-mod structure;
-mod types;
-mod watcher;
-
-use types::HmrMessage;
+use anza::{
+  data::r#in::{Build, Check, Create, Dev, Docs, Generate},
+  extract,
+  types::HmrMessage,
+  watcher,
+};
 
 #[derive(Parser, Debug)]
 #[command(
   name = "anza",
-  version = "0.3.9",
+  version = "0.5.0",
   about = "Anza web platform library — reactive state, networking, offline, animations, custom elements. Instant build step. Pure browser ESM."
 )]
 struct Args {
@@ -156,8 +150,17 @@ async fn main() {
         }
       }
       Command::Build { src, dist, entry } => {
-        let entries: Vec<PathBuf> = entry.into_iter().map(PathBuf::from).collect();
-        extract::build(&PathBuf::from(src), &PathBuf::from(dist), &entries);
+        let entries = entry.into_iter().map(PathBuf::from).collect();
+        let op = Build {
+          src: PathBuf::from(src),
+          dist: PathBuf::from(dist),
+          entries,
+          strict: true,
+        };
+        if let Err(e) = op.run() {
+          anza_logs::error!("{}", e);
+          std::process::exit(1);
+        }
       }
       Command::Dev {
         src,
@@ -165,25 +168,47 @@ async fn main() {
         dist,
         entry,
       } => {
-        let entries: Vec<PathBuf> = entry.into_iter().map(PathBuf::from).collect();
-        run_dev(PathBuf::from(src), PathBuf::from(dist), port, entries).await;
+        let entries = entry.into_iter().map(PathBuf::from).collect();
+        let op = Dev {
+          src: PathBuf::from(src),
+          dist: PathBuf::from(dist),
+          port,
+          entries,
+        };
+        if let Err(e) = op.run().await {
+          anza_logs::error!("{}", e);
+          std::process::exit(1);
+        }
       }
       Command::Doctor { src, strict } => {
-        run_structure(PathBuf::from(src), if strict {
-          structure::Mode::Check
-        } else {
-          structure::Mode::Doctor
-        });
+        let op = Check {
+          src: PathBuf::from(src),
+          strict,
+        };
+        if let Err(e) = op.run() {
+          anza_logs::error!("{}", e);
+          std::process::exit(1);
+        }
       }
       Command::Check { src } => {
-        run_structure(PathBuf::from(src), structure::Mode::Check);
+        let op = Check {
+          src: PathBuf::from(src),
+          strict: true,
+        };
+        if let Err(e) = op.run() {
+          anza_logs::error!("{}", e);
+          std::process::exit(1);
+        }
       }
       Command::Create { name } => {
         let target = std::env::current_dir()
           .unwrap_or_else(|_| PathBuf::from("."))
           .join(&name);
-        create::run(&target, &name);
-        return;
+        let op = Create { target, name };
+        if let Err(e) = op.run() {
+          anza_logs::error!("{}", e);
+          std::process::exit(1);
+        }
       }
       Command::Generate {
         kind,
@@ -194,27 +219,16 @@ async fn main() {
         via,
         parent,
       } => {
-        let kind = match generate::Kind::parse(&kind) {
-          Ok(k) => k,
-          Err(e) => {
-            anza_logs::error!("{}", e);
-            std::process::exit(1);
-          }
-        };
-        let via = via.map(|v| {
-          v.split(',')
-            .map(|s| s.trim().to_string())
-            .filter(|s| !s.is_empty())
-            .collect::<Vec<_>>()
-        });
-        let opts = generate::Options {
+        let op = Generate {
+          src: PathBuf::from(src),
+          kind,
           name,
           tree,
           route,
           via,
           parent,
         };
-        match generate::run(&PathBuf::from(src), kind, &opts) {
+        match op.run() {
           Ok(g) => {
             anza_logs::success!(
               "Generated {} '{}' -> {}",
@@ -229,19 +243,17 @@ async fn main() {
             std::process::exit(1);
           }
         }
-        return;
       }
       Command::Docs { config, out, all } => {
-        let opts = docs::DocsOptions {
+        let op = Docs {
           config: PathBuf::from(config),
           out: out.map(PathBuf::from),
-          sidebar_only: !all,
+          all,
         };
-        if let Err(e) = docs::run(&opts) {
+        if let Err(e) = op.run() {
           anza_logs::error!("{}", e);
           std::process::exit(1);
         }
-        return;
       }
     }
     return;
@@ -251,68 +263,27 @@ async fn main() {
   let dist = PathBuf::from(&args.dist);
 
   if args.build {
-    extract::build(&src, &dist, &[]);
+    let op = Build {
+      src,
+      dist,
+      entries: Vec::new(),
+      strict: true,
+    };
+    if let Err(e) = op.run() {
+      anza_logs::error!("{}", e);
+      std::process::exit(1);
+    }
     return;
   }
 
-  run_dev(src, dist, args.port, Vec::new()).await;
-}
-
-async fn run_dev(src: PathBuf, dist: PathBuf, port: u16, entries: Vec<PathBuf>) {
-  anza_logs::info!("Bootstrapping native dev pipeline...");
-
-  // 1. Initial full compile: extraction + import-graph resolution into dist.
-  //    Non-fatal so the dev server starts even with errors to iterate on.
-  extract::compile(&src, &dist, false, &entries);
-
-  // 2. Setup communication channels for HMR events
-  let (tx, _rx) = broadcast::channel::<HmrMessage>(16);
-
-  // 3. Spawn Axum static + SSE Server serving the generated dist
-  let server_dist = dist.clone();
-  let server_tx = tx.clone();
-  tokio::spawn(async move {
-    server::run(port, &server_dist, server_tx).await;
-  });
-
-  // 4. Start concurrent watcher thread (rebuilds dist on change)
-  watcher::start(src, dist, entries, tx);
-
-  // 5. Run until terminate signal
-  tokio::signal::ctrl_c().await.unwrap();
-  anza_logs::info!("Shutting down native pipeline safely.");
-}
-
-fn run_structure(src: PathBuf, mode: structure::Mode) {
-  let label = match mode {
-    structure::Mode::Doctor => "doctor",
-    structure::Mode::Check => "check",
+  let op = Dev {
+    src,
+    dist,
+    port: args.port,
+    entries: Vec::new(),
   };
-  anza_logs::info!("Running anza {}…", label);
-
-  let (project, hint) = structure::project_from_src(&src);
-  anza_logs::info!("Project: {}", project.display());
-  anza_logs::info!("Source hint: {}", hint);
-
-  let report = structure::check(&project, &hint, mode);
-  report.print();
-
-  let errors = report.error_count();
-  let warns = report.warn_count();
-  if report.failed(mode) {
-    anza_logs::error!(
-      "{} failed: {} error(s), {} warning(s) — see {} (Troubleshooting + required tables)",
-      label,
-      errors,
-      warns,
-      structure::DOC
-    );
+  if let Err(e) = op.run().await {
+    anza_logs::error!("{}", e);
     std::process::exit(1);
   }
-  anza_logs::success!(
-    "{} passed ({} error(s), {} warning(s))",
-    label,
-    errors,
-    warns
-  );
 }
