@@ -1,0 +1,31 @@
+<h1>Real-Time STUI Streaming</h1>
+<p>Server-Sent Events (SSE) and WebSockets enable Anza backends to push live, cryptographically signed UI updates directly into browser shadow roots.</p>
+<h2>Server-Sent Events Protocol</h2>
+<p>Every template update is transmitted as an atomic event frame:</p>
+<view-code language="http">event: template
+data: {"slot":"feed","ts":1724771200,"html":"&lt;article&gt;Live Update&lt;/article&gt;","sig":"a3f9..."}
+
+</view-code>
+<ol>
+<li><strong><code>event: template</code></strong>: Identifies that the event payload is an Anza STUI envelope.</li>
+<li><strong><code>data: { ... }</code></strong>: JSON-serialized <code>Envelope</code> model.</li>
+<li><strong>Double Newline <code>\n\n</code></strong>: Standard SSE frame boundary.</li>
+</ol>
+<h2>Client-Side Reception &amp; Shadow Root Adoption</h2>
+<p>The browser client verifies the signature and swaps the content seamlessly:</p>
+<view-code language="javascript">import { listenStream } from '@adukiorg/anza/ui';
+
+// Connect to real-time feed
+const eventSource = new EventSource('/feed/stream');
+
+eventSource.addEventListener('template', async (event) =&gt; {
+  const envelope = JSON.parse(event.data);
+
+  // 1. Locate target dock slot in the DOM
+  const dock = document.querySelector(`dock-${envelope.slot}, [data-slot="${envelope.slot}"]`);
+  if (dock) {
+    // 2. Adopt updated template fragment
+    dock.innerHTML = envelope.html;
+  }
+});
+</view-code>

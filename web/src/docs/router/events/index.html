@@ -22,7 +22,7 @@
   console.warn('No route for', url);
 });
 </view-code>
-<p>After the event, the resolver mounts the <strong>notfound</strong> leaf into the deepest live dock (shared library built-in, or a dock / <code>configure</code> override). Soft-nav does not wipe the shell. Prefer <code>dock({ notfound })</code> / <code>router.pages.configure</code> over a full handler; see <a href="/docs/router/fallbacks">Fallbacks</a>.</p>
+<p>After the event, the resolver mounts the <strong>notfound</strong> leaf into the deepest live dock (shared library built-in, or a dock / <code>configure</code> override). Soft-nav does not wipe the shell. Prefer <code>dock({ notfound })</code> / <code>router.pages.configure</code> over a full handler; see <a href="/docs/router/fallbacks">fallbacks.md</a>.</p>
 <p>Optional escape hatch (<code>return false</code> falls through to auto-mount):</p>
 <view-code language="javascript">router.notFound(async (ctx) =&gt; {
   // full manual control — or return false
@@ -43,7 +43,7 @@
 <tr><td><code>'handler'</code></td><td>A callback handler threw an exception</td></tr>
 <tr><td><code>'navigation'</code></td><td>The Navigation API emitted <code>navigateerror</code></td></tr>
 </tbody></table></div>
-<p>After the event, the router renders the <strong>error</strong> fallback leaf unless <code>router.pages.suppressDefault(true)</code> or an <code>onError</code> handler handled it. Explicit offline UI: <code>router.pages.show('offline')</code>. See <a href="/docs/router/fallbacks">Fallbacks</a>.</p>
+<p>After the event, the router renders the <strong>error</strong> fallback leaf unless <code>router.pages.suppressDefault(true)</code> or an <code>onError</code> handler handled it. Explicit offline UI: <code>router.pages.show('offline')</code>. See <a href="/docs/router/fallbacks">fallbacks.md</a>.</p>
 <p>Simple analytics + branded leaf:</p>
 <view-code language="javascript">router.on('error', ({ error, phase }) =&gt; {
   reportNavError({ message: error?.message, phase });
@@ -122,8 +122,8 @@ ctrl.abort();
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/router/fallbacks">Fallbacks</a> — leaf mount after miss / error</li>
-<li><a href="/docs/router/guards">Guards</a> — throws → <code>error</code> with <code>phase: 'guard'</code></li>
-<li><a href="/docs/router/api">API reference</a> — <code>router.on</code> / <code>router.pages</code></li>
-<li><a href="/docs/events/troubleshooting">Events troubleshooting</a> — soft-nav orphans (app event bus)</li>
+<li><a href="/docs/router/fallbacks">fallbacks.md</a> — leaf mount after miss / error</li>
+<li><a href="/docs/router/guards">guards.md</a> — throws → <code>error</code> with <code>phase: 'guard'</code></li>
+<li><a href="/docs/router/api">api.md</a> — <code>router.on</code> / <code>router.pages</code></li>
+<li><a href="/docs/events/troubleshooting">events/troubleshooting.md</a> — soft-nav orphans (app event bus)</li>
 </ul>

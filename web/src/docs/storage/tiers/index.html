@@ -54,4 +54,4 @@ const cached = await storage.get('config', 'cache'); // returns Response
 const files = await storage.list('opfs');
 await storage.clear('cache');                // or 'idb' | 'opfs' | 'memory' via LRU | 'all'
 </view-code>
-<p>Configure distinct DB names before first use when also opening <code>state.storage</code> — see <a href="/docs/storage/troubleshooting">Troubleshooting</a>.</p>
+<p>Configure distinct DB names before first use when also opening <code>state.storage</code> — see <a href="/docs/storage/troubleshooting">troubleshooting.md</a>.</p>

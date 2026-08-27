@@ -19,6 +19,21 @@ Install the library, scaffold your first app, and understand the project layout.
 
 ---
 
+## Server-Templated UI (STUI) Engines
+
+Multi-language STUI template and real-time streaming engines with Open Declarative Shadow DOM and cryptographic verification.
+
+| File | What It Covers |
+| ------ | -------------- |
+| [engines/index.md](engines/index.md) | STUI architectural principles, dual-mode SSR, and overview |
+| [engines/rust.md](engines/rust.md) | Rust base engine (`anza`), zero-copy parsing, Axum/Actix adapters |
+| [engines/ts.md](engines/ts.md) | TypeScript/JS engine (`anza`), 0 dependencies, JIT closures, Hono/Express/Fastify |
+| [engines/py.md](engines/py.md) | Python engine (`anza`), standard library implementation, FastAPI/Flask/ASGI/WSGI |
+| [engines/crypto.md](engines/crypto.md) | Cryptographic verification: Asymmetric Ed25519, HMAC-SHA256, and HKDF session keys |
+| [engines/streaming.md](engines/streaming.md) | Real-time Server-Sent Events (SSE) and WebSocket frame protocols |
+
+---
+
 ## UI
 
 The declarative custom element system. You will spend most of your time here.

@@ -1,5 +1,5 @@
 <h1>Field</h1>
-<p>Field wrapper that coordinates label, required marker, hint, error, and a control slot. Stamps label text from the <code>label</code> prop when the label slot is empty.</p>
+<p>Field wrapper that coordinates label, required marker, hint, error, and a control slot.</p>
 <p><strong>Tag:</strong> <code>ui-field</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/field</code></p>
 <hr />
 <h2>Import</h2>
@@ -14,49 +14,18 @@
 &lt;/ui-field&gt;
 </view-code>
 <hr />
-<h2>Advanced usage</h2>
-<view-code language="html">&lt;ui-form action="/api/signup" method="POST"&gt;
-  &lt;ui-stack gap="md"&gt;
-    &lt;ui-field label="Username" required&gt;
-      &lt;ui-input name="username" minlength="3" required&gt;
-        &lt;span slot="error"&gt;At least 3 characters.&lt;/span&gt;
-      &lt;/ui-input&gt;
-    &lt;/ui-field&gt;
-    &lt;ui-field&gt;
-      &lt;span slot="label"&gt;Custom label via slot&lt;/span&gt;
-      &lt;ui-select name="role" placeholder="Role"&gt;
-        &lt;button type="button" value="user"&gt;User&lt;/button&gt;
-        &lt;button type="button" value="admin"&gt;Admin&lt;/button&gt;
-      &lt;/ui-select&gt;
-      &lt;span slot="hint"&gt;Choose your access level.&lt;/span&gt;
-    &lt;/ui-field&gt;
-  &lt;/ui-stack&gt;
-  &lt;ui-button type="submit"&gt;Sign up&lt;/ui-button&gt;
-&lt;/ui-form&gt;
-</view-code>
-<p>Not form-associated itself — wrap form controls inside the default (control) slot. Override the label via the <code>label</code> slot for rich markup.</p>
-<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>label</code></td><td>String</td><td>Reflect</td><td>Label text when the <code>label</code> slot is empty</td></tr>
 <tr><td><code>required</code></td><td>Boolean</td><td>Reflect</td><td>Shows the required marker</td></tr>
 </tbody></table></div>
-<h2>Slots / parts</h2>
-<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>label</code></td><td>slot</td><td>Custom label markup (overrides <code>label</code> prop)</td></tr>
-<tr><td><code>hint</code></td><td>slot</td><td>Helper text below the control</td></tr>
-<tr><td><em>(default)</em></td><td>slot</td><td>Form control (<code>ui-input</code>, <code>ui-select</code>, …)</td></tr>
-<tr><td><code>error</code></td><td>slot</td><td>Validation error message</td></tr>
-<tr><td><code>label</code> / <code>hint</code> / <code>control</code> / <code>error</code></td><td>parts</td><td>Section wrappers</td></tr>
-</tbody></table></div>
 <h2>Notes</h2>
-<p>Purely structural — no events. Pair with any form-associated control for consistent label/hint/error layout.</p>
+<p>Slots: <code>label</code>, <code>hint</code>, default (control), <code>error</code>. Not form-associated itself — wrap form controls inside.</p>
 <hr />
 <h2>Related</h2>
 <ul>
+<li><a href="/docs/elements/index">Elements overview</a></li>
 <li><a href="/docs/elements/forms">Forms</a></li>
 <li><a href="/docs/elements/input">Input</a></li>
-<li><a href="/docs/elements/select">Select</a></li>
-<li><a href="/docs/elements/form">Form</a></li>
-<li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="../../plans/ELEMENTS.md">Planning: ELEMENTS.md</a></li>
 </ul>

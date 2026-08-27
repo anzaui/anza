@@ -1,6 +1,6 @@
 <h1>Persist</h1>
 <p><code>PlatformStorage</code> provides transactional IndexedDB persistence for reactive state. It supports schema migrations, TTL-based expiry, and automatic eviction when storage quota exceeds 80%.</p>
-<p>This is <strong>not</strong> the tiered <code>@adukiorg/anza/storage</code> facade. Prefer <code>state.storage</code> for hydrating <code>state.create</code> stores; use the storage package for general KV, OPFS, and Cache API. Give each a distinct DB name if both are open (see <a href="/docs/storage/troubleshooting">Storage troubleshooting</a>).</p>
+<p>This is <strong>not</strong> the tiered <code>@adukiorg/anza/storage</code> facade. Prefer <code>state.storage</code> for hydrating <code>state.create</code> stores; use the storage package for general KV, OPFS, and Cache API. Give each a distinct DB name if both are open (see <a href="/docs/storage/troubleshooting">storage/troubleshooting.md</a>).</p>
 <hr />
 <h2>Bridge pattern</h2>
 <p>Hydrate a store from IndexedDB, then persist on change. Prefer this over inventing a second persistence layer with <code>@adukiorg/anza/storage</code> for the same keys.</p>
@@ -23,14 +23,6 @@ store.subscribe('user', async (user) =&gt; {
 <tr><td>General KV, blobs, OPFS, Cache API, tier selection</td><td><code>@adukiorg/anza/storage</code></td></tr>
 </tbody></table></div>
 <p>Mixing both is fine, but treat them as separate persistence systems with separate database names.</p>
-<h3><code>change()</code> hook for persisted fields</h3>
-<p>When a subscribed field changes (including route-derived <code>params</code> / <code>query</code> props), persist selectively instead of writing the whole store:</p>
-<view-code language="javascript">store.subscribe('user', (user) =&gt; {
-  state.storage.set('keyval', 'user', user);
-}, ctrl.signal);
-
-// Inside page({ on: { change({ name, val }) { … } } }) — same idea for route props
-</view-code>
 <hr />
 <h2>Basic Use</h2>
 <view-code language="javascript">import { state } from '@adukiorg/anza/state';
@@ -128,8 +120,8 @@ state.storage.setDatabaseName('app-state');
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/state/store">Store</a> — <code>state.create</code> / hydrate / subscribe</li>
-<li><a href="/docs/storage/index">Overview</a> — tiered facade</li>
-<li><a href="/docs/storage/troubleshooting">Storage troubleshooting</a> — <code>platform-db</code> clash</li>
-<li><a href="/docs/state/api">API reference</a> — full state API</li>
+<li><a href="/docs/state/store">store.md</a> — <code>state.create</code> / hydrate / subscribe</li>
+<li><a href="/docs/storage/index">storage/index.md</a> — tiered facade</li>
+<li><a href="/docs/storage/troubleshooting">storage/troubleshooting.md</a> — <code>platform-db</code> clash</li>
+<li><a href="/docs/state/api">api.md</a> — full state API</li>
 </ul>

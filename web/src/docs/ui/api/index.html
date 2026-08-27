@@ -9,47 +9,17 @@
 <view-code language="javascript">ui.define('my-element', MyClass);
 </view-code>
 <h3><code>ui.element(tag, spec, base)</code></h3>
-<p>Declarative element factory — builds a custom element class from a spec object. See <a href="/docs/ui/elements">Elements factory</a>.</p>
-<view-code language="javascript">export default ui.element('ui-card', {
-  props: { title: { type: String } },
-  template: '&lt;h2&gt;{{ title }}&lt;/h2&gt;&lt;slot&gt;&lt;/slot&gt;'
-}, import.meta.url);
-</view-code>
+<p>Declarative element factory. See <a href="/docs/ui/elements">elements.md</a>.</p>
 <h3><code>ui.container(tag, spec, base)</code></h3>
-<p>Container factory with <code>swap()</code> interface for leaf mounting. Alias path to dock-style shells — see <a href="/docs/router/docks">Router docks</a>.</p>
-<view-code language="javascript">ui.container('dock-main', {
-  template: '&lt;main&gt;&lt;slot&gt;&lt;/slot&gt;&lt;/main&gt;'
-}, import.meta.url);
-</view-code>
+<p>Container factory with swap interface. See router docks.md.</p>
 <h3><code>ui.page(route, config, base)</code></h3>
-<p>Route-bound element — registers patterns and emits a page tag. See <a href="/docs/router/pages">Router pages</a>.</p>
-<view-code language="javascript">ui.page('/settings', {
-  tag: 'page-settings',
-  via: ['main'],
-  template: { html: './settings.html', css: './settings.css' }
-}, import.meta.url);
-</view-code>
+<p>Route-bound element. See router pages.md.</p>
 <h3><code>ui.dock(name, config, base)</code></h3>
-<p>Persistent container shell with optional fallback leaves. See <a href="/docs/router/docks">Router docks</a>.</p>
-<view-code language="javascript">ui.dock('main', {
-  template: '&lt;slot&gt;&lt;/slot&gt;',
-  notfound: { tag: 'page-not-found' }
-}, import.meta.url);
-</view-code>
+<p>Container shell. See router docks.md.</p>
 <h3><code>ui.view(tag, config, base)</code></h3>
-<p>Stateful component with lifecycle hooks and reactive props. See <a href="/docs/router/components">Components</a>.</p>
-<view-code language="javascript">ui.view('user-card', {
-  props: { name: { type: String } },
-  template: '&lt;span&gt;{{ name }}&lt;/span&gt;'
-}, import.meta.url);
-</view-code>
+<p>Stateful component. See <a href="/docs/router/components">router/components.md</a>.</p>
 <h3><code>ui.part(tag, config, base)</code></h3>
-<p>Stateless primitive — no internal state; warns if <code>on.change</code> is declared. See <a href="/docs/router/components">Components</a>.</p>
-<view-code language="javascript">ui.part('icon-star', {
-  props: { color: { type: String, default: 'currentColor' } },
-  template: '&lt;svg aria-hidden="true"&gt;…&lt;/svg&gt;'
-}, import.meta.url);
-</view-code>
+<p>Stateless primitive. See <a href="/docs/router/components">router/components.md</a>.</p>
 <h3><code>ui.schedule(fn, priorityOrOptions)</code></h3>
 <p>Cooperative task scheduling. Second arg may be a priority string or <code>{ priority, signal, delay }</code>.</p>
 <div class="table-wrap"><table><thead><tr><th>Priority</th><th>Value</th></tr></thead><tbody>
@@ -62,36 +32,13 @@
 <h3><code>ui.yield(options?)</code></h3>
 <p>Yield control to the browser. Options: <code>{ signal }</code>. Returns a promise.</p>
 <h3><code>ui.transition(fn, options?)</code></h3>
-<p>View transitions wrapper (document or element scope). Returns a promise resolving to a transition object. See <a href="/docs/ui/transitions">Transitions</a>.</p>
+<p>View transitions wrapper (document or element scope). Returns a promise resolving to a transition object. See <a href="/docs/ui/transitions">transitions.md</a>.</p>
 <h3><code>ui.runSwapTransition(host, fn, options?)</code></h3>
-<p>Element-scoped dock/container swap helper with direct-swap fallback when VT is disabled or unsupported.</p>
-<div class="table-wrap"><table><thead><tr><th>Option</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>dockName</code></td><td>VT name token (default derived from registry key)</td></tr>
-<tr><td><code>direction</code></td><td><code>'push'</code> | <code>'pop'</code> for navigation-aware animation</td></tr>
-<tr><td><code>signal</code></td><td>AbortSignal — aborted swaps run <code>fn()</code> without VT</td></tr>
-</tbody></table></div>
-<view-code language="javascript">await ui.runSwapTransition(host, () =&gt; host.replaceChildren(nextLeaf), {
-  dockName: 'content',
-  direction: 'push',
-  signal: ctrl.signal
-});
-</view-code>
+<p>Element-scoped dock/container swap helper with direct-swap fallback.</p>
 <h3><code>ui.configureTransitions(partial)</code></h3>
-<p>Global View Transitions controls. Merges into existing config.</p>
-<div class="table-wrap"><table><thead><tr><th>Key</th><th>Default</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>enabled</code></td><td><code>true</code></td><td>Master switch — false skips VT, runs callback directly</td></tr>
-<tr><td><code>nameFor</code></td><td><code>(el, hint) =&gt; string</code></td><td>Resolver for transition name tokens</td></tr>
-</tbody></table></div>
-<view-code language="javascript">ui.configureTransitions({
-  enabled: !ui.prefersReducedMotion(),
-  nameFor: (el, hint) =&gt; hint ?? el.tagName.toLowerCase()
-});
-</view-code>
+<p>Global <code>{ enabled, nameFor }</code> controls for VT.</p>
 <h3><code>ui.template(strings, ...values)</code></h3>
-<p>Tagged template literal factory. Interpolates values safely and returns a <code>DocumentFragment</code>.</p>
-<view-code language="javascript">const frag = ui.template`&lt;button type="button"&gt;${label}&lt;/button&gt;`;
-host.append(frag);
-</view-code>
+<p>Tagged template literal factory. Returns a <code>DocumentFragment</code>.</p>
 <h3><code>ui.observe.resize(el, fn, signal)</code></h3>
 <p>ResizeObserver with AbortSignal cleanup.</p>
 <h3><code>ui.observe.intersection(el, fn, signal, options)</code></h3>
@@ -134,7 +81,7 @@ import { observe } from '@adukiorg/anza/ui';
 <ul>
 <li><code>params</code>: <code>Array&lt;{ name: string, type: Function }&gt;</code> - path parameter contract (e.g., <code>[{ name: 'slug', type: String }]</code>).</li>
 <li><code>query</code>: <code>Array&lt;{ name: string, type: Function }&gt;</code> - query parameter contract (e.g., <code>[{ name: 'tab', type: String }]</code>).</li>
-<li><code>error</code> (optional): route-scoped error leaf override — see <a href="/docs/router/fallbacks">Fallbacks</a>.</li>
+<li><code>error</code> (optional): route-scoped error leaf override — see <a href="/docs/router/fallbacks">router/fallbacks.md</a>.</li>
 </ul>
 </li>
 </ul>
@@ -143,7 +90,7 @@ import { observe } from '@adukiorg/anza/ui';
 <ul>
 <li><strong><code>config</code> fields</strong>: <code>tag</code>, <code>parent</code>, <code>template</code>, <code>style</code>, <code>params</code>, <code>query</code>, <code>on</code>, <code>notfound</code>, <code>error</code>, <code>offline</code>.
 <ul>
-<li><code>notfound</code> / <code>error</code> / <code>offline</code> (optional): branded overrides only — bare docks use shared library built-ins; see <a href="/docs/router/fallbacks">Fallbacks</a>.</li>
+<li><code>notfound</code> / <code>error</code> / <code>offline</code> (optional): branded overrides only — bare docks use shared library built-ins; see <a href="/docs/router/fallbacks">router/fallbacks.md</a>.</li>
 <li><code>params</code>: <code>Array&lt;{ name: string, type: Function }&gt;</code> - path parameter contract.</li>
 <li><code>query</code>: <code>Array&lt;{ name: string, type: Function }&gt;</code> - query parameter contract.</li>
 </ul>
@@ -222,7 +169,7 @@ on[eventType].once(selectorOrElement, handler, options)
 <tr><td><code>key</code></td><td>string|number</td><td>Dedupe — same key replaces prior registration</td></tr>
 <tr><td><code>scope</code></td><td><code>'shadow'</code> | <code>'assigned'</code></td><td>Default shadow-only; <code>assigned</code> includes slotted light DOM</td></tr>
 </tbody></table></div>
-<p>Empty registry for a <code>(type, capture)</code> key removes the shadow-root listener immediately. See <a href="/docs/ui/context#on">Context</a>.</p>
+<p>Empty registry for a <code>(type, capture)</code> key removes the shadow-root listener immediately. See <a href="/docs/ui/context#on">context.md</a>.</p>
 <p>Returns a disposer function.</p>
 <hr />
 <h2>Mutation Watcher Methods</h2>
@@ -235,5 +182,5 @@ watch.tree(target, handler, options)         // (records, target) =&gt; {}
 watch.slot(slotOrSelector, handler, options) // ({ assigned, assignedElements }, slot) =&gt; {}
 watch.attr.once(...) / kids.once / text.once / tree.once / slot.once
 </view-code>
-<p><code>target</code> is a shadow-scoped selector or Element. Options: <code>{ signal, once, requirePresent }</code> (or a bare <code>AbortSignal</code>). Observers are bucketed by option fingerprint so a <code>tree</code> / <code>attr *</code> registration cannot widen another watch’s <code>attributeFilter</code>. <code>watch.slot</code> uses <code>slotchange</code> (not a MutationObserver). See <a href="/docs/ui/context#watch">Context</a>.</p>
+<p><code>target</code> is a shadow-scoped selector or Element. Options: <code>{ signal, once, requirePresent }</code> (or a bare <code>AbortSignal</code>). Observers are bucketed by option fingerprint so a <code>tree</code> / <code>attr *</code> registration cannot widen another watch’s <code>attributeFilter</code>. <code>watch.slot</code> uses <code>slotchange</code> (not a MutationObserver). See <a href="/docs/ui/context#watch">context.md</a>.</p>
 <p>Returns a disposer function.</p>

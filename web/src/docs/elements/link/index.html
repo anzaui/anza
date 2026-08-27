@@ -1,5 +1,5 @@
 <h1>Link</h1>
-<p>Router-aware hyperlink that intercepts same-origin clicks for soft navigation, tracks <code>aria-current</code>, and handles external URLs with a cancelable <code>external</code> event.</p>
+<p>Router-aware hyperlink that intercepts same-origin clicks for soft navigation and tracks <code>aria-current</code>.</p>
 <p><strong>Tag:</strong> <code>ui-link</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/link</code></p>
 <hr />
 <h2>Import</h2>
@@ -11,20 +11,6 @@
 &lt;ui-link href="https://example.com" external&gt;External&lt;/ui-link&gt;
 </view-code>
 <hr />
-<h2>Advanced usage</h2>
-<view-code language="html">&lt;ui-nav&gt;
-  &lt;ui-link href="/dashboard"&gt;Dashboard&lt;/ui-link&gt;
-  &lt;ui-link href="/settings"&gt;Settings&lt;/ui-link&gt;
-&lt;/ui-nav&gt;
-
-&lt;script type="module"&gt;
-  document.querySelector('ui-link[external]').addEventListener('external', (e) =&gt; {
-    if (!confirm('Leave this site?')) e.preventDefault();
-  });
-&lt;/script&gt;
-</view-code>
-<p>Same-origin clicks call <code>router.navigate(href)</code> unless modified keys, <code>#</code> hashes, or <code>target="_blank"</code>. The router <code>found</code> event syncs <code>aria-current="page"</code>.</p>
-<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>href</code></td><td>String</td><td>Reflect</td><td>Destination URL</td></tr>
@@ -34,23 +20,15 @@
 </tbody></table></div>
 <h2>Events</h2>
 <div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody>
-<tr><td><code>external</code></td><td>Cancelable; fired for external clicks before the browser follows the link (<code>detail: { href, target }</code>)</td></tr>
-</tbody></table></div>
-<h2>Slots / parts</h2>
-<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
-<tr><td><em>(default)</em></td><td>slot</td><td>Link label</td></tr>
-<tr><td><code>anchor</code></td><td>part</td><td>Inner <code>&lt;a&gt;</code> surface</td></tr>
+<tr><td><code>external</code></td><td>Cancelable; fired for external clicks before the browser follows the link</td></tr>
 </tbody></table></div>
 <h2>Notes</h2>
-<p>External <code>http(s)</code> links auto-inject an external-link SVG icon. Skips SPA interception for modifier keys and new-tab targets.</p>
-<h3>Lifecycle / memory</h3>
-<p>Click and router listeners use <code>ctrl.signal</code> — torn down on soft-nav disconnect. Do not add raw <code>document</code> listeners from a leaf without a signal.</p>
+<p>Same-origin clicks call <code>router.navigate(href)</code> unless modified keys, <code>#</code> hashes, or <code>target="_blank"</code>. External links show an indicator icon.</p>
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/elements/primitives">Primitives</a></li>
-<li><a href="/docs/elements/nav">Nav</a></li>
-<li><a href="/docs/router/index">Router</a></li>
-<li><a href="/docs/ui/advanced">Memory safety &amp; framework globals</a></li>
 <li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="/docs/elements/primitives">Primitives</a></li>
+<li><a href="/docs/router/index">Router</a></li>
+<li><a href="../../plans/ELEMENTS.md">Planning: ELEMENTS.md</a></li>
 </ul>

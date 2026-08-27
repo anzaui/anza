@@ -38,7 +38,7 @@ self.addEventListener('fetch', (e) =&gt; {
 <li>On <code>fetch</code>, tries the router first; unmatched requests fall through to the network</li>
 </ol>
 <p>Bump <code>SHELL</code> / <code>API</code> cache names when you ship path-breaking asset URL changes — <code>CacheFirst</code> with no TTL otherwise pins stale JS forever. <code>pruneStale</code> only removes <em>other</em> cache names, not entries inside the current one.</p>
-<p>Keep helpers in optional <code>src/sw/</code> and <code>import</code> them from <code>src/sw.js</code> — that folder is <strong>modules only</strong>, not extra registrations. Multi-scope workers (advanced) use <code>anza.json</code> <code>sw</code> arrays — see <a href="/docs/intro/structure#service-workers">Structure</a>.</p>
+<p>Keep helpers in optional <code>src/sw/</code> and <code>import</code> them from <code>src/sw.js</code> — that folder is <strong>modules only</strong>, not extra registrations. Multi-scope workers (advanced) use <code>anza.json</code> <code>sw</code> arrays — see <a href="/docs/intro/structure#service-workers">intro/structure.md</a>.</p>
 <hr />
 <h2>2. Register from <code>app.js</code></h2>
 <view-code language="javascript">import '@adukiorg/anza/ui';
@@ -90,4 +90,4 @@ self.addEventListener('sync', (e) =&gt; {
   }
 });
 </view-code>
-<p>Read <a href="/docs/sw/sync">Sync</a> for the full queue API.</p>
+<p>Read <a href="/docs/sw/sync">sync.md</a> for the full queue API.</p>

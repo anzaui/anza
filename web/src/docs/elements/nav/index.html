@@ -1,5 +1,5 @@
 <h1>Nav</h1>
-<p>Accessible navigation wrapper with horizontal or vertical orientation. Sets <code>role="navigation"</code> on the host.</p>
+<p>Accessible navigation wrapper with horizontal or vertical orientation.</p>
 <p><strong>Tag:</strong> <code>ui-nav</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/nav</code></p>
 <hr />
 <h2>Import</h2>
@@ -8,41 +8,27 @@
 <hr />
 <h2>Basic usage</h2>
 <view-code language="html">&lt;ui-nav&gt;
-  &lt;ui-link href="/docs/index"&gt;Docs&lt;/ui-link&gt;
-  &lt;ui-link href="/docs/elements/index"&gt;Elements&lt;/ui-link&gt;
+  &lt;a href="/docs"&gt;Docs&lt;/a&gt;
+  &lt;a href="/docs/elements/index"&gt;Elements&lt;/a&gt;
 &lt;/ui-nav&gt;
 &lt;ui-nav orientation="vertical"&gt;
-  &lt;ui-link href="/a"&gt;Section A&lt;/ui-link&gt;
-  &lt;ui-link href="/b"&gt;Section B&lt;/ui-link&gt;
+  &lt;a href="/a"&gt;Section A&lt;/a&gt;
+  &lt;a href="/b"&gt;Section B&lt;/a&gt;
 &lt;/ui-nav&gt;
 </view-code>
-<hr />
-<h2>Advanced usage</h2>
-<view-code language="html">&lt;ui-sidebar&gt;
-  &lt;ui-nav orientation="vertical"&gt;
-    &lt;ui-link href="/dashboard"&gt;Dashboard&lt;/ui-link&gt;
-    &lt;ui-link href="/projects"&gt;Projects&lt;/ui-link&gt;
-    &lt;ui-link href="/settings"&gt;Settings&lt;/ui-link&gt;
-  &lt;/ui-nav&gt;
-&lt;/ui-sidebar&gt;
-</view-code>
-<p>Prefer <a href="/docs/elements/link">ui-link</a> for SPA soft-nav. Use inside <a href="/docs/elements/sidebar">ui-sidebar</a> for app navigation.</p>
 <hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>orientation</code></td><td>String</td><td>Reflect, default <code>horizontal</code></td><td><code>horizontal</code> or <code>vertical</code></td></tr>
+<tr><td><code>orientation</code></td><td>String</td><td>Reflect</td><td><code>horizontal</code> (default) or <code>vertical</code></td></tr>
 </tbody></table></div>
-<h2>Slots / parts</h2>
-<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
-<tr><td><em>(default)</em></td><td>slot</td><td>Navigation links</td></tr>
-<tr><td><code>nav</code></td><td>part</td><td>Inner nav container</td></tr>
-</tbody></table></div>
+<h2>Notes</h2>
+<p>Defaults <code>role="navigation"</code>. Inner markup uses <code>part="nav"</code>; put links / list items in the default slot.</p>
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/elements/navigation">Navigation</a></li>
-<li><a href="/docs/elements/link">Link</a></li>
-<li><a href="/docs/elements/sidebar">Sidebar</a></li>
-<li><a href="/docs/elements/breadcrumb">Breadcrumb</a></li>
 <li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="/docs/elements/navigation">Navigation</a></li>
+<li><a href="/docs/elements/breadcrumb">Breadcrumb</a></li>
+<li><a href="/docs/elements/link">Link</a></li>
+<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
 </ul>

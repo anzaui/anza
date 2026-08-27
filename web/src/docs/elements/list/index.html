@@ -1,5 +1,5 @@
 <h1>List</h1>
-<p>List panel with optional bordered surface. Inner container uses <code>role="list"</code>; children should use <code>role="listitem"</code>.</p>
+<p>List panel with optional bordered surface. Children should use <code>role="listitem"</code> when they are list items.</p>
 <p><strong>Tag:</strong> <code>ui-list</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/list</code></p>
 <hr />
 <h2>Import</h2>
@@ -16,33 +16,17 @@
 &lt;/ui-list&gt;
 </view-code>
 <hr />
-<h2>Advanced usage</h2>
-<view-code language="html">&lt;ui-list bordered&gt;
-  &lt;div role="listitem"&gt;
-    &lt;ui-avatar name="Jane Doe" size="6"&gt;&lt;/ui-avatar&gt;
-    Jane Doe — Admin
-  &lt;/div&gt;
-  &lt;div role="listitem"&gt;
-    &lt;ui-avatar name="Sam Rivera" size="6"&gt;&lt;/ui-avatar&gt;
-    Sam Rivera — Editor
-  &lt;/div&gt;
-&lt;/ui-list&gt;
-</view-code>
-<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>bordered</code></td><td>Boolean</td><td>Reflect</td><td>Adds a bordered panel treatment</td></tr>
 </tbody></table></div>
-<h2>Slots / parts</h2>
-<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
-<tr><td><em>(default)</em></td><td>slot</td><td>List items (<code>role="listitem"</code>)</td></tr>
-<tr><td><code>list</code></td><td>part</td><td>Inner list container</td></tr>
-</tbody></table></div>
+<h2>Notes</h2>
+<p>Inner container uses <code>role="list"</code> and <code>part="list"</code>.</p>
 <hr />
 <h2>Related</h2>
 <ul>
+<li><a href="/docs/elements/index">Elements overview</a></li>
 <li><a href="/docs/elements/data">Data</a></li>
 <li><a href="/docs/elements/table">Table</a></li>
-<li><a href="/docs/elements/avatar">Avatar</a></li>
-<li><a href="/docs/elements/index">Elements overview</a></li>
+<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
 </ul>

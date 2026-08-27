@@ -1,5 +1,5 @@
 <h1>Select</h1>
-<p>Form-participating dropdown built on the native Popover API and anchor positioning. Slotted children act as options.</p>
+<p>Form-participating dropdown built on the Popover API and anchor positioning.</p>
 <p><strong>Tag:</strong> <code>ui-select</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/select</code></p>
 <hr />
 <h2>Import</h2>
@@ -13,40 +13,21 @@
 &lt;/ui-select&gt;
 </view-code>
 <hr />
-<h2>Advanced usage</h2>
-<view-code language="html">&lt;ui-field label="Country" required&gt;
-  &lt;ui-select name="country" placeholder="Select country"&gt;
-    &lt;button type="button" value="us"&gt;United States&lt;/button&gt;
-    &lt;button type="button" value="ca"&gt;Canada&lt;/button&gt;
-    &lt;button type="button" value="uk"&gt;United Kingdom&lt;/button&gt;
-  &lt;/ui-select&gt;
-&lt;/ui-field&gt;
-</view-code>
-<p>Each slotted option’s <code>value</code> attribute (or text content) becomes the select value. Uses anchor positioning with a polyfill fallback when <code>anchorName</code> is unsupported. See <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
-<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>value</code></td><td>String</td><td>Reflect</td><td>Selected option value</td></tr>
 <tr><td><code>placeholder</code></td><td>String</td><td>Reflect</td><td>Label when nothing is selected</td></tr>
 <tr><td><code>disabled</code></td><td>Boolean</td><td>Reflect + custom state</td><td>Disables the trigger</td></tr>
-<tr><td><code>required</code></td><td>Boolean</td><td>Reflect</td><td>Validity fails when value is empty (<code>valueMissing</code>)</td></tr>
-</tbody></table></div>
-<h2>Slots / parts</h2>
-<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
-<tr><td><em>(default)</em></td><td>slot</td><td>Option elements (<code>value</code> attr or text)</td></tr>
-<tr><td><code>button</code></td><td>part</td><td>Trigger button</td></tr>
-<tr><td><code>popover</code></td><td>part</td><td>Dropdown list (Popover API top-layer)</td></tr>
+<tr><td><code>required</code></td><td>Boolean</td><td>Reflect</td><td>Validity fails when value is empty</td></tr>
 </tbody></table></div>
 <h2>Notes</h2>
-<p>Uses <code>form: true</code> with <code>formResetCallback</code> and <code>formDisabledCallback</code>. <code>slotchange</code> wires click handlers on assigned options.</p>
-<h3>Lifecycle / memory</h3>
-<p>Popover and option listeners are shadow-scoped. Polyfill attachments use framework globals — see <a href="/docs/ui/advanced">Memory safety</a>.</p>
+<p>Slotted children are options; each option’s <code>value</code> attribute (or text content) becomes the select value. Uses <code>form: true</code>. Trigger / list surfaces use <code>part="button"</code> and <code>part="popover"</code> (Popover API — same top-layer strategy as the <a href="/docs/elements/overlay">overlay kit</a>).</p>
 <hr />
 <h2>Related</h2>
 <ul>
+<li><a href="/docs/elements/index">Elements overview</a></li>
 <li><a href="/docs/elements/forms">Forms</a></li>
 <li><a href="/docs/elements/overlay">Overlay patterns</a></li>
-<li><a href="/docs/elements/popover">Popover</a></li>
 <li><a href="/docs/ui/forms">Form association</a></li>
-<li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="../../plans/ELEMENTS.md">Planning: ELEMENTS.md</a></li>
 </ul>

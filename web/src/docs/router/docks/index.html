@@ -51,7 +51,7 @@ style: ['/styles/shared.css', './main.css']
 });
 </view-code>
 <h3><code>notfound</code> / <code>error</code> / <code>offline</code></h3>
-<p><strong>Optional overrides.</strong> Bare <code>dock('name')</code> already gets miss / error / offline UI from the <strong>shared library built-ins</strong> (<code>pages.js</code>) — do <strong>not</strong> copy <code>404.html</code> into every dock folder. Scaffold correctly creates docks without error-page files. The <code>src/docks/</code> folder itself is an <strong>optional</strong> structure slot — <code>dock()</code> may live in <code>app.js</code> (<a href="/docs/intro/structure">Structure</a>).</p>
+<p><strong>Optional overrides.</strong> Bare <code>dock('name')</code> already gets miss / error / offline UI from the <strong>shared library built-ins</strong> (<code>pages.js</code>) — do <strong>not</strong> copy <code>404.html</code> into every dock folder. Scaffold correctly creates docks without error-page files. The <code>src/docks/</code> folder itself is an <strong>optional</strong> structure slot — <code>dock()</code> may live in <code>app.js</code> (<a href="/docs/intro/structure">structure.md</a>).</p>
 <p>Soft-nav swaps the <strong>leaf</strong> dock only; parent chrome stays. Walk leaf → root: the deepest dock that defines the kind supplies the template (may paint into a deeper leaf host). Override only for branded UI:</p>
 <view-code language="javascript">dock('content', {
   parent: 'docs',
@@ -60,7 +60,7 @@ style: ['/styles/shared.css', './main.css']
   offline: { tag: 'page-offline' }
 });
 </view-code>
-<p>HTML strings and <code>{ html }</code> still work. Full ladder + bare-dock sample: <a href="/docs/router/fallbacks">Fallbacks</a>.</p>
+<p>HTML strings and <code>{ html }</code> still work. Full ladder + bare-dock sample: <a href="/docs/router/fallbacks">fallbacks.md</a>.</p>
 <p><code>anza generate dock &lt;name&gt;</code> creates a leaf under <code>src/docks/</code> <strong>without</strong> <code>404.html</code> — that is intentional.</p>
 <hr />
 <h2>Default Containment</h2>
@@ -71,7 +71,7 @@ style: ['/styles/shared.css', './main.css']
 <hr />
 <h2>Soft-nav persistence</h2>
 <p>On soft navigation within the same <code>via</code> chain, parent docks stay mounted. Only the leaf page inside the innermost dock is swapped. That is what keeps docs chrome (sidebar, header) alive while page content changes.</p>
-<p>For Mode A SSG / Mode B HTML, nested docks and the page leaf must be <strong>light-DOM children</strong> after each host’s <code>&lt;template shadowrootmode="open"&gt;</code> — never baked inside the parent shadow template. Registry key <code>content</code> often maps to tag <code>dock-doccontent</code> (not <code>dock-content</code>). See <a href="/docs/ssg/contract">SSG contract</a> and <a href="/docs/ui/hydration">Hydration</a>.</p>
+<p>For Mode A SSG / Mode B HTML, nested docks and the page leaf must be <strong>light-DOM children</strong> after each host’s <code>&lt;template shadowrootmode="open"&gt;</code> — never baked inside the parent shadow template. Registry key <code>content</code> often maps to tag <code>dock-doccontent</code> (not <code>dock-content</code>). See <a href="/docs/ssg/contract">ssg/contract.md</a> and <a href="/docs/ui/hydration">ui/hydration.md</a>.</p>
 <hr />
 <h2>Swap Method</h2>
 <p>Docks expose a <code>swap</code> method that replaces child content under a view transition:</p>
@@ -87,7 +87,7 @@ style: ['/styles/shared.css', './main.css']
 <p>The <code>direction</code> option (<code>'push'</code>, <code>'pop'</code>, <code>'replace'</code>; <code>'back'</code> is treated like <code>'pop'</code> for easing) is exposed as <code>data-transition-direction</code> for CSS:</p>
 <view-code language="css">:host([data-transition-direction="pop"]) { ... }
 </view-code>
-<p>See <a href="/docs/router/transitions">Transitions</a> and <a href="/docs/ui/transitions">Transitions</a>.</p>
+<p>See <a href="/docs/router/transitions">router/transitions.md</a> and <a href="/docs/ui/transitions">ui/transitions.md</a>.</p>
 <hr />
 <h2>Lifecycle Hooks</h2>
 <p>Docks support the same <code>on</code> hooks as pages:</p>

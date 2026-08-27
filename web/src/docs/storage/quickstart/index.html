@@ -47,7 +47,7 @@ await storage.clear('memory'); // or 'idb' | 'opfs' | 'cache' | 'all'
 const est = await storage.estimate();
 console.log(est.usage, est.quota, est.persisted);
 </view-code>
-<p>Advanced IndexedDB cursor queries use options (not a filter callback) — see <a href="/docs/storage/api#storagequerystorename-queryopts">API reference</a>. For reactive-store snapshots with a filter function, use <code>state.storage.query</code> (<a href="/docs/state/persist">State persist</a>).</p>
+<p>Advanced IndexedDB cursor queries use options (not a filter callback) — see <a href="/docs/storage/api#storagequerystorename-queryopts">api.md</a>. For reactive-store snapshots with a filter function, use <code>state.storage.query</code> (<a href="/docs/state/persist">state/persist.md</a>).</p>
 <hr />
 <h2>6. Configure</h2>
 <view-code language="javascript">storage.configure({

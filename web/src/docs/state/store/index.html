@@ -68,7 +68,7 @@ off(); // unsubscribe
 <view-code language="javascript">store.broadcast('channel-name', ['count', 'user']);
 store.sync(['count', 'user'], 'channel-name'); // alias
 </view-code>
-<p>Replicates specified keys across browser tabs. See <a href="/docs/state/sync">Sync</a>.</p>
+<p>Replicates specified keys across browser tabs. See <a href="/docs/state/sync">sync.md</a>.</p>
 <hr />
 <h2>onMutation</h2>
 <view-code language="javascript">store.onMutation((key, value, source) =&gt; {

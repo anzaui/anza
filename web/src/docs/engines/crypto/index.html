@@ -1,0 +1,39 @@
+<h1>Cryptographic Verification &amp; Tamper-Proofing</h1>
+<p>Anza enforces cryptographic signatures across all dynamic partial fetches and real-time streaming envelopes.</p>
+<h2>The Canonical Wire Payload</h2>
+<p>Every cryptographic signature is computed strictly across:</p>
+<view-code language="text">ts:slot:html
+</view-code>
+<ul>
+<li><code>ts</code>: Unix timestamp in seconds (integer).</li>
+<li><code>slot</code>: Target shadow DOM mount point identifier.</li>
+<li><code>html</code>: Rendered HTML template fragment string.</li>
+</ul>
+<h2>Cryptographic Topologies</h2>
+<h3>1. Asymmetric Ed25519 (Universal Standard)</h3>
+<p>Used in modern micro-frontends and multi-tier architectures where traffic traverses reverse proxies, API gateways, and CDNs:</p>
+<view-code language="text">[Origin Backend] ──(Private Key Sign)──► [Edge CDN / Proxy] ──► [Client Browser]
+                                                                        │
+                                                   (Verifies via Origin Public Key)
+</view-code>
+<ul>
+<li><strong>Origin</strong>: Generates signature using private key.</li>
+<li><strong>Client</strong>: Verifies signature against public key embedded in <code>&lt;meta name="anza-key"&gt;</code> or served from <code>/.well-known/anza.json</code>.</li>
+<li><strong>Security</strong>: CDN/proxy TLS termination cannot inject malicious scripts or alter DOM fragments without failing signature validation.</li>
+</ul>
+<h3>2. Symmetric HMAC-SHA256</h3>
+<p>Used for private internal services and single-tier web applications:</p>
+<ul>
+<li>Computed via <code>HMAC-SHA256(secret, message)</code>.</li>
+<li>Verified in constant time via <code>crypto.timingSafeEqual</code> / <code>hmac.compare_digest</code> to prevent timing attacks.</li>
+</ul>
+<h3>3. Per-User Session Keys (HKDF-SHA256)</h3>
+<p>For authenticated real-time channels:</p>
+<ul>
+<li>Derives a 32-byte stream key from user session credentials via HKDF:</li>
+</ul>
+<view-code language="text">stream_key = HKDF(ikm=jwt_signature, salt=session_id, info="anza-stui-session-v1")
+</view-code>
+<ul>
+<li>Eliminates database session lookups during high-frequency live push broadcasts.</li>
+</ul>

@@ -1,5 +1,5 @@
 <h1>Spinner</h1>
-<p>Indeterminate loading indicator using the Web Animations API (WAAPI) for hardware-accelerated rotation. Respects <code>prefers-reduced-motion</code> and sets sensible ARIA defaults.</p>
+<p>Indeterminate loading spinner using the Web Animations API, with prefers-reduced-motion respect.</p>
 <p><strong>Tag:</strong> <code>ui-spinner</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/spinner</code></p>
 <hr />
 <h2>Import</h2>
@@ -11,34 +11,14 @@
 &lt;ui-spinner aria-label="Saving"&gt;&lt;/ui-spinner&gt;
 </view-code>
 <hr />
-<h2>Advanced usage</h2>
-<view-code language="html">&lt;ui-button loading&gt;
-  &lt;ui-spinner aria-hidden="true" slot="icon"&gt;&lt;/ui-spinner&gt;
-  Saving…
-&lt;/ui-button&gt;
-
-&lt;div aria-busy="true" aria-live="polite"&gt;
-  &lt;ui-spinner aria-label="Loading dashboard"&gt;&lt;/ui-spinner&gt;
-&lt;/div&gt;
-</view-code>
-<p>Pair with <code>aria-busy</code> on a parent region when replacing content. Override the default <code>aria-label="Loading"</code> when the context is specific.</p>
-<hr />
 <h2>Props</h2>
-<p><em>None — configure via ARIA attributes and CSS.</em></p>
-<h2>Slots / parts</h2>
-<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>ring</code></td><td>part</td><td>Animated ring surface (style via <code>::part(ring)</code>)</td></tr>
-</tbody></table></div>
+<p><em>None — style via CSS / ARIA attributes only.</em></p>
 <h2>Notes</h2>
-<p>Defaults <code>role="progressbar"</code> and <code>aria-label="Loading"</code> when not provided. Animation is an 800ms linear infinite rotation on <code>.ring</code>.</p>
-<h3>Lifecycle / memory</h3>
-<p>WAAPI animation is created on mount and <strong>cancelled on unmount</strong>. A <code>prefers-reduced-motion</code> listener uses <code>ctrl.signal</code> and pauses/resumes the animation — no orphan listeners after soft-nav.</p>
+<p>Defaults <code>role="progressbar"</code> and <code>aria-label="Loading"</code>. Animation pauses when <code>prefers-reduced-motion: reduce</code> matches. No reflected props — style via CSS / parts.</p>
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/elements/primitives">Primitives</a></li>
-<li><a href="/docs/elements/progress">Progress</a> (determinate)</li>
-<li><a href="/docs/elements/skeleton">Skeleton</a> (placeholder shimmer)</li>
-<li><a href="/docs/ui/advanced">Memory safety &amp; framework globals</a></li>
 <li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="/docs/elements/primitives">Primitives</a></li>
+<li><a href="../../plans/ELEMENTS.md">Planning: ELEMENTS.md</a></li>
 </ul>

@@ -1,5 +1,5 @@
 <h1>Card</h1>
-<p>Content card with header, body, and footer slots. Optional <code>interactive</code> prop enables hover lift micro-animation.</p>
+<p>Content card with header, body, and footer slots. Optional interactive hover lift.</p>
 <p><strong>Tag:</strong> <code>ui-card</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/card</code></p>
 <hr />
 <h2>Import</h2>
@@ -17,27 +17,9 @@
 &lt;/ui-card&gt;
 </view-code>
 <hr />
-<h2>Advanced usage</h2>
-<view-code language="html">&lt;ui-grid cols="2" gap="md"&gt;
-  &lt;ui-card interactive&gt;
-    &lt;span slot="header"&gt;Revenue&lt;/span&gt;
-    &lt;ui-stat trend="up"&gt;
-      &lt;span slot="label"&gt;This month&lt;/span&gt;
-      $42k
-      &lt;span slot="change"&gt;+12%&lt;/span&gt;
-    &lt;/ui-stat&gt;
-    &lt;ui-link href="/reports" slot="footer"&gt;View report →&lt;/ui-link&gt;
-  &lt;/ui-card&gt;
-  &lt;ui-card&gt;
-    &lt;span slot="header"&gt;Activity&lt;/span&gt;
-    &lt;ui-chart type="line" data="[10,30,20,50,40]"&gt;&lt;/ui-chart&gt;
-  &lt;/ui-card&gt;
-&lt;/ui-grid&gt;
-</view-code>
-<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>interactive</code></td><td>Boolean</td><td>Reflect</td><td>Enables hover lift / interactive styling (CSS)</td></tr>
+<tr><td><code>interactive</code></td><td>Boolean</td><td>Reflect</td><td>Enables hover lift / interactive styling</td></tr>
 </tbody></table></div>
 <h2>Slots / parts</h2>
 <div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
@@ -49,9 +31,8 @@
 <hr />
 <h2>Related</h2>
 <ul>
+<li><a href="/docs/elements/index">Elements overview</a></li>
 <li><a href="/docs/elements/data">Data</a></li>
 <li><a href="/docs/elements/surface">Surface</a></li>
-<li><a href="/docs/elements/stat">Stat</a></li>
-<li><a href="/docs/elements/grid">Grid</a></li>
-<li><a href="/docs/elements/index">Elements overview</a></li>
+<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
 </ul>

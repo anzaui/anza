@@ -1,5 +1,5 @@
 <h1>Chart</h1>
-<p>Lightweight canvas chart (<code>bar</code> or <code>line</code>) with high-DPI scaling, design-token colors, and resize redraw via ResizeObserver.</p>
+<p>Lightweight canvas chart (<code>bar</code> or <code>line</code>) with high-DPI scaling and resize redraw.</p>
 <p><strong>Tag:</strong> <code>ui-chart</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/chart</code></p>
 <hr />
 <h2>Import</h2>
@@ -11,37 +11,21 @@
 &lt;ui-chart type="line" data="[5, 12, 9, 18, 14]"&gt;&lt;/ui-chart&gt;
 </view-code>
 <hr />
-<h2>Advanced usage</h2>
-<view-code language="html">&lt;ui-card&gt;
-  &lt;span slot="header"&gt;Weekly signups&lt;/span&gt;
-  &lt;ui-chart id="signups" type="bar" data="[12,19,8,15,22,17,25]"&gt;&lt;/ui-chart&gt;
-  &lt;span slot="footer"&gt;Last 7 days&lt;/span&gt;
-&lt;/ui-card&gt;
-
-&lt;script type="module"&gt;
-  const chart = document.querySelector('#signups');
-  // Update data reactively
-  setInterval(() =&gt; {
-    const data = Array.from({ length: 7 }, () =&gt; Math.floor(Math.random() * 30));
-    chart.setAttribute('data', JSON.stringify(data));
-  }, 5000);
-&lt;/script&gt;
-</view-code>
-<p>Reads <code>--color-interactive</code>, <code>--color-border-default</code>, and <code>--color-content-secondary</code> from computed styles. Invalid <code>data</code> falls back to a sample series.</p>
-<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>type</code></td><td>String</td><td>Reflect</td><td>Chart kind: <code>bar</code> (default) or <code>line</code></td></tr>
 <tr><td><code>data</code></td><td>String</td><td>Reflect</td><td>JSON array of numbers (invalid / missing → sample series)</td></tr>
 </tbody></table></div>
+<h2>Notes</h2>
+<p>Draws with CSS tokens <code>--color-interactive</code>, <code>--color-border-default</code>, <code>--color-content-secondary</code> when present. A <code>ResizeObserver</code> on the canvas redraws on size changes and disconnects on <code>el.ctrl.signal</code> abort.</p>
 <h3>Lifecycle / memory</h3>
-<p><code>ResizeObserver</code> redraws on size change and disconnects via <code>el.ctrl.signal</code> on soft-nav. Prefer prop updates over attaching your own observers from a leaf.</p>
+<p><code>ResizeObserver</code> is tied to the component abort signal — soft-nav disconnect cleans it up. Prefer prop updates (<code>data</code> / <code>type</code>) over attaching your own observers from a leaf without a signal.</p>
 <hr />
 <h2>Related</h2>
 <ul>
+<li><a href="/docs/elements/index">Elements overview</a></li>
 <li><a href="/docs/elements/data">Data</a></li>
 <li><a href="/docs/elements/stat">Stat</a></li>
-<li><a href="/docs/elements/card">Card</a></li>
 <li><a href="/docs/ui/advanced">Memory safety &amp; framework globals</a></li>
-<li><a href="/docs/elements/index">Elements overview</a></li>
+<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
 </ul>

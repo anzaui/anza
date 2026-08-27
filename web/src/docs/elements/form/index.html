@@ -1,5 +1,5 @@
 <h1>Form</h1>
-<p>Form orchestrator that validates form-associated children, submits JSON via the API pipeline, and can queue payloads offline with background sync.</p>
+<p>Form orchestrator that validates form-associated children, submits JSON via the API pipeline, and can queue offline.</p>
 <p><strong>Tag:</strong> <code>ui-form</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/form</code></p>
 <hr />
 <h2>Import</h2>
@@ -15,25 +15,6 @@
 &lt;/ui-form&gt;
 </view-code>
 <hr />
-<h2>Advanced usage</h2>
-<view-code language="html">&lt;ui-form id="signup" action="/api/signup" method="POST" offline&gt;
-  &lt;ui-field label="Email" required&gt;
-    &lt;ui-input name="email" type="email" required&gt;&lt;/ui-input&gt;
-  &lt;/ui-field&gt;
-  &lt;ui-toggle name="newsletter" value="yes"&gt;Subscribe&lt;/ui-toggle&gt;
-  &lt;ui-button type="submit"&gt;Create account&lt;/ui-button&gt;
-&lt;/ui-form&gt;
-
-&lt;script type="module"&gt;
-  const form = document.querySelector('#signup');
-  form.addEventListener('submit-start', (e) =&gt; console.log('Payload:', e.detail.payload));
-  form.addEventListener('offline-queued', (e) =&gt; console.log('Queued:', e.detail.syncId));
-  form.addEventListener('success', (e) =&gt; console.log('Response:', e.detail));
-  form.addEventListener('submit-error', (e) =&gt; console.error(e.detail));
-&lt;/script&gt;
-</view-code>
-<p>Intercepts native submit, runs <code>reportValidity()</code> on form-associated descendants, then serializes controls with a <code>name</code> attribute into a JSON payload.</p>
-<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>action</code></td><td>String</td><td>Reflect</td><td>Submit URL (default current location)</td></tr>
@@ -46,24 +27,15 @@
 <tr><td><code>submit-start</code></td><td>About to submit — <code>detail.payload</code></td></tr>
 <tr><td><code>success</code></td><td>Online submit succeeded — <code>detail</code> is the response</td></tr>
 <tr><td><code>submit-error</code></td><td>Submit or queue failed</td></tr>
-<tr><td><code>offline-queued</code></td><td>Queued for background sync — <code>detail.syncId</code>, <code>detail.payload</code></td></tr>
-</tbody></table></div>
-<h2>Slots / parts</h2>
-<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
-<tr><td><em>(default)</em></td><td>slot</td><td>Form fields and submit button</td></tr>
-<tr><td><code>form</code></td><td>part</td><td>Inner <code>&lt;form&gt;</code> surface</td></tr>
+<tr><td><code>offline-queued</code></td><td>Queued for background sync — <code>detail.syncId</code></td></tr>
 </tbody></table></div>
 <h2>Notes</h2>
-<p>Collects descendants with <code>formAssociated</code> constructors. Online submits use <code>pipeline()</code> fetch with <code>AbortSignal</code>.</p>
-<h3>Lifecycle / memory</h3>
-<p>Submit handler and fetch abort with the leaf <code>ctrl</code>. Offline queue uses SyncManager when available.</p>
+<p>Collects descendants with <code>formAssociated</code> constructors. Payload keys come from each control’s <code>name</code> attribute and <code>.value</code>.</p>
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/elements/forms">Forms</a></li>
-<li><a href="/docs/elements/field">Field</a></li>
-<li><a href="/docs/elements/button">Button</a></li>
-<li><a href="/docs/ui/forms">Form association</a></li>
-<li><a href="/docs/offline/index">Offline</a></li>
 <li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="/docs/elements/forms">Forms</a></li>
+<li><a href="/docs/ui/forms">Form association</a></li>
+<li><a href="../../plans/ELEMENTS.md">Planning: ELEMENTS.md</a></li>
 </ul>

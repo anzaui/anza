@@ -1,0 +1,76 @@
+<h1>TypeScript &amp; JavaScript STUI Template Engine</h1>
+<p>The <strong>Anza TypeScript Engine</strong> (<code>anza</code>) is a <strong>zero-dependency</strong>, JIT-optimized template and STUI streaming engine that executes identically across <strong>Node.js</strong>, <strong>Bun</strong>, <strong>Deno</strong>, <strong>Cloudflare Workers</strong>, and <strong>Vercel Edge</strong>.</p>
+<h2>Installation</h2>
+<view-code language="bash">npm install anza
+# or: pnpm add anza / bun add anza
+</view-code>
+<h2>Quickstart (Web Standards / Fetch)</h2>
+<view-code language="typescript">import { Setup, Page, Fragment, htmlResponse, jsonResponse } from 'anza';
+
+// 1. Initialize engine once at application startup
+const engine = await new Setup({
+  root: './templates',
+  signing: { mode: 'hmac', secret: 'super-secret-key-32-chars-long!!' },
+}).run();
+
+export default {
+  port: 3000,
+  async fetch(req: Request): Promise&lt;Response&gt; {
+    const url = new URL(req.url);
+
+    // Full-Page SSR
+    if (url.pathname === '/') {
+      const doc = await new Page('/', { title: 'TypeScript STUI' }).run(engine);
+      return htmlResponse(doc);
+    }
+
+    // Dynamic Signed Fragment
+    if (url.pathname === '/card') {
+      const env = await new Fragment('feed/card.html', 'feed', { title: 'Live Card' }).run(engine);
+      return jsonResponse(env);
+    }
+
+    return new Response('Not Found', { status: 404 });
+  },
+};
+</view-code>
+<h2>Framework Integration</h2>
+<h3>Hono</h3>
+<view-code language="typescript">import { Hono } from 'hono';
+import { Setup, htmlResponse, jsonResponse, sseEvent } from 'anza';
+
+const engine = await new Setup({ root: './templates' }).run();
+const app = new Hono();
+
+app.get('/', async (c) =&gt; {
+  const doc = await engine.renderPage('/', { title: 'Hono STUI' });
+  return htmlResponse(doc);
+});
+
+app.get('/card/:id', async (c) =&gt; {
+  const env = await engine.renderFragment('feed/card.html', 'feed', { id: c.req.param('id') });
+  return jsonResponse(env);
+});
+
+export default app;
+</view-code>
+<h3>Express.js</h3>
+<view-code language="typescript">import express from 'express';
+import { Setup, Page, Fragment } from 'anza';
+import { sendHtml, sendJson } from 'anza/adapters/express.js';
+
+const engine = await new Setup({ root: './templates' }).run();
+const app = express();
+
+app.get('/', async (req, res) =&gt; {
+  const doc = await new Page('/', { title: 'Express STUI' }).run(engine);
+  sendHtml(res, doc);
+});
+
+app.get('/card', async (req, res) =&gt; {
+  const env = await new Fragment('feed/card.html', 'feed', { title: 'Item' }).run(engine);
+  sendJson(res, env);
+});
+
+app.listen(3000);
+</view-code>

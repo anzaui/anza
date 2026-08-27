@@ -24,7 +24,7 @@ npm install
 <tr><td><code>package.json</code></td><td>Scripts: <code>dev</code> and <code>build</code></td></tr>
 </tbody></table></div>
 <p>You own <code>src/tokens/</code> and <code>src/styles/</code>. The library copies them in as starter files; change them freely.</p>
-<p>Empty <code>src/docks/</code>, <code>src/views/</code>, and <code>src/parts/</code> folders (with <code>index.js</code> barrels) are teaching affordances — optional at runtime. You may rename the landing folder, add extra page trees (e.g. <code>src/docs/</code>), or skip <code>src/sw.js</code> for static sites. Full required / recommended / optional tables, index-per-folder convention, and optional <code>anza.json</code> remaps: <a href="/docs/intro/structure">Structure</a>.</p>
+<p>Empty <code>src/docks/</code>, <code>src/views/</code>, and <code>src/parts/</code> folders (with <code>index.js</code> barrels) are teaching affordances — optional at runtime. You may rename the landing folder, add extra page trees (e.g. <code>src/docs/</code>), or skip <code>src/sw.js</code> for static sites. Full required / recommended / optional tables, index-per-folder convention, and optional <code>anza.json</code> remaps: <a href="/docs/intro/structure">structure.md</a>.</p>
 <p>Apps need <strong>no</strong> <code>anza.json</code> at create time. Add one only when remapping roots, declaring extra page trees (<code>pages[]</code>), or listing additional service workers.</p>
 <hr />
 <h2>Run</h2>
@@ -50,7 +50,7 @@ npx anza generate dock sidebar --parent main
 npx anza generate view card
 npx anza generate part button
 </view-code>
-<p>Flags: <code>--tree</code>, <code>--route</code>, <code>--via</code>, <code>--parent</code>, <code>-s/--src</code>. Docks are created <strong>without</strong> error-page HTML — fallbacks stay by reference (<a href="/docs/router/fallbacks">Fallbacks</a>). Details: <a href="/docs/intro/build#generate">Build</a> and <a href="/docs/intro/structure#generate-anza-generate">Structure</a>.</p>
+<p>Flags: <code>--tree</code>, <code>--route</code>, <code>--via</code>, <code>--parent</code>, <code>-s/--src</code>. Docks are created <strong>without</strong> error-page HTML — fallbacks stay by reference (<a href="/docs/router/fallbacks">fallbacks.md</a>). Details: <a href="/docs/intro/build#generate">build.md</a> and <a href="/docs/intro/structure#generate-anza-generate">structure.md</a>.</p>
 <hr />
 <h2>What Was Generated</h2>
 <h3><code>src/app.js</code></h3>
@@ -107,11 +107,11 @@ page('/about', {
 });
 </view-code>
 <p>Import it from <code>src/pages/index.js</code> if you did not use <code>generate</code> (generate updates the barrel for you).</p>
-<p>Clicking <code>&lt;a href="/about"&gt;</code> is intercepted, matched, and soft-nav swaps only the page leaf inside <code>main</code> — the dock stays mounted. Both <code>anza dev</code> and <code>anza build</code> emit contentful SSG HTML per public route for hard refresh; soft-nav loads page fragments (see <a href="/docs/ssg/contract">SSG contract</a>).</p>
+<p>Clicking <code>&lt;a href="/about"&gt;</code> is intercepted, matched, and soft-nav swaps only the page leaf inside <code>main</code> — the dock stays mounted. Both <code>anza dev</code> and <code>anza build</code> emit contentful SSG HTML per public route for hard refresh; soft-nav loads page fragments (see <a href="/docs/ssg/contract">ssg/contract.md</a>).</p>
 <h3>Suggested reading order</h3>
 <ol>
-<li><a href="/docs/intro/structure">Structure</a> — what must exist; <code>anza.json</code>; doctor/check</li>
-<li><a href="/docs/intro/build">Build</a> — flags, SSG, generate</li>
-<li><a href="/docs/router/pages">Pages</a> / <a href="/docs/router/docks">Docks</a> — <code>page</code> / <code>dock</code></li>
-<li><a href="/docs/router/fallbacks">Fallbacks</a> — 404 / error / offline without folder copies</li>
+<li><a href="/docs/intro/structure">structure.md</a> — what must exist; <code>anza.json</code>; doctor/check</li>
+<li><a href="/docs/intro/build">build.md</a> — flags, SSG, generate</li>
+<li><a href="/docs/router/pages">router/pages.md</a> / <a href="/docs/router/docks">router/docks.md</a> — <code>page</code> / <code>dock</code></li>
+<li><a href="/docs/router/fallbacks">router/fallbacks.md</a> — 404 / error / offline without folder copies</li>
 </ol>

@@ -9,13 +9,6 @@
               └── page-*
 </view-code>
 <p>Default CSS groups: <code>dock-main</code>, <code>dock-docs</code>, <code>dock-content</code> (registry key → <code>dock-&lt;key&gt;</code>). Legacy alias: <code>dock-swap</code>.</p>
-<h3><code>dock.swap</code> vs <code>dock.swapView</code></h3>
-<p>Both call <code>runSwapTransition</code> on the host element — element-scoped VT only, never document-level:</p>
-<div class="table-wrap"><table><thead><tr><th>Method</th><th>Argument</th><th>Typical caller</th></tr></thead><tbody>
-<tr><td><code>swap(child)</code></td><td>DOM node or HTML string</td><td>Router orchestrator, fallbacks</td></tr>
-<tr><td><code>swapView(el, opts?)</code></td><td>Custom element + options</td><td>App code, explicit leaf swaps</td></tr>
-</tbody></table></div>
-<p>Docks prepend <code>contain: layout</code> to isolate VT snapshots. Set <code>config.transition: false</code> on the dock to disable VT for that host entirely.</p>
 <view-code language="javascript">dock('content', {
   parent: 'docs',
   tag: 'dock-doccontent',
@@ -24,14 +17,6 @@
   // transition: false                 // disable VT for this dock
 });
 </view-code>
-<h3><code>runSwapTransition</code> options</h3>
-<div class="table-wrap"><table><thead><tr><th>Option</th><th>Default</th><th>Role</th></tr></thead><tbody>
-<tr><td><code>direction</code></td><td><code>'push'</code></td><td><code>push</code> | <code>pop</code> | <code>replace</code> — sets <code>data-transition-direction</code> and temporary easing tokens</td></tr>
-<tr><td><code>dockName</code></td><td>—</td><td>Registry key passed to <code>nameFor</code> → default <code>dock-&lt;key&gt;</code></td></tr>
-<tr><td><code>name</code></td><td>from resolver</td><td>Override <code>view-transition-name</code> on the host</td></tr>
-<tr><td><code>transition</code></td><td>enabled</td><td><code>false</code> or <code>{ name, skip, enabled }</code> to opt out per swap</td></tr>
-<tr><td><code>signal</code></td><td>—</td><td>Aborted → <code>AbortError</code> or <code>skipTransition</code> on in-flight VT</td></tr>
-</tbody></table></div>
 <p>Per-navigation control:</p>
 <view-code language="javascript">await contentDock.swapView(pageEl, {
   direction: 'push',           // push | pop | replace → token easing

@@ -75,7 +75,7 @@ hard refresh
 <li>Never <code>document.addEventListener</code> / <code>new MutationObserver</code> in <code>mount</code> without <code>{ signal: ctrl.signal }</code> or a disposer from <code>unmount</code>.</li>
 <li>Prefer <code>on</code> / <code>watch</code> inside components; prefer <code>events.*</code> + signal outside.</li>
 <li>Do not observe <code>document</code> / <code>body</code> for leaf concerns — lift to a parent dock or use events/store.</li>
-<li>Framework globals (<code>router.nav-click</code>, <code>router.container-mo</code>, <code>popover.*</code>) stay stable across soft-nav — see <a href="/docs/ui/advanced#framework-global-listeners--observers">Advanced</a>.</li>
+<li>Framework globals (<code>router.nav-click</code>, <code>router.container-mo</code>, <code>popover.*</code>) stay stable across soft-nav — see <a href="/docs/ui/advanced#framework-global-listeners--observers">advanced.md</a>.</li>
 </ol>
 <hr />
 <h2>change</h2>

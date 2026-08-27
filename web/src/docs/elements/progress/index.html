@@ -1,5 +1,5 @@
 <h1>Progress</h1>
-<p>Determinate progress bar with percentage label and ARIA <code>progressbar</code> semantics. Fill width and label update when <code>value</code> or <code>max</code> change.</p>
+<p>Determinate progress bar with percentage label and ARIA progressbar semantics.</p>
 <p><strong>Tag:</strong> <code>ui-progress</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/progress</code></p>
 <hr />
 <h2>Import</h2>
@@ -13,40 +13,25 @@
 &lt;/ui-progress&gt;
 </view-code>
 <hr />
-<h2>Advanced usage</h2>
-<view-code language="html">&lt;ui-upload id="files" url="/api/upload" accept="image/*"&gt;&lt;/ui-upload&gt;
-&lt;ui-progress id="bar" value="0" max="100" hidden&gt;
-  &lt;span slot="label"&gt;Uploading…&lt;/span&gt;
-&lt;/ui-progress&gt;
-
-&lt;script type="module"&gt;
-  const upload = document.querySelector('#files');
-  const bar = document.querySelector('#bar');
-  upload.addEventListener('progress', (e) =&gt; {
-    bar.removeAttribute('hidden');
-    bar.value = Math.round(e.detail.percent);
-  });
-  upload.addEventListener('success', () =&gt; bar.setAttribute('hidden', ''));
-&lt;/script&gt;
-</view-code>
-<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>value</code></td><td>Number</td><td>Reflect</td><td>Current progress value (default <code>0</code>)</td></tr>
-<tr><td><code>max</code></td><td>Number</td><td>Reflect, default <code>100</code></td><td>Maximum value</td></tr>
+<tr><td><code>max</code></td><td>Number</td><td>Reflect</td><td>Maximum value (default <code>100</code>)</td></tr>
 </tbody></table></div>
 <h2>Slots / parts</h2>
 <div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>label</code></td><td>slot</td><td>Label text (default “Progress”)</td></tr>
-<tr><td><code>labels</code> / <code>track</code> / <code>fill</code></td><td>parts</td><td>Label row, track, filled portion</td></tr>
+<tr><td><code>labels</code></td><td>part</td><td>Label + percent row</td></tr>
+<tr><td><code>track</code></td><td>part</td><td>Track container</td></tr>
+<tr><td><code>fill</code></td><td>part</td><td>Filled portion</td></tr>
 </tbody></table></div>
 <h2>Notes</h2>
-<p>Sets <code>role="progressbar"</code> and <code>aria-valuenow</code> / <code>aria-valuemin</code> / <code>aria-valuemax</code>. Percent label: <code>round((value / max) * 100)</code>.</p>
+<p>Sets <code>role="progressbar"</code> and <code>aria-valuenow</code> / <code>aria-valuemin</code> / <code>aria-valuemax</code> on update. Percent label is derived as <code>round((value / max) * 100)</code>.</p>
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/elements/feedback">Feedback</a></li>
-<li><a href="/docs/elements/spinner">Spinner</a> (indeterminate)</li>
-<li><a href="/docs/elements/upload">Upload</a></li>
 <li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="/docs/elements/feedback">Feedback</a></li>
+<li><a href="/docs/elements/spinner">Spinner</a></li>
+<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
 </ul>

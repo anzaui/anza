@@ -1,5 +1,5 @@
 <h1>Badge</h1>
-<p>Compact label indicator with variant mapping (info, success, warning, error) and size scaling. Use for status chips, counts, and inline metadata.</p>
+<p>Compact label indicator with variant mapping (info, success, warning, error) and size scaling.</p>
 <p><strong>Tag:</strong> <code>ui-badge</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/badge</code></p>
 <hr />
 <h2>Import</h2>
@@ -12,37 +12,17 @@
 &lt;ui-badge variant="error"&gt;Failed&lt;/ui-badge&gt;
 </view-code>
 <hr />
-<h2>Advanced usage</h2>
-<view-code language="html">&lt;ui-button type="button"&gt;
-  Inbox
-  &lt;ui-badge variant="info" size="sm" slot="trailing"&gt;12&lt;/ui-badge&gt;
-&lt;/ui-button&gt;
-
-&lt;ui-stat trend="up"&gt;
-  &lt;span slot="label"&gt;Active users&lt;/span&gt;
-  1,204
-  &lt;ui-badge variant="success" size="sm" slot="change"&gt;+8%&lt;/ui-badge&gt;
-&lt;/ui-stat&gt;
-</view-code>
-<p>Variants and sizes map to theme tokens. Style the badge surface via <code>::part(badge)</code> when you need custom density.</p>
-<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>variant</code></td><td>String</td><td>Reflect</td><td>Visual tone: <code>info</code> · <code>success</code> · <code>warning</code> · <code>error</code> (theme-dependent)</td></tr>
-<tr><td><code>size</code></td><td>String</td><td>Reflect</td><td>Size scale token (e.g. <code>sm</code>)</td></tr>
-</tbody></table></div>
-<h2>Slots / parts</h2>
-<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
-<tr><td><em>(default)</em></td><td>slot</td><td>Badge label text</td></tr>
-<tr><td><code>badge</code></td><td>part</td><td>Styled badge surface</td></tr>
+<tr><td><code>variant</code></td><td>String</td><td>Reflect</td><td>Visual tone (e.g. info / success / warning / error — theme-dependent)</td></tr>
+<tr><td><code>size</code></td><td>String</td><td>Reflect</td><td>Size scale token for the badge</td></tr>
 </tbody></table></div>
 <h2>Notes</h2>
-<p>Purely presentational — no events or form association. Default slot content is the visible label.</p>
+<p>Default slot content is the badge label.</p>
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/elements/primitives">Primitives</a></li>
-<li><a href="/docs/elements/alert">Alert</a></li>
-<li><a href="/docs/elements/stat">Stat</a></li>
 <li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="/docs/elements/primitives">Primitives</a></li>
+<li><a href="../../plans/ELEMENTS.md">Planning: ELEMENTS.md</a></li>
 </ul>

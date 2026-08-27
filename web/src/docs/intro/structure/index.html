@@ -1,6 +1,6 @@
 <h1>Structure</h1>
-<p>Normative <strong>folder contract</strong> for Anza apps: one spine humans learn once, optional slots, and an optional <code>anza.json</code> for remaps. Validate with <code>anza doctor</code> (soft) or <code>anza check</code> (strict CI). Sibling metaphor: <a href="/docs/ssg/contract">SSG contract</a> is the HTML contract; this page is the <strong>project layout</strong> contract.</p>
-<p>Planning detail: <a href="/docs/intro/structure">Structure</a>. JSON Schema: <a href="../../library/schemas/anza.schema.json"><code>@adukiorg/anza/schemas/anza.schema.json</code></a>.</p>
+<p>Normative <strong>folder contract</strong> for Anza apps: one spine humans learn once, optional slots, and an optional <code>anza.json</code> for remaps. Validate with <code>anza doctor</code> (soft) or <code>anza check</code> (strict CI). Sibling metaphor: <a href="/docs/ssg/contract">ssg/contract.md</a> is the HTML contract; this page is the <strong>project layout</strong> contract.</p>
+<p>Planning detail: <a href="../../plans/STRUCTURE.md">plans/STRUCTURE.md</a>. JSON Schema: <a href="../../library/schemas/anza.schema.json"><code>@adukiorg/anza/schemas/anza.schema.json</code></a>.</p>
 <p>Tone: <strong>one spine, many leaves</strong> — same story as hierarchical docks.</p>
 <p><strong>This page is the single source of truth</strong> for “what must exist on disk?” — start at <a href="#what-must-exist">What must exist</a>, then optional slots and <a href="#troubleshooting">Troubleshooting</a>.</p>
 <hr />
@@ -17,7 +17,7 @@
 <li>Entry reachable from the shell’s <code>&lt;script type="module"&gt;</code>.</li>
 <li>At least one <code>page(...)</code> in the reachable graph.</li>
 <li>Root dock (default name <code>main</code>) registered via <code>dock(...)</code> before pages that <code>via</code> it — <code>anza check</code> <strong>warns</strong> if missing; <strong>errors</strong> if a <code>via</code> name has no <code>dock()</code>.</li>
-<li>Shell uses <strong>site-root</strong> asset URLs (<code>/app.js</code>, <code>/tokens/...</code>, <code>/styles/...</code>) — see <a href="/docs/ssg/contract">SSG contract</a>.</li>
+<li>Shell uses <strong>site-root</strong> asset URLs (<code>/app.js</code>, <code>/tokens/...</code>, <code>/styles/...</code>) — see <a href="/docs/ssg/contract">ssg/contract.md</a>.</li>
 </ol>
 <p>Apps need <strong>no</strong> <code>anza.json</code>. <code>anza create</code> / <code>npm create @adukiorg/anza</code> writes the default tree. Add <code>anza.json</code> only when remapping roots, declaring extra page trees, or listing additional service workers.</p>
 <h3>Recommended (scaffold creates; tooling may warn if missing)</h3>
@@ -38,7 +38,7 @@
 <tr><td>SW modules</td><td><code>src/sw/</code></td><td>Shared helpers imported by <code>sw.js</code> — <strong>not</strong> auto-registered workers</td></tr>
 <tr><td>Legacy elements</td><td><code>src/elements/</code></td><td>Warn if coexist with <code>pages</code> — migrate to view/part/page</td></tr>
 <tr><td>SSG config</td><td><code>ssg.json</code> / <code>ssg.params.json</code></td><td>Existing contracts</td></tr>
-<tr><td>Fallbacks</td><td><em>by reference</em></td><td><code>dock</code> / <code>page</code> <code>{ notfound | error | offline }</code> or library built-ins — <strong>not</strong> folder slots (<a href="/docs/router/fallbacks">Fallbacks</a>)</td></tr>
+<tr><td>Fallbacks</td><td><em>by reference</em></td><td><code>dock</code> / <code>page</code> <code>{ notfound | error | offline }</code> or library built-ins — <strong>not</strong> folder slots (<a href="/docs/router/fallbacks">fallbacks.md</a>)</td></tr>
 </tbody></table></div>
 <h3>Explicitly not required</h3>
 <ul>
@@ -76,7 +76,7 @@
 anza doctor --strict # same severity as check
 anza check           # CI: errors or warnings → non-zero
 </view-code>
-<p>Findings point back here (<code>docs/<a href="/docs/intro/structure">Structure</a></code>). Checks the required spine, recommended tokens/styles/SW/importmap, optional slots + index barrels, <code>anza.json</code> <code>sw</code> string|array, legacy <code>elements/</code>+pages coexistence, undeclared page trees, and <strong>via → dock</strong> consistency. Docks may live in <code>app.js</code> — <code>src/docks/</code> is optional. See <a href="/docs/intro/build#diagnostics">Build</a>.</p>
+<p>Findings point back here (<code>docs/intro/structure.md</code>). Checks the required spine, recommended tokens/styles/SW/importmap, optional slots + index barrels, <code>anza.json</code> <code>sw</code> string|array, legacy <code>elements/</code>+pages coexistence, undeclared page trees, and <strong>via → dock</strong> consistency. Docks may live in <code>app.js</code> — <code>src/docks/</code> is optional. See <a href="/docs/intro/build#diagnostics">build.md</a>.</p>
 <h3>CI snippet</h3>
 <view-code language="bash">anza check &amp;&amp; anza build
 </view-code>
@@ -169,7 +169,7 @@ self.addEventListener('fetch', (e) =&gt; {
   e.respondWith(fetch(e.request));
 });
 </view-code>
-<p>Pre-caches the app shell. Static assets use <code>CacheFirst</code>; API calls use <code>NetworkFirst</code> with a 3-second timeout. Bump <code>SHELL</code> / <code>API</code> when shipping path-breaking asset URL changes. See <a href="/docs/sw/start">Start</a>.</p>
+<p>Pre-caches the app shell. Static assets use <code>CacheFirst</code>; API calls use <code>NetworkFirst</code> with a 3-second timeout. Bump <code>SHELL</code> / <code>API</code> when shipping path-breaking asset URL changes. See <a href="/docs/sw/start">sw/start.md</a>.</p>
 <h3><code>src/pages/entry/index.js</code></h3>
 <view-code language="javascript">import { page } from '@adukiorg/anza/ui';
 
@@ -276,7 +276,7 @@ import './docs/index.js';
 <p>Copy from a fresh <code>anza create</code>, or drop the slot if you intentionally skip offline / design tokens (warn-only unless <code>anza check</code>).</p>
 <hr />
 <h2>Fallbacks are not folders</h2>
-<p>Miss / error / offline UI is <strong>by reference</strong> (dock/page options or library built-ins). Do <strong>not</strong> copy <code>404.html</code> into every dock folder. Scaffold correctly creates docks without error-page files. See <a href="/docs/router/fallbacks">Fallbacks</a> and <a href="/docs/router/docks">Docks</a>.</p>
+<p>Miss / error / offline UI is <strong>by reference</strong> (dock/page options or library built-ins). Do <strong>not</strong> copy <code>404.html</code> into every dock folder. Scaffold correctly creates docks without error-page files. See <a href="/docs/router/fallbacks">router/fallbacks.md</a> and <a href="/docs/router/docks">router/docks.md</a>.</p>
 <hr />
 <h2>Tokens and styles</h2>
 <p><code>src/tokens/</code> and <code>src/styles/</code> are copied from the library during scaffolding. You own them — the CLI never overwrites them after creation.</p>

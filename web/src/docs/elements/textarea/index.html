@@ -1,5 +1,5 @@
 <h1>Textarea</h1>
-<p>Form-participating multi-line text control with ElementInternals validation, optional auto-resize via ResizeObserver, and form reset/disabled callbacks.</p>
+<p>Form-participating multi-line text control with ElementInternals validation and optional auto-resize.</p>
 <p><strong>Tag:</strong> <code>ui-textarea</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/textarea</code></p>
 <hr />
 <h2>Import</h2>
@@ -10,15 +10,6 @@
 <view-code language="html">&lt;ui-textarea name="bio" placeholder="Tell us about yourself" rows="4"&gt;&lt;/ui-textarea&gt;
 &lt;ui-textarea autoresize maxlength="500" required&gt;&lt;/ui-textarea&gt;
 </view-code>
-<hr />
-<h2>Advanced usage</h2>
-<view-code language="html">&lt;ui-field label="Description" required&gt;
-  &lt;ui-textarea name="desc" autoresize maxlength="1000" rows="3"&gt;
-    &lt;span slot="error"&gt;Description is required.&lt;/span&gt;
-  &lt;/ui-textarea&gt;
-&lt;/ui-field&gt;
-</view-code>
-<p>When <code>autoresize</code> is set, a ResizeObserver grows the textarea to fit content. The observer disconnects via <code>ctrl.signal</code> on unmount.</p>
 <hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
@@ -32,24 +23,15 @@
 </tbody></table></div>
 <h2>Events</h2>
 <div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody>
-<tr><td><code>change</code></td><td>Bubbles, composed — when the inner textarea fires <code>change</code></td></tr>
-</tbody></table></div>
-<h2>Slots / parts</h2>
-<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>error</code></td><td>slot</td><td>Validation error message</td></tr>
-<tr><td><code>textarea</code></td><td>part</td><td>Native textarea surface</td></tr>
-<tr><td><code>error-box</code></td><td>part</td><td>Error message wrapper</td></tr>
+<tr><td><code>change</code></td><td>Bubbles when the inner textarea fires <code>change</code></td></tr>
 </tbody></table></div>
 <h2>Notes</h2>
 <p>Uses <code>form: true</code>. Form reset restores the attribute <code>value</code> (or empty).</p>
-<h3>Lifecycle / memory</h3>
-<p>ResizeObserver for <code>autoresize</code> is registered with <code>ctrl.signal</code> and disconnects on soft-nav.</p>
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/elements/forms">Forms</a></li>
-<li><a href="/docs/elements/input">Input</a></li>
-<li><a href="/docs/elements/field">Field</a></li>
-<li><a href="/docs/ui/forms">Form association</a></li>
 <li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="/docs/elements/forms">Forms</a></li>
+<li><a href="/docs/ui/forms">Form association</a></li>
+<li><a href="../../plans/ELEMENTS.md">Planning: ELEMENTS.md</a></li>
 </ul>

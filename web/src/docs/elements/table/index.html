@@ -1,5 +1,5 @@
 <h1>Table</h1>
-<p>Styled wrapper for a native HTML table (slot content). Use a light-DOM <code>&lt;table&gt;</code> inside for semantics and accessibility.</p>
+<p>Styled wrapper for a native HTML table (slot content). Use a light-DOM <code>&lt;table&gt;</code> inside for semantics.</p>
 <p><strong>Tag:</strong> <code>ui-table</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/table</code></p>
 <hr />
 <h2>Import</h2>
@@ -20,38 +20,15 @@
 &lt;/ui-table&gt;
 </view-code>
 <hr />
-<h2>Advanced usage</h2>
-<view-code language="html">&lt;div class="table-wrap"&gt;
-  &lt;ui-table&gt;
-    &lt;table&gt;
-      &lt;thead&gt;
-        &lt;tr&gt;&lt;th&gt;Product&lt;/th&gt;&lt;th&gt;Revenue&lt;/th&gt;&lt;th&gt;Trend&lt;/th&gt;&lt;/tr&gt;
-      &lt;/thead&gt;
-      &lt;tbody&gt;
-        &lt;tr&gt;
-          &lt;td&gt;Widget A&lt;/td&gt;
-          &lt;td&gt;$12,400&lt;/td&gt;
-          &lt;td&gt;&lt;ui-badge variant="success" size="sm"&gt;+8%&lt;/ui-badge&gt;&lt;/td&gt;
-        &lt;/tr&gt;
-      &lt;/tbody&gt;
-    &lt;/table&gt;
-  &lt;/ui-table&gt;
-&lt;/div&gt;
-</view-code>
-<p>Style-only wrapper — slotted <code>&lt;table&gt;</code> markup is styled via <code>::slotted</code>. Wrap in a host <code>.table-wrap</code> for horizontal scroll on narrow viewports.</p>
-<hr />
 <h2>Props</h2>
-<p><em>None — presentational wrapper.</em></p>
-<h2>Slots</h2>
-<div class="table-wrap"><table><thead><tr><th>Name</th><th>Description</th></tr></thead><tbody>
-<tr><td><em>(default)</em></td><td>Native <code>&lt;table&gt;</code> markup in light DOM</td></tr>
-</tbody></table></div>
+<p><em>None — presentational wrapper; style via CSS / slotted table markup.</em></p>
+<h2>Notes</h2>
+<p>Default slot receives the table (or table wrap). Pair with a host/page <code>.table-wrap</code> if you need horizontal scroll outside the element.</p>
 <hr />
 <h2>Related</h2>
 <ul>
+<li><a href="/docs/elements/index">Elements overview</a></li>
 <li><a href="/docs/elements/data">Data</a></li>
 <li><a href="/docs/elements/list">List</a></li>
-<li><a href="/docs/elements/card">Card</a></li>
-<li><a href="/docs/elements/stat">Stat</a></li>
-<li><a href="/docs/elements/index">Elements overview</a></li>
+<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
 </ul>

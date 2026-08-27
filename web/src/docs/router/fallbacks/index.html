@@ -147,17 +147,17 @@ router.pages.show('offline', { via: ['main', 'docs', 'content'] });
 <div class="table-wrap"><table><thead><tr><th>Context</th><th>Behavior</th></tr></thead><tbody>
 <tr><td>Soft-nav miss / error</td><td>Leaf swap inside deepest <code>via</code> dock; parents stay; VT + <code>signal</code> honored</td></tr>
 <tr><td>Hard refresh miss</td><td>Same resolver after boot gates</td></tr>
-<tr><td>Guard throws</td><td><code>error</code> event with <code>phase: 'guard'</code> → error leaf (<a href="/docs/router/guards">Guards</a>)</td></tr>
+<tr><td>Guard throws</td><td><code>error</code> event with <code>phase: 'guard'</code> → error leaf (<a href="/docs/router/guards">guards.md</a>)</td></tr>
 <tr><td>SSG / static host</td><td>Unknown URL may be host <code>404</code> or SPA shell; CSR paints the dock-scoped leaf after boot</td></tr>
 <tr><td>Scaffold</td><td>Bare <code>dock('main')</code> — no error-page files in <code>src/docks/</code></td></tr>
 </tbody></table></div>
-<p>Host HTML 404 and Mode A SSG emission are separate from this CSR leaf resolver. See <a href="/docs/ssg/index">Overview</a>.</p>
+<p>Host HTML 404 and Mode A SSG emission are separate from this CSR leaf resolver. See <a href="/docs/ssg/index">ssg/index.md</a>.</p>
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/router/docks">Docks</a> — <code>notfound</code> / <code>error</code> / <code>offline</code> on docks</li>
-<li><a href="/docs/router/pages">Pages</a> — <code>page()</code> and route <code>error</code></li>
-<li><a href="/docs/router/events">Events</a> — <code>notfound</code> / <code>error</code> events</li>
-<li><a href="/docs/router/guards">Guards</a> — nav guards (throws → error leaf)</li>
-<li><a href="/docs/intro/structure">Structure</a> — fallbacks are not folder slots</li>
+<li><a href="/docs/router/docks">docks.md</a> — <code>notfound</code> / <code>error</code> / <code>offline</code> on docks</li>
+<li><a href="/docs/router/pages">pages.md</a> — <code>page()</code> and route <code>error</code></li>
+<li><a href="/docs/router/events">events.md</a> — <code>notfound</code> / <code>error</code> events</li>
+<li><a href="/docs/router/guards">guards.md</a> — nav guards (throws → error leaf)</li>
+<li><a href="/docs/intro/structure">intro/structure.md</a> — fallbacks are not folder slots</li>
 </ul>

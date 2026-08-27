@@ -1,5 +1,5 @@
 <h1>Button</h1>
-<p>Form-associated button with loading and disabled states, semantic token styling, and an <code>activate</code> event. Wraps a native <code>&lt;button&gt;</code> and participates in form submit/reset via <code>ElementInternals</code>.</p>
+<p>Form-associated button with loading and disabled states, semantic token styling, and an <code>activate</code> event.</p>
 <p><strong>Tag:</strong> <code>ui-button</code> · <strong>Import:</strong> <code>@adukiorg/anza/elements/button</code></p>
 <hr />
 <h2>Import</h2>
@@ -13,45 +13,23 @@
 &lt;ui-button loading&gt;Working…&lt;/ui-button&gt;
 </view-code>
 <hr />
-<h2>Advanced usage</h2>
-<view-code language="html">&lt;ui-form action="/api/save" method="POST"&gt;
-  &lt;ui-input name="title" required&gt;&lt;/ui-input&gt;
-  &lt;ui-button type="submit" id="save"&gt;Save draft&lt;/ui-button&gt;
-&lt;/ui-form&gt;
-
-&lt;script type="module"&gt;
-  document.querySelector('#save').addEventListener('activate', () =&gt; {
-  // runs after native submit wiring; use for analytics or async guards
-  });
-&lt;/script&gt;
-</view-code>
-<p>When <code>type="submit"</code> or <code>type="reset"</code>, the element calls <code>internals.form.requestSubmit()</code> or <code>form.reset()</code> before dispatching <code>activate</code>. Clicks are blocked while <code>disabled</code> or <code>loading</code>.</p>
-<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>disabled</code></td><td>Boolean</td><td>Reflect + custom state</td><td>Disables the inner button and blocks activation</td></tr>
 <tr><td><code>loading</code></td><td>Boolean</td><td>Reflect + custom state</td><td>Loading state; blocks activation while true</td></tr>
-<tr><td><code>type</code></td><td>String</td><td>Reflect, default <code>button</code></td><td><code>button</code> · <code>submit</code> · <code>reset</code></td></tr>
+<tr><td><code>type</code></td><td>String</td><td>Reflect, default <code>button</code></td><td><code>button</code></td></tr>
 <tr><td><code>value</code></td><td>String</td><td>Reflect</td><td>Optional form value</td></tr>
 </tbody></table></div>
 <h2>Events</h2>
 <div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody>
-<tr><td><code>activate</code></td><td>Fired on click when not disabled/loading (bubbles, composed)</td></tr>
-</tbody></table></div>
-<h2>Slots / parts</h2>
-<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
-<tr><td><em>(default)</em></td><td>slot</td><td>Button label</td></tr>
-<tr><td><code>button</code></td><td>part</td><td>Inner native button surface</td></tr>
+<tr><td><code>activate</code></td><td>Fired on click when not disabled/loading</td></tr>
 </tbody></table></div>
 <h2>Notes</h2>
-<p>Uses <code>form: true</code> so it participates in native forms. Syncs <code>disabled</code> and <code>type</code> to the shadow <code>&lt;button&gt;</code> on update.</p>
-<h3>Lifecycle / memory</h3>
-<p>Click handler is registered via the component <code>on</code> helper and tears down with the leaf <code>ctrl</code> on soft-nav disconnect. No document-level listeners.</p>
+<p>Default slot content becomes the button label. Uses <code>form: true</code> so it participates in native forms.</p>
 <hr />
 <h2>Related</h2>
 <ul>
-<li><a href="/docs/elements/primitives">Primitives</a></li>
-<li><a href="/docs/elements/form">Form</a></li>
-<li><a href="/docs/ui/forms">Form association</a></li>
 <li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="/docs/ui/forms">Form association</a> (when <code>form: true</code>)</li>
+<li>Planning: <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a></li>
 </ul>

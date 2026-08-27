@@ -19,7 +19,7 @@
 <p><code>attach</code> / <code>detach</code> / <code>count</code> / <code>list</code> / <code>clearGlobals</code> are also available as <code>globals.attach</code>, <code>globals.detach</code>, and so on.</p>
 <hr />
 <h3><code>supports</code></h3>
-<p>Lazy-evaluated feature detection object. See <a href="/docs/platform/supports">Supports</a> for the full flag list. Overlay-related flags: <code>popoverAPI</code>, <code>anchorPositioning</code>.</p>
+<p>Lazy-evaluated feature detection object. See <a href="/docs/platform/supports">supports.md</a> for the full flag list. Overlay-related flags: <code>popoverAPI</code>, <code>anchorPositioning</code>.</p>
 <h3><code>globals</code></h3>
 <p>Internal framework attachment registry (nav polyfill, container MO, popover polyfill). App code should prefer component <code>on</code> / <code>watch</code> / <code>events.*</code> with AbortSignal. Soft-nav tests assert <code>globals.count()</code> stays stable across leaf swaps.</p>
 <view-code language="javascript">import { globals } from '@adukiorg/anza/platform';
@@ -46,7 +46,7 @@ globals.list();  // [{ name, type, target }, …]
 </tbody></table></div>
 <h3><code>guard.escape(floating, anchorEl, options)</code></h3>
 <p>Returns <code>Promise&lt;EscapeController&gt;</code>. Ensures Popover polyfill when <code>floating</code> has <code>[popover]</code>, then builds an overflow-escape controller (same as <code>escapeOverflow</code>). Used by <code>ui-tooltip</code>.</p>
-<p>See <a href="#escapeoverflowfloating-anchor-options">escapeOverflow</a> below for options, controller shape, strategies, and samples. Narrative usage: <a href="/docs/platform/guards#escape">Guards</a>. Overlay kit context: <a href="/docs/elements/overlay">Overlay patterns</a>, <a href="/docs/elements/tooltip">tooltip</a>.</p>
+<p>See <a href="#escapeoverflowfloating-anchor-options">escapeOverflow</a> below for options, controller shape, strategies, and samples. Narrative usage: <a href="/docs/platform/guards#escape">guards.md</a>. Overlay kit context: <a href="/docs/elements/overlay">Overlay patterns</a>, <a href="/docs/elements/tooltip">tooltip</a>.</p>
 <h3><code>escapeOverflow(floating, anchor, options)</code></h3>
 <p><strong>Sync</strong> overflow-escape helper. Prefer <code>guard.escape</code> when you need the popover polyfill applied first; call <code>await guard.popover()</code> yourself if you use this sync form with <code>[popover]</code> in older browsers.</p>
 <p>Positions <code>floating</code> relative to <code>anchor</code> so typical <code>overflow: hidden</code> ancestors do not clip it. The floating node stays <strong>in-tree</strong> (often in shadow) — this is not a <code>document.body</code> portal.</p>

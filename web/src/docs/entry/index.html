@@ -5,246 +5,257 @@
 <h2>Getting Started</h2>
 <p>Install the library, scaffold your first app, and understand the project layout.</p>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
-<tr><td><a href="/docs/intro/install">Install</a></td><td>Install <code>@adukiorg/anza</code> and the prebuilt CLI</td></tr>
-<tr><td><a href="/docs/intro/start">Start</a></td><td>Scaffold your first app with <code>npm create @adukiorg/anza</code></td></tr>
-<tr><td><a href="/docs/intro/build">Build</a></td><td>Dev server, production build, <code>anza doctor</code> / <code>check</code> / <code>generate</code></td></tr>
-<tr><td><a href="/docs/intro/structure">Structure</a></td><td><strong>Project structure contract</strong> — required / recommended / optional slots, optional <code>anza.json</code>, service workers</td></tr>
+<tr><td><a href="/docs/intro/install">intro/install.md</a></td><td>Install <code>@adukiorg/anza</code> and the prebuilt CLI</td></tr>
+<tr><td><a href="/docs/intro/start">intro/start.md</a></td><td>Scaffold your first app with <code>npm create @adukiorg/anza</code></td></tr>
+<tr><td><a href="/docs/intro/build">intro/build.md</a></td><td>Dev server, production build, <code>anza doctor</code> / <code>check</code> / <code>generate</code></td></tr>
+<tr><td><a href="/docs/intro/structure">intro/structure.md</a></td><td><strong>Project structure contract</strong> — required / recommended / optional slots, optional <code>anza.json</code>, service workers</td></tr>
+</tbody></table></div>
+<hr />
+<h2>Server-Templated UI (STUI) Engines</h2>
+<p>Multi-language STUI template and real-time streaming engines with Open Declarative Shadow DOM and cryptographic verification.</p>
+<div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
+<tr><td><a href="/docs/engines/index">engines/index.md</a></td><td>STUI architectural principles, dual-mode SSR, and overview</td></tr>
+<tr><td><a href="/docs/engines/rust">engines/rust.md</a></td><td>Rust base engine (<code>anza</code>), zero-copy parsing, Axum/Actix adapters</td></tr>
+<tr><td><a href="/docs/engines/ts">engines/ts.md</a></td><td>TypeScript/JS engine (<code>anza</code>), 0 dependencies, JIT closures, Hono/Express/Fastify</td></tr>
+<tr><td><a href="/docs/engines/py">engines/py.md</a></td><td>Python engine (<code>anza</code>), standard library implementation, FastAPI/Flask/ASGI/WSGI</td></tr>
+<tr><td><a href="/docs/engines/crypto">engines/crypto.md</a></td><td>Cryptographic verification: Asymmetric Ed25519, HMAC-SHA256, and HKDF session keys</td></tr>
+<tr><td><a href="/docs/engines/streaming">engines/streaming.md</a></td><td>Real-time Server-Sent Events (SSE) and WebSocket frame protocols</td></tr>
 </tbody></table></div>
 <hr />
 <h2>UI</h2>
 <p>The declarative custom element system. You will spend most of your time here.</p>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
-<tr><td><a href="/docs/ui/quickstart">Quickstart</a></td><td>Your first component in five minutes</td></tr>
-<tr><td><a href="/docs/ui/elements">Elements factory</a></td><td>The <code>element()</code> factory and spec shape</td></tr>
-<tr><td><a href="/docs/ui/props">Props</a></td><td>Reactive properties, types, reflection, and state</td></tr>
-<tr><td><a href="/docs/ui/templates">Templates</a></td><td>Inline, file-based, and tagged template literals</td></tr>
-<tr><td><a href="/docs/styles/index">Styles overview</a></td><td>CSS loading, constructable stylesheets, and HMR</td></tr>
-<tr><td><a href="/docs/styles/tokens">Tokens</a></td><td>Primitive, registered, semantic tokens, transitions, and themes</td></tr>
-<tr><td><a href="/docs/ui/lifecycle">Lifecycle</a></td><td>Mount, unmount, connect, disconnect, load, change; soft-nav abort</td></tr>
-<tr><td><a href="/docs/ui/context">Context</a></td><td><code>el</code>, <code>ctrl</code>, <code>tags</code>, <code>refs</code>, <code>on</code> (attrs/not/key/scope), <code>watch</code> (buckets/slot)</td></tr>
-<tr><td><a href="/docs/ui/scheduling">Scheduling</a></td><td>Cooperative task scheduling</td></tr>
-<tr><td><a href="/docs/ui/observers">Observers</a></td><td>Safe observer factories; <code>mutation.scoped</code></td></tr>
-<tr><td><a href="/docs/ui/transitions">Transitions</a></td><td>Element-scoped dock VT, <code>ui.transition</code>, CSS groups, AbortSignal</td></tr>
-<tr><td><a href="/docs/ui/forms">Forms</a></td><td>Form-associated custom elements</td></tr>
-<tr><td><a href="/docs/ui/hydration">Hydration</a></td><td>Adopt open DSD from SSG / Mode B HTML</td></tr>
-<tr><td><a href="/docs/ui/advanced">Advanced</a></td><td>Internals, globals, <code>getAttachmentStats</code>, VT swap</td></tr>
-<tr><td><a href="/docs/ui/api">API reference</a></td><td>Complete API reference</td></tr>
-<tr><td><a href="/docs/ui/troubleshooting">Troubleshooting</a></td><td>Common problems and how to fix them</td></tr>
+<tr><td><a href="/docs/ui/quickstart">ui/quickstart.md</a></td><td>Your first component in five minutes</td></tr>
+<tr><td><a href="/docs/ui/elements">ui/elements.md</a></td><td>The <code>element()</code> factory and spec shape</td></tr>
+<tr><td><a href="/docs/ui/props">ui/props.md</a></td><td>Reactive properties, types, reflection, and state</td></tr>
+<tr><td><a href="/docs/ui/templates">ui/templates.md</a></td><td>Inline, file-based, and tagged template literals</td></tr>
+<tr><td><a href="/docs/styles/index">styles/index.md</a></td><td>CSS loading, constructable stylesheets, and HMR</td></tr>
+<tr><td><a href="/docs/styles/tokens">styles/tokens.md</a></td><td>Primitive, registered, semantic tokens, transitions, and themes</td></tr>
+<tr><td><a href="/docs/ui/lifecycle">ui/lifecycle.md</a></td><td>Mount, unmount, connect, disconnect, load, change; soft-nav abort</td></tr>
+<tr><td><a href="/docs/ui/context">ui/context.md</a></td><td><code>el</code>, <code>ctrl</code>, <code>tags</code>, <code>refs</code>, <code>on</code> (attrs/not/key/scope), <code>watch</code> (buckets/slot)</td></tr>
+<tr><td><a href="/docs/ui/scheduling">ui/scheduling.md</a></td><td>Cooperative task scheduling</td></tr>
+<tr><td><a href="/docs/ui/observers">ui/observers.md</a></td><td>Safe observer factories; <code>mutation.scoped</code></td></tr>
+<tr><td><a href="/docs/ui/transitions">ui/transitions.md</a></td><td>Element-scoped dock VT, <code>ui.transition</code>, CSS groups, AbortSignal</td></tr>
+<tr><td><a href="/docs/ui/forms">ui/forms.md</a></td><td>Form-associated custom elements</td></tr>
+<tr><td><a href="/docs/ui/hydration">ui/hydration.md</a></td><td>Adopt open DSD from SSG / Mode B HTML</td></tr>
+<tr><td><a href="/docs/ui/advanced">ui/advanced.md</a></td><td>Internals, globals, <code>getAttachmentStats</code>, VT swap</td></tr>
+<tr><td><a href="/docs/ui/api">ui/api.md</a></td><td>Complete API reference</td></tr>
+<tr><td><a href="/docs/ui/troubleshooting">ui/troubleshooting.md</a></td><td>Common problems and how to fix them</td></tr>
 </tbody></table></div>
 <hr />
 <h2>Elements</h2>
 <p>Shipped <code>ui-*</code> custom element kit (<code>library/src/elements/</code>). Distinct from the UI <code>element()</code> factory docs.</p>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
-<tr><td><a href="/docs/elements/index">Elements inventory</a></td><td>Inventory, import map pattern, docs status</td></tr>
-<tr><td><a href="/docs/elements/primitives">Primitives</a></td><td>Primitive elements overview</td></tr>
-<tr><td><a href="/docs/elements/forms">Forms</a></td><td>Form controls overview</td></tr>
-<tr><td><a href="/docs/elements/overlay">Overlay</a></td><td>Overlay elements overview</td></tr>
-<tr><td><a href="/docs/elements/feedback">Feedback</a></td><td>Feedback elements overview</td></tr>
-<tr><td><a href="/docs/elements/data">Data</a></td><td>Data display overview</td></tr>
-<tr><td><a href="/docs/elements/navigation">Navigation</a></td><td>Navigation overview</td></tr>
-<tr><td><a href="/docs/elements/layout">Layout</a></td><td>Layout overview</td></tr>
-<tr><td><a href="/docs/elements/button">Button</a></td><td><code>ui-button</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/icon">Icon</a></td><td><code>ui-icon</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/badge">Badge</a></td><td><code>ui-badge</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/avatar">Avatar</a></td><td><code>ui-avatar</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/divider">Divider</a></td><td><code>ui-divider</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/text">Text</a></td><td><code>ui-text</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/link">Link</a></td><td><code>ui-link</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/spinner">Spinner</a></td><td><code>ui-spinner</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/input">Input</a></td><td><code>ui-input</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/textarea">Textarea</a></td><td><code>ui-textarea</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/select">Select</a></td><td><code>ui-select</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/checkbox">Checkbox</a></td><td><code>ui-checkbox</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/radio">Radio</a></td><td><code>ui-radio</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/toggle">Toggle</a></td><td><code>ui-toggle</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/field">Field</a></td><td><code>ui-field</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/upload">Upload</a></td><td><code>ui-upload</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/form">Form</a></td><td><code>ui-form</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/dialog">Dialog</a></td><td><code>ui-dialog</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/popover">Popover</a></td><td><code>ui-popover</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/tooltip">Tooltip</a></td><td><code>ui-tooltip</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/menu">Menu</a></td><td><code>ui-menu</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/drawer">Drawer</a></td><td><code>ui-drawer</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/sheet">Sheet</a></td><td><code>ui-sheet</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/alert">Alert</a></td><td><code>ui-alert</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/toast">Toast</a></td><td><code>ui-toast</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/progress">Progress</a></td><td><code>ui-progress</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/skeleton">Skeleton</a></td><td><code>ui-skeleton</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/empty">Empty</a></td><td><code>ui-empty</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/table">Table</a></td><td><code>ui-table</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/list">List</a></td><td><code>ui-list</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/card">Card</a></td><td><code>ui-card</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/chart">Chart</a></td><td><code>ui-chart</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/stat">Stat</a></td><td><code>ui-stat</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/nav">Nav</a></td><td><code>ui-nav</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/tabs">Tabs</a></td><td><code>ui-tabs</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/breadcrumb">Breadcrumb</a></td><td><code>ui-breadcrumb</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/pagination">Pagination</a></td><td><code>ui-pagination</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/steps">Steps</a></td><td><code>ui-steps</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/app">App</a></td><td><code>ui-app</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/header">Header</a></td><td><code>ui-header</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/sidebar">Sidebar</a></td><td><code>ui-sidebar</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/stack">Stack</a></td><td><code>ui-stack</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/grid">Grid</a></td><td><code>ui-grid</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/split">Split</a></td><td><code>ui-split</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/scroll">Scroll</a></td><td><code>ui-scroll</code> (full)</td></tr>
-<tr><td><a href="/docs/elements/surface">Surface</a></td><td><code>ui-surface</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/index">elements/index.md</a></td><td>Inventory, import map pattern, docs status</td></tr>
+<tr><td><a href="/docs/elements/primitives">elements/primitives.md</a></td><td>Primitive elements overview</td></tr>
+<tr><td><a href="/docs/elements/forms">elements/forms.md</a></td><td>Form controls overview</td></tr>
+<tr><td><a href="/docs/elements/overlay">elements/overlay.md</a></td><td>Overlay elements overview</td></tr>
+<tr><td><a href="/docs/elements/feedback">elements/feedback.md</a></td><td>Feedback elements overview</td></tr>
+<tr><td><a href="/docs/elements/data">elements/data.md</a></td><td>Data display overview</td></tr>
+<tr><td><a href="/docs/elements/navigation">elements/navigation.md</a></td><td>Navigation overview</td></tr>
+<tr><td><a href="/docs/elements/layout">elements/layout.md</a></td><td>Layout overview</td></tr>
+<tr><td><a href="/docs/elements/button">elements/button.md</a></td><td><code>ui-button</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/icon">elements/icon.md</a></td><td><code>ui-icon</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/badge">elements/badge.md</a></td><td><code>ui-badge</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/avatar">elements/avatar.md</a></td><td><code>ui-avatar</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/divider">elements/divider.md</a></td><td><code>ui-divider</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/text">elements/text.md</a></td><td><code>ui-text</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/link">elements/link.md</a></td><td><code>ui-link</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/spinner">elements/spinner.md</a></td><td><code>ui-spinner</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/input">elements/input.md</a></td><td><code>ui-input</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/textarea">elements/textarea.md</a></td><td><code>ui-textarea</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/select">elements/select.md</a></td><td><code>ui-select</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/checkbox">elements/checkbox.md</a></td><td><code>ui-checkbox</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/radio">elements/radio.md</a></td><td><code>ui-radio</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/toggle">elements/toggle.md</a></td><td><code>ui-toggle</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/field">elements/field.md</a></td><td><code>ui-field</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/upload">elements/upload.md</a></td><td><code>ui-upload</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/form">elements/form.md</a></td><td><code>ui-form</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/dialog">elements/dialog.md</a></td><td><code>ui-dialog</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/popover">elements/popover.md</a></td><td><code>ui-popover</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/tooltip">elements/tooltip.md</a></td><td><code>ui-tooltip</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/menu">elements/menu.md</a></td><td><code>ui-menu</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/drawer">elements/drawer.md</a></td><td><code>ui-drawer</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/sheet">elements/sheet.md</a></td><td><code>ui-sheet</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/alert">elements/alert.md</a></td><td><code>ui-alert</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/toast">elements/toast.md</a></td><td><code>ui-toast</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/progress">elements/progress.md</a></td><td><code>ui-progress</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/skeleton">elements/skeleton.md</a></td><td><code>ui-skeleton</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/empty">elements/empty.md</a></td><td><code>ui-empty</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/table">elements/table.md</a></td><td><code>ui-table</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/list">elements/list.md</a></td><td><code>ui-list</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/card">elements/card.md</a></td><td><code>ui-card</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/chart">elements/chart.md</a></td><td><code>ui-chart</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/stat">elements/stat.md</a></td><td><code>ui-stat</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/nav">elements/nav.md</a></td><td><code>ui-nav</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/tabs">elements/tabs.md</a></td><td><code>ui-tabs</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/breadcrumb">elements/breadcrumb.md</a></td><td><code>ui-breadcrumb</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/pagination">elements/pagination.md</a></td><td><code>ui-pagination</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/steps">elements/steps.md</a></td><td><code>ui-steps</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/app">elements/app.md</a></td><td><code>ui-app</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/header">elements/header.md</a></td><td><code>ui-header</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/sidebar">elements/sidebar.md</a></td><td><code>ui-sidebar</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/stack">elements/stack.md</a></td><td><code>ui-stack</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/grid">elements/grid.md</a></td><td><code>ui-grid</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/split">elements/split.md</a></td><td><code>ui-split</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/scroll">elements/scroll.md</a></td><td><code>ui-scroll</code> (full)</td></tr>
+<tr><td><a href="/docs/elements/surface">elements/surface.md</a></td><td><code>ui-surface</code> (full)</td></tr>
 </tbody></table></div>
 <hr />
 <h2>SSG &amp; SEO</h2>
 <p>Contentful HTML per public route — Mode A build-time SSG, Mode B any-language templates, client DSD adopt. Phases 0–6 complete.</p>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
-<tr><td><a href="/docs/ssg/index">Overview</a></td><td>Overview: Mode A/B, phases 0–6, expand, origin/sitemap</td></tr>
-<tr><td><a href="/docs/ssg/contract">SSG contract</a></td><td>Normative page HTML contract (head, via/DSD, site-root URLs)</td></tr>
-<tr><td><a href="/docs/ui/hydration">Hydration</a></td><td>Client adopt path after SSG / Mode B HTML paints</td></tr>
+<tr><td><a href="/docs/ssg/index">ssg/index.md</a></td><td>Overview: Mode A/B, phases 0–6, expand, origin/sitemap</td></tr>
+<tr><td><a href="/docs/ssg/contract">ssg/contract.md</a></td><td>Normative page HTML contract (head, via/DSD, site-root URLs)</td></tr>
+<tr><td><a href="/docs/ui/hydration">ui/hydration.md</a></td><td>Client adopt path after SSG / Mode B HTML paints</td></tr>
 </tbody></table></div>
 <hr />
 <h2>Router</h2>
 <p>Client-side routing with URLPattern matching, hierarchical containers, and view transitions.</p>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
-<tr><td><a href="/docs/router/quickstart">Quickstart</a></td><td>Your first route in five minutes</td></tr>
-<tr><td><a href="/docs/router/routes">Routes</a></td><td>Defining routes: patterns, params, specificity, parent chains</td></tr>
-<tr><td><a href="/docs/router/handlers">Handlers</a></td><td>The six shapes a route handler can take</td></tr>
-<tr><td><a href="/docs/router/guards">Router guards</a></td><td>Blocking and redirecting navigation</td></tr>
-<tr><td><a href="/docs/router/navigation">Navigation</a></td><td>Programmatic navigation and history</td></tr>
-<tr><td><a href="/docs/router/containers">Containers</a></td><td>The container graph, via chains, and cascade mounting</td></tr>
-<tr><td><a href="/docs/router/pages">Pages</a></td><td><code>page()</code> — route-bound element definitions</td></tr>
-<tr><td><a href="/docs/router/fallbacks">Fallbacks</a></td><td>Shared library 404 / 5xx / offline defaults; override ladder</td></tr>
-<tr><td><a href="/docs/router/docks">Docks</a></td><td><code>dock()</code> — container shells with swap transitions</td></tr>
-<tr><td><a href="/docs/router/components">Components</a></td><td><code>view()</code> and <code>part()</code> — stateful and stateless components</td></tr>
-<tr><td><a href="/docs/router/events">Events</a></td><td><code>found</code>, <code>notfound</code>, <code>error</code>, and <code>on()</code> subscriptions</td></tr>
-<tr><td><a href="/docs/router/transitions">Transitions</a></td><td>Dock leaf VT (element-scoped) + <code>transitions.run</code> document morph</td></tr>
-<tr><td><a href="/docs/router/cache">Cache</a></td><td>Prefetch and route caching</td></tr>
-<tr><td><a href="/docs/router/sync">Sync</a></td><td>Cross-tab navigation synchronization</td></tr>
-<tr><td><a href="/docs/router/advanced">Advanced</a></td><td>Boot gate, trie matcher, handler contract, internals</td></tr>
-<tr><td><a href="/docs/router/api">API reference</a></td><td>Complete API reference</td></tr>
-<tr><td><a href="/docs/router/troubleshooting">Troubleshooting</a></td><td>Common problems and how to fix them</td></tr>
+<tr><td><a href="/docs/router/quickstart">router/quickstart.md</a></td><td>Your first route in five minutes</td></tr>
+<tr><td><a href="/docs/router/routes">router/routes.md</a></td><td>Defining routes: patterns, params, specificity, parent chains</td></tr>
+<tr><td><a href="/docs/router/handlers">router/handlers.md</a></td><td>The six shapes a route handler can take</td></tr>
+<tr><td><a href="/docs/router/guards">router/guards.md</a></td><td>Blocking and redirecting navigation</td></tr>
+<tr><td><a href="/docs/router/navigation">router/navigation.md</a></td><td>Programmatic navigation and history</td></tr>
+<tr><td><a href="/docs/router/containers">router/containers.md</a></td><td>The container graph, via chains, and cascade mounting</td></tr>
+<tr><td><a href="/docs/router/pages">router/pages.md</a></td><td><code>page()</code> — route-bound element definitions</td></tr>
+<tr><td><a href="/docs/router/fallbacks">router/fallbacks.md</a></td><td>Shared library 404 / 5xx / offline defaults; override ladder</td></tr>
+<tr><td><a href="/docs/router/docks">router/docks.md</a></td><td><code>dock()</code> — container shells with swap transitions</td></tr>
+<tr><td><a href="/docs/router/components">router/components.md</a></td><td><code>view()</code> and <code>part()</code> — stateful and stateless components</td></tr>
+<tr><td><a href="/docs/router/events">router/events.md</a></td><td><code>found</code>, <code>notfound</code>, <code>error</code>, and <code>on()</code> subscriptions</td></tr>
+<tr><td><a href="/docs/router/transitions">router/transitions.md</a></td><td>Dock leaf VT (element-scoped) + <code>transitions.run</code> document morph</td></tr>
+<tr><td><a href="/docs/router/cache">router/cache.md</a></td><td>Prefetch and route caching</td></tr>
+<tr><td><a href="/docs/router/sync">router/sync.md</a></td><td>Cross-tab navigation synchronization</td></tr>
+<tr><td><a href="/docs/router/advanced">router/advanced.md</a></td><td>Boot gate, trie matcher, handler contract, internals</td></tr>
+<tr><td><a href="/docs/router/api">router/api.md</a></td><td>Complete API reference</td></tr>
+<tr><td><a href="/docs/router/troubleshooting">router/troubleshooting.md</a></td><td>Common problems and how to fix them</td></tr>
 </tbody></table></div>
 <hr />
 <h2>State</h2>
 <p>Reactive stores with batched updates, derived values, persistence, and cross-tab sync.</p>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
-<tr><td><a href="/docs/state/quickstart">Quickstart</a></td><td>Your first store in five minutes</td></tr>
-<tr><td><a href="/docs/state/store">Store</a></td><td>Creating and updating stores</td></tr>
-<tr><td><a href="/docs/state/derived">Derived</a></td><td>Computed values that auto-update</td></tr>
-<tr><td><a href="/docs/state/persist">State persist</a></td><td><code>state.storage</code> — IndexedDB snapshots, TTL, migrations (not the tiered facade)</td></tr>
-<tr><td><a href="/docs/state/sync">Sync</a></td><td>Cross-tab state synchronization via BroadcastChannel</td></tr>
-<tr><td><a href="/docs/state/api">API reference</a></td><td>Complete API reference</td></tr>
-<tr><td><a href="/docs/state/troubleshooting">Troubleshooting</a></td><td>Common problems and how to fix them</td></tr>
+<tr><td><a href="/docs/state/quickstart">state/quickstart.md</a></td><td>Your first store in five minutes</td></tr>
+<tr><td><a href="/docs/state/store">state/store.md</a></td><td>Creating and updating stores</td></tr>
+<tr><td><a href="/docs/state/derived">state/derived.md</a></td><td>Computed values that auto-update</td></tr>
+<tr><td><a href="/docs/state/persist">state/persist.md</a></td><td><code>state.storage</code> — IndexedDB snapshots, TTL, migrations (not the tiered facade)</td></tr>
+<tr><td><a href="/docs/state/sync">state/sync.md</a></td><td>Cross-tab state synchronization via BroadcastChannel</td></tr>
+<tr><td><a href="/docs/state/api">state/api.md</a></td><td>Complete API reference</td></tr>
+<tr><td><a href="/docs/state/troubleshooting">state/troubleshooting.md</a></td><td>Common problems and how to fix them</td></tr>
 </tbody></table></div>
 <hr />
 <h2>Service Worker</h2>
 <p>Caching strategies, route interception inside the SW, background sync, and push notifications.</p>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
-<tr><td><a href="/docs/sw/start">Start</a></td><td>Writing your first <code>src/sw.js</code> and registering it</td></tr>
-<tr><td><a href="/docs/sw/strategies">Strategies</a></td><td>The seven caching strategies and their behavior</td></tr>
-<tr><td><a href="/docs/sw/routes">Routes</a></td><td>URLPattern routing inside the Service Worker</td></tr>
-<tr><td><a href="/docs/sw/sync">Sync</a></td><td>Background sync queue and replay</td></tr>
-<tr><td><a href="/docs/sw/api">API reference</a></td><td>Complete API reference</td></tr>
+<tr><td><a href="/docs/sw/start">sw/start.md</a></td><td>Writing your first <code>src/sw.js</code> and registering it</td></tr>
+<tr><td><a href="/docs/sw/strategies">sw/strategies.md</a></td><td>The seven caching strategies and their behavior</td></tr>
+<tr><td><a href="/docs/sw/routes">sw/routes.md</a></td><td>URLPattern routing inside the Service Worker</td></tr>
+<tr><td><a href="/docs/sw/sync">sw/sync.md</a></td><td>Background sync queue and replay</td></tr>
+<tr><td><a href="/docs/sw/api">sw/api.md</a></td><td>Complete API reference</td></tr>
 </tbody></table></div>
 <hr />
 <h2>API</h2>
 <p>Networking layer: requests, caching, streaming, uploads, and error recovery.</p>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
-<tr><td><a href="/docs/api/quickstart">Quickstart</a></td><td>Your first request in five minutes</td></tr>
-<tr><td><a href="/docs/api/requests">Requests</a></td><td>GET, POST, PUT, DELETE with typed responses</td></tr>
-<tr><td><a href="/docs/api/caching">Caching</a></td><td>Request-level cache control and TTL</td></tr>
-<tr><td><a href="/docs/api/streaming">Streaming</a></td><td>Server-sent events and ReadableStream handling</td></tr>
-<tr><td><a href="/docs/api/uploads">Uploads</a></td><td>File uploads with progress tracking</td></tr>
-<tr><td><a href="/docs/api/events">Events</a></td><td>Request lifecycle events and hooks</td></tr>
-<tr><td><a href="/docs/api/errors">Errors</a></td><td>Error classification and retry strategies</td></tr>
-<tr><td><a href="/docs/api/pipeline">Pipeline</a></td><td>Middleware and interceptor chains</td></tr>
-<tr><td><a href="/docs/api/prefixes">Prefixes</a></td><td>Base URL and endpoint prefix management</td></tr>
-<tr><td><a href="/docs/api/advanced">Advanced</a></td><td>Custom transports, adapters, and internals</td></tr>
-<tr><td><a href="/docs/api/api">API reference</a></td><td>Complete API reference</td></tr>
-<tr><td><a href="/docs/api/troubleshooting">Troubleshooting</a></td><td>Common problems and how to fix them</td></tr>
+<tr><td><a href="/docs/api/quickstart">api/quickstart.md</a></td><td>Your first request in five minutes</td></tr>
+<tr><td><a href="/docs/api/requests">api/requests.md</a></td><td>GET, POST, PUT, DELETE with typed responses</td></tr>
+<tr><td><a href="/docs/api/caching">api/caching.md</a></td><td>Request-level cache control and TTL</td></tr>
+<tr><td><a href="/docs/api/streaming">api/streaming.md</a></td><td>Server-sent events and ReadableStream handling</td></tr>
+<tr><td><a href="/docs/api/uploads">api/uploads.md</a></td><td>File uploads with progress tracking</td></tr>
+<tr><td><a href="/docs/api/events">api/events.md</a></td><td>Request lifecycle events and hooks</td></tr>
+<tr><td><a href="/docs/api/errors">api/errors.md</a></td><td>Error classification and retry strategies</td></tr>
+<tr><td><a href="/docs/api/pipeline">api/pipeline.md</a></td><td>Middleware and interceptor chains</td></tr>
+<tr><td><a href="/docs/api/prefixes">api/prefixes.md</a></td><td>Base URL and endpoint prefix management</td></tr>
+<tr><td><a href="/docs/api/advanced">api/advanced.md</a></td><td>Custom transports, adapters, and internals</td></tr>
+<tr><td><a href="/docs/api/api">api/api.md</a></td><td>Complete API reference</td></tr>
+<tr><td><a href="/docs/api/troubleshooting">api/troubleshooting.md</a></td><td>Common problems and how to fix them</td></tr>
 </tbody></table></div>
 <hr />
 <h2>Events</h2>
 <p>Event bus, delegation, namespacing, and one-shot listeners.</p>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
-<tr><td><a href="/docs/events/quickstart">Quickstart</a></td><td>Your first event in five minutes</td></tr>
-<tr><td><a href="/docs/events/listen">Listen</a></td><td>Adding and removing listeners</td></tr>
-<tr><td><a href="/docs/events/bus">Bus</a></td><td>Global and namespaced event buses</td></tr>
-<tr><td><a href="/docs/events/delegate">Delegate</a></td><td>Selector-based event delegation (<code>composedPath</code>, attrs/not/key)</td></tr>
-<tr><td><a href="/docs/events/once">Once</a></td><td>One-shot and auto-removing listeners</td></tr>
-<tr><td><a href="/docs/events/names">Names</a></td><td>Event naming conventions and namespaces</td></tr>
-<tr><td><a href="/docs/events/api">API reference</a></td><td>Complete API reference</td></tr>
-<tr><td><a href="/docs/events/troubleshooting">Events troubleshooting</a></td><td>Soft-nav orphans, passive defaults, MO thrash</td></tr>
+<tr><td><a href="/docs/events/quickstart">events/quickstart.md</a></td><td>Your first event in five minutes</td></tr>
+<tr><td><a href="/docs/events/listen">events/listen.md</a></td><td>Adding and removing listeners</td></tr>
+<tr><td><a href="/docs/events/bus">events/bus.md</a></td><td>Global and namespaced event buses</td></tr>
+<tr><td><a href="/docs/events/delegate">events/delegate.md</a></td><td>Selector-based event delegation (<code>composedPath</code>, attrs/not/key)</td></tr>
+<tr><td><a href="/docs/events/once">events/once.md</a></td><td>One-shot and auto-removing listeners</td></tr>
+<tr><td><a href="/docs/events/names">events/names.md</a></td><td>Event naming conventions and namespaces</td></tr>
+<tr><td><a href="/docs/events/api">events/api.md</a></td><td>Complete API reference</td></tr>
+<tr><td><a href="/docs/events/troubleshooting">events/troubleshooting.md</a></td><td>Soft-nav orphans, passive defaults, MO thrash</td></tr>
 </tbody></table></div>
 <hr />
 <h2>Storage</h2>
-<p>IndexedDB, OPFS, LRU cache, quota management, and tiered persistence. Distinct from <code>state.storage</code> — see <a href="/docs/storage/index">Overview</a> and <a href="/docs/state/persist">State persist</a>.</p>
+<p>IndexedDB, OPFS, LRU cache, quota management, and tiered persistence. Distinct from <code>state.storage</code> — see <a href="/docs/storage/index">storage/index.md</a> and <a href="/docs/state/persist">state/persist.md</a>.</p>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
-<tr><td><a href="/docs/storage/index">Overview</a></td><td>Tiered facade overview (<code>storage</code> vs <code>state.storage</code>)</td></tr>
-<tr><td><a href="/docs/storage/quickstart">Quickstart</a></td><td>Your first store in five minutes</td></tr>
-<tr><td><a href="/docs/storage/idb">Idb</a></td><td>IndexedDB wrappers and schemas</td></tr>
-<tr><td><a href="/docs/storage/opfs">Opfs</a></td><td>Origin Private File System access</td></tr>
-<tr><td><a href="/docs/storage/cache">Cache</a></td><td>In-memory and persistent caching</td></tr>
-<tr><td><a href="/docs/storage/lru">Lru</a></td><td>Least-recently-used eviction</td></tr>
-<tr><td><a href="/docs/storage/tiers">Tiers</a></td><td>Memory, IDB, and OPFS tiered storage</td></tr>
-<tr><td><a href="/docs/storage/quota">Quota</a></td><td>Storage quota estimation and cleanup</td></tr>
-<tr><td><a href="/docs/storage/api">API reference</a></td><td>Complete API reference</td></tr>
-<tr><td><a href="/docs/storage/troubleshooting">Storage troubleshooting</a></td><td>Common problems and how to fix them</td></tr>
+<tr><td><a href="/docs/storage/index">storage/index.md</a></td><td>Tiered facade overview (<code>storage</code> vs <code>state.storage</code>)</td></tr>
+<tr><td><a href="/docs/storage/quickstart">storage/quickstart.md</a></td><td>Your first store in five minutes</td></tr>
+<tr><td><a href="/docs/storage/idb">storage/idb.md</a></td><td>IndexedDB wrappers and schemas</td></tr>
+<tr><td><a href="/docs/storage/opfs">storage/opfs.md</a></td><td>Origin Private File System access</td></tr>
+<tr><td><a href="/docs/storage/cache">storage/cache.md</a></td><td>In-memory and persistent caching</td></tr>
+<tr><td><a href="/docs/storage/lru">storage/lru.md</a></td><td>Least-recently-used eviction</td></tr>
+<tr><td><a href="/docs/storage/tiers">storage/tiers.md</a></td><td>Memory, IDB, and OPFS tiered storage</td></tr>
+<tr><td><a href="/docs/storage/quota">storage/quota.md</a></td><td>Storage quota estimation and cleanup</td></tr>
+<tr><td><a href="/docs/storage/api">storage/api.md</a></td><td>Complete API reference</td></tr>
+<tr><td><a href="/docs/storage/troubleshooting">storage/troubleshooting.md</a></td><td>Common problems and how to fix them</td></tr>
 </tbody></table></div>
 <hr />
 <h2>Animations</h2>
 <p>WAAPI wrappers, stagger groups, scroll-driven animations, and view transitions.</p>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
-<tr><td><a href="/docs/animations/quickstart">Quickstart</a></td><td>Your first animation in five minutes</td></tr>
-<tr><td><a href="/docs/animations/animate">Animate</a></td><td>The <code>animate()</code> helper and options</td></tr>
-<tr><td><a href="/docs/animations/sequence">Sequence</a></td><td>Chained and grouped animations</td></tr>
-<tr><td><a href="/docs/animations/stagger">Stagger</a></td><td>Staggered start delays</td></tr>
-<tr><td><a href="/docs/animations/scroll">Scroll</a></td><td>Scroll-driven and scroll-triggered animations</td></tr>
-<tr><td><a href="/docs/animations/registry">Registry</a></td><td>Reusable animation definitions</td></tr>
-<tr><td><a href="/docs/animations/tokens">Tokens</a></td><td>Duration, easing, and motion tokens</td></tr>
-<tr><td><a href="/docs/animations/api">API reference</a></td><td>Complete API reference</td></tr>
-<tr><td><a href="/docs/animations/troubleshooting">Troubleshooting</a></td><td>Common problems and how to fix them</td></tr>
+<tr><td><a href="/docs/animations/quickstart">animations/quickstart.md</a></td><td>Your first animation in five minutes</td></tr>
+<tr><td><a href="/docs/animations/animate">animations/animate.md</a></td><td>The <code>animate()</code> helper and options</td></tr>
+<tr><td><a href="/docs/animations/sequence">animations/sequence.md</a></td><td>Chained and grouped animations</td></tr>
+<tr><td><a href="/docs/animations/stagger">animations/stagger.md</a></td><td>Staggered start delays</td></tr>
+<tr><td><a href="/docs/animations/scroll">animations/scroll.md</a></td><td>Scroll-driven and scroll-triggered animations</td></tr>
+<tr><td><a href="/docs/animations/registry">animations/registry.md</a></td><td>Reusable animation definitions</td></tr>
+<tr><td><a href="/docs/animations/tokens">animations/tokens.md</a></td><td>Duration, easing, and motion tokens</td></tr>
+<tr><td><a href="/docs/animations/api">animations/api.md</a></td><td>Complete API reference</td></tr>
+<tr><td><a href="/docs/animations/troubleshooting">animations/troubleshooting.md</a></td><td>Common problems and how to fix them</td></tr>
 </tbody></table></div>
 <hr />
 <h2>Workers</h2>
 <p>Web Workers: dedicated, shared, offscreen canvas, broadcast, locks, and pools.</p>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
-<tr><td><a href="/docs/workers/quickstart">Quickstart</a></td><td>Your first worker in five minutes</td></tr>
-<tr><td><a href="/docs/workers/dedicated">Dedicated</a></td><td>Dedicated workers and messaging</td></tr>
-<tr><td><a href="/docs/workers/shared">Shared</a></td><td>Shared workers and port management</td></tr>
-<tr><td><a href="/docs/workers/offscreen">Offscreen</a></td><td>Offscreen canvas rendering</td></tr>
-<tr><td><a href="/docs/workers/broadcast">Broadcast</a></td><td>BroadcastChannel cross-context messaging</td></tr>
-<tr><td><a href="/docs/workers/locks">Locks</a></td><td>Resource locking and coordination</td></tr>
-<tr><td><a href="/docs/workers/pool">Pool</a></td><td>Worker pools and task distribution</td></tr>
-<tr><td><a href="/docs/workers/api">API reference</a></td><td>Complete API reference</td></tr>
-<tr><td><a href="/docs/workers/troubleshooting">Troubleshooting</a></td><td>Common problems and how to fix them</td></tr>
+<tr><td><a href="/docs/workers/quickstart">workers/quickstart.md</a></td><td>Your first worker in five minutes</td></tr>
+<tr><td><a href="/docs/workers/dedicated">workers/dedicated.md</a></td><td>Dedicated workers and messaging</td></tr>
+<tr><td><a href="/docs/workers/shared">workers/shared.md</a></td><td>Shared workers and port management</td></tr>
+<tr><td><a href="/docs/workers/offscreen">workers/offscreen.md</a></td><td>Offscreen canvas rendering</td></tr>
+<tr><td><a href="/docs/workers/broadcast">workers/broadcast.md</a></td><td>BroadcastChannel cross-context messaging</td></tr>
+<tr><td><a href="/docs/workers/locks">workers/locks.md</a></td><td>Resource locking and coordination</td></tr>
+<tr><td><a href="/docs/workers/pool">workers/pool.md</a></td><td>Worker pools and task distribution</td></tr>
+<tr><td><a href="/docs/workers/api">workers/api.md</a></td><td>Complete API reference</td></tr>
+<tr><td><a href="/docs/workers/troubleshooting">workers/troubleshooting.md</a></td><td>Common problems and how to fix them</td></tr>
 </tbody></table></div>
 <hr />
 <h2>Security</h2>
 <p>Cryptographic helpers, sanitization, permission guards, and sealed objects.</p>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
-<tr><td><a href="/docs/security/quickstart">Quickstart</a></td><td>Your first security check in five minutes</td></tr>
-<tr><td><a href="/docs/security/crypto">Crypto</a></td><td>Hashing, signing, and SubtleCrypto wrappers</td></tr>
-<tr><td><a href="/docs/security/sanitize">Sanitize</a></td><td>HTML and URL sanitization</td></tr>
-<tr><td><a href="/docs/security/permissions">Permissions</a></td><td>Permission queries and gated features</td></tr>
-<tr><td><a href="/docs/security/seal">Seal</a></td><td>Immutable and sealed object helpers</td></tr>
-<tr><td><a href="/docs/security/api">API reference</a></td><td>Complete API reference</td></tr>
-<tr><td><a href="/docs/security/troubleshooting">Troubleshooting</a></td><td>Common problems and how to fix them</td></tr>
+<tr><td><a href="/docs/security/quickstart">security/quickstart.md</a></td><td>Your first security check in five minutes</td></tr>
+<tr><td><a href="/docs/security/crypto">security/crypto.md</a></td><td>Hashing, signing, and SubtleCrypto wrappers</td></tr>
+<tr><td><a href="/docs/security/sanitize">security/sanitize.md</a></td><td>HTML and URL sanitization</td></tr>
+<tr><td><a href="/docs/security/permissions">security/permissions.md</a></td><td>Permission queries and gated features</td></tr>
+<tr><td><a href="/docs/security/seal">security/seal.md</a></td><td>Immutable and sealed object helpers</td></tr>
+<tr><td><a href="/docs/security/api">security/api.md</a></td><td>Complete API reference</td></tr>
+<tr><td><a href="/docs/security/troubleshooting">security/troubleshooting.md</a></td><td>Common problems and how to fix them</td></tr>
 </tbody></table></div>
 <hr />
 <h2>Platform</h2>
 <p>Feature detection, browser support matrix, scheduler, and runtime guards.</p>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
-<tr><td><a href="/docs/platform/quickstart">Quickstart</a></td><td>Detecting features at runtime</td></tr>
-<tr><td><a href="/docs/platform/supports">Supports</a></td><td>Feature detection helpers</td></tr>
-<tr><td><a href="/docs/platform/guards">Platform guards</a></td><td>Runtime feature gates, polyfills, <code>escapeOverflow</code> / <code>guard.escape</code></td></tr>
-<tr><td><a href="/docs/platform/scheduler">Scheduler</a></td><td>Task scheduling and idle callbacks</td></tr>
-<tr><td><a href="/docs/platform/api">API reference</a></td><td>Complete API reference</td></tr>
-<tr><td><a href="/docs/platform/troubleshooting">Troubleshooting</a></td><td>Common problems and how to fix them</td></tr>
+<tr><td><a href="/docs/platform/quickstart">platform/quickstart.md</a></td><td>Detecting features at runtime</td></tr>
+<tr><td><a href="/docs/platform/supports">platform/supports.md</a></td><td>Feature detection helpers</td></tr>
+<tr><td><a href="/docs/platform/guards">platform/guards.md</a></td><td>Runtime feature gates, polyfills, <code>escapeOverflow</code> / <code>guard.escape</code></td></tr>
+<tr><td><a href="/docs/platform/scheduler">platform/scheduler.md</a></td><td>Task scheduling and idle callbacks</td></tr>
+<tr><td><a href="/docs/platform/api">platform/api.md</a></td><td>Complete API reference</td></tr>
+<tr><td><a href="/docs/platform/troubleshooting">platform/troubleshooting.md</a></td><td>Common problems and how to fix them</td></tr>
 </tbody></table></div>
 <hr />
 <h2>How to Use These Docs</h2>
 <ul>
-<li><strong>New to Anza?</strong> Start with <a href="/docs/intro/install">Install</a>, then <a href="/docs/intro/start">Start</a>, then <a href="/docs/ui/quickstart">Quickstart</a>.</li>
-<li><strong>Building pages?</strong> Read <a href="/docs/router/quickstart">Quickstart</a> and <a href="/docs/router/routes">Routes</a>.</li>
-<li><strong>Need reactive state?</strong> See <a href="/docs/state/quickstart">Quickstart</a>.</li>
-<li><strong>Going offline?</strong> Check <a href="/docs/sw/start">Start</a>.</li>
-<li><strong>Prefer a single reference page?</strong> Every module has an <code><a href="/docs/state/api">API reference</a></code>.</li>
-<li><strong>Stuck?</strong> Every module has a <code><a href="/docs/storage/troubleshooting">Troubleshooting</a></code>.</li>
+<li><strong>New to Anza?</strong> Start with <a href="/docs/intro/install">intro/install.md</a>, then <a href="/docs/intro/start">intro/start.md</a>, then <a href="/docs/ui/quickstart">ui/quickstart.md</a>.</li>
+<li><strong>Building pages?</strong> Read <a href="/docs/router/quickstart">router/quickstart.md</a> and <a href="/docs/router/routes">router/routes.md</a>.</li>
+<li><strong>Need reactive state?</strong> See <a href="/docs/state/quickstart">state/quickstart.md</a>.</li>
+<li><strong>Going offline?</strong> Check <a href="/docs/sw/start">sw/start.md</a>.</li>
+<li><strong>Prefer a single reference page?</strong> Every module has an <code>api.md</code>.</li>
+<li><strong>Stuck?</strong> Every module has a <code>troubleshooting.md</code>.</li>
 </ul>
