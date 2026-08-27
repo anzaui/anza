@@ -511,7 +511,7 @@ Fixes G6–G8 with dock-scoped host + custom view tags.
 
 ## Out of scope reminders
 
-- Bundlers ([issue #2](https://github.com/aduki-org/anza/issues/2))
+- Bundlers ([issue #2](https://github.com/anzaui/anza/issues/2))
 - Mode B language packages
 - Worker SPA→SSG prefer host polish
 - Element kit visual redesign of error pages (apps own branding)

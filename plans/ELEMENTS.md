@@ -183,7 +183,7 @@ Ship a navigable Elements docs section with inventory, category overviews, and 5
 - [x] Thin Full pages for popover, tooltip, menu, drawer, sheet (props + usage + Overlay patterns)
 - [x] Platform `escapeOverflow` / `guard.escape`; `ui-tooltip` uses popover + fixed fallback (not body portal)
 - [x] Tests: `escape.test.js`, `tooltip.test.js`
-- [x] Inventory → **46 Full**; bundlers stay deferred in [NEXT.md](./NEXT.md) / [#2](https://github.com/aduki-org/anza/issues/2)
+- [x] Inventory → **46 Full**; bundlers stay deferred in [NEXT.md](./NEXT.md) / [#2](https://github.com/anzaui/anza/issues/2)
 
 **Related:** lifecycle / soft-nav ownership contract is complete in [MUTATIONS-EVENTS.md](./MUTATIONS-EVENTS.md) (closed track).
 

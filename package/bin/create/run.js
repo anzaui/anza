@@ -145,8 +145,8 @@ const MARKUP = (name) => `<article class="welcome">
   <h1>Welcome to ${name}</h1>
   <p>Your anza app is running.</p>
   <nav>
-    <a href="https://github.com/aduki-org/anza" target="_blank" rel="noopener">Docs</a>
-    <a href="https://github.com/aduki-org/anza/issues" target="_blank" rel="noopener">Issues</a>
+    <a href="https://github.com/anzaui/anza" target="_blank" rel="noopener">Docs</a>
+    <a href="https://github.com/anzaui/anza/issues" target="_blank" rel="noopener">Issues</a>
   </nav>
 </article>
 `;

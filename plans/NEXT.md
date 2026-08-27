@@ -1,6 +1,6 @@
 # Next after Phase 2 / issue #3
 
-Issue [#3](https://github.com/aduki-org/anza/issues/3) is **closed**. Client adopt (Phase 2) and SSG Mode A/B core (Phases 0–3) shipped. Canonical SSG tracker: [SSG-SEO.md](./SSG-SEO.md).
+Issue [#3](https://github.com/anzaui/anza/issues/3) is **closed**. Client adopt (Phase 2) and SSG Mode A/B core (Phases 0–3) shipped. Canonical SSG tracker: [SSG-SEO.md](./SSG-SEO.md).
 
 ---
 
@@ -44,7 +44,7 @@ Residual optional SSG host polish only (not product phases):
 | Mega-bundle for LCP | Rejected — multi-file ESM + preload |
 | Worker `/dist/` strip as product fix | Already removed; was host glue only — Phase 0 portable URLs are the gate |
 | Worker SPA→SSG prefer on Cloudflare | Optional host polish; not a numbered SSG phase |
-| External bundlers | **Deferred** — separate track → [#2](https://github.com/aduki-org/anza/issues/2); do not start bundler work from this plan |
+| External bundlers | **Deferred** — separate track → [#2](https://github.com/anzaui/anza/issues/2); do not start bundler work from this plan |
 | Residual docs nav 404s from new element routes | Elements docs / sidebar inventory — not SSG pipeline ([ELEMENTS.md](./ELEMENTS.md)) |
 
 ---
@@ -61,12 +61,12 @@ Residual optional SSG host polish only (not product phases):
 | **Storage / state / guards / default dock pages** | **Next product track** — harden storage↔state contracts, clarify platform vs router guards, finish 404/5xx/offline dock defaults + override ladder. Canonical plan: [STORAGE-STATE-GUARDS-PAGES.md](./STORAGE-STATE-GUARDS-PAGES.md). |
 | **Project structure contract** | **Complete (Phases 0–5)** — doctor/check, via/dock, DX, `anza generate`. Canonical plan: [STRUCTURE.md](./STRUCTURE.md). |
 | **Docs generator (MD → `dist/`)** | **Tooling track — Phase 0–1 MVP** — `docs/` + `docs/config.toml` → `anza docs` → test dist `tmp/docs-site/` (not live `web/`). Folder assets; no hand-maintained docs tree. Canonical: [DOCS-GENERATOR.md](./DOCS-GENERATOR.md). |
-| **Bundlers / compilers** ([issue #2](https://github.com/aduki-org/anza/issues/2)) | **Deferred** — tooling DX; product bet stays multi-file ESM. Do not work on bundlers from this plan. |
+| **Bundlers / compilers** ([issue #2](https://github.com/anzaui/anza/issues/2)) | **Deferred** — tooling DX; product bet stays multi-file ESM. Do not work on bundlers from this plan. |
 | **Mode B language packages** | Demand-driven; not required for SEO contract. |
 | **Worker SPA→SSG prefer** | Optional Cloudflare host polish only; `/dist/` strip already gone. |
 | **View Transitions** | **Done** — element-scoped dock VT, CSS groups, fallback, schedule signals ([VIEW-TRANSITIONS.md](./VIEW-TRANSITIONS.md)). |
 
-**Rationale:** SSG/SEO delivery is complete through Phase 6 (no Phase 7). Element kit docs are complete (46 Full). Bundlers stay deferred ([#2](https://github.com/aduki-org/anza/issues/2)). Preferred next **product** engineering track is [STORAGE-STATE-GUARDS-PAGES.md](./STORAGE-STATE-GUARDS-PAGES.md). Tooling track [STRUCTURE.md](./STRUCTURE.md) is **complete** (Phases 0–5). Parallel tooling track (dist-first docs site from markdown): [DOCS-GENERATOR.md](./DOCS-GENERATOR.md) (plan only). Mode B packages remain demand-driven; not Worker/host polish and not bundlers.
+**Rationale:** SSG/SEO delivery is complete through Phase 6 (no Phase 7). Element kit docs are complete (46 Full). Bundlers stay deferred ([#2](https://github.com/anzaui/anza/issues/2)). Preferred next **product** engineering track is [STORAGE-STATE-GUARDS-PAGES.md](./STORAGE-STATE-GUARDS-PAGES.md). Tooling track [STRUCTURE.md](./STRUCTURE.md) is **complete** (Phases 0–5). Parallel tooling track (dist-first docs site from markdown): [DOCS-GENERATOR.md](./DOCS-GENERATOR.md) (plan only). Mode B packages remain demand-driven; not Worker/host polish and not bundlers.
 
 ---
 
@@ -77,7 +77,7 @@ Residual optional SSG host polish only (not product phases):
 ```markdown
 ## Closing — Phase 2 / SSR & Native DOM Hydration
 
-Core scope from this issue and [plans/PHASE-II.md](https://github.com/aduki-org/anza/blob/main/plans/PHASE-II.md) is complete. Product shape evolved to **SSG / Mode B HTML + client DSD adopt** (not an Anza-owned Node SSR runtime, and not crawler UA detection — rejected in [plans/SSG-SEO.md](https://github.com/aduki-org/anza/blob/main/plans/SSG-SEO.md)).
+Core scope from this issue and [plans/PHASE-II.md](https://github.com/anzaui/anza/blob/main/plans/PHASE-II.md) is complete. Product shape evolved to **SSG / Mode B HTML + client DSD adopt** (not an Anza-owned Node SSR runtime, and not crawler UA detection — rejected in [plans/SSG-SEO.md](https://github.com/anzaui/anza/blob/main/plans/SSG-SEO.md)).
 
 ### Done
 - Adopt existing open DSD (`this.shadowRoot || attachShadow`); no wipe on hard refresh
@@ -90,8 +90,8 @@ Core scope from this issue and [plans/PHASE-II.md](https://github.com/aduki-org/
 
 ### Explicitly out of scope (do not reopen for these)
 - Mode B npm/language packages beyond the contract examples
-- External bundler integration → [#2](https://github.com/aduki-org/anza/issues/2)
-- Full `src/elements/` documentation → next phase ([plans/NEXT.md](https://github.com/aduki-org/anza/blob/main/plans/NEXT.md))
+- External bundler integration → [#2](https://github.com/anzaui/anza/issues/2)
+- Full `src/elements/` documentation → next phase ([plans/NEXT.md](https://github.com/anzaui/anza/blob/main/plans/NEXT.md))
 - Nested-dock / `template.html` polish → SSG-SEO Phase 4 (**done** 2026-07-28)
 
 Closing this issue. Follow-ups belong in new issues or NEXT.md / SSG-SEO.md.

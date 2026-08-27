@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/aduki-org/anza/schemas/anza.schema.json",
+  "$id": "https://github.com/anzaui/anza/schemas/anza.schema.json",
   "title": "Anza project manifest",
   "description": "Optional anza.json \u2014 remaps structure slots and declares extra page trees / service workers. Omit the file to use scaffold defaults (src/app.js, src/pages/, src/sw.js, \u2026). See docs/intro/structure.md and plans/STRUCTURE.md.",
   "type": "object",

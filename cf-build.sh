@@ -9,7 +9,7 @@ echo "Anza version: v${VERSION}"
 
 # Download prebuilt binary from GitHub release
 BINARY="anza-linux-x64"
-URL="https://github.com/aduki-org/anza/releases/download/v${VERSION}/${BINARY}"
+URL="https://github.com/anzaui/anza/releases/download/v${VERSION}/${BINARY}"
 
 echo "Downloading ${BINARY}..."
 curl -fsSL -o anza "${URL}"

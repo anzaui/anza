@@ -2,7 +2,7 @@
 
 Planning document for Anza’s HTML-first, SEO-friendly delivery model. Implements the architecture researched for multi-file ESM + portable static HTML (no Next/Nuxt-owned runtime).
 
-**Related:** [plans/PHASE-II.md](./PHASE-II.md) (client DSD adoption / hydration) · [GitHub issue #3](https://github.com/aduki-org/anza/issues/3) (closed) · [plans/NEXT.md](./NEXT.md) (remaining checklist)
+**Related:** [plans/PHASE-II.md](./PHASE-II.md) (client DSD adoption / hydration) · [GitHub issue #3](https://github.com/anzaui/anza/issues/3) (closed) · [plans/NEXT.md](./NEXT.md) (remaining checklist)
 
 ---
 
@@ -207,7 +207,7 @@ Depends on **Phase 0** portable URLs.
 
 ### Objective
 
-When SSG (or Mode B) HTML is present, the client **adopts** the existing open shadow trees instead of clearing and re-cloning. Aligns with [PHASE-II.md](./PHASE-II.md) §§1–3 and [issue #3](https://github.com/aduki-org/anza/issues/3).
+When SSG (or Mode B) HTML is present, the client **adopts** the existing open shadow trees instead of clearing and re-cloning. Aligns with [PHASE-II.md](./PHASE-II.md) §§1–3 and [issue #3](https://github.com/anzaui/anza/issues/3).
 
 **Dependency:** Phase 1 contentful HTML must exist for public routes. Hydration against an empty shell is not a valid acceptance path for SEO routes.
 
@@ -428,7 +428,7 @@ These gates apply once Phase 0–1 land; Phase 2 must not regress them.
 | **SSG real HTML per public route into `dist/` (Mode A)** | **Accepted** | Primary SEO + hard-refresh product |
 | **Portable site-root asset URLs** | **Accepted** | Ship with Mode A; not a Worker-only rewrite |
 | **Mode B = same HTML contract, any language** | **Accepted** | Phase 3; Anza does not own the server |
-| **Phase 2 = adopt existing open DSD** | **Accepted** | [PHASE-II.md](./PHASE-II.md) §§1–3; [issue #3](https://github.com/aduki-org/anza/issues/3); depends on Phase 1 HTML |
+| **Phase 2 = adopt existing open DSD** | **Accepted** | [PHASE-II.md](./PHASE-II.md) §§1–3; [issue #3](https://github.com/anzaui/anza/issues/3); depends on Phase 1 HTML |
 | **Nested docks as light-DOM siblings after open DSD** | **Accepted** | Phase 4; required for slot projection + cascade adopt |
 | **Soft-nav must not fetch SSG documents as page templates** | **Accepted** | Phase 4: `template.html` preserve + `sanitizeTemplateHtml` |
 | **Multi-file ESM + import maps + modulepreload** | **Accepted** | No bundling escape hatch as the SEO/perf fix |

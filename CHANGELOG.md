@@ -157,7 +157,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - **`on` matching** — uses `composedPath()` within the shadow root (same as `events.delegate`).
 - **Empty `on` teardown** — last handler removal drops the shadow-root listener immediately.
 - **Popover polyfill unmount MO** — prefers parent `childList` (no subtree) over `document.body` subtree while open.
-- **Docs site origin** — `web/ssg.json` and CI use `https://aduki-org.github.io/anza`.
+- **Docs site origin** — `web/ssg.json` and CI use `https://anzaui.github.io/anza`.
 
 ### Fixed
 
@@ -167,7 +167,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Planned
 
-- Integration with external bundlers/compilers — **deferred** ([#2](https://github.com/aduki-org/anza/issues/2)); not in active scope
+- Integration with external bundlers/compilers — **deferred** ([#2](https://github.com/anzaui/anza/issues/2)); not in active scope
 
 ---
 
@@ -524,7 +524,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - `blog/` — sample SPA demonstrating state, storage, offline queue, and animations
 - Import map mirrors the published `@anzaui/anza/*` subpath exports exactly
 
-[Unreleased]: https://github.com/aduki-org/anza/compare/v0.2.1...HEAD
-[0.2.1]: https://github.com/aduki-org/anza/compare/v0.2.0...v0.2.1
-[0.2.0]: https://github.com/aduki-org/anza/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/aduki-org/anza/releases/tag/v0.1.0
+[Unreleased]: https://github.com/anzaui/anza/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/anzaui/anza/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/anzaui/anza/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/anzaui/anza/releases/tag/v0.1.0

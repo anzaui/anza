@@ -1,6 +1,6 @@
 # Phase 2 — Server-Side Rendering (SSR) & Native DOM Hydration
 
-**Status: complete (2026-07-28).** All §§1–4 checklists below are done. HTML production (SSG / Mode B) lives in [SSG-SEO.md](./SSG-SEO.md); this file is the **client adopt** path. Tracking: [GitHub issue #3](https://github.com/aduki-org/anza/issues/3) — closable once the closing comment lands. Next work: [NEXT.md](./NEXT.md).
+**Status: complete (2026-07-28).** All §§1–4 checklists below are done. HTML production (SSG / Mode B) lives in [SSG-SEO.md](./SSG-SEO.md); this file is the **client adopt** path. Tracking: [GitHub issue #3](https://github.com/anzaui/anza/issues/3) — closable once the closing comment lands. Next work: [NEXT.md](./NEXT.md).
 
 This document outlines the scope and design for Phase 2, focusing on browser-native Client DOM Adoption (hydration) for public routes that already ship contentful HTML.
 

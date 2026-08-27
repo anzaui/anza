@@ -31,7 +31,7 @@ describe('SW routes normalize', () => {
     r.register('/anza/api/*', { handle: async () => new Response('api') });
 
     const shellEvent = {
-      request: { url: 'https://aduki-org.github.io/anza/app.js' },
+      request: { url: 'https://anzaui.github.io/anza/app.js' },
       respondWith(p) {
         this._p = p;
       }
@@ -41,7 +41,7 @@ describe('SW routes normalize', () => {
     }
 
     const apiEvent = {
-      request: { url: 'https://aduki-org.github.io/anza/api/status' },
+      request: { url: 'https://anzaui.github.io/anza/api/status' },
       respondWith(p) {
         this._p = p;
       }
@@ -71,7 +71,7 @@ describe('SW routes normalize', () => {
     });
 
     const miss = {
-      request: { url: 'https://aduki-org.github.io/anza/app.js' },
+      request: { url: 'https://anzaui.github.io/anza/app.js' },
       respondWith() {}
     };
     if (r.handle(miss)) {
@@ -79,7 +79,7 @@ describe('SW routes normalize', () => {
     }
 
     const hitEvent = {
-      request: { url: 'https://aduki-org.github.io/anza/api/x' },
+      request: { url: 'https://anzaui.github.io/anza/api/x' },
       respondWith(p) {
         this._p = p;
       }
