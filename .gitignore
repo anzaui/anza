@@ -1,6 +1,7 @@
 # generated
 node_modules/
 dist/
+releases/
 tmp/
 book/
 *.db
