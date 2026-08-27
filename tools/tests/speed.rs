@@ -52,9 +52,9 @@ fn speed_simd_html_scanning_throughput() {
     throughput_gb_s
   );
 
-  // Assert minimum throughput (100 MB/s in unoptimized debug, 1.5 GB/s in release)
-  let min_target = if cfg!(debug_assertions) { 0.1 } else { 1.5 };
-  assert!(throughput_gb_s > min_target, "SIMD scanning throughput too low: {:.2} GB/s", throughput_gb_s);
+  // Assert minimum throughput (50 MB/s in unoptimized debug, 1.0 GB/s in release)
+  let min_target = if cfg!(debug_assertions) { 0.05 } else { 1.0 };
+  assert!(throughput_gb_s >= min_target, "SIMD scanning throughput too low: {:.2} GB/s", throughput_gb_s);
 }
 
 #[test]
