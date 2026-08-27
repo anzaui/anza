@@ -97,7 +97,7 @@ customElements.define('my-counter', MyCounter);
 Server-side template rendering libraries are available in `engines/`:
 
 - **Rust**: `engines/rust` (`anza` crate on crates.io)
-- **TypeScript / JavaScript**: `engines/ts` (`anza` package on npm)
+- **TypeScript / JavaScript**: `engines/ts` (`@anzaui/engine` package on npm)
 - **Python**: `engines/py` (`anza` package on PyPI)
 
 ## License

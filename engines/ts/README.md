@@ -13,7 +13,7 @@ A zero-dependency template and dynamic fragment rendering library for Node.js, B
 ## Installation
 
 ```bash
-npm install anza
+npm install @anzaui/engine
 ```
 
 ## Usage
@@ -21,7 +21,7 @@ npm install anza
 ### 1. Initialize Engine
 
 ```typescript
-import { Setup } from 'anza';
+import { Setup } from '@anzaui/engine';
 
 const engine = await new Setup({
   root: './templates',
@@ -35,7 +35,7 @@ const engine = await new Setup({
 ### 2. Render Full Pages
 
 ```typescript
-import { Page } from 'anza';
+import { Page } from '@anzaui/engine';
 
 const doc = await new Page('/', { title: 'Dashboard' }).run(engine);
 console.log(doc.html);
@@ -44,7 +44,7 @@ console.log(doc.html);
 ### 3. Render Signed JSON Fragments
 
 ```typescript
-import { Fragment } from 'anza';
+import { Fragment } from '@anzaui/engine';
 
 const envelope = await new Fragment('card.html', 'feed', {
   title: 'New Post',
@@ -58,7 +58,7 @@ console.log(envelope);
 ### 4. HTTP Server Example (Web Standard fetch / Bun / Deno)
 
 ```typescript
-import { Setup, Page, Fragment, htmlResponse, jsonResponse } from 'anza';
+import { Setup, Page, Fragment, htmlResponse, jsonResponse } from '@anzaui/engine';
 
 const engine = await new Setup({
   root: './templates',
