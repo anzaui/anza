@@ -50,9 +50,11 @@ export class CacheFirst {
 
     try {
       const response = await fetch(request);
-      if (response && response.ok && (request.method === 'GET' || request.method === 'HEAD')) {
-        const storedRes = await cloneWithExpiry(response.clone(), this.options.ttl);
-        await cache.put(request, storedRes);
+      if (response && response.ok) {
+        if (request.method === 'GET' || request.method === 'HEAD') {
+          const storedRes = await cloneWithExpiry(response.clone(), this.options.ttl);
+          await cache.put(request, storedRes);
+        }
       }
       return response.clone();
     } catch (err) {
@@ -86,9 +88,11 @@ export class NetworkFirst {
         timeoutPromise
       ]);
 
-      if (networkResponse && networkResponse.ok && (request.method === 'GET' || request.method === 'HEAD')) {
-        const storedRes = await cloneWithExpiry(networkResponse.clone(), this.options.ttl);
-        await cache.put(request, storedRes);
+      if (networkResponse && networkResponse.ok) {
+        if (request.method === 'GET' || request.method === 'HEAD') {
+          const storedRes = await cloneWithExpiry(networkResponse.clone(), this.options.ttl);
+          await cache.put(request, storedRes);
+        }
         return networkResponse.clone();
       }
     } catch (err) {
@@ -125,9 +129,11 @@ export class StaleRevalidate {
     const fetchPromise = (async () => {
       try {
         const response = await fetch(request);
-        if (response && response.ok && (request.method === 'GET' || request.method === 'HEAD')) {
-          const storedRes = await cloneWithExpiry(response.clone(), this.options.ttl);
-          await cache.put(request, storedRes);
+        if (response && response.ok) {
+          if (request.method === 'GET' || request.method === 'HEAD') {
+            const storedRes = await cloneWithExpiry(response.clone(), this.options.ttl);
+            await cache.put(request, storedRes);
+          }
         }
         return response.clone();
       } catch (err) {
@@ -163,9 +169,11 @@ export class CacheThenNetwork {
     const fetchPromise = (async () => {
       try {
         const response = await fetch(request);
-        if (response && response.ok && (request.method === 'GET' || request.method === 'HEAD')) {
-          const storedRes = await cloneWithExpiry(response.clone(), this.options.ttl);
-          await cache.put(request, storedRes);
+        if (response && response.ok) {
+          if (request.method === 'GET' || request.method === 'HEAD') {
+            const storedRes = await cloneWithExpiry(response.clone(), this.options.ttl);
+            await cache.put(request, storedRes);
+          }
 
           // Dispatch update event to all controlled clients
           const clientsList = await self.clients.matchAll();

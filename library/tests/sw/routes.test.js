@@ -108,4 +108,23 @@ describe('SW routes normalize', () => {
       throw new Error('Expected catch-all to match when URLPattern exists');
     }
   });
+
+  it('bypasses non-GET and non-HEAD requests like POST, PUT, DELETE', () => {
+    const r = router();
+    r.register('*', { handle: async () => new Response('should-not-match') });
+
+    for (const method of ['POST', 'PUT', 'DELETE', 'PATCH']) {
+      const event = {
+        request: { method, url: 'https://example.com/cdn-cgi/rum' },
+        respondWith() {
+          throw new Error(`Should not intercept ${method} requests`);
+        }
+      };
+
+      const intercepted = r.handle(event);
+      if (intercepted) {
+        throw new Error(`Expected router to ignore ${method} requests`);
+      }
+    }
+  });
 });
