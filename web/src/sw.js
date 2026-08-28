@@ -5,8 +5,8 @@ import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@
 
 // Bump SHELL/API names when shipping path-breaking asset fixes so pruneStale
 // drops CacheFirst entries that would otherwise pin stale JS forever.
-const SHELL = 'shell-v3';
-const API = 'api-v3';
+const SHELL = 'shell-v4';
+const API = 'api-v4';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -28,7 +28,13 @@ r.register('/api/*', new NetworkFirst(API, { timeout: 3000 }));
 /** CSR fragments + navigations bypass SW — avoids body-lock races in CacheFirst. */
 function shouldBypass(request) {
   if (request.mode === 'navigate') return true;
-  const path = new URL(request.url).pathname;
+  if (request.method !== 'GET' && request.method !== 'HEAD') return true;
+
+  const url = new URL(request.url);
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return true;
+  if (url.pathname.startsWith('/cdn-cgi/')) return true;
+
+  const path = url.pathname;
   return (
     path.endsWith('/template.html') ||
     (path.endsWith('/index.html') && path !== '/index.html') ||

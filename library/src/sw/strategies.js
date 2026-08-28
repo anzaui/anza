@@ -50,7 +50,7 @@ export class CacheFirst {
 
     try {
       const response = await fetch(request);
-      if (response && response.ok) {
+      if (response && response.ok && (request.method === 'GET' || request.method === 'HEAD')) {
         const storedRes = await cloneWithExpiry(response.clone(), this.options.ttl);
         await cache.put(request, storedRes);
       }
@@ -86,7 +86,7 @@ export class NetworkFirst {
         timeoutPromise
       ]);
 
-      if (networkResponse && networkResponse.ok) {
+      if (networkResponse && networkResponse.ok && (request.method === 'GET' || request.method === 'HEAD')) {
         const storedRes = await cloneWithExpiry(networkResponse.clone(), this.options.ttl);
         await cache.put(request, storedRes);
         return networkResponse.clone();
@@ -125,7 +125,7 @@ export class StaleRevalidate {
     const fetchPromise = (async () => {
       try {
         const response = await fetch(request);
-        if (response && response.ok) {
+        if (response && response.ok && (request.method === 'GET' || request.method === 'HEAD')) {
           const storedRes = await cloneWithExpiry(response.clone(), this.options.ttl);
           await cache.put(request, storedRes);
         }
@@ -163,7 +163,7 @@ export class CacheThenNetwork {
     const fetchPromise = (async () => {
       try {
         const response = await fetch(request);
-        if (response && response.ok) {
+        if (response && response.ok && (request.method === 'GET' || request.method === 'HEAD')) {
           const storedRes = await cloneWithExpiry(response.clone(), this.options.ttl);
           await cache.put(request, storedRes);
 

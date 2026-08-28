@@ -92,11 +92,22 @@ export class Router {
    */
   handle(event) {
     const { request } = event;
+    const method = request?.method || 'GET';
+    if (method !== 'GET' && method !== 'HEAD') {
+      return false;
+    }
 
     for (const route of this.routes) {
       if (route.pattern.test(request.url)) {
-        // Intercept synchronously in fetch event tick
-        event.respondWith(route.strategy.handle(request));
+        // Intercept synchronously in fetch event tick with safe network fallback
+        event.respondWith(
+          Promise.resolve()
+            .then(() => route.strategy.handle(request))
+            .catch((err) => {
+              console.warn('[anza/sw] Strategy execution failed for', request.url, err);
+              return fetch(request);
+            })
+        );
         return true;
       }
     }
