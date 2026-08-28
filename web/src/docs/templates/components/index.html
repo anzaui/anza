@@ -1,0 +1,153 @@
+<h1>Components &amp; Partials</h1>
+<p>Anza Server Partials are self-contained <code>.html</code> fragments designed for rendering list items, cards, modals, or real-time UI stream slices. Partials encapsulate their own markup, local <code>&lt;style&gt;</code> definitions, and interactive action endpoints.</p>
+<hr />
+<h2>What You Get</h2>
+<div class="table-wrap"><table><thead><tr><th>Feature</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Self-Contained Styling</strong></td><td>Component-level <code>&lt;style&gt;</code> block included directly in the template</td></tr>
+<tr><td><strong>Reusable Partial Rendering</strong></td><td>Loop over database records or collections and map to partial fragments</td></tr>
+<tr><td><strong>Direct Action Endpoints</strong></td><td>Integrated action triggers (<code>[delete]</code>, <code>[sig]</code>, forms) within component markup</td></tr>
+<tr><td><strong>Streamable Chunks</strong></td><td>Rendered partials can be dispatched directly across SSE or WebSocket streams</td></tr>
+</tbody></table></div>
+<hr />
+<h2>Card Component Anatomy (<code>feed/card.html</code>)</h2>
+<p>Below is the standard article card component template:</p>
+<view-code language="html">&lt;article class="post-card" id="article-{{id}}"&gt;
+  &lt;style&gt;
+    .post-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      background: var(--surface);
+      transition: border-color 0.15s ease;
+    }
+
+    .post-card:hover {
+      border-color: var(--accent);
+    }
+
+    .post-header-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.5rem;
+    }
+
+    .post-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
+
+    .post-title a {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .post-title a:hover {
+      color: var(--accent);
+    }
+
+    .post-meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .post-summary {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+
+    .post-footer-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+
+    .read-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .post-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .post-actions button {
+      background: none;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+  &lt;/style&gt;
+
+  &lt;div class="post-header-line"&gt;
+    &lt;h2 class="post-title"&gt;
+      &lt;a href="/article/{{slug}}"&gt;{{title}}&lt;/a&gt;
+    &lt;/h2&gt;
+    &lt;div class="post-meta"&gt;
+      &lt;time datetime="{{created}}"&gt;{{created}}&lt;/time&gt;
+      &lt;span&gt;&amp;bull;&lt;/span&gt;
+      &lt;span&gt;{{author}}&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;p class="post-summary"&gt;{{summary}}&lt;/p&gt;
+
+  &lt;div class="post-footer-line"&gt;
+    &lt;a href="/article/{{slug}}" class="read-link"&gt;read full article &amp;rarr;&lt;/a&gt;
+    &lt;div class="post-actions"&gt;
+      &lt;a href="/article/{{slug}}/envelope" target="_blank" title="Inspect Signed STUI Envelope"&gt;[sig]&lt;/a&gt;
+      &lt;form method="POST" action="/articles/{{id}}/delete" style="margin: 0; display: inline;"&gt;
+        &lt;button type="submit" onclick="return confirm('Delete article?');"&gt;[delete]&lt;/button&gt;
+      &lt;/form&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/article&gt;
+</view-code>
+<hr />
+<h2>Rendering Multiple Partials</h2>
+<p>In server route handlers, query records from your database and map each item to a rendered partial string:</p>
+<h3>In Rust (Axum)</h3>
+<view-code language="rust">let articles: Vec&lt;Article&gt; = db::get_recent_articles(&amp;pool).await?;
+
+let feed_html: String = articles
+    .iter()
+    .map(|article| engine.render("feed/card.html", &amp;article))
+    .collect::&lt;Result&lt;Vec&lt;_&gt;, _&gt;&gt;()?
+    .join("\n");
+
+let page_html = engine.render_page("pages/home.html", &amp;json!({
+    "count": articles.len(),
+    "articles": feed_html
+}))?;
+</view-code>
+<h3>In Python (FastAPI)</h3>
+<view-code language="python">articles = await db.get_recent_articles()
+
+feed_html = "\n".join([
+    engine.render("feed/card.html", article.to_dict())
+    for article in articles
+])
+
+return engine.render_page("pages/home.html", {
+    "count": len(articles),
+    "articles": feed_html
+})
+</view-code>
+<hr />
+<h2>Live Stream Dispatch</h2>
+<p>When a new article is created, render its partial immediately and broadcast a signed STUI envelope to all connected stream clients:</p>
+<view-code language="rust">let card_html = engine.render("feed/card.html", &amp;new_article)?;
+let envelope = engine.sign_envelope("dock-feed", &amp;card_html, anza::StreamMode::Prepend)?;
+
+// Broadcast envelope to SSE clients
+sse_broadcaster.send(envelope)?;
+</view-code>

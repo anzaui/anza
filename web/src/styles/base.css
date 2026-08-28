@@ -31,15 +31,6 @@
     background: var(--background);
   }
 
-  dock-docs,
-  dock-doccontent {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-  }
-
 
   /* Selection highlight styles */
   ::selection {

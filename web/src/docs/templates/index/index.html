@@ -1,0 +1,119 @@
+<h1>Server Templates</h1>
+<p>Anza Server Templates are zero-overhead <code>.html</code> files designed for high-performance Server-Templated UI (STUI). Templates combine Web Standards Declarative Shadow DOM (DSD), token-based data binding, and cryptographic origin signing into a lightweight architecture that renders instantly on the server and streams safely across proxies and CDNs.</p>
+<hr />
+<h2>What You Get</h2>
+<div class="table-wrap"><table><thead><tr><th>Feature</th><th>Description</th></tr></thead><tbody>
+<tr><td><strong>Zero JS Runtime</strong></td><td>Pure HTML/CSS templates requiring zero client JavaScript bundles to display initial or updated UI</td></tr>
+<tr><td><strong>Declarative Shadow DOM</strong></td><td>Native browser encapsulation via <code>&lt;template shadowrootmode="open"&gt;</code> without hydration delays</td></tr>
+<tr><td><strong>Token Binding</strong></td><td>Fast string substitution for <code>{{token}}</code> variables and slotted content injections</td></tr>
+<tr><td><strong>Component Modularity</strong></td><td>Clean separation of Shell layouts (<code>layout/shell.html</code>), Pages (<code>pages/home.html</code>), and Partials (<code>feed/card.html</code>)</td></tr>
+<tr><td><strong>Dual Mode Output</strong></td><td>Output either full HTML documents for SEO crawlers or signed STUI stream envelopes for clients</td></tr>
+<tr><td><strong>Universal Engine Support</strong></td><td>Native parsers and renderers for Rust, Python (FastAPI/ASGI/Flask), and TypeScript (Node/Hono)</td></tr>
+</tbody></table></div>
+<hr />
+<h2>Template Structure</h2>
+<p>In an Anza application, server templates reside in a structured <code>templates/</code> directory:</p>
+<view-code language="text">templates/
+├── layout/
+│   └── shell.html       # Full document shell, &lt;head&gt;, meta tags, and root &lt;dock-main&gt;
+├── pages/
+│   ├── home.html        # Home page body with feed container and slotted docks
+│   ├── article.html     # Single article view with metadata and actions
+│   └── editor.html      # Article composer and edit form
+└── feed/
+    └── card.html        # Individual article card partial with scoped &lt;style&gt;
+</view-code>
+<hr />
+<h2>Quickstart</h2>
+<h3>1. Define a Shell Layout</h3>
+<view-code language="html">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+  &lt;title&gt;{{title}}&lt;/title&gt;
+  &lt;meta name="description" content="{{description}}"&gt;
+  &lt;meta name="anza-key" content="{{anza_key}}"&gt;
+  &lt;link rel="stylesheet" href="/styles/main.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class="app-layout"&gt;
+    &lt;header class="app-header"&gt;
+      &lt;a href="/" class="brand"&gt;Anza App&lt;/a&gt;
+    &lt;/header&gt;
+
+    &lt;main class="app-main"&gt;
+      &lt;dock-main&gt;
+        &lt;template shadowrootmode="open"&gt;
+          &lt;slot&gt;&lt;/slot&gt;
+        &lt;/template&gt;
+        {{content}}
+      &lt;/dock-main&gt;
+    &lt;/main&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</view-code>
+<h3>2. Define a Component Partial</h3>
+<view-code language="html">&lt;article class="feed-card"&gt;
+  &lt;style&gt;
+    .feed-card {
+      padding: 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .feed-card h2 { margin: 0 0 0.5rem 0; font-size: 1.25rem; }
+    .feed-card a { color: var(--accent); text-decoration: none; }
+  &lt;/style&gt;
+
+  &lt;h2&gt;&lt;a href="/article/{{slug}}"&gt;{{title}}&lt;/a&gt;&lt;/h2&gt;
+  &lt;p&gt;{{summary}}&lt;/p&gt;
+  &lt;time datetime="{{created}}"&gt;{{created}}&lt;/time&gt;
+&lt;/article&gt;
+</view-code>
+<h3>3. Render via Server Engine</h3>
+<p>In Rust:</p>
+<view-code language="rust">use anza::Engine;
+use serde_json::json;
+
+let engine = Engine::new("templates")?;
+
+// Render partial card
+let card_html = engine.render("feed/card.html", &amp;json!({
+    "slug": "getting-started",
+    "title": "Getting Started with Anza STUI",
+    "summary": "Build high-performance web applications with server templates.",
+    "created": "2026-08-28"
+}))?;
+
+// Render full shell
+let full_page = engine.render_page("pages/home.html", &amp;json!({
+    "title": "Home — Anza Blog",
+    "articles": card_html
+}))?;
+</view-code>
+<hr />
+<h2>Dual Rendering Modes</h2>
+<p>Server templates support two output targets without code duplication:</p>
+<ol>
+<li><strong>Full Page SSR (Initial Navigation)</strong>:
+Embeds the page inside <code>layout/shell.html</code> with Declarative Shadow DOM for instant first paint and perfect SEO.</li>
+<li><strong>Stream Envelope (Soft Navigation / Live Updates)</strong>:
+Renders only the partial HTML, generates an Ed25519 cryptographic signature, and streams an envelope to the client:
+<view-code language="json">{
+  "ts": 1772150400000,
+  "slot": "dock-feed",
+  "html": "&lt;article class=\"feed-card\"&gt;...&lt;/article&gt;",
+  "sig": "3a8f...92c1"
+}
+</view-code>
+</li>
+</ol>
+<hr />
+<h2>Next Steps</h2>
+<ul>
+<li><strong><a href="/docs/templates/syntax">Syntax &amp; Tokens</a></strong>: Learn interpolation rules, array iteration, and escaping.</li>
+<li><strong><a href="/docs/templates/layouts">Layouts &amp; Shells</a></strong>: Build composable shells and nested Declarative Shadow DOM docks.</li>
+<li><strong><a href="/docs/templates/components">Components &amp; Partials</a></strong>: Encapsulate UI cards, scoped styles, and forms.</li>
+<li><strong><a href="/docs/templates/binding">Data Binding</a></strong>: Connect Rust, Python, and TypeScript backend models to templates.</li>
+</ul>

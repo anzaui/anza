@@ -15,5 +15,6 @@ import './state/index.js';
 import './storage/index.js';
 import './styles/index.js';
 import './sw/index.js';
+import './templates/index.js';
 import './ui/index.js';
 import './workers/index.js';

@@ -1,0 +1,85 @@
+<h1>Template Syntax &amp; Tokens</h1>
+<p>Anza Server Templates use double-curly brace delimiters (<code>{{token}}</code>) for dynamic variable substitution, content slot insertion, and component composition. The syntax is designed to be deterministic, zero-allocation during execution, and safe against cross-site scripting (XSS).</p>
+<hr />
+<h2>What You Get</h2>
+<div class="table-wrap"><table><thead><tr><th>Syntax Pattern</th><th>Purpose</th><th>Example</th></tr></thead><tbody>
+<tr><td><code>{{variable}}</code></td><td>Auto-escaped scalar substitution (strings, numbers, dates)</td><td><code>&lt;h1&gt;{{title}}&lt;/h1&gt;</code></td></tr>
+<tr><td><code>{{#raw slot}}</code> / <code>{{{slot}}}</code></td><td>Raw unescaped HTML insertion for slotted docks and children</td><td><code>&lt;dock-main&gt;{{content}}&lt;/dock-main&gt;</code></td></tr>
+<tr><td><code>{{#each items}}</code> / Array map</td><td>Array rendering and list iterations</td><td>Repeated <code>&lt;article&gt;</code> cards</td></tr>
+<tr><td><code>{{#if condition}}</code></td><td>Optional section toggle based on boolean or presence</td><td>Conditional alert or badge</td></tr>
+</tbody></table></div>
+<hr />
+<h2>Variable Substitution</h2>
+<p>Simple values are substituted directly into template placeholders:</p>
+<view-code language="html">&lt;div class="user-profile"&gt;
+  &lt;h2&gt;{{username}}&lt;/h2&gt;
+  &lt;span class="user-role"&gt;{{role}}&lt;/span&gt;
+  &lt;time datetime="{{joined}}"&gt;Member since {{joined}}&lt;/time&gt;
+&lt;/div&gt;
+</view-code>
+<p>When provided with data:</p>
+<view-code language="json">{
+  "username": "alex",
+  "role": "Maintainer",
+  "joined": "2026-01-15"
+}
+</view-code>
+<p>Renders as:</p>
+<view-code language="html">&lt;div class="user-profile"&gt;
+  &lt;h2&gt;alex&lt;/h2&gt;
+  &lt;span class="user-role"&gt;Maintainer&lt;/span&gt;
+  &lt;time datetime="2026-01-15"&gt;Member since 2026-01-15&lt;/time&gt;
+&lt;/div&gt;
+</view-code>
+<hr />
+<h2>Auto-Escaping &amp; Security</h2>
+<p>All standard <code>{{token}}</code> variables are automatically HTML-escaped by the engine to prevent XSS vulnerabilities:</p>
+<ul>
+<li><code>&amp;</code> becomes <code>&amp;amp;</code></li>
+<li><code>&lt;</code> becomes <code>&amp;lt;</code></li>
+<li><code>&gt;</code> becomes <code>&amp;gt;</code></li>
+<li><code>"</code> becomes <code>&amp;quot;</code></li>
+<li><code>'</code> becomes <code>&amp;#x27;</code></li>
+</ul>
+<p>If a user supplies <code>&lt;script&gt;alert(1)&lt;/script&gt;</code> inside <code>{{title}}</code>, it renders safely as:</p>
+<view-code language="html">&lt;h1&gt;&amp;lt;script&amp;gt;alert(1)&amp;lt;/script&amp;gt;&lt;/h1&gt;
+</view-code>
+<hr />
+<h2>Slotted Child Content</h2>
+<p>When composing nested templates or docks, slotted child content (such as pre-rendered HTML cards or nested dock views) is injected into designated slot tokens:</p>
+<view-code language="html">&lt;dock-feed class="articles-feed"&gt;
+  &lt;template shadowrootmode="open"&gt;
+    &lt;slot&gt;&lt;/slot&gt;
+  &lt;/template&gt;
+  {{articles}}
+&lt;/dock-feed&gt;
+</view-code>
+<p>In the backend handler:</p>
+<view-code language="rust">let articles_html: String = articles
+    .iter()
+    .map(|a| engine.render("feed/card.html", a))
+    .collect::&lt;Result&lt;Vec&lt;_&gt;, _&gt;&gt;()?
+    .join("\n");
+
+let page_html = engine.render("pages/home.html", &amp;json!({
+    "count": articles.len(),
+    "articles": articles_html
+}))?;
+</view-code>
+<hr />
+<h2>Form Actions &amp; URL Interpolation</h2>
+<p>Variables can be interpolated directly into attribute values for dynamic links, form actions, and data attributes:</p>
+<view-code language="html">&lt;div class="card-footer"&gt;
+  &lt;a href="/article/{{slug}}" class="read-link"&gt;Read article &amp;rarr;&lt;/a&gt;
+  &lt;form method="POST" action="/articles/{{id}}/delete"&gt;
+    &lt;button type="submit"&gt;[delete]&lt;/button&gt;
+  &lt;/form&gt;
+&lt;/div&gt;
+</view-code>
+<hr />
+<h2>Performance Best Practices</h2>
+<ol>
+<li><strong>Pre-compile Templates at Startup</strong>: Load and parse template files once when the server initializes (<code>Engine::new("templates")</code>).</li>
+<li><strong>Avoid Heavy Logic in Markup</strong>: Perform data transformations, formatting, and sorting in backend handlers before passing data to templates.</li>
+<li><strong>Use Monospace Envelopes for Streaming</strong>: For real-time updates, pass the rendered template string directly into <code>engine.sign_envelope()</code>.</li>
+</ol>
