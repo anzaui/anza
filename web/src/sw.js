@@ -31,6 +31,7 @@ function shouldBypass(request) {
   const path = new URL(request.url).pathname;
   return (
     path.endsWith('/template.html') ||
+    (path.endsWith('/index.html') && path !== '/index.html') ||
     path.endsWith('.tags.json') ||
     path === '/favicon.ico' ||
     path === '/favicon.svg' ||
