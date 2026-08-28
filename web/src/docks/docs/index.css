@@ -2,17 +2,11 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  max-width: 1200px;
+  max-width: 1300px;
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
   padding: 0 10px;
-}
-
-@media (max-width: 1200px) {
-  :host {
-    padding: 0 10px;
-  }
 }
 
 /* ─── Header ──────────────────────────────────────── */
@@ -699,14 +693,10 @@ main.docs-content::-webkit-scrollbar-thumb {
    RESPONSIVE BREAKPOINTS (ordered strictly high → low)
    ═══════════════════════════════════════════════════ */
 
-/* ─── 1200px (Desktop bounds) ─────────────────────── */
-@media (max-width: 1200px) {
-  :host {
-    padding: 0 10px;
-  }
-
+/* ─── 1300px (Desktop bounds) ─────────────────────── */
+@media (max-width: 1300px) {
   div.docs-container {
-    grid-template-columns: 210px minmax(0, 1fr);
+    grid-template-columns: 220px minmax(0, 1fr);
   }
 }
 
