@@ -1,6 +1,5 @@
 <h1>Troubleshooting</h1>
 <p>Common problems and their solutions.</p>
-<hr />
 <h2>Listener not firing</h2>
 <p><strong>Cause:</strong> Wrong event name, or listener attached after emit.</p>
 <p><strong>Fix:</strong> Check spelling and registration order:</p>
@@ -12,7 +11,6 @@ events.emit('update', data);
 events.emit('update', data);
 events.on('update', handler); // missed it
 </view-code>
-<hr />
 <h2>Memory leak with global listeners</h2>
 <p><strong>Cause:</strong> Listeners registered without cleanup.</p>
 <p><strong>Fix:</strong> Use disposers or AbortSignal:</p>
@@ -25,7 +23,6 @@ const ctrl = new AbortController();
 events.on('update', handler, ctrl.signal);
 ctrl.abort();
 </view-code>
-<hr />
 <h2>Delegation not matching shadow DOM elements</h2>
 <p><strong>Cause:</strong> The selector does not match any element in <code>composedPath()</code>.</p>
 <p><strong>Fix:</strong> Ensure the selector targets the actual event target or an ancestor in the path. The delegation stops at the root element.</p>
@@ -36,7 +33,6 @@ events.delegate(document.body, 'span', 'click', handler); // matches
 events.delegate(document.body, 'my-el', 'click', handler);   // matches
 events.delegate(document.body, 'div', 'click', handler);    // no match
 </view-code>
-<hr />
 <h2>Passive event warning</h2>
 <p><strong>Warning:</strong> <code>Unable to preventDefault inside passive event listener</code></p>
 <p><strong>Cause:</strong> <code>touchstart</code>, <code>touchmove</code>, <code>wheel</code>, or <code>mousewheel</code> listener is passive by default (<code>events.listen</code> and component <code>on</code>).</p>
@@ -45,17 +41,14 @@ events.delegate(document.body, 'div', 'click', handler);    // no match
 on.touchmove('.scroller', handler, { passive: false });
 </view-code>
 <p>Only do this when you genuinely need to block scrolling. Default passive is correct for most use cases. Click / submit / key handlers are non-passive by default.</p>
-<hr />
 <h2>Orphan listeners after soft-nav</h2>
 <p><strong>Cause:</strong> Leaf page attached <code>document.addEventListener</code> or a <code>MutationObserver</code> without <code>{ signal: ctrl.signal }</code> (or a disposer called from <code>unmount</code>). Soft-nav swaps the leaf via <code>replaceChildren</code> / <code>swapView</code>; only <code>disconnectedCallback</code> → <code>ctrl.abort()</code> tears down leaf-owned work.</p>
 <p><strong>Fix:</strong> Prefer component <code>on</code> / <code>watch</code>, or pass <code>ctrl.signal</code> to <code>events.listen</code> / <code>events.delegate</code> / <code>ui.observe.*</code>. Do not observe <code>document</code> / <code>body</code> from a leaf for component concerns.</p>
 <p>Framework-owned document attachments are registered in the internal <code>globals</code> registry (<code>router.nav-click</code>, <code>router.container-mo</code>, <code>popover.*</code>). Soft-nav must not grow that set — <code>globals.count()</code> stays stable across leaf swaps.</p>
 <p>For overlay kit ownership (in-tree top-layer vs toast body portal): <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
-<hr />
 <h2>MutationObserver thrash</h2>
 <p><strong>Cause:</strong> <code>watch.tree</code> or <code>watch.attr(..., '*')</code> on a busy subtree, or one shared observer that used to coarsen all registrations.</p>
 <p><strong>Fix:</strong> Prefer <code>watch.attr(ref, 'open', …)</code> / <code>watch.kids(list, …)</code> with named filters. Observers are bucketed by fingerprint so a wide watch cannot drop <code>attributeFilter</code> on a neighbor. Avoid <code>ui.observe.mutation(document, …, { subtree: true })</code> — use a scoped root.</p>
-<hr />
 <h2>once() promise never resolves</h2>
 <p><strong>Cause:</strong> Event never fires, or signal aborted.</p>
 <p><strong>Fix:</strong> Check that the event can actually fire on the target:</p>
@@ -66,7 +59,6 @@ await events.once(document, 'click');
 const el = document.createElement('div');
 await events.once(el, 'click'); // never resolves
 </view-code>
-<hr />
 <h2>AbortSignal not cleaning up</h2>
 <p><strong>Cause:</strong> Signal was created but never aborted.</p>
 <p><strong>Fix:</strong> Ensure the signal aborts when the component unmounts:</p>
@@ -81,7 +73,6 @@ const ctrl = new AbortController();
 events.on('update', handler, ctrl.signal);
 // ctrl.abort() never called
 </view-code>
-<hr />
 <h2>EventBus events leaking between modules</h2>
 <p><strong>Cause:</strong> Using the global bus for module-scoped communication.</p>
 <p><strong>Fix:</strong> Create isolated buses for module scope:</p>
@@ -91,7 +82,6 @@ const moduleBus = new EventBus();
 moduleBus.on('internal', handler);
 </view-code>
 <p>Only use <code>events.emit</code> and <code>events.on</code> for truly global events.</p>
-<hr />
 <h2>Still stuck?</h2>
 <p>Debug the event flow:</p>
 <view-code language="javascript">// Log every event on the bus

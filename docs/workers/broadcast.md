@@ -2,8 +2,6 @@
 
 Cross-tab messaging via `BroadcastChannel`. Channels are reference-counted: opened on first subscriber, closed when the last subscriber leaves.
 
----
-
 ## Send
 
 ```javascript
@@ -13,8 +11,6 @@ workers.broadcast('app-event', { type: 'theme-changed', value: 'dark' });
 ```
 
 Messages are sent from a short-lived peer channel so all subscribers (including in the same tab) receive them.
-
----
 
 ## Subscribe
 
@@ -29,8 +25,6 @@ off();
 
 Returns a disposer. The channel auto-closes when the last subscriber disposes.
 
----
-
 ## AbortSignal Cleanup
 
 ```javascript
@@ -42,21 +36,15 @@ workers.subscribe('app-event', handler, ctrl.signal);
 ctrl.abort();
 ```
 
----
-
 ## Close All
 
 ```javascript
 workers.clear(); // closes all broadcast channels and terminates all pools
 ```
 
----
-
 ## Fallback
 
 If `BroadcastChannel` is unavailable, `broadcast` silently does nothing and `subscribe` returns a no-op disposer.
-
----
 
 ## Example: Logout All Tabs
 

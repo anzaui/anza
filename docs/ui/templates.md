@@ -2,8 +2,6 @@
 
 Templates define the HTML structure of a declarative element. The UI layer supports inline strings, file references, and tagged template literals.
 
----
-
 ## Inline String
 
 ```javascript
@@ -13,8 +11,6 @@ view('user-card', {
 ```
 
 The string is compiled into a `DocumentFragment` once per registration and cloned for each instance.
-
----
 
 ## File Reference
 
@@ -31,8 +27,6 @@ view('user-card', {
 | `shadow` | no | `'open'` or `'closed'`; default `'open'` |
 
 Paths are resolved relative to the third argument (`import.meta.url`). The native toolchain copies assets during build.
-
----
 
 ## Tagged Template Literal
 
@@ -52,8 +46,6 @@ In development, passing values logs a warning:
 ```javascript
 template`<div>${dynamic}</div>`; // warns: use refs for dynamic binding
 ```
-
----
 
 ## Refs
 
@@ -76,8 +68,6 @@ on: {
 
 Duplicate `ref` names log a warning. The first match wins.
 
----
-
 ## Tags Descriptor
 
 When using file templates, the factory looks for a `.tags.json` alongside the `.html` file:
@@ -94,8 +84,6 @@ When using file templates, the factory looks for a `.tags.json` alongside the `.
 
 The tags descriptor pre-warms the query cache so `tags.one('#header')` and `tags.all('.card')` resolve instantly without DOM traversal.
 
----
-
 ## Template Compilation
 
 The compilation path depends on what is available:
@@ -104,8 +92,6 @@ The compilation path depends on what is available:
 2. **`innerHTML`** (fallback) — standard template parsing
 
 In both cases, the result is a `DocumentFragment` cloned per instance.
-
----
 
 ## No Template
 

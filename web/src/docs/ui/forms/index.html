@@ -1,6 +1,5 @@
 <h1>Forms</h1>
 <p>Declarative elements can participate in HTML forms by declaring <code>form: true</code>. The element gains <code>ElementInternals</code>, form-associated callbacks, and the ability to expose custom state pseudo-classes.</p>
-<hr />
 <h2>Enabling Form Participation</h2>
 <view-code language="javascript">view('toggle-switch', {
   form: true,
@@ -29,7 +28,6 @@
   &lt;button type="submit"&gt;Save&lt;/button&gt;
 &lt;/form&gt;
 </view-code>
-<hr />
 <h2>Form-Associated Callbacks</h2>
 <p>When <code>form: true</code> is set, the element receives these callbacks:</p>
 <div class="table-wrap"><table><thead><tr><th>Callback</th><th>Trigger</th></tr></thead><tbody>
@@ -46,7 +44,6 @@
   restore: (state, mode) =&gt; { this.value = state; }
 });
 </view-code>
-<hr />
 <h2>Custom State</h2>
 <p>Expose props as CSS custom state pseudo-classes:</p>
 <view-code language="javascript">props: {
@@ -59,7 +56,6 @@
 toggle-switch:state(invalid) { border-color: red; }
 </view-code>
 <p>Requires Chrome 132+ / Baseline 2026.</p>
-<hr />
 <h2>Validation</h2>
 <p>Use <code>ElementInternals</code> for custom validation:</p>
 <view-code language="javascript">view('email-field', {
@@ -83,7 +79,6 @@ toggle-switch:state(invalid) { border-color: red; }
   }
 });
 </view-code>
-<hr />
 <h2>Form Reset and Restore</h2>
 <view-code language="javascript">view('rating-input', {
   form: true,
@@ -95,7 +90,6 @@ toggle-switch:state(invalid) { border-color: red; }
 });
 </view-code>
 <p>The <code>restore</code> callback receives the saved state string when the browser restores form data (e.g., after back/forward).</p>
-<hr />
 <h2>Related</h2>
 <ul>
 <li>Kit form controls: <a href="/docs/elements/forms">Elements → Forms</a> (<code>ui-input</code>, <code>ui-select</code>, <code>ui-checkbox</code>, …)</li>

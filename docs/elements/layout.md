@@ -8,10 +8,7 @@ Import pattern:
 import '@anzaui/anza/elements/<name>';
 ```
 
-
 Full docs in this category: [app](app.md), [header](header.md), [sidebar](sidebar.md), [stack](stack.md), [grid](grid.md), [split](split.md), [scroll](scroll.md), [surface](surface.md).
-
----
 
 ## Elements
 

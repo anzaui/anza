@@ -2,8 +2,6 @@
 
 Styles are applied per element to its shadow root. The factory leverages constructable stylesheets when supported by the browser, falling back to inline `<style>` injection.
 
----
-
 ## Defining Styles
 
 Styles can be defined using inline CSS strings or references to stylesheet files.
@@ -27,8 +25,6 @@ view('styled-box', {
   template: { html: './box.html', css: './box.css' }
 }, import.meta.url);
 ```
-
----
 
 ## Multiple & Shared Stylesheets
 
@@ -78,8 +74,6 @@ page('blog-post', {
 
 When files are referenced, the compiler resolves each relative path independently against the component's file directory (and absolute paths against the project's source root), copies them into `dist/`, and preloads them in the specified sequence.
 
----
-
 ## Adopted Stylesheets
 
 When the browser supports `CSSStyleSheet` and `adoptedStyleSheets`:
@@ -96,8 +90,6 @@ For browsers without constructable stylesheet support:
 1. CSS assets are fetched as raw text strings.
 2. The factory prepends a `<style>` element containing the CSS text directly inside the shadow root of each instance.
 
----
-
 ## Hot Module Replacement (HMR)
 
 During development, updates to CSS files trigger HMR events. The dev environment captures stylesheet modifications and updates the cached constructable stylesheet directly:
@@ -109,8 +101,6 @@ window.dispatchEvent(new CustomEvent('native:hmr:css', {
 ```
 
 Using `replaceSync()`, changes are pushed to the live stylesheet instance, updating all active elements on the screen without triggering a full page reload or layout remount.
-
----
 
 ## Scoped Styles
 

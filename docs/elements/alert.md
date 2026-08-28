@@ -4,15 +4,11 @@ Inline severity notification with `role="alert"` and optional dismiss control.
 
 **Tag:** `ui-alert` · **Import:** `@anzaui/anza/elements/alert`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/alert';
 ```
-
----
 
 ## Basic usage
 
@@ -20,8 +16,6 @@ import '@anzaui/anza/elements/alert';
 <ui-alert variant="success">Saved successfully.</ui-alert>
 <ui-alert variant="error" dismissible>Something went wrong.</ui-alert>
 ```
-
----
 
 ## Props
 
@@ -39,8 +33,6 @@ import '@anzaui/anza/elements/alert';
 ## Notes
 
 Default slot is the alert body. Close button uses `part="close-button"`.
-
----
 
 ## Related
 

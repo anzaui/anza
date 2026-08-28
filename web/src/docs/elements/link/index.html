@@ -1,16 +1,13 @@
 <h1>Link</h1>
 <p>Router-aware hyperlink that intercepts same-origin clicks for soft navigation and tracks <code>aria-current</code>.</p>
 <p><strong>Tag:</strong> <code>ui-link</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/link</code></p>
-<hr />
 <h2>Import</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/link';
 </view-code>
-<hr />
 <h2>Basic usage</h2>
 <view-code language="html">&lt;ui-link href="/docs/intro/index"&gt;Introduction&lt;/ui-link&gt;
 &lt;ui-link href="https://example.com" external&gt;External&lt;/ui-link&gt;
 </view-code>
-<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>href</code></td><td>String</td><td>Reflect</td><td>Destination URL</td></tr>
@@ -24,7 +21,6 @@
 </tbody></table></div>
 <h2>Notes</h2>
 <p>Same-origin clicks call <code>router.navigate(href)</code> unless modified keys, <code>#</code> hashes, or <code>target="_blank"</code>. External links show an indicator icon.</p>
-<hr />
 <h2>Related</h2>
 <ul>
 <li><a href="/docs/elements/index">Elements overview</a></li>

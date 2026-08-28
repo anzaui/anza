@@ -1,11 +1,9 @@
 <h1>Tabs</h1>
 <p>Accessible tablist with roving tabindex, arrow / Home / End keys, and optional URL-synced <code>active</code> value.</p>
 <p><strong>Tag:</strong> <code>ui-tabs</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/tabs</code></p>
-<hr />
 <h2>Import</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/tabs';
 </view-code>
-<hr />
 <h2>Basic usage</h2>
 <view-code language="html">&lt;ui-tabs active="one"&gt;
   &lt;button slot="tab" value="one"&gt;One&lt;/button&gt;
@@ -14,7 +12,6 @@
   &lt;div role="tabpanel"&gt;Panel two&lt;/div&gt;
 &lt;/ui-tabs&gt;
 </view-code>
-<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>active</code></td><td>String</td><td>Reflect</td><td>Selected tab value (falls back to first tab)</td></tr>
@@ -23,7 +20,6 @@
 <p>Named <code>tab</code> slot for tab triggers; default slot for panels (<code>role="tabpanel"</code> or <code>ui-tab-panel</code>). Clicking a tab sets <code>active</code> from <code>value</code> or text content.</p>
 <h3>Lifecycle / memory</h3>
 <p>Keyboard and click handlers are shadow-scoped and abort with the component <code>ctrl</code> on disconnect (including soft-nav leaf swap). See <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a>.</p>
-<hr />
 <h2>Related</h2>
 <ul>
 <li><a href="/docs/elements/index">Elements overview</a></li>

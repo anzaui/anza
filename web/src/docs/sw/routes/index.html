@@ -1,13 +1,11 @@
 <h1>Routes</h1>
 <p>URLPattern-based routing inside the Service Worker. Matches incoming <code>fetch</code> events against registered patterns and dispatches them to the appropriate caching strategy.</p>
-<hr />
 <h2>Create a Router</h2>
 <view-code language="javascript">import { router } from '@anzaui/anza/sw';
 
 const r = router();
 </view-code>
 <p><code>router()</code> is a factory that returns a new <code>Router</code> instance.</p>
-<hr />
 <h2>Register Patterns</h2>
 <view-code language="javascript">r.register('*', new CacheFirst('shell-v1'));
 r.register('/api/users/:id', new NetworkFirst('api-v1'));
@@ -20,7 +18,6 @@ r.register('*', new NetworkOnly());
 <tr><td><code>'/api/users/:id'</code></td><td><code>/api/users/42</code>, <code>/api/users/abc</code></td></tr>
 <tr><td><code>{ pathname: '/items/:id', search: '?tab=*' }</code></td><td>Object patterns forwarded to <code>URLPattern</code></td></tr>
 </tbody></table></div>
-<hr />
 <h2>Handle Fetch Events</h2>
 <view-code language="javascript">self.addEventListener('fetch', (e) =&gt; {
   if (r.handle(e)) return;
@@ -28,7 +25,6 @@ r.register('*', new NetworkOnly());
 });
 </view-code>
 <p><code>r.handle(e)</code> returns <code>true</code> if a route matched and <code>event.respondWith()</code> was called. Return early to avoid the fallback. Return <code>false</code> to let the event fall through to your own handler.</p>
-<hr />
 <h2>Advanced Patterns</h2>
 <p>Use <code>URLPattern</code> objects directly for complex matching:</p>
 <view-code language="javascript">r.register(
@@ -37,7 +33,6 @@ r.register('*', new NetworkOnly());
 );
 </view-code>
 <p>The <code>Router</code> class normalizes strings into <code>URLPattern</code> instances automatically.</p>
-<hr />
 <h2>Router API</h2>
 <h3><code>router.register(pattern, strategy)</code></h3>
 <p>Add a route. <code>pattern</code> can be a string or <code>URLPatternInit</code> object. <code>strategy</code> is any object with a <code>handle(request)</code> method that returns a <code>Response</code> or Promise.</p>

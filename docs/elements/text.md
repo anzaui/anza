@@ -4,15 +4,11 @@ Typography primitive that maps size, weight, color, and family to design tokens,
 
 **Tag:** `ui-text` · **Import:** `@anzaui/anza/elements/text`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/text';
 ```
-
----
 
 ## Basic usage
 
@@ -20,8 +16,6 @@ import '@anzaui/anza/elements/text';
 <ui-text size="lg" weight="semibold">Headline</ui-text>
 <ui-text as="p" color="muted" block>Supporting copy.</ui-text>
 ```
-
----
 
 ## Props
 
@@ -37,8 +31,6 @@ import '@anzaui/anza/elements/text';
 ## Notes
 
 Default slot content is projected into the dynamic root (`part="text"`).
-
----
 
 ## Related
 

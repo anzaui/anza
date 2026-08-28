@@ -4,15 +4,11 @@ Empty-state panel with illustration, title, description, and optional CTA slot.
 
 **Tag:** `ui-empty` · **Import:** `@anzaui/anza/elements/empty`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/empty';
 ```
-
----
 
 ## Basic usage
 
@@ -22,8 +18,6 @@ import '@anzaui/anza/elements/empty';
   <ui-button>New project</ui-button>
 </ui-empty>
 ```
-
----
 
 ## Props
 
@@ -42,8 +36,6 @@ import '@anzaui/anza/elements/empty';
 | `title` | part | Title heading |
 | `description` | part | Description paragraph |
 | `actions` | part | Actions row |
-
----
 
 ## Related
 

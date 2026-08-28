@@ -1,13 +1,11 @@
 <h1>Broadcast</h1>
 <p>Cross-tab messaging via <code>BroadcastChannel</code>. Channels are reference-counted: opened on first subscriber, closed when the last subscriber leaves.</p>
-<hr />
 <h2>Send</h2>
 <view-code language="javascript">import { workers } from '@anzaui/anza/workers';
 
 workers.broadcast('app-event', { type: 'theme-changed', value: 'dark' });
 </view-code>
 <p>Messages are sent from a short-lived peer channel so all subscribers (including in the same tab) receive them.</p>
-<hr />
 <h2>Subscribe</h2>
 <view-code language="javascript">const off = workers.subscribe('app-event', (data) =&gt; {
   console.log('Received:', data);
@@ -17,7 +15,6 @@ workers.broadcast('app-event', { type: 'theme-changed', value: 'dark' });
 off();
 </view-code>
 <p>Returns a disposer. The channel auto-closes when the last subscriber disposes.</p>
-<hr />
 <h2>AbortSignal Cleanup</h2>
 <view-code language="javascript">const ctrl = new AbortController();
 
@@ -26,14 +23,11 @@ workers.subscribe('app-event', handler, ctrl.signal);
 // Auto-unsubscribe on abort
 ctrl.abort();
 </view-code>
-<hr />
 <h2>Close All</h2>
 <view-code language="javascript">workers.clear(); // closes all broadcast channels and terminates all pools
 </view-code>
-<hr />
 <h2>Fallback</h2>
 <p>If <code>BroadcastChannel</code> is unavailable, <code>broadcast</code> silently does nothing and <code>subscribe</code> returns a no-op disposer.</p>
-<hr />
 <h2>Example: Logout All Tabs</h2>
 <view-code language="javascript">// In auth module
 function logout() {

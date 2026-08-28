@@ -2,8 +2,6 @@
 
 Every failure in the API client is normalized to a `PlatformError`. This gives you structured error handling with codes, context, and recovery guidance.
 
----
-
 ## PlatformError
 
 ```javascript
@@ -17,8 +15,6 @@ class PlatformError extends Error {
 }
 ```
 
----
-
 ## Error Codes
 
 | Code | Meaning | Recoverable |
@@ -26,8 +22,6 @@ class PlatformError extends Error {
 | `HTTP_ERROR` | Server returned non-2xx status | 5xx yes, 4xx no |
 | `NETWORK_ERROR` | Fetch failed (offline, DNS, CORS) | yes |
 | `NETWORK_TIMEOUT` | Request exceeded timeout limit | yes |
-
----
 
 ## Handling Errors
 
@@ -51,8 +45,6 @@ try {
   }
 }
 ```
-
----
 
 ## Recovery Patterns
 
@@ -83,8 +75,6 @@ const result = await retry(
 );
 ```
 
----
-
 ## Error Events
 
 Listen for errors via telemetry:
@@ -102,8 +92,6 @@ api.on('timeout', (event) => {
   console.error('Timed out:', event.detail.error);
 });
 ```
-
----
 
 ## Non-Recoverable Errors
 

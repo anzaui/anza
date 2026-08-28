@@ -4,15 +4,11 @@ Form-participating checkbox with checked / indeterminate states and ElementInter
 
 **Tag:** `ui-checkbox` · **Import:** `@anzaui/anza/elements/checkbox`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/checkbox';
 ```
-
----
 
 ## Basic usage
 
@@ -20,8 +16,6 @@ import '@anzaui/anza/elements/checkbox';
 <ui-checkbox name="tos" value="accepted" required>I agree</ui-checkbox>
 <ui-checkbox indeterminate>Partial</ui-checkbox>
 ```
-
----
 
 ## Props
 
@@ -36,8 +30,6 @@ import '@anzaui/anza/elements/checkbox';
 ## Notes
 
 Toggle via click or Space/Enter. Uses `form: true`. Default slot is the label content.
-
----
 
 ## Related
 

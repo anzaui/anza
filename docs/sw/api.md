@@ -2,8 +2,6 @@
 
 Complete reference for the Service Worker toolkit.
 
----
-
 ## Strategies
 
 ### `new CacheFirst(cacheName, options)`
@@ -58,8 +56,6 @@ Throws if the request is not in cache.
 
 Only intercepts `request.mode === 'navigate'`.
 
----
-
 ## Router
 
 ### `router()`
@@ -76,8 +72,6 @@ Factory. Returns a new `Router` instance.
 ### `router.handle(event)`
 
 Returns `true` if a route matched and `event.respondWith()` was called. Returns `false` otherwise.
-
----
 
 ## Lifecycle
 
@@ -113,8 +107,6 @@ Calls `self.clients.claim()` to take control of all tabs immediately.
 
 Enables Navigation Preload on the registration.
 
----
-
 ## Expiry
 
 ### `pruneExpired(cacheName)`
@@ -133,8 +125,6 @@ Returns a `setInterval` handle that prunes the cache periodically. Default inter
 const timer = setupAutoPrune('shell-v1', 30000);
 clearInterval(timer);
 ```
-
----
 
 ## Queue and Sync
 
@@ -165,8 +155,6 @@ Moves tasks that exceeded `maxAttempts` to a dead-letter queue.
 | Option | Type | Default | Description |
 | ------ | ---- | ------- | ----------- |
 | `maxAttempts` | number | `3` | Retry limit before dead-letter |
-
----
 
 ## Push
 

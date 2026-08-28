@@ -2,8 +2,6 @@
 
 Get animating in five minutes.
 
----
-
 ## 1. Animate an Element
 
 ```javascript
@@ -20,8 +18,6 @@ animations.animate(el, [
   { opacity: 1, transform: 'scale(1)' }
 ], { duration: 400, easing: 'ease-out' });
 ```
-
----
 
 ## 2. Stagger a List
 
@@ -40,8 +36,6 @@ await group.finished;
 group.cancel();
 ```
 
----
-
 ## 3. Chain a Sequence
 
 ```javascript
@@ -56,8 +50,6 @@ await seq.finished;
 
 Each step starts when the previous finishes.
 
----
-
 ## 4. Register a Custom Template
 
 ```javascript
@@ -70,8 +62,6 @@ animations.register('bounce', [
 // Use it anywhere
 animations.animate(el, 'bounce');
 ```
-
----
 
 ## 5. Respect Reduced Motion
 
@@ -86,8 +76,6 @@ if (animations.reduced()) {
 
 This checks `prefers-reduced-motion: reduce` automatically.
 
----
-
 ## 6. Read CSS Tokens
 
 ```javascript
@@ -98,8 +86,6 @@ animations.animate(el, 'fade', { duration: dur, easing });
 ```
 
 `duration()` and `ease()` read CSS custom properties at runtime, falling back to defaults.
-
----
 
 ## Complete Working Example
 

@@ -6,7 +6,6 @@
 <li><strong>Service Worker thread</strong> (<code>@anzaui/anza/sw</code>) — caching strategies, route interception, lifecycle hooks, and sync replay</li>
 </ol>
 <p>Browsers do not support import maps in Service Worker scope, so the build tool rewrites bare specifiers to relative paths when emitting <code>dist/sw.js</code>.</p>
-<hr />
 <h2>What You Get</h2>
 <ul>
 <li><strong>Caching strategies</strong> — CacheFirst, NetworkFirst, StaleRevalidate, CacheThenNetwork, NetworkOnly, CacheOnly, and OfflineFallback</li>
@@ -17,7 +16,6 @@
 <li><strong>Push notifications</strong> — VAPID subscription and notification display</li>
 <li><strong>Request serialization</strong> — store Request objects in IndexedDB for offline replay</li>
 </ul>
-<hr />
 <h2>Package</h2>
 <view-code language="javascript">// Service Worker thread
 import { CacheFirst, router, precache } from '@anzaui/anza/sw';
@@ -25,7 +23,6 @@ import { CacheFirst, router, precache } from '@anzaui/anza/sw';
 // Main thread
 import { offline } from '@anzaui/anza/offline';
 </view-code>
-<hr />
 <h2>File Map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
 <tr><td><a href="/docs/sw/start">start.md</a></td><td>Writing your first <code>src/sw.js</code> and registering it from <code>app.js</code></td></tr>
@@ -34,7 +31,6 @@ import { offline } from '@anzaui/anza/offline';
 <tr><td><a href="/docs/sw/sync">sync.md</a></td><td>Background sync queue and replay</td></tr>
 <tr><td><a href="/docs/sw/api">api.md</a></td><td>Complete API reference</td></tr>
 </tbody></table></div>
-<hr />
 <h2>One-File Example</h2>
 <view-code language="javascript">// src/sw.js
 import { precache, router, CacheFirst, NetworkFirst } from '@anzaui/anza/sw';
@@ -60,7 +56,6 @@ navigator.serviceWorker.register('/sw.js');
 
 dock('main');
 </view-code>
-<hr />
 <h2>Next Steps</h2>
 <ul>
 <li>New to SW? Start with <a href="/docs/sw/start">start.md</a>.</li>

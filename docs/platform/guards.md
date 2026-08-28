@@ -10,8 +10,6 @@ import { guard, escapeOverflow } from '@anzaui/anza/platform';
 
 Full signatures: [API Reference](api.md).
 
----
-
 ## urlPattern
 
 ```javascript
@@ -20,8 +18,6 @@ const pattern = new URLPattern({ pathname: '/user/:id' });
 ```
 
 Returns the native `URLPattern` class or loads the polyfill. Used by the router for pathname matching.
-
----
 
 ## navigation
 
@@ -32,8 +28,6 @@ nav.navigate('/settings');
 
 Returns `window.navigation` or bootstraps the Navigation API polyfill. Used by the router for history management.
 
----
-
 ## popover
 
 ```javascript
@@ -43,8 +37,6 @@ document.getElementById('menu').showPopover();
 
 Installs `HTMLElement` popover prototype methods if missing. Provides light-dismiss behavior and memory-safe cleanup via the framework `globals` registry (`popover.target-click`, `popover.body-mo:*`). Used by `ui-popover`, `ui-menu`, `ui-tooltip`, and `ui-select`.
 
----
-
 ## shadow
 
 ```javascript
@@ -52,8 +44,6 @@ await guard.shadow(document);
 ```
 
 Applies the declarative shadow DOM polyfill to a root element. Parses `<template shadowrootmode="open">` nodes.
-
----
 
 ## anchor
 
@@ -68,8 +58,6 @@ await guard.anchor(floatingEl, anchorEl, {
 Computes dynamic anchor positioning for floating elements when native CSS anchor positioning is unavailable (or when `mode: 'fixed'`). Supports `mode: 'absolute'` (default, document coords) and `mode: 'fixed'` (viewport coords). Placement strings: `top` / `bottom` / `left` / `right` plus `-start` / `-end`.
 
 For show/hide lifecycle + overflow escape, prefer [`guard.escape`](#escape) / `escapeOverflow`.
-
----
 
 ## escape
 
@@ -154,8 +142,6 @@ async function bindHint(host, tip, wrapper) {
 
 Used by `ui-tooltip`. Kit architecture: [Overlay patterns](../elements/overlay.md). Element page: [tooltip](../elements/tooltip.md).
 
----
-
 ## sanitizer
 
 ```javascript
@@ -165,8 +151,6 @@ const clean = sanitizer.sanitizeToString('<p>Safe</p>');
 
 Returns a sanitizer wrapper with `.sanitizeToString(input)`. Uses the native `Sanitizer` API when available, falls back to `DOMPurify` or a textContent-based sanitizer.
 
----
-
 ## scheduler
 
 ```javascript
@@ -175,8 +159,6 @@ scheduler.postTask(fn, { priority: 'user-visible' });
 ```
 
 Returns `globalThis.scheduler` or loads the polyfill. Supports three priorities: `user-blocking`, `user-visible`, `background`.
-
----
 
 ## yield
 
@@ -194,8 +176,6 @@ for (let i = 0; i < 10000; i++) {
   if (i % 100 === 0) await guard.yield();
 }
 ```
-
----
 
 ## Related
 

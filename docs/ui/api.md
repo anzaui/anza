@@ -2,8 +2,6 @@
 
 Complete reference for the UI facade and definition layer.
 
----
-
 ## UI Facade
 
 ```javascript
@@ -112,8 +110,6 @@ Snapshot of live component attachments for diagnostics / soft-nav leak tests. Re
 
 Also available as a named export: `import { getAttachmentStats } from '@anzaui/anza/ui'`.
 
----
-
 ## Named Exports
 
 ```javascript
@@ -124,8 +120,6 @@ import { transition } from '@anzaui/anza/ui';
 import { template } from '@anzaui/anza/ui';
 import { observe } from '@anzaui/anza/ui';
 ```
-
----
 
 ## Definition Layer Exports
 
@@ -168,8 +162,6 @@ Config: `tag`, `template`, `style`, `props`, `on`, `methods`.
 
 Warns if `on.change` is declared.
 
----
-
 ## Spec Config Shape
 
 ```javascript
@@ -196,8 +188,6 @@ Warns if `on.change` is declared.
 }
 ```
 
----
-
 ## Context Shape
 
 ```javascript
@@ -212,8 +202,6 @@ Warns if `on.change` is declared.
 }
 ```
 
----
-
 ## TagsCache Methods
 
 ```javascript
@@ -225,8 +213,6 @@ tags.clear()           // invalidate cache
 tags.prewarmId(id)     // pre-warm by ID
 tags.prewarm(selector, element) // manual pre-warm
 ```
-
----
 
 ## Event Delegator Methods
 
@@ -254,8 +240,6 @@ Matching walks `composedPath()` within the shadow root (same matcher as `events.
 Empty registry for a `(type, capture)` key removes the shadow-root listener immediately. See [context.md](context.md#on).
 
 Returns a disposer function.
-
----
 
 ## Mutation Watcher Methods
 

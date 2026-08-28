@@ -1,6 +1,5 @@
 <h1>IndexedDB</h1>
 <p>The IndexedDB adapter provides a Promise-based interface over the legacy IDBRequest API. It supports schema migrations, multi-store transactions, and cursor-based queries.</p>
-<hr />
 <h2>Database</h2>
 <view-code language="javascript">import { Database } from '@anzaui/anza/storage';
 
@@ -8,7 +7,6 @@ const db = new Database('my-app', 1, [
   (db) =&gt; db.createObjectStore('users')    // v1
 ]);
 </view-code>
-<hr />
 <h2>Migrations</h2>
 <p>Migration functions run in order inside <code>onupgradeneeded</code>:</p>
 <view-code language="javascript">const db = new Database('my-app', 3, [
@@ -22,13 +20,11 @@ const db = new Database('my-app', 1, [
 ]);
 </view-code>
 <p>Each function corresponds to one version step (0→1, 1→2, 2→3).</p>
-<hr />
 <h2>CRUD Operations</h2>
 <view-code language="javascript">await db.set('users', 'alice', { name: 'Alice', email: 'a@x.com' });
 const user = await db.get('users', 'alice');
 await db.delete('users', 'alice');
 </view-code>
-<hr />
 <h2>Transactions</h2>
 <view-code language="javascript">const result = await db.transaction(['users', 'logs'], 'readwrite', (store, tx) =&gt; {
   store('users').put({ name: 'Alice' }, 'alice');
@@ -37,7 +33,6 @@ await db.delete('users', 'alice');
 });
 </view-code>
 <p>Supports async callbacks. Errors abort the transaction.</p>
-<hr />
 <h2>Queries</h2>
 <view-code language="javascript">// All records
 const all = await db.getAll('users');
@@ -51,7 +46,6 @@ const active = await db.query('users', {
 });
 </view-code>
 <p>Query options: <code>index</code>, <code>range</code>, <code>direction</code> (<code>'next'</code> or <code>'prev'</code>), <code>limit</code>.</p>
-<hr />
 <h2>Events</h2>
 <view-code language="javascript">// Blocked upgrade
 window.addEventListener('storage:blocked', (e) =&gt; {

@@ -2,8 +2,6 @@
 
 Common problems and their solutions.
 
----
-
 ## Request returns old cached data
 
 **Cause:** TTL not expired, or no cache invalidation performed.
@@ -21,8 +19,6 @@ await api.get('/products', { cache: 'network-first' });
 await api.get('/products', { expiry: 5000 });
 ```
 
----
-
 ## Cache not working
 
 **Cause:** Not a GET request, or Cache API unavailable.
@@ -36,8 +32,6 @@ if (typeof caches === 'undefined') {
 ```
 
 Private browsing modes often disable the Cache API.
-
----
 
 ## Prefix not resolving
 
@@ -58,15 +52,11 @@ api.get('user/profile');  // also matches root fallback
 api.get('https://api.example.com/user/profile'); // no prefix matching
 ```
 
----
-
 ## Upload progress not firing
 
 **Cause:** Server does not send `Content-Length`, or file is too small.
 
 **Fix:** The progress event requires `event.lengthComputable` from the XMLHttpRequest upload. Ensure the server sets the content length. Small files may complete before any progress events fire.
-
----
 
 ## Stream stops mid-way
 
@@ -90,8 +80,6 @@ async function* reconnectingStream(url) {
 }
 ```
 
----
-
 ## 401 not triggering handler
 
 **Cause:** Listener registered after the request, or wrong event name.
@@ -111,8 +99,6 @@ await api.get('/protected', {
 
 Event names are case-sensitive: `'status:401'` not `'Status:401'`.
 
----
-
 ## Request not timing out
 
 **Cause:** Timeout shorter than expected, or signal already aborted.
@@ -126,8 +112,6 @@ await api.get('/slow', { timeout: 5000 });
 // Wrong — 5 milliseconds
 await api.get('/slow', { timeout: 5 });
 ```
-
----
 
 ## Retry not helping
 
@@ -147,8 +131,6 @@ try {
 
 Only `NETWORK_TIMEOUT`, `NETWORK_ERROR`, and 5xx are retried.
 
----
-
 ## Memory leak with event listeners
 
 **Cause:** Global listeners never removed.
@@ -166,15 +148,11 @@ api.on('error', handler, ctrl.signal);
 ctrl.abort(); // removes all listeners bound to this signal
 ```
 
----
-
 ## CORS errors
 
 **Cause:** Cross-origin request without proper headers.
 
 **Fix:** The API client does not handle CORS. Ensure the server sends appropriate `Access-Control-Allow-*` headers. For preflight issues, check that custom headers are allowed.
-
----
 
 ## Still stuck?
 

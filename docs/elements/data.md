@@ -8,14 +8,11 @@ Import pattern:
 import '@anzaui/anza/elements/<name>';
 ```
 
-
 Full docs in this category: [table](table.md), [list](list.md), [card](card.md), [chart](chart.md), [stat](stat.md).
 
 ### Lifecycle / memory
 
 Chart’s `ResizeObserver` disconnects on the component abort signal. Soft-nav disconnect aborts the leaf `ctrl`. Prefer prop updates over raw document observers. See [Memory safety & framework globals](../ui/advanced.md).
-
----
 
 ## Elements
 

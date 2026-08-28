@@ -2,8 +2,6 @@
 
 The Cache API wrapper provides TTL support by attaching an `x-expires-at` header to cached responses. It is separate from the API client's cache and intended for general asset and data caching.
 
----
-
 ## Basic Use
 
 ```javascript
@@ -17,8 +15,6 @@ const res = await storage.get('config', 'cache');
 const data = await res.json();
 ```
 
----
-
 ## TTL
 
 ```javascript
@@ -27,8 +23,6 @@ await storage.set('feed', response, { tier: 'cache', ttl: 300000 });
 ```
 
 Expired entries are evicted on read. The `x-expires-at` header stores the expiry timestamp.
-
----
 
 ## Direct CacheStorage
 
@@ -44,15 +38,11 @@ await cache.set('/api/data', new Response(JSON.stringify(data)), 60000);
 const res = await cache.get('/api/data');
 ```
 
----
-
 ## Clear
 
 ```javascript
 await cache.clear(); // deletes entire cache pool
 ```
-
----
 
 ## Use Cases
 

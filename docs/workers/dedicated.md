@@ -2,8 +2,6 @@
 
 Raw dedicated worker wrapper with per-request MessageChannel isolation. Each `run()` creates a new port, so concurrent requests do not cross-contaminate messages.
 
----
-
 ## Create
 
 ```javascript
@@ -11,8 +9,6 @@ import { workers } from '@anzaui/anza/workers';
 
 const worker = workers.dedicated('/workers/sort.js');
 ```
-
----
 
 ## Run a Task
 
@@ -25,8 +21,6 @@ const result = await worker.run('sort', {
   meta: { requestId: 'abc' }
 });
 ```
-
----
 
 ## Message Contract
 
@@ -44,8 +38,6 @@ port.postMessage({ ok: true, value: result });
 port.postMessage({ ok: false, error: 'message' });
 ```
 
----
-
 ## Terminate
 
 ```javascript
@@ -53,8 +45,6 @@ worker.terminate();
 ```
 
 After termination, all pending `run()` calls reject immediately.
-
----
 
 ## Abort and Timeout
 
@@ -70,8 +60,6 @@ ctrl.abort();
 ```
 
 Signal and timeout are combined into one abort controller internally.
-
----
 
 ## Error Handling
 

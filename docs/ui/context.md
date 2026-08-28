@@ -2,8 +2,6 @@
 
 Every lifecycle hook receives a frozen context object with helpers for interacting with the element's shadow DOM, events, and observers.
 
----
-
 ## Context Fields
 
 ```javascript
@@ -21,8 +19,6 @@ Every lifecycle hook receives a frozen context object with helpers for interacti
 }
 ```
 
----
-
 ## el
 
 The element instance itself. Access properties, shadow root, and methods:
@@ -37,8 +33,6 @@ on: {
 }
 ```
 
----
-
 ## ctrl
 
 An `AbortController` whose signal aborts when the element disconnects. Pass it to any async operation for automatic cleanup:
@@ -52,8 +46,6 @@ on: {
 ```
 
 When the element is removed, the signal aborts and the fetch is cancelled.
-
----
 
 ## params
 
@@ -72,8 +64,6 @@ on: {
 
 Values are automatically cast to their declared contract type (e.g., `Number`).
 
----
-
 ## query
 
 An ordered, typed array containing query parameters mapped from the URL. Available in the `load` hook:
@@ -89,8 +79,6 @@ on: {
 }
 ```
 
----
-
 ## raw
 
 The raw `URLSearchParams` object representing all query parameters currently in the URL. Useful for accessing undeclared query keys:
@@ -104,8 +92,6 @@ on: {
   }
 }
 ```
-
----
 
 ## tags
 
@@ -124,8 +110,6 @@ on: {
 
 The cache is invalidated automatically when shadow DOM children change.
 
----
-
 ## refs
 
 Named element lookups based on `ref="name"` attributes in the template:
@@ -142,8 +126,6 @@ on: {
 ```
 
 Duplicate `ref` names log a warning. The first match wins.
-
----
 
 ## on
 
@@ -207,8 +189,6 @@ on.click.once('.btn', handler);
 
 Direct `Element` targets must live inside this shadow; targets outside warn and return a no-op disposer.
 
----
-
 ## watch
 
 Shadow-scoped mutation helpers. Prefer typed kinds (`attr` / `kids` / `text` / `slot`) over `tree`. Observers are **bucketed by fingerprint** so a wide `tree` or `attr *` registration never drops `attributeFilter` / `subtree` on a neighbor.
@@ -270,8 +250,6 @@ on: {
 Options: `{ signal, once, requirePresent }` (or pass an `AbortSignal` as the last arg). Default signal is `ctrl.signal`. Every call returns a disposer. Selector targets with zero current matches still observe for late bind unless `requirePresent: true` (then no-op + warn). Direct targets outside the shadow throw in development and no-op in production.
 
 Diagnostics: [`getAttachmentStats(shadowRoot)`](api.md) reports live `on` / `watch` / slot counts for soft-nav leak tests.
-
----
 
 ## internals
 

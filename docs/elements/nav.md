@@ -4,15 +4,11 @@ Accessible navigation wrapper with horizontal or vertical orientation.
 
 **Tag:** `ui-nav` · **Import:** `@anzaui/anza/elements/nav`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/nav';
 ```
-
----
 
 ## Basic usage
 
@@ -27,8 +23,6 @@ import '@anzaui/anza/elements/nav';
 </ui-nav>
 ```
 
----
-
 ## Props
 
 | Prop | Type | Reflect | Description |
@@ -38,8 +32,6 @@ import '@anzaui/anza/elements/nav';
 ## Notes
 
 Defaults `role="navigation"`. Inner markup uses `part="nav"`; put links / list items in the default slot.
-
----
 
 ## Related
 

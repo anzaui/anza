@@ -1,6 +1,5 @@
 <h1>Troubleshooting</h1>
 <p>Common problems and their solutions.</p>
-<hr />
 <h2>Pool task never resolves</h2>
 <p><strong>Cause:</strong> Worker script not found, or worker does not respond with <code>{ ok, value }</code>.</p>
 <p><strong>Fix:</strong> Ensure the worker script exists and uses the correct message contract:</p>
@@ -11,7 +10,6 @@ self.onmessage = (e) =&gt; {
   port.postMessage({ ok: true, value: result });
 };
 </view-code>
-<hr />
 <h2>Shared worker not sharing</h2>
 <p><strong>Cause:</strong> <code>SharedWorker</code> unavailable, so fallback to dedicated is used. Dedicated workers do not share state across tabs.</p>
 <p><strong>Fix:</strong> Check <code>has.shared</code>:</p>
@@ -21,7 +19,6 @@ if (!has.shared) {
   console.warn('SharedWorker not supported — using dedicated fallback');
 }
 </view-code>
-<hr />
 <h2>Broadcast not received</h2>
 <p><strong>Cause:</strong> Subscribing after the broadcast was sent, or different channel names.</p>
 <p><strong>Fix:</strong> Subscribe before broadcasting:</p>
@@ -29,7 +26,6 @@ if (!has.shared) {
 workers.broadcast('channel', data); // subscriber receives this
 </view-code>
 <p>Also check that all tabs use the same channel name.</p>
-<hr />
 <h2>Lock times out</h2>
 <p><strong>Cause:</strong> Another tab holds the lock and does not release it.</p>
 <p><strong>Fix:</strong> Use <code>ifAvailable</code> to avoid waiting:</p>
@@ -42,7 +38,6 @@ workers.broadcast('channel', data); // subscriber receives this
 <p>Or use <code>steal</code> to preempt (use cautiously):</p>
 <view-code language="javascript">await workers.lock('db', fn, { steal: true });
 </view-code>
-<hr />
 <h2>OffscreenCanvas fails</h2>
 <p><strong>Cause:</strong> Not supported, or canvas already has a context.</p>
 <p><strong>Fix:</strong> Check support and ensure no 2d/webgl context was created on the main thread:</p>
@@ -53,7 +48,6 @@ if (supports.offscreenCanvas) {
   const handle = await workers.offscreen(canvas, '/worker.js');
 }
 </view-code>
-<hr />
 <h2>Worker pool grows too large</h2>
 <p><strong>Cause:</strong> Many concurrent tasks, or <code>max</code> not set.</p>
 <p><strong>Fix:</strong> The default max is <code>hardwareConcurrency - 1</code>. If you need fewer:</p>
@@ -63,7 +57,6 @@ if (supports.offscreenCanvas) {
   idle: 10000  // reclaim after 10s
 });
 </view-code>
-<hr />
 <h2>Memory leak with workers</h2>
 <p><strong>Cause:</strong> Workers never terminated, or pools not closed.</p>
 <p><strong>Fix:</strong> Call <code>workers.clear()</code> on app shutdown:</p>
@@ -72,7 +65,6 @@ if (supports.offscreenCanvas) {
 });
 </view-code>
 <p>Pools auto-terminate on <code>pagehide</code>, but explicit cleanup is safer.</p>
-<hr />
 <h2>Still stuck?</h2>
 <p>Check feature support:</p>
 <view-code language="javascript">import { has } from '@anzaui/anza/workers';

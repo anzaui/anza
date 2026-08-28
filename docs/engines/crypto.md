@@ -2,8 +2,6 @@
 
 The cryptographic verification module protects Server-Templated UI (STUI) fragments from tampering, replay attacks, and unauthorized origin injection across reverse proxies, CDNs, and microservices.
 
----
-
 ## Overview
 
 When dynamic component fragments or real-time streaming updates are sent over the wire, the backend signs the payload across a canonical string:
@@ -18,8 +16,6 @@ ts:slot:html
 
 The client runtime validates the signature before mutating the DOM. Stale or tampered payloads are rejected immediately.
 
----
-
 ## Signing Modes
 
 | Mode | Algorithm | Best For | Proxy / CDN Support | Auth Dependency |
@@ -28,8 +24,6 @@ The client runtime validates the signature before mutating the DOM. Stale or tam
 | **`SessionBound`** | HKDF-SHA256 $\rightarrow$ HMAC-SHA256 | Authenticated personalized streams | Yes | Derived from user session token |
 | **`Hmac`** | HMAC-SHA256 | Internal VPC microservices / single origin | Yes | Pre-shared secret |
 | **`None`** | No Signature | Local development and testing | Yes | None |
-
----
 
 ## Asymmetric Ed25519 (Recommended)
 
@@ -60,8 +54,6 @@ const engine = await new Setup({
 }).run();
 ```
 
----
-
 ## Symmetric HMAC-SHA256
 
 For single-origin deployments or internal microservices sharing a secure environment secret:
@@ -78,8 +70,6 @@ const engine = await new Setup({
 }).run();
 ```
 
----
-
 ## Wire Envelope Format
 
 All signed fragments conform to the standard wire envelope:
@@ -93,8 +83,6 @@ All signed fragments conform to the standard wire envelope:
   "css": null
 }
 ```
-
----
 
 ## Client-Side Verification
 

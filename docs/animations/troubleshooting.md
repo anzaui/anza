@@ -2,8 +2,6 @@
 
 Common problems and their solutions.
 
----
-
 ## Animation not running
 
 **Cause:** Element not in DOM, or `display: none`.
@@ -15,8 +13,6 @@ if (el.isConnected) {
   animations.animate(el, 'fade');
 }
 ```
-
----
 
 ## Stagger not delaying
 
@@ -30,8 +26,6 @@ animations.stagger(items, 'fade', { staggerDelay: 60 });
 
 `items` must be a `NodeList` or array.
 
----
-
 ## Animation cancelled immediately
 
 **Cause:** AbortSignal already aborted when passed.
@@ -43,8 +37,6 @@ if (!ctrl.signal.aborted) {
   animations.animate(el, 'fade', { signal: ctrl.signal });
 }
 ```
-
----
 
 ## Scroll timeline not working
 
@@ -62,8 +54,6 @@ if (supports.scrollTimeline) {
 }
 ```
 
----
-
 ## Token returns wrong value
 
 **Cause:** CSS custom property not defined, or document not ready.
@@ -76,8 +66,6 @@ if (supports.scrollTimeline) {
   --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
 }
 ```
-
----
 
 ## Reduced motion not respected
 
@@ -93,8 +81,6 @@ if (!animations.reduced()) {
 }
 ```
 
----
-
 ## Sequence stops mid-way
 
 **Cause:** An element in a step is missing or the animation throws.
@@ -108,8 +94,6 @@ try {
   console.error('Sequence failed at step:', err);
 }
 ```
-
----
 
 ## Still stuck?
 

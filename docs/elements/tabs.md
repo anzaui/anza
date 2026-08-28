@@ -4,15 +4,11 @@ Accessible tablist with roving tabindex, arrow / Home / End keys, and optional U
 
 **Tag:** `ui-tabs` · **Import:** `@anzaui/anza/elements/tabs`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/tabs';
 ```
-
----
 
 ## Basic usage
 
@@ -24,8 +20,6 @@ import '@anzaui/anza/elements/tabs';
   <div role="tabpanel">Panel two</div>
 </ui-tabs>
 ```
-
----
 
 ## Props
 
@@ -40,8 +34,6 @@ Named `tab` slot for tab triggers; default slot for panels (`role="tabpanel"` or
 ### Lifecycle / memory
 
 Keyboard and click handlers are shadow-scoped and abort with the component `ctrl` on disconnect (including soft-nav leaf swap). See [Memory safety & framework globals](../ui/advanced.md).
-
----
 
 ## Related
 

@@ -4,15 +4,11 @@ KPI statistic with label, value, and optional trend/change slot.
 
 **Tag:** `ui-stat` · **Import:** `@anzaui/anza/elements/stat`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/stat';
 ```
-
----
 
 ## Basic usage
 
@@ -29,8 +25,6 @@ import '@anzaui/anza/elements/stat';
 </ui-stat>
 ```
 
----
-
 ## Props
 
 | Prop | Type | Reflect | Description |
@@ -45,8 +39,6 @@ import '@anzaui/anza/elements/stat';
 | _(default)_ | slot | Primary value |
 | `change` | slot | Trend / delta text |
 | `label` / `value` / `trend` | parts | Section wrappers |
-
----
 
 ## Related
 

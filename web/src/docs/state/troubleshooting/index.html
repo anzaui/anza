@@ -1,6 +1,5 @@
 <h1>Troubleshooting</h1>
 <p>Common problems and their solutions.</p>
-<hr />
 <h2>Subscriber not firing</h2>
 <p><strong>Cause:</strong> Setting the same reference, or batching without actual change.</p>
 <p><strong>Fix:</strong> Check that the value actually changed (not <code>Object.is</code> equal):</p>
@@ -10,14 +9,12 @@ store.set('count', store.get('count') + 1);
 // Wrong — same reference, no trigger
 store.set('count', store.get('count'));
 </view-code>
-<hr />
 <h2>Derived value stale</h2>
 <p><strong>Cause:</strong> The derived value was not accessed after a dependency changed.</p>
 <p><strong>Fix:</strong> Derived values recompute lazily. Access <code>.value</code> after changes:</p>
 <view-code language="javascript">store.set('count', 5);
 console.log(doubled.value); // forces recompute
 </view-code>
-<hr />
 <h2>Memory leak with subscribers</h2>
 <p><strong>Cause:</strong> Subscribers never removed.</p>
 <p><strong>Fix:</strong> Use disposers or AbortSignal:</p>
@@ -27,7 +24,6 @@ off();
 // Or with signal
 store.subscribe('count', handler, ctrl.signal);
 </view-code>
-<hr />
 <h2>Cross-tab sync not working</h2>
 <p><strong>Cause:</strong> <code>BroadcastChannel</code> unavailable, or different channel names.</p>
 <p><strong>Fix:</strong> Check that all tabs use the same channel name:</p>
@@ -38,7 +34,6 @@ store.broadcast('app-sync', ['theme']);
 store.broadcast('app-sync', ['theme']);
 </view-code>
 <p>Private browsing may disable <code>BroadcastChannel</code>.</p>
-<hr />
 <h2>IndexedDB blocked</h2>
 <p><strong>Cause:</strong> Another tab has the database open with an older version.</p>
 <p><strong>Fix:</strong> Listen for the <code>storage:blocked</code> event:</p>
@@ -46,7 +41,6 @@ store.broadcast('app-sync', ['theme']);
   console.warn('IDB upgrade blocked — close other tabs');
 });
 </view-code>
-<hr />
 <h2>TTL entries returning null</h2>
 <p><strong>Cause:</strong> Entry expired between set and get.</p>
 <p><strong>Fix:</strong> Check timestamps. TTL is in milliseconds:</p>
@@ -56,7 +50,6 @@ await state.storage.set('keyval', 'token', data, { ttl: 60000 });
 // Wrong — 60 is 60 milliseconds
 await state.storage.set('keyval', 'token', data, { ttl: 60 });
 </view-code>
-<hr />
 <h2>Still stuck?</h2>
 <p>Inspect store state:</p>
 <view-code language="javascript">console.log(store.snapshot());

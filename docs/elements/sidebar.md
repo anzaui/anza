@@ -4,15 +4,11 @@ Collapsible side panel for navigation or secondary chrome.
 
 **Tag:** `ui-sidebar` · **Import:** `@anzaui/anza/elements/sidebar`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/sidebar';
 ```
-
----
 
 ## Basic usage
 
@@ -27,8 +23,6 @@ import '@anzaui/anza/elements/sidebar';
 ```javascript
 document.querySelector('ui-sidebar').toggle();
 ```
-
----
 
 ## Props
 
@@ -45,8 +39,6 @@ document.querySelector('ui-sidebar').toggle();
 ## Notes
 
 Default slot content sits in `part="wrapper"`.
-
----
 
 ## Related
 

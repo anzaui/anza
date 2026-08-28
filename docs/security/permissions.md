@@ -2,8 +2,6 @@
 
 Query and watch browser permission states for device capabilities like geolocation, camera, microphone, and notifications.
 
----
-
 ## Query
 
 ```javascript
@@ -15,8 +13,6 @@ const state = await security.permission('geolocation');
 
 Returns `'denied'` if the Permissions API is unavailable or the permission name is unrecognized.
 
----
-
 ## Watch
 
 ```javascript
@@ -27,8 +23,6 @@ const dispose = security.watchPermission('geolocation', (state) => {
 // Stop watching
 dispose();
 ```
-
----
 
 ## AbortSignal Cleanup
 
@@ -43,8 +37,6 @@ security.watchPermission('camera', (state) => {
 ctrl.abort();
 ```
 
----
-
 ## Common Permission Names
 
 | Name | Description |
@@ -57,8 +49,6 @@ ctrl.abort();
 | `clipboard-write` | Clipboard write |
 
 Not all permissions are supported in all browsers. Unsupported names return `'denied'`.
-
----
 
 ## Example: Camera Gated Component
 

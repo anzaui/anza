@@ -9,8 +9,6 @@ The toolkit is split into two halves:
 
 Browsers do not support import maps in Service Worker scope, so the build tool rewrites bare specifiers to relative paths when emitting `dist/sw.js`.
 
----
-
 ## What You Get
 
 - **Caching strategies** — CacheFirst, NetworkFirst, StaleRevalidate, CacheThenNetwork, NetworkOnly, CacheOnly, and OfflineFallback
@@ -20,8 +18,6 @@ Browsers do not support import maps in Service Worker scope, so the build tool r
 - **Background sync** — queue failed requests and replay them when connectivity returns
 - **Push notifications** — VAPID subscription and notification display
 - **Request serialization** — store Request objects in IndexedDB for offline replay
-
----
 
 ## Package
 
@@ -33,8 +29,6 @@ import { CacheFirst, router, precache } from '@anzaui/anza/sw';
 import { offline } from '@anzaui/anza/offline';
 ```
 
----
-
 ## File Map
 
 | File | What It Covers |
@@ -44,8 +38,6 @@ import { offline } from '@anzaui/anza/offline';
 | [routes.md](routes.md) | URLPattern routing inside the Service Worker |
 | [sync.md](sync.md) | Background sync queue and replay |
 | [api.md](api.md) | Complete API reference |
-
----
 
 ## One-File Example
 
@@ -76,8 +68,6 @@ navigator.serviceWorker.register('/sw.js');
 
 dock('main');
 ```
-
----
 
 ## Next Steps
 

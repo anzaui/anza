@@ -1,6 +1,5 @@
 <h1>Components &amp; Partials</h1>
 <p>Anza Server Partials are self-contained <code>.html</code> fragments designed for rendering list items, cards, modals, or real-time UI stream slices. Partials encapsulate their own markup, local <code>&lt;style&gt;</code> definitions, and interactive action endpoints.</p>
-<hr />
 <h2>What You Get</h2>
 <div class="table-wrap"><table><thead><tr><th>Feature</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Self-Contained Styling</strong></td><td>Component-level <code>&lt;style&gt;</code> block included directly in the template</td></tr>
@@ -8,7 +7,6 @@
 <tr><td><strong>Direct Action Endpoints</strong></td><td>Integrated action triggers (<code>[delete]</code>, <code>[sig]</code>, forms) within component markup</td></tr>
 <tr><td><strong>Streamable Chunks</strong></td><td>Rendered partials can be dispatched directly across SSE or WebSocket streams</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Card Component Anatomy (<code>feed/card.html</code>)</h2>
 <p>Below is the standard article card component template:</p>
 <view-code language="html">&lt;article class="post-card" id="article-{{id}}"&gt;
@@ -112,7 +110,6 @@
   &lt;/div&gt;
 &lt;/article&gt;
 </view-code>
-<hr />
 <h2>Rendering Multiple Partials</h2>
 <p>In server route handlers, query records from your database and map each item to a rendered partial string:</p>
 <h3>In Rust (Axum)</h3>
@@ -142,7 +139,6 @@ return engine.render_page("pages/home.html", {
     "articles": feed_html
 })
 </view-code>
-<hr />
 <h2>Live Stream Dispatch</h2>
 <p>When a new article is created, render its partial immediately and broadcast a signed STUI envelope to all connected stream clients:</p>
 <view-code language="rust">let card_html = engine.render("feed/card.html", &amp;new_article)?;

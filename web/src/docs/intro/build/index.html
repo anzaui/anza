@@ -1,6 +1,5 @@
 <h1>Build</h1>
 <p>The <code>anza</code> CLI resolves your ESM import graph, copies reachable files into <code>dist/</code>, generates type declarations, and serves the result. You call it through npm scripts.</p>
-<hr />
 <h2>Dev Server</h2>
 <view-code language="bash">npm run dev
 </view-code>
@@ -18,14 +17,12 @@
 <p>Override the port:</p>
 <view-code language="bash">npx anza dev --port 8080
 </view-code>
-<hr />
 <h2>Compile-Time Route Validation</h2>
 <p>During both <code>dev</code> and <code>build</code> phases, the Rust compiler performs design-by-contract checks on all page and dock definitions. It scans route pattern strings (e.g. <code>'/blog/:slug'</code>) and cross-references them with the declared <code>params</code> and <code>query</code> contract arrays.</p>
 <p>If a route parameter (like <code>:slug</code>) is present in the route but missing from the component's <code>params</code> array, the CLI prints a descriptive warning:</p>
 <view-code language="text">[WARN] Page tag 'page-blog-post' defines route '/blog/:slug' but has no parameter contract declared for ':slug'.
 </view-code>
 <p>These warnings are non-blocking: compilation still succeeds and the router will fallback to string matching, but developers get early visibility into contract mismatches.</p>
-<hr />
 <h2>Production Build</h2>
 <view-code language="bash">npm run build
 </view-code>
@@ -44,7 +41,6 @@
 <li>Always emits <code>dist/sitemap.xml</code> + <code>dist/robots.txt</code> for Mode A routes (unless disabled in <code>ssg.json</code>)</li>
 <li>Emits JSON-LD <code>WebSite</code> / <code>WebPage</code> in the SSG document <code>&lt;head&gt;</code> (light DOM; does not affect DSD hydration)</li>
 </ul>
-<hr />
 <h2>Diagnostics</h2>
 <view-code language="bash">npx anza doctor
 npx anza check
@@ -73,7 +69,6 @@ npx anza check
 <p><strong>Custom domain on the project:</strong> Pages serves the site at the <strong>domain root</strong> (e.g. <code>https://anza.aduki.org/</code>), not under <code>/your-repo/</code> — see <a href="https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages">About custom domains and GitHub Pages</a>. Clear <code>base</code> / <code>ANZA_BASE_PATH</code> (omit or <code>""</code>) so assets resolve at <code>/styles/...</code>, <code>/app.js</code>, <code>/docs/...</code>. Include a <code>CNAME</code> in the published artifact when deploying via Actions.</p>
 <p><strong>One-time repo setup:</strong> Settings → Pages → Source: <strong>GitHub Actions</strong> (or your preferred Pages source).</p>
 <p>Set canonical / sitemap origin in <code>ssg.json</code> (<code>origin</code>) or env <code>ANZA_SITE_ORIGIN</code> at build time.</p>
-<hr />
 <h2>Generate</h2>
 <p>Thin helpers (not a Nest schematic platform). Writes into convention slots or <code>anza.json</code> remaps and updates the slot <code>index.js</code> barrel:</p>
 <view-code language="bash">anza generate page about
@@ -89,7 +84,6 @@ anza generate part button
 <tr><td><code>part</code></td><td><code>parts/</code></td><td>same</td></tr>
 </tbody></table></div>
 <p>Flags: <code>--tree</code>, <code>--route</code>, <code>--via</code> (comma-separated), <code>--parent</code>, <code>-s/--src</code>.</p>
-<hr />
 <h2>Flags</h2>
 <div class="table-wrap"><table><thead><tr><th>Flag</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>-s, --src</code></td><td><code>src</code></td><td>Source directory</td></tr>
@@ -102,7 +96,6 @@ anza generate part button
 <tr><td><code>--via</code></td><td><code>rootDock</code></td><td>With <code>generate page</code> — comma-separated via chain</td></tr>
 <tr><td><code>--parent</code></td><td><code>rootDock</code></td><td>With <code>generate dock</code> — parent registry key</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Output</h2>
 <p>After <code>npm run build</code>:</p>
 <view-code language="text">dist/

@@ -2,16 +2,12 @@
 
 The Anza security layer provides browser-native cryptography, HTML sanitization, Trusted Types integration, and Permissions API querying. Everything delegates to the browser's `SubtleCrypto` and `crypto` thread pools — no third-party libraries required.
 
----
-
 ## What You Get
 
 - **Cryptography** — AES-GCM encryption, PBKDF2 key derivation, HMAC/ECDSA signing and verification, SHA hashing, UUID generation
 - **String encryption** — `seal` and `unseal` for storing encrypted data as base64 in JSON or localStorage
 - **HTML sanitization** — XSS-safe HTML with Trusted Types policy when available
 - **Permissions** — query and watch browser permission states (geolocation, camera, etc.)
-
----
 
 ## Package
 
@@ -25,8 +21,6 @@ Or individual functions:
 import { uuid, hash, encrypt, decrypt, seal, unseal, sanitize, permission } from '@anzaui/anza/security';
 ```
 
----
-
 ## File Map
 
 | File | What It Covers |
@@ -38,8 +32,6 @@ import { uuid, hash, encrypt, decrypt, seal, unseal, sanitize, permission } from
 | [permissions.md](permissions.md) | Query and watch browser permissions |
 | [api.md](api.md) | Complete API reference |
 | [troubleshooting.md](troubleshooting.md) | Common problems and how to fix them |
-
----
 
 ## One-File Example
 
@@ -63,8 +55,6 @@ const safe = String(security.sanitize('<p><script>alert(1)</script>Hello</p>'));
 // Query permission
 const state = await security.permission('geolocation');
 ```
-
----
 
 ## Next Steps
 

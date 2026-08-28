@@ -2,8 +2,6 @@
 
 Get working with encryption and sanitization in five minutes.
 
----
-
 ## 1. Generate a UUID
 
 ```javascript
@@ -11,8 +9,6 @@ import { security } from '@anzaui/anza/security';
 
 const id = security.uuid(); // e.g. "550e8400-e29b-41d4-a716-446655440000"
 ```
-
----
 
 ## 2. Hash Data
 
@@ -22,8 +18,6 @@ const digest = await security.hash('my-payload');
 
 const sha512 = await security.hash('data', 'SHA-512');
 ```
-
----
 
 ## 3. Encrypt and Decrypt
 
@@ -41,8 +35,6 @@ const plain = new TextDecoder().decode(plainBuf);
 
 Each encryption generates a fresh 12-byte IV and prepends it to the ciphertext.
 
----
-
 ## 4. Seal and Unseal (Base64)
 
 For storing encrypted data in JSON or localStorage:
@@ -56,8 +48,6 @@ const sealed = await security.seal(key, 'Secret message');
 const plain = await security.unseal(key, sealed);
 ```
 
----
-
 ## 5. Sanitize HTML
 
 ```javascript
@@ -68,16 +58,12 @@ const link = String(security.sanitize('<a href="javascript:void(0)">click</a>'))
 // '<a>click</a>' — javascript: href stripped
 ```
 
----
-
 ## 6. Query Permission
 
 ```javascript
 const state = await security.permission('geolocation');
 // 'granted' | 'denied' | 'prompt'
 ```
-
----
 
 ## Complete Working Example
 

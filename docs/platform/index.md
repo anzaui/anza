@@ -4,8 +4,6 @@ The Anza platform layer detects browser capabilities, lazily loads polyfills for
 
 It answers two questions: what does this browser support, and how do I use the feature regardless?
 
----
-
 ## What You Get
 
 - **Feature detection** — 30+ lazy-evaluated boolean flags for routing, components, CSS, scheduling, storage, networking, and security
@@ -14,8 +12,6 @@ It answers two questions: what does this browser support, and how do I use the f
 - **Framework globals registry** — `globals` for soft-nav–stable platform listeners / observers
 - **Runtime guards** — `typeGuard` for early-fail checks in critical paths
 - **Reset for testing** — `reset(flag)` to clear cached detection values
-
----
 
 ## Package
 
@@ -30,8 +26,6 @@ import {
 } from '@anzaui/anza/platform';
 ```
 
----
-
 ## File Map
 
 | File | What It Covers |
@@ -42,8 +36,6 @@ import {
 | [scheduler.md](scheduler.md) | Prioritized task scheduling and yielding |
 | [api.md](api.md) | Complete API reference |
 | [troubleshooting.md](troubleshooting.md) | Common problems and how to fix them |
-
----
 
 ## One-File Example
 
@@ -64,8 +56,6 @@ typeGuard('opfs', 'File storage requires Origin Private File System');
 const URLPattern = await guard.urlPattern();
 const pattern = new URLPattern({ pathname: '/user/:id' });
 ```
-
----
 
 ## Next Steps
 

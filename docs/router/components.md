@@ -2,8 +2,6 @@
 
 `view()` and `part()` define custom elements without route binding. They are the building blocks of pages and docks.
 
----
-
 ## view()
 
 A `view` is a composable, stateful Web Component. It has reactive properties, lifecycle hooks, and a template. The router never touches it directly — it is a UI primitive.
@@ -36,8 +34,6 @@ Use views for:
 - Dialogs and modals that are not route-bound
 - Complex stateful components that need reactive updates
 
----
-
 ## part()
 
 A `part` is an atomic, stateless UI primitive: buttons, icons, badges, chips. It has props but no reactive update loop.
@@ -68,8 +64,6 @@ Use parts for:
 - Buttons and badges
 - Purely presentational elements
 
----
-
 ## Shared Config Fields
 
 Both `view()` and `part()` accept the same config fields as `page()`, minus routing-specific ones:
@@ -87,8 +81,6 @@ Both `view()` and `part()` accept the same config fields as `page()`, minus rout
 | `methods` | yes | yes |
 | `base` | yes | yes |
 
----
-
 ## Methods
 
 Both support custom methods:
@@ -105,8 +97,6 @@ view('user-card', {
 
 Methods are assigned to the element prototype.
 
----
-
 ## File Templates
 
 Same as pages and docks:
@@ -116,8 +106,6 @@ view('user-card', {
   template: { html: './card.html', css: './card.css' }
 }, import.meta.url);
 ```
-
----
 
 ## Comparison
 

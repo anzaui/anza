@@ -4,15 +4,11 @@ Lightweight canvas chart (`bar` or `line`) with high-DPI scaling and resize redr
 
 **Tag:** `ui-chart` · **Import:** `@anzaui/anza/elements/chart`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/chart';
 ```
-
----
 
 ## Basic usage
 
@@ -20,8 +16,6 @@ import '@anzaui/anza/elements/chart';
 <ui-chart type="bar" data="[10, 30, 20, 50, 40, 60]"></ui-chart>
 <ui-chart type="line" data="[5, 12, 9, 18, 14]"></ui-chart>
 ```
-
----
 
 ## Props
 
@@ -37,8 +31,6 @@ Draws with CSS tokens `--color-interactive`, `--color-border-default`, `--color-
 ### Lifecycle / memory
 
 `ResizeObserver` is tied to the component abort signal — soft-nav disconnect cleans it up. Prefer prop updates (`data` / `type`) over attaching your own observers from a leaf without a signal.
-
----
 
 ## Related
 

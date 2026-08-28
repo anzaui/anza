@@ -1,6 +1,5 @@
 <h1>Real-Time Streaming</h1>
 <p>Anza Server-Templated UI provides first-class support for real-time component streaming. Backends push signed component envelopes over <strong>Server-Sent Events (SSE)</strong> or <strong>WebSockets</strong>, updating client UI slots without full page refreshes or virtual DOM diffing.</p>
-<hr />
 <h2>What You Get</h2>
 <ul>
 <li><strong>Server-Sent Events (SSE)</strong> — Standard HTTP transport with automatic reconnection and CDN pass-through</li>
@@ -8,7 +7,6 @@
 <li><strong>Declarative client listener</strong> — <code>listenStream()</code> automatically verifies signatures and patches matching docks</li>
 <li><strong>Async generator consumption</strong> — Programmatic <code>for await</code> streams via <code>api.stream()</code></li>
 </ul>
-<hr />
 <h2>Protocol Overview</h2>
 <h3>Server-Sent Events (SSE)</h3>
 <view-code language="http">HTTP/1.1 200 OK
@@ -19,7 +17,6 @@ Connection: keep-alive
 event: template
 data: {"slot":"feed","ts":1724771234,"html":"&lt;ui-card&gt;...&lt;/ui-card&gt;","sig":"3a8f4c...","css":null}
 </view-code>
-<hr />
 <h2>Client Integration</h2>
 <h3>1. <code>listenStream()</code></h3>
 <p>Connect to an SSE stream and automatically patch matching docks in the DOM:</p>
@@ -47,7 +44,6 @@ for await (const chunk of api.stream('/api/live/feed')) {
   console.log('Received live envelope:', envelope.slot, envelope.html);
 }
 </view-code>
-<hr />
 <h2>Server Implementation</h2>
 <h3>TypeScript / Hono SSE</h3>
 <view-code language="typescript">import { Hono } from 'hono';

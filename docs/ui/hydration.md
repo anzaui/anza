@@ -4,8 +4,6 @@ When a public route ships contentful HTML with open Declarative Shadow DOM (DSD)
 
 Anza does **not** own a production Node SSR runtime. HTML comes from Mode A (`anza build` / `anza dev` SSG) or Mode B (any-language templates). The client only adopts what is already in the document.
 
----
-
 ## Boot sequence
 
 1. Parser attaches open DSD → first paint with content and encapsulated styles (no JS).
@@ -14,8 +12,6 @@ Anza does **not** own a production Node SSR runtime. HTML comes from Mode A (`an
 4. Constructor: `this.shadowRoot || attachShadow({ mode: 'open' })`. If a shadow already exists, keep it.
 5. Attr → prop sync from SSG attributes; rehydrate `ref`s, tags cache, `on`, and `watch`.
 6. Soft-nav may CSR-mount a new leaf; full load / hard refresh hits contentful HTML again.
-
----
 
 ## Adopt, don’t wipe
 
@@ -31,8 +27,6 @@ Also handled:
 - **Styles** — constructable sheets are assigned without removing DSD children; fallback `<style>` is skipped when DSD already shipped styles.
 - **Mismatch** — if the adopted tree fails hard sanity checks vs the client template (missing critical `ref`s / empty structure), one graceful re-render runs. No flash loop.
 
----
-
 ## Soft-nav vs full load
 
 | Path | Behavior |
@@ -45,8 +39,6 @@ Document / `#main` / `body` attachments belong only to named framework globals (
 
 `sanitizeTemplateHtml` refuses a full HTML document (doctype / `<html>` / nested `dock-main` / `dock-docs`) as a page template so a mis-pointed fragment path cannot stack docks inside the leaf.
 
----
-
 ## Safe to import anywhere
 
 `element()` / `page()` / `dock()` check for `customElements` before defining. In non-browser environments:
@@ -57,8 +49,6 @@ Document / `#main` / `body` attachments belong only to named framework globals (
 - `transition()` returns a resolved promise
 
 Define elements in the browser graph that upgrades SSG HTML; the factory itself is safe to import during build tooling.
-
----
 
 ## Related
 

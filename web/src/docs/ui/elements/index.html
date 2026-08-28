@@ -1,7 +1,6 @@
 <h1>Elements</h1>
 <p>The <code>element(tag, spec, base)</code> factory is the core of the Anza UI layer. It compiles a declarative spec object into a custom element class, handles resource loading, property reflection, lifecycle hooks, and memory-safe cleanup.</p>
 <p>The higher-level <code>page()</code>, <code>dock()</code>, <code>view()</code>, and <code>part()</code> functions all delegate to <code>element()</code> internally. Understanding <code>element()</code> helps you use the definition layer more effectively.</p>
-<hr />
 <h2>Signature</h2>
 <view-code language="javascript">element(tag, spec, base);
 </view-code>
@@ -10,7 +9,6 @@
 <tr><td><code>spec</code></td><td>object</td><td>yes</td><td>Element definition (see below)</td></tr>
 <tr><td><code>base</code></td><td>string</td><td>no</td><td><code>import.meta.url</code> of the caller</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Spec Shape</h2>
 <view-code language="javascript">{
   // Template and styling
@@ -58,10 +56,8 @@
   restore: (state, mode) =&gt; { ... }
 }
 </view-code>
-<hr />
 <h2>Duplicate Registration Guard</h2>
 <p><code>element()</code> checks <code>customElements.get(tag)</code> and skips if already defined. A warning is logged in development.</p>
-<hr />
 <h2>Resource Loading</h2>
 <p>Resources (templates and styles) are fetched once per registration and cached globally:</p>
 <ol>
@@ -70,18 +66,14 @@
 <li><strong>Tags descriptor</strong> — a <code>.tags.json</code> file alongside <code>.html</code> is fetched for pre-warming the query cache</li>
 </ol>
 <p>If a file template is given without <code>base</code>, an error is logged and the resource silently fails.</p>
-<hr />
 <h2>Constructable Stylesheets</h2>
 <p>When <code>CSSStyleSheet</code> and <code>adoptedStyleSheets</code> are supported, styles are compiled into a shared constructable stylesheet and adopted by the shadow root. This avoids <code>&lt;style&gt;</code> injection per instance and enables HMR.</p>
 <p>When unsupported, raw CSS text is injected as a <code>&lt;style&gt;</code> element in the shadow root.</p>
-<hr />
 <h2>HMR (Hot Module Replacement)</h2>
 <p>During development, the factory listens for <code>native:hmr:css</code> events. When a CSS file changes, the shared stylesheet is replaced in place using <code>replaceSync()</code>. All live instances update instantly without remounting.</p>
-<hr />
 <h2>Shadow DOM</h2>
 <p>Every declarative element opens a shadow root. The default mode is <code>open</code>. <code>closed</code> mode can be requested via <code>spec.mode</code>.</p>
 <p>Light DOM (<code>shadow: false</code> in the definition layer) is not supported and falls back to <code>open</code>.</p>
-<hr />
 <h2>BaseElement</h2>
 <p>The generated class extends <code>BaseElement</code>, which provides:</p>
 <ul>
@@ -102,7 +94,6 @@ class MyElement extends BaseElement {
 
 customElements.define('my-element', MyElement);
 </view-code>
-<hr />
 <h2>Reserved Names</h2>
 <p>These names cannot be used in <code>spec.methods</code>:</p>
 <ul>
@@ -112,7 +103,6 @@ customElements.define('my-element', MyElement);
 <li><code>mount</code>, <code>unmount</code>, <code>constructor</code></li>
 </ul>
 <p>Using a reserved name logs a warning and the method is skipped.</p>
-<hr />
 <h2>Related</h2>
 <ul>
 <li>Shipped kit elements (ready-made <code>ui-*</code>): <a href="/docs/elements/index">Elements overview</a></li>

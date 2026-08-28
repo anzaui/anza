@@ -4,15 +4,11 @@ Scroll viewport with optional scroll-snap.
 
 **Tag:** `ui-scroll` · **Import:** `@anzaui/anza/elements/scroll`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/scroll';
 ```
-
----
 
 ## Basic usage
 
@@ -26,8 +22,6 @@ import '@anzaui/anza/elements/scroll';
 </ui-scroll>
 ```
 
----
-
 ## Props
 
 | Prop | Type | Reflect | Description |
@@ -37,8 +31,6 @@ import '@anzaui/anza/elements/scroll';
 ## Notes
 
 Content lives in `part="viewport"`.
-
----
 
 ## Related
 

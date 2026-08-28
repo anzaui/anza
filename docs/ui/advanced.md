@@ -2,8 +2,6 @@
 
 Internals, edge cases, and extension points for developers who need to understand or modify the UI layer.
 
----
-
 ## Property Normalization
 
 Props declared as literal values are auto-expanded:
@@ -25,15 +23,11 @@ props: {
 }
 ```
 
----
-
 ## Route Parameter and Query Contracts
 
 Route parameters (`params`) and queries (`query`) are defined using typed contract arrays on page/dock components. Because they define a strict contract with URLs rather than generic component properties, they are processed separately from `props` and are stored directly on the spec registry.
 
 Unlike `props`, they do not support default values or attribute reflection overrides, but their types (e.g. `String`, `Number`) dictate casting before properties are reactively set on the element.
-
----
 
 ## Update Batching
 
@@ -59,8 +53,6 @@ spec.update.visual = true; // flushes via rAF
 
 The definition layer (`page`, `dock`, `view`) sets `visual: true` automatically. `part` does not.
 
----
-
 ## Attribute Sync
 
 When a prop changes programmatically, the corresponding attribute updates (unless `reflect: false`):
@@ -73,8 +65,6 @@ el.name = 'Bob';   // sets name="Bob"
 ```
 
 When an attribute changes externally (e.g., via `setAttribute`), the property setter is invoked, which triggers the `change` hook.
-
----
 
 ## Memory Safety
 
@@ -93,8 +83,6 @@ if (!this.ctrl || this.ctrl.signal.aborted || !this.isConnected) {
 }
 ```
 
----
-
 ## Tags Cache Invalidation
 
 The `TagsCache` is pre-warmed by the tags descriptor and cleared by a `MutationObserver` on the shadow root:
@@ -111,8 +99,6 @@ This means:
 
 For high-frequency mutations, consider direct DOM references instead of `tags` queries.
 
----
-
 ## Event Delegation Internals
 
 The `on` proxy registers one listener per event type on the shadow root. Handlers are matched via `composedPath()` (same algorithm as `events.delegate`):
@@ -124,8 +110,6 @@ on.click('.btn', handler);
 ```
 
 Passive defaults align with `events.listen` (touch/wheel only). If any remaining handler for a type is non-passive, the root listener is non-passive. When the registry for a type is empty, the root listener is removed immediately.
-
----
 
 ## Framework-global listeners / observers
 
@@ -155,8 +139,6 @@ When a container uses element-scoped View Transitions, `swapView` still runs `re
 
 Overlay kit notes (native top-layer vs toast body portal, popover polyfill `globals`): [Overlay patterns](../elements/overlay.md).
 
----
-
 ## Non-browser / hydration
 
 The UI layer checks `typeof customElements !== 'undefined'` before defining elements. Outside the browser:
@@ -167,8 +149,6 @@ The UI layer checks `typeof customElements !== 'undefined'` before defining elem
 - `transition()` returns a resolved promise
 
 Public SEO HTML comes from Mode A SSG or Mode B templates ([contract](../ssg/contract.md)). The client **adopts** open DSD — see [hydration.md](hydration.md). The factory is safe to import in any environment.
-
----
 
 ## Extending BaseElement
 
@@ -192,8 +172,6 @@ class ChartWidget extends BaseElement {
 
 customElements.define('chart-widget', ChartWidget);
 ```
-
----
 
 ## Custom Define
 

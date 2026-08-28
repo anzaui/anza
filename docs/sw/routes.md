@@ -2,8 +2,6 @@
 
 URLPattern-based routing inside the Service Worker. Matches incoming `fetch` events against registered patterns and dispatches them to the appropriate caching strategy.
 
----
-
 ## Create a Router
 
 ```javascript
@@ -13,8 +11,6 @@ const r = router();
 ```
 
 `router()` is a factory that returns a new `Router` instance.
-
----
 
 ## Register Patterns
 
@@ -33,8 +29,6 @@ Patterns are matched in order. The first match wins and `event.respondWith()` is
 | `'/api/users/:id'` | `/api/users/42`, `/api/users/abc` |
 | `{ pathname: '/items/:id', search: '?tab=*' }` | Object patterns forwarded to `URLPattern` |
 
----
-
 ## Handle Fetch Events
 
 ```javascript
@@ -45,8 +39,6 @@ self.addEventListener('fetch', (e) => {
 ```
 
 `r.handle(e)` returns `true` if a route matched and `event.respondWith()` was called. Return early to avoid the fallback. Return `false` to let the event fall through to your own handler.
-
----
 
 ## Advanced Patterns
 
@@ -60,8 +52,6 @@ r.register(
 ```
 
 The `Router` class normalizes strings into `URLPattern` instances automatically.
-
----
 
 ## Router API
 

@@ -4,15 +4,11 @@ Prev / next pagination. Uses `page` when set; otherwise syncs with the URL `?pag
 
 **Tag:** `ui-pagination` · **Import:** `@anzaui/anza/elements/pagination`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/pagination';
 ```
-
----
 
 ## Basic usage
 
@@ -29,8 +25,6 @@ document.querySelector('ui-pagination').addEventListener('page-change', (e) => {
   console.log(e.detail.page);
 });
 ```
-
----
 
 ## Props
 
@@ -53,8 +47,6 @@ Parts: `button`, `prev`, `next`, `indicator`. Click handlers use shadow-scoped `
 ### Lifecycle / memory
 
 Prev/next `on.click` and the Navigation API listener abort with the component `ctrl`. Soft-nav disconnect clears them. Prefer this over raw `document` listeners for page changes.
-
----
 
 ## Related
 

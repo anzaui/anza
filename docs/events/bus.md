@@ -2,8 +2,6 @@
 
 The global event bus is a singleton `EventBus` instance built on the native `EventTarget`. It provides typed `emit` and `on` methods for application-wide publish/subscribe.
 
----
-
 ## Global Bus
 
 ```javascript
@@ -21,8 +19,6 @@ events.emit('app:theme', { theme: 'dark' });
 off();
 ```
 
----
-
 ## EventBus Class
 
 Create isolated buses for scoped communication:
@@ -38,8 +34,6 @@ moduleBus.emit('update', data);
 
 Each `EventBus` is an independent `EventTarget`. Events do not leak between instances.
 
----
-
 ## Event Payload
 
 Listeners receive a `CustomEvent` with `type` and `detail`:
@@ -50,8 +44,6 @@ events.on('user:action', (e) => {
   console.log(e.detail);   // { action: 'save' }
 });
 ```
-
----
 
 ## AbortSignal Cleanup
 
@@ -66,8 +58,6 @@ ctrl.abort();
 
 This is the recommended pattern for component-scoped listeners. The bus uses the native `addEventListener({ signal })` API, so cleanup is handled by the browser.
 
----
-
 ## Manual Disposal
 
 `events.on` returns a disposer function:
@@ -76,8 +66,6 @@ This is the recommended pattern for component-scoped listeners. The bus uses the
 const off = events.on('update', handler);
 off(); // removes just this listener
 ```
-
----
 
 ## Using Native EventTarget Methods
 
@@ -89,13 +77,9 @@ bus.dispatchEvent(new CustomEvent('custom', { detail: {} }));
 bus.removeEventListener('custom', handler);
 ```
 
----
-
 ## Listener Order
 
 Listeners fire in registration order. There is no priority system. If order matters, register in the correct sequence.
-
----
 
 ## Error Handling
 

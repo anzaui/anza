@@ -4,15 +4,11 @@ Linear step indicator for multi-step workflows. Marks completed / active / upcom
 
 **Tag:** `ui-steps` · **Import:** `@anzaui/anza/elements/steps`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/steps';
 ```
-
----
 
 ## Basic usage
 
@@ -23,8 +19,6 @@ import '@anzaui/anza/elements/steps';
   <div>Confirm</div>
 </ui-steps>
 ```
-
----
 
 ## Props
 
@@ -39,8 +33,6 @@ Slotted children get `role="step"` and a `state` of `completed`, `active`, or un
 ### Lifecycle / memory
 
 `on.slotchange` is tied to `ctrl.signal` — soft-nav disconnect aborts it. Prefer prop-driven `active` updates over attaching long-lived document listeners.
-
----
 
 ## Related
 

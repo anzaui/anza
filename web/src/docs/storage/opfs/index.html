@@ -1,6 +1,5 @@
 <h1>OPFS</h1>
 <p>The Origin Private File System facade offloads operations to an inline Web Worker, leveraging synchronous file access handles for high-performance reads and writes. Cross-tab invalidation is handled via BroadcastChannel.</p>
-<hr />
 <h2>Requirements</h2>
 <p>OPFS requires a secure context (HTTPS) and browser support for <code>navigator.storage.getDirectory</code>. Check with the platform layer:</p>
 <view-code language="javascript">import { supports } from '@anzaui/anza/platform';
@@ -9,7 +8,6 @@ if (supports.opfs) {
   await storage.set('file', buffer, 'opfs');
 }
 </view-code>
-<hr />
 <h2>Read and Write</h2>
 <view-code language="javascript">import { storage } from '@anzaui/anza/storage';
 
@@ -21,12 +19,10 @@ await storage.set('data.bin', buffer, 'opfs');
 const data = await storage.get('data.bin', 'opfs');
 </view-code>
 <p>Values are JSON-serialized before writing. Binary data should be wrapped in an object or use ArrayBuffer directly.</p>
-<hr />
 <h2>Delete and Clear</h2>
 <view-code language="javascript">await storage.delete('data.bin', 'opfs');
 </view-code>
 <p>Clear all OPFS entries directly via the internal manager (not exposed through the facade).</p>
-<hr />
 <h2>Cross-Tab Invalidation</h2>
 <p>When an OPFS entry is written or deleted, a BroadcastChannel message invalidates the same key in other tabs:</p>
 <view-code language="javascript">window.addEventListener('message', (e) =&gt; {
@@ -35,7 +31,6 @@ const data = await storage.get('data.bin', 'opfs');
   }
 });
 </view-code>
-<hr />
 <h2>Web Worker Internals</h2>
 <p>OPFS operations run in a dedicated inline worker to avoid blocking the main thread. The worker:</p>
 <ol>
@@ -44,6 +39,5 @@ const data = await storage.get('data.bin', 'opfs');
 <li>Uses <code>createSyncAccessHandle</code> for fast synchronous I/O</li>
 <li>Serializes values to JSON via TextEncoder</li>
 </ol>
-<hr />
 <h2>Locks</h2>
 <p>File operations are coordinated with <code>navigator.locks</code> when available. Each key gets its own named lock (<code>opfs:{key}</code>) to prevent concurrent writes.</p>

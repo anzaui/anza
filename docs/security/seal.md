@@ -2,8 +2,6 @@
 
 `seal` and `unseal` are string-friendly wrappers over `encrypt` and `decrypt`. They return and accept base64-encoded payloads, making them ideal for JSON storage, localStorage, and IndexedDB.
 
----
-
 ## Seal
 
 ```javascript
@@ -15,16 +13,12 @@ const sealed = await security.seal(key, 'Secret message');
 
 Returns a base64 string containing the IV + ciphertext.
 
----
-
 ## Unseal
 
 ```javascript
 const plain = await security.unseal(key, sealed);
 console.log(plain); // 'Secret message'
 ```
-
----
 
 ## Storage Example
 
@@ -41,8 +35,6 @@ async function loadSecure(key, id) {
   return JSON.parse(plain);
 }
 ```
-
----
 
 ## Password-Based Encryption
 

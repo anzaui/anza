@@ -2,8 +2,6 @@
 
 The animation registry stores reusable named templates. Built-in presets are registered at module load. You can register your own for consistent animation vocabulary across the app.
 
----
-
 ## Built-In Presets
 
 | Name | Keyframes | Default Duration |
@@ -15,8 +13,6 @@ The animation registry stores reusable named templates. Built-in presets are reg
 | `scale` | scale(0.95) → 1 | `duration('normal')` |
 | `zoom` | scale(1.1) → 1 | `duration('normal')` |
 | `blur` | blur(8px) → 0 | `duration('normal')` |
-
----
 
 ## Register a Template
 
@@ -30,16 +26,12 @@ animations.register('bounce', [
 ], { duration: 500, easing: 'ease-in-out' });
 ```
 
----
-
 ## Use a Registered Template
 
 ```javascript
 animations.animate(el, 'bounce');
 animations.stagger(items, 'bounce', { staggerDelay: 50 });
 ```
-
----
 
 ## Overriding Defaults
 
@@ -50,8 +42,6 @@ Options passed to `animate` or `stagger` override the template defaults:
 animations.animate(el, 'bounce', { duration: 200 });
 ```
 
----
-
 ## Clear Templates
 
 ```javascript
@@ -61,8 +51,6 @@ registry.clear();
 ```
 
 This removes all templates including built-ins. Use with caution.
-
----
 
 ## Direct Registry Access
 

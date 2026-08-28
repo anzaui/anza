@@ -2,8 +2,6 @@
 
 Props are reactive properties on declarative elements. They are typed, support default values, automatically reflect to attributes, and trigger batched update callbacks on change.
 
----
-
 ## Declaring Props
 
 ```javascript
@@ -15,8 +13,6 @@ view('user-card', {
   }
 });
 ```
-
----
 
 ## Shorthand
 
@@ -32,8 +28,6 @@ props: {
 
 This expands to the full config internally. Use the longhand form when you need `reflect`, `state`, or other options.
 
----
-
 ## Supported Types
 
 | Type | Attribute Cast | Example |
@@ -41,8 +35,6 @@ This expands to the full config internally. Use the longhand form when you need 
 | `String` | As-is | `name="Alice"` → `'Alice'` |
 | `Number` | `Number(val)` | `age="42"` → `42` |
 | `Boolean` | Presence = true | `active` → `true`, absent → `false` |
-
----
 
 ## Attribute Reflection
 
@@ -55,8 +47,6 @@ props: {
 ```
 
 Boolean reflection uses empty string (`active=""`) for true and removes the attribute for false.
-
----
 
 ## Custom State (`:state()`)
 
@@ -76,8 +66,6 @@ user-card:state(loading) { opacity: 0.5; }
 
 Requires `ElementInternals` and the `states` API (Chrome 132+, Baseline 2026).
 
----
-
 ## Initial Values
 
 Props are initialized from attributes before `connectedCallback`:
@@ -92,8 +80,6 @@ If an attribute is absent, the default is used. If no default is declared:
 - `Number` → `null`
 - `Boolean` → `false`
 
----
-
 ## Programmatic Assignment
 
 Set props from JavaScript:
@@ -105,8 +91,6 @@ card.age = 25;
 ```
 
 The `change` hook fires after the assignment (batched via microtask or rAF depending on the `visual` flag).
-
----
 
 ## Query Param Mapping
 
@@ -124,8 +108,6 @@ page('/search', {
 
 Visiting `/search?q=hello&page=2` automatically sets the properties `this.q = 'hello'` (String) and `this.page = 2` (Number) on the element, triggering update cycles.
 
----
-
 ## Hash Mapping
 
 Declare a `hash` prop to receive the URL hash:
@@ -137,8 +119,6 @@ props: {
 ```
 
 Visiting `/about#team` sets `hash = '#team'`.
-
----
 
 ## Property Change Callback
 

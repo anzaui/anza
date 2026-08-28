@@ -2,8 +2,6 @@
 
 `events.listen` attaches a memory-safe event listener with automatic passive defaults for scroll-critical events. It returns a disposer and supports AbortSignal cleanup.
 
----
-
 ## Signature
 
 ```javascript
@@ -19,8 +17,6 @@ listen(target, type, handler, options);
 
 Returns a disposer function.
 
----
-
 ## Basic Use
 
 ```javascript
@@ -34,8 +30,6 @@ const dispose = events.listen(
 
 dispose(); // remove listener
 ```
-
----
 
 ## Automatic Passive Defaults
 
@@ -58,8 +52,6 @@ This is the correct way to opt into blocking behavior when you genuinely need `p
 
 Component `on` uses the **same** passive defaults (touch/wheel only). Click / submit / key handlers are non-passive unless you pass `{ passive: true }`.
 
----
-
 ## AbortSignal Cleanup
 
 ```javascript
@@ -72,16 +64,12 @@ events.listen(window, 'scroll', handler, { signal: ctrl.signal });
 ctrl.abort();
 ```
 
----
-
 ## Why Use listen Instead of addEventListener?
 
 1. **Automatic passive defaults** — prevents accidental scroll jank
 2. **Disposer pattern** — returns a function to remove the listener
 3. **AbortSignal support** — native cleanup tied to component lifecycle
 4. **Abort guard** — does not attach if the signal is already aborted
-
----
 
 ## Window and Document Listeners
 
@@ -94,8 +82,6 @@ events.listen(document, 'visibilitychange', () => {
   console.log('Visible:', !document.hidden);
 });
 ```
-
----
 
 ## Multiple Listeners, One Disposer
 

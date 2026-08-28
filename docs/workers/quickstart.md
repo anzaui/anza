@@ -2,8 +2,6 @@
 
 Get a worker running in five minutes.
 
----
-
 ## 1. Run a Task in a Pool
 
 ```javascript
@@ -18,8 +16,6 @@ console.log(result); // 102334155
 ```
 
 The pool lazily creates workers (default: `hardwareConcurrency - 1`). Tasks are scheduled by priority.
-
----
 
 ## 2. Priority Scheduling
 
@@ -45,8 +41,6 @@ workers.run('/workers/calc.js', 'sync', {
 
 The pool promotes background tasks after 20 higher-priority tasks to prevent starvation.
 
----
-
 ## 3. Cancel a Task
 
 ```javascript
@@ -62,8 +56,6 @@ workers.run('/workers/calc.js', 'heavy', {
 setTimeout(() => ctrl.abort(), 3000);
 ```
 
----
-
 ## 4. Cross-Tab Messaging
 
 ```javascript
@@ -78,8 +70,6 @@ const off = workers.subscribe('app-event', (data) => {
 off(); // unsubscribe
 ```
 
----
-
 ## 5. Web Lock
 
 ```javascript
@@ -89,8 +79,6 @@ await workers.lock('db:write', async () => {
 ```
 
 Other tabs calling `lock('db:write')` will wait until this callback completes.
-
----
 
 ## 6. Feature Detection
 
@@ -103,8 +91,6 @@ if (has.channel)  console.log('BroadcastChannel supported');
 if (has.locks)    console.log('Web Locks API supported');
 if (has.offscreen) console.log('OffscreenCanvas supported');
 ```
-
----
 
 ## Complete Working Example
 

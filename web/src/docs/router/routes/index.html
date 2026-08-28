@@ -1,13 +1,11 @@
 <h1>Routes</h1>
 <p>A route maps a URL pattern to a handler. The router compiles patterns lazily, sorts them by specificity, and matches against both a fast radix trie and the native URLPattern engine.</p>
-<hr />
 <h2>Registering a Route</h2>
 <view-code language="javascript">import { router } from '@anzaui/anza/router';
 
 router.register('/members/:id', 'page-member');
 </view-code>
 <p>This registers a route that matches <code>/members/42</code>, <code>/members/alice</code>, and so on. The captured <code>id</code> parameter is passed to the matched element as a property.</p>
-<hr />
 <h2>Route Patterns</h2>
 <p>The router accepts the following pattern types.</p>
 <h3>Static paths</h3>
@@ -37,7 +35,6 @@ router.register('/members/:id/posts/:postId', 'page-post');
 <p>Absolute URL patterns are matched against the full URL rather than just the pathname.</p>
 <h3>Modifiers and regex groups</h3>
 <p>Patterns with optional segments (<code>:id?</code>), repeats (<code>:id+</code>), or regex groups (<code>:id(\d+)</code>) are supported via the URLPattern fallback. They cannot be indexed in the radix trie, so they match via the slower linear scan. For best performance, prefer plain <code>:param</code> segments.</p>
-<hr />
 <h2>Specificity and Ordering</h2>
 <p>Routes are sorted automatically at registration time:</p>
 <ol>
@@ -51,7 +48,6 @@ router.register('/members/new', 'page-new-member'); // static — wins
 router.register('/members/*', 'page-members-list');   // wildcard — fallback
 </view-code>
 <p>A request to <code>/members/new</code> matches the static route. A request to <code>/members/42</code> matches the parameterized route. A request to <code>/members/42/posts</code> matches the wildcard.</p>
-<hr />
 <h2>The Meta Object</h2>
 <p>Every route carries a <code>meta</code> object that the router uses for layout resolution and parent chains.</p>
 <view-code language="javascript">router.register('/settings/profile', 'page-profile', {
@@ -65,7 +61,6 @@ router.register('/members/*', 'page-members-list');   // wildcard — fallback
 <tr><td><code>via</code></td><td>Ordered container chain (root-to-leaf); used by <code>page()</code></td></tr>
 </tbody></table></div>
 <p>The <code>meta</code> object is also available in match results and event payloads.</p>
-<hr />
 <h2>Parent Chains</h2>
 <p>Routes can declare a parent to build a nested layout chain. When a route matches, the router walks the parent chain and includes every ancestor in the match result.</p>
 <view-code language="javascript">router.register('/dashboard', 'page-dashboard', {
@@ -88,7 +83,6 @@ router.register('/dashboard/settings', 'page-settings', {
 }
 </view-code>
 <p>The chain is cycle-guarded. If route A declares parent B and route B declares parent A, the walk stops after the first duplicate instead of looping forever.</p>
-<hr />
 <h2>Bulk Loading</h2>
 <p>Register many routes at once from JSON:</p>
 <view-code language="javascript">router.load([
@@ -98,17 +92,14 @@ router.register('/dashboard/settings', 'page-settings', {
 ]);
 </view-code>
 <p>This is useful for server-generated route manifests and build-time extraction.</p>
-<hr />
 <h2>Clearing Routes</h2>
 <view-code language="javascript">router.clear(); // Removes all registered routes
 </view-code>
 <p>Useful in tests and during teardown.</p>
-<hr />
 <h2>Inspecting Routes</h2>
 <view-code language="javascript">const allRoutes = router.getRoutes();
 </view-code>
 <p>Returns the internal route array. Each entry has <code>patternStr</code>, <code>handler</code>, <code>meta</code>, and <code>pattern</code> (the compiled URLPattern, if already resolved).</p>
-<hr />
 <h2>Manual Matching</h2>
 <p>You can match a URL without triggering navigation:</p>
 <view-code language="javascript">const result = await router.match('/members/42');
@@ -121,7 +112,6 @@ if (result) {
 }
 </view-code>
 <p><code>match()</code> returns <code>null</code> when no route matches. It does not emit events or modify the DOM.</p>
-<hr />
 <h2>Dual Matching: Trie + URLPattern</h2>
 <p>The router uses two matching strategies internally:</p>
 <ol>
@@ -129,7 +119,6 @@ if (result) {
 <li><strong>URLPattern scan</strong> — linear fallback for patterns the trie cannot express (modifiers, regex groups, absolute URLs).</li>
 </ol>
 <p>The trie handles the common case. The scan handles the edge cases. Both resolve to the same match result shape.</p>
-<hr />
 <h2>Query and Hash</h2>
 <p>Query parameters and hash are always extracted from the URL, regardless of the route pattern:</p>
 <view-code language="javascript">// Visiting /members/42?tab=posts#bio

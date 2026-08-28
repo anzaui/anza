@@ -1,6 +1,5 @@
 <h1>Pages</h1>
 <p><code>page(route, config, base)</code> defines a route-bound custom element. It is the primary way to declare navigable views in an Anza application.</p>
-<hr />
 <h2>Signature</h2>
 <view-code language="javascript">page(route, config, base);
 </view-code>
@@ -17,7 +16,6 @@
 });
 </view-code>
 <p>Use one tag when the screen and lifecycle are shared, and branch inside <code>params</code>, <code>query</code>, or <code>hash</code>. Prefer separate pages when the route trees have different shells or different fallback/error behavior.</p>
-<hr />
 <h2>Config Fields</h2>
 <h3><code>tag</code></h3>
 <p>The custom element tag. Must contain a hyphen.</p>
@@ -170,7 +168,6 @@ on: {
 <view-code language="javascript">meta: { analytics: 'checkout' }
 </view-code>
 <p>Available in match results as <code>result.route.meta</code>.</p>
-<hr />
 <h2>How <code>page()</code> participates in navigation</h2>
 <div class="table-wrap"><table><thead><tr><th>Stage</th><th>What <code>page()</code> contributes</th></tr></thead><tbody>
 <tr><td>Registration</td><td>Calls <code>router.register(...)</code> with the route pattern, resolved tag, and route metadata</td></tr>
@@ -180,25 +177,21 @@ on: {
 <tr><td>Error</td><td>May supply a route-scoped <code>error</code> override before dock/app/built-in fallbacks</td></tr>
 <tr><td>SSG</td><td>May declare <code>seo</code> / <code>ssg.expand</code> for build-time HTML emission</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Soft-nav vs hard refresh</h2>
 <ul>
 <li><strong>Soft-nav</strong> — the router keeps parent docks; only the page leaf inside the leaf dock is swapped (CSR mount when the tag changes). Soft-nav loads the page <strong>fragment</strong> (often <code>template.html</code> after Mode A preserves it), never the full SSG document.</li>
 <li><strong>Hard refresh / full load</strong> — the browser fetches contentful SSG or Mode B HTML (<code>anza build</code> and <code>anza dev</code>); the client adopts open DSD and must not wipe SEO content. See <a href="/docs/ui/hydration">ui/hydration.md</a>.</li>
 </ul>
-<hr />
 <h2>Boot Gate</h2>
 <p><code>page()</code> automatically gates the initial route match on the element's custom element definition:</p>
 <view-code language="javascript">gate(customElements.whenDefined(tag));
 </view-code>
 <p>This means a hard refresh on <code>/user/42</code> will wait for <code>&lt;page-user&gt;</code> to be defined before running the initial match, eliminating the race condition that plagued earlier router architectures.</p>
-<hr />
 <h2>Route Registration</h2>
 <p><code>page()</code> registers the route internally:</p>
 <view-code language="javascript">router.register(route, tag, { via, container: target, ...meta });
 </view-code>
 <p>The tag is both the custom element name and the route handler.</p>
-<hr />
 <h2>Example: Full Page Definition</h2>
 <view-code language="javascript">page('/user/:id', {
   tag: 'page-user',

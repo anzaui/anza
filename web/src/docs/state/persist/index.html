@@ -1,7 +1,6 @@
 <h1>Persist</h1>
 <p><code>PlatformStorage</code> provides transactional IndexedDB persistence for reactive state. It supports schema migrations, TTL-based expiry, and automatic eviction when storage quota exceeds 80%.</p>
 <p>This is <strong>not</strong> the tiered <code>@anzaui/anza/storage</code> facade. Prefer <code>state.storage</code> for hydrating <code>state.create</code> stores; use the storage package for general KV, OPFS, and Cache API. Give each a distinct DB name if both are open (see <a href="/docs/storage/troubleshooting">storage/troubleshooting.md</a>).</p>
-<hr />
 <h2>Bridge pattern</h2>
 <p>Hydrate a store from IndexedDB, then persist on change. Prefer this over inventing a second persistence layer with <code>@anzaui/anza/storage</code> for the same keys.</p>
 <view-code language="javascript">import { state } from '@anzaui/anza/state';
@@ -23,7 +22,6 @@ store.subscribe('user', async (user) =&gt; {
 <tr><td>General KV, blobs, OPFS, Cache API, tier selection</td><td><code>@anzaui/anza/storage</code></td></tr>
 </tbody></table></div>
 <p>Mixing both is fine, but treat them as separate persistence systems with separate database names.</p>
-<hr />
 <h2>Basic Use</h2>
 <view-code language="javascript">import { state } from '@anzaui/anza/state';
 
@@ -47,7 +45,6 @@ await state.storage.delete('keyval', 'user');
 <tr><td><code>setDatabaseName(name)</code></td><td>Isolate the DB name before first open</td></tr>
 <tr><td><code>persist()</code> / <code>isPersisted()</code></td><td>Ask the browser for persistent storage</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Schema Migrations</h2>
 <p>Register migration functions before opening the database:</p>
 <view-code language="javascript">state.storage.registerMigrations([
@@ -63,7 +60,6 @@ await state.storage.delete('keyval', 'user');
 </view-code>
 <p>Migrations run sequentially inside <code>onupgradeneeded</code>. Each function corresponds to one version step.</p>
 <p>Call <code>registerMigrations()</code> before any <code>get()</code> / <code>set()</code> opens IndexedDB. Once the first connection is live, changing the migration list in the same session will not re-run already-open upgrades.</p>
-<hr />
 <h2>TTL</h2>
 <view-code language="javascript">// Cache for 60 seconds
 await state.storage.set('keyval', 'token', 'abc123', { ttl: 60000 });
@@ -72,7 +68,6 @@ await state.storage.set('keyval', 'token', 'abc123', { ttl: 60000 });
 await state.storage.get('keyval', 'token'); // null if expired
 </view-code>
 <p>TTL is stored on the record envelope alongside <code>lastAccessed</code>. Reads unwrap the record value for you, so consumers only see the stored payload or <code>null</code>.</p>
-<hr />
 <h2>Quota-Aware Eviction</h2>
 <p>When storage usage exceeds 80% of quota:</p>
 <ol>
@@ -85,7 +80,6 @@ await state.storage.get('keyval', 'token'); // null if expired
 });
 </view-code>
 <p>Eviction only applies to wrapped records in the store being written. If you want different retention policies, split data into different object stores instead of cramming everything into <code>keyval</code>.</p>
-<hr />
 <h2>Query (filter function)</h2>
 <p>Unlike <code>@anzaui/anza/storage</code> cursor <code>query</code>, <code>state.storage.query</code> takes a <strong>predicate</strong>:</p>
 <view-code language="javascript">const items = await state.storage.query('keyval', (value) =&gt; {
@@ -94,7 +88,6 @@ await state.storage.get('keyval', 'token'); // null if expired
 </view-code>
 <p>Returns all records matching the filter function.</p>
 <p>This is intentionally different from <code>storage.query(...)</code> in the storage facade, which exposes IndexedDB cursor options. <code>state.storage.query()</code> is the simpler "load and filter values" path for app state.</p>
-<hr />
 <h2>Persistence</h2>
 <p>Request durable storage (exempt from browser eviction):</p>
 <view-code language="javascript">const granted = await state.storage.persist();
@@ -104,7 +97,6 @@ console.log('Persistent storage:', granted);
 <view-code language="javascript">const alreadyPersisted = await state.storage.isPersisted();
 </view-code>
 <p>Persistence reduces browser eviction pressure, but it does not replace your own migrations, validation, or corruption handling.</p>
-<hr />
 <h2>Database Name</h2>
 <p>Call <strong>before</strong> the first open. Required when you also use <code>@anzaui/anza/storage</code> (both default to <code>platform-db</code>):</p>
 <view-code language="javascript">import { storage } from '@anzaui/anza/storage';
@@ -117,7 +109,6 @@ state.storage.setDatabaseName('app-state');
 <view-code language="javascript">state.storage.setDatabaseName('test-db');
 </view-code>
 <p>Because the name is captured before the first <code>indexedDB.open(...)</code>, set it during boot or test setup, not halfway through an active app session.</p>
-<hr />
 <h2>Related</h2>
 <ul>
 <li><a href="/docs/state/store">store.md</a> — <code>state.create</code> / hydrate / subscribe</li>

@@ -4,8 +4,6 @@ The Anza storage layer provides a unified, tiered storage surface. It integrates
 
 **vs `state.storage`:** use `@anzaui/anza/storage` for general key/value, files, and HTTP cache tiers. Use `state.storage` (`PlatformStorage`) for reactive-store snapshots keyed by object-store name — including filter-function `query`. If you use both, give them **different IndexedDB database names** (both default to `platform-db` — see [troubleshooting.md](troubleshooting.md)).
 
----
-
 ## What You Get
 
 - **Unified API** — `storage.get`, `storage.set`, `storage.delete` with tier selection
@@ -16,8 +14,6 @@ The Anza storage layer provides a unified, tiered storage surface. It integrates
 - **Quota management** — proactive checks, eviction, and warning callbacks
 - **List / clear / estimate** — `storage.list`, `storage.clear`, `storage.estimate` / `persist`
 
----
-
 ## Package
 
 ```javascript
@@ -25,8 +21,6 @@ import { storage } from '@anzaui/anza/storage';
 ```
 
 Call `storage.configure({ idb: { name: 'app-kv' } })` before first use when sharing a page with `state.storage`.
-
----
 
 ## File Map
 
@@ -41,8 +35,6 @@ Call `storage.configure({ idb: { name: 'app-kv' } })` before first use when shar
 | [quota.md](quota.md) | Quota estimation, persistence, warnings |
 | [api.md](api.md) | Complete API reference |
 | [troubleshooting.md](troubleshooting.md) | Common problems and how to fix them |
-
----
 
 ## One-File Example
 
@@ -69,8 +61,6 @@ await storage.set('config', settings, 'cache');
 
 const keys = await storage.list();
 ```
-
----
 
 ## Next Steps
 

@@ -1,6 +1,5 @@
 <h1>Transitions</h1>
 <p>Anza wraps CSS View Transitions for soft-nav docks and ad-hoc DOM swaps. Dock leaf swaps prefer <strong>element-scoped</strong> VT so chrome (sidebar, header, parent docks) stays stable. When VT is missing, reduced-motion is on, the call opts out, or the API fails, the DOM update still runs as a direct swap.</p>
-<hr />
 <h2>Soft-nav docks (main → docs → content)</h2>
 <p>Nested docks keep chrome mounted; only the leaf dock runs <code>swap</code> / <code>swapView</code>:</p>
 <view-code language="text">dock-main
@@ -25,7 +24,6 @@
   signal: ctrl.signal          // abort → skipTransition, clear names
 });
 </view-code>
-<hr />
 <h2>Library API</h2>
 <view-code language="javascript">import {
   ui,
@@ -69,7 +67,6 @@ await transitions.run(() =&gt; panel.replaceChildren(next), {
   signal: ctrl.signal
 });
 </view-code>
-<hr />
 <h2>Fallback behaviour</h2>
 <div class="table-wrap"><table><thead><tr><th>Condition</th><th>Behaviour</th></tr></thead><tbody>
 <tr><td>No <code>Element.startViewTransition</code> (dock swap)</td><td>Direct <code>replaceChildren</code></td></tr>
@@ -80,7 +77,6 @@ await transitions.run(() =&gt; panel.replaceChildren(next), {
 <tr><td><code>AbortSignal</code> aborted</td><td><code>AbortError</code> before start; in-flight → <code>skipTransition</code></td></tr>
 </tbody></table></div>
 <p><code>replaceChildren</code> still runs inside the VT <strong>update callback</strong> when VT is used — leaf <code>ctrl.abort()</code> happens at swap time, not after the animation finishes.</p>
-<hr />
 <h2>CSS control</h2>
 <view-code language="css">/* Target the leaf dock group — not (root) */
 ::view-transition-old(dock-content) {
@@ -104,7 +100,6 @@ dock-doccontent[data-transition-direction="pop"] {
 <tr><td><code>--transition-bg</code></td><td>Snapshot backdrop</td></tr>
 </tbody></table></div>
 <p>Reduced motion zeros duration and disables the default keyframes via <code>@media (prefers-reduced-motion: reduce)</code>.</p>
-<hr />
 <h2>Scheduling (AbortSignal)</h2>
 <p>Soft-nav tears down leaf work via <code>ctrl.abort()</code>. Pass the signal into schedule helpers so pending work does not run on a detached tree:</p>
 <view-code language="javascript">await ui.schedule(() =&gt; indexChunk(), {
@@ -116,7 +111,6 @@ await ui.scheduleFrame(() =&gt; measure(), { signal: ctrl.signal });
 await ui.yield({ signal: ctrl.signal });
 </view-code>
 <p>Already-aborted signals reject with <code>AbortError</code> immediately.</p>
-<hr />
 <h2>Platform flags</h2>
 <view-code language="javascript">import { supports } from '@anzaui/anza/platform';
 

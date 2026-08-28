@@ -1,6 +1,5 @@
 <h1>Quick Start</h1>
 <p>Get working with platform detection and polyfills in five minutes.</p>
-<hr />
 <h2>1. Check a Capability</h2>
 <view-code language="javascript">import { supports } from '@anzaui/anza/platform';
 
@@ -11,7 +10,6 @@ if (supports.viewTransitions) {
 }
 </view-code>
 <p>Flags are lazily evaluated on first access and cached. Subsequent reads are instant.</p>
-<hr />
 <h2>2. Assert a Requirement</h2>
 <view-code language="javascript">import { typeGuard } from '@anzaui/anza/platform';
 
@@ -19,7 +17,6 @@ if (supports.viewTransitions) {
 typeGuard('opfs', 'This feature requires file system access');
 </view-code>
 <p>Use <code>typeGuard</code> in critical paths where continuing without the feature would be meaningless.</p>
-<hr />
 <h2>3. Lazy-Load a Polyfill</h2>
 <view-code language="javascript">import { guard } from '@anzaui/anza/platform';
 
@@ -28,7 +25,6 @@ const URLPattern = await guard.urlPattern();
 const pattern = new URLPattern({ pathname: '/user/:id' });
 </view-code>
 <p>The guard checks native support first. Only if missing does it dynamically import the polyfill.</p>
-<hr />
 <h2>4. Use the Scheduler</h2>
 <view-code language="javascript">import { guard } from '@anzaui/anza/platform';
 
@@ -39,7 +35,6 @@ scheduler.postTask(() =&gt; {
 }, { priority: 'user-blocking' });
 </view-code>
 <p>If native <code>scheduler</code> is available, it is returned directly. Otherwise the polyfill is loaded.</p>
-<hr />
 <h2>5. Yield in a Loop</h2>
 <view-code language="javascript">import { guard } from '@anzaui/anza/platform';
 
@@ -52,7 +47,6 @@ async function processLargeDataset(items) {
   }
 }
 </view-code>
-<hr />
 <h2>6. Escape Overflow (Floating UI)</h2>
 <view-code language="javascript">import { guard } from '@anzaui/anza/platform';
 
@@ -64,7 +58,6 @@ ctrl.show();  // Popover top-layer, or fixed fallback — stays in-tree
 ctrl.hide();
 </view-code>
 <p>Prefer <code>ui-tooltip</code> when you need a ready-made hint. Details: <a href="/docs/platform/guards#escape">guards.md#escape</a>, <a href="/docs/platform/api#escapeoverflowfloating-anchor-options">API</a>, <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
-<hr />
 <h2>Complete Working Example</h2>
 <view-code language="javascript">import { supports, guard, typeGuard } from '@anzaui/anza/platform';
 

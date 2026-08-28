@@ -1,6 +1,5 @@
 <h1>Sync</h1>
 <p>Background Sync queues failed requests and replays them when the browser comes back online.</p>
-<hr />
 <h2>How It Works</h2>
 <ol>
 <li>The main thread queues a task via <code>offline.queue.push()</code></li>
@@ -8,7 +7,6 @@
 <li>The Service Worker replays all queued requests in order</li>
 <li>Successful tasks are removed; failed tasks are retried or moved to a dead-letter queue</li>
 </ol>
-<hr />
 <h2>Queue a Task from the Main Thread</h2>
 <view-code language="javascript">import { offline } from '@anzaui/anza/offline';
 
@@ -20,7 +18,6 @@ await offline.queue.push({
 });
 </view-code>
 <p><code>offline.queue.push()</code> serializes the request and stores it in IndexedDB. It returns a Promise that resolves when the store write completes.</p>
-<hr />
 <h2>Replay in the Service Worker</h2>
 <view-code language="javascript">import { replayQueue } from '@anzaui/anza/sw';
 
@@ -31,7 +28,6 @@ self.addEventListener('sync', (e) =&gt; {
 });
 </view-code>
 <p><code>replayQueue()</code> reads all stored tasks, replays them as <code>fetch()</code> calls, and removes the ones that succeed. Failed tasks stay in the queue for the next sync event.</p>
-<hr />
 <h2>Register the Sync Event</h2>
 <p>The browser does not fire <code>sync</code> events unless you request them. Use the main thread bridge:</p>
 <view-code language="javascript">import { offline } from '@anzaui/anza/offline';
@@ -42,7 +38,6 @@ async function registerSync() {
 }
 </view-code>
 <p>Call <code>registerSync()</code> after any mutation that should survive going offline.</p>
-<hr />
 <h2>Dead Letter Queue</h2>
 <p>After a configurable number of retries, failed tasks move to a dead-letter queue where they wait for manual inspection.</p>
 <view-code language="javascript">import { requeueFailed } from '@anzaui/anza/sw';
@@ -50,7 +45,6 @@ async function registerSync() {
 // After 3 failed attempts, move to dead letter
 await requeueFailed({ maxAttempts: 3 });
 </view-code>
-<hr />
 <h2>Request Serialization</h2>
 <p>The queue stores standard <code>Request</code> objects as plain objects. Two helpers handle the conversion:</p>
 <view-code language="javascript">import { serializeRequest, deserializeRequest } from '@anzaui/anza/sw';

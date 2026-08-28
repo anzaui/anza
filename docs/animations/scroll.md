@@ -2,8 +2,6 @@
 
 Scroll-driven animations link element playback to scroll position or viewport intersection. The module wraps `ScrollTimeline` and `ViewTimeline` with graceful fallbacks for unsupported browsers.
 
----
-
 ## Scroll Timeline
 
 ```javascript
@@ -22,8 +20,6 @@ el.animate(
 
 The animation progress is tied to the scroll position of the source element.
 
----
-
 ## View Timeline
 
 ```javascript
@@ -41,8 +37,6 @@ el.animate(
 
 The animation plays as the element enters and exits the viewport.
 
----
-
 ## Fallback
 
 If `ScrollTimeline` or `ViewTimeline` is not available, a descriptor object is returned with `unsupported: true`:
@@ -53,8 +47,6 @@ if (timeline.unsupported) {
   // Fallback: use scroll listener + manual animation
 }
 ```
-
----
 
 ## Platform Check
 

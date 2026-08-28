@@ -1,6 +1,5 @@
 <h1>Transitions</h1>
 <p>Soft-nav leaf swaps use <strong>element-scoped</strong> View Transitions on the target dock so parent chrome stays put. Document-level <code>transitions.run</code> is for explicit shared-element morphs — not the default dock path.</p>
-<hr />
 <h2>Dock leaf swaps</h2>
 <p>The orchestrator calls <code>swapView</code> / <code>swap</code> on the leaf container (<code>dock-doccontent</code> for docs). That path:</p>
 <ol>
@@ -22,7 +21,6 @@
   transition: true, // default; or false / { name, enabled }
 });
 </view-code>
-<hr />
 <h2>Document morph (<code>transitions.run</code>)</h2>
 <view-code language="javascript">import { transitions } from '@anzaui/anza/router';
 
@@ -36,7 +34,6 @@ await transitions.run(async () =&gt; {
 </view-code>
 <p>Skips when unsupported, reduced-motion, disabled, or aborted. Injects a token stylesheet on first successful document VT.</p>
 <p>Helpers: <code>transitions.configure</code>, <code>transitions.dockName</code>, <code>transitions.runSwap</code>, <code>transitions.prefersReducedMotion</code>.</p>
-<hr />
 <h2>CSS</h2>
 <p>Style <strong>named dock groups</strong>, not <code>(root)</code>, for soft-nav:</p>
 <view-code language="css">::view-transition-old(dock-content) {
@@ -48,7 +45,6 @@ await transitions.run(async () =&gt; {
 </view-code>
 <p>Groups: <code>dock-main</code>, <code>dock-docs</code>, <code>dock-content</code>, plus legacy <code>dock-swap</code>.</p>
 <p>Direction is exposed as <code>data-transition-direction</code> on the host during the swap; push/pop temporarily override <code>--transition-easing</code> from <code>--transition-push</code> / <code>--transition-pop</code>.</p>
-<hr />
 <h2>Reduced motion &amp; abort</h2>
 <ul>
 <li><code>prefers-reduced-motion: reduce</code> → direct swap</li>

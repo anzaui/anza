@@ -1,6 +1,5 @@
 <h1>Server Templates</h1>
 <p>Anza Server Templates are zero-overhead <code>.html</code> files designed for high-performance Server-Templated UI (STUI). Templates combine Web Standards Declarative Shadow DOM (DSD), token-based data binding, and cryptographic origin signing into a lightweight architecture that renders instantly on the server and streams safely across proxies and CDNs.</p>
-<hr />
 <h2>What You Get</h2>
 <div class="table-wrap"><table><thead><tr><th>Feature</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Zero JS Runtime</strong></td><td>Pure HTML/CSS templates requiring zero client JavaScript bundles to display initial or updated UI</td></tr>
@@ -10,7 +9,6 @@
 <tr><td><strong>Dual Mode Output</strong></td><td>Output either full HTML documents for SEO crawlers or signed STUI stream envelopes for clients</td></tr>
 <tr><td><strong>Universal Engine Support</strong></td><td>Native parsers and renderers for Rust, Python (FastAPI/ASGI/Flask), and TypeScript (Node/Hono)</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Template Structure</h2>
 <p>In an Anza application, server templates reside in a structured <code>templates/</code> directory:</p>
 <view-code language="text">templates/
@@ -23,7 +21,6 @@
 └── feed/
     └── card.html        # Individual article card partial with scoped &lt;style&gt;
 </view-code>
-<hr />
 <h2>Quickstart</h2>
 <h3>1. Define a Shell Layout</h3>
 <view-code language="html">&lt;!DOCTYPE html&gt;
@@ -92,7 +89,6 @@ let full_page = engine.render_page("pages/home.html", &amp;json!({
     "articles": card_html
 }))?;
 </view-code>
-<hr />
 <h2>Dual Rendering Modes</h2>
 <p>Server templates support two output targets without code duplication:</p>
 <ol>
@@ -109,7 +105,6 @@ Renders only the partial HTML, generates an Ed25519 cryptographic signature, and
 </view-code>
 </li>
 </ol>
-<hr />
 <h2>Next Steps</h2>
 <ul>
 <li><strong><a href="/docs/templates/syntax">Syntax &amp; Tokens</a></strong>: Learn interpolation rules, array iteration, and escaping.</li>

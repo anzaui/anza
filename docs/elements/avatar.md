@@ -4,15 +4,11 @@ Profile picture with image or initials fallback, sized via tokens and labeled fo
 
 **Tag:** `ui-avatar` · **Import:** `@anzaui/anza/elements/avatar`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/avatar';
 ```
-
----
 
 ## Basic usage
 
@@ -20,8 +16,6 @@ import '@anzaui/anza/elements/avatar';
 <ui-avatar name="Ada Lovelace" src="/avatars/ada.jpg"></ui-avatar>
 <ui-avatar name="Grace Hopper" size="10"></ui-avatar>
 ```
-
----
 
 ## Props
 
@@ -34,8 +28,6 @@ import '@anzaui/anza/elements/avatar';
 ## Notes
 
 Sets `aria-label="Avatar of {name}"` when `name` is present and no label is set. Initials come from the first and last word of `name`.
-
----
 
 ## Related
 

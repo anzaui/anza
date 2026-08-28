@@ -2,8 +2,6 @@
 
 The API client parses NDJSON (newline-delimited JSON) streams natively using the Streams API, yielding parsed objects as an async iterable while preserving backpressure.
 
----
-
 ## Basic Streaming
 
 ```javascript
@@ -15,8 +13,6 @@ for await (const chunk of api.stream('/logs/stream')) {
 ```
 
 Each yielded value is a parsed JSON object. The stream is read via `TextDecoderStream` and `TransformStream` pipelines.
-
----
 
 ## Stream Options
 
@@ -41,8 +37,6 @@ for await (const chunk of api.stream('/ai/generate', {
 | `signal` | AbortSignal for cancellation |
 | `on` | Per-request event listeners |
 
----
-
 ## NDJSON Transform
 
 For direct stream manipulation, the NDJSON transform stream is exported:
@@ -65,8 +59,6 @@ while (true) {
 
 The transform handles partial lines across chunk boundaries and parses each complete line as JSON.
 
----
-
 ## Chunk Events
 
 Every parsed chunk emits a `chunk` event on the telemetry bus:
@@ -76,8 +68,6 @@ api.on('chunk', (event) => {
   console.log('Chunk from', event.detail.requestId, event.detail.chunk);
 });
 ```
-
----
 
 ## Error Handling
 
@@ -92,8 +82,6 @@ try {
   console.error('Stream failed:', err.message);
 }
 ```
-
----
 
 ## Backpressure
 

@@ -2,11 +2,9 @@
 <p>Bottom sheet overlay backed by native <code>&lt;dialog&gt;</code> + <code>showModal()</code>, with drag-to-dismiss on the handle.</p>
 <p><strong>Tag:</strong> <code>ui-sheet</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/sheet</code></p>
 <p>Architecture and when-to-use: <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
-<hr />
 <h2>Import</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/sheet';
 </view-code>
-<hr />
 <h2>Basic usage</h2>
 <view-code language="html">&lt;ui-sheet id="filters"&gt;
   &lt;h2&gt;Filters&lt;/h2&gt;
@@ -18,7 +16,6 @@
   // hide() or open = false closes after the exit transition
 &lt;/script&gt;
 </view-code>
-<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>open</code></td><td>Boolean</td><td>Reflect</td><td>Mirrors open state; synced to <code>dialog.showModal()</code> / <code>close()</code></td></tr>
@@ -36,7 +33,6 @@
 <p>Default slot projects into <code>part="content"</code>. Drag handle is <code>part="handle"</code> (dismiss threshold ~120px). Dialog surface is <code>part="dialog"</code>. Same modal-dialog family as <a href="/docs/elements/dialog">dialog</a> and <a href="/docs/elements/drawer">drawer</a>.</p>
 <h3>Lifecycle / memory</h3>
 <p>Pointer drag and close handling stay on the sheet instance / <code>el.ctrl</code>. Soft-nav aborts teardown. See <a href="/docs/elements/overlay">Overlay patterns</a> and <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a>.</p>
-<hr />
 <h2>Related</h2>
 <ul>
 <li><a href="/docs/elements/overlay">Overlay patterns</a></li>

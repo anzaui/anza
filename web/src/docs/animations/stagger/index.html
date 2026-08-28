@@ -1,6 +1,5 @@
 <h1>Stagger</h1>
 <p><code>animations.stagger</code> animates a collection of elements with cascading delays. It returns a group controller with <code>cancel()</code>, <code>finish()</code>, and a <code>finished</code> promise.</p>
-<hr />
 <h2>Signature</h2>
 <view-code language="javascript">stagger(elements, animationInput, options);
 </view-code>
@@ -9,7 +8,6 @@
 <tr><td><code>animationInput</code></td><td>string | Keyframe[]</td><td>Template or keyframes</td></tr>
 <tr><td><code>options</code></td><td>object</td><td>WAAPI options plus <code>staggerDelay</code></td></tr>
 </tbody></table></div>
-<hr />
 <h2>Basic Stagger</h2>
 <view-code language="javascript">import { animations } from '@anzaui/anza/animations';
 
@@ -23,7 +21,6 @@ const group = animations.stagger(items, 'fade', {
 await group.finished;
 </view-code>
 <p>Delay for element at index <code>i</code> is: <code>(options.delay ?? 0) + i * staggerDelay</code>.</p>
-<hr />
 <h2>Group Controls</h2>
 <view-code language="javascript">// Cancel all animations immediately
 group.cancel();
@@ -34,7 +31,6 @@ group.finish();
 // Wait for completion
 await group.finished;
 </view-code>
-<hr />
 <h2>Stagger with Slide</h2>
 <view-code language="javascript">animations.stagger(items, 'slide-y', {
   staggerDelay: 50,
@@ -42,7 +38,6 @@ await group.finished;
   easing: animations.ease('out')
 });
 </view-code>
-<hr />
 <h2>Reverse Stagger</h2>
 <view-code language="javascript">const reversed = Array.from(items).reverse();
 
@@ -51,7 +46,6 @@ animations.stagger(reversed, 'fade', {
   duration: 200
 });
 </view-code>
-<hr />
 <h2>Custom Keyframes</h2>
 <view-code language="javascript">animations.stagger(items, [
   { opacity: 0, transform: 'scale(0.5)' },

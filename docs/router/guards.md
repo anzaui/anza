@@ -6,8 +6,6 @@ Guards block or redirect navigation before the DOM changes. They run at two poin
 
 When a guard **throws**, the router emits `error` with `phase: 'guard'` and renders the **error** fallback leaf (shared library built-in, or a dock / `configure` / route override). See [fallbacks.md](fallbacks.md).
 
----
-
 ## Global Guards
 
 Register a guard that runs on every navigation:
@@ -31,8 +29,6 @@ The guard receives:
 
 Guards are evaluated in registration order. The first guard to return a redirect wins; remaining guards are skipped.
 
----
-
 ## Removing a Guard
 
 `router.guard()` returns a disposer function:
@@ -43,8 +39,6 @@ const dispose = router.guard(checkAdmin);
 dispose(); // removes this guard
 ```
 
----
-
 ## Clearing All Guards
 
 ```javascript
@@ -52,8 +46,6 @@ router.guards.clear();
 ```
 
 Useful in tests and during teardown.
-
----
 
 ## Route-Scoped Guards
 
@@ -73,8 +65,6 @@ page('/checkout', {
 
 Route-scoped guards are internally wrapped in a global guard that checks the destination URL against the route pattern first. If the URL does not match, the guard is silently skipped.
 
----
-
 ## Pre-Commit vs Post-Commit
 
 **Pre-commit** (`precommitHandler`) runs before the browser updates the URL. On Chrome and Firefox, a redirect here is atomic — the user never sees the blocked URL in the address bar.
@@ -83,8 +73,6 @@ Route-scoped guards are internally wrapped in a global guard that checks the des
 
 Your guard function runs in both phases. You do not need to handle the difference yourself.
 
----
-
 ## Guard Best Practices
 
 Keep guards fast. They run on every navigation, including back/forward traversals.
@@ -92,8 +80,6 @@ Keep guards fast. They run on every navigation, including back/forward traversal
 Do not perform side effects inside guards. A guard should only inspect state and decide whether to allow or redirect.
 
 Use `controller.redirect()` when available for atomic redirects. The router falls back automatically when it is not.
-
----
 
 ## Guard API Reference
 

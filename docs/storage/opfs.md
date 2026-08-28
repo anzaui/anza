@@ -2,8 +2,6 @@
 
 The Origin Private File System facade offloads operations to an inline Web Worker, leveraging synchronous file access handles for high-performance reads and writes. Cross-tab invalidation is handled via BroadcastChannel.
 
----
-
 ## Requirements
 
 OPFS requires a secure context (HTTPS) and browser support for `navigator.storage.getDirectory`. Check with the platform layer:
@@ -15,8 +13,6 @@ if (supports.opfs) {
   await storage.set('file', buffer, 'opfs');
 }
 ```
-
----
 
 ## Read and Write
 
@@ -33,8 +29,6 @@ const data = await storage.get('data.bin', 'opfs');
 
 Values are JSON-serialized before writing. Binary data should be wrapped in an object or use ArrayBuffer directly.
 
----
-
 ## Delete and Clear
 
 ```javascript
@@ -42,8 +36,6 @@ await storage.delete('data.bin', 'opfs');
 ```
 
 Clear all OPFS entries directly via the internal manager (not exposed through the facade).
-
----
 
 ## Cross-Tab Invalidation
 
@@ -57,8 +49,6 @@ window.addEventListener('message', (e) => {
 });
 ```
 
----
-
 ## Web Worker Internals
 
 OPFS operations run in a dedicated inline worker to avoid blocking the main thread. The worker:
@@ -67,8 +57,6 @@ OPFS operations run in a dedicated inline worker to avoid blocking the main thre
 2. Creates or opens the file handle
 3. Uses `createSyncAccessHandle` for fast synchronous I/O
 4. Serializes values to JSON via TextEncoder
-
----
 
 ## Locks
 

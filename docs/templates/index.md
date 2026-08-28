@@ -2,8 +2,6 @@
 
 Anza Server Templates are zero-overhead `.html` files designed for high-performance Server-Templated UI (STUI). Templates combine Web Standards Declarative Shadow DOM (DSD), token-based data binding, and cryptographic origin signing into a lightweight architecture that renders instantly on the server and streams safely across proxies and CDNs.
 
----
-
 ## What You Get
 
 | Feature | Description |
@@ -14,8 +12,6 @@ Anza Server Templates are zero-overhead `.html` files designed for high-performa
 | **Component Modularity** | Clean separation of Shell layouts (`layout/shell.html`), Pages (`pages/home.html`), and Partials (`feed/card.html`) |
 | **Dual Mode Output** | Output either full HTML documents for SEO crawlers or signed STUI stream envelopes for clients |
 | **Universal Engine Support** | Native parsers and renderers for Rust, Python (FastAPI/ASGI/Flask), and TypeScript (Node/Hono) |
-
----
 
 ## Template Structure
 
@@ -32,8 +28,6 @@ templates/
 └── feed/
     └── card.html        # Individual article card partial with scoped <style>
 ```
-
----
 
 ## Quickstart
 
@@ -114,8 +108,6 @@ let full_page = engine.render_page("pages/home.html", &json!({
 }))?;
 ```
 
----
-
 ## Dual Rendering Modes
 
 Server templates support two output targets without code duplication:
@@ -132,8 +124,6 @@ Server templates support two output targets without code duplication:
      "sig": "3a8f...92c1"
    }
    ```
-
----
 
 ## Next Steps
 

@@ -1,6 +1,5 @@
 <h1>Docks</h1>
 <p><code>dock(name, config, base)</code> defines a persistent container shell. Docks live across route changes, register themselves in the hierarchical container graph on connect, and expose a <code>swap</code> method for animated content replacement.</p>
-<hr />
 <h2>Signature</h2>
 <view-code language="javascript">dock(name, config, base);
 </view-code>
@@ -9,7 +8,6 @@
 <tr><td><code>config</code></td><td>object</td><td>no</td><td>Dock definition</td></tr>
 <tr><td><code>base</code></td><td>string</td><td>no</td><td><code>import.meta.url</code> of the caller</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Config Fields</h2>
 <h3><code>tag</code></h3>
 <p>Custom element tag. Defaults to <code>dock-&lt;name&gt;</code>.</p>
@@ -62,17 +60,14 @@ style: ['/styles/shared.css', './main.css']
 </view-code>
 <p>HTML strings and <code>{ html }</code> still work. Full ladder + bare-dock sample: <a href="/docs/router/fallbacks">fallbacks.md</a>.</p>
 <p><code>anza generate dock &lt;name&gt;</code> creates a leaf under <code>src/docks/</code> <strong>without</strong> <code>404.html</code> — that is intentional.</p>
-<hr />
 <h2>Default Containment</h2>
 <p>Every dock automatically receives:</p>
 <view-code language="css">:host { contain: layout; display: block; }
 </view-code>
 <p>The <code>contain: layout</code> declaration is required for element-scoped view transitions. It is prepended to any user-supplied style.</p>
-<hr />
 <h2>Soft-nav persistence</h2>
 <p>On soft navigation within the same <code>via</code> chain, parent docks stay mounted. Only the leaf page inside the innermost dock is swapped. That is what keeps docs chrome (sidebar, header) alive while page content changes.</p>
 <p>For Mode A SSG / Mode B HTML, nested docks and the page leaf must be <strong>light-DOM children</strong> after each host’s <code>&lt;template shadowrootmode="open"&gt;</code> — never baked inside the parent shadow template. Registry key <code>content</code> often maps to tag <code>dock-doccontent</code> (not <code>dock-content</code>). See <a href="/docs/ssg/contract">ssg/contract.md</a> and <a href="/docs/ui/hydration">ui/hydration.md</a>.</p>
-<hr />
 <h2>Swap Method</h2>
 <p>Docks expose a <code>swap</code> method that replaces child content under a view transition:</p>
 <view-code language="javascript">await dockElement.swap(newElement, { direction: 'push' });
@@ -88,7 +83,6 @@ style: ['/styles/shared.css', './main.css']
 <view-code language="css">:host([data-transition-direction="pop"]) { ... }
 </view-code>
 <p>See <a href="/docs/router/transitions">router/transitions.md</a> and <a href="/docs/ui/transitions">ui/transitions.md</a>.</p>
-<hr />
 <h2>Lifecycle Hooks</h2>
 <p>Docks support the same <code>on</code> hooks as pages:</p>
 <view-code language="javascript">dock('main', {
@@ -103,7 +97,6 @@ style: ['/styles/shared.css', './main.css']
 });
 </view-code>
 <p>User-supplied <code>connect</code> and <code>disconnect</code> hooks are wrapped so the dock still registers and unregisters itself in the graph.</p>
-<hr />
 <h2>Graph Registration</h2>
 <p>When a dock connects:</p>
 <view-code language="javascript">router.registerContainer(name, element, parent);
@@ -112,7 +105,6 @@ style: ['/styles/shared.css', './main.css']
 <view-code language="javascript">router.unregisterContainer(name, element);
 </view-code>
 <p>This happens automatically. You do not need to call these manually for docks.</p>
-<hr />
 <h2>Example: Sidebar Layout</h2>
 <view-code language="javascript">dock('main');
 dock('sidebar', { parent: 'main' });
@@ -129,7 +121,6 @@ page('/settings', {
 });
 </view-code>
 <p>Dashboard renders through <code>main → content</code>. Settings renders through <code>main → sidebar</code>. The router computes the LCA (<code>main</code>) and only swaps the divergent branch.</p>
-<hr />
 <h2>Example: Custom Swap Animation</h2>
 <view-code language="javascript">dock('main', {
   on: {

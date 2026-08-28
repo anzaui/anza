@@ -2,8 +2,6 @@
 
 `animations.sequence` chains animations so each step starts only after the previous finishes.
 
----
-
 ## Signature
 
 ```javascript
@@ -13,8 +11,6 @@ sequence(steps);
 Each step is: `[element, animationInput, options?]`
 
 Returns `{ finished: Promise }`.
-
----
 
 ## Basic Sequence
 
@@ -32,8 +28,6 @@ await seq.finished;
 
 The element fades in, then scales, then slides.
 
----
-
 ## Sequence with Different Elements
 
 ```javascript
@@ -43,8 +37,6 @@ const seq = animations.sequence([
   [buttons, 'stagger', { staggerDelay: 30, duration: 150 }]
 ]);
 ```
-
----
 
 ## Error Handling
 
@@ -57,8 +49,6 @@ try {
   console.error('Sequence failed:', err);
 }
 ```
-
----
 
 ## Cancel a Sequence
 

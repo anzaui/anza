@@ -4,15 +4,11 @@ Top bar with brand and actions slots.
 
 **Tag:** `ui-header` · **Import:** `@anzaui/anza/elements/header`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/header';
 ```
-
----
 
 ## Basic usage
 
@@ -22,8 +18,6 @@ import '@anzaui/anza/elements/header';
   <ui-button>Sign in</ui-button>
 </ui-header>
 ```
-
----
 
 ## Props
 
@@ -36,8 +30,6 @@ _None — composition via slots._
 | `brand` | slot | Logo / product name |
 | _(default)_ | slot | Actions |
 | `header` / `brand` / `actions` | parts | Region wrappers |
-
----
 
 ## Related
 

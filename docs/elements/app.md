@@ -4,15 +4,11 @@ Application shell with header, optional sidebar, and main content slots.
 
 **Tag:** `ui-app` · **Import:** `@anzaui/anza/elements/app`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/app';
 ```
-
----
 
 ## Basic usage
 
@@ -28,8 +24,6 @@ import '@anzaui/anza/elements/app';
 </ui-app>
 ```
 
----
-
 ## Props
 
 _None — composition via slots._
@@ -42,8 +36,6 @@ _None — composition via slots._
 | `sidebar` | slot | Side navigation |
 | _(default)_ | slot | Main content (`part="main"`) |
 | `frame` | part | Header + sidebar + main frame |
-
----
 
 ## Related
 

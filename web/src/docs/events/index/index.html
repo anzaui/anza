@@ -1,7 +1,6 @@
 <h1>Events</h1>
 <p>The Anza events layer is a thin, memory-safe wrapper around the DOM EventTarget. It provides a global event bus, high-performance delegation through Shadow DOM boundaries, promise-wrapped single-event awaits, automatic passive defaults for scroll-critical events, and a centralized registry of system event names.</p>
 <p>Everything is built on the browser's native <code>EventTarget</code> and <code>CustomEvent</code>. No polyfills, no heavy abstractions.</p>
-<hr />
 <h2>What You Get</h2>
 <ul>
 <li><strong>Global event bus</strong> — <code>events.emit</code> and <code>events.on</code> for application-wide pub/sub</li>
@@ -11,11 +10,9 @@
 <li><strong>System event names</strong> — <code>events.names.auth.signedin</code>, <code>events.names.connectivity.online</code>, and so on</li>
 <li><strong>Component <code>on</code></strong> — shadow-scoped delegation with the same matcher; empty registries tear down root listeners (<a href="/docs/ui/context#on">ui/context</a>)</li>
 </ul>
-<hr />
 <h2>Package</h2>
 <view-code language="javascript">import { events } from '@anzaui/anza/events';
 </view-code>
-<hr />
 <h2>File Map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
 <tr><td><a href="/docs/events/quickstart">quickstart.md</a></td><td>Your first event in five minutes</td></tr>
@@ -27,7 +24,6 @@
 <tr><td><a href="/docs/events/api">api.md</a></td><td>Complete API reference (incl. <code>matchInComposedPath</code> / passive helpers)</td></tr>
 <tr><td><a href="/docs/events/troubleshooting">troubleshooting.md</a></td><td>Common problems and how to fix them</td></tr>
 </tbody></table></div>
-<hr />
 <h2>One-File Example</h2>
 <view-code language="javascript">import { events } from '@anzaui/anza/events';
 
@@ -45,7 +41,6 @@ off();
 const click = await events.once(document.body, 'click');
 console.log('Clicked at', click.clientX, click.clientY);
 </view-code>
-<hr />
 <h2>Next Steps</h2>
 <ul>
 <li>New to the events layer? Start with <a href="/docs/events/quickstart">quickstart.md</a>.</li>

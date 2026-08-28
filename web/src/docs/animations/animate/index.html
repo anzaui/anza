@@ -1,6 +1,5 @@
 <h1>Animate</h1>
 <p><code>animations.animate</code> wraps <code>element.animate()</code> with template resolution, AbortSignal cleanup, and automatic memory-safe finish handling.</p>
-<hr />
 <h2>Signature</h2>
 <view-code language="javascript">animate(el, animationInput, options);
 </view-code>
@@ -10,7 +9,6 @@
 <tr><td><code>options</code></td><td>object</td><td>WAAPI options plus <code>signal</code></td></tr>
 </tbody></table></div>
 <p>Returns a <code>Animation</code> instance.</p>
-<hr />
 <h2>Using a Preset</h2>
 <view-code language="javascript">import { animations } from '@anzaui/anza/animations';
 
@@ -18,14 +16,12 @@ const anim = animations.animate(el, 'fade', { duration: 300 });
 await anim.finished;
 </view-code>
 <p>Built-in presets: <code>fade</code>, <code>slide</code>, <code>slide-x</code>, <code>slide-y</code>, <code>scale</code>, <code>zoom</code>, <code>blur</code>.</p>
-<hr />
 <h2>Using Raw Keyframes</h2>
 <view-code language="javascript">animations.animate(el, [
   { opacity: 0, transform: 'translateY(20px)' },
   { opacity: 1, transform: 'translateY(0)' }
 ], { duration: 400, easing: 'ease-out', fill: 'both' });
 </view-code>
-<hr />
 <h2>Options</h2>
 <div class="table-wrap"><table><thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>duration</code></td><td>number</td><td>from template</td><td>Animation duration in ms</td></tr>
@@ -36,7 +32,6 @@ await anim.finished;
 <tr><td><code>direction</code></td><td>string</td><td><code>'normal'</code></td><td>Playback direction</td></tr>
 <tr><td><code>signal</code></td><td>AbortSignal</td><td>—</td><td>Cancel on abort</td></tr>
 </tbody></table></div>
-<hr />
 <h2>AbortSignal Cleanup</h2>
 <view-code language="javascript">const ctrl = new AbortController();
 
@@ -46,7 +41,6 @@ animations.animate(el, 'fade', { signal: ctrl.signal });
 ctrl.abort();
 </view-code>
 <p>The animation is automatically cancelled when the signal aborts. The abort listener is removed when the animation finishes to prevent leaks.</p>
-<hr />
 <h2>Controlling Playback</h2>
 <view-code language="javascript">const anim = animations.animate(el, 'slide');
 
@@ -59,7 +53,6 @@ anim.finish();
 // Update timing
 anim.updateTiming({ duration: 600 });
 </view-code>
-<hr />
 <h2>Fill Modes</h2>
 <div class="table-wrap"><table><thead><tr><th>Fill</th><th>Behavior</th></tr></thead><tbody>
 <tr><td><code>'none'</code></td><td>No effect before/after active time</td></tr>
@@ -67,7 +60,6 @@ anim.updateTiming({ duration: 600 });
 <tr><td><code>'backwards'</code></td><td>Holds initial state during delay</td></tr>
 <tr><td><code>'both'</code></td><td>Holds both initial and final states</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Reversed Playback</h2>
 <view-code language="javascript">const anim = animations.animate(el, 'fade', { direction: 'reverse' });
 // Plays from opacity 1 to 0

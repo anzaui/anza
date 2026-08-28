@@ -2,8 +2,6 @@
 
 Complete reference for the animations facade and utilities.
 
----
-
 ## Facade
 
 ```javascript
@@ -58,8 +56,6 @@ Resolves easing token. Names: `default`, `in`, `out`, `in-out`, `spring`, `linea
 
 Returns `true` if `prefers-reduced-motion: reduce`.
 
----
-
 ## Named Exports
 
 ```javascript
@@ -71,8 +67,6 @@ import {
   duration, ease, reduced
 } from '@anzaui/anza/animations';
 ```
-
----
 
 ## AnimationRegistry
 
@@ -90,8 +84,6 @@ Returns `{ keyframes, options }` or `null`.
 
 ### `registry.clear()`
 
----
-
 ## Stagger Return
 
 ```javascript
@@ -103,15 +95,11 @@ Returns `{ keyframes, options }` or `null`.
 }
 ```
 
----
-
 ## Sequence Step
 
 ```javascript
 [element, animationInput, options?]
 ```
-
----
 
 ## Keyframe Options
 

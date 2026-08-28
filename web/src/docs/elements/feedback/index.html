@@ -7,7 +7,6 @@
 <p>Toast’s <code>show</code> helper is the kit’s deliberate <code>document.body</code> portal; other layered UI stays on native top-layer APIs — see <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
 <h3>Lifecycle / memory</h3>
 <p>Toasts and similar feedback that may append a container under <code>body</code> must dispose with the creator’s abort signal — not a long-lived document listener. Soft-nav aborts only the detached leaf’s <code>ctrl</code>. Skeleton’s reduced-motion listener is signal-owned. See <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a> and <a href="/docs/events/troubleshooting">Orphan listeners after soft-nav</a>.</p>
-<hr />
 <h2>Elements</h2>
 <div class="table-wrap"><table><thead><tr><th>Element</th><th>Tag</th><th>Import</th><th>Status</th></tr></thead><tbody>
 <tr><td><a href="/docs/elements/alert">alert</a></td><td><code>ui-alert</code></td><td><code>@anzaui/anza/elements/alert</code></td><td>Full</td></tr>

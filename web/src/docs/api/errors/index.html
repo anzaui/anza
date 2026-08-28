@@ -1,6 +1,5 @@
 <h1>Errors</h1>
 <p>Every failure in the API client is normalized to a <code>PlatformError</code>. This gives you structured error handling with codes, context, and recovery guidance.</p>
-<hr />
 <h2>PlatformError</h2>
 <view-code language="javascript">class PlatformError extends Error {
   name: 'PlatformError',
@@ -11,14 +10,12 @@
   recoverable: boolean  // can retry help?
 }
 </view-code>
-<hr />
 <h2>Error Codes</h2>
 <div class="table-wrap"><table><thead><tr><th>Code</th><th>Meaning</th><th>Recoverable</th></tr></thead><tbody>
 <tr><td><code>HTTP_ERROR</code></td><td>Server returned non-2xx status</td><td>5xx yes, 4xx no</td></tr>
 <tr><td><code>NETWORK_ERROR</code></td><td>Fetch failed (offline, DNS, CORS)</td><td>yes</td></tr>
 <tr><td><code>NETWORK_TIMEOUT</code></td><td>Request exceeded timeout limit</td><td>yes</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Handling Errors</h2>
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
 
@@ -39,7 +36,6 @@ try {
   }
 }
 </view-code>
-<hr />
 <h2>Recovery Patterns</h2>
 <h3>Retry on Transient Failures</h3>
 <p>The client retries automatically for:</p>
@@ -60,7 +56,6 @@ const result = await retry(
   { attempts: 5, base: 200, maxDelay: 5000 }
 );
 </view-code>
-<hr />
 <h2>Error Events</h2>
 <p>Listen for errors via telemetry:</p>
 <view-code language="javascript">api.on('error', (event) =&gt; {
@@ -75,7 +70,6 @@ api.on('timeout', (event) =&gt; {
   console.error('Timed out:', event.detail.error);
 });
 </view-code>
-<hr />
 <h2>Non-Recoverable Errors</h2>
 <p>Some errors are marked <code>recoverable: false</code>. These include:</p>
 <ul>

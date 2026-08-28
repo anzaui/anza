@@ -2,8 +2,6 @@
 
 `animations.animate` wraps `element.animate()` with template resolution, AbortSignal cleanup, and automatic memory-safe finish handling.
 
----
-
 ## Signature
 
 ```javascript
@@ -18,8 +16,6 @@ animate(el, animationInput, options);
 
 Returns a `Animation` instance.
 
----
-
 ## Using a Preset
 
 ```javascript
@@ -31,8 +27,6 @@ await anim.finished;
 
 Built-in presets: `fade`, `slide`, `slide-x`, `slide-y`, `scale`, `zoom`, `blur`.
 
----
-
 ## Using Raw Keyframes
 
 ```javascript
@@ -41,8 +35,6 @@ animations.animate(el, [
   { opacity: 1, transform: 'translateY(0)' }
 ], { duration: 400, easing: 'ease-out', fill: 'both' });
 ```
-
----
 
 ## Options
 
@@ -56,8 +48,6 @@ animations.animate(el, [
 | `direction` | string | `'normal'` | Playback direction |
 | `signal` | AbortSignal | — | Cancel on abort |
 
----
-
 ## AbortSignal Cleanup
 
 ```javascript
@@ -70,8 +60,6 @@ ctrl.abort();
 ```
 
 The animation is automatically cancelled when the signal aborts. The abort listener is removed when the animation finishes to prevent leaks.
-
----
 
 ## Controlling Playback
 
@@ -88,8 +76,6 @@ anim.finish();
 anim.updateTiming({ duration: 600 });
 ```
 
----
-
 ## Fill Modes
 
 | Fill | Behavior |
@@ -98,8 +84,6 @@ anim.updateTiming({ duration: 600 });
 | `'forwards'` | Holds final state |
 | `'backwards'` | Holds initial state during delay |
 | `'both'` | Holds both initial and final states |
-
----
 
 ## Reversed Playback
 

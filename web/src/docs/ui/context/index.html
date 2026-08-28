@@ -1,6 +1,5 @@
 <h1>Context</h1>
 <p>Every lifecycle hook receives a frozen context object with helpers for interacting with the element's shadow DOM, events, and observers.</p>
-<hr />
 <h2>Context Fields</h2>
 <view-code language="javascript">{
   el,       // the element instance
@@ -15,7 +14,6 @@
   raw       // (load hook only) raw URLSearchParams object
 }
 </view-code>
-<hr />
 <h2>el</h2>
 <p>The element instance itself. Access properties, shadow root, and methods:</p>
 <view-code language="javascript">on: {
@@ -26,7 +24,6 @@
   }
 }
 </view-code>
-<hr />
 <h2>ctrl</h2>
 <p>An <code>AbortController</code> whose signal aborts when the element disconnects. Pass it to any async operation for automatic cleanup:</p>
 <view-code language="javascript">on: {
@@ -36,7 +33,6 @@
 }
 </view-code>
 <p>When the element is removed, the signal aborts and the fetch is cancelled.</p>
-<hr />
 <h2>params</h2>
 <p>An ordered, typed array containing dynamic path parameters extracted from the URL. Available in the <code>load</code> hook:</p>
 <view-code language="javascript">on: {
@@ -49,7 +45,6 @@
 }
 </view-code>
 <p>Values are automatically cast to their declared contract type (e.g., <code>Number</code>).</p>
-<hr />
 <h2>query</h2>
 <p>An ordered, typed array containing query parameters mapped from the URL. Available in the <code>load</code> hook:</p>
 <view-code language="javascript">on: {
@@ -61,7 +56,6 @@
   }
 }
 </view-code>
-<hr />
 <h2>raw</h2>
 <p>The raw <code>URLSearchParams</code> object representing all query parameters currently in the URL. Useful for accessing undeclared query keys:</p>
 <view-code language="javascript">on: {
@@ -72,7 +66,6 @@
   }
 }
 </view-code>
-<hr />
 <h2>tags</h2>
 <p>A cached query interface for the shadow root. Pre-warmed by the tags descriptor (if available).</p>
 <view-code language="javascript">on: {
@@ -85,7 +78,6 @@
 }
 </view-code>
 <p>The cache is invalidated automatically when shadow DOM children change.</p>
-<hr />
 <h2>refs</h2>
 <p>Named element lookups based on <code>ref="name"</code> attributes in the template:</p>
 <view-code language="javascript">template: '&lt;div ref="header"&gt;&lt;span ref="count"&gt;0&lt;/span&gt;&lt;/div&gt;'
@@ -98,7 +90,6 @@ on: {
 }
 </view-code>
 <p>Duplicate <code>ref</code> names log a warning. The first match wins.</p>
-<hr />
 <h2>on</h2>
 <p>Delegated event proxy. One listener per <code>(type, capture)</code> on the <strong>shadow root</strong> handles all matching selectors. Matching walks <code>event.composedPath()</code> and stops at the shadow root (same algorithm as <a href="/docs/events/delegate"><code>events.delegate</code></a>). Default scope is the shadow tree — use <code>events.delegate</code> / <code>events.listen</code> for document roots so those attachments stay greppable.</p>
 <h3>Simple</h3>
@@ -147,7 +138,6 @@ on.click.once('.btn', handler);
 <p><strong>Passive defaults</strong> match <code>events.listen</code>: only scroll-critical types are passive unless you pass <code>{ passive: false }</code>. Click / submit / key handlers can call <code>preventDefault()</code> without an override.</p>
 <p><strong>Empty teardown:</strong> when the last registration for a <code>(type, capture)</code> key is disposed (or aborted), the shadow-root <code>addEventListener</code> is removed immediately — no idle root listener left behind.</p>
 <p>Direct <code>Element</code> targets must live inside this shadow; targets outside warn and return a no-op disposer.</p>
-<hr />
 <h2>watch</h2>
 <p>Shadow-scoped mutation helpers. Prefer typed kinds (<code>attr</code> / <code>kids</code> / <code>text</code> / <code>slot</code>) over <code>tree</code>. Observers are <strong>bucketed by fingerprint</strong> so a wide <code>tree</code> or <code>attr *</code> registration never drops <code>attributeFilter</code> / <code>subtree</code> on a neighbor.</p>
 <p>Canonical child API is <code>watch.kids</code>; <code>watch.children</code> is an alias.</p>
@@ -198,7 +188,6 @@ on.click.once('.btn', handler);
 </tbody></table></div>
 <p>Options: <code>{ signal, once, requirePresent }</code> (or pass an <code>AbortSignal</code> as the last arg). Default signal is <code>ctrl.signal</code>. Every call returns a disposer. Selector targets with zero current matches still observe for late bind unless <code>requirePresent: true</code> (then no-op + warn). Direct targets outside the shadow throw in development and no-op in production.</p>
 <p>Diagnostics: <a href="/docs/ui/api"><code>getAttachmentStats(shadowRoot)</code></a> reports live <code>on</code> / <code>watch</code> / slot counts for soft-nav leak tests.</p>
-<hr />
 <h2>internals</h2>
 <p><code>ElementInternals</code> when <code>form: true</code> is declared. Provides form participation and custom state:</p>
 <view-code language="javascript">view('toggle-switch', {

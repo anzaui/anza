@@ -4,15 +4,11 @@ Compact label indicator with variant mapping (info, success, warning, error) and
 
 **Tag:** `ui-badge` · **Import:** `@anzaui/anza/elements/badge`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/badge';
 ```
-
----
 
 ## Basic usage
 
@@ -21,8 +17,6 @@ import '@anzaui/anza/elements/badge';
 <ui-badge variant="success" size="sm">Done</ui-badge>
 <ui-badge variant="error">Failed</ui-badge>
 ```
-
----
 
 ## Props
 
@@ -34,8 +28,6 @@ import '@anzaui/anza/elements/badge';
 ## Notes
 
 Default slot content is the badge label.
-
----
 
 ## Related
 

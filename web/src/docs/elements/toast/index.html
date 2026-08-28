@@ -1,14 +1,12 @@
 <h1>Toast</h1>
 <p>Transient status notification. Auto-dismisses after a duration; the <code>show</code> helper portals instances into a shared fixed container under <code>document.body</code>.</p>
 <p><strong>Tag:</strong> <code>ui-toast</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/toast</code></p>
-<hr />
 <h2>Import</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/toast';
 import { show as showToast } from '@anzaui/anza/elements/toast';
 // or from the kit barrel:
 // import { showToast } from '@anzaui/anza/elements';
 </view-code>
-<hr />
 <h2>Basic usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/toast';
 import { show as showToast } from '@anzaui/anza/elements/toast';
@@ -19,7 +17,6 @@ showToast('Still working…', { duration: 5000 });
 <p>Or mount a toast element yourself (same body container if you append via <code>show</code>):</p>
 <view-code language="html">&lt;ui-toast duration="4000"&gt;Copied to clipboard&lt;/ui-toast&gt;
 </view-code>
-<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>duration</code></td><td>Number</td><td>Reflect</td><td>Auto-dismiss delay in ms (default <code>3000</code>)</td></tr>
@@ -32,7 +29,6 @@ showToast('Still working…', { duration: 5000 });
 <p>Default slot is the toast body (<code>role="status"</code>, <code>part="toast"</code>). After <code>duration</code>, the toast fades out and removes itself.</p>
 <h3>Lifecycle / memory</h3>
 <p><code>show</code> appends a shared fixed container under <code>document.body</code> and places toasts there — ownership stays with each toast instance, not a long-lived document listener. Auto-dismiss uses <code>setTimeout</code> cleared on the element <code>AbortController</code> (<code>el.ctrl.signal</code> abort). Soft-nav aborts only the detached leaf’s <code>ctrl</code>; toasts that outlive a leaf should be created/owned where their lifetime belongs (or removed explicitly). Prefer signal-owned work over raw <code>document</code> / <code>body</code> listeners. See <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a> and <a href="/docs/events/troubleshooting">Orphan listeners after soft-nav</a>.</p>
-<hr />
 <h2>Related</h2>
 <ul>
 <li><a href="/docs/elements/index">Elements overview</a></li>

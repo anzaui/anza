@@ -2,8 +2,6 @@
 
 Internals, extension points, and edge cases for developers building on or extending the API client.
 
----
-
 ## Retry Internals
 
 The retry function uses exponential backoff with full jitter:
@@ -28,8 +26,6 @@ Retries apply only to transient failures:
 
 The retry loop respects `AbortSignal`. If the signal aborts during backoff, the wait is cancelled and a `NETWORK_ERROR` is thrown.
 
----
-
 ## AbortSignal Composition
 
 The API client composes its internal timeout signal with any user-provided signal:
@@ -44,8 +40,6 @@ userSignal.addEventListener('abort', () => timeoutSignal.abort());
 
 This means either the timeout firing or the user calling `abort()` will cancel the request.
 
----
-
 ## Browser Scheduler Integration
 
 When `scheduler.postTask` is available, the fetch is scheduled at the requested priority:
@@ -57,8 +51,6 @@ scheduler.postTask(runFetch, { priority: 'user-visible', signal });
 This improves Interaction to Next Paint (INP) by deferring non-critical requests.
 
 When `scheduler.postTask` is unavailable, the fetch runs immediately.
-
----
 
 ## Pipeline Short-Circuiting
 
@@ -75,8 +67,6 @@ api.pipeline.outbound((descriptor) => {
 
 The response still runs through the inbound pipeline, so telemetry events fire normally.
 
----
-
 ## Request IDs
 
 Every request gets a unique ID:
@@ -86,8 +76,6 @@ const requestId = crypto.randomUUID?.() || Math.random().toString(36).slice(2) +
 ```
 
 This ID scopes per-request event listeners and correlates telemetry.
-
----
 
 ## Cache Internals
 
@@ -108,8 +96,6 @@ for (const req of await store.keys()) {
 }
 ```
 
----
-
 ## NDJSON Parsing
 
 The `createNDJSONTransform` stream uses a line buffer to handle partial chunks:
@@ -124,8 +110,6 @@ for (const line of lines) parseJSON(line);
 ```
 
 This guarantees correct parsing even when chunks break mid-line.
-
----
 
 ## SSR Considerations
 

@@ -2,8 +2,6 @@
 
 SharedWorker connections persist across tabs. If `SharedWorker` is unavailable, the module falls back to a dedicated worker transparently.
 
----
-
 ## Connect
 
 ```javascript
@@ -14,15 +12,11 @@ const conn = workers.shared('/workers/state.js', 'app-shared');
 
 `connect()` is called automatically on first `send()` or `subscribe()`.
 
----
-
 ## Send
 
 ```javascript
 conn.send({ action: 'increment', value: 1 });
 ```
-
----
 
 ## Subscribe
 
@@ -34,15 +28,11 @@ const off = conn.subscribe((data) => {
 off(); // unsubscribe
 ```
 
----
-
 ## Close
 
 ```javascript
 conn.close();
 ```
-
----
 
 ## Fallback
 
@@ -55,8 +45,6 @@ conn.send({ type: 'ping' });
 ```
 
 The dedicated fallback does not share state across tabs, but provides the same API surface.
-
----
 
 ## Example: Shared Counter
 

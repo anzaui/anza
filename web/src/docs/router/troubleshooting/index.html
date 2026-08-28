@@ -1,6 +1,5 @@
 <h1>Troubleshooting</h1>
 <p>Common problems and their solutions.</p>
-<hr />
 <h2>Hard refresh shows a blank page</h2>
 <p><strong>Cause:</strong> The initial route match fired before custom elements were defined.</p>
 <p><strong>Fix:</strong> Use <code>page()</code> instead of manual <code>router.register()</code> + <code>ui.element()</code>. <code>page()</code> automatically gates the boot sequence on element definition.</p>
@@ -10,7 +9,6 @@ page('/', { tag: 'page-home', via: ['main'] });
 // Problematic (old pattern)
 ui.element('page-home', { url: '/' }); // may race
 </view-code>
-<hr />
 <h2>Container not found</h2>
 <p><strong>Error:</strong> <code>Target container "main" not found in DOM</code></p>
 <p><strong>Cause:</strong> The dock has not connected yet, or the name does not match.</p>
@@ -28,16 +26,13 @@ page('/', { tag: 'page-home', via: ['main'] });
 dock('main-content');
 page('/', { tag: 'page-home', via: ['main'] }); // mismatch
 </view-code>
-<hr />
 <h2>Singleton violation</h2>
 <p><strong>Error:</strong> <code>ContainerError: Singleton violation — 'main' is already mounted</code></p>
 <p><strong>Cause:</strong> Two elements with the same container name are in the DOM at once.</p>
 <p><strong>Fix:</strong> Ensure only one instance of each dock exists. If using conditional rendering, unmount the old instance before mounting the new one.</p>
-<hr />
 <h2>Guard redirect not working in Safari</h2>
 <p><strong>Cause:</strong> Safari ignores <code>precommitHandler</code>.</p>
 <p><strong>Fix:</strong> The router already handles this. Your guard will run post-commit and the router performs a silent replace. No code change needed.</p>
-<hr />
 <h2>View transitions not running</h2>
 <p><strong>Cause:</strong> Missing VT API, reduced motion, or an explicit opt-out.</p>
 <p><strong>Fix:</strong> Soft-nav still swaps synchronously — no broken UX. Check:</p>
@@ -47,7 +42,6 @@ page('/', { tag: 'page-home', via: ['main'] }); // mismatch
 <li><code>prefers-reduced-motion: reduce</code>, <code>transition: false</code>, or <code>configureTransitions({ enabled: false })</code> force a direct swap</li>
 </ol>
 <p>See <a href="/docs/router/transitions">router/transitions.md</a> and <a href="/docs/ui/transitions">ui/transitions.md</a>.</p>
-<hr />
 <h2>Cascade fails on deep link</h2>
 <p><strong>Error:</strong> <code>CascadeError: no path 'body' → 'sidebar'</code></p>
 <p><strong>Cause:</strong> The graph does not have a path from the current root to the target.</p>
@@ -56,7 +50,6 @@ page('/', { tag: 'page-home', via: ['main'] }); // mismatch
 dock('sidebar', { parent: 'main' });     // missing this causes the error
 dock('content', { parent: 'sidebar' });
 </view-code>
-<hr />
 <h2>Route not matching</h2>
 <p><strong>Cause:</strong> Registration order or pattern specificity.</p>
 <p><strong>Fix:</strong> Check that a more specific static route is not shadowing your parameterized route:</p>
@@ -68,7 +61,6 @@ router.register('/members/:id', 'page-member');  // param — lower specificity
 <view-code language="javascript">const result = await router.match('/members/new');
 console.log(result.route.patternStr);
 </view-code>
-<hr />
 <h2>Query params not mapped to properties</h2>
 <p><strong>Cause:</strong> Missing or misconfigured <code>query</code> contract array in the page or dock config.</p>
 <p><strong>Fix:</strong></p>
@@ -81,11 +73,9 @@ console.log(result.route.patternStr);
 });
 </view-code>
 <p>Without the <code>query</code> contract array, the router does not map <code>?q=hello</code> onto the element. Make sure the type is defined (e.g. <code>String</code> or <code>Number</code> for casting).</p>
-<hr />
 <h2>Tabs not syncing</h2>
 <p><strong>Cause:</strong> <code>BroadcastChannel</code> or <code>window.navigation</code> is unavailable.</p>
 <p><strong>Fix:</strong> Check browser support. Both are required. The router falls back silently when either is missing.</p>
-<hr />
 <h2>Memory leaks in tests</h2>
 <p><strong>Cause:</strong> Event listeners and containers persist between tests.</p>
 <p><strong>Fix:</strong> Tear down the router between tests:</p>
@@ -97,7 +87,6 @@ console.log(result.route.patternStr);
   router.miss.clear();
 });
 </view-code>
-<hr />
 <h2>File templates not loading</h2>
 <p><strong>Cause:</strong> Missing <code>import.meta.url</code> as the third argument.</p>
 <p><strong>Fix:</strong></p>
@@ -111,7 +100,6 @@ page('/', {
   template: { html: './home.html', css: './home.css' }
 }); // no base
 </view-code>
-<hr />
 <h2>Still stuck?</h2>
 <p>Check the internal state:</p>
 <view-code language="javascript">// See all routes

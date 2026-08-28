@@ -4,8 +4,6 @@ Complete reference for the storage facade and internal classes.
 
 **vs `state.storage`:** this package is the tiered KV / OPFS / Cache facade. `state.storage` (`PlatformStorage`) persists reactive-store snapshots and supports a filter-function `query`. Give each a distinct IndexedDB database name (both default to `platform-db`) — see [troubleshooting.md](troubleshooting.md).
 
----
-
 ## Facade
 
 ```javascript
@@ -107,8 +105,6 @@ Registers a quota warning listener; returns a disposer. Also see [quota.md](quot
 
 Number (default `65536`). Values whose serialized length exceeds this may be gzip-compressed on IDB write when Compression Streams are available.
 
----
-
 ## Database
 
 ```javascript
@@ -131,8 +127,6 @@ Options: `{ index, range, direction, limit }`.
 
 Multi-store transactional callback.
 
----
-
 ## CacheStorage
 
 ```javascript
@@ -149,15 +143,11 @@ import { CacheStorage } from '@anzaui/anza/storage';
 
 TTL is stored via an `x-expires-at` header on cached responses.
 
----
-
 ## LRUCache / WeakLRUCache
 
 ### `new LRUCache(maxSize)` — `get` / `set(key, value, ttlMs)` / `delete` / `clear`
 
 ### `new WeakLRUCache(maxSize)` — values must be objects or functions
-
----
 
 ## QuotaManager
 

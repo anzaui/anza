@@ -1,6 +1,5 @@
 <h1>Quick Start</h1>
 <p>Get a reactive store running in five minutes.</p>
-<hr />
 <h2>1. Create a Store</h2>
 <view-code language="javascript">import { state } from '@anzaui/anza/state';
 
@@ -11,7 +10,6 @@ const store = state.create({
 });
 </view-code>
 <p>The store is a reactive Proxy. Reading a property tracks it. Writing triggers subscribers.</p>
-<hr />
 <h2>2. Read and Write</h2>
 <view-code language="javascript">// Read
 console.log(store.get('count')); // 0
@@ -20,7 +18,6 @@ console.log(store.get('count')); // 0
 store.set('count', 5);
 console.log(store.get('count')); // 5
 </view-code>
-<hr />
 <h2>3. Subscribe to Changes</h2>
 <view-code language="javascript">const off = store.subscribe('count', (val, key, prev) =&gt; {
   console.log(`${key} changed: ${prev} -&gt; ${val}`);
@@ -31,7 +28,6 @@ store.set('count', 10); // "count changed: 5 -&gt; 10"
 off(); // unsubscribe
 </view-code>
 <p>Subscribers receive the new value, key name, and previous value.</p>
-<hr />
 <h2>4. Batch Updates</h2>
 <view-code language="javascript">store.batch(() =&gt; {
   store.set('count', 1);
@@ -40,7 +36,6 @@ off(); // unsubscribe
 });
 // Subscribers fire once with the final value
 </view-code>
-<hr />
 <h2>5. Derived Values</h2>
 <view-code language="javascript">const total = state.derived(() =&gt; {
   const items = store.get('items');
@@ -50,7 +45,6 @@ off(); // unsubscribe
 console.log(total.value); // computed lazily, memoized
 </view-code>
 <p>The derived value automatically tracks which store keys it reads. When any dependency changes, it marks itself dirty and recomputes on the next access.</p>
-<hr />
 <h2>6. Snapshot and Hydrate</h2>
 <view-code language="javascript">// Serialize
 const snapshot = store.snapshot();
@@ -59,17 +53,14 @@ const snapshot = store.snapshot();
 store.hydrate(snapshot);
 </view-code>
 <p><code>snapshot</code> returns a deep clone. <code>hydrate</code> restores without firing redundant triggers.</p>
-<hr />
 <h2>7. Cross-Tab Sync</h2>
 <view-code language="javascript">store.broadcast('app-sync', ['count', 'user']);
 </view-code>
 <p>Mutations to <code>count</code> and <code>user</code> replicate to other tabs via BroadcastChannel.</p>
-<hr />
 <h2>8. Persist to IndexedDB</h2>
 <view-code language="javascript">await state.storage.set('keyval', 'count', store.get('count'));
 const restored = await state.storage.get('keyval', 'count');
 </view-code>
-<hr />
 <h2>Complete Working Example</h2>
 <view-code language="javascript">import { state } from '@anzaui/anza/state';
 

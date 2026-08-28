@@ -2,8 +2,6 @@
 
 A route handler tells the router what to render when a URL matches. There are exactly six supported shapes. The router never invokes a handler twice — it resolves the tag during matching and runs callbacks during interception.
 
----
-
 ## The Six Shapes
 
 | Shape | What It Means | Example |
@@ -15,8 +13,6 @@ A route handler tells the router what to render when a URL matches. There are ex
 | `{ load: fn }` | Lazy tag factory (object form) | `{ load: async () => 'page-home' }` |
 | `{ handler: fn }` | Callback (object form) | `{ handler: (params, event) => { ... } }` |
 
----
-
 ## Static Tag
 
 The simplest and most common handler.
@@ -26,8 +22,6 @@ router.register('/', 'page-home');
 ```
 
 When `/` matches, the router creates `<page-home>` and mounts it.
-
----
 
 ## Lazy Tag Factory
 
@@ -52,8 +46,6 @@ router.register('/reports', {
   }
 });
 ```
-
----
 
 ## Callback Handler
 
@@ -80,8 +72,6 @@ router.register('/external/:url', {
 
 *(Note: While callback handlers receive raw key-value string mappings, `page` and `dock` lifecycle hooks receive cast, ordered parameter and query accessor arrays per their declared contracts).*
 
----
-
 ## Choosing a Shape
 
 Use a **string** for routes whose element is already defined or will be defined before first match.
@@ -89,8 +79,6 @@ Use a **string** for routes whose element is already defined or will be defined 
 Use a **lazy factory** for code-split routes. The router awaits the factory, so the element definition can happen inside the imported module.
 
 Use a **callback** when you need side effects, redirects, or custom rendering logic that does not produce a custom element.
-
----
 
 ## Internal Resolution
 
@@ -100,8 +88,6 @@ The router resolves handlers in two phases:
 2. **Intercept phase** (`handler()`) — runs callbacks. Tag-based handlers are rendered by the orchestrator.
 
 This separation prevents a callback from running twice.
-
----
 
 ## Handler Helpers
 

@@ -4,15 +4,11 @@ Form orchestrator that validates form-associated children, submits JSON via the 
 
 **Tag:** `ui-form` · **Import:** `@anzaui/anza/elements/form`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/form';
 ```
-
----
 
 ## Basic usage
 
@@ -24,8 +20,6 @@ import '@anzaui/anza/elements/form';
   <ui-button type="submit">Save</ui-button>
 </ui-form>
 ```
-
----
 
 ## Props
 
@@ -45,12 +39,9 @@ import '@anzaui/anza/elements/form';
 | `submit-error` | Submit or queue failed |
 | `offline-queued` | Queued for background sync — `detail.syncId` |
 
-
 ## Notes
 
 Collects descendants with `formAssociated` constructors. Payload keys come from each control’s `name` attribute and `.value`.
-
----
 
 ## Related
 

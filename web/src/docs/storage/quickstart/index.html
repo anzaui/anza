@@ -1,6 +1,5 @@
 <h1>Quick Start</h1>
 <p>Get reading and writing in five minutes.</p>
-<hr />
 <h2>1. Write and Read</h2>
 <view-code language="javascript">import { storage } from '@anzaui/anza/storage';
 
@@ -9,7 +8,6 @@ const name = await storage.get('name');
 console.log(name); // 'Alice'
 </view-code>
 <p>Default tier is IndexedDB with an LRU memory cache.</p>
-<hr />
 <h2>2. Choose a Tier</h2>
 <view-code language="javascript">// Memory — fastest, lost on refresh
 await storage.set('hot', data, 'memory');
@@ -23,7 +21,6 @@ await storage.set('image', buffer, 'opfs');
 // Cache API — HTTP-like request/response
 await storage.set('api-data', response, 'cache');
 </view-code>
-<hr />
 <h2>3. Set TTL</h2>
 <view-code language="javascript">// Expires after 60 seconds
 await storage.set('token', 'abc', { tier: 'idb', ttl: 60000 });
@@ -32,12 +29,10 @@ await storage.set('token', 'abc', { tier: 'idb', ttl: 60000 });
 await new Promise(r =&gt; setTimeout(r, 61000));
 await storage.get('token'); // null
 </view-code>
-<hr />
 <h2>4. Delete</h2>
 <view-code language="javascript">await storage.delete('name');
 </view-code>
 <p>Deletes from all tiers (memory + the specified tier).</p>
-<hr />
 <h2>5. List keys / clear / estimate</h2>
 <view-code language="javascript">const keys = await storage.list();           // IDB keyval keys (default)
 const opfsKeys = await storage.list('opfs');
@@ -48,7 +43,6 @@ const est = await storage.estimate();
 console.log(est.usage, est.quota, est.persisted);
 </view-code>
 <p>Advanced IndexedDB cursor queries use options (not a filter callback) — see <a href="/docs/storage/api#storagequerystorename-queryopts">api.md</a>. For reactive-store snapshots with a filter function, use <code>state.storage.query</code> (<a href="/docs/state/persist">state/persist.md</a>).</p>
-<hr />
 <h2>6. Configure</h2>
 <view-code language="javascript">storage.configure({
   idb: { name: 'my-app', version: 2 },
@@ -56,7 +50,6 @@ console.log(est.usage, est.quota, est.persisted);
 });
 </view-code>
 <p>Call <code>configure</code> before the first read/write.</p>
-<hr />
 <h2>Complete Working Example</h2>
 <view-code language="javascript">import { storage } from '@anzaui/anza/storage';
 

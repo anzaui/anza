@@ -1,13 +1,11 @@
 <h1>Data Binding</h1>
 <p>Anza engines bind typed backend data structures—such as Rust Serde structs, Python dataclasses, and TypeScript interfaces—directly to server template tokens with zero runtime overhead.</p>
-<hr />
 <h2>What You Get</h2>
 <div class="table-wrap"><table><thead><tr><th>Language</th><th>Engine Package</th><th>Binding Mechanism</th></tr></thead><tbody>
 <tr><td><strong>Rust</strong></td><td><code>anza</code></td><td>Direct <code>serde::Serialize</code> structs &amp; <code>serde_json::Value</code></td></tr>
 <tr><td><strong>Python</strong></td><td><code>anza</code></td><td><code>@dataclass</code>, Pydantic models, or standard <code>dict</code></td></tr>
 <tr><td><strong>TypeScript</strong></td><td><code>@anzaui/engine</code></td><td>Typed <code>Record&lt;string, unknown&gt;</code> and plain objects</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Rust Engine Binding</h2>
 <p>In Rust, any struct deriving <code>serde::Serialize</code> can be passed directly to <code>render</code>:</p>
 <view-code language="rust">use anza::Engine;
@@ -37,7 +35,6 @@ let article = Article {
 // Render component template
 let html = engine.render("feed/card.html", &amp;article)?;
 </view-code>
-<hr />
 <h2>Python Engine Binding</h2>
 <p>In Python, use standard dataclasses or Pydantic models with <code>anza.render</code>:</p>
 <view-code language="python">from dataclasses import dataclass, asdict
@@ -65,7 +62,6 @@ article = Article(
 
 html = engine.render("feed/card.html", asdict(article))
 </view-code>
-<hr />
 <h2>TypeScript Engine Binding</h2>
 <p>In TypeScript (Node.js, Deno, Bun, or Cloudflare Workers), bind typed objects with <code>@anzaui/engine</code>:</p>
 <view-code language="typescript">import { Engine } from '@anzaui/engine';
@@ -92,7 +88,6 @@ const article: Article = {
 
 const html = await engine.render('feed/card.html', article);
 </view-code>
-<hr />
 <h2>Slotted Child Composition</h2>
 <p>When combining parent and child templates, pass the rendered child strings into the parent's data payload:</p>
 <view-code language="rust">// 1. Render all feed cards

@@ -4,15 +4,11 @@ Separating line with orientation and spacing token integration.
 
 **Tag:** `ui-divider` · **Import:** `@anzaui/anza/elements/divider`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/divider';
 ```
-
----
 
 ## Basic usage
 
@@ -20,8 +16,6 @@ import '@anzaui/anza/elements/divider';
 <ui-divider></ui-divider>
 <ui-divider orientation="vertical" spacing="4"></ui-divider>
 ```
-
----
 
 ## Props
 
@@ -33,8 +27,6 @@ import '@anzaui/anza/elements/divider';
 ## Notes
 
 Defaults `role="separator"` when unset.
-
----
 
 ## Related
 

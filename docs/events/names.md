@@ -2,8 +2,6 @@
 
 The `events.names` object provides typed constants for cross-cutting system events. Using these prevents typos and enables IDE autocomplete.
 
----
-
 ## Available Namespaces
 
 ### Auth
@@ -20,8 +18,6 @@ events.on(events.names.auth.signedin, (e) => {
 });
 ```
 
----
-
 ## Connectivity
 
 | Constant | Value |
@@ -35,8 +31,6 @@ events.on(events.names.connectivity.offline, () => {
 });
 ```
 
----
-
 ## Preference
 
 | Constant | Value |
@@ -48,8 +42,6 @@ events.on(events.names.preference.changed, (e) => {
   console.log('Preference changed:', e.detail.key, e.detail.value);
 });
 ```
-
----
 
 ## Service Worker
 
@@ -63,8 +55,6 @@ events.on(events.names.sw.updated, () => {
   showToast('A new version is available. Refresh to update.');
 });
 ```
-
----
 
 ## Extending
 

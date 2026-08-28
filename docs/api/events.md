@@ -2,8 +2,6 @@
 
 The API client emits telemetry events for every request. Subscribe globally for application-wide hooks, or per-request for scoped cleanup.
 
----
-
 ## Global Listeners
 
 ```javascript
@@ -19,8 +17,6 @@ off();
 
 `api.on(event, handler, signal)` returns a disposer. Pass an `AbortSignal` for automatic cleanup when a component unmounts.
 
----
-
 ## Standard Events
 
 | Event | Trigger |
@@ -34,8 +30,6 @@ off();
 | `type:json` | Successful `application/json` response |
 | `type:stream` | Successful `text/event-stream` response |
 | `type:text` | Successful `text/*` response |
-
----
 
 ## Per-Request Listeners
 
@@ -53,8 +47,6 @@ await api.get('/user/profile', {
 
 These listeners are cleaned up automatically when the request completes. No manual disposer needed.
 
----
-
 ## Event Payload
 
 All events receive an object with `type` and `detail`:
@@ -68,8 +60,6 @@ api.on('failed', (event) => {
 
 The `detail` object always includes `requestId` for correlation.
 
----
-
 ## Lifecycle-Gated Cleanup
 
 Pass an `AbortSignal` for automatic listener removal:
@@ -81,8 +71,6 @@ mount({ ctrl }) {
   }, ctrl.signal); // auto-removed on disconnect
 }
 ```
-
----
 
 ## Emitting Custom Events
 

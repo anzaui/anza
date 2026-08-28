@@ -6,15 +6,11 @@ Side panel overlay backed by native `<dialog>` + `showModal()` (top-layer, focus
 
 Architecture and when-to-use: [Overlay patterns](overlay.md).
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/drawer';
 ```
-
----
 
 ## Basic usage
 
@@ -29,8 +25,6 @@ import '@anzaui/anza/elements/drawer';
   // hide() or open = false closes after the exit transition
 </script>
 ```
-
----
 
 ## Props
 
@@ -59,8 +53,6 @@ Default slot is the drawer body. Native surface is `part="dialog"`. Same modal-d
 ### Lifecycle / memory
 
 Close handling stays on the dialog instance. Soft-nav aborts the leaf `ctrl`. See [Overlay patterns](overlay.md) and [Memory safety & framework globals](../ui/advanced.md).
-
----
 
 ## Related
 

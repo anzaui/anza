@@ -6,15 +6,11 @@ Hover / focus hint. The tip stays in-tree (not a body portal) and uses the platf
 
 Architecture and when-to-use: [Overlay patterns](overlay.md).
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/tooltip';
 ```
-
----
 
 ## Basic usage
 
@@ -33,8 +29,6 @@ Optional placement (default `top`):
   <span slot="content">More detail</span>
 </ui-tooltip>
 ```
-
----
 
 ## Props
 
@@ -63,8 +57,6 @@ Platform API: `import { escapeOverflow, guard } from '@anzaui/anza/platform'`.
 ### Lifecycle / memory
 
 Show/hide uses the host `AbortController` (`el.ctrl.signal`) for the escape controller and pointer listeners. Soft-nav aborts teardown. See [Overlay patterns](overlay.md) and [Memory safety & framework globals](../ui/advanced.md).
-
----
 
 ## Related
 

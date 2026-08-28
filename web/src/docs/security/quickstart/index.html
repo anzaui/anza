@@ -1,19 +1,16 @@
 <h1>Quick Start</h1>
 <p>Get working with encryption and sanitization in five minutes.</p>
-<hr />
 <h2>1. Generate a UUID</h2>
 <view-code language="javascript">import { security } from '@anzaui/anza/security';
 
 const id = security.uuid(); // e.g. "550e8400-e29b-41d4-a716-446655440000"
 </view-code>
-<hr />
 <h2>2. Hash Data</h2>
 <view-code language="javascript">const digest = await security.hash('my-payload');
 // Returns ArrayBuffer — 32 bytes for SHA-256
 
 const sha512 = await security.hash('data', 'SHA-512');
 </view-code>
-<hr />
 <h2>3. Encrypt and Decrypt</h2>
 <view-code language="javascript">// Generate a non-extractable AES-GCM key
 const key = await security.generateKey('AES-GCM');
@@ -26,7 +23,6 @@ const plainBuf = await security.decrypt(key, cipher);
 const plain = new TextDecoder().decode(plainBuf);
 </view-code>
 <p>Each encryption generates a fresh 12-byte IV and prepends it to the ciphertext.</p>
-<hr />
 <h2>4. Seal and Unseal (Base64)</h2>
 <p>For storing encrypted data in JSON or localStorage:</p>
 <view-code language="javascript">const key = await security.generateKey('AES-GCM');
@@ -36,7 +32,6 @@ const sealed = await security.seal(key, 'Secret message');
 
 const plain = await security.unseal(key, sealed);
 </view-code>
-<hr />
 <h2>5. Sanitize HTML</h2>
 <view-code language="javascript">const safe = String(security.sanitize('&lt;p&gt;&lt;script&gt;alert(1)&lt;/script&gt;Hello&lt;/p&gt;'));
 // '&lt;p&gt;Hello&lt;/p&gt;'
@@ -44,12 +39,10 @@ const plain = await security.unseal(key, sealed);
 const link = String(security.sanitize('&lt;a href="javascript:void(0)"&gt;click&lt;/a&gt;'));
 // '&lt;a&gt;click&lt;/a&gt;' — javascript: href stripped
 </view-code>
-<hr />
 <h2>6. Query Permission</h2>
 <view-code language="javascript">const state = await security.permission('geolocation');
 // 'granted' | 'denied' | 'prompt'
 </view-code>
-<hr />
 <h2>Complete Working Example</h2>
 <view-code language="javascript">import { security } from '@anzaui/anza/security';
 

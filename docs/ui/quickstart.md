@@ -2,8 +2,6 @@
 
 Get a working component in five minutes.
 
----
-
 ## 1. Define a Component
 
 ```javascript
@@ -19,8 +17,6 @@ Use it:
 ```html
 <hello-world></hello-world>
 ```
-
----
 
 ## 2. Add Reactive Properties
 
@@ -55,8 +51,6 @@ document.querySelector('user-greeting').name = 'Bob';
 
 The `change` hook fires automatically when `name` changes.
 
----
-
 ## 3. Use a File Template
 
 ```javascript
@@ -69,8 +63,6 @@ view('product-card', {
 ```
 
 Paths resolve relative to `import.meta.url`. The native toolchain copies assets during build.
-
----
 
 ## 4. Event Delegation
 
@@ -102,8 +94,6 @@ view('todo-item', {
 
 `on.click('.toggle', handler)` uses event delegation. One listener on the shadow root handles all `.toggle` clicks.
 
----
-
 ## 5. Mutation Watching
 
 Watch for text changes in the DOM:
@@ -124,8 +114,6 @@ view('live-counter', {
   }
 });
 ```
-
----
 
 ## 6. Observers
 
@@ -150,8 +138,6 @@ view('lazy-image', {
 
 `ctrl.signal` aborts the observer when the element disconnects. No manual cleanup needed.
 
----
-
 ## 7. Scheduling Heavy Work
 
 ```javascript
@@ -172,8 +158,6 @@ view('data-table', {
 
 `ui.yield()` returns control to the browser so the UI stays responsive.
 
----
-
 ## 8. View Transition
 
 ```javascript
@@ -193,8 +177,6 @@ view('gallery', {
 ```
 
 `ui.transition()` wraps the DOM update in a CSS View Transition when supported, falling back to synchronous execution otherwise.
-
----
 
 ## Complete Working Example
 

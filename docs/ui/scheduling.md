@@ -4,8 +4,6 @@ Cooperative task scheduling for main-thread-friendly work. Prevents long tasks t
 
 Related: [transitions.md](transitions.md) (VT + `AbortSignal`), [lifecycle.md](lifecycle.md) (soft-nav abort contract), platform [`guard.scheduler` / `guard.yield`](../platform/guards.md).
 
----
-
 ## schedule
 
 ```javascript
@@ -37,8 +35,6 @@ await ui.schedule(() => indexChunk(), {
 
 Already-aborted signals reject with `AbortError` immediately.
 
----
-
 ## scheduleFrame
 
 Run during the next `requestAnimationFrame`:
@@ -54,8 +50,6 @@ await ui.scheduleFrame(() => measure(), { signal: ctrl.signal });
 ```
 
 Returns a promise that resolves with the callback's return value. Pass `{ signal }` so soft-nav abort cancels the pending frame.
-
----
 
 ## yield
 
@@ -78,8 +72,6 @@ Uses `scheduler.yield()` when available, falling back to `setTimeout(..., 0)`. A
 
 Platform equivalent without the UI facade: `await guard.yield()` from `@anzaui/anza/platform`.
 
----
-
 ## When to use each
 
 | Helper | Prefer for |
@@ -89,8 +81,6 @@ Platform equivalent without the UI facade: `await guard.yield()` from `@anzaui/a
 | `yield()` | Chunk heavy computation inside loops |
 
 Do **not** schedule unbounded work without a signal from a page leaf — soft-nav will leave orphan tasks otherwise.
-
----
 
 ## Soft-nav + AbortSignal (advanced)
 
@@ -118,8 +108,6 @@ page('/reports', {
 ```
 
 When soft-nav swaps this leaf, `ctrl.abort()` rejects pending `schedule` / `scheduleFrame` / `yield` with `AbortError`. Catch only if you need cleanup; otherwise let it fail closed.
-
----
 
 ## Example: chunked rendering
 

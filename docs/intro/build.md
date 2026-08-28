@@ -2,8 +2,6 @@
 
 The `anza` CLI resolves your ESM import graph, copies reachable files into `dist/`, generates type declarations, and serves the result. You call it through npm scripts.
 
----
-
 ## Dev Server
 
 ```bash
@@ -28,8 +26,6 @@ Override the port:
 npx anza dev --port 8080
 ```
 
----
-
 ## Compile-Time Route Validation
 
 During both `dev` and `build` phases, the Rust compiler performs design-by-contract checks on all page and dock definitions. It scans route pattern strings (e.g. `'/blog/:slug'`) and cross-references them with the declared `params` and `query` contract arrays.
@@ -41,8 +37,6 @@ If a route parameter (like `:slug`) is present in the route but missing from the
 ```
 
 These warnings are non-blocking: compilation still succeeds and the router will fallback to string matching, but developers get early visibility into contract mismatches.
-
----
 
 ## Production Build
 
@@ -70,8 +64,6 @@ Optional `ssg.json` next to (or inside) `src/` configures site origin and build-
 - **`origin`** (or env `ANZA_SITE_ORIGIN`) — absolute canonicals, `og:url`, sitemap `<loc>`, and robots `Sitemap:`
 - Always emits `dist/sitemap.xml` + `dist/robots.txt` for Mode A routes (unless disabled in `ssg.json`)
 - Emits JSON-LD `WebSite` / `WebPage` in the SSG document `<head>` (light DOM; does not affect DSD hydration)
-
----
 
 ## Diagnostics
 
@@ -120,8 +112,6 @@ A [GitHub Pages project site](https://docs.github.com/en/pages/getting-started-w
 
 Set canonical / sitemap origin in `ssg.json` (`origin`) or env `ANZA_SITE_ORIGIN` at build time.
 
----
-
 ## Generate
 
 Thin helpers (not a Nest schematic platform). Writes into convention slots or `anza.json` remaps and updates the slot `index.js` barrel:
@@ -143,8 +133,6 @@ anza generate part button
 
 Flags: `--tree`, `--route`, `--via` (comma-separated), `--parent`, `-s/--src`.
 
----
-
 ## Flags
 
 | Flag | Default | Description |
@@ -158,8 +146,6 @@ Flags: `--tree`, `--route`, `--via` (comma-separated), `--parent`, `-s/--src`.
 | `--route` | `/{name}` | With `generate page` — route path |
 | `--via` | `rootDock` | With `generate page` — comma-separated via chain |
 | `--parent` | `rootDock` | With `generate dock` — parent registry key |
-
----
 
 ## Output
 

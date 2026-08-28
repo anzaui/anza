@@ -1,7 +1,6 @@
 <h1>Intro</h1>
 <p>Anza is a web platform library built on browser-native APIs. It gives you reactive state, client-side routing, custom elements, offline sync, and animations — all as plain ES modules the browser resolves directly. No bundler, no virtual DOM, no framework lock-in.</p>
 <p>A Rust CLI (<code>anza</code>) handles the development server, import-graph resolution, and build. It copies only the modules you actually import into <code>dist/</code>, generates type declarations, and serves everything with hot module replacement.</p>
-<hr />
 <h2>What You Get</h2>
 <ul>
 <li><strong>Pure ESM modules</strong> — authored as <code>.js</code> files, resolved by the browser natively</li>
@@ -15,13 +14,11 @@
 <li><strong>Animation helpers</strong> — WAAPI wrappers, stagger groups, and view transitions</li>
 <li><strong>Real-browser tests</strong> — <code>@web/test-runner</code> with Playwright, no jsdom</li>
 </ul>
-<hr />
 <h2>Package</h2>
 <view-code language="javascript">import { state } from '@anzaui/anza/state';
 import { router } from '@anzaui/anza/router';
 import { page, dock, view } from '@anzaui/anza/ui';
 </view-code>
-<hr />
 <h2>File Map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
 <tr><td><a href="/docs/intro/install">install.md</a></td><td>Install the library and prebuilt CLI</td></tr>
@@ -30,7 +27,6 @@ import { page, dock, view } from '@anzaui/anza/ui';
 <tr><td><a href="/docs/intro/structure">structure.md</a></td><td><strong>Project structure contract</strong> — required slots, <code>anza.json</code>, doctor/check, <code>anza generate</code></td></tr>
 <tr><td><code>docs/sw/</code></td><td>Service Worker caching, routing, sync, and push</td></tr>
 </tbody></table></div>
-<hr />
 <h2>One-File Example</h2>
 <view-code language="html">&lt;!-- src/index.html --&gt;
 &lt;!DOCTYPE html&gt;
@@ -57,7 +53,6 @@ page('/', {
 });
 </view-code>
 <p>That is a complete app. Run <code>anza dev</code> and open <code>http://localhost:3000</code>.</p>
-<hr />
 <h2>Next Steps</h2>
 <ul>
 <li>New here? Read <a href="/docs/intro/install">install.md</a> then <a href="/docs/intro/start">start.md</a>.</li>

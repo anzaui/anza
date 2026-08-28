@@ -8,8 +8,6 @@ Tone: **one spine, many leaves** — same story as hierarchical docks.
 
 **This page is the single source of truth** for “what must exist on disk?” — start at [What must exist](#what-must-exist), then optional slots and [Troubleshooting](#troubleshooting).
 
----
-
 ## What must exist
 
 | Must | Path | Notes |
@@ -60,8 +58,6 @@ Apps need **no** `anza.json`. `anza create` / `npm create @anzaui/anza` writes t
 - `src/index.js` (legacy discovery fallback only; scaffold uses `app.js`)
 - Empty placeholder dirs (scaffold may still create empty `docks` / `views` / `parts` for discoverability)
 
----
-
 ## Index-per-folder convention
 
 Each **meaningful** folder under views, docks, pages, and user trees should expose an **`index`** barrel (`index.js`, plus `index.html` / `index.css` when the leaf owns markup/styles). Scaffold and `anza check` / doctor expect this.
@@ -76,8 +72,6 @@ Each **meaningful** folder under views, docks, pages, and user trees should expo
 
 Co-locating a view under a dock or user folder is **organization only** — custom element tags remain **global**. There is no dock-scoped CE registry.
 
----
-
 ## Import order (tooling, not developer)
 
 Source may import modules in **any** order. **`anza build` / extract** rewrites static `import` / `export … from` declarations in emitted `dist/` JS into **usage order**:
@@ -90,8 +84,6 @@ Source may import modules in **any** order. **`anza build` / extract** rewrites 
 6. Other relative modules  
 
 Mid-file static imports are hoisted into that ordered block. Semantics stay multi-file ESM (no bundling). Rely on the build — do not treat source import order as load order. Remapped slot names from `anza.json` (`docks`, `views`, `parts`, `pages`) feed the classifier.
-
----
 
 ## Validate (`anza doctor` / `anza check`)
 
@@ -121,8 +113,6 @@ Or in `package.json`:
 }
 ```
 
----
-
 ## Generate (`anza generate`)
 
 Thin filesystem helpers into declared slots (respects `anza.json` remaps). Updates the slot barrel (`index.js`). Not a Nest schematic platform.
@@ -144,13 +134,9 @@ anza generate part button
 
 Each leaf gets `index.js` (+ `index.html` / `index.css`). Import the barrel from `app.js` if it is not already wired.
 
----
-
 ## Views model
 
 **Recommended:** one optional global `src/views/` slot (remappable via `anza.json` `views`). Rejected: a dock-scoped custom-element registry. Put shared views in `src/views/`; nest under docks only when it helps humans browse files — tags and registration stay app-global.
-
----
 
 ## Root files
 
@@ -161,8 +147,6 @@ Each leaf gets `index.js` (+ `index.html` / `index.css`). Import the barrel from
 | `anza.json` | **Optional** structure remaps + extra page trees / SW list (scaffold omits it) |
 | `ssg.json` | Optional SSG / SEO settings (sibling until optional merge into `anza.json`) |
 | `.gitignore` | Excludes `node_modules/`, `dist/`, `.anzacache.json` |
-
----
 
 ## What the scaffold generates
 
@@ -253,8 +237,6 @@ import './entry/index.js';
 
 Add a folder, import it here, and the route registers. The `entry/` name is a convention — rename or replace it; whatever defines `/` in this barrel is the landing page. Scaffold also writes empty `src/docks/index.js`, `src/views/index.js`, and `src/parts/index.js` barrels.
 
----
-
 ## Extra page trees
 
 Pages are **not** required to live only under `src/pages/`. The docs site uses `src/pages/` **and** `src/docs/` (~197 page folders) imported from barrels. That is a blessed escape hatch.
@@ -269,8 +251,6 @@ Declare extra trees in `anza.json` so tooling can hint without guessing:
 ```
 
 Undeclared trees that still call `page()` keep working at runtime; `anza check` **warns** (doctor soft-exit) so large apps are nudged to declare `pages[]` without blocking build unless `--strict` / `check`.
-
----
 
 ## Service workers
 
@@ -302,8 +282,6 @@ Array of paths and/or `{ path, scope }` objects:
 ```
 
 Omit `sw` entirely → tooling looks for `src/sw.js`. Registration stays in app code (`navigator.serviceWorker.register`); `scope` in the manifest is advisory for humans and future generators.
-
----
 
 ## Optional `anza.json`
 
@@ -345,8 +323,6 @@ Point the `$schema` key in `anza.json` (as above), or teach the editor via `.vsc
 
 A mergeable fragment ships as `@anzaui/anza/schemas/vscode-json-schemas.json`.
 
----
-
 ## Troubleshooting
 
 ### Moved pages out of `src/pages/`
@@ -387,13 +363,9 @@ Or fix the page `via: ['…']` to match an existing registry key. Folder under `
 
 Copy from a fresh `anza create`, or drop the slot if you intentionally skip offline / design tokens (warn-only unless `anza check`).
 
----
-
 ## Fallbacks are not folders
 
 Miss / error / offline UI is **by reference** (dock/page options or library built-ins). Do **not** copy `404.html` into every dock folder. Scaffold correctly creates docks without error-page files. See [router/fallbacks.md](../router/fallbacks.md) and [router/docks.md](../router/docks.md).
-
----
 
 ## Tokens and styles
 
@@ -412,8 +384,6 @@ src/styles/
   reset.css
   base.css
 ```
-
----
 
 ## Build output
 

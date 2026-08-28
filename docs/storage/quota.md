@@ -2,8 +2,6 @@
 
 The quota manager wraps the browser StorageManager API, providing storage estimates, persistence requests, and proactive eviction warnings.
 
----
-
 ## Estimate
 
 ```javascript
@@ -15,8 +13,6 @@ console.log(`Using ${usage} of ${quota} bytes`);
 
 Returns `{ usage: 0, quota: 0 }` if the API is unavailable.
 
----
-
 ## Persist
 
 ```javascript
@@ -25,8 +21,6 @@ console.log('Persistent storage:', granted);
 ```
 
 Requests the browser to exempt this origin from automatic storage eviction. Returns `false` if unsupported or denied.
-
----
 
 ## Check
 
@@ -38,8 +32,6 @@ const warning = await quota.check((data) => {
 
 Returns `true` if usage exceeds 80% of quota. Triggers the callback and dispatches `quota` events to registered listeners.
 
----
-
 ## Event Listeners
 
 ```javascript
@@ -50,13 +42,9 @@ const off = quota.onQuotaWarning((data) => {
 off(); // remove listener
 ```
 
----
-
 ## Storage Facade Integration
 
 The storage facade calls `quota.check()` before every write. If over 80%, it triggers eviction of expired and then oldest entries.
-
----
 
 ## Platform Detection
 

@@ -10,8 +10,6 @@ import '@anzaui/anza/elements/<name>';
 
 Full docs in this category: [button](button.md), [icon](icon.md), [badge](badge.md), [avatar](avatar.md), [divider](divider.md), [text](text.md), [link](link.md), [spinner](spinner.md).
 
----
-
 ## Elements
 
 | Element | Tag | Import | Status |

@@ -2,8 +2,6 @@
 
 Anza wraps CSS View Transitions for soft-nav docks and ad-hoc DOM swaps. Dock leaf swaps prefer **element-scoped** VT so chrome (sidebar, header, parent docks) stays stable. When VT is missing, reduced-motion is on, the call opts out, or the API fails, the DOM update still runs as a direct swap.
 
----
-
 ## Soft-nav docks (main → docs → content)
 
 Nested docks keep chrome mounted; only the leaf dock runs `swap` / `swapView`:
@@ -37,8 +35,6 @@ await contentDock.swapView(pageEl, {
   signal: ctrl.signal          // abort → skipTransition, clear names
 });
 ```
-
----
 
 ## Library API
 
@@ -89,8 +85,6 @@ await transitions.run(() => panel.replaceChildren(next), {
 });
 ```
 
----
-
 ## Fallback behaviour
 
 | Condition | Behaviour |
@@ -103,8 +97,6 @@ await transitions.run(() => panel.replaceChildren(next), {
 | `AbortSignal` aborted | `AbortError` before start; in-flight → `skipTransition` |
 
 `replaceChildren` still runs inside the VT **update callback** when VT is used — leaf `ctrl.abort()` happens at swap time, not after the animation finishes.
-
----
 
 ## CSS control
 
@@ -135,8 +127,6 @@ Tokens:
 
 Reduced motion zeros duration and disables the default keyframes via `@media (prefers-reduced-motion: reduce)`.
 
----
-
 ## Scheduling (AbortSignal)
 
 Soft-nav tears down leaf work via `ctrl.abort()`. Pass the signal into schedule helpers so pending work does not run on a detached tree:
@@ -152,8 +142,6 @@ await ui.yield({ signal: ctrl.signal });
 ```
 
 Already-aborted signals reject with `AbortError` immediately.
-
----
 
 ## Platform flags
 

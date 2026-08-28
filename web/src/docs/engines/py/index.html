@@ -1,6 +1,5 @@
 <h1>Python Engine</h1>
 <p>The Anza Python Engine (<code>anza</code>) is a pure standard library Server-Templated UI engine for the Python ecosystem. It runs on Python 3.9+ without external binary dependencies.</p>
-<hr />
 <h2>What You Get</h2>
 <ul>
 <li><strong>Zero external dependencies</strong> — Built 100% on Python standard library modules (<code>hashlib</code>, <code>hmac</code>, <code>secrets</code>, <code>pathlib</code>)</li>
@@ -8,11 +7,9 @@
 <li><strong>Dataclass &amp; Pydantic binding</strong> — Direct parameter injection from native Python objects and dictionaries</li>
 <li><strong>Async streaming generators</strong> — Built-in event generators for high-concurrency Server-Sent Events (SSE)</li>
 </ul>
-<hr />
 <h2>Installation</h2>
 <view-code language="bash">pip install anza
 </view-code>
-<hr />
 <h2>Quickstart (FastAPI / ASGI)</h2>
 <view-code language="python">from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -43,7 +40,6 @@ async def card():
     )
     return envelope.to_dict()
 </view-code>
-<hr />
 <h2>Flask Integration (WSGI)</h2>
 <view-code language="python">from flask import Flask, jsonify, Response
 from anza import Setup, Page, Fragment
@@ -64,7 +60,6 @@ def card():
 if __name__ == "__main__":
     app.run(port=3000)
 </view-code>
-<hr />
 <h2>Dataclass Binding</h2>
 <view-code language="python">from dataclasses import dataclass
 from anza import Page

@@ -2,8 +2,6 @@
 
 The router emits three events: `found`, `notfound`, and `error`. Subscribe with `router.on()`. After `notfound` / `error`, the [fallback resolver](fallbacks.md) mounts a leaf into the deepest live dock unless an escape hatch handled it.
 
----
-
 ## Found
 
 Emitted when a route matches successfully:
@@ -22,8 +20,6 @@ const dispose = router.on('found', (detail) => {
 ```
 
 The orchestrator listens to this event and mounts the matched element into its container. You can also listen for analytics, logging, or side effects.
-
----
 
 ## Not Found
 
@@ -44,8 +40,6 @@ router.notFound(async (ctx) => {
   // full manual control — or return false
 });
 ```
-
----
 
 ## Error
 
@@ -81,8 +75,6 @@ router.pages.configure({
 });
 ```
 
----
-
 ## Subscription and Cleanup
 
 `router.on()` returns a disposer:
@@ -103,8 +95,6 @@ controller.abort(); // removes the listener
 
 Inside a page leaf, prefer `ctrl.signal` from lifecycle context so soft-nav tears the subscription down with the element.
 
----
-
 ## Clearing Listeners
 
 There is no bulk clear for event listeners. Each subscription is independent. Use `AbortController` for grouped cleanup:
@@ -117,8 +107,6 @@ router.on('error', handlerB, ctrl.signal);
 // Remove both at once
 ctrl.abort();
 ```
-
----
 
 ## Event Order
 
@@ -145,8 +133,6 @@ During a failed navigation:
 2. `error` event emits with the appropriate `phase`
 3. Fallback resolver mounts error leaf (unless suppressed / handled)
 
----
-
 ## Listening Inside Components
 
 Components can subscribe to router events for coordination:
@@ -168,8 +154,6 @@ page('/dashboard', {
 ```
 
 Prefer `ctrl.signal` over a manual disposer in `disconnect` — soft-nav aborts the leaf controller automatically.
-
----
 
 ## Related
 

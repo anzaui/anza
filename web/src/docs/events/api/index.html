@@ -1,6 +1,5 @@
 <h1>API Reference</h1>
 <p>Complete reference for the events facade and internal utilities.</p>
-<hr />
 <h2>Facade</h2>
 <view-code language="javascript">import { events } from '@anzaui/anza/events';
 </view-code>
@@ -41,7 +40,6 @@ events.names.preference.changed // 'preference:changed'
 events.names.sw.updated          // 'sw:updated'
 events.names.sw.message          // 'sw:message'
 </view-code>
-<hr />
 <h2>Named Exports</h2>
 <view-code language="javascript">import {
   bus,
@@ -93,7 +91,6 @@ PASSIVE_DEFAULT_TYPES.has('wheel'); // true
 <tr><td><code>PASSIVE_DEFAULT_TYPES</code></td><td><code>Set</code> of scroll-critical event type strings</td></tr>
 <tr><td><code>resolvePassiveDefault(type, optionsPassive?)</code></td><td>Passive default aligned with <code>listen</code> / <code>on</code></td></tr>
 </tbody></table></div>
-<hr />
 <h2>Listener Options</h2>
 <p>All listener functions accept standard <code>addEventListener</code> options. <code>delegate</code> also accepts precision helpers:</p>
 <div class="table-wrap"><table><thead><tr><th>Option</th><th>Type</th><th>Description</th></tr></thead><tbody>
@@ -120,7 +117,6 @@ PASSIVE_DEFAULT_TYPES.has('wheel'); // true
 </view-code>
 <p>Matching walks <code>composedPath()</code> and stops at <code>root</code>. See <a href="/docs/events/delegate">delegate.md</a>.</p>
 <p>Component shadow delegation lives on context <code>on</code> — <a href="/docs/ui/context#on">ui/context.md</a> — with the same <code>attrs</code> / <code>not</code> / <code>key</code> options and empty-registry teardown.</p>
-<hr />
 <h2>Event Payload</h2>
 <p>Bus and emit listeners receive a <code>CustomEvent</code>:</p>
 <view-code language="javascript">{

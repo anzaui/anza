@@ -4,8 +4,6 @@ Miss, navigation error, and offline leaves share one resolver for soft-nav and h
 
 Built-ins live in `library/src/core/router/pages.js` (`DEFAULT_*_HTML`). They are **not** copied into each dock folder and are **not** filesystem slots in the [structure contract](../intro/structure.md).
 
----
-
 ## Kinds
 
 | Kind | When | Event | Default host |
@@ -15,8 +13,6 @@ Built-ins live in `library/src/core/router/pages.js` (`DEFAULT_*_HTML`). They ar
 | `offline` | App / SW bridge calls `router.pages.show('offline')` (or you mount it) | — | Same leaf host |
 
 Override shapes (any kind): HTML string, `{ html }`, or `{ tag, props? }`. Prefer a custom **`view`** / **`page`** tag over raw HTML when you need lifecycle or props.
-
----
 
 ## How defaults work
 
@@ -31,8 +27,6 @@ Override shapes (any kind): HTML string, `{ html }`, or `{ tag, props? }`. Prefe
 
 Override only when you need branded UI: dock/page `{ notfound \| error \| offline: { tag } }` (or HTML). Overrides stay dock/page-scoped.
 
----
-
 ## Override ladder (highest wins)
 
 1. **Page/route** — `page({ error: { tag } })` (error kind only; route matched then failed)
@@ -43,8 +37,6 @@ Override only when you need branded UI: dock/page `{ notfound \| error \| offlin
 **Host** is always the deepest live dock in the active `via` chain. An ancestor’s template may paint into that leaf without replacing the shell.
 
 Escape hatches (`router.notFound(fn)`, `router.pages.onError(fn)`) may return `false` to fall through to auto-mount. Prefer dock / `configure` tags for normal apps.
-
----
 
 ## Simple: bare docks (library defaults)
 
@@ -63,8 +55,6 @@ page('/docs/:slug', {
 ```
 
 Unmatched `/docs/…`: resolver mounts the shared built-in 404 into **content**; docs sidebar and main shell stay. No per-dock error HTML files.
-
----
 
 ## Advanced: branded override (dock / page scoped)
 
@@ -115,8 +105,6 @@ Unmatched `/docs/…` soft-nav: **content** shows `page-docs-not-found`; docs si
 
 Tag materialization sets `data-fallback-kind`, class `page-content`, and for errors copies `message` / `phase` onto the element from the navigation context. Optional `props` on the override are assigned onto the created element.
 
----
-
 ## Optional app-wide fallback
 
 ```javascript
@@ -128,8 +116,6 @@ router.pages.configure({
 ```
 
 Still mounts into the **leaf** dock of the active chain — not a document-level wipe. `configure` returns a disposer that clears the kinds you set. Use when several docks omit a kind and you want one branded default without repeating dock config.
-
----
 
 ## API surface
 
@@ -163,8 +149,6 @@ router.miss.clear();
 
 `show` / `renderPageKind` honor `ctx.signal` (abort skips mount) and prefer `host.swap` / `host.swapView` with `{ direction: 'replace', signal }` so VT + soft-nav abort stay consistent.
 
----
-
 ## Escape hatches
 
 ```javascript
@@ -182,8 +166,6 @@ router.pages.show('offline', { via: ['main', 'docs', 'content'] });
 
 Prefer dock / `configure` tags for normal apps. Handlers are for full manual control (analytics side effects, custom swap, etc.).
 
----
-
 ## Soft-nav / SSG / guards
 
 | Context | Behavior |
@@ -195,8 +177,6 @@ Prefer dock / `configure` tags for normal apps. Handlers are for full manual con
 | Scaffold | Bare `dock('main')` — no error-page files in `src/docks/` |
 
 Host HTML 404 and Mode A SSG emission are separate from this CSR leaf resolver. See [ssg/index.md](../ssg/index.md).
-
----
 
 ## Related
 

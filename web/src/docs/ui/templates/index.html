@@ -1,13 +1,11 @@
 <h1>Templates</h1>
 <p>Templates define the HTML structure of a declarative element. The UI layer supports inline strings, file references, and tagged template literals.</p>
-<hr />
 <h2>Inline String</h2>
 <view-code language="javascript">view('user-card', {
   template: '&lt;div class="card"&gt;&lt;h2 ref="title"&gt;&lt;/h2&gt;&lt;/div&gt;'
 });
 </view-code>
 <p>The string is compiled into a <code>DocumentFragment</code> once per registration and cloned for each instance.</p>
-<hr />
 <h2>File Reference</h2>
 <view-code language="javascript">view('user-card', {
   template: { html: './card.html', css: './card.css' }
@@ -19,7 +17,6 @@
 <tr><td><code>shadow</code></td><td>no</td><td><code>'open'</code> or <code>'closed'</code>; default <code>'open'</code></td></tr>
 </tbody></table></div>
 <p>Paths are resolved relative to the third argument (<code>import.meta.url</code>). The native toolchain copies assets during build.</p>
-<hr />
 <h2>Tagged Template Literal</h2>
 <p>For rapid prototyping outside the element factory:</p>
 <view-code language="javascript">import { template } from '@anzaui/anza/ui';
@@ -31,7 +28,6 @@ document.body.appendChild(fragment);
 <p>In development, passing values logs a warning:</p>
 <view-code language="javascript">template`&lt;div&gt;${dynamic}&lt;/div&gt;`; // warns: use refs for dynamic binding
 </view-code>
-<hr />
 <h2>Refs</h2>
 <p>Mark elements with <code>ref="name"</code> for easy lookup:</p>
 <view-code language="javascript">template: '&lt;div&gt;&lt;h2 ref="title"&gt;&lt;/h2&gt;&lt;button ref="btn"&gt;Go&lt;/button&gt;&lt;/div&gt;'
@@ -45,7 +41,6 @@ document.body.appendChild(fragment);
 }
 </view-code>
 <p>Duplicate <code>ref</code> names log a warning. The first match wins.</p>
-<hr />
 <h2>Tags Descriptor</h2>
 <p>When using file templates, the factory looks for a <code>.tags.json</code> alongside the <code>.html</code> file:</p>
 <view-code language="json">{
@@ -57,7 +52,6 @@ document.body.appendChild(fragment);
 }
 </view-code>
 <p>The tags descriptor pre-warms the query cache so <code>tags.one('#header')</code> and <code>tags.all('.card')</code> resolve instantly without DOM traversal.</p>
-<hr />
 <h2>Template Compilation</h2>
 <p>The compilation path depends on what is available:</p>
 <ol>
@@ -65,7 +59,6 @@ document.body.appendChild(fragment);
 <li><strong><code>innerHTML</code></strong> (fallback) — standard template parsing</li>
 </ol>
 <p>In both cases, the result is a <code>DocumentFragment</code> cloned per instance.</p>
-<hr />
 <h2>No Template</h2>
 <p>An element without a template creates an empty shadow root:</p>
 <view-code language="javascript">view('empty-box', {

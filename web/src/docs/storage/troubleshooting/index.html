@@ -1,7 +1,6 @@
 <h1>Troubleshooting</h1>
 <p>Common problems and their solutions.</p>
 <p>Use this page when the storage facade behaves differently from <code>state.storage</code>, when a tier returns <code>null</code> unexpectedly, or when browser capability / quota constraints leak into app behavior.</p>
-<hr />
 <h2>Clash with <code>state.storage</code> / <code>platform-db</code></h2>
 <p><strong>Cause:</strong> <code>@anzaui/anza/storage</code> and <code>state.storage</code> (<code>PlatformStorage</code>) both default to IndexedDB name <code>platform-db</code>.</p>
 <p><strong>Fix:</strong> Configure distinct names before first use:</p>
@@ -13,7 +12,6 @@ state.storage.setDatabaseName('app-state');
 </view-code>
 <p>Use <code>storage</code> for tiered KV/blobs; use <code>state.storage</code> for store persistence. See <a href="/docs/state/persist">state/persist.md</a>.</p>
 <p>If one package creates object stores and the other later opens the same DB name with a different migration plan, you can end up debugging the wrong abstraction. Separate names early and keep them stable.</p>
-<hr />
 <h2>storage.get returns null</h2>
 <p><strong>Cause:</strong> Key never set, expired, or wrong tier.</p>
 <p><strong>Fix:</strong> Check tier and TTL:</p>
@@ -31,7 +29,6 @@ await storage.get('temp', 'memory');
 <li>Remember that default reads use <code>idb</code>, fronted by the memory LRU.</li>
 <li>For cache/OPFS flows, confirm the current browser actually supports the tier you selected.</li>
 </ul>
-<hr />
 <h2>IndexedDB blocked</h2>
 <p><strong>Cause:</strong> Another tab has an older version open.</p>
 <p><strong>Fix:</strong> Listen for blocked events and close other tabs:</p>
@@ -46,7 +43,6 @@ await storage.get('temp', 'memory');
 <li>two apps accidentally sharing the same DB name</li>
 </ul>
 <p>If it repeats in development, close stale tabs and hard-reload after the upgrade completes.</p>
-<hr />
 <h2>OPFS not available</h2>
 <p><strong>Cause:</strong> Not a secure context, or browser lacks support.</p>
 <p><strong>Fix:</strong> Check support first:</p>
@@ -58,7 +54,6 @@ if (!supports.opfs) {
 }
 </view-code>
 <p>OPFS generally requires a secure context and browser support. If the app must work broadly, decide the fallback tier up front instead of letting writes fail ad hoc.</p>
-<hr />
 <h2>Data not persisting</h2>
 <p><strong>Cause:</strong> Using <code>memory</code> tier, or private browsing mode.</p>
 <p><strong>Fix:</strong> Use <code>idb</code> or <code>opfs</code> for durable storage. Private browsing may disable IndexedDB.</p>
@@ -68,12 +63,10 @@ if (!supports.opfs) {
 <li><code>storage.delete(key)</code> clears the memory copy even when you target another durable tier.</li>
 <li>Cache-tier values are stored as <code>Response</code> bodies; JSON parses back to objects, otherwise you get text.</li>
 </ul>
-<hr />
 <h2>Compression failed</h2>
 <p><strong>Cause:</strong> Compression Streams API unavailable, or non-serializable value.</p>
 <p><strong>Fix:</strong> The facade falls back to uncompressed storage automatically. Check that values are serializable (no circular references, no functions).</p>
 <p>Only large IDB writes are candidates for gzip, and only when serialized size exceeds <code>storage.compressionThreshold</code> (default <code>65536</code>). Compression failure should not lose the write; it should only skip the optimization path.</p>
-<hr />
 <h2>Quota exceeded</h2>
 <p><strong>Cause:</strong> Storage is full.</p>
 <p><strong>Fix:</strong> The facade auto-evicts expired and oldest entries when over 80%. For manual cleanup:</p>
@@ -91,7 +84,6 @@ const dispose = storage.onQuotaWarning(({ usage, quota }) =&gt; {
 });
 </view-code>
 <p>Automatic eviction first removes expired records, then evicts the least-recently-accessed wrapped IDB entries until usage drops back under the threshold.</p>
-<hr />
 <h2>Write journal not replaying</h2>
 <p><strong>Cause:</strong> <code>localStorage</code> is disabled or full.</p>
 <p><strong>Fix:</strong> The journal is a best-effort crash recovery mechanism. Critical writes should be confirmed:</p>
@@ -99,7 +91,6 @@ const dispose = storage.onQuotaWarning(({ usage, quota }) =&gt; {
 const confirmed = await storage.get('critical');
 </view-code>
 <p>The write journal is best-effort crash recovery for IDB writes. It relies on <code>localStorage</code>, so it can be unavailable in hardened privacy setups. Treat it as resilience, not as a transactional guarantee.</p>
-<hr />
 <h2>Still not sure which layer is failing?</h2>
 <p>Use the smallest possible probe against each tier:</p>
 <view-code language="javascript">await storage.set('probe', { ok: true }, 'memory');
@@ -111,7 +102,6 @@ console.log(await storage.get('probe', 'idb'));
 console.log(await storage.get('probe', 'cache'));
 </view-code>
 <p>If memory works but IDB does not, inspect migrations / blocked upgrades / private mode. If IDB works but OPFS does not, it is usually capability or secure-context related.</p>
-<hr />
 <h2>Still stuck?</h2>
 <p>Inspect storage state:</p>
 <view-code language="javascript">import { storage } from '@anzaui/anza/storage';

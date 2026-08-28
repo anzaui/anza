@@ -2,8 +2,6 @@
 
 The Anza TypeScript Engine (`@anzaui/engine`) is a zero-dependency, JIT-optimized template and STUI streaming engine. It executes with identical behavior and wire compatibility across Node.js, Bun, Deno, Cloudflare Workers, and Vercel Edge.
 
----
-
 ## What You Get
 
 - **Zero dependencies** — Built exclusively on native Web Standards (`Request`, `Response`, `SubtleCrypto`)
@@ -12,8 +10,6 @@ The Anza TypeScript Engine (`@anzaui/engine`) is a zero-dependency, JIT-optimize
 - **Framework adapters** — First-class helpers for Hono, Express, Fastify, and raw Fetch API
 - **Live SSE streaming** — Built-in `sseEvent()` helper for real-time Server-Sent Events
 
----
-
 ## Installation
 
 ```bash
@@ -21,8 +17,6 @@ npm install @anzaui/engine
 # or: pnpm add @anzaui/engine
 # or: bun add @anzaui/engine
 ```
-
----
 
 ## Quickstart (Web Standards / Fetch API)
 
@@ -59,8 +53,6 @@ export default {
   },
 };
 ```
-
----
 
 ## Framework Integration
 

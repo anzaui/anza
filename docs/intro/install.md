@@ -2,8 +2,6 @@
 
 Install `@anzaui/anza` from npm. The package ships the library, TypeScript types, and a **prebuilt** `anza` CLI binary for your platform — no Rust toolchain required.
 
----
-
 ## npm (recommended)
 
 ```bash
@@ -19,8 +17,6 @@ The package is on [npm](https://www.npmjs.com/package/@anzaui/anza). Each versio
 
 In a project with `@anzaui/anza` as a dependency, run the CLI via `npx anza` or an npm script (see [start.md](start.md)).
 
----
-
 ## New projects
 
 Scaffold an app with the create package — it adds `@anzaui/anza` as a dependency automatically:
@@ -32,8 +28,6 @@ npm install
 ```
 
 See [start.md](start.md) for what gets generated and how to run `npm run dev`.
-
----
 
 ## GitHub releases (standalone binary)
 
@@ -51,8 +45,6 @@ Download the file for your platform, make it executable on Unix (`chmod +x anza-
 
 There is no curl install script — use npm or download from GitHub releases.
 
----
-
 ## Verify
 
 ```bash
@@ -60,8 +52,6 @@ npx anza --help
 ```
 
 You should see the command list: `scan`, `build`, `dev`, `doctor`, `create`, and others.
-
----
 
 ## Building from source (contributors only)
 

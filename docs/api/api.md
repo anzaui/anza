@@ -2,8 +2,6 @@
 
 Complete reference for the API client facade and internal utilities.
 
----
-
 ## Facade
 
 ```javascript
@@ -107,8 +105,6 @@ Register an outbound interceptor.
 
 Register an inbound interceptor.
 
----
-
 ## Named Exports
 
 ```javascript
@@ -127,8 +123,6 @@ import {
 } from '@anzaui/anza/api';
 ```
 
----
-
 ## Request Options
 
 ```javascript
@@ -144,8 +138,6 @@ import {
 }
 ```
 
----
-
 ## Telemetry Events
 
 | Event | Payload |
@@ -160,8 +152,6 @@ import {
 | `progress` | `{ loaded, total, percentage, requestId }` |
 | `chunk` | `{ chunk, requestId }` |
 
----
-
 ## Error Codes
 
 | Code | Context |
@@ -169,8 +159,6 @@ import {
 | `HTTP_ERROR` | `{ url, status, method }` |
 | `NETWORK_ERROR` | `{ url, method }` |
 | `NETWORK_TIMEOUT` | `{ url, method }` |
-
----
 
 ## Prefix Resolution
 
@@ -183,8 +171,6 @@ api.get('/user/profile');   // fallback to root/default prefix
 api.get('https://x.com/y'); // left as-is
 ```
 
----
-
 ## Cache Strategies
 
 | Strategy | Behavior |
@@ -192,8 +178,6 @@ api.get('https://x.com/y'); // left as-is
 | `cache-first` | Cache hit returns immediately; miss fetches and stores |
 | `network-first` | Fetch first; on failure return cached; on success store |
 | `stale-while-revalidate` | Return cached immediately; revalidate in background |
-
----
 
 ## Retry Parameters
 

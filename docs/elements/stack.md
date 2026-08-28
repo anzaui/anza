@@ -4,15 +4,11 @@ Vertical flex stack with configurable gap.
 
 **Tag:** `ui-stack` · **Import:** `@anzaui/anza/elements/stack`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/stack';
 ```
-
----
 
 ## Basic usage
 
@@ -28,8 +24,6 @@ import '@anzaui/anza/elements/stack';
 </ui-stack>
 ```
 
----
-
 ## Props
 
 | Prop | Type | Reflect | Description |
@@ -39,8 +33,6 @@ import '@anzaui/anza/elements/stack';
 ## Notes
 
 Children go in the default slot (`part="stack"`).
-
----
 
 ## Related
 

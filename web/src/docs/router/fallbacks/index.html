@@ -1,7 +1,6 @@
 <h1>Fallbacks (404 / 5xx / offline)</h1>
 <p>Miss, navigation error, and offline leaves share one resolver for soft-nav and hard boot. Soft-nav swaps the <strong>leaf</strong> dock only — parent chrome stays.</p>
 <p>Built-ins live in <code>library/src/core/router/pages.js</code> (<code>DEFAULT_*_HTML</code>). They are <strong>not</strong> copied into each dock folder and are <strong>not</strong> filesystem slots in the <a href="/docs/intro/structure">structure contract</a>.</p>
-<hr />
 <h2>Kinds</h2>
 <div class="table-wrap"><table><thead><tr><th>Kind</th><th>When</th><th>Event</th><th>Default host</th></tr></thead><tbody>
 <tr><td><code>notfound</code></td><td>No route matches</td><td><code>notfound</code></td><td>Deepest live dock in active <code>via</code> / <code>lastVia</code></td></tr>
@@ -9,7 +8,6 @@
 <tr><td><code>offline</code></td><td>App / SW bridge calls <code>router.pages.show('offline')</code> (or you mount it)</td><td>—</td><td>Same leaf host</td></tr>
 </tbody></table></div>
 <p>Override shapes (any kind): HTML string, <code>{ html }</code>, or <code>{ tag, props? }</code>. Prefer a custom <strong><code>view</code></strong> / <strong><code>page</code></strong> tag over raw HTML when you need lifecycle or props.</p>
-<hr />
 <h2>How defaults work</h2>
 <div class="table-wrap"><table><thead><tr><th>Fact</th><th>Detail</th></tr></thead><tbody>
 <tr><td>Source</td><td>Shared <code>DEFAULT_NOTFOUND_HTML</code> / <code>DEFAULT_ERROR_HTML</code> / <code>DEFAULT_OFFLINE_HTML</code></td></tr>
@@ -20,7 +18,6 @@
 <tr><td>Do not</td><td>Copy <code>404.html</code> (or error/offline HTML) into every dock folder</td></tr>
 </tbody></table></div>
 <p>Override only when you need branded UI: dock/page <code>{ notfound \| error \| offline: { tag } }</code> (or HTML). Overrides stay dock/page-scoped.</p>
-<hr />
 <h2>Override ladder (highest wins)</h2>
 <ol>
 <li><strong>Page/route</strong> — <code>page({ error: { tag } })</code> (error kind only; route matched then failed)</li>
@@ -30,7 +27,6 @@
 </ol>
 <p><strong>Host</strong> is always the deepest live dock in the active <code>via</code> chain. An ancestor’s template may paint into that leaf without replacing the shell.</p>
 <p>Escape hatches (<code>router.notFound(fn)</code>, <code>router.pages.onError(fn)</code>) may return <code>false</code> to fall through to auto-mount. Prefer dock / <code>configure</code> tags for normal apps.</p>
-<hr />
 <h2>Simple: bare docks (library defaults)</h2>
 <view-code language="javascript">import { dock, page } from '@anzaui/anza/ui';
 
@@ -45,7 +41,6 @@ page('/docs/:slug', {
 }, import.meta.url);
 </view-code>
 <p>Unmatched <code>/docs/…</code>: resolver mounts the shared built-in 404 into <strong>content</strong>; docs sidebar and main shell stay. No per-dock error HTML files.</p>
-<hr />
 <h2>Advanced: branded override (dock / page scoped)</h2>
 <view-code language="javascript">import { view, dock, page } from '@anzaui/anza/ui';
 import { router } from '@anzaui/anza/router';
@@ -90,7 +85,6 @@ router.pages.configure({
 </view-code>
 <p>Unmatched <code>/docs/…</code> soft-nav: <strong>content</strong> shows <code>page-docs-not-found</code>; docs sidebar stays.</p>
 <p>Tag materialization sets <code>data-fallback-kind</code>, class <code>page-content</code>, and for errors copies <code>message</code> / <code>phase</code> onto the element from the navigation context. Optional <code>props</code> on the override are assigned onto the created element.</p>
-<hr />
 <h2>Optional app-wide fallback</h2>
 <view-code language="javascript">router.pages.configure({
   notfound: { tag: 'page-not-found' },
@@ -99,7 +93,6 @@ router.pages.configure({
 });
 </view-code>
 <p>Still mounts into the <strong>leaf</strong> dock of the active chain — not a document-level wipe. <code>configure</code> returns a disposer that clears the kinds you set. Use when several docks omit a kind and you want one branded default without repeating dock config.</p>
-<hr />
 <h2>API surface</h2>
 <view-code language="javascript">import { router } from '@anzaui/anza/router';
 
@@ -128,7 +121,6 @@ router.miss.set(fn);   // same as router.notFound
 router.miss.clear();
 </view-code>
 <p><code>show</code> / <code>renderPageKind</code> honor <code>ctx.signal</code> (abort skips mount) and prefer <code>host.swap</code> / <code>host.swapView</code> with <code>{ direction: 'replace', signal }</code> so VT + soft-nav abort stay consistent.</p>
-<hr />
 <h2>Escape hatches</h2>
 <view-code language="javascript">router.notFound(async (ctx) =&gt; {
   // return false to fall through to dock/app/built-in into ctx.host (leaf)
@@ -142,7 +134,6 @@ router.pages.suppressDefault(true);
 router.pages.show('offline', { via: ['main', 'docs', 'content'] });
 </view-code>
 <p>Prefer dock / <code>configure</code> tags for normal apps. Handlers are for full manual control (analytics side effects, custom swap, etc.).</p>
-<hr />
 <h2>Soft-nav / SSG / guards</h2>
 <div class="table-wrap"><table><thead><tr><th>Context</th><th>Behavior</th></tr></thead><tbody>
 <tr><td>Soft-nav miss / error</td><td>Leaf swap inside deepest <code>via</code> dock; parents stay; VT + <code>signal</code> honored</td></tr>
@@ -152,7 +143,6 @@ router.pages.show('offline', { via: ['main', 'docs', 'content'] });
 <tr><td>Scaffold</td><td>Bare <code>dock('main')</code> — no error-page files in <code>src/docks/</code></td></tr>
 </tbody></table></div>
 <p>Host HTML 404 and Mode A SSG emission are separate from this CSR leaf resolver. See <a href="/docs/ssg/index">ssg/index.md</a>.</p>
-<hr />
 <h2>Related</h2>
 <ul>
 <li><a href="/docs/router/docks">docks.md</a> — <code>notfound</code> / <code>error</code> / <code>offline</code> on docks</li>

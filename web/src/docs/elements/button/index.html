@@ -1,18 +1,15 @@
 <h1>Button</h1>
 <p>Form-associated button with loading and disabled states, semantic token styling, and an <code>activate</code> event.</p>
 <p><strong>Tag:</strong> <code>ui-button</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/button</code></p>
-<hr />
 <h2>Import</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/button';
 </view-code>
-<hr />
 <h2>Basic usage</h2>
 <view-code language="html">&lt;ui-button type="button"&gt;Save&lt;/ui-button&gt;
 &lt;ui-button type="submit"&gt;Submit&lt;/ui-button&gt;
 &lt;ui-button disabled&gt;Unavailable&lt;/ui-button&gt;
 &lt;ui-button loading&gt;Working…&lt;/ui-button&gt;
 </view-code>
-<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>disabled</code></td><td>Boolean</td><td>Reflect + custom state</td><td>Disables the inner button and blocks activation</td></tr>
@@ -26,7 +23,6 @@
 </tbody></table></div>
 <h2>Notes</h2>
 <p>Default slot content becomes the button label. Uses <code>form: true</code> so it participates in native forms.</p>
-<hr />
 <h2>Related</h2>
 <ul>
 <li><a href="/docs/elements/index">Elements overview</a></li>

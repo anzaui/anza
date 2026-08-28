@@ -8,8 +8,6 @@ The UI layer is organized into three levels:
 2. **Factory layer** — `element()`, `define()` — the engine that compiles specs into custom elements
 3. **Utilities** — `template()`, `transition()`, `schedule()`, `observe` — helpers for DOM, animation, and performance
 
----
-
 ## What You Get
 
 - **Declarative element definition** — define custom elements with a config object instead of a class
@@ -25,8 +23,6 @@ The UI layer is organized into three levels:
 - **Cooperative scheduling** — `schedule()`, `scheduleFrame()`, `yield()` for main-thread-friendly work
 - **View transitions** — `transition()` wrapper with reduced-motion respect
 
----
-
 ## Package
 
 ```javascript
@@ -34,8 +30,6 @@ import { ui } from '@anzaui/anza/ui';
 import { page, dock, view, part } from '@anzaui/anza/defs';
 import { BaseElement } from '@anzaui/anza/ui';
 ```
-
----
 
 ## File Map
 
@@ -56,8 +50,6 @@ import { BaseElement } from '@anzaui/anza/ui';
 | [advanced.md](advanced.md) | Internals, globals, `getAttachmentStats` |
 | [api.md](api.md) | Complete API reference |
 | [troubleshooting.md](troubleshooting.md) | Common problems and how to fix them |
-
----
 
 ## One-File Example
 
@@ -91,8 +83,6 @@ Use it in HTML:
 ```html
 <user-card name="Alice" active></user-card>
 ```
-
----
 
 ## Next Steps
 

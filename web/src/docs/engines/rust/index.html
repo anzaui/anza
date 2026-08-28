@@ -1,6 +1,5 @@
 <h1>Rust Engine</h1>
 <p>The Anza Rust Engine (<code>anza</code>) is a zero-copy Server-Templated UI engine built for the Rust web ecosystem. It delivers Declarative Shadow DOM documents and cryptographically verified dynamic component envelopes with minimal allocations and sub-millisecond execution times.</p>
-<hr />
 <h2>What You Get</h2>
 <ul>
 <li><strong>Zero-copy parameter injection</strong> — Templates compile once into memory offsets; parameter replacement uses borrowed slices</li>
@@ -9,7 +8,6 @@
 <li><strong>Real-time SSE streams</strong> — Built-in event generators for live component streaming</li>
 <li><strong>Live template reload</strong> — Optional <code>watch</code> feature for background filesystem monitoring in development</li>
 </ul>
-<hr />
 <h2>Installation</h2>
 <p>Add <code>anza</code> to your <code>Cargo.toml</code>:</p>
 <view-code language="toml">[dependencies]
@@ -24,7 +22,6 @@ serde = { version = "1.0", features = ["derive"] }
 <tr><td><code>tower</code></td><td>Tower Service middleware for template rendering pipelines</td></tr>
 <tr><td><code>watch</code></td><td>Background filesystem template watcher for development hot reloading</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Quickstart (Axum)</h2>
 <view-code language="rust">use anza::{Setup, Page, Fragment, SignOptions};
 use axum::{
@@ -72,7 +69,6 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 </view-code>
-<hr />
 <h2>Data Binding (Serde)</h2>
 <p>Bind data directly from any Rust struct deriving <code>Serialize</code>:</p>
 <view-code language="rust">use serde::Serialize;
@@ -95,7 +91,6 @@ let doc = Page::new("/profile")
     .with_data(&amp;profile)
     .run(&amp;engine)?;
 </view-code>
-<hr />
 <h2>Signing Configuration</h2>
 <h3>Ed25519 (Asymmetric)</h3>
 <view-code language="rust">use anza::{Setup, SignOptions};

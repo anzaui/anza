@@ -2,8 +2,6 @@
 
 The router's container system is a hierarchical graph of DOM mounting points. Every container knows its parent, its children, and its depth. This enables lowest-common-ancestor traversal and automatic cascade mounting on hard refreshes.
 
----
-
 ## What Is a Container?
 
 A container is a DOM node that acts as a first-class mounting slot for routed views. It owns its own animation, its own DOM swap strategy, and its own transition scope.
@@ -17,8 +15,6 @@ dock('main');
 ```
 
 When `<dock-main>` connects, it registers itself in the graph under the key `'main'`. Because no `parent` is set, it defaults to `'body'` as its parent.
-
----
 
 ## The Container Graph
 
@@ -34,8 +30,6 @@ body (virtual root)
 
 Every dock declares its `parent` when defined. The graph is built dynamically as elements connect and disconnect.
 
----
-
 ## Via Chains
 
 A `page` declares an ordered `via` chain — the root-to-leaf container path it renders through:
@@ -48,8 +42,6 @@ page('/settings/profile', {
 ```
 
 The last entry (`content`) is the render target. The router ensures every preceding container exists before mounting.
-
----
 
 ## Cascade Mounting
 
@@ -72,8 +64,6 @@ This is what makes a hard refresh on a deep route work without error.
 
 When public HTML already shipped the via chain (Mode A SSG or Mode B), the client **adopts** those docks instead of recreating an empty shell. Soft-nav then only swaps the page leaf inside the leaf dock; intermediate docks persist. Nested hosts in SSG HTML must be light-DOM children after each open DSD template — see [ssg/contract.md](../ssg/contract.md).
 
----
-
 ## Lowest Common Ancestor (LCA)
 
 Cross-branch navigation uses LCA to minimize DOM churn:
@@ -87,8 +77,6 @@ Everything below the ancestor on the source side unmounts. Everything below the 
 
 The LCA computation is O(d) where d is tree depth. Real UI trees rarely exceed depth 5.
 
----
-
 ## Singleton Constraint
 
 Two containers with the same name cannot coexist in the DOM at the same time:
@@ -99,8 +87,6 @@ ContainerError: Singleton violation — 'main' is already mounted.
 ```
 
 This is enforced in `connectedCallback` before any registration is accepted.
-
----
 
 ## CSS Selector Fallback
 
@@ -113,8 +99,6 @@ router.register('/about', 'page-about', {
 ```
 
 The router queries the selector and self-registers on first hit. A `MutationObserver` watches for dynamically added elements that match tracked selectors.
-
----
 
 ## Container Registry API
 
@@ -135,8 +119,6 @@ router.clearContainers();
 ```
 
 In most cases, `dock()` handles registration and unregistration automatically via lifecycle hooks.
-
----
 
 ## Ambiguous Names
 

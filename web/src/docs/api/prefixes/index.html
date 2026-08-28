@@ -1,6 +1,5 @@
 <h1>Prefixes</h1>
 <p>Prefixes map short path segments to base URLs. Register a prefix once at bootstrap, then reference endpoints by short path everywhere else.</p>
-<hr />
 <h2>Registering Prefixes</h2>
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
 
@@ -8,7 +7,6 @@ api.prefix.add('default', 'https://api.example.com');
 api.prefix.add('auth', 'https://auth.example.com');
 api.prefix.add('cdn', 'https://cdn.example.com');
 </view-code>
-<hr />
 <h2>Path Resolution</h2>
 <p>Prefix matching is automatic on every request:</p>
 <view-code language="javascript">// Matches /auth/ prefix
@@ -21,7 +19,6 @@ api.get('/user/profile'); // https://api.example.com/user/profile
 api.get('https://other.com/data'); // left as-is
 </view-code>
 <p>The resolver strips the prefix from the path and appends the remainder to the base URL, normalizing slashes automatically.</p>
-<hr />
 <h2>Root Fallback</h2>
 <p>If no prefix matches, the resolver checks for a <code>root</code> or <code>default</code> prefix:</p>
 <view-code language="javascript">api.prefix.add('default', 'https://api.example.com');
@@ -30,12 +27,10 @@ api.get('https://other.com/data'); // left as-is
 api.get('/user/profile');
 </view-code>
 <p>Without a root fallback, the path is sent as-is.</p>
-<hr />
 <h2>Clearing Prefixes</h2>
 <view-code language="javascript">api.prefix.clear(); // removes all registered prefixes
 </view-code>
 <p>Useful in tests when switching between environments.</p>
-<hr />
 <h2>Multiple Environments</h2>
 <p>Switch environments by re-registering prefixes:</p>
 <view-code language="javascript">// Development
@@ -45,7 +40,6 @@ api.prefix.add('default', 'http://localhost:3000');
 api.prefix.clear();
 api.prefix.add('default', 'https://api.example.com');
 </view-code>
-<hr />
 <h2>Prefix Matching Rules</h2>
 <p>Prefixes are checked in insertion order. The first matching prefix wins:</p>
 <view-code language="javascript">api.prefix.add('api', 'https://api.example.com');

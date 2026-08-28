@@ -3,7 +3,6 @@
 <p>Planning detail: <a href="../../plans/STRUCTURE.md">plans/STRUCTURE.md</a>. JSON Schema: <a href="../../library/schemas/anza.schema.json"><code>@anzaui/anza/schemas/anza.schema.json</code></a>.</p>
 <p>Tone: <strong>one spine, many leaves</strong> — same story as hierarchical docks.</p>
 <p><strong>This page is the single source of truth</strong> for “what must exist on disk?” — start at <a href="#what-must-exist">What must exist</a>, then optional slots and <a href="#troubleshooting">Troubleshooting</a>.</p>
-<hr />
 <h2>What must exist</h2>
 <div class="table-wrap"><table><thead><tr><th>Must</th><th>Path</th><th>Notes</th></tr></thead><tbody>
 <tr><td>Package</td><td><code>package.json</code></td><td><code>"type": "module"</code>; scripts may call <code>anza</code></td></tr>
@@ -47,7 +46,6 @@
 <li><code>src/index.js</code> (legacy discovery fallback only; scaffold uses <code>app.js</code>)</li>
 <li>Empty placeholder dirs (scaffold may still create empty <code>docks</code> / <code>views</code> / <code>parts</code> for discoverability)</li>
 </ul>
-<hr />
 <h2>Index-per-folder convention</h2>
 <p>Each <strong>meaningful</strong> folder under views, docks, pages, and user trees should expose an <strong><code>index</code></strong> barrel (<code>index.js</code>, plus <code>index.html</code> / <code>index.css</code> when the leaf owns markup/styles). Scaffold and <code>anza check</code> / doctor expect this.</p>
 <div class="table-wrap"><table><thead><tr><th>Tree</th><th>Barrel</th><th>Leaf</th></tr></thead><tbody>
@@ -58,7 +56,6 @@
 <tr><td>Extra page trees</td><td>e.g. <code>src/docs/index.js</code></td><td><code>src/docs/.../index.js</code></td></tr>
 </tbody></table></div>
 <p>Co-locating a view under a dock or user folder is <strong>organization only</strong> — custom element tags remain <strong>global</strong>. There is no dock-scoped CE registry.</p>
-<hr />
 <h2>Import order (tooling, not developer)</h2>
 <p>Source may import modules in <strong>any</strong> order. <strong><code>anza build</code> / extract</strong> rewrites static <code>import</code> / <code>export … from</code> declarations in emitted <code>dist/</code> JS into <strong>usage order</strong>:</p>
 <ol>
@@ -70,7 +67,6 @@
 <li>Other relative modules</li>
 </ol>
 <p>Mid-file static imports are hoisted into that ordered block. Semantics stay multi-file ESM (no bundling). Rely on the build — do not treat source import order as load order. Remapped slot names from <code>anza.json</code> (<code>docks</code>, <code>views</code>, <code>parts</code>, <code>pages</code>) feed the classifier.</p>
-<hr />
 <h2>Validate (<code>anza doctor</code> / <code>anza check</code>)</h2>
 <view-code language="bash">anza doctor          # soft: errors fail; warnings print, exit 0
 anza doctor --strict # same severity as check
@@ -89,7 +85,6 @@ anza check           # CI: errors or warnings → non-zero
   }
 }
 </view-code>
-<hr />
 <h2>Generate (<code>anza generate</code>)</h2>
 <p>Thin filesystem helpers into declared slots (respects <code>anza.json</code> remaps). Updates the slot barrel (<code>index.js</code>). Not a Nest schematic platform.</p>
 <view-code language="bash">anza generate page about
@@ -105,10 +100,8 @@ anza generate part button
 <tr><td><code>part</code></td><td><code>src/parts/&lt;name&gt;/</code></td><td>Stateless primitives</td></tr>
 </tbody></table></div>
 <p>Each leaf gets <code>index.js</code> (+ <code>index.html</code> / <code>index.css</code>). Import the barrel from <code>app.js</code> if it is not already wired.</p>
-<hr />
 <h2>Views model</h2>
 <p><strong>Recommended:</strong> one optional global <code>src/views/</code> slot (remappable via <code>anza.json</code> <code>views</code>). Rejected: a dock-scoped custom-element registry. Put shared views in <code>src/views/</code>; nest under docks only when it helps humans browse files — tags and registration stay app-global.</p>
-<hr />
 <h2>Root files</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>Why it exists</th></tr></thead><tbody>
 <tr><td><code>package.json</code></td><td>Lists <code>@anzaui/anza</code>; exposes <code>npm run dev</code> / <code>npm run build</code></td></tr>
@@ -117,7 +110,6 @@ anza generate part button
 <tr><td><code>ssg.json</code></td><td>Optional SSG / SEO settings (sibling until optional merge into <code>anza.json</code>)</td></tr>
 <tr><td><code>.gitignore</code></td><td>Excludes <code>node_modules/</code>, <code>dist/</code>, <code>.anzacache.json</code></td></tr>
 </tbody></table></div>
-<hr />
 <h2>What the scaffold generates</h2>
 <h3><code>src/app.js</code></h3>
 <view-code language="javascript">import '@anzaui/anza/ui';
@@ -185,7 +177,6 @@ page('/', {
 <view-code language="javascript">import './entry/index.js';
 </view-code>
 <p>Add a folder, import it here, and the route registers. The <code>entry/</code> name is a convention — rename or replace it; whatever defines <code>/</code> in this barrel is the landing page. Scaffold also writes empty <code>src/docks/index.js</code>, <code>src/views/index.js</code>, and <code>src/parts/index.js</code> barrels.</p>
-<hr />
 <h2>Extra page trees</h2>
 <p>Pages are <strong>not</strong> required to live only under <code>src/pages/</code>. The docs site uses <code>src/pages/</code> <strong>and</strong> <code>src/docs/</code> (~197 page folders) imported from barrels. That is a blessed escape hatch.</p>
 <p>Declare extra trees in <code>anza.json</code> so tooling can hint without guessing:</p>
@@ -195,7 +186,6 @@ page('/', {
 }
 </view-code>
 <p>Undeclared trees that still call <code>page()</code> keep working at runtime; <code>anza check</code> <strong>warns</strong> (doctor soft-exit) so large apps are nudged to declare <code>pages[]</code> without blocking build unless <code>--strict</code> / <code>check</code>.</p>
-<hr />
 <h2>Service workers</h2>
 <div class="table-wrap"><table><thead><tr><th>Slot</th><th>Path</th><th>Role</th></tr></thead><tbody>
 <tr><td>Primary entry (recommended)</td><td><code>src/sw.js</code></td><td>Single controlling SW; build entry when <code>anza.json</code> omits <code>sw</code></td></tr>
@@ -216,7 +206,6 @@ page('/', {
 }
 </view-code>
 <p>Omit <code>sw</code> entirely → tooling looks for <code>src/sw.js</code>. Registration stays in app code (<code>navigator.serviceWorker.register</code>); <code>scope</code> in the manifest is advisory for humans and future generators.</p>
-<hr />
 <h2>Optional <code>anza.json</code></h2>
 <view-code language="json">{
   "$schema": "./node_modules/@anzaui/anza/schemas/anza.schema.json",
@@ -247,7 +236,6 @@ page('/', {
 }
 </view-code>
 <p>A mergeable fragment ships as <code>@anzaui/anza/schemas/vscode-json-schemas.json</code>.</p>
-<hr />
 <h2>Troubleshooting</h2>
 <h3>Moved pages out of <code>src/pages/</code></h3>
 <p>Symptoms: <code>anza check</code> warns about <code>page()</code> under <code>src/&lt;tree&gt;/</code> not listed in <code>pages[]</code>; routes missing after build if the barrel is not imported.</p>
@@ -274,10 +262,8 @@ import './docs/index.js';
 <p>Or fix the page <code>via: ['…']</code> to match an existing registry key. Folder under <code>src/docks/</code> is optional.</p>
 <h3>Missing recommended tokens / styles / SW</h3>
 <p>Copy from a fresh <code>anza create</code>, or drop the slot if you intentionally skip offline / design tokens (warn-only unless <code>anza check</code>).</p>
-<hr />
 <h2>Fallbacks are not folders</h2>
 <p>Miss / error / offline UI is <strong>by reference</strong> (dock/page options or library built-ins). Do <strong>not</strong> copy <code>404.html</code> into every dock folder. Scaffold correctly creates docks without error-page files. See <a href="/docs/router/fallbacks">router/fallbacks.md</a> and <a href="/docs/router/docks">router/docks.md</a>.</p>
-<hr />
 <h2>Tokens and styles</h2>
 <p><code>src/tokens/</code> and <code>src/styles/</code> are copied from the library during scaffolding. You own them — the CLI never overwrites them after creation.</p>
 <view-code language="text">src/tokens/
@@ -292,7 +278,6 @@ src/styles/
   reset.css
   base.css
 </view-code>
-<hr />
 <h2>Build output</h2>
 <p><code>npm run dev</code> and <code>npm run build</code> emit to <code>dist/</code>:</p>
 <view-code language="text">dist/

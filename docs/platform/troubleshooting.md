@@ -2,8 +2,6 @@
 
 Common problems and their solutions.
 
----
-
 ## supports flag returns wrong value
 
 **Cause:** The flag was cached before a polyfill loaded, or the detection test is environment-dependent.
@@ -17,8 +15,6 @@ reset('urlPattern');
 console.log(supports.urlPattern); // re-detects
 ```
 
----
-
 ## guard() never resolves
 
 **Cause:** Polyfill import fails (network error, CSP block, or bad path).
@@ -31,8 +27,6 @@ Failed to eagerly bootstrap shadow polyfill: ...
 
 Ensure your build system bundles the polyfill files or that dynamic imports are allowed by your CSP.
 
----
-
 ## typeGuard throws in tests
 
 **Cause:** The test environment (JSDOM, Node) does not support the browser API.
@@ -43,8 +37,6 @@ Ensure your build system bundles the polyfill files or that dynamic imports are 
 Object.defineProperty(supports, 'opfs', { value: true, configurable: true });
 typeGuard('opfs'); // passes
 ```
-
----
 
 ## Scheduler tasks not running
 
@@ -57,8 +49,6 @@ const scheduler = await guard.scheduler();
 console.log(scheduler); // should have postTask and yield
 ```
 
----
-
 ## Polyfill conflicts with existing library
 
 **Cause:** Another polyfill (e.g., from a CDN) already defined the API.
@@ -70,15 +60,11 @@ import { guard } from '@anzaui/anza/platform';
 // This loads polyfills eagerly if native support is missing
 ```
 
----
-
 ## Floating tip clipped by `overflow: hidden`
 
 **Cause:** Absolute CSS positioning inside a clipping ancestor, or missing Popover / escape helper.
 
 **Fix:** Use `ui-tooltip`, or `await guard.escape(float, anchor, opts)` / `escapeOverflow` so the tip uses Popover top-layer (or viewport-fixed fallback). Ensure `[popover]` is set when you want the popover strategy; call `await guard.popover()` before sync `escapeOverflow` in older browsers. See [guards.md#escape](guards.md#escape) and [Overlay patterns](../elements/overlay.md).
-
----
 
 ## Still stuck?
 

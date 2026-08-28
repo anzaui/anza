@@ -4,15 +4,11 @@ List panel with optional bordered surface. Children should use `role="listitem"`
 
 **Tag:** `ui-list` · **Import:** `@anzaui/anza/elements/list`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/list';
 ```
-
----
 
 ## Basic usage
 
@@ -26,8 +22,6 @@ import '@anzaui/anza/elements/list';
 </ui-list>
 ```
 
----
-
 ## Props
 
 | Prop | Type | Reflect | Description |
@@ -37,8 +31,6 @@ import '@anzaui/anza/elements/list';
 ## Notes
 
 Inner container uses `role="list"` and `part="list"`.
-
----
 
 ## Related
 

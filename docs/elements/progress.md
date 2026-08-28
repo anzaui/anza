@@ -4,15 +4,11 @@ Determinate progress bar with percentage label and ARIA progressbar semantics.
 
 **Tag:** `ui-progress` · **Import:** `@anzaui/anza/elements/progress`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/progress';
 ```
-
----
 
 ## Basic usage
 
@@ -22,8 +18,6 @@ import '@anzaui/anza/elements/progress';
   <span slot="label">Upload</span>
 </ui-progress>
 ```
-
----
 
 ## Props
 
@@ -44,8 +38,6 @@ import '@anzaui/anza/elements/progress';
 ## Notes
 
 Sets `role="progressbar"` and `aria-valuenow` / `aria-valuemin` / `aria-valuemax` on update. Percent label is derived as `round((value / max) * 100)`.
-
----
 
 ## Related
 

@@ -2,8 +2,6 @@
 
 Get a working route in five minutes.
 
----
-
 ## 1. Create a Dock
 
 A `dock` is a persistent container shell. It stays in the DOM across route changes and provides the mounting point for pages.
@@ -15,8 +13,6 @@ dock('main');
 ```
 
 This registers `<dock-main>` as a custom element. When it connects, it registers itself in the container graph under the key `'main'`. The default parent is `'body'`, so `<dock-main>` is treated as a top-level container. You can place it directly in HTML or let the router create it automatically.
-
----
 
 ## 2. Define a Page
 
@@ -42,8 +38,6 @@ What happens:
 3. It declares that this page renders through the `'main'` container
 4. When the user visits `/`, the router creates `<page-home>` and mounts it inside `<dock-main>`
 
----
-
 ## 3. Add Another Route
 
 ```javascript
@@ -55,8 +49,6 @@ page('/about', {
 ```
 
 Now clicking `<a href="/about">` is intercepted, matched, and swapped inside `main` without a full page reload.
-
----
 
 ## 4. Route Parameters
 
@@ -77,8 +69,6 @@ page('/profile/:id', {
 
 The `:id` segment is captured per the `params` contract, cast to `Number`, and assigned as a property on the element.
 
----
-
 ## 5. Nested Layouts with Via Chains
 
 A `via` chain declares the full root-to-leaf container path:
@@ -96,8 +86,6 @@ page('/settings/profile', {
 
 On a cold hard refresh, the router cascades through the chain: it ensures `main` exists, then `sidebar` inside `main`, then `content` inside `sidebar`, then mounts the page inside `content`.
 
----
-
 ## 6. File Templates
 
 For IDE support, use real `.html` and `.css` files:
@@ -111,8 +99,6 @@ page('/dashboard', {
 ```
 
 Paths are resolved relative to the third argument (`import.meta.url`). The native toolchain copies these assets during build and generates type declarations.
-
----
 
 ## 7. Programmatic Navigation
 
@@ -132,8 +118,6 @@ router.back();
 if (router.canBack()) router.back();
 ```
 
----
-
 ## 8. Navigation Guard
 
 ```javascript
@@ -145,8 +129,6 @@ router.guard((destination, controller) => {
 ```
 
 Return a URL string to redirect. Return nothing (or `null`) to allow.
-
----
 
 ## Complete Working Example
 

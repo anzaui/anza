@@ -2,8 +2,6 @@
 
 Safe wrappers around browser observer APIs. Each observer is automatically disconnected when the provided `AbortSignal` aborts, preventing memory leaks.
 
----
-
 ## resize
 
 ```javascript
@@ -23,8 +21,6 @@ view('responsive-box', {
 });
 ```
 
----
-
 ## intersection
 
 ```javascript
@@ -43,8 +39,6 @@ view('lazy-image', {
   }
 });
 ```
-
----
 
 ## mutation
 
@@ -92,8 +86,6 @@ observe.mutation.scoped(el.shadowRoot, '.row', (matched) => {
 
 Avoid `observe.mutation(document, …, { subtree: true })` from leaf pages — soft-nav will not clean it up unless you pass `{ signal: ctrl.signal }` (and even then, observing `document` from a leaf is an anti-pattern). Prefer parent docks, events, or `watch`.
 
----
-
 ## performance
 
 ```javascript
@@ -110,8 +102,6 @@ view('perf-tracker', {
 });
 ```
 
----
-
 ## Return Value
 
 Each observer factory returns a disposer function:
@@ -122,8 +112,6 @@ dispose(); // disconnect manually
 ```
 
 If the signal aborts first, the disposer is a no-op (no double-disconnect).
-
----
 
 ## Signal Already Aborted
 
@@ -136,8 +124,6 @@ controller.abort();
 const dispose = observe.resize(el, handler, controller.signal);
 // returns () => {} — observer never started
 ```
-
----
 
 ## Error Handling
 

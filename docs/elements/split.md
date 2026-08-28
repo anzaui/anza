@@ -4,15 +4,11 @@ Two-pane split layout controlled by a ratio token.
 
 **Tag:** `ui-split` · **Import:** `@anzaui/anza/elements/split`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/split';
 ```
-
----
 
 ## Basic usage
 
@@ -27,8 +23,6 @@ import '@anzaui/anza/elements/split';
 </ui-split>
 ```
 
----
-
 ## Props
 
 | Prop | Type | Reflect | Description |
@@ -38,8 +32,6 @@ import '@anzaui/anza/elements/split';
 ## Notes
 
 Two children in the default slot; `part="split"` wraps them.
-
----
 
 ## Related
 

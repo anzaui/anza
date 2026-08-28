@@ -2,8 +2,6 @@
 
 Complete reference for the state facade and internal classes.
 
----
-
 ## Facade
 
 ```javascript
@@ -33,8 +31,6 @@ Returns disposer. See [sync.md](sync.md).
 ### `state.storage`
 
 `PlatformStorage` instance. See [persist.md](persist.md).
-
----
 
 ## ReactiveStore
 
@@ -80,8 +76,6 @@ Alias for `broadcast`.
 
 Register global mutation listener: `(key, value, source) => void`
 
----
-
 ## DerivedValue
 
 ### `value`
@@ -95,8 +89,6 @@ Notify when value changes. Returns disposer.
 ### `dispose()`
 
 Clean up all subscriptions.
-
----
 
 ## PlatformStorage
 
@@ -127,8 +119,6 @@ Filter records by predicate.
 ### `persist()`
 
 Request persistent storage.
-
----
 
 ## Named Exports
 

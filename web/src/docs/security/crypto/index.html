@@ -1,19 +1,16 @@
 <h1>Crypto</h1>
 <p>The cryptography module delegates all operations to the browser's <code>SubtleCrypto</code> thread pools. Keys are non-extractable by default. IVs are fresh for every encryption.</p>
-<hr />
 <h2>UUID</h2>
 <view-code language="javascript">import { security } from '@anzaui/anza/security';
 
 const id = security.uuid();
 </view-code>
 <p>Returns a cryptographically secure UUID v4 via <code>crypto.randomUUID()</code>.</p>
-<hr />
 <h2>Hash</h2>
 <view-code language="javascript">const digest = await security.hash('data');           // SHA-256
 const digest = await security.hash(data, 'SHA-512'); // SHA-512
 </view-code>
 <p>Accepts strings or <code>ArrayBuffer</code>/<code>Uint8Array</code>. Returns an <code>ArrayBuffer</code>.</p>
-<hr />
 <h2>Generate Key</h2>
 <view-code language="javascript">const key = await security.generateKey('AES-GCM');
 const hmacKey = await security.generateKey('HMAC', ['sign', 'verify']);
@@ -24,7 +21,6 @@ const hmacKey = await security.generateKey('HMAC', ['sign', 'verify']);
 <tr><td><code>extractable</code></td><td><code>false</code></td><td>Whether the key can be exported</td></tr>
 </tbody></table></div>
 <p>AES-GCM keys are 256-bit. HMAC keys use SHA-256.</p>
-<hr />
 <h2>Derive Key (PBKDF2)</h2>
 <view-code language="javascript">const key = await security.deriveKey('password', 'unique-salt');
 </view-code>
@@ -33,24 +29,20 @@ const hmacKey = await security.generateKey('HMAC', ['sign', 'verify']);
 <view-code language="javascript">const key = await security.deriveKey('pw', 'salt', 1000); // test only
 </view-code>
 <p>The salt must be unique per password and stored alongside the ciphertext.</p>
-<hr />
 <h2>Encrypt</h2>
 <view-code language="javascript">const cipher = await security.encrypt(key, 'plaintext');
 </view-code>
 <p>Returns an <code>ArrayBuffer</code> containing: <code>[12-byte IV | ciphertext]</code>.</p>
 <p>The IV is randomly generated for every call. Never reuse an IV with the same key.</p>
-<hr />
 <h2>Decrypt</h2>
 <view-code language="javascript">const plainBuf = await security.decrypt(key, cipher);
 const plain = new TextDecoder().decode(plainBuf);
 </view-code>
 <p>Expects the combined IV-ciphertext format produced by <code>encrypt</code>.</p>
-<hr />
 <h2>Sign</h2>
 <view-code language="javascript">const sig = await security.sign(key, 'message');
 </view-code>
 <p>Algorithm is auto-detected from the key: HMAC or ECDSA.</p>
-<hr />
 <h2>Verify</h2>
 <view-code language="javascript">const valid = await security.verify(key, signature, 'message');
 </view-code>

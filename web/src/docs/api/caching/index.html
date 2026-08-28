@@ -1,6 +1,5 @@
 <h1>Caching</h1>
 <p>The API client supports fine-grained TTL caching via the browser Cache API. Caching is opt-in: by default, every request is network-only.</p>
-<hr />
 <h2>TTL Caching</h2>
 <p>Enable caching by passing <code>expiry</code> or <code>ttl</code> (in milliseconds):</p>
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
@@ -9,7 +8,6 @@
 const products = await api.get('/products', { expiry: 60000 });
 </view-code>
 <p>On the first call, the network is hit and the response is cached. On subsequent calls within the TTL window, the cached response is returned instantly. After expiry, the cache entry is evicted and the network is hit again.</p>
-<hr />
 <h2>Cache Strategies</h2>
 <p>For more control, use named strategies:</p>
 <h3>cache-first</h3>
@@ -32,11 +30,9 @@ const products = await api.get('/products', { expiry: 60000 });
 });
 </view-code>
 <p>Best for timelines, feeds, and dashboards where perceived speed matters.</p>
-<hr />
 <h2>Cache Limitations</h2>
 <p>Caching applies only to <code>GET</code> requests. <code>POST</code>, <code>PUT</code>, <code>PATCH</code>, and <code>DELETE</code> bypass the cache entirely.</p>
 <p>If the Cache API is unavailable (private mode, unsupported browser), caching is silently disabled and all requests go to the network.</p>
-<hr />
 <h2>Cache Invalidation</h2>
 <h3>Clear Everything</h3>
 <view-code language="javascript">await api.cache.clear();
@@ -48,7 +44,6 @@ const products = await api.get('/products', { expiry: 60000 });
 <view-code language="javascript">await api.cache.delete('*/user/*');
 </view-code>
 <p>Glob patterns support <code>*</code> wildcards. The pattern is matched against both the full URL and the pathname.</p>
-<hr />
 <h2>Direct Cache Access</h2>
 <p>For advanced use, access the cache manager directly:</p>
 <view-code language="javascript">// Read
@@ -63,7 +58,6 @@ await api.cache.delete('/products');
 // Purge all
 await api.cache.clear();
 </view-code>
-<hr />
 <h2>Cache Key</h2>
 <p>Cache keys are derived from the request URL after prefix resolution. Two requests to the same resolved URL share the same cache entry:</p>
 <view-code language="javascript">api.prefix.add('default', 'https://api.example.com');

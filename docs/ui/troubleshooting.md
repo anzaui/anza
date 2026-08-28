@@ -2,8 +2,6 @@
 
 Common problems and their solutions.
 
----
-
 ## Element not defined
 
 **Error:** `customElements.get('my-element')` returns `undefined`
@@ -19,8 +17,6 @@ import './components/user-card.js'; // defines <user-card>
 // Now safe to use in HTML
 document.body.innerHTML = '<user-card></user-card>';
 ```
-
----
 
 ## Template not loading
 
@@ -42,8 +38,6 @@ view('user-card', {
 }); // missing base
 ```
 
----
-
 ## Styles not updating in development
 
 **Cause:** HMR listener not receiving the right path.
@@ -55,8 +49,6 @@ window.dispatchEvent(new CustomEvent('native:hmr:css', {
   detail: { path: '/src/components/card.css', css: '...' }
 }));
 ```
-
----
 
 ## Property changes not triggering update
 
@@ -80,8 +72,6 @@ part('counter', {
 });
 ```
 
----
-
 ## Memory leak after disconnect
 
 **Cause:** Listeners or timers not bound to `ctrl.signal`.
@@ -96,8 +86,6 @@ observe.intersection(el, handler, ctrl.signal);
 const observer = new IntersectionObserver(handler);
 observer.observe(el); // never cleaned up
 ```
-
----
 
 ## Form not submitting value
 
@@ -115,8 +103,6 @@ view('toggle-switch', {
   }
 });
 ```
-
----
 
 ## Duplicate ref warning
 
@@ -136,8 +122,6 @@ template: `
 tags.each('.item', (el) => { ... });
 ```
 
----
-
 ## Attribute reflection not working
 
 **Cause:** `reflect: false` set, or the prop is not declared.
@@ -150,8 +134,6 @@ props: {
   secret: { type: String, reflect: false } // does not reflect
 }
 ```
-
----
 
 ## Change callback fires too often
 
@@ -173,8 +155,6 @@ on.input('.search', debounce((e, input) => {
   el.query = input.value;
 }, 300));
 ```
-
----
 
 ## Still stuck?
 

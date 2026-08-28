@@ -4,8 +4,6 @@ The Anza events layer is a thin, memory-safe wrapper around the DOM EventTarget.
 
 Everything is built on the browser's native `EventTarget` and `CustomEvent`. No polyfills, no heavy abstractions.
 
----
-
 ## What You Get
 
 - **Global event bus** — `events.emit` and `events.on` for application-wide pub/sub
@@ -15,15 +13,11 @@ Everything is built on the browser's native `EventTarget` and `CustomEvent`. No 
 - **System event names** — `events.names.auth.signedin`, `events.names.connectivity.online`, and so on
 - **Component `on`** — shadow-scoped delegation with the same matcher; empty registries tear down root listeners ([ui/context](../ui/context.md#on))
 
----
-
 ## Package
 
 ```javascript
 import { events } from '@anzaui/anza/events';
 ```
-
----
 
 ## File Map
 
@@ -37,8 +31,6 @@ import { events } from '@anzaui/anza/events';
 | [names.md](names.md) | System event name constants |
 | [api.md](api.md) | Complete API reference (incl. `matchInComposedPath` / passive helpers) |
 | [troubleshooting.md](troubleshooting.md) | Common problems and how to fix them |
-
----
 
 ## One-File Example
 
@@ -59,8 +51,6 @@ off();
 const click = await events.once(document.body, 'click');
 console.log('Clicked at', click.clientX, click.clientY);
 ```
-
----
 
 ## Next Steps
 

@@ -4,8 +4,6 @@ Anza is a web platform library built on browser-native APIs. It gives you reacti
 
 A Rust CLI (`anza`) handles the development server, import-graph resolution, and build. It copies only the modules you actually import into `dist/`, generates type declarations, and serves everything with hot module replacement.
 
----
-
 ## What You Get
 
 - **Pure ESM modules** — authored as `.js` files, resolved by the browser natively
@@ -19,8 +17,6 @@ A Rust CLI (`anza`) handles the development server, import-graph resolution, and
 - **Animation helpers** — WAAPI wrappers, stagger groups, and view transitions
 - **Real-browser tests** — `@web/test-runner` with Playwright, no jsdom
 
----
-
 ## Package
 
 ```javascript
@@ -28,8 +24,6 @@ import { state } from '@anzaui/anza/state';
 import { router } from '@anzaui/anza/router';
 import { page, dock, view } from '@anzaui/anza/ui';
 ```
-
----
 
 ## File Map
 
@@ -40,8 +34,6 @@ import { page, dock, view } from '@anzaui/anza/ui';
 | [build.md](build.md) | Dev server, production build, `doctor` / `check` / `generate` |
 | [structure.md](structure.md) | **Project structure contract** — required slots, `anza.json`, doctor/check, `anza generate` |
 | `docs/sw/` | Service Worker caching, routing, sync, and push |
-
----
 
 ## One-File Example
 
@@ -74,8 +66,6 @@ page('/', {
 ```
 
 That is a complete app. Run `anza dev` and open `http://localhost:3000`.
-
----
 
 ## Next Steps
 

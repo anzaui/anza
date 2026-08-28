@@ -2,8 +2,6 @@
 
 Common problems and their solutions.
 
----
-
 ## Hard refresh shows a blank page
 
 **Cause:** The initial route match fired before custom elements were defined.
@@ -17,8 +15,6 @@ page('/', { tag: 'page-home', via: ['main'] });
 // Problematic (old pattern)
 ui.element('page-home', { url: '/' }); // may race
 ```
-
----
 
 ## Container not found
 
@@ -42,8 +38,6 @@ dock('main-content');
 page('/', { tag: 'page-home', via: ['main'] }); // mismatch
 ```
 
----
-
 ## Singleton violation
 
 **Error:** `ContainerError: Singleton violation — 'main' is already mounted`
@@ -52,15 +46,11 @@ page('/', { tag: 'page-home', via: ['main'] }); // mismatch
 
 **Fix:** Ensure only one instance of each dock exists. If using conditional rendering, unmount the old instance before mounting the new one.
 
----
-
 ## Guard redirect not working in Safari
 
 **Cause:** Safari ignores `precommitHandler`.
 
 **Fix:** The router already handles this. Your guard will run post-commit and the router performs a silent replace. No code change needed.
-
----
 
 ## View transitions not running
 
@@ -73,8 +63,6 @@ page('/', { tag: 'page-home', via: ['main'] }); // mismatch
 3. `prefers-reduced-motion: reduce`, `transition: false`, or `configureTransitions({ enabled: false })` force a direct swap
 
 See [router/transitions.md](transitions.md) and [ui/transitions.md](../ui/transitions.md).
-
----
 
 ## Cascade fails on deep link
 
@@ -89,8 +77,6 @@ dock('main');
 dock('sidebar', { parent: 'main' });     // missing this causes the error
 dock('content', { parent: 'sidebar' });
 ```
-
----
 
 ## Route not matching
 
@@ -111,8 +97,6 @@ const result = await router.match('/members/new');
 console.log(result.route.patternStr);
 ```
 
----
-
 ## Query params not mapped to properties
 
 **Cause:** Missing or misconfigured `query` contract array in the page or dock config.
@@ -131,15 +115,11 @@ page('/search', {
 
 Without the `query` contract array, the router does not map `?q=hello` onto the element. Make sure the type is defined (e.g. `String` or `Number` for casting).
 
----
-
 ## Tabs not syncing
 
 **Cause:** `BroadcastChannel` or `window.navigation` is unavailable.
 
 **Fix:** Check browser support. Both are required. The router falls back silently when either is missing.
-
----
 
 ## Memory leaks in tests
 
@@ -156,8 +136,6 @@ afterEach(() => {
   router.miss.clear();
 });
 ```
-
----
 
 ## File templates not loading
 
@@ -176,8 +154,6 @@ page('/', {
   template: { html: './home.html', css: './home.css' }
 }); // no base
 ```
-
----
 
 ## Still stuck?
 

@@ -2,8 +2,6 @@
 
 Get working with platform detection and polyfills in five minutes.
 
----
-
 ## 1. Check a Capability
 
 ```javascript
@@ -18,8 +16,6 @@ if (supports.viewTransitions) {
 
 Flags are lazily evaluated on first access and cached. Subsequent reads are instant.
 
----
-
 ## 2. Assert a Requirement
 
 ```javascript
@@ -30,8 +26,6 @@ typeGuard('opfs', 'This feature requires file system access');
 ```
 
 Use `typeGuard` in critical paths where continuing without the feature would be meaningless.
-
----
 
 ## 3. Lazy-Load a Polyfill
 
@@ -44,8 +38,6 @@ const pattern = new URLPattern({ pathname: '/user/:id' });
 ```
 
 The guard checks native support first. Only if missing does it dynamically import the polyfill.
-
----
 
 ## 4. Use the Scheduler
 
@@ -60,8 +52,6 @@ scheduler.postTask(() => {
 ```
 
 If native `scheduler` is available, it is returned directly. Otherwise the polyfill is loaded.
-
----
 
 ## 5. Yield in a Loop
 
@@ -78,8 +68,6 @@ async function processLargeDataset(items) {
 }
 ```
 
----
-
 ## 6. Escape Overflow (Floating UI)
 
 ```javascript
@@ -94,8 +82,6 @@ ctrl.hide();
 ```
 
 Prefer `ui-tooltip` when you need a ready-made hint. Details: [guards.md#escape](guards.md#escape), [API](api.md#escapeoverflowfloating-anchor-options), [Overlay patterns](../elements/overlay.md).
-
----
 
 ## Complete Working Example
 

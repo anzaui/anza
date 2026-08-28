@@ -1,6 +1,5 @@
 <h1>Troubleshooting</h1>
 <p>Common problems and their solutions.</p>
-<hr />
 <h2>Element not defined</h2>
 <p><strong>Error:</strong> <code>customElements.get('my-element')</code> returns <code>undefined</code></p>
 <p><strong>Cause:</strong> The module containing <code>element()</code> or <code>view()</code> was not executed.</p>
@@ -11,7 +10,6 @@ import './components/user-card.js'; // defines &lt;user-card&gt;
 // Now safe to use in HTML
 document.body.innerHTML = '&lt;user-card&gt;&lt;/user-card&gt;';
 </view-code>
-<hr />
 <h2>Template not loading</h2>
 <p><strong>Error:</strong> Empty shadow root, no styles applied</p>
 <p><strong>Cause:</strong> File template given without <code>import.meta.url</code>.</p>
@@ -26,7 +24,6 @@ view('user-card', {
   template: { html: './card.html', css: './card.css' }
 }); // missing base
 </view-code>
-<hr />
 <h2>Styles not updating in development</h2>
 <p><strong>Cause:</strong> HMR listener not receiving the right path.</p>
 <p><strong>Fix:</strong> The HMR event detail must include the absolute or relative path matching the style URL:</p>
@@ -34,7 +31,6 @@ view('user-card', {
   detail: { path: '/src/components/card.css', css: '...' }
 }));
 </view-code>
-<hr />
 <h2>Property changes not triggering update</h2>
 <p><strong>Cause:</strong> <code>on.change</code> not declared, or the element is a <code>part</code>.</p>
 <p><strong>Fix:</strong></p>
@@ -52,7 +48,6 @@ part('counter', {
   on: { change: () =&gt; {} } // warns in console
 });
 </view-code>
-<hr />
 <h2>Memory leak after disconnect</h2>
 <p><strong>Cause:</strong> Listeners or timers not bound to <code>ctrl.signal</code>.</p>
 <p><strong>Fix:</strong> Always pass <code>ctrl.signal</code> to observers and long-lived operations:</p>
@@ -63,7 +58,6 @@ observe.intersection(el, handler, ctrl.signal);
 const observer = new IntersectionObserver(handler);
 observer.observe(el); // never cleaned up
 </view-code>
-<hr />
 <h2>Form not submitting value</h2>
 <p><strong>Cause:</strong> <code>form: true</code> not declared, or <code>setFormValue</code> not called.</p>
 <p><strong>Fix:</strong></p>
@@ -76,7 +70,6 @@ observer.observe(el); // never cleaned up
   }
 });
 </view-code>
-<hr />
 <h2>Duplicate ref warning</h2>
 <p><strong>Warning:</strong> <code>Duplicate ref "title" found. Using the first match.</code></p>
 <p><strong>Cause:</strong> Multiple elements with the same <code>ref</code> attribute.</p>
@@ -89,7 +82,6 @@ observer.observe(el); // never cleaned up
 // Or use tags for dynamic lists
 tags.each('.item', (el) =&gt; { ... });
 </view-code>
-<hr />
 <h2>Attribute reflection not working</h2>
 <p><strong>Cause:</strong> <code>reflect: false</code> set, or the prop is not declared.</p>
 <p><strong>Fix:</strong> Check the prop declaration. Reflection is <code>true</code> by default:</p>
@@ -98,7 +90,6 @@ tags.each('.item', (el) =&gt; { ... });
   secret: { type: String, reflect: false } // does not reflect
 }
 </view-code>
-<hr />
 <h2>Change callback fires too often</h2>
 <p><strong>Cause:</strong> Rapid assignments from multiple sources.</p>
 <p><strong>Fix:</strong> Changes are batched. If you see many callbacks, check for loops or cascading updates:</p>
@@ -112,7 +103,6 @@ change({ name, val, el }) {
   el.query = input.value;
 }, 300));
 </view-code>
-<hr />
 <h2>Still stuck?</h2>
 <p>Check internal state:</p>
 <view-code language="javascript">import { specRegistry } from '@anzaui/anza/ui';

@@ -1,6 +1,5 @@
 <h1>Tiers</h1>
 <p>The storage facade routes reads and writes to one of four tiers. Each tier has different durability, capacity, and performance characteristics.</p>
-<hr />
 <h2>Tier Comparison</h2>
 <div class="table-wrap"><table><thead><tr><th>Tier</th><th>Durability</th><th>Capacity</th><th>Speed</th><th>Best For</th></tr></thead><tbody>
 <tr><td><code>memory</code></td><td>None (refresh clears)</td><td>Limited by RAM</td><td>Fastest</td><td>Hot data, session state</td></tr>
@@ -8,14 +7,12 @@
 <tr><td><code>opfs</code></td><td>Durable (file system)</td><td>~60% of disk</td><td>Medium</td><td>Large files, binary data</td></tr>
 <tr><td><code>cache</code></td><td>Durable (Cache API)</td><td>~50MB+</td><td>Fast</td><td>API responses, preloaded assets</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Memory</h2>
 <p>An LRU cache in JavaScript memory. Fastest but lost on page refresh.</p>
 <view-code language="javascript">await storage.set('session', data, 'memory');
 const session = await storage.get('session', 'memory');
 </view-code>
 <p>IDB reads automatically populate the memory LRU for subsequent fast access.</p>
-<hr />
 <h2>IDB (Default)</h2>
 <p>IndexedDB with an LRU memory fronting cache. Supports TTL, compression, and write journaling.</p>
 <view-code language="javascript">await storage.set('settings', data);           // tier defaults to 'idb'
@@ -23,21 +20,18 @@ await storage.set('settings', data, 'idb');    // explicit
 await storage.set('settings', data, { tier: 'idb', ttl: 60000 });
 </view-code>
 <p>Values over 64KB are automatically gzip-compressed when the Compression Streams API is available.</p>
-<hr />
 <h2>OPFS</h2>
 <p>Origin Private File System via a dedicated Web Worker. Uses synchronous file access handles for high performance.</p>
 <view-code language="javascript">await storage.set('large-file', buffer, 'opfs');
 const file = await storage.get('large-file', 'opfs');
 </view-code>
 <p>Cross-tab invalidation is handled via BroadcastChannel. Use OPFS for blobs, images, and large JSON.</p>
-<hr />
 <h2>Cache</h2>
 <p>The browser Cache API. Stores <code>Response</code> objects.</p>
 <view-code language="javascript">await storage.set('config', response, 'cache');
 const cached = await storage.get('config', 'cache'); // returns Response
 </view-code>
 <p>TTL is implemented via <code>x-expires-at</code> header on cached responses.</p>
-<hr />
 <h2>Tier Selection Guide</h2>
 <div class="table-wrap"><table><thead><tr><th>Data</th><th>Recommended Tier</th></tr></thead><tbody>
 <tr><td>User settings</td><td><code>idb</code></td></tr>
@@ -48,7 +42,6 @@ const cached = await storage.get('config', 'cache'); // returns Response
 <tr><td>Offline assets</td><td><code>cache</code></td></tr>
 <tr><td>Files, PDFs</td><td><code>opfs</code></td></tr>
 </tbody></table></div>
-<hr />
 <h2>List / clear across tiers</h2>
 <view-code language="javascript">const idbKeys = await storage.list();        // default idb
 const files = await storage.list('opfs');

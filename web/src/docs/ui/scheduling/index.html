@@ -1,7 +1,6 @@
 <h1>Scheduling</h1>
 <p>Cooperative task scheduling for main-thread-friendly work. Prevents long tasks that hurt Interaction to Next Paint (INP). Soft-nav aborts the leaf’s <code>ctrl</code> — pass that signal into schedule helpers so pending work does not run on a detached tree.</p>
 <p>Related: <a href="/docs/ui/transitions">transitions.md</a> (VT + <code>AbortSignal</code>), <a href="/docs/ui/lifecycle">lifecycle.md</a> (soft-nav abort contract), platform <a href="/docs/platform/guards"><code>guard.scheduler</code> / <code>guard.yield</code></a>.</p>
-<hr />
 <h2>schedule</h2>
 <view-code language="javascript">import { ui } from '@anzaui/anza/ui';
 
@@ -23,7 +22,6 @@ ui.schedule(() =&gt; {
 });
 </view-code>
 <p>Already-aborted signals reject with <code>AbortError</code> immediately.</p>
-<hr />
 <h2>scheduleFrame</h2>
 <p>Run during the next <code>requestAnimationFrame</code>:</p>
 <view-code language="javascript">ui.scheduleFrame(() =&gt; {
@@ -35,7 +33,6 @@ ui.schedule(() =&gt; {
 await ui.scheduleFrame(() =&gt; measure(), { signal: ctrl.signal });
 </view-code>
 <p>Returns a promise that resolves with the callback's return value. Pass <code>{ signal }</code> so soft-nav abort cancels the pending frame.</p>
-<hr />
 <h2>yield</h2>
 <p>Yield control to the browser mid-task:</p>
 <view-code language="javascript">import { ui } from '@anzaui/anza/ui';
@@ -51,7 +48,6 @@ async function processLargeDataset(rows, { signal } = {}) {
 </view-code>
 <p>Uses <code>scheduler.yield()</code> when available, falling back to <code>setTimeout(..., 0)</code>. Already-aborted signals reject with <code>AbortError</code>.</p>
 <p>Platform equivalent without the UI facade: <code>await guard.yield()</code> from <code>@anzaui/anza/platform</code>.</p>
-<hr />
 <h2>When to use each</h2>
 <div class="table-wrap"><table><thead><tr><th>Helper</th><th>Prefer for</th></tr></thead><tbody>
 <tr><td><code>schedule()</code></td><td>Defer non-critical work: analytics, logging, non-urgent rendering</td></tr>
@@ -59,7 +55,6 @@ async function processLargeDataset(rows, { signal } = {}) {
 <tr><td><code>yield()</code></td><td>Chunk heavy computation inside loops</td></tr>
 </tbody></table></div>
 <p>Do <strong>not</strong> schedule unbounded work without a signal from a page leaf — soft-nav will leave orphan tasks otherwise.</p>
-<hr />
 <h2>Soft-nav + AbortSignal (advanced)</h2>
 <view-code language="javascript">page('/reports', {
   tag: 'page-reports',
@@ -83,7 +78,6 @@ async function processLargeDataset(rows, { signal } = {}) {
 });
 </view-code>
 <p>When soft-nav swaps this leaf, <code>ctrl.abort()</code> rejects pending <code>schedule</code> / <code>scheduleFrame</code> / <code>yield</code> with <code>AbortError</code>. Catch only if you need cleanup; otherwise let it fail closed.</p>
-<hr />
 <h2>Example: chunked rendering</h2>
 <view-code language="javascript">view('data-grid', {
   props: {

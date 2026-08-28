@@ -2,8 +2,6 @@
 
 Get working with events in five minutes.
 
----
-
 ## 1. Global Pub/Sub
 
 ```javascript
@@ -23,8 +21,6 @@ off();
 
 The event bus is a global singleton. Any module can emit. Any module can listen.
 
----
-
 ## 2. Per-Request Scoped Listeners
 
 For listeners tied to a component lifecycle, pass an `AbortSignal`:
@@ -37,8 +33,6 @@ events.on('notification', handler, controller.signal);
 // Later, when the component unmounts
 controller.abort(); // all listeners bound to this signal are removed
 ```
-
----
 
 ## 3. Memory-Safe DOM Listener
 
@@ -55,8 +49,6 @@ dispose();
 
 `events.listen` defaults `touchstart`, `touchmove`, `wheel`, and `mousewheel` to `passive: true` automatically. This prevents scroll-blocking and protects INP performance.
 
----
-
 ## 4. Promise-Wrapped Single Event
 
 ```javascript
@@ -66,8 +58,6 @@ console.log('Clicked element:', click.target);
 ```
 
 Useful for one-off interactions: "wait for the user to confirm, then continue."
-
----
 
 ## 5. Event Delegation
 
@@ -86,8 +76,6 @@ const dispose = events.delegate(
 
 One listener on `document.body` handles all `.item` clicks, even elements added after the listener is registered. The delegation traverses `composedPath()` so it works through shadow DOM boundaries.
 
----
-
 ## 6. Use System Event Names
 
 ```javascript
@@ -103,8 +91,6 @@ events.on(events.names.connectivity.offline, () => {
 ```
 
 System event names prevent typos and give IDE autocomplete.
-
----
 
 ## Complete Working Example
 

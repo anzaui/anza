@@ -2,8 +2,6 @@
 
 The Anza Python Engine (`anza`) is a pure standard library Server-Templated UI engine for the Python ecosystem. It runs on Python 3.9+ without external binary dependencies.
 
----
-
 ## What You Get
 
 - **Zero external dependencies** — Built 100% on Python standard library modules (`hashlib`, `hmac`, `secrets`, `pathlib`)
@@ -11,15 +9,11 @@ The Anza Python Engine (`anza`) is a pure standard library Server-Templated UI e
 - **Dataclass & Pydantic binding** — Direct parameter injection from native Python objects and dictionaries
 - **Async streaming generators** — Built-in event generators for high-concurrency Server-Sent Events (SSE)
 
----
-
 ## Installation
 
 ```bash
 pip install anza
 ```
-
----
 
 ## Quickstart (FastAPI / ASGI)
 
@@ -54,8 +48,6 @@ async def card():
     return envelope.to_dict()
 ```
 
----
-
 ## Flask Integration (WSGI)
 
 ```python
@@ -78,8 +70,6 @@ def card():
 if __name__ == "__main__":
     app.run(port=3000)
 ```
-
----
 
 ## Dataclass Binding
 

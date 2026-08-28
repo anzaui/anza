@@ -2,8 +2,6 @@
 
 `derived` creates lazy, memoized computed values. It tracks which store keys the computation reads, subscribes to those keys, and marks itself dirty when any dependency changes.
 
----
-
 ## Basic Use
 
 ```javascript
@@ -18,8 +16,6 @@ console.log(doubled.value); // 0
 
 The computation runs once on first access. The result is cached.
 
----
-
 ## Lazy Recomputation
 
 ```javascript
@@ -30,8 +26,6 @@ console.log(doubled.value); // 10 — recomputes on access
 ```
 
 Derived values only recompute when accessed after a dependency change. This is lazy evaluation.
-
----
 
 ## Dependency Tracking
 
@@ -45,8 +39,6 @@ const fullName = state.derived(() => {
 ```
 
 `fullName` subscribes to `user`. When `store.set('user', ...)` fires, `fullName` marks itself dirty.
-
----
 
 ## Nested Derived
 
@@ -65,8 +57,6 @@ const total = state.derived(() => {
 
 `total` tracks both `taxRate` and the dependencies of `subtotal`.
 
----
-
 ## Subscribe to Derived
 
 ```javascript
@@ -76,8 +66,6 @@ const off = doubled.subscribe(() => {
 ```
 
 Subscribe to be notified when the derived value recomputes to a new result.
-
----
 
 ## Dispose
 

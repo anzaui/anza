@@ -2,8 +2,6 @@
 
 Transfer an `HTMLCanvasElement` to a worker for off-main-thread rendering. The worker receives the canvas via `transferControlToOffscreen()`.
 
----
-
 ## Transfer
 
 ```javascript
@@ -14,8 +12,6 @@ const handle = await workers.offscreen(canvas, '/workers/renderer.js');
 ```
 
 The worker must respond with `{ ok: true }` on the received port to signal readiness.
-
----
 
 ## Worker Implementation
 
@@ -40,15 +36,11 @@ self.onmessage = (e) => {
 };
 ```
 
----
-
 ## Send Commands
 
 ```javascript
 handle.send({ type: 'draw', shape: 'circle', x: 50, y: 50 });
 ```
-
----
 
 ## Resize
 
@@ -58,8 +50,6 @@ handle.resize({ width: 400, height: 300, dpr: 2 });
 
 Forwards new dimensions and device pixel ratio to the worker.
 
----
-
 ## Close
 
 ```javascript
@@ -67,8 +57,6 @@ handle.close();
 ```
 
 Terminates the worker and releases the handle.
-
----
 
 ## Requirements
 

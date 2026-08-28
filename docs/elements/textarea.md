@@ -4,15 +4,11 @@ Form-participating multi-line text control with ElementInternals validation and 
 
 **Tag:** `ui-textarea` · **Import:** `@anzaui/anza/elements/textarea`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/textarea';
 ```
-
----
 
 ## Basic usage
 
@@ -20,8 +16,6 @@ import '@anzaui/anza/elements/textarea';
 <ui-textarea name="bio" placeholder="Tell us about yourself" rows="4"></ui-textarea>
 <ui-textarea autoresize maxlength="500" required></ui-textarea>
 ```
-
----
 
 ## Props
 
@@ -41,12 +35,9 @@ import '@anzaui/anza/elements/textarea';
 | ----- | ---- |
 | `change` | Bubbles when the inner textarea fires `change` |
 
-
 ## Notes
 
 Uses `form: true`. Form reset restores the attribute `value` (or empty).
-
----
 
 ## Related
 

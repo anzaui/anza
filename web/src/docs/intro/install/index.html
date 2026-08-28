@@ -1,6 +1,5 @@
 <h1>Install</h1>
 <p>Install <code>@anzaui/anza</code> from npm. The package ships the library, TypeScript types, and a <strong>prebuilt</strong> <code>anza</code> CLI binary for your platform — no Rust toolchain required.</p>
-<hr />
 <h2>npm (recommended)</h2>
 <view-code language="bash">npm install @anzaui/anza
 </view-code>
@@ -11,7 +10,6 @@
 </ul>
 <p>The package is on <a href="https://www.npmjs.com/package/@anzaui/anza">npm</a>. Each version bundles platform binaries under <code>node_modules/@anzaui/anza/bin/anza/</code> (linux, macOS, and Windows — x64 and arm64).</p>
 <p>In a project with <code>@anzaui/anza</code> as a dependency, run the CLI via <code>npx anza</code> or an npm script (see <a href="/docs/intro/start">start.md</a>).</p>
-<hr />
 <h2>New projects</h2>
 <p>Scaffold an app with the create package — it adds <code>@anzaui/anza</code> as a dependency automatically:</p>
 <view-code language="bash">npm create @anzaui/anza myapp
@@ -19,7 +17,6 @@ cd myapp
 npm install
 </view-code>
 <p>See <a href="/docs/intro/start">start.md</a> for what gets generated and how to run <code>npm run dev</code>.</p>
-<hr />
 <h2>GitHub releases (standalone binary)</h2>
 <p>Each tagged release on <a href="https://github.com/anzaui/anza/releases">GitHub</a> attaches the same prebuilt CLI binaries. Use this if you want the binary on your <code>PATH</code> without installing the npm package globally.</p>
 <div class="table-wrap"><table><thead><tr><th>Platform</th><th>Binary</th></tr></thead><tbody>
@@ -31,11 +28,9 @@ npm install
 </tbody></table></div>
 <p>Download the file for your platform, make it executable on Unix (<code>chmod +x anza-linux-x64</code>), rename or symlink to <code>anza</code>, and put it on your <code>PATH</code>. You still need <code>@anzaui/anza</code> in your project for library imports.</p>
 <p>There is no curl install script — use npm or download from GitHub releases.</p>
-<hr />
 <h2>Verify</h2>
 <view-code language="bash">npx anza --help
 </view-code>
 <p>You should see the command list: <code>scan</code>, <code>build</code>, <code>dev</code>, <code>doctor</code>, <code>create</code>, and others.</p>
-<hr />
 <h2>Building from source (contributors only)</h2>
 <p>If you are developing inside the <a href="https://github.com/anzaui/anza">anza repo</a>, compile the CLI locally with <code>node tasks/build.js</code>. See the repo README — this is <strong>not</strong> part of the normal install path for app developers.</p>

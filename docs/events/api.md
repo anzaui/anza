@@ -2,8 +2,6 @@
 
 Complete reference for the events facade and internal utilities.
 
----
-
 ## Facade
 
 ```javascript
@@ -70,8 +68,6 @@ events.names.preference.changed // 'preference:changed'
 events.names.sw.updated          // 'sw:updated'
 events.names.sw.message          // 'sw:message'
 ```
-
----
 
 ## Named Exports
 
@@ -147,8 +143,6 @@ PASSIVE_DEFAULT_TYPES.has('wheel'); // true
 | `PASSIVE_DEFAULT_TYPES` | `Set` of scroll-critical event type strings |
 | `resolvePassiveDefault(type, optionsPassive?)` | Passive default aligned with `listen` / `on` |
 
----
-
 ## Listener Options
 
 All listener functions accept standard `addEventListener` options. `delegate` also accepts precision helpers:
@@ -185,8 +179,6 @@ events.delegate(root, '.btn', 'click', handler, {
 Matching walks `composedPath()` and stops at `root`. See [delegate.md](delegate.md).
 
 Component shadow delegation lives on context `on` — [ui/context.md](../ui/context.md#on) — with the same `attrs` / `not` / `key` options and empty-registry teardown.
-
----
 
 ## Event Payload
 

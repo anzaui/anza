@@ -1,11 +1,9 @@
 <h1>Form</h1>
 <p>Form orchestrator that validates form-associated children, submits JSON via the API pipeline, and can queue offline.</p>
 <p><strong>Tag:</strong> <code>ui-form</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/form</code></p>
-<hr />
 <h2>Import</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/form';
 </view-code>
-<hr />
 <h2>Basic usage</h2>
 <view-code language="html">&lt;ui-form action="/api/profile" method="POST" offline&gt;
   &lt;ui-field label="Name" required&gt;
@@ -14,7 +12,6 @@
   &lt;ui-button type="submit"&gt;Save&lt;/ui-button&gt;
 &lt;/ui-form&gt;
 </view-code>
-<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>action</code></td><td>String</td><td>Reflect</td><td>Submit URL (default current location)</td></tr>
@@ -31,7 +28,6 @@
 </tbody></table></div>
 <h2>Notes</h2>
 <p>Collects descendants with <code>formAssociated</code> constructors. Payload keys come from each control’s <code>name</code> attribute and <code>.value</code>.</p>
-<hr />
 <h2>Related</h2>
 <ul>
 <li><a href="/docs/elements/index">Elements overview</a></li>

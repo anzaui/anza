@@ -4,8 +4,6 @@ Anza provides high-performance, multi-language **Server-Templated UI (STUI)** en
 
 STUI bridges server-side rendering and client-side web components. It enables sub-millisecond initial page delivery using **Open Declarative Shadow DOM (DSD)** alongside cryptographically verified dynamic component updates for partial fetches, live navigation, and real-time streaming.
 
----
-
 ## What You Get
 
 - **Open Declarative Shadow DOM (DSD)** — Instant initial render without client-side hydration pauses
@@ -14,8 +12,6 @@ STUI bridges server-side rendering and client-side web components. It enables su
 - **Multi-language wire compatibility** — Identical envelope format across Rust, TypeScript, and Python
 - **Universal streaming** — First-class Server-Sent Events (SSE) and WebSocket text frame support
 - **Zero external runtime dependencies** — Standard libraries and Web Standards across all engines
-
----
 
 ## Package Map
 
@@ -26,8 +22,6 @@ STUI bridges server-side rendering and client-side web components. It enables su
 | [py.md](py.md) | `anza` (PyPI) | FastAPI, Starlette, Flask, Django | Pure standard library, async streaming generator |
 | [crypto.md](crypto.md) | Built-in | All engines | Ed25519, HMAC-SHA256, and HKDF session key derivation |
 | [streaming.md](streaming.md) | Built-in | All engines | Server-Sent Events (SSE) and WebSocket frame protocols |
-
----
 
 ## Dual-Mode Rendering
 
@@ -64,8 +58,6 @@ Generates targeted JSON envelopes for real-time slot replacement and live stream
   "css": null
 }
 ```
-
----
 
 ## File Map
 

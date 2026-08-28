@@ -2,8 +2,6 @@
 
 Internals, edge cases, and extension points for developers who need to understand or modify the router.
 
----
-
 ## Boot Gate
 
 The router's initial match does not fire immediately. It waits for:
@@ -36,8 +34,6 @@ import { reset } from '@anzaui/anza/router';
 reset();
 ```
 
----
-
 ## Radix Trie Matcher
 
 The router uses a radix trie for O(k) matching where k is the segment count:
@@ -64,8 +60,6 @@ Walk order is static → param → wild, matching specificity order. The trie re
 
 These matched `params` are raw key-value string mappings. During navigation, the router interceptor looks up the component's contract in the `specRegistry` to parse and cast these raw values into typed, ordered accessor arrays (`params` and `query`) passed to the component lifecycle.
 
----
-
 ## Handler Contract
 
 The internal handler resolution contract separates tag resolution from callback execution:
@@ -82,8 +76,6 @@ if (isCallback(handler)) {
 
 This prevents callbacks from running twice, which was a bug in earlier architectures where `match()` and `intercept()` both invoked function handlers.
 
----
-
 ## Cycle-Guarded Parent Chains
 
 The parent chain walk in `finalize()` guards against misconfigured cycles:
@@ -98,8 +90,6 @@ while (currentRoute) {
 ```
 
 If route A declares parent B and route B declares parent A, the loop stops at the first duplicate instead of hanging.
-
----
 
 ## Container Graph Internals
 
@@ -119,8 +109,6 @@ The virtual root `'body'` always exists. When a node is garbage-collected, a `Fi
 
 Explicit unregistrations mark the name in a `gone` set for one macrotask, so a lookup during teardown does not accidentally resolve to a stale querySelector result.
 
----
-
 ## Cascade Frame Yielding
 
 `cascade.js` yields one `requestAnimationFrame` between each mount so `connectedCallback` can fire and self-register:
@@ -133,8 +121,6 @@ function frame() {
 
 This is what makes sequential container mounting work. Each dock has time to register in the graph before the next dock is created.
 
----
-
 ## Safari Precommit Fallback
 
 Safari currently ignores `precommitHandler` on the Navigation API. The router runs guards in both phases:
@@ -143,8 +129,6 @@ Safari currently ignores `precommitHandler` on the Navigation API. The router ru
 2. **Post-commit** — on Safari, if a guard fires, the router does a silent `history: 'replace'` to correct the URL without adding broken history entries
 
 Your guard functions run identically in both phases. You do not need Safari-specific code.
-
----
 
 ## Extending the Router
 
@@ -164,8 +148,6 @@ For deeper extension, import internal modules directly:
 import { register, match } from '@anzaui/anza/router/match';
 import { addGuard } from '@anzaui/anza/router/intercept';
 ```
-
----
 
 ## Non-browser / Mode A · Mode B
 

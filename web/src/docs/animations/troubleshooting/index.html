@@ -1,6 +1,5 @@
 <h1>Troubleshooting</h1>
 <p>Common problems and their solutions.</p>
-<hr />
 <h2>Animation not running</h2>
 <p><strong>Cause:</strong> Element not in DOM, or <code>display: none</code>.</p>
 <p><strong>Fix:</strong> Ensure the element is visible and attached:</p>
@@ -8,14 +7,12 @@
   animations.animate(el, 'fade');
 }
 </view-code>
-<hr />
 <h2>Stagger not delaying</h2>
 <p><strong>Cause:</strong> <code>staggerDelay</code> not provided, or elements are not iterable.</p>
 <p><strong>Fix:</strong> Pass <code>staggerDelay</code> explicitly:</p>
 <view-code language="javascript">animations.stagger(items, 'fade', { staggerDelay: 60 });
 </view-code>
 <p><code>items</code> must be a <code>NodeList</code> or array.</p>
-<hr />
 <h2>Animation cancelled immediately</h2>
 <p><strong>Cause:</strong> AbortSignal already aborted when passed.</p>
 <p><strong>Fix:</strong> Check signal state before animating:</p>
@@ -23,7 +20,6 @@
   animations.animate(el, 'fade', { signal: ctrl.signal });
 }
 </view-code>
-<hr />
 <h2>Scroll timeline not working</h2>
 <p><strong>Cause:</strong> <code>ScrollTimeline</code> not supported in this browser.</p>
 <p><strong>Fix:</strong> Check <code>supports.scrollTimeline</code> and provide fallback:</p>
@@ -35,7 +31,6 @@ if (supports.scrollTimeline) {
   // Use scroll listener + requestAnimationFrame
 }
 </view-code>
-<hr />
 <h2>Token returns wrong value</h2>
 <p><strong>Cause:</strong> CSS custom property not defined, or document not ready.</p>
 <p><strong>Fix:</strong> Tokens fall back to defaults. Define CSS custom properties:</p>
@@ -44,7 +39,6 @@ if (supports.scrollTimeline) {
   --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
 }
 </view-code>
-<hr />
 <h2>Reduced motion not respected</h2>
 <p><strong>Cause:</strong> Not checking <code>reduced()</code> before animating.</p>
 <p><strong>Fix:</strong> Always gate animations:</p>
@@ -54,7 +48,6 @@ if (supports.scrollTimeline) {
   el.style.opacity = 1;
 }
 </view-code>
-<hr />
 <h2>Sequence stops mid-way</h2>
 <p><strong>Cause:</strong> An element in a step is missing or the animation throws.</p>
 <p><strong>Fix:</strong> Ensure elements exist and handle errors:</p>
@@ -64,7 +57,6 @@ if (supports.scrollTimeline) {
   console.error('Sequence failed at step:', err);
 }
 </view-code>
-<hr />
 <h2>Still stuck?</h2>
 <p>Inspect the animation:</p>
 <view-code language="javascript">const anim = animations.animate(el, 'fade');

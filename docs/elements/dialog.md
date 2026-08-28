@@ -4,15 +4,11 @@ Modal overlay wrapping the native `<dialog>` element for focus trap, backdrop, a
 
 **Tag:** `ui-dialog` · **Import:** `@anzaui/anza/elements/dialog`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/dialog';
 ```
-
----
 
 ## Basic usage
 
@@ -30,8 +26,6 @@ import '@anzaui/anza/elements/dialog';
   // dlg.close('ok');
 </script>
 ```
-
----
 
 ## Props
 
@@ -56,8 +50,6 @@ This element is the modal-dialog branch of the overlay kit (alongside [drawer](d
 ### Lifecycle / memory
 
 Open/close and Escape handling stay on the dialog instance. Soft-nav aborts the hosting leaf’s `ctrl` so shadow-scoped listeners tear down with disconnect. Do not add raw `document` listeners from a leaf without `{ signal: ctrl.signal }`. See [Memory safety & framework globals](../ui/advanced.md) and [Orphan listeners after soft-nav](../events/troubleshooting.md).
-
----
 
 ## Related
 

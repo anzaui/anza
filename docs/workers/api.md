@@ -2,8 +2,6 @@
 
 Complete reference for the workers facade and internal classes.
 
----
-
 ## Facade
 
 ```javascript
@@ -46,8 +44,6 @@ Terminate the pool for one script URL.
 
 Terminate all pools and close all broadcast channels.
 
----
-
 ## Feature Detection
 
 ```javascript
@@ -63,8 +59,6 @@ import { has } from '@anzaui/anza/workers';
 | `has.offscreen` | `OffscreenCanvas` |
 | `has.isolated` | `crossOriginIsolated` |
 
----
-
 ## Pool Options
 
 ```javascript
@@ -79,8 +73,6 @@ workers.run(script, task, {
 });
 ```
 
----
-
 ## Dedicated
 
 ```javascript
@@ -90,8 +82,6 @@ const worker = new Dedicated('/worker.js');
 const result = await worker.run('task', { payload, signal, timeout });
 worker.terminate();
 ```
-
----
 
 ## Shared
 
@@ -105,8 +95,6 @@ const off = conn.subscribe(fn, signal);
 conn.close();
 ```
 
----
-
 ## Offscreen
 
 ```javascript
@@ -118,8 +106,6 @@ handle.send(payload);
 handle.resize({ width, height, dpr });
 handle.close();
 ```
-
----
 
 ## Lock Options
 

@@ -2,8 +2,6 @@
 
 Common problems and their solutions.
 
----
-
 ## Pool task never resolves
 
 **Cause:** Worker script not found, or worker does not respond with `{ ok, value }`.
@@ -19,8 +17,6 @@ self.onmessage = (e) => {
 };
 ```
 
----
-
 ## Shared worker not sharing
 
 **Cause:** `SharedWorker` unavailable, so fallback to dedicated is used. Dedicated workers do not share state across tabs.
@@ -35,8 +31,6 @@ if (!has.shared) {
 }
 ```
 
----
-
 ## Broadcast not received
 
 **Cause:** Subscribing after the broadcast was sent, or different channel names.
@@ -49,8 +43,6 @@ workers.broadcast('channel', data); // subscriber receives this
 ```
 
 Also check that all tabs use the same channel name.
-
----
 
 ## Lock times out
 
@@ -72,8 +64,6 @@ Or use `steal` to preempt (use cautiously):
 await workers.lock('db', fn, { steal: true });
 ```
 
----
-
 ## OffscreenCanvas fails
 
 **Cause:** Not supported, or canvas already has a context.
@@ -89,8 +79,6 @@ if (supports.offscreenCanvas) {
 }
 ```
 
----
-
 ## Worker pool grows too large
 
 **Cause:** Many concurrent tasks, or `max` not set.
@@ -105,8 +93,6 @@ workers.run('/worker.js', 'task', {
 });
 ```
 
----
-
 ## Memory leak with workers
 
 **Cause:** Workers never terminated, or pools not closed.
@@ -120,8 +106,6 @@ window.addEventListener('pagehide', () => {
 ```
 
 Pools auto-terminate on `pagehide`, but explicit cleanup is safer.
-
----
 
 ## Still stuck?
 

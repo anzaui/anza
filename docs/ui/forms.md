@@ -2,8 +2,6 @@
 
 Declarative elements can participate in HTML forms by declaring `form: true`. The element gains `ElementInternals`, form-associated callbacks, and the ability to expose custom state pseudo-classes.
 
----
-
 ## Enabling Form Participation
 
 ```javascript
@@ -38,8 +36,6 @@ Use it in a form:
 </form>
 ```
 
----
-
 ## Form-Associated Callbacks
 
 When `form: true` is set, the element receives these callbacks:
@@ -61,8 +57,6 @@ view('custom-input', {
 });
 ```
 
----
-
 ## Custom State
 
 Expose props as CSS custom state pseudo-classes:
@@ -82,8 +76,6 @@ toggle-switch:state(invalid) { border-color: red; }
 ```
 
 Requires Chrome 132+ / Baseline 2026.
-
----
 
 ## Validation
 
@@ -112,8 +104,6 @@ view('email-field', {
 });
 ```
 
----
-
 ## Form Reset and Restore
 
 ```javascript
@@ -128,8 +118,6 @@ view('rating-input', {
 ```
 
 The `restore` callback receives the saved state string when the browser restores form data (e.g., after back/forward).
-
----
 
 ## Related
 

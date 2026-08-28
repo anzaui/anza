@@ -4,15 +4,11 @@ Accessible SVG sprite icon with size tokens, name/href targets, and ARIA decorat
 
 **Tag:** `ui-icon` · **Import:** `@anzaui/anza/elements/icon`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/icon';
 ```
-
----
 
 ## Basic usage
 
@@ -20,8 +16,6 @@ import '@anzaui/anza/elements/icon';
 <ui-icon name="check" size="4"></ui-icon>
 <ui-icon href="/assets/icons.svg#icon-search" aria-label="Search"></ui-icon>
 ```
-
----
 
 ## Props
 
@@ -35,8 +29,6 @@ import '@anzaui/anza/elements/icon';
 ## Notes
 
 Without `aria-label` / `aria-labelledby`, the SVG is `aria-hidden`. Provide a label when the icon is meaningful.
-
----
 
 ## Related
 

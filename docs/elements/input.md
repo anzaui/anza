@@ -4,15 +4,11 @@ Form-participating text control wrapping a native `<input>` with ElementInternal
 
 **Tag:** `ui-input` · **Import:** `@anzaui/anza/elements/input`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/input';
 ```
-
----
 
 ## Basic usage
 
@@ -20,8 +16,6 @@ import '@anzaui/anza/elements/input';
 <ui-input name="email" type="email" placeholder="you@example.com" required></ui-input>
 <ui-input type="password" minlength="8"></ui-input>
 ```
-
----
 
 ## Props
 
@@ -45,8 +39,6 @@ import '@anzaui/anza/elements/input';
 ## Notes
 
 Named `error` slot for validation messaging. Form reset restores the attribute `value` (or empty).
-
----
 
 ## Related
 

@@ -2,8 +2,6 @@
 
 `animations.stagger` animates a collection of elements with cascading delays. It returns a group controller with `cancel()`, `finish()`, and a `finished` promise.
 
----
-
 ## Signature
 
 ```javascript
@@ -15,8 +13,6 @@ stagger(elements, animationInput, options);
 | `elements` | NodeList \| Array | Elements to animate |
 | `animationInput` | string \| Keyframe[] | Template or keyframes |
 | `options` | object | WAAPI options plus `staggerDelay` |
-
----
 
 ## Basic Stagger
 
@@ -35,8 +31,6 @@ await group.finished;
 
 Delay for element at index `i` is: `(options.delay ?? 0) + i * staggerDelay`.
 
----
-
 ## Group Controls
 
 ```javascript
@@ -50,8 +44,6 @@ group.finish();
 await group.finished;
 ```
 
----
-
 ## Stagger with Slide
 
 ```javascript
@@ -61,8 +53,6 @@ animations.stagger(items, 'slide-y', {
   easing: animations.ease('out')
 });
 ```
-
----
 
 ## Reverse Stagger
 
@@ -74,8 +64,6 @@ animations.stagger(reversed, 'fade', {
   duration: 200
 });
 ```
-
----
 
 ## Custom Keyframes
 

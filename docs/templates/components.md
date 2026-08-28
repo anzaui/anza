@@ -2,8 +2,6 @@
 
 Anza Server Partials are self-contained `.html` fragments designed for rendering list items, cards, modals, or real-time UI stream slices. Partials encapsulate their own markup, local `<style>` definitions, and interactive action endpoints.
 
----
-
 ## What You Get
 
 | Feature | Description |
@@ -12,8 +10,6 @@ Anza Server Partials are self-contained `.html` fragments designed for rendering
 | **Reusable Partial Rendering** | Loop over database records or collections and map to partial fragments |
 | **Direct Action Endpoints** | Integrated action triggers (`[delete]`, `[sig]`, forms) within component markup |
 | **Streamable Chunks** | Rendered partials can be dispatched directly across SSE or WebSocket streams |
-
----
 
 ## Card Component Anatomy (`feed/card.html`)
 
@@ -122,8 +118,6 @@ Below is the standard article card component template:
 </article>
 ```
 
----
-
 ## Rendering Multiple Partials
 
 In server route handlers, query records from your database and map each item to a rendered partial string:
@@ -158,8 +152,6 @@ return engine.render_page("pages/home.html", {
     "articles": feed_html
 })
 ```
-
----
 
 ## Live Stream Dispatch
 

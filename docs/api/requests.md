@@ -2,8 +2,6 @@
 
 The API client exposes five HTTP methods. Each auto-serializes JSON bodies, parses JSON responses, and carries standard options for timeouts, signals, caching, and retries.
 
----
-
 ## HTTP Methods
 
 ```javascript
@@ -25,8 +23,6 @@ await api.patch('/posts/1', { title: 'Partial update' });
 await api.delete('/posts/1');
 ```
 
----
-
 ## Auto-Serialization
 
 When the body is a plain object (not `Blob` or `FormData`), it is serialized to JSON and the `Content-Type: application/json` header is set automatically:
@@ -39,8 +35,6 @@ api.post('/posts', { title: 'Hello' });
 api.post('/upload', formData); // FormData passes through as-is
 api.post('/upload', blob);     // Blob passes through as-is
 ```
-
----
 
 ## Response Parsing
 
@@ -58,8 +52,6 @@ import { execute } from '@anzaui/anza/api';
 const response = await execute({ url: '/image', method: 'GET' });
 const blob = await response.blob();
 ```
-
----
 
 ## Request Options
 
@@ -89,8 +81,6 @@ await api.get('/user/profile', {
 | `expiry` / `ttl` | number | — | Cache TTL in milliseconds |
 | `on` | object | — | Per-request event listeners |
 
----
-
 ## Timeouts
 
 Requests time out after 10 seconds by default. Change per request:
@@ -100,8 +90,6 @@ await api.get('/slow-endpoint', { timeout: 30000 });
 ```
 
 When a timeout fires, the request aborts and a `PlatformError` with code `NETWORK_TIMEOUT` is thrown.
-
----
 
 ## Abort Signals
 
@@ -118,8 +106,6 @@ setTimeout(() => controller.abort(), 5000);
 
 The API client composes the user signal with its internal timeout signal using `AbortSignal.any` when available, falling back to manual composition.
 
----
-
 ## Browser Task Priority
 
 The API client uses `scheduler.postTask` when available to schedule the fetch at the requested priority:
@@ -133,8 +119,6 @@ The API client uses `scheduler.postTask` when available to schedule the fetch at
 ```javascript
 await api.get('/critical-data', { priority: 'user-blocking' });
 ```
-
----
 
 ## Headers
 

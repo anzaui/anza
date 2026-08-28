@@ -4,15 +4,11 @@ Content card with header, body, and footer slots. Optional interactive hover lif
 
 **Tag:** `ui-card` · **Import:** `@anzaui/anza/elements/card`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/card';
 ```
-
----
 
 ## Basic usage
 
@@ -26,8 +22,6 @@ import '@anzaui/anza/elements/card';
   Clickable-looking card body
 </ui-card>
 ```
-
----
 
 ## Props
 
@@ -43,8 +37,6 @@ import '@anzaui/anza/elements/card';
 | _(default)_ | slot | Body |
 | `footer` | slot | Footer |
 | `header` / `body` / `footer` | parts | Section wrappers |
-
----
 
 ## Related
 

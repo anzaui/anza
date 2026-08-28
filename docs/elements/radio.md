@@ -4,15 +4,11 @@ Form-participating radio that coordinates selection with siblings sharing the sa
 
 **Tag:** `ui-radio` · **Import:** `@anzaui/anza/elements/radio`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/radio';
 ```
-
----
 
 ## Basic usage
 
@@ -20,8 +16,6 @@ import '@anzaui/anza/elements/radio';
 <ui-radio name="plan" value="free" checked>Free</ui-radio>
 <ui-radio name="plan" value="pro">Pro</ui-radio>
 ```
-
----
 
 ## Props
 
@@ -38,12 +32,9 @@ import '@anzaui/anza/elements/radio';
 | ----- | ---- |
 | `change` | Fired on siblings that become unchecked when this radio is selected |
 
-
 ## Notes
 
 Defaults `role="radio"` and `aria-checked`. Uses `form: true`.
-
----
 
 ## Related
 

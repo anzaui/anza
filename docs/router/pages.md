@@ -2,8 +2,6 @@
 
 `page(route, config, base)` defines a route-bound custom element. It is the primary way to declare navigable views in an Anza application.
 
----
-
 ## Signature
 
 ```javascript
@@ -28,8 +26,6 @@ page(['/docs', '/docs/:slug'], {
 ```
 
 Use one tag when the screen and lifecycle are shared, and branch inside `params`, `query`, or `hash`. Prefer separate pages when the route trees have different shells or different fallback/error behavior.
-
----
 
 ## Config Fields
 
@@ -270,8 +266,6 @@ meta: { analytics: 'checkout' }
 
 Available in match results as `result.route.meta`.
 
----
-
 ## How `page()` participates in navigation
 
 | Stage | What `page()` contributes |
@@ -283,14 +277,10 @@ Available in match results as `result.route.meta`.
 | Error | May supply a route-scoped `error` override before dock/app/built-in fallbacks |
 | SSG | May declare `seo` / `ssg.expand` for build-time HTML emission |
 
----
-
 ## Soft-nav vs hard refresh
 
 - **Soft-nav** — the router keeps parent docks; only the page leaf inside the leaf dock is swapped (CSR mount when the tag changes). Soft-nav loads the page **fragment** (often `template.html` after Mode A preserves it), never the full SSG document.
 - **Hard refresh / full load** — the browser fetches contentful SSG or Mode B HTML (`anza build` and `anza dev`); the client adopts open DSD and must not wipe SEO content. See [ui/hydration.md](../ui/hydration.md).
-
----
 
 ## Boot Gate
 
@@ -302,8 +292,6 @@ gate(customElements.whenDefined(tag));
 
 This means a hard refresh on `/user/42` will wait for `<page-user>` to be defined before running the initial match, eliminating the race condition that plagued earlier router architectures.
 
----
-
 ## Route Registration
 
 `page()` registers the route internally:
@@ -313,8 +301,6 @@ router.register(route, tag, { via, container: target, ...meta });
 ```
 
 The tag is both the custom element name and the route handler.
-
----
 
 ## Example: Full Page Definition
 

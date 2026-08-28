@@ -1,6 +1,5 @@
 <h1>Advanced Topics</h1>
 <p>Internals, edge cases, and extension points for developers who need to understand or modify the UI layer.</p>
-<hr />
 <h2>Property Normalization</h2>
 <p>Props declared as literal values are auto-expanded:</p>
 <view-code language="javascript">// Shorthand
@@ -15,11 +14,9 @@ props: { count: { type: Number, default: 0 } }
   label: { type: String, reflect: false } // full config
 }
 </view-code>
-<hr />
 <h2>Route Parameter and Query Contracts</h2>
 <p>Route parameters (<code>params</code>) and queries (<code>query</code>) are defined using typed contract arrays on page/dock components. Because they define a strict contract with URLs rather than generic component properties, they are processed separately from <code>props</code> and are stored directly on the spec registry.</p>
 <p>Unlike <code>props</code>, they do not support default values or attribute reflection overrides, but their types (e.g. <code>String</code>, <code>Number</code>) dictate casting before properties are reactively set on the element.</p>
-<hr />
 <h2>Update Batching</h2>
 <p>Property changes are batched to avoid redundant <code>change</code> callbacks:</p>
 <view-code language="javascript">el.name = 'Alice';
@@ -36,7 +33,6 @@ el.age = 30;
 spec.update.visual = true; // flushes via rAF
 </view-code>
 <p>The definition layer (<code>page</code>, <code>dock</code>, <code>view</code>) sets <code>visual: true</code> automatically. <code>part</code> does not.</p>
-<hr />
 <h2>Attribute Sync</h2>
 <p>When a prop changes programmatically, the corresponding attribute updates (unless <code>reflect: false</code>):</p>
 <view-code language="javascript">el.active = true;  // sets active=""
@@ -45,7 +41,6 @@ el.name = null;    // removes attribute
 el.name = 'Bob';   // sets name="Bob"
 </view-code>
 <p>When an attribute changes externally (e.g., via <code>setAttribute</code>), the property setter is invoked, which triggers the <code>change</code> hook.</p>
-<hr />
 <h2>Memory Safety</h2>
 <p>Every declarative element manages its own lifecycle via <code>AbortController</code>:</p>
 <ul>
@@ -59,7 +54,6 @@ el.name = 'Bob';   // sets name="Bob"
   return;
 }
 </view-code>
-<hr />
 <h2>Tags Cache Invalidation</h2>
 <p>The <code>TagsCache</code> is pre-warmed by the tags descriptor and cleared by a <code>MutationObserver</code> on the shadow root:</p>
 <view-code language="javascript">const observer = new MutationObserver(() =&gt; { tags.clear(); });
@@ -71,7 +65,6 @@ observer.observe(shadowRoot, { childList: true, subtree: false });
 <li>Dynamic templates (children change): cache is cleared on every mutation</li>
 </ul>
 <p>For high-frequency mutations, consider direct DOM references instead of <code>tags</code> queries.</p>
-<hr />
 <h2>Event Delegation Internals</h2>
 <p>The <code>on</code> proxy registers one listener per event type on the shadow root. Handlers are matched via <code>composedPath()</code> (same algorithm as <code>events.delegate</code>):</p>
 <view-code language="javascript">on.click('.btn', handler);
@@ -79,7 +72,6 @@ observer.observe(shadowRoot, { childList: true, subtree: false });
 // Walks event.composedPath() for the first .btn before the shadow root
 </view-code>
 <p>Passive defaults align with <code>events.listen</code> (touch/wheel only). If any remaining handler for a type is non-passive, the root listener is non-passive. When the registry for a type is empty, the root listener is removed immediately.</p>
-<hr />
 <h2>Framework-global listeners / observers</h2>
 <p>These are intentional document-adjacent attachments owned by the framework (not component <code>on</code> / <code>watch</code>). Soft-nav must not accumulate extras:</p>
 <div class="table-wrap"><table><thead><tr><th>Name</th><th>Location</th><th>Target</th><th>Cleanup</th></tr></thead><tbody>
@@ -99,7 +91,6 @@ const stats = getAttachmentStats(el.shadowRoot);
 </view-code>
 <p>When a container uses element-scoped View Transitions, <code>swapView</code> still runs <code>replaceChildren</code> inside the VT <strong>update callback</strong> — disconnect / <code>ctrl.abort()</code> happens at swap time, not after the transition animation finishes.</p>
 <p>Overlay kit notes (native top-layer vs toast body portal, popover polyfill <code>globals</code>): <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
-<hr />
 <h2>Non-browser / hydration</h2>
 <p>The UI layer checks <code>typeof customElements !== 'undefined'</code> before defining elements. Outside the browser:</p>
 <ul>
@@ -109,7 +100,6 @@ const stats = getAttachmentStats(el.shadowRoot);
 <li><code>transition()</code> returns a resolved promise</li>
 </ul>
 <p>Public SEO HTML comes from Mode A SSG or Mode B templates (<a href="/docs/ssg/contract">contract</a>). The client <strong>adopts</strong> open DSD — see <a href="/docs/ui/hydration">hydration.md</a>. The factory is safe to import in any environment.</p>
-<hr />
 <h2>Extending BaseElement</h2>
 <p>Subclass <code>BaseElement</code> for imperative elements that need the AbortController pattern but not the full declarative factory:</p>
 <view-code language="javascript">import { BaseElement } from '@anzaui/anza/ui';
@@ -129,7 +119,6 @@ class ChartWidget extends BaseElement {
 
 customElements.define('chart-widget', ChartWidget);
 </view-code>
-<hr />
 <h2>Custom Define</h2>
 <p>The low-level <code>define(tag, Class)</code> helper skips duplicate registrations:</p>
 <view-code language="javascript">import { define } from '@anzaui/anza/ui';

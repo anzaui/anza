@@ -1,6 +1,5 @@
 <h1>API Reference</h1>
 <p>Complete reference for the UI facade and definition layer.</p>
-<hr />
 <h2>UI Facade</h2>
 <view-code language="javascript">import { ui } from '@anzaui/anza/ui';
 </view-code>
@@ -60,7 +59,6 @@
 }
 </view-code>
 <p>Also available as a named export: <code>import { getAttachmentStats } from '@anzaui/anza/ui'</code>.</p>
-<hr />
 <h2>Named Exports</h2>
 <view-code language="javascript">import { BaseElement, getAttachmentStats } from '@anzaui/anza/ui';
 import { define, element, container, page, dock, view, part } from '@anzaui/anza/ui';
@@ -69,7 +67,6 @@ import { transition } from '@anzaui/anza/ui';
 import { template } from '@anzaui/anza/ui';
 import { observe } from '@anzaui/anza/ui';
 </view-code>
-<hr />
 <h2>Definition Layer Exports</h2>
 <view-code language="javascript">import { page, dock, view, part } from '@anzaui/anza/defs';
 </view-code>
@@ -104,7 +101,6 @@ import { observe } from '@anzaui/anza/ui';
 <p>Define a stateless primitive.</p>
 <p>Config: <code>tag</code>, <code>template</code>, <code>style</code>, <code>props</code>, <code>on</code>, <code>methods</code>.</p>
 <p>Warns if <code>on.change</code> is declared.</p>
-<hr />
 <h2>Spec Config Shape</h2>
 <view-code language="javascript">{
   template: string | { html: string, css: string | string[], shadow: 'open' | 'closed' },
@@ -128,7 +124,6 @@ import { observe } from '@anzaui/anza/ui';
   restore: (state, mode) =&gt; any
 }
 </view-code>
-<hr />
 <h2>Context Shape</h2>
 <view-code language="javascript">{
   el: HTMLElement,
@@ -140,7 +135,6 @@ import { observe } from '@anzaui/anza/ui';
   internals: ElementInternals | null
 }
 </view-code>
-<hr />
 <h2>TagsCache Methods</h2>
 <view-code language="javascript">tags.one(selector)     // querySelector, cached
 tags.all(selector)     // querySelectorAll, cached
@@ -150,7 +144,6 @@ tags.clear()           // invalidate cache
 tags.prewarmId(id)     // pre-warm by ID
 tags.prewarm(selector, element) // manual pre-warm
 </view-code>
-<hr />
 <h2>Event Delegator Methods</h2>
 <view-code language="javascript">on.click(selector, handler, options)
 on.submit(selector, handler, options)
@@ -171,7 +164,6 @@ on[eventType].once(selectorOrElement, handler, options)
 </tbody></table></div>
 <p>Empty registry for a <code>(type, capture)</code> key removes the shadow-root listener immediately. See <a href="/docs/ui/context#on">context.md</a>.</p>
 <p>Returns a disposer function.</p>
-<hr />
 <h2>Mutation Watcher Methods</h2>
 <view-code language="javascript">watch.attr(target, attr, handler, options)   // (attr, next, prev, el) =&gt; {}
 watch.kids(target, handler, options)         // ({ added, removed }, el) =&gt; {}

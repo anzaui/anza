@@ -2,8 +2,6 @@
 
 `dock(name, config, base)` defines a persistent container shell. Docks live across route changes, register themselves in the hierarchical container graph on connect, and expose a `swap` method for animated content replacement.
 
----
-
 ## Signature
 
 ```javascript
@@ -15,8 +13,6 @@ dock(name, config, base);
 | `name` | string | yes | Unique key in the container graph, e.g. `'main'` |
 | `config` | object | no | Dock definition |
 | `base` | string | no | `import.meta.url` of the caller |
-
----
 
 ## Config Fields
 
@@ -99,8 +95,6 @@ HTML strings and `{ html }` still work. Full ladder + bare-dock sample: [fallbac
 
 `anza generate dock <name>` creates a leaf under `src/docks/` **without** `404.html` — that is intentional.
 
----
-
 ## Default Containment
 
 Every dock automatically receives:
@@ -111,15 +105,11 @@ Every dock automatically receives:
 
 The `contain: layout` declaration is required for element-scoped view transitions. It is prepended to any user-supplied style.
 
----
-
 ## Soft-nav persistence
 
 On soft navigation within the same `via` chain, parent docks stay mounted. Only the leaf page inside the innermost dock is swapped. That is what keeps docs chrome (sidebar, header) alive while page content changes.
 
 For Mode A SSG / Mode B HTML, nested docks and the page leaf must be **light-DOM children** after each host’s `<template shadowrootmode="open">` — never baked inside the parent shadow template. Registry key `content` often maps to tag `dock-doccontent` (not `dock-content`). See [ssg/contract.md](../ssg/contract.md) and [ui/hydration.md](../ui/hydration.md).
-
----
 
 ## Swap Method
 
@@ -145,8 +135,6 @@ The `direction` option (`'push'`, `'pop'`, `'replace'`; `'back'` is treated like
 
 See [router/transitions.md](transitions.md) and [ui/transitions.md](../ui/transitions.md).
 
----
-
 ## Lifecycle Hooks
 
 Docks support the same `on` hooks as pages:
@@ -166,8 +154,6 @@ dock('main', {
 
 User-supplied `connect` and `disconnect` hooks are wrapped so the dock still registers and unregisters itself in the graph.
 
----
-
 ## Graph Registration
 
 When a dock connects:
@@ -183,8 +169,6 @@ router.unregisterContainer(name, element);
 ```
 
 This happens automatically. You do not need to call these manually for docks.
-
----
 
 ## Example: Sidebar Layout
 
@@ -205,8 +189,6 @@ page('/settings', {
 ```
 
 Dashboard renders through `main → content`. Settings renders through `main → sidebar`. The router computes the LCA (`main`) and only swaps the divergent branch.
-
----
 
 ## Example: Custom Swap Animation
 

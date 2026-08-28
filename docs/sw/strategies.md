@@ -2,8 +2,6 @@
 
 Seven caching strategies for intercepting `fetch` events inside a Service Worker. Each is a class with a `handle(request)` method that returns a Response.
 
----
-
 ## CacheFirst
 
 Tries cache first. Falls back to network on miss. Stores the network response in cache.
@@ -20,8 +18,6 @@ const response = await strategy.handle(request);
 | `ttl` | number | — | Time-to-live in milliseconds; stored as `x-expires-at` header |
 
 Use this for static assets: JS, CSS, fonts, images.
-
----
 
 ## NetworkFirst
 
@@ -41,8 +37,6 @@ const strategy = new NetworkFirst('api-v1', { timeout: 4000, ttl: 60000 });
 
 Use this for API endpoints and HTML navigation.
 
----
-
 ## StaleRevalidate
 
 Returns cache instantly. Refreshes in the background.
@@ -54,8 +48,6 @@ const strategy = new StaleRevalidate('data-v1', { ttl: 300000 });
 ```
 
 The user sees a cached response immediately. A background fetch updates the cache for the next visit. This is the standard pattern for content that can be slightly stale.
-
----
 
 ## CacheThenNetwork
 
@@ -69,8 +61,6 @@ const strategy = new CacheThenNetwork('live-v1', { ttl: 60000 });
 
 After the background fetch completes, the SW sends a `cache-update` message to every controlled client with the new JSON payload. The main thread can listen for this and refresh the UI.
 
----
-
 ## NetworkOnly
 
 Never uses cache. Direct pass-through to `fetch`.
@@ -82,8 +72,6 @@ const strategy = new NetworkOnly();
 ```
 
 Use this for real-time endpoints that must never be cached: analytics, live data, mutations.
-
----
 
 ## CacheOnly
 
@@ -97,8 +85,6 @@ const strategy = new CacheOnly('offline-v1');
 
 Use this for offline-only pages that were precached during install.
 
----
-
 ## OfflineFallback
 
 Returns a precached fallback page when a navigation request fails.
@@ -110,8 +96,6 @@ const strategy = new OfflineFallback('/offline.html');
 ```
 
 Only applies to `mode === 'navigate'` requests. Non-navigation errors pass through unchanged.
-
----
 
 ## TTL and Expiry
 

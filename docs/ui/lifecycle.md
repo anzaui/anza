@@ -2,8 +2,6 @@
 
 Declarative elements have six lifecycle hooks. Each receives a context object with `el`, `ctrl`, `tags`, `refs`, `on`, `watch`, and `internals`.
 
----
-
 ## Hook Map
 
 | Definition Layer | Factory Layer | When It Fires | Async? |
@@ -12,8 +10,6 @@ Declarative elements have six lifecycle hooks. Each receives a context object wi
 | `on.connect` | `spec.mount` (after load) | Element connected to DOM | yes |
 | `on.disconnect` | `spec.unmount` | Element disconnected from DOM | no |
 | `on.change` | `spec.update` | Prop value changes (batched) | no |
-
----
 
 ## load
 
@@ -42,8 +38,6 @@ The context object passed to `load` provides routing contracts parameters:
 
 `load` is awaited before `connect` runs. If `load` throws, `connect` still runs — the error is logged but not propagated.
 
----
-
 ## connect
 
 Runs after `load`, when the element is fully connected:
@@ -59,8 +53,6 @@ on: {
 ```
 
 Attach event listeners, observers, and set up reactive bindings here.
-
----
 
 ## disconnect
 
@@ -103,8 +95,6 @@ Author rules:
 3. Do not observe `document` / `body` for leaf concerns — lift to a parent dock or use events/store.
 4. Framework globals (`router.nav-click`, `router.container-mo`, `popover.*`) stay stable across soft-nav — see [advanced.md](advanced.md#framework-global-listeners--observers).
 
----
-
 ## change
 
 Runs when a declared prop changes. Multiple rapid changes are batched into one callback:
@@ -137,8 +127,6 @@ The context includes:
 | `refs` | Named element refs |
 | `watch` | Mutation watcher |
 
----
-
 ## Batching
 
 Property changes are collected and flushed in one callback. The flush strategy depends on the `visual` flag:
@@ -157,8 +145,6 @@ page('/', {
 ```
 
 `part()` uses `visual: false` because stateless primitives do not need rAF batching.
-
----
 
 ## Lifecycle Order
 

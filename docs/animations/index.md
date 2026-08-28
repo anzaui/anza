@@ -2,8 +2,6 @@
 
 The Anza animations layer wraps the Web Animations API (WAAPI) with a declarative, memory-safe interface. It provides registered animation templates, staggered multi-element orchestration, scroll-driven and view-driven timelines, and CSS token synchronization so JavaScript animations and stylesheets share the same timing values.
 
----
-
 ## What You Get
 
 - **Element animation** — `animate(el, keyframes, options)` with AbortSignal cleanup
@@ -14,15 +12,11 @@ The Anza animations layer wraps the Web Animations API (WAAPI) with a declarativ
 - **CSS token sync** — `duration()` and `ease()` read CSS custom properties at runtime
 - **Reduced motion** — `reduced()` respects `prefers-reduced-motion`
 
----
-
 ## Package
 
 ```javascript
 import { animations } from '@anzaui/anza/animations';
 ```
-
----
 
 ## File Map
 
@@ -37,8 +31,6 @@ import { animations } from '@anzaui/anza/animations';
 | [tokens.md](tokens.md) | CSS motion token synchronization |
 | [api.md](api.md) | Complete API reference |
 | [troubleshooting.md](troubleshooting.md) | Common problems and how to fix them |
-
----
 
 ## One-File Example
 
@@ -58,8 +50,6 @@ if (!animations.reduced()) {
   animations.animate(el, 'zoom', { duration: animations.duration('slow') });
 }
 ```
-
----
 
 ## Next Steps
 

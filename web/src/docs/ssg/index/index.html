@@ -2,14 +2,12 @@
 <p>Anza ships <strong>contentful HTML</strong> for public routes so hard refresh and crawlers see unique meta, open Declarative Shadow DOM, and primary headings <strong>without executing JS</strong>. There is no Anza-owned production SSR runtime — Mode A emits HTML at build time; Mode B templates in any language emit the same shape at request time.</p>
 <p>Portable rule: treat <code>dist/</code> as the <strong>site root</strong>. Public URLs are <code>/app.js</code>, <code>/importmap.json</code>, <code>/docs/...</code> — never <code>/dist/...</code>.</p>
 <p>Planning track (Phases 0–6): <a href="../../plans/SSG-SEO.md">plans/SSG-SEO.md</a>. Client adopt: <a href="/docs/ui/hydration">ui/hydration.md</a>. Normative markup: <a href="/docs/ssg/contract">contract.md</a>.</p>
-<hr />
 <h2>Modes</h2>
 <div class="table-wrap"><table><thead><tr><th>Mode</th><th>When</th><th>Who emits HTML</th><th>Assets</th></tr></thead><tbody>
 <tr><td><strong>A — Pure static</strong></td><td><code>anza build</code> / <code>anza dev</code></td><td>SSG emitter → <code>dist/&lt;route&gt;/index.html</code></td><td><code>dist/</code> as site root</td></tr>
 <tr><td><strong>B — Any-lang templates</strong></td><td>Request time</td><td>Jinja / EJS / HBS / Go / Node / …</td><td>Same <code>dist/</code> static files</td></tr>
 </tbody></table></div>
 <p>Both modes must satisfy the <a href="/docs/ssg/contract">page HTML contract</a> so hydration has one adoption path. Examples: <code>examples/mode-b-python/</code>, <code>examples/mode-b-go/</code>, <code>examples/mode-b-node/</code>. Goldens: <code>plans/fixtures/ssg/</code>.</p>
-<hr />
 <h2>What shipped (Phases 0–6)</h2>
 <div class="table-wrap"><table><thead><tr><th>Phase</th><th>Outcome</th></tr></thead><tbody>
 <tr><td><strong>0</strong></td><td>Portable site-root assets — import map and routes without <code>/dist</code> prefixes; serve with <code>cd dist &amp;&amp; python3 -m http.server</code></td></tr>
@@ -22,7 +20,6 @@
 </tbody></table></div>
 <p>There is <strong>no Phase 7</strong>. Residual host polish (Worker preferring SSG over SPA fallback) is optional and not product acceptance.</p>
 <p><strong>CSR fallbacks:</strong> unknown paths may get a host <code>404</code> body or SPA shell HTML. Once the client boots, <a href="/docs/router/fallbacks">router/fallbacks.md</a> paints a not-found / error leaf inside the <strong>leaf</strong> dock (shared library built-in, or a dock/page override) — separate from Mode A SSG emission. Do not bake a <code>404.html</code> into every dock folder.</p>
-<hr />
 <h2>Simple: Mode A page SEO</h2>
 <view-code language="javascript">page('/docs/intro/start', {
   tag: 'doc-intro-start',
@@ -35,7 +32,6 @@
 }, import.meta.url);
 </view-code>
 <p>After <code>anza build</code>, <code>dist/docs/intro/start/index.html</code> is curl-readable (unique <code>&lt;title&gt;</code>, open DSD, primary heading). Soft-nav between docs pages fetches the CSR fragment (<code>template.html</code> when needed), not that full document.</p>
-<hr />
 <h2>Advanced: expand, origin, sitemap</h2>
 <h3>Parametric expand (Phase 5)</h3>
 <view-code language="javascript">page('/docs/ssg/expand/:slug', {
@@ -66,11 +62,9 @@
 <tr><td><code>sitemap</code> / <code>robots</code></td><td>Write <code>dist/sitemap.xml</code> and <code>dist/robots.txt</code></td></tr>
 </tbody></table></div>
 <p>Without <code>origin</code>, path-relative URLs are fine for local preview; sitemap locs stay site-root paths.</p>
-<hr />
 <h2>Soft-nav coexistence (Phase 4)</h2>
 <p>Hard refresh serves the SSG (or Mode B) document. Soft-nav must <strong>not</strong> use that document as a page template — nested docks would stack inside the leaf shadow. Mode A preserves the CSR fragment as <code>template.html</code> when paths collide, and the client <code>sanitizeTemplateHtml</code> refuses full HTML documents. Nested hosts must be light-DOM children <strong>after</strong> each parent’s <code>&lt;template shadowrootmode="open"&gt;</code>.</p>
 <p>Project layout (folders, <code>anza.json</code>, doctor/check) is a separate contract: <a href="/docs/intro/structure">intro/structure.md</a>. Fallbacks after CSR miss are leaf-scoped: <a href="/docs/router/fallbacks">router/fallbacks.md</a>.</p>
-<hr />
 <h2>Verify</h2>
 <view-code language="bash">rm -rf dist &amp;&amp; npm run build   # or anza build from web/
 cd dist &amp;&amp; python3 -m http.server PORT
@@ -79,7 +73,6 @@ node tasks/ssg-contract-check.js          # goldens + nest + closed-DSD /dist ga
 node tasks/ssg-contract-check.js --rebuild
 </view-code>
 <p>Same contentful HTML for every User-Agent — no cloaking.</p>
-<hr />
 <h2>File map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What it covers</th></tr></thead><tbody>
 <tr><td><a href="/docs/ssg/contract">contract.md</a></td><td>Normative head/body, Mode A/B, expand, origin/sitemap/JSON-LD, checklist</td></tr>

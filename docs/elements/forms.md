@@ -10,8 +10,6 @@ import '@anzaui/anza/elements/<name>';
 
 Full docs in this category: [input](input.md), [textarea](textarea.md), [select](select.md), [checkbox](checkbox.md), [radio](radio.md), [toggle](toggle.md), [field](field.md), [upload](upload.md), [form](form.md).
 
----
-
 ## Elements
 
 | Element | Tag | Import | Status |

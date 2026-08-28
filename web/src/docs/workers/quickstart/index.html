@@ -1,6 +1,5 @@
 <h1>Quick Start</h1>
 <p>Get a worker running in five minutes.</p>
-<hr />
 <h2>1. Run a Task in a Pool</h2>
 <view-code language="javascript">import { workers } from '@anzaui/anza/workers';
 
@@ -12,7 +11,6 @@ const result = await workers.run('/workers/calc.js', 'fibonacci', {
 console.log(result); // 102334155
 </view-code>
 <p>The pool lazily creates workers (default: <code>hardwareConcurrency - 1</code>). Tasks are scheduled by priority.</p>
-<hr />
 <h2>2. Priority Scheduling</h2>
 <view-code language="javascript">// Critical path — runs first
 workers.run('/workers/calc.js', 'render', {
@@ -32,7 +30,6 @@ workers.run('/workers/calc.js', 'sync', {
 <tr><td><code>background</code></td><td>0</td><td>Telemetry, logging, prefetch</td></tr>
 </tbody></table></div>
 <p>The pool promotes background tasks after 20 higher-priority tasks to prevent starvation.</p>
-<hr />
 <h2>3. Cancel a Task</h2>
 <view-code language="javascript">const ctrl = new AbortController();
 
@@ -45,7 +42,6 @@ workers.run('/workers/calc.js', 'heavy', {
 // Cancel after 3 seconds
 setTimeout(() =&gt; ctrl.abort(), 3000);
 </view-code>
-<hr />
 <h2>4. Cross-Tab Messaging</h2>
 <view-code language="javascript">// Send
 workers.broadcast('app-event', { type: 'logout' });
@@ -57,14 +53,12 @@ const off = workers.subscribe('app-event', (data) =&gt; {
 
 off(); // unsubscribe
 </view-code>
-<hr />
 <h2>5. Web Lock</h2>
 <view-code language="javascript">await workers.lock('db:write', async () =&gt; {
   await db.put('key', value);
 }, { timeout: 3000 });
 </view-code>
 <p>Other tabs calling <code>lock('db:write')</code> will wait until this callback completes.</p>
-<hr />
 <h2>6. Feature Detection</h2>
 <view-code language="javascript">import { has } from '@anzaui/anza/workers';
 
@@ -74,7 +68,6 @@ if (has.channel)  console.log('BroadcastChannel supported');
 if (has.locks)    console.log('Web Locks API supported');
 if (has.offscreen) console.log('OffscreenCanvas supported');
 </view-code>
-<hr />
 <h2>Complete Working Example</h2>
 <view-code language="javascript">import { workers } from '@anzaui/anza/workers';
 

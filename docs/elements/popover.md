@@ -6,15 +6,11 @@ Lightweight contextual overlay using the native Popover API for top-layer render
 
 Architecture and when-to-use: [Overlay patterns](overlay.md).
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/popover';
 ```
-
----
 
 ## Basic usage
 
@@ -32,8 +28,6 @@ import '@anzaui/anza/elements/popover';
   });
 </script>
 ```
-
----
 
 ## Props
 
@@ -60,8 +54,6 @@ Default slot projects into `part="popover"`. Uses `[popover="auto"]` (top-layer;
 ### Lifecycle / memory
 
 Listeners stay on the popover surface inside the shadow. Soft-nav aborts the leaf `ctrl`. Prefer `on` / signal-owned work over raw `document` listeners. See [Overlay patterns](overlay.md) and [Memory safety & framework globals](../ui/advanced.md).
-
----
 
 ## Related
 

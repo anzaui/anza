@@ -2,16 +2,12 @@
 
 The `supports` object contains 30+ lazy-evaluated boolean flags for browser capabilities. Each flag is detected on first access and cached for the lifetime of the page.
 
----
-
 ## Routing
 
 | Flag | Detects |
 | ------ | --------- |
 | `supports.navigationAPI` | `window.navigation` exists |
 | `supports.urlPattern` | `URLPattern` in global scope |
-
----
 
 ## Component Model
 
@@ -20,8 +16,6 @@ The `supports` object contains 30+ lazy-evaluated boolean flags for browser capa
 | `supports.declarativeShadowDOM` | `shadowRootMode` on `HTMLTemplateElement` |
 | `supports.customStatePseudo` | `ElementInternals.states` |
 | `supports.formAssociated` | `HTMLElement.attachInternals` |
-
----
 
 ## Overlay / Popover
 
@@ -32,8 +26,6 @@ The `supports` object contains 30+ lazy-evaluated boolean flags for browser capa
 
 Used by `guard.popover`, `guard.anchor`, and `guard.escape` / `escapeOverflow` (floating UI). See [guards.md](guards.md) and [Overlay patterns](../elements/overlay.md).
 
----
-
 ## Animation
 
 | Flag | Detects |
@@ -43,16 +35,12 @@ Used by `guard.popover`, `guard.anchor`, and `guard.escape` / `escapeOverflow` (
 | `supports.scrollTimeline` | `ScrollTimeline` in window |
 | `supports.viewTimeline` | `ViewTimeline` in window |
 
----
-
 ## Scheduling
 
 | Flag | Detects |
 | ------ | --------- |
 | `supports.schedulerPostTask` | `scheduler.postTask` |
 | `supports.schedulerYield` | `scheduler.yield` |
-
----
 
 ## CSS
 
@@ -63,15 +51,11 @@ Used by `guard.popover`, `guard.anchor`, and `guard.escape` / `escapeOverflow` (
 | `supports.cssLayer` | `@layer` at-rule |
 | `supports.cssModuleScripts` | Import attributes (proxy) |
 
----
-
 ## Module System
 
 | Flag | Detects |
 | ------ | --------- |
 | `supports.importMaps` | `HTMLScriptElement.supports('importmap')` |
-
----
 
 ## Security
 
@@ -80,8 +64,6 @@ Used by `guard.popover`, `guard.anchor`, and `guard.escape` / `escapeOverflow` (
 | `supports.sanitizerAPI` | `Sanitizer` in window |
 | `supports.trustedTypes` | `trustedTypes` in window |
 | `supports.subtleCrypto` | `crypto.subtle` |
-
----
 
 ## Storage
 
@@ -93,8 +75,6 @@ Used by `guard.popover`, `guard.anchor`, and `guard.escape` / `escapeOverflow` (
 | `supports.compression` | `CompressionStream` and `DecompressionStream` |
 | `supports.storagePersistence` | `navigator.storage.persist` |
 
----
-
 ## Networking / Workers
 
 | Flag | Detects |
@@ -105,16 +85,12 @@ Used by `guard.popover`, `guard.anchor`, and `guard.escape` / `escapeOverflow` (
 | `supports.webLocks` | `navigator.locks` |
 | `supports.offscreenCanvas` | `OffscreenCanvas` in window |
 
----
-
 ## Notifications / Push
 
 | Flag | Detects |
 | ------ | --------- |
 | `supports.pushAPI` | `PushManager` in window |
 | `supports.notificationsAPI` | `Notification` in window |
-
----
 
 ## Device
 
@@ -123,8 +99,6 @@ Used by `guard.popover`, `guard.anchor`, and `guard.escape` / `escapeOverflow` (
 | `supports.screenWakeLock` | `navigator.wakeLock` |
 | `supports.idleDetection` | `IdleDetector` in window |
 | `supports.webAuthn` | `PublicKeyCredential` in window |
-
----
 
 ## Reset for Testing
 

@@ -2,8 +2,6 @@
 
 Prefixes map short path segments to base URLs. Register a prefix once at bootstrap, then reference endpoints by short path everywhere else.
 
----
-
 ## Registering Prefixes
 
 ```javascript
@@ -13,8 +11,6 @@ api.prefix.add('default', 'https://api.example.com');
 api.prefix.add('auth', 'https://auth.example.com');
 api.prefix.add('cdn', 'https://cdn.example.com');
 ```
-
----
 
 ## Path Resolution
 
@@ -33,8 +29,6 @@ api.get('https://other.com/data'); // left as-is
 
 The resolver strips the prefix from the path and appends the remainder to the base URL, normalizing slashes automatically.
 
----
-
 ## Root Fallback
 
 If no prefix matches, the resolver checks for a `root` or `default` prefix:
@@ -48,8 +42,6 @@ api.get('/user/profile');
 
 Without a root fallback, the path is sent as-is.
 
----
-
 ## Clearing Prefixes
 
 ```javascript
@@ -57,8 +49,6 @@ api.prefix.clear(); // removes all registered prefixes
 ```
 
 Useful in tests when switching between environments.
-
----
 
 ## Multiple Environments
 
@@ -72,8 +62,6 @@ api.prefix.add('default', 'http://localhost:3000');
 api.prefix.clear();
 api.prefix.add('default', 'https://api.example.com');
 ```
-
----
 
 ## Prefix Matching Rules
 

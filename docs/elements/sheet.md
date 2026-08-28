@@ -6,15 +6,11 @@ Bottom sheet overlay backed by native `<dialog>` + `showModal()`, with drag-to-d
 
 Architecture and when-to-use: [Overlay patterns](overlay.md).
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/sheet';
 ```
-
----
 
 ## Basic usage
 
@@ -29,8 +25,6 @@ import '@anzaui/anza/elements/sheet';
   // hide() or open = false closes after the exit transition
 </script>
 ```
-
----
 
 ## Props
 
@@ -58,8 +52,6 @@ Default slot projects into `part="content"`. Drag handle is `part="handle"` (dis
 ### Lifecycle / memory
 
 Pointer drag and close handling stay on the sheet instance / `el.ctrl`. Soft-nav aborts teardown. See [Overlay patterns](overlay.md) and [Memory safety & framework globals](../ui/advanced.md).
-
----
 
 ## Related
 

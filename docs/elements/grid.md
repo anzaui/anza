@@ -4,15 +4,11 @@ Responsive CSS grid with column template and gap.
 
 **Tag:** `ui-grid` · **Import:** `@anzaui/anza/elements/grid`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/grid';
 ```
-
----
 
 ## Basic usage
 
@@ -26,8 +22,6 @@ import '@anzaui/anza/elements/grid';
 </ui-grid>
 ```
 
----
-
 ## Props
 
 | Prop | Type | Reflect | Description |
@@ -38,8 +32,6 @@ import '@anzaui/anza/elements/grid';
 ## Notes
 
 Default slot / `part="grid"`.
-
----
 
 ## Related
 

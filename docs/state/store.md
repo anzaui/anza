@@ -2,8 +2,6 @@
 
 `ReactiveStore` is a Proxy-based reactive state container. It tracks read accesses, batches write notifications, and supports deep reactivity, snapshots, and hydration.
 
----
-
 ## Create
 
 ```javascript
@@ -25,8 +23,6 @@ const store = state.create({ user: { name: 'Alice' } }, { deep: true });
 store.get('user').name = 'Bob'; // triggers 'user' subscribers
 ```
 
----
-
 ## Get
 
 ```javascript
@@ -34,8 +30,6 @@ const count = store.get('count');
 ```
 
 Reading a property via `get` registers the active subscriber (if any) as a dependency. This is how derived values and reactive contexts know what to watch.
-
----
 
 ## Set
 
@@ -47,8 +41,6 @@ store.set('count', 5, 'local'); // with source tag
 Setting a value to the same reference (via `Object.is`) is a no-op. Setting a different value schedules a notification.
 
 The `source` parameter is used by sync to prevent echo loops. `'local'` means the change originated in this tab.
-
----
 
 ## Subscribe
 
@@ -66,8 +58,6 @@ off(); // unsubscribe
 | `key` | The key that changed |
 | `prev` | Previous value |
 
----
-
 ## Batch
 
 ```javascript
@@ -80,8 +70,6 @@ store.batch(() => {
 
 Multiple sets inside a batch produce a single microtask notification. Subscribers receive the final values.
 
----
-
 ## Snapshot
 
 ```javascript
@@ -89,8 +77,6 @@ const data = store.snapshot();
 ```
 
 Returns a deep-cloned copy of the current state. Safe to serialize with `JSON.stringify`.
-
----
 
 ## Hydrate
 
@@ -100,15 +86,11 @@ store.hydrate({ count: 10, user: { name: 'Bob' } });
 
 Restores state from a snapshot. Uses batch internally, so subscribers fire once for all restored keys.
 
----
-
 ## Reset
 
 ```javascript
 store.reset({ count: 0 }); // clear all, then set new values
 ```
-
----
 
 ## Broadcast / Sync
 
@@ -118,8 +100,6 @@ store.sync(['count', 'user'], 'channel-name'); // alias
 ```
 
 Replicates specified keys across browser tabs. See [sync.md](sync.md).
-
----
 
 ## onMutation
 

@@ -2,8 +2,6 @@
 
 Event delegation registers one listener on an ancestor element to handle events from matching descendants. It traverses `composedPath()` so it works through shadow DOM boundaries. Component `on` uses the same matcher inside the shadow root ([context](../ui/context.md#on)).
 
----
-
 ## Signature
 
 ```javascript
@@ -19,8 +17,6 @@ delegate(root, selector, type, handler, options);
 | `options` | object | `addEventListener` options plus `signal`, `attrs`, `not`, `key`, `scope` |
 
 Returns a disposer function.
-
----
 
 ## Simple
 
@@ -55,8 +51,6 @@ events.delegate(
 ```
 
 The path stops at the `root` element. Selectors outside the root are not evaluated. Default scope for `events.delegate` is `'path'` (any node in `composedPath()` before `root`).
-
----
 
 ## Advanced
 
@@ -112,8 +106,6 @@ events.delegate(container, '.item', 'click', (event, target) => {
 ### Selector matching cache
 
 `element.matches()` results are cached in a two-level `WeakMap` shared with component `on`, so repeated events on the same node + selector avoid redundant selector work.
-
----
 
 ## Soft-nav
 

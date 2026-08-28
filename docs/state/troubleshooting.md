@@ -2,8 +2,6 @@
 
 Common problems and their solutions.
 
----
-
 ## Subscriber not firing
 
 **Cause:** Setting the same reference, or batching without actual change.
@@ -18,8 +16,6 @@ store.set('count', store.get('count') + 1);
 store.set('count', store.get('count'));
 ```
 
----
-
 ## Derived value stale
 
 **Cause:** The derived value was not accessed after a dependency changed.
@@ -30,8 +26,6 @@ store.set('count', store.get('count'));
 store.set('count', 5);
 console.log(doubled.value); // forces recompute
 ```
-
----
 
 ## Memory leak with subscribers
 
@@ -46,8 +40,6 @@ off();
 // Or with signal
 store.subscribe('count', handler, ctrl.signal);
 ```
-
----
 
 ## Cross-tab sync not working
 
@@ -65,8 +57,6 @@ store.broadcast('app-sync', ['theme']);
 
 Private browsing may disable `BroadcastChannel`.
 
----
-
 ## IndexedDB blocked
 
 **Cause:** Another tab has the database open with an older version.
@@ -78,8 +68,6 @@ window.addEventListener('storage:blocked', () => {
   console.warn('IDB upgrade blocked — close other tabs');
 });
 ```
-
----
 
 ## TTL entries returning null
 
@@ -94,8 +82,6 @@ await state.storage.set('keyval', 'token', data, { ttl: 60000 });
 // Wrong — 60 is 60 milliseconds
 await state.storage.set('keyval', 'token', data, { ttl: 60 });
 ```
-
----
 
 ## Still stuck?
 

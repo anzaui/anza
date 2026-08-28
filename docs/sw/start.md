@@ -2,8 +2,6 @@
 
 Write a Service Worker that caches your shell and intercepts API calls.
 
----
-
 ## 1. Create `src/sw.js`
 
 The scaffold generates this file for you. Here is what it contains:
@@ -48,8 +46,6 @@ Bump `SHELL` / `API` cache names when you ship path-breaking asset URL changes �
 
 Keep helpers in optional `src/sw/` and `import` them from `src/sw.js` — that folder is **modules only**, not extra registrations. Multi-scope workers (advanced) use `anza.json` `sw` arrays — see [intro/structure.md](../intro/structure.md#service-workers).
 
----
-
 ## 2. Register from `app.js`
 
 ```javascript
@@ -68,8 +64,6 @@ import './pages/index/index.js';
 
 `navigator.serviceWorker.register('/sw.js')` starts the SW. The browser resolves the path relative to the page origin, so `/sw.js` is correct.
 
----
-
 ## 3. Send Messages from the Main Thread
 
 Use the offline bridge to send tasks to the active SW:
@@ -81,8 +75,6 @@ offline.send('sync', { action: 'flush-queue' });
 ```
 
 The SW receives this via `message` events. The bridge handles the response as a Promise.
-
----
 
 ## 4. Build Output
 
@@ -104,8 +96,6 @@ dist/
 ```
 
 The build tool copied these from `library/src/sw/` and rewrote bare specifiers in `dist/sw.js` to relative paths like `./sw/index.js`.
-
----
 
 ## Next
 

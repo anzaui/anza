@@ -2,8 +2,6 @@
 
 The platform scheduler provides prioritized task execution and cooperative yielding. It uses the native `scheduler` API when available, falling back to a microtask/macrotask polyfill.
 
----
-
 ## Priorities
 
 | Priority | Latency | Use Case |
@@ -11,8 +9,6 @@ The platform scheduler provides prioritized task execution and cooperative yield
 | `user-blocking` | Immediate | Critical UI, user input response |
 | `user-visible` | ~16ms | Standard UI updates, API calls |
 | `background` | `requestIdleCallback` | Telemetry, prefetch, logging |
-
----
 
 ## Posting Tasks
 
@@ -37,8 +33,6 @@ scheduler.postTask(() => {
 }, { priority: 'background' });
 ```
 
----
-
 ## Delayed Tasks
 
 ```javascript
@@ -46,8 +40,6 @@ scheduler.postTask(() => {
   showTooltip();
 }, { delay: 200 });
 ```
-
----
 
 ## Task Cancellation
 
@@ -61,8 +53,6 @@ scheduler.postTask(() => {
 // Cancel before it executes
 controller.abort();
 ```
-
----
 
 ## Yielding
 
@@ -78,8 +68,6 @@ async function processItems(items) {
 ```
 
 `guard.yield()` returns a promise that resolves after yielding to the event loop. On browsers with `scheduler.yield()`, it uses the native API. Otherwise it falls back to `setTimeout(..., 0)`.
-
----
 
 ## Chunking Heavy Work
 

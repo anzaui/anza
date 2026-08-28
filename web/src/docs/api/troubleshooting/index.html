@@ -1,6 +1,5 @@
 <h1>Troubleshooting</h1>
 <p>Common problems and their solutions.</p>
-<hr />
 <h2>Request returns old cached data</h2>
 <p><strong>Cause:</strong> TTL not expired, or no cache invalidation performed.</p>
 <p><strong>Fix:</strong></p>
@@ -13,7 +12,6 @@ await api.get('/products', { cache: 'network-first' });
 // Or reduce TTL
 await api.get('/products', { expiry: 5000 });
 </view-code>
-<hr />
 <h2>Cache not working</h2>
 <p><strong>Cause:</strong> Not a GET request, or Cache API unavailable.</p>
 <p><strong>Fix:</strong> Caching only applies to GET requests. Check the browser supports <code>caches</code>:</p>
@@ -22,7 +20,6 @@ await api.get('/products', { expiry: 5000 });
 }
 </view-code>
 <p>Private browsing modes often disable the Cache API.</p>
-<hr />
 <h2>Prefix not resolving</h2>
 <p><strong>Cause:</strong> Prefix not registered, or path format mismatch.</p>
 <p><strong>Fix:</strong> Check prefix registration and path format:</p>
@@ -37,11 +34,9 @@ api.get('user/profile');  // also matches root fallback
 // Wrong — fully qualified URL bypasses prefixes
 api.get('https://api.example.com/user/profile'); // no prefix matching
 </view-code>
-<hr />
 <h2>Upload progress not firing</h2>
 <p><strong>Cause:</strong> Server does not send <code>Content-Length</code>, or file is too small.</p>
 <p><strong>Fix:</strong> The progress event requires <code>event.lengthComputable</code> from the XMLHttpRequest upload. Ensure the server sets the content length. Small files may complete before any progress events fire.</p>
-<hr />
 <h2>Stream stops mid-way</h2>
 <p><strong>Cause:</strong> Network drop, or server closed connection.</p>
 <p><strong>Fix:</strong> Wrap in try-catch and handle reconnection:</p>
@@ -59,7 +54,6 @@ api.get('https://api.example.com/user/profile'); // no prefix matching
   }
 }
 </view-code>
-<hr />
 <h2>401 not triggering handler</h2>
 <p><strong>Cause:</strong> Listener registered after the request, or wrong event name.</p>
 <p><strong>Fix:</strong></p>
@@ -73,7 +67,6 @@ await api.get('/protected', {
 });
 </view-code>
 <p>Event names are case-sensitive: <code>'status:401'</code> not <code>'Status:401'</code>.</p>
-<hr />
 <h2>Request not timing out</h2>
 <p><strong>Cause:</strong> Timeout shorter than expected, or signal already aborted.</p>
 <p><strong>Fix:</strong> Check that the timeout value is in milliseconds:</p>
@@ -83,7 +76,6 @@ await api.get('/slow', { timeout: 5000 });
 // Wrong — 5 milliseconds
 await api.get('/slow', { timeout: 5 });
 </view-code>
-<hr />
 <h2>Retry not helping</h2>
 <p><strong>Cause:</strong> Error is not transient (4xx client error).</p>
 <p><strong>Fix:</strong> Check the error code. 4xx errors are not retried:</p>
@@ -96,7 +88,6 @@ await api.get('/slow', { timeout: 5 });
 }
 </view-code>
 <p>Only <code>NETWORK_TIMEOUT</code>, <code>NETWORK_ERROR</code>, and 5xx are retried.</p>
-<hr />
 <h2>Memory leak with event listeners</h2>
 <p><strong>Cause:</strong> Global listeners never removed.</p>
 <p><strong>Fix:</strong> Use disposers or AbortSignal:</p>
@@ -109,11 +100,9 @@ const ctrl = new AbortController();
 api.on('error', handler, ctrl.signal);
 ctrl.abort(); // removes all listeners bound to this signal
 </view-code>
-<hr />
 <h2>CORS errors</h2>
 <p><strong>Cause:</strong> Cross-origin request without proper headers.</p>
 <p><strong>Fix:</strong> The API client does not handle CORS. Ensure the server sends appropriate <code>Access-Control-Allow-*</code> headers. For preflight issues, check that custom headers are allowed.</p>
-<hr />
 <h2>Still stuck?</h2>
 <p>Inspect the pipeline:</p>
 <view-code language="javascript">// See registered prefixes

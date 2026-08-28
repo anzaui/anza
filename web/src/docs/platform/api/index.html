@@ -1,6 +1,5 @@
 <h1>API Reference</h1>
 <p>Complete reference for the platform module.</p>
-<hr />
 <h2>Named Exports</h2>
 <view-code language="javascript">import {
   supports,
@@ -17,7 +16,6 @@
 } from '@anzaui/anza/platform';
 </view-code>
 <p><code>attach</code> / <code>detach</code> / <code>count</code> / <code>list</code> / <code>clearGlobals</code> are also available as <code>globals.attach</code>, <code>globals.detach</code>, and so on.</p>
-<hr />
 <h3><code>supports</code></h3>
 <p>Lazy-evaluated feature detection object. See <a href="/docs/platform/supports">supports.md</a> for the full flag list. Overlay-related flags: <code>popoverAPI</code>, <code>anchorPositioning</code>.</p>
 <h3><code>globals</code></h3>
@@ -117,14 +115,12 @@ window.addEventListener('scroll', () =&gt; ctrl.update(), {
 <p>Throws if the feature is not supported.</p>
 <view-code language="javascript">typeGuard('opfs', 'File storage is required');
 </view-code>
-<hr />
 <h2>Scheduler Polyfill API</h2>
 <p>When native <code>scheduler</code> is unavailable, the polyfill exposes:</p>
 <view-code language="javascript">scheduler.postTask(fn, { priority, delay, signal })
 scheduler.yield()
 </view-code>
 <p>Priorities: <code>user-blocking</code>, <code>user-visible</code>, <code>background</code>.</p>
-<hr />
 <h2>Related</h2>
 <ul>
 <li><a href="/docs/platform/guards">Guards</a> — narrative usage for each <code>guard.*</code> method</li>

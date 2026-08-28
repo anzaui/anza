@@ -2,8 +2,6 @@
 
 Complete reference for the platform module.
 
----
-
 ## Named Exports
 
 ```javascript
@@ -23,8 +21,6 @@ import {
 ```
 
 `attach` / `detach` / `count` / `list` / `clearGlobals` are also available as `globals.attach`, `globals.detach`, and so on.
-
----
 
 ### `supports`
 
@@ -175,8 +171,6 @@ Throws if the feature is not supported.
 typeGuard('opfs', 'File storage is required');
 ```
 
----
-
 ## Scheduler Polyfill API
 
 When native `scheduler` is unavailable, the polyfill exposes:
@@ -187,8 +181,6 @@ scheduler.yield()
 ```
 
 Priorities: `user-blocking`, `user-visible`, `background`.
-
----
 
 ## Related
 

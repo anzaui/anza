@@ -1,6 +1,5 @@
 <h1>Events</h1>
 <p>The router emits three events: <code>found</code>, <code>notfound</code>, and <code>error</code>. Subscribe with <code>router.on()</code>. After <code>notfound</code> / <code>error</code>, the <a href="/docs/router/fallbacks">fallback resolver</a> mounts a leaf into the deepest live dock unless an escape hatch handled it.</p>
-<hr />
 <h2>Found</h2>
 <p>Emitted when a route matches successfully:</p>
 <view-code language="javascript">const dispose = router.on('found', (detail) =&gt; {
@@ -15,7 +14,6 @@
 });
 </view-code>
 <p>The orchestrator listens to this event and mounts the matched element into its container. You can also listen for analytics, logging, or side effects.</p>
-<hr />
 <h2>Not Found</h2>
 <p>Emitted when no route matches:</p>
 <view-code language="javascript">router.on('notfound', ({ url }) =&gt; {
@@ -28,7 +26,6 @@
   // full manual control — or return false
 });
 </view-code>
-<hr />
 <h2>Error</h2>
 <p>Emitted when something goes wrong during navigation:</p>
 <view-code language="javascript">router.on('error', ({ error, url, route, phase }) =&gt; {
@@ -53,7 +50,6 @@ router.pages.configure({
   error: { tag: 'page-server-error' }
 });
 </view-code>
-<hr />
 <h2>Subscription and Cleanup</h2>
 <p><code>router.on()</code> returns a disposer:</p>
 <view-code language="javascript">const dispose = router.on('found', handler);
@@ -66,7 +62,6 @@ router.on('found', handler, controller.signal);
 controller.abort(); // removes the listener
 </view-code>
 <p>Inside a page leaf, prefer <code>ctrl.signal</code> from lifecycle context so soft-nav tears the subscription down with the element.</p>
-<hr />
 <h2>Clearing Listeners</h2>
 <p>There is no bulk clear for event listeners. Each subscription is independent. Use <code>AbortController</code> for grouped cleanup:</p>
 <view-code language="javascript">const ctrl = new AbortController();
@@ -76,7 +71,6 @@ router.on('error', handlerB, ctrl.signal);
 // Remove both at once
 ctrl.abort();
 </view-code>
-<hr />
 <h2>Event Order</h2>
 <p>During a successful navigation:</p>
 <ol>
@@ -101,7 +95,6 @@ ctrl.abort();
 <li><code>error</code> event emits with the appropriate <code>phase</code></li>
 <li>Fallback resolver mounts error leaf (unless suppressed / handled)</li>
 </ol>
-<hr />
 <h2>Listening Inside Components</h2>
 <p>Components can subscribe to router events for coordination:</p>
 <view-code language="javascript">page('/dashboard', {
@@ -119,7 +112,6 @@ ctrl.abort();
 });
 </view-code>
 <p>Prefer <code>ctrl.signal</code> over a manual disposer in <code>disconnect</code> — soft-nav aborts the leaf controller automatically.</p>
-<hr />
 <h2>Related</h2>
 <ul>
 <li><a href="/docs/router/fallbacks">fallbacks.md</a> — leaf mount after miss / error</li>

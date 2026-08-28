@@ -4,8 +4,6 @@ Transient status notification. Auto-dismisses after a duration; the `show` helpe
 
 **Tag:** `ui-toast` · **Import:** `@anzaui/anza/elements/toast`
 
----
-
 ## Import
 
 ```javascript
@@ -14,8 +12,6 @@ import { show as showToast } from '@anzaui/anza/elements/toast';
 // or from the kit barrel:
 // import { showToast } from '@anzaui/anza/elements';
 ```
-
----
 
 ## Basic usage
 
@@ -32,8 +28,6 @@ Or mount a toast element yourself (same body container if you append via `show`)
 ```html
 <ui-toast duration="4000">Copied to clipboard</ui-toast>
 ```
-
----
 
 ## Props
 
@@ -54,8 +48,6 @@ Default slot is the toast body (`role="status"`, `part="toast"`). After `duratio
 ### Lifecycle / memory
 
 `show` appends a shared fixed container under `document.body` and places toasts there — ownership stays with each toast instance, not a long-lived document listener. Auto-dismiss uses `setTimeout` cleared on the element `AbortController` (`el.ctrl.signal` abort). Soft-nav aborts only the detached leaf’s `ctrl`; toasts that outlive a leaf should be created/owned where their lifetime belongs (or removed explicitly). Prefer signal-owned work over raw `document` / `body` listeners. See [Memory safety & framework globals](../ui/advanced.md) and [Orphan listeners after soft-nav](../events/troubleshooting.md).
-
----
 
 ## Related
 

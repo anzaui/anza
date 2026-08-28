@@ -2,8 +2,6 @@
 
 Get reading and writing in five minutes.
 
----
-
 ## 1. Write and Read
 
 ```javascript
@@ -15,8 +13,6 @@ console.log(name); // 'Alice'
 ```
 
 Default tier is IndexedDB with an LRU memory cache.
-
----
 
 ## 2. Choose a Tier
 
@@ -34,8 +30,6 @@ await storage.set('image', buffer, 'opfs');
 await storage.set('api-data', response, 'cache');
 ```
 
----
-
 ## 3. Set TTL
 
 ```javascript
@@ -47,8 +41,6 @@ await new Promise(r => setTimeout(r, 61000));
 await storage.get('token'); // null
 ```
 
----
-
 ## 4. Delete
 
 ```javascript
@@ -56,8 +48,6 @@ await storage.delete('name');
 ```
 
 Deletes from all tiers (memory + the specified tier).
-
----
 
 ## 5. List keys / clear / estimate
 
@@ -73,8 +63,6 @@ console.log(est.usage, est.quota, est.persisted);
 
 Advanced IndexedDB cursor queries use options (not a filter callback) — see [api.md](api.md#storagequerystorename-queryopts). For reactive-store snapshots with a filter function, use `state.storage.query` ([state/persist.md](../state/persist.md)).
 
----
-
 ## 6. Configure
 
 ```javascript
@@ -85,8 +73,6 @@ storage.configure({
 ```
 
 Call `configure` before the first read/write.
-
----
 
 ## Complete Working Example
 

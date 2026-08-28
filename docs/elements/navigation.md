@@ -8,14 +8,11 @@ Import pattern:
 import '@anzaui/anza/elements/<name>';
 ```
 
-
 Full docs in this category: [nav](nav.md), [tabs](tabs.md), [breadcrumb](breadcrumb.md), [pagination](pagination.md), [steps](steps.md).
 
 ### Lifecycle / memory
 
 Tabs, pagination, and steps bind click / keyboard / slotchange handlers with shadow-scoped `on` tied to `ctrl.signal`. Soft-nav disconnect aborts the leaf and clears those listeners. See [Memory safety & framework globals](../ui/advanced.md).
-
----
 
 ## Elements
 

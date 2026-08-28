@@ -1,6 +1,5 @@
 <h1>Troubleshooting</h1>
 <p>Common problems and their solutions.</p>
-<hr />
 <h2>SubtleCrypto not available</h2>
 <p><strong>Error:</strong> <code>crypto.subtle is undefined</code></p>
 <p><strong>Cause:</strong> Running in a non-secure context (HTTP, not HTTPS) or in Node without polyfill.</p>
@@ -9,23 +8,19 @@
   globalThis.crypto = require('crypto').webcrypto;
 }
 </view-code>
-<hr />
 <h2>Decrypt fails with bad data</h2>
 <p><strong>Cause:</strong> Wrong key, corrupted ciphertext, or reused IV.</p>
 <p><strong>Fix:</strong> Ensure you use the same key for encrypt and decrypt. Check that the ciphertext was not truncated or modified. Never reuse an IV with the same key — always generate a fresh key for new data or use <code>seal</code>/<code>unseal</code>.</p>
-<hr />
 <h2>Sanitize returns empty string</h2>
 <p><strong>Cause:</strong> Input contained no allowed tags.</p>
 <p><strong>Fix:</strong> Check the allowed tag list in <a href="/docs/security/sanitize">sanitize.md</a>. Plain text is preserved. Only disallowed tags are stripped:</p>
 <view-code language="javascript">const safe = String(sanitize('&lt;script&gt;alert(1)&lt;/script&gt;Hello'));
 // 'Hello' — script removed, text kept
 </view-code>
-<hr />
 <h2>Trusted Types policy already registered</h2>
 <p><strong>Warning:</strong> <code>Trusted Types policy "core-sanitize" registration failed</code></p>
 <p><strong>Cause:</strong> Another script registered the same policy name.</p>
 <p><strong>Fix:</strong> This is non-fatal. The sanitizer falls back to string output. If you need a custom policy name, use the native <code>TrustedTypes.createPolicy</code> directly.</p>
-<hr />
 <h2>Permission query returns denied</h2>
 <p><strong>Cause:</strong> Permissions API unavailable, or the permission name is unsupported.</p>
 <p><strong>Fix:</strong> Check browser support. Not all permissions work in all browsers:</p>
@@ -37,7 +32,6 @@ if (state === 'denied') {
   }
 }
 </view-code>
-<hr />
 <h2>WatchPermission not firing</h2>
 <p><strong>Cause:</strong> The permission state does not change during the session, or the watcher was removed.</p>
 <p><strong>Fix:</strong> Most permissions do not emit <code>change</code> events in all browsers. Test by manually changing the site permission in browser settings:</p>
@@ -47,7 +41,6 @@ if (state === 'denied') {
 
 // Go to browser settings and toggle the permission
 </view-code>
-<hr />
 <h2>Still stuck?</h2>
 <p>Inspect the crypto state:</p>
 <view-code language="javascript">console.log('SubtleCrypto:', !!crypto?.subtle);

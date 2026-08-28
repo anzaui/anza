@@ -4,15 +4,11 @@ Styled wrapper for a native HTML table (slot content). Use a light-DOM `<table>`
 
 **Tag:** `ui-table` · **Import:** `@anzaui/anza/elements/table`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/table';
 ```
-
----
 
 ## Basic usage
 
@@ -30,8 +26,6 @@ import '@anzaui/anza/elements/table';
 </ui-table>
 ```
 
----
-
 ## Props
 
 _None — presentational wrapper; style via CSS / slotted table markup._
@@ -39,8 +33,6 @@ _None — presentational wrapper; style via CSS / slotted table markup._
 ## Notes
 
 Default slot receives the table (or table wrap). Pair with a host/page `.table-wrap` if you need horizontal scroll outside the element.
-
----
 
 ## Related
 

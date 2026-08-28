@@ -1,7 +1,6 @@
 <h1>Router</h1>
 <p>The Anza router is a client-side routing engine built on the Navigation API and URLPattern. It intercepts every navigation — link clicks, form submissions, history traversals, and programmatic calls — at a single junction, matches URLs against registered routes, and renders the corresponding view into the right container.</p>
 <p>It is designed for hierarchical layouts: pages declare the container chain they render through, and the router ensures every intermediate container exists before mounting. A hard refresh on <code>/settings/profile</code> will build the full <code>body → main → sidebar → settings-panel</code> chain automatically rather than erroring because a container is missing.</p>
-<hr />
 <h2>What You Get</h2>
 <ul>
 <li><strong>URLPattern matching</strong> with static routes, parameters (<code>:id</code>), wildcards (<code>*</code>), and parent chains</li>
@@ -13,13 +12,11 @@
 <li><strong>Route cache</strong> — prefetch and cache view assets with TTL</li>
 <li><strong>Deferred boot gate</strong> — the initial route match waits for custom element definitions so deep links work on cold load</li>
 </ul>
-<hr />
 <h2>Package</h2>
 <view-code language="javascript">import { router } from '@anzaui/anza/router';
 import { page, dock, view, part } from '@anzaui/anza/defs';
 </view-code>
 <p>The router also exposes itself as <code>window.router</code> (non-enumerable, non-configurable) for devtools and non-module contexts.</p>
-<hr />
 <h2>File Map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
 <tr><td><a href="/docs/router/quickstart">quickstart.md</a></td><td>Your first route in five minutes</td></tr>
@@ -39,7 +36,6 @@ import { page, dock, view, part } from '@anzaui/anza/defs';
 <tr><td><a href="/docs/router/api">api.md</a></td><td>Complete API reference</td></tr>
 <tr><td><a href="/docs/router/troubleshooting">troubleshooting.md</a></td><td>Common problems and how to fix them</td></tr>
 </tbody></table></div>
-<hr />
 <h2>The Three-Layer Model</h2>
 <p>The router is organized into three layers. You will spend most of your time in the top two.</p>
 <p><strong>1. Definition layer</strong> — <code>page()</code>, <code>dock()</code>, <code>view()</code>, <code>part()</code></p>
@@ -48,7 +44,6 @@ import { page, dock, view, part } from '@anzaui/anza/defs';
 <p>Imperative APIs for programmatic control, event subscription, and advanced use cases.</p>
 <p><strong>3. Internal machinery</strong> — <code>match.js</code>, <code>intercept.js</code>, <code>graph.js</code>, <code>cascade.js</code></p>
 <p>What makes the router fast and correct. You do not call these directly unless you are extending the router.</p>
-<hr />
 <h2>One-File Example</h2>
 <view-code language="html">&lt;!-- index.html --&gt;
 &lt;script type="module" src="./app.js"&gt;&lt;/script&gt;
@@ -71,7 +66,6 @@ page('/', {
 }, import.meta.url);
 </view-code>
 <p>That is a complete working route. The router auto-bootstraps, intercepts link clicks, matches the URL, and renders <code>page-home</code> inside the <code>main</code> dock.</p>
-<hr />
 <h2>Next Steps</h2>
 <ul>
 <li>New to the router? Start with <a href="/docs/router/quickstart">quickstart.md</a>.</li>

@@ -2,8 +2,6 @@
 
 The API client supports fine-grained TTL caching via the browser Cache API. Caching is opt-in: by default, every request is network-only.
 
----
-
 ## TTL Caching
 
 Enable caching by passing `expiry` or `ttl` (in milliseconds):
@@ -16,8 +14,6 @@ const products = await api.get('/products', { expiry: 60000 });
 ```
 
 On the first call, the network is hit and the response is cached. On subsequent calls within the TTL window, the cached response is returned instantly. After expiry, the cache entry is evicted and the network is hit again.
-
----
 
 ## Cache Strategies
 
@@ -61,15 +57,11 @@ window.addEventListener('cache:updated', (e) => {
 
 Best for timelines, feeds, and dashboards where perceived speed matters.
 
----
-
 ## Cache Limitations
 
 Caching applies only to `GET` requests. `POST`, `PUT`, `PATCH`, and `DELETE` bypass the cache entirely.
 
 If the Cache API is unavailable (private mode, unsupported browser), caching is silently disabled and all requests go to the network.
-
----
 
 ## Cache Invalidation
 
@@ -93,8 +85,6 @@ await api.cache.delete('*/user/*');
 
 Glob patterns support `*` wildcards. The pattern is matched against both the full URL and the pathname.
 
----
-
 ## Direct Cache Access
 
 For advanced use, access the cache manager directly:
@@ -112,8 +102,6 @@ await api.cache.delete('/products');
 // Purge all
 await api.cache.clear();
 ```
-
----
 
 ## Cache Key
 

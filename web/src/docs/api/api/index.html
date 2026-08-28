@@ -1,6 +1,5 @@
 <h1>API Reference</h1>
 <p>Complete reference for the API client facade and internal utilities.</p>
-<hr />
 <h2>Facade</h2>
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
 </view-code>
@@ -53,7 +52,6 @@ off(); // unsubscribe
 <p>Register an outbound interceptor.</p>
 <h3><code>api.pipeline.inbound(interceptor)</code></h3>
 <p>Register an inbound interceptor.</p>
-<hr />
 <h2>Named Exports</h2>
 <view-code language="javascript">import {
   api,           // facade object
@@ -69,7 +67,6 @@ off(); // unsubscribe
   cache          // ApiCache instance
 } from '@anzaui/anza/api';
 </view-code>
-<hr />
 <h2>Request Options</h2>
 <view-code language="javascript">{
   headers: object,           // additional headers
@@ -82,7 +79,6 @@ off(); // unsubscribe
   on: object               // per-request event listeners
 }
 </view-code>
-<hr />
 <h2>Telemetry Events</h2>
 <div class="table-wrap"><table><thead><tr><th>Event</th><th>Payload</th></tr></thead><tbody>
 <tr><td><code>error</code></td><td><code>{ error, requestId }</code></td></tr>
@@ -95,14 +91,12 @@ off(); // unsubscribe
 <tr><td><code>progress</code></td><td><code>{ loaded, total, percentage, requestId }</code></td></tr>
 <tr><td><code>chunk</code></td><td><code>{ chunk, requestId }</code></td></tr>
 </tbody></table></div>
-<hr />
 <h2>Error Codes</h2>
 <div class="table-wrap"><table><thead><tr><th>Code</th><th>Context</th></tr></thead><tbody>
 <tr><td><code>HTTP_ERROR</code></td><td><code>{ url, status, method }</code></td></tr>
 <tr><td><code>NETWORK_ERROR</code></td><td><code>{ url, method }</code></td></tr>
 <tr><td><code>NETWORK_TIMEOUT</code></td><td><code>{ url, method }</code></td></tr>
 </tbody></table></div>
-<hr />
 <h2>Prefix Resolution</h2>
 <view-code language="javascript">api.prefix.add('auth', 'https://auth.example.com');
 
@@ -111,14 +105,12 @@ api.get('auth/login');      // https://auth.example.com/login
 api.get('/user/profile');   // fallback to root/default prefix
 api.get('https://x.com/y'); // left as-is
 </view-code>
-<hr />
 <h2>Cache Strategies</h2>
 <div class="table-wrap"><table><thead><tr><th>Strategy</th><th>Behavior</th></tr></thead><tbody>
 <tr><td><code>cache-first</code></td><td>Cache hit returns immediately; miss fetches and stores</td></tr>
 <tr><td><code>network-first</code></td><td>Fetch first; on failure return cached; on success store</td></tr>
 <tr><td><code>stale-while-revalidate</code></td><td>Return cached immediately; revalidate in background</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Retry Parameters</h2>
 <view-code language="javascript">retry(operation, {
   attempts: 3,    // max attempts

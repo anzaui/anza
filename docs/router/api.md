@@ -2,8 +2,6 @@
 
 Complete reference for the router facade and definition layer.
 
----
-
 ## Router Facade
 
 ### `router.register(pattern, handler, meta)`
@@ -221,8 +219,6 @@ Attach navigation listeners. Idempotent.
 
 Remove all listeners and reset internal state.
 
----
-
 ## Definition Layer
 
 ### `page(route, config, base)`
@@ -281,8 +277,6 @@ part('icon-star', {
   template: '<svg>...</svg>'
 });
 ```
-
----
 
 ## Internal Exports
 

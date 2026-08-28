@@ -2,8 +2,6 @@
 
 The worker pool lazily creates dedicated workers and schedules tasks by priority. It auto-scales up to a max, reclaims idle workers, and handles crashes with optional requeue.
 
----
-
 ## Run
 
 ```javascript
@@ -16,8 +14,6 @@ const result = await workers.run('/workers/calc.js', 'fib', {
 
 One pool per script URL is created automatically and reused across calls.
 
----
-
 ## Options
 
 | Option | Type | Default | Description |
@@ -29,8 +25,6 @@ One pool per script URL is created automatically and reused across calls.
 | `priority` | string | `'user-visible'` | Task priority |
 | `idempotent` | boolean | `false` | Requeue on worker crash |
 | `meta` | object | — | Metadata for the worker |
-
----
 
 ## Pool Sizing
 
@@ -52,13 +46,9 @@ Pool options (passed on first `run`):
 | `size` | number | `cores - 1` | Initial workers |
 | `idle` | number | `30000` | Idle timeout in ms (0 = never) |
 
----
-
 ## Priority Queue
 
 Tasks are sorted by priority. Background tasks get promoted after 20 higher-priority tasks to prevent starvation.
-
----
 
 ## Crash Recovery
 
@@ -71,8 +61,6 @@ workers.run('/workers/calc.js', 'risky', {
 });
 ```
 
----
-
 ## Lifecycle
 
 ```javascript
@@ -84,8 +72,6 @@ workers.clear();
 ```
 
 Pools auto-terminate on `pagehide`.
-
----
 
 ## Pool Stats
 

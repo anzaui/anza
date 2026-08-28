@@ -2,8 +2,6 @@
 
 The Anza Rust Engine (`anza`) is a zero-copy Server-Templated UI engine built for the Rust web ecosystem. It delivers Declarative Shadow DOM documents and cryptographically verified dynamic component envelopes with minimal allocations and sub-millisecond execution times.
 
----
-
 ## What You Get
 
 - **Zero-copy parameter injection** — Templates compile once into memory offsets; parameter replacement uses borrowed slices
@@ -11,8 +9,6 @@ The Anza Rust Engine (`anza`) is a zero-copy Server-Templated UI engine built fo
 - **Serde integration** — Direct data binding from any `Serialize` struct or map
 - **Real-time SSE streams** — Built-in event generators for live component streaming
 - **Live template reload** — Optional `watch` feature for background filesystem monitoring in development
-
----
 
 ## Installation
 
@@ -33,8 +29,6 @@ serde = { version = "1.0", features = ["derive"] }
 | `actix` | Actix-web response helpers and extractors |
 | `tower` | Tower Service middleware for template rendering pipelines |
 | `watch` | Background filesystem template watcher for development hot reloading |
-
----
 
 ## Quickstart (Axum)
 
@@ -86,8 +80,6 @@ async fn main() {
 }
 ```
 
----
-
 ## Data Binding (Serde)
 
 Bind data directly from any Rust struct deriving `Serialize`:
@@ -113,8 +105,6 @@ let doc = Page::new("/profile")
     .with_data(&profile)
     .run(&engine)?;
 ```
-
----
 
 ## Signing Configuration
 

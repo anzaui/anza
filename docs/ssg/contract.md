@@ -8,8 +8,6 @@ Overview of Phases 0–6: [index.md](index.md). Client adopt details: [ui/hydrat
 
 Golden samples: [plans/fixtures/ssg/](../../plans/fixtures/ssg/). Planning context: [plans/SSG-SEO.md](../../plans/SSG-SEO.md).
 
----
-
 ## Site-root asset URLs
 
 Production treats `dist/` as the **document root**. Public asset URLs never include a `/dist` prefix.
@@ -23,8 +21,6 @@ Production treats `dist/` as the **document root**. Public asset URLs never incl
 | `/docs/intro/start/index.js` | `/dist/docs/...` |
 
 Import map `imports` values follow the same rule (site-root paths only).
-
----
 
 ## Required `<head>`
 
@@ -42,8 +38,6 @@ Emit in this order (charset/viewport first; import map before any `type="module"
    - `<link rel="stylesheet" href="/styles/index.css" />`
 9. **Route-scoped `modulepreload`** — `/app.js`, then via-dock modules, layouts, and the leaf page module (from `routes.json`).
 10. **Deferred entry** — `<script type="module" src="/app.js"></script>` (or the route entry). Not blocking first paint beyond parser work; DSD paints without waiting on the full ESM graph.
-
----
 
 ## Required `<body>`
 
@@ -90,13 +84,9 @@ Public / indexable markup MUST use:
 
 Prefer also exposing the primary heading (and, where practical, a short lead) as **light-DOM** children of the leaf page element (outside the shadow template), e.g. `<h1>…</h1>`. That keeps critical words visible in View Source / curl even for agents that mishandle shadow trees. Encapsulated copy inside open DSD remains the visual source of truth after paint.
 
----
-
 ## Same HTML for all user agents
 
 No cloaking. The same URL returns the same contentful HTML for browsers, `curl`, and crawler UAs. Do **not** branch on `User-Agent` to serve SSR to bots and an empty SPA shell to humans.
-
----
 
 ## Mode A vs Mode B
 
@@ -173,8 +163,6 @@ Optional project file `ssg.json` next to `src/` (or inside `src/`):
 ### Soft-nav fragments vs SSG documents
 
 Hard refresh / full load serves the SSG (or Mode B) document above. Soft-nav must **not** fetch that full document as a page template — it would nest docks inside the leaf shadow (stacked chrome). When the page fragment path collides with `dist/<route>/index.html`, Mode A preserves the CSR fragment as `template.html` and rewrites the dist page module + `routes.json` to point at it. The client also refuses full HTML documents as page templates (`sanitizeTemplateHtml`).
-
----
 
 ## Minimal checklist (CI / review)
 

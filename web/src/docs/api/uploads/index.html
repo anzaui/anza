@@ -1,6 +1,5 @@
 <h1>Uploads</h1>
 <p>Standard <code>fetch</code> does not expose upload progress in baseline browsers. The API client bridges this gap with a precise <code>XMLHttpRequest</code>-based uploader that reports real-time progress via telemetry events.</p>
-<hr />
 <h2>Basic Upload</h2>
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
 
@@ -10,7 +9,6 @@ form.append('file', fileBlob);
 const result = await api.upload('/upload', form);
 </view-code>
 <p>The response is auto-parsed as JSON when possible, otherwise returned as text.</p>
-<hr />
 <h2>Upload with Progress</h2>
 <view-code language="javascript">await api.upload('/upload', formData, {
   on: {
@@ -27,7 +25,6 @@ const result = await api.upload('/upload', form);
   }
 });
 </view-code>
-<hr />
 <h2>Upload Options</h2>
 <div class="table-wrap"><table><thead><tr><th>Option</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>method</code></td><td>string</td><td>HTTP method (default <code>POST</code>)</td></tr>
@@ -36,7 +33,6 @@ const result = await api.upload('/upload', form);
 <tr><td><code>signal</code></td><td>AbortSignal</td><td>Cancel the upload</td></tr>
 <tr><td><code>on</code></td><td>object</td><td>Per-request event listeners</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Legacy onProgress</h2>
 <p>For non-telemetry use, pass <code>onProgress</code> directly:</p>
 <view-code language="javascript">await api.upload('/upload', file, {
@@ -46,7 +42,6 @@ const result = await api.upload('/upload', form);
 });
 </view-code>
 <p>This is called alongside the <code>progress</code> telemetry event.</p>
-<hr />
 <h2>Aborting Uploads</h2>
 <view-code language="javascript">const controller = new AbortController();
 
@@ -56,7 +51,6 @@ api.upload('/upload', file, { signal: controller.signal });
 setTimeout(() =&gt; controller.abort(), 10000);
 </view-code>
 <p>When aborted, the upload terminates and a <code>PlatformError</code> with code <code>NETWORK_ERROR</code> is rejected.</p>
-<hr />
 <h2>Raw Binary Upload</h2>
 <p>Upload raw binary data instead of <code>FormData</code>:</p>
 <view-code language="javascript">const buffer = new Uint8Array([...]);
@@ -64,7 +58,6 @@ await api.upload('/binary', buffer, {
   headers: { 'Content-Type': 'application/octet-stream' }
 });
 </view-code>
-<hr />
 <h2>Upload Events</h2>
 <div class="table-wrap"><table><thead><tr><th>Event</th><th>Trigger</th></tr></thead><tbody>
 <tr><td><code>progress</code></td><td>Upload progress update</td></tr>

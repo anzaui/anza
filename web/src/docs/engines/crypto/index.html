@@ -1,6 +1,5 @@
 <h1>Cryptographic Verification</h1>
 <p>The cryptographic verification module protects Server-Templated UI (STUI) fragments from tampering, replay attacks, and unauthorized origin injection across reverse proxies, CDNs, and microservices.</p>
-<hr />
 <h2>Overview</h2>
 <p>When dynamic component fragments or real-time streaming updates are sent over the wire, the backend signs the payload across a canonical string:</p>
 <view-code language="text">ts:slot:html
@@ -11,7 +10,6 @@
 <li><strong><code>html</code></strong>: Rendered HTML markup of the fragment.</li>
 </ul>
 <p>The client runtime validates the signature before mutating the DOM. Stale or tampered payloads are rejected immediately.</p>
-<hr />
 <h2>Signing Modes</h2>
 <div class="table-wrap"><table><thead><tr><th>Mode</th><th>Algorithm</th><th>Best For</th><th>Proxy / CDN Support</th><th>Auth Dependency</th></tr></thead><tbody>
 <tr><td><strong><code>Ed25519</code></strong></td><td>Asymmetric Ed25519</td><td>Public pages, multi-tier CDNs, microfrontends</td><td>Yes (Bypasses CDN TLS termination)</td><td>None</td></tr>
@@ -19,7 +17,6 @@
 <tr><td><strong><code>Hmac</code></strong></td><td>HMAC-SHA256</td><td>Internal VPC microservices / single origin</td><td>Yes</td><td>Pre-shared secret</td></tr>
 <tr><td><strong><code>None</code></strong></td><td>No Signature</td><td>Local development and testing</td><td>Yes</td><td>None</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Asymmetric Ed25519 (Recommended)</h2>
 <p>Ed25519 uses public-key cryptography. The origin server holds the private key and signs envelopes; clients and edge proxies verify signatures using the public key without needing access to any secrets.</p>
 <h3>Backend Setup (Rust)</h3>
@@ -41,7 +38,6 @@ const engine = await new Setup({
   },
 }).run();
 </view-code>
-<hr />
 <h2>Symmetric HMAC-SHA256</h2>
 <p>For single-origin deployments or internal microservices sharing a secure environment secret:</p>
 <view-code language="typescript">import { Setup } from '@anzaui/engine';
@@ -54,7 +50,6 @@ const engine = await new Setup({
   },
 }).run();
 </view-code>
-<hr />
 <h2>Wire Envelope Format</h2>
 <p>All signed fragments conform to the standard wire envelope:</p>
 <view-code language="json">{
@@ -65,7 +60,6 @@ const engine = await new Setup({
   "css": null
 }
 </view-code>
-<hr />
 <h2>Client-Side Verification</h2>
 <p>When full-page SSR runs, the origin embeds its public key into the document head:</p>
 <view-code language="html">&lt;meta name="anza-key" content="ed25519:e4d9b2c3a1f09876543210fedcba9876543210fedcba9876543210fedcba9876"&gt;

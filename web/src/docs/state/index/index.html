@@ -1,6 +1,5 @@
 <h1>State</h1>
 <p>The Anza state layer provides reactive in-memory stores, lazy computed values, cross-tab synchronization, and transactional IndexedDB persistence. It is built on JavaScript Proxies for fine-grained reactivity without virtual DOM overhead.</p>
-<hr />
 <h2>What You Get</h2>
 <ul>
 <li><strong>Reactive stores</strong> — Proxy-based state with automatic dependency tracking and microtask-batched updates</li>
@@ -8,11 +7,9 @@
 <li><strong>Cross-tab sync</strong> — BroadcastChannel replication of store mutations across browser tabs</li>
 <li><strong>Persistence</strong> — IndexedDB-backed storage with migrations, TTL, and quota-aware eviction</li>
 </ul>
-<hr />
 <h2>Package</h2>
 <view-code language="javascript">import { state } from '@anzaui/anza/state';
 </view-code>
-<hr />
 <h2>File Map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
 <tr><td><a href="/docs/state/quickstart">quickstart.md</a></td><td>Your first store in five minutes</td></tr>
@@ -23,7 +20,6 @@
 <tr><td><a href="/docs/state/api">api.md</a></td><td>Complete API reference</td></tr>
 <tr><td><a href="/docs/state/troubleshooting">troubleshooting.md</a></td><td>Common problems and how to fix them</td></tr>
 </tbody></table></div>
-<hr />
 <h2>One-File Example</h2>
 <view-code language="javascript">import { state } from '@anzaui/anza/state';
 
@@ -55,7 +51,6 @@ store.broadcast('app-state', ['count', 'user']);
 // Persist to IndexedDB
 state.storage.set('keyval', 'count', store.get('count'));
 </view-code>
-<hr />
 <h2>Next Steps</h2>
 <ul>
 <li>New to the state layer? Start with <a href="/docs/state/quickstart">quickstart.md</a>.</li>

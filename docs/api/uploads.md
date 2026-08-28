@@ -2,8 +2,6 @@
 
 Standard `fetch` does not expose upload progress in baseline browsers. The API client bridges this gap with a precise `XMLHttpRequest`-based uploader that reports real-time progress via telemetry events.
 
----
-
 ## Basic Upload
 
 ```javascript
@@ -16,8 +14,6 @@ const result = await api.upload('/upload', form);
 ```
 
 The response is auto-parsed as JSON when possible, otherwise returned as text.
-
----
 
 ## Upload with Progress
 
@@ -38,8 +34,6 @@ await api.upload('/upload', formData, {
 });
 ```
 
----
-
 ## Upload Options
 
 | Option | Type | Description |
@@ -49,8 +43,6 @@ await api.upload('/upload', formData, {
 | `onProgress` | function | Legacy progress callback |
 | `signal` | AbortSignal | Cancel the upload |
 | `on` | object | Per-request event listeners |
-
----
 
 ## Legacy onProgress
 
@@ -66,8 +58,6 @@ await api.upload('/upload', file, {
 
 This is called alongside the `progress` telemetry event.
 
----
-
 ## Aborting Uploads
 
 ```javascript
@@ -81,8 +71,6 @@ setTimeout(() => controller.abort(), 10000);
 
 When aborted, the upload terminates and a `PlatformError` with code `NETWORK_ERROR` is rejected.
 
----
-
 ## Raw Binary Upload
 
 Upload raw binary data instead of `FormData`:
@@ -93,8 +81,6 @@ await api.upload('/binary', buffer, {
   headers: { 'Content-Type': 'application/octet-stream' }
 });
 ```
-
----
 
 ## Upload Events
 

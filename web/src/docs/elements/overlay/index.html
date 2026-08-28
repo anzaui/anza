@@ -3,7 +3,6 @@
 <p>Import pattern:</p>
 <view-code language="javascript">import '@anzaui/anza/elements/&lt;name&gt;';
 </view-code>
-<hr />
 <h2>Architecture (actual kit model)</h2>
 <p>The kit does <strong>not</strong> use a shared body portal for overlays. Rendering strategies in source:</p>
 <div class="table-wrap"><table><thead><tr><th>Strategy</th><th>Mechanism</th><th>Elements</th><th>Top-layer?</th></tr></thead><tbody>
@@ -14,7 +13,6 @@
 </tbody></table></div>
 <p><strong>Toast</strong> is the deliberate portal exception — documented under <a href="/docs/elements/toast">Feedback → toast</a>. Overlay elements stay in-tree and rely on native top-layer APIs (tooltip uses the platform escape helper rather than absolute CSS that clips).</p>
 <p><code>ui-select</code> (forms) also uses the Popover API for its dropdown; see <a href="/docs/elements/select">select</a>.</p>
-<hr />
 <h2>When to use which</h2>
 <div class="table-wrap"><table><thead><tr><th>Need</th><th>Prefer</th><th>Why</th></tr></thead><tbody>
 <tr><td>Confirm / blocking modal</td><td><code>ui-dialog</code></td><td>Focus trap, backdrop, Escape → <code>cancel</code> / <code>close</code></td></tr>
@@ -25,7 +23,6 @@
 <tr><td>Hover / focus hint</td><td><code>ui-tooltip</code></td><td>Escape helper + popover/fixed; short non-interactive hints</td></tr>
 <tr><td>Transient status</td><td><code>ui-toast</code></td><td>Body portal + auto-dismiss — see <a href="/docs/elements/toast">toast</a></td></tr>
 </tbody></table></div>
-<hr />
 <h2>Simple samples</h2>
 <h3>Dialog (full docs)</h3>
 <view-code language="html">&lt;ui-dialog id="confirm"&gt;
@@ -64,7 +61,6 @@
 &lt;/ui-tooltip&gt;
 </view-code>
 <p>Hover / focus shows the hint (<code>part="tooltip"</code>, <code>popover="manual"</code>). Positioning uses <code>escapeOverflow</code> so typical <code>overflow: hidden</code> ancestors do not clip the tip; fixed-position fallback when popover APIs are missing. Full page: <a href="/docs/elements/tooltip">tooltip</a>.</p>
-<hr />
 <h2>Advanced samples</h2>
 <h3>Menu with keyboard navigation</h3>
 <view-code language="html">&lt;ui-button id="actions" type="button"&gt;Actions&lt;/ui-button&gt;
@@ -120,7 +116,6 @@ ctrl.update(); // after layout changes
 ctrl.hide();   // clears position + scroll/resize listeners
 </view-code>
 <p>Strategies: <code>'popover'</code> when <code>showPopover</code> + <code>[popover]</code> exist; otherwise <code>'fixed'</code> (<code>position: fixed</code> + <code>data-escape-open</code>). Sync form: <code>escapeOverflow</code> from <code>@anzaui/anza/platform</code> (call <code>await guard.popover()</code> first if you need the polyfill). Full API: <a href="/docs/platform/api">Platform API</a>, <a href="/docs/platform/guards#escape">Guards → escape</a>.</p>
-<hr />
 <h2>Lifecycle / memory / globals</h2>
 <ul>
 <li>Prefer component <code>on</code> / <code>watch</code> inside the overlay shadow. Soft-nav aborts the detached leaf’s <code>ctrl</code> and tears down signal-owned listeners.</li>
@@ -130,7 +125,6 @@ ctrl.hide();   // clears position + scroll/resize listeners
 <li><strong>Toast</strong> portals under <code>body</code> on purpose; dismiss timeouts clear on <code>el.ctrl.signal</code> abort. Own toast lifetime where it belongs — see <a href="/docs/elements/toast">toast</a>.</li>
 <li>Deeper notes: <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a>, <a href="/docs/events/troubleshooting">Orphan listeners after soft-nav</a>.</li>
 </ul>
-<hr />
 <h2>Parts (quick reference)</h2>
 <div class="table-wrap"><table><thead><tr><th>Element</th><th>Notable <code>::part</code> names</th></tr></thead><tbody>
 <tr><td><code>ui-dialog</code></td><td><code>dialog</code></td></tr>
@@ -140,7 +134,6 @@ ctrl.hide();   // clears position + scroll/resize listeners
 <tr><td><code>ui-sheet</code></td><td><code>dialog</code>, <code>handle</code>, <code>content</code></td></tr>
 <tr><td><code>ui-tooltip</code></td><td><code>wrapper</code>, <code>tooltip</code></td></tr>
 </tbody></table></div>
-<hr />
 <h2>Elements</h2>
 <div class="table-wrap"><table><thead><tr><th>Element</th><th>Tag</th><th>Import</th><th>Status</th></tr></thead><tbody>
 <tr><td><a href="/docs/elements/dialog">dialog</a></td><td><code>ui-dialog</code></td><td><code>@anzaui/anza/elements/dialog</code></td><td>Full</td></tr>
@@ -152,7 +145,6 @@ ctrl.hide();   // clears position + scroll/resize listeners
 </tbody></table></div>
 <p>Related feedback portal: <a href="/docs/elements/toast">toast</a> (<code>ui-toast</code>).</p>
 <p>See the <a href="/docs/elements/index">full inventory</a> and <a href="../../plans/ELEMENTS.md">ELEMENTS.md</a> for phase status.</p>
-<hr />
 <h2>Related</h2>
 <ul>
 <li><a href="/docs/elements/dialog">Dialog</a></li>

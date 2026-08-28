@@ -1,6 +1,5 @@
 <h1>Lifecycle</h1>
 <p>Declarative elements have six lifecycle hooks. Each receives a context object with <code>el</code>, <code>ctrl</code>, <code>tags</code>, <code>refs</code>, <code>on</code>, <code>watch</code>, and <code>internals</code>.</p>
-<hr />
 <h2>Hook Map</h2>
 <div class="table-wrap"><table><thead><tr><th>Definition Layer</th><th>Factory Layer</th><th>When It Fires</th><th>Async?</th></tr></thead><tbody>
 <tr><td><code>on.load</code></td><td><code>spec.mount</code></td><td>After resources load, before <code>connect</code></td><td>yes</td></tr>
@@ -8,7 +7,6 @@
 <tr><td><code>on.disconnect</code></td><td><code>spec.unmount</code></td><td>Element disconnected from DOM</td><td>no</td></tr>
 <tr><td><code>on.change</code></td><td><code>spec.update</code></td><td>Prop value changes (batched)</td><td>no</td></tr>
 </tbody></table></div>
-<hr />
 <h2>load</h2>
 <p>Runs once per mount, after template and style resources have resolved. Use it for initial data fetching:</p>
 <view-code language="javascript">on: {
@@ -32,7 +30,6 @@
 <li><code>ctrl.signal</code>: Aborts the fetch automatically if the element disconnects.</li>
 </ul>
 <p><code>load</code> is awaited before <code>connect</code> runs. If <code>load</code> throws, <code>connect</code> still runs — the error is logged but not propagated.</p>
-<hr />
 <h2>connect</h2>
 <p>Runs after <code>load</code>, when the element is fully connected:</p>
 <view-code language="javascript">on: {
@@ -44,7 +41,6 @@
 }
 </view-code>
 <p>Attach event listeners, observers, and set up reactive bindings here.</p>
-<hr />
 <h2>disconnect</h2>
 <p>Runs when the element is removed from the DOM:</p>
 <view-code language="javascript">on: {
@@ -77,7 +73,6 @@ hard refresh
 <li>Do not observe <code>document</code> / <code>body</code> for leaf concerns — lift to a parent dock or use events/store.</li>
 <li>Framework globals (<code>router.nav-click</code>, <code>router.container-mo</code>, <code>popover.*</code>) stay stable across soft-nav — see <a href="/docs/ui/advanced#framework-global-listeners--observers">advanced.md</a>.</li>
 </ol>
-<hr />
 <h2>change</h2>
 <p>Runs when a declared prop changes. Multiple rapid changes are batched into one callback:</p>
 <view-code language="javascript">on: {
@@ -104,7 +99,6 @@ hard refresh
 <tr><td><code>refs</code></td><td>Named element refs</td></tr>
 <tr><td><code>watch</code></td><td>Mutation watcher</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Batching</h2>
 <p>Property changes are collected and flushed in one callback. The flush strategy depends on the <code>visual</code> flag:</p>
 <ul>
@@ -119,7 +113,6 @@ hard refresh
 });
 </view-code>
 <p><code>part()</code> uses <code>visual: false</code> because stateless primitives do not need rAF batching.</p>
-<hr />
 <h2>Lifecycle Order</h2>
 <p>For a newly created element:</p>
 <ol>

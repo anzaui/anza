@@ -4,15 +4,11 @@ Loading placeholder with a WAAPI shimmer; pauses when `prefers-reduced-motion: r
 
 **Tag:** `ui-skeleton` · **Import:** `@anzaui/anza/elements/skeleton`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/skeleton';
 ```
-
----
 
 ## Basic usage
 
@@ -21,8 +17,6 @@ import '@anzaui/anza/elements/skeleton';
 <ui-skeleton width="12rem" height="1.25rem"></ui-skeleton>
 <ui-skeleton variant="circle" width="48px" height="48px"></ui-skeleton>
 ```
-
----
 
 ## Props
 
@@ -39,8 +33,6 @@ Defaults `aria-hidden="true"`. Shimmer uses `part="shimmer"`. `matchMedia` chang
 ### Lifecycle / memory
 
 The reduced-motion listener is signal-owned. Soft-nav disconnect aborts the leaf `ctrl` and tears down the listener; pause the WAAPI animation via the same abort path rather than leaving orphan `matchMedia` handlers.
-
----
 
 ## Related
 

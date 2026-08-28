@@ -4,15 +4,11 @@ Router-aware hyperlink that intercepts same-origin clicks for soft navigation an
 
 **Tag:** `ui-link` · **Import:** `@anzaui/anza/elements/link`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/link';
 ```
-
----
 
 ## Basic usage
 
@@ -20,8 +16,6 @@ import '@anzaui/anza/elements/link';
 <ui-link href="/docs/intro/index">Introduction</ui-link>
 <ui-link href="https://example.com" external>External</ui-link>
 ```
-
----
 
 ## Props
 
@@ -38,12 +32,9 @@ import '@anzaui/anza/elements/link';
 | ----- | ---- |
 | `external` | Cancelable; fired for external clicks before the browser follows the link |
 
-
 ## Notes
 
 Same-origin clicks call `router.navigate(href)` unless modified keys, `#` hashes, or `target="_blank"`. External links show an indicator icon.
-
----
 
 ## Related
 

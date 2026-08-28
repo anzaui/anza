@@ -1,6 +1,5 @@
 <h1>Quick Start</h1>
 <p>Get a working component in five minutes.</p>
-<hr />
 <h2>1. Define a Component</h2>
 <view-code language="javascript">import { view } from '@anzaui/anza/defs';
 
@@ -11,7 +10,6 @@ view('hello-world', {
 <p>Use it:</p>
 <view-code language="html">&lt;hello-world&gt;&lt;/hello-world&gt;
 </view-code>
-<hr />
 <h2>2. Add Reactive Properties</h2>
 <view-code language="javascript">view('user-greeting', {
   props: {
@@ -35,7 +33,6 @@ view('hello-world', {
 <view-code language="javascript">document.querySelector('user-greeting').name = 'Bob';
 </view-code>
 <p>The <code>change</code> hook fires automatically when <code>name</code> changes.</p>
-<hr />
 <h2>3. Use a File Template</h2>
 <view-code language="javascript">view('product-card', {
   props: {
@@ -45,7 +42,6 @@ view('hello-world', {
 }, import.meta.url);
 </view-code>
 <p>Paths resolve relative to <code>import.meta.url</code>. The native toolchain copies assets during build.</p>
-<hr />
 <h2>4. Event Delegation</h2>
 <view-code language="javascript">view('todo-item', {
   props: {
@@ -72,7 +68,6 @@ view('hello-world', {
 });
 </view-code>
 <p><code>on.click('.toggle', handler)</code> uses event delegation. One listener on the shadow root handles all <code>.toggle</code> clicks.</p>
-<hr />
 <h2>5. Mutation Watching</h2>
 <p>Watch for text changes in the DOM:</p>
 <view-code language="javascript">view('live-counter', {
@@ -90,7 +85,6 @@ view('hello-world', {
   }
 });
 </view-code>
-<hr />
 <h2>6. Observers</h2>
 <view-code language="javascript">import { observe } from '@anzaui/anza/ui';
 
@@ -110,7 +104,6 @@ view('lazy-image', {
 });
 </view-code>
 <p><code>ctrl.signal</code> aborts the observer when the element disconnects. No manual cleanup needed.</p>
-<hr />
 <h2>7. Scheduling Heavy Work</h2>
 <view-code language="javascript">import { ui } from '@anzaui/anza/ui';
 
@@ -127,7 +120,6 @@ view('data-table', {
 });
 </view-code>
 <p><code>ui.yield()</code> returns control to the browser so the UI stays responsive.</p>
-<hr />
 <h2>8. View Transition</h2>
 <view-code language="javascript">import { ui } from '@anzaui/anza/ui';
 
@@ -144,7 +136,6 @@ view('gallery', {
 });
 </view-code>
 <p><code>ui.transition()</code> wraps the DOM update in a CSS View Transition when supported, falling back to synchronous execution otherwise.</p>
-<hr />
 <h2>Complete Working Example</h2>
 <view-code language="javascript">import { view } from '@anzaui/anza/defs';
 

@@ -2,8 +2,6 @@
 
 A route maps a URL pattern to a handler. The router compiles patterns lazily, sorts them by specificity, and matches against both a fast radix trie and the native URLPattern engine.
 
----
-
 ## Registering a Route
 
 ```javascript
@@ -13,8 +11,6 @@ router.register('/members/:id', 'page-member');
 ```
 
 This registers a route that matches `/members/42`, `/members/alice`, and so on. The captured `id` parameter is passed to the matched element as a property.
-
----
 
 ## Route Patterns
 
@@ -67,8 +63,6 @@ Absolute URL patterns are matched against the full URL rather than just the path
 
 Patterns with optional segments (`:id?`), repeats (`:id+`), or regex groups (`:id(\d+)`) are supported via the URLPattern fallback. They cannot be indexed in the radix trie, so they match via the slower linear scan. For best performance, prefer plain `:param` segments.
 
----
-
 ## Specificity and Ordering
 
 Routes are sorted automatically at registration time:
@@ -86,8 +80,6 @@ router.register('/members/*', 'page-members-list');   // wildcard — fallback
 ```
 
 A request to `/members/new` matches the static route. A request to `/members/42` matches the parameterized route. A request to `/members/42/posts` matches the wildcard.
-
----
 
 ## The Meta Object
 
@@ -107,8 +99,6 @@ router.register('/settings/profile', 'page-profile', {
 | `via` | Ordered container chain (root-to-leaf); used by `page()` |
 
 The `meta` object is also available in match results and event payloads.
-
----
 
 ## Parent Chains
 
@@ -140,8 +130,6 @@ A match for `/dashboard/settings` yields:
 
 The chain is cycle-guarded. If route A declares parent B and route B declares parent A, the walk stops after the first duplicate instead of looping forever.
 
----
-
 ## Bulk Loading
 
 Register many routes at once from JSON:
@@ -156,8 +144,6 @@ router.load([
 
 This is useful for server-generated route manifests and build-time extraction.
 
----
-
 ## Clearing Routes
 
 ```javascript
@@ -166,8 +152,6 @@ router.clear(); // Removes all registered routes
 
 Useful in tests and during teardown.
 
----
-
 ## Inspecting Routes
 
 ```javascript
@@ -175,8 +159,6 @@ const allRoutes = router.getRoutes();
 ```
 
 Returns the internal route array. Each entry has `patternStr`, `handler`, `meta`, and `pattern` (the compiled URLPattern, if already resolved).
-
----
 
 ## Manual Matching
 
@@ -195,8 +177,6 @@ if (result) {
 
 `match()` returns `null` when no route matches. It does not emit events or modify the DOM.
 
----
-
 ## Dual Matching: Trie + URLPattern
 
 The router uses two matching strategies internally:
@@ -205,8 +185,6 @@ The router uses two matching strategies internally:
 2. **URLPattern scan** — linear fallback for patterns the trie cannot express (modifiers, regex groups, absolute URLs).
 
 The trie handles the common case. The scan handles the edge cases. Both resolve to the same match result shape.
-
----
 
 ## Query and Hash
 

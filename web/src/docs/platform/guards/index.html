@@ -6,30 +6,25 @@
 <view-code language="javascript">import { guard, escapeOverflow } from '@anzaui/anza/platform';
 </view-code>
 <p>Full signatures: <a href="/docs/platform/api">API Reference</a>.</p>
-<hr />
 <h2>urlPattern</h2>
 <view-code language="javascript">const URLPattern = await guard.urlPattern();
 const pattern = new URLPattern({ pathname: '/user/:id' });
 </view-code>
 <p>Returns the native <code>URLPattern</code> class or loads the polyfill. Used by the router for pathname matching.</p>
-<hr />
 <h2>navigation</h2>
 <view-code language="javascript">const nav = await guard.navigation();
 nav.navigate('/settings');
 </view-code>
 <p>Returns <code>window.navigation</code> or bootstraps the Navigation API polyfill. Used by the router for history management.</p>
-<hr />
 <h2>popover</h2>
 <view-code language="javascript">await guard.popover();
 document.getElementById('menu').showPopover();
 </view-code>
 <p>Installs <code>HTMLElement</code> popover prototype methods if missing. Provides light-dismiss behavior and memory-safe cleanup via the framework <code>globals</code> registry (<code>popover.target-click</code>, <code>popover.body-mo:*</code>). Used by <code>ui-popover</code>, <code>ui-menu</code>, <code>ui-tooltip</code>, and <code>ui-select</code>.</p>
-<hr />
 <h2>shadow</h2>
 <view-code language="javascript">await guard.shadow(document);
 </view-code>
 <p>Applies the declarative shadow DOM polyfill to a root element. Parses <code>&lt;template shadowrootmode="open"&gt;</code> nodes.</p>
-<hr />
 <h2>anchor</h2>
 <view-code language="javascript">await guard.anchor(floatingEl, anchorEl, {
   placement: 'bottom-start',
@@ -39,7 +34,6 @@ document.getElementById('menu').showPopover();
 </view-code>
 <p>Computes dynamic anchor positioning for floating elements when native CSS anchor positioning is unavailable (or when <code>mode: 'fixed'</code>). Supports <code>mode: 'absolute'</code> (default, document coords) and <code>mode: 'fixed'</code> (viewport coords). Placement strings: <code>top</code> / <code>bottom</code> / <code>left</code> / <code>right</code> plus <code>-start</code> / <code>-end</code>.</p>
 <p>For show/hide lifecycle + overflow escape, prefer <a href="#escape"><code>guard.escape</code></a> / <code>escapeOverflow</code>.</p>
-<hr />
 <h2>escape</h2>
 <p>Positions a floating node so it can escape <code>overflow</code> clipping. Prefers Popover top-layer when the floating element has <code>[popover]</code> and <code>showPopover</code> is available; otherwise uses viewport-fixed coordinates. Not a body portal — the node stays in-tree.</p>
 <view-code language="javascript">const tip = document.querySelector('.tip'); // [popover="manual"]
@@ -108,19 +102,16 @@ async function bindHint(host, tip, wrapper) {
 }
 </view-code>
 <p>Used by <code>ui-tooltip</code>. Kit architecture: <a href="/docs/elements/overlay">Overlay patterns</a>. Element page: <a href="/docs/elements/tooltip">tooltip</a>.</p>
-<hr />
 <h2>sanitizer</h2>
 <view-code language="javascript">const sanitizer = await guard.sanitizer();
 const clean = sanitizer.sanitizeToString('&lt;p&gt;Safe&lt;/p&gt;');
 </view-code>
 <p>Returns a sanitizer wrapper with <code>.sanitizeToString(input)</code>. Uses the native <code>Sanitizer</code> API when available, falls back to <code>DOMPurify</code> or a textContent-based sanitizer.</p>
-<hr />
 <h2>scheduler</h2>
 <view-code language="javascript">const scheduler = await guard.scheduler();
 scheduler.postTask(fn, { priority: 'user-visible' });
 </view-code>
 <p>Returns <code>globalThis.scheduler</code> or loads the polyfill. Supports three priorities: <code>user-blocking</code>, <code>user-visible</code>, <code>background</code>.</p>
-<hr />
 <h2>yield</h2>
 <view-code language="javascript">await guard.yield();
 </view-code>
@@ -131,7 +122,6 @@ scheduler.postTask(fn, { priority: 'user-visible' });
   if (i % 100 === 0) await guard.yield();
 }
 </view-code>
-<hr />
 <h2>Related</h2>
 <ul>
 <li><a href="/docs/platform/api">API Reference</a></li>

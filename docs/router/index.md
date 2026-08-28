@@ -4,8 +4,6 @@ The Anza router is a client-side routing engine built on the Navigation API and 
 
 It is designed for hierarchical layouts: pages declare the container chain they render through, and the router ensures every intermediate container exists before mounting. A hard refresh on `/settings/profile` will build the full `body → main → sidebar → settings-panel` chain automatically rather than erroring because a container is missing.
 
----
-
 ## What You Get
 
 - **URLPattern matching** with static routes, parameters (`:id`), wildcards (`*`), and parent chains
@@ -17,8 +15,6 @@ It is designed for hierarchical layouts: pages declare the container chain they 
 - **Route cache** — prefetch and cache view assets with TTL
 - **Deferred boot gate** — the initial route match waits for custom element definitions so deep links work on cold load
 
----
-
 ## Package
 
 ```javascript
@@ -27,8 +23,6 @@ import { page, dock, view, part } from '@anzaui/anza/defs';
 ```
 
 The router also exposes itself as `window.router` (non-enumerable, non-configurable) for devtools and non-module contexts.
-
----
 
 ## File Map
 
@@ -51,8 +45,6 @@ The router also exposes itself as `window.router` (non-enumerable, non-configura
 | [api.md](api.md) | Complete API reference |
 | [troubleshooting.md](troubleshooting.md) | Common problems and how to fix them |
 
----
-
 ## The Three-Layer Model
 
 The router is organized into three layers. You will spend most of your time in the top two.
@@ -68,8 +60,6 @@ Imperative APIs for programmatic control, event subscription, and advanced use c
 **3. Internal machinery** — `match.js`, `intercept.js`, `graph.js`, `cascade.js`
 
 What makes the router fast and correct. You do not call these directly unless you are extending the router.
-
----
 
 ## One-File Example
 
@@ -98,8 +88,6 @@ page('/', {
 ```
 
 That is a complete working route. The router auto-bootstraps, intercepts link clicks, matches the URL, and renders `page-home` inside the `main` dock.
-
----
 
 ## Next Steps
 

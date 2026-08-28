@@ -2,8 +2,6 @@
 
 The IndexedDB adapter provides a Promise-based interface over the legacy IDBRequest API. It supports schema migrations, multi-store transactions, and cursor-based queries.
 
----
-
 ## Database
 
 ```javascript
@@ -13,8 +11,6 @@ const db = new Database('my-app', 1, [
   (db) => db.createObjectStore('users')    // v1
 ]);
 ```
-
----
 
 ## Migrations
 
@@ -34,8 +30,6 @@ const db = new Database('my-app', 3, [
 
 Each function corresponds to one version step (0→1, 1→2, 2→3).
 
----
-
 ## CRUD Operations
 
 ```javascript
@@ -43,8 +37,6 @@ await db.set('users', 'alice', { name: 'Alice', email: 'a@x.com' });
 const user = await db.get('users', 'alice');
 await db.delete('users', 'alice');
 ```
-
----
 
 ## Transactions
 
@@ -57,8 +49,6 @@ const result = await db.transaction(['users', 'logs'], 'readwrite', (store, tx) 
 ```
 
 Supports async callbacks. Errors abort the transaction.
-
----
 
 ## Queries
 
@@ -76,8 +66,6 @@ const active = await db.query('users', {
 ```
 
 Query options: `index`, `range`, `direction` (`'next'` or `'prev'`), `limit`.
-
----
 
 ## Events
 

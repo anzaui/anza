@@ -2,8 +2,6 @@
 
 Soft-nav leaf swaps use **element-scoped** View Transitions on the target dock so parent chrome stays put. Document-level `transitions.run` is for explicit shared-element morphs — not the default dock path.
 
----
-
 ## Dock leaf swaps
 
 The orchestrator calls `swapView` / `swap` on the leaf container (`dock-doccontent` for docs). That path:
@@ -31,8 +29,6 @@ dock('content', {
 });
 ```
 
----
-
 ## Document morph (`transitions.run`)
 
 ```javascript
@@ -51,8 +47,6 @@ Skips when unsupported, reduced-motion, disabled, or aborted. Injects a token st
 
 Helpers: `transitions.configure`, `transitions.dockName`, `transitions.runSwap`, `transitions.prefersReducedMotion`.
 
----
-
 ## CSS
 
 Style **named dock groups**, not `(root)`, for soft-nav:
@@ -69,8 +63,6 @@ Style **named dock groups**, not `(root)`, for soft-nav:
 Groups: `dock-main`, `dock-docs`, `dock-content`, plus legacy `dock-swap`.
 
 Direction is exposed as `data-transition-direction` on the host during the swap; push/pop temporarily override `--transition-easing` from `--transition-push` / `--transition-pop`.
-
----
 
 ## Reduced motion & abort
 

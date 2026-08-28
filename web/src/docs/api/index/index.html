@@ -1,7 +1,6 @@
 <h1>API</h1>
 <p>The Anza API layer is a baseline-native HTTP client built on <code>fetch</code>. It wraps every request in a composable pipeline that handles prefix routing, TTL caching, exponential backoff retries, telemetry events, and graceful error normalization.</p>
 <p>It is designed for production: transient network failures self-heal, caches invalidate by glob pattern, uploads report real-time progress, and streams parse NDJSON while preserving backpressure.</p>
-<hr />
 <h2>What You Get</h2>
 <ul>
 <li><strong>HTTP methods</strong> — <code>get</code>, <code>post</code>, <code>put</code>, <code>patch</code>, <code>delete</code> with automatic JSON body serialization and response parsing</li>
@@ -14,11 +13,9 @@
 <li><strong>Retry with jitter</strong> — exponential backoff for transient errors (timeouts, 5xx), instant fail for 4xx</li>
 <li><strong>Error normalization</strong> — every failure is a <code>PlatformError</code> with <code>code</code>, <code>message</code>, <code>context</code>, and <code>recoverable</code></li>
 </ul>
-<hr />
 <h2>Package</h2>
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
 </view-code>
-<hr />
 <h2>File Map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
 <tr><td><a href="/docs/api/quickstart">quickstart.md</a></td><td>Your first request in five minutes</td></tr>
@@ -34,7 +31,6 @@
 <tr><td><a href="/docs/api/api">api.md</a></td><td>Complete API reference</td></tr>
 <tr><td><a href="/docs/api/troubleshooting">troubleshooting.md</a></td><td>Common problems and how to fix them</td></tr>
 </tbody></table></div>
-<hr />
 <h2>One-File Example</h2>
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
 
@@ -55,7 +51,6 @@ for await (const chunk of api.stream('/logs')) {
   console.log(chunk);
 }
 </view-code>
-<hr />
 <h2>Next Steps</h2>
 <ul>
 <li>New to the API layer? Start with <a href="/docs/api/quickstart">quickstart.md</a>.</li>

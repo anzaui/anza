@@ -4,15 +4,11 @@ Accessible breadcrumb trail (`nav` + ordered list). Dividers between items come 
 
 **Tag:** `ui-breadcrumb` · **Import:** `@anzaui/anza/elements/breadcrumb`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/breadcrumb';
 ```
-
----
 
 ## Basic usage
 
@@ -24,8 +20,6 @@ import '@anzaui/anza/elements/breadcrumb';
 </ui-breadcrumb>
 ```
 
----
-
 ## Props
 
 _None — slot list items; style via CSS / parts._
@@ -33,8 +27,6 @@ _None — slot list items; style via CSS / parts._
 ## Notes
 
 Uses `aria-label="Breadcrumb"`. Parts: `nav`, `list`. Slot children into the ordered list (typically `<li>`).
-
----
 
 ## Related
 

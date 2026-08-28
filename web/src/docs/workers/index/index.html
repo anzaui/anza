@@ -1,6 +1,5 @@
 <h1>Workers</h1>
 <p>The Anza workers layer provides a unified interface for browser concurrency primitives: dedicated worker pools, shared workers, broadcast channels, web locks, and offscreen canvas. It handles feature detection, graceful degradation, and lifecycle management automatically.</p>
-<hr />
 <h2>What You Get</h2>
 <ul>
 <li><strong>Worker pools</strong> — bounded, priority-queued task execution with starvation prevention</li>
@@ -11,11 +10,9 @@
 <li><strong>Offscreen canvas</strong> — main-thread canvas rendering offloaded to a worker</li>
 <li><strong>Feature detection</strong> — <code>has.worker</code>, <code>has.shared</code>, <code>has.channel</code>, etc.</li>
 </ul>
-<hr />
 <h2>Package</h2>
 <view-code language="javascript">import { workers } from '@anzaui/anza/workers';
 </view-code>
-<hr />
 <h2>File Map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
 <tr><td><a href="/docs/workers/quickstart">quickstart.md</a></td><td>Your first worker task in five minutes</td></tr>
@@ -28,7 +25,6 @@
 <tr><td><a href="/docs/workers/api">api.md</a></td><td>Complete API reference</td></tr>
 <tr><td><a href="/docs/workers/troubleshooting">troubleshooting.md</a></td><td>Common problems and how to fix them</td></tr>
 </tbody></table></div>
-<hr />
 <h2>One-File Example</h2>
 <view-code language="javascript">import { workers } from '@anzaui/anza/workers';
 
@@ -46,7 +42,6 @@ await workers.lock('db:write', async () =&gt; {
   await saveToDatabase();
 });
 </view-code>
-<hr />
 <h2>Next Steps</h2>
 <ul>
 <li>New to workers? Start with <a href="/docs/workers/quickstart">quickstart.md</a>.</li>

@@ -2,16 +2,12 @@
 
 Anza Server-Templated UI provides first-class support for real-time component streaming. Backends push signed component envelopes over **Server-Sent Events (SSE)** or **WebSockets**, updating client UI slots without full page refreshes or virtual DOM diffing.
 
----
-
 ## What You Get
 
 - **Server-Sent Events (SSE)** — Standard HTTP transport with automatic reconnection and CDN pass-through
 - **WebSocket text frames** — High-frequency bidirectional streaming for real-time collaboration
 - **Declarative client listener** — `listenStream()` automatically verifies signatures and patches matching docks
 - **Async generator consumption** — Programmatic `for await` streams via `api.stream()`
-
----
 
 ## Protocol Overview
 
@@ -26,8 +22,6 @@ Connection: keep-alive
 event: template
 data: {"slot":"feed","ts":1724771234,"html":"<ui-card>...</ui-card>","sig":"3a8f4c...","css":null}
 ```
-
----
 
 ## Client Integration
 
@@ -64,8 +58,6 @@ for await (const chunk of api.stream('/api/live/feed')) {
   console.log('Received live envelope:', envelope.slot, envelope.html);
 }
 ```
-
----
 
 ## Server Implementation
 

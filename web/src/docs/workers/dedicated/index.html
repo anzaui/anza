@@ -1,12 +1,10 @@
 <h1>Dedicated</h1>
 <p>Raw dedicated worker wrapper with per-request MessageChannel isolation. Each <code>run()</code> creates a new port, so concurrent requests do not cross-contaminate messages.</p>
-<hr />
 <h2>Create</h2>
 <view-code language="javascript">import { workers } from '@anzaui/anza/workers';
 
 const worker = workers.dedicated('/workers/sort.js');
 </view-code>
-<hr />
 <h2>Run a Task</h2>
 <view-code language="javascript">const result = await worker.run('sort', {
   payload: { items: [3, 1, 2] },
@@ -16,7 +14,6 @@ const worker = workers.dedicated('/workers/sort.js');
   meta: { requestId: 'abc' }
 });
 </view-code>
-<hr />
 <h2>Message Contract</h2>
 <p>The worker receives:</p>
 <view-code language="javascript">{ task, payload, meta, port }
@@ -26,12 +23,10 @@ const worker = workers.dedicated('/workers/sort.js');
 // or
 port.postMessage({ ok: false, error: 'message' });
 </view-code>
-<hr />
 <h2>Terminate</h2>
 <view-code language="javascript">worker.terminate();
 </view-code>
 <p>After termination, all pending <code>run()</code> calls reject immediately.</p>
-<hr />
 <h2>Abort and Timeout</h2>
 <view-code language="javascript">const ctrl = new AbortController();
 
@@ -43,7 +38,6 @@ ctrl.abort();
 // ...or let the 3-second timer fire
 </view-code>
 <p>Signal and timeout are combined into one abort controller internally.</p>
-<hr />
 <h2>Error Handling</h2>
 <p>Worker-level errors (syntax errors, unhandled exceptions) reject all pending requests:</p>
 <view-code language="javascript">try {

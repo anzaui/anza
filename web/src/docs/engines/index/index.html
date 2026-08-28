@@ -1,7 +1,6 @@
 <h1>STUI Engines</h1>
 <p>Anza provides high-performance, multi-language <strong>Server-Templated UI (STUI)</strong> engines for <strong>Rust</strong>, <strong>TypeScript / Node.js / Bun / Deno</strong>, and <strong>Python</strong>.</p>
 <p>STUI bridges server-side rendering and client-side web components. It enables sub-millisecond initial page delivery using <strong>Open Declarative Shadow DOM (DSD)</strong> alongside cryptographically verified dynamic component updates for partial fetches, live navigation, and real-time streaming.</p>
-<hr />
 <h2>What You Get</h2>
 <ul>
 <li><strong>Open Declarative Shadow DOM (DSD)</strong> — Instant initial render without client-side hydration pauses</li>
@@ -11,7 +10,6 @@
 <li><strong>Universal streaming</strong> — First-class Server-Sent Events (SSE) and WebSocket text frame support</li>
 <li><strong>Zero external runtime dependencies</strong> — Standard libraries and Web Standards across all engines</li>
 </ul>
-<hr />
 <h2>Package Map</h2>
 <div class="table-wrap"><table><thead><tr><th>Engine</th><th>Package / Crate</th><th>Ecosystem</th><th>Key Feature</th></tr></thead><tbody>
 <tr><td><a href="/docs/engines/rust">rust.md</a></td><td><code>anza</code> (Cargo)</td><td>Axum, Actix-web, Tower</td><td>Zero-copy byte slices, sub-millisecond latency</td></tr>
@@ -20,7 +18,6 @@
 <tr><td><a href="/docs/engines/crypto">crypto.md</a></td><td>Built-in</td><td>All engines</td><td>Ed25519, HMAC-SHA256, and HKDF session key derivation</td></tr>
 <tr><td><a href="/docs/engines/streaming">streaming.md</a></td><td>Built-in</td><td>All engines</td><td>Server-Sent Events (SSE) and WebSocket frame protocols</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Dual-Mode Rendering</h2>
 <p>Every template in the <code>templates/</code> directory supports two rendering modes:</p>
 <h3>Mode A: Full-Page SSR (Initial Paint &amp; SEO)</h3>
@@ -47,7 +44,6 @@
   "css": null
 }
 </view-code>
-<hr />
 <h2>File Map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
 <tr><td><a href="/docs/engines/rust">rust.md</a></td><td>Rust engine setup, Axum/Actix adapters, and Serde data binding</td></tr>

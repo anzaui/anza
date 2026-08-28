@@ -1,6 +1,5 @@
 <h1>Events</h1>
 <p>The API client emits telemetry events for every request. Subscribe globally for application-wide hooks, or per-request for scoped cleanup.</p>
-<hr />
 <h2>Global Listeners</h2>
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
 
@@ -12,7 +11,6 @@ const off = api.on('status:401', (event) =&gt; {
 off();
 </view-code>
 <p><code>api.on(event, handler, signal)</code> returns a disposer. Pass an <code>AbortSignal</code> for automatic cleanup when a component unmounts.</p>
-<hr />
 <h2>Standard Events</h2>
 <div class="table-wrap"><table><thead><tr><th>Event</th><th>Trigger</th></tr></thead><tbody>
 <tr><td><code>error</code></td><td>Any network failure, timeout, or server error</td></tr>
@@ -25,7 +23,6 @@ off();
 <tr><td><code>type:stream</code></td><td>Successful <code>text/event-stream</code> response</td></tr>
 <tr><td><code>type:text</code></td><td>Successful <code>text/*</code> response</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Per-Request Listeners</h2>
 <p>Scope listeners to a single request using the <code>on</code> option:</p>
 <view-code language="javascript">await api.get('/user/profile', {
@@ -37,7 +34,6 @@ off();
 });
 </view-code>
 <p>These listeners are cleaned up automatically when the request completes. No manual disposer needed.</p>
-<hr />
 <h2>Event Payload</h2>
 <p>All events receive an object with <code>type</code> and <code>detail</code>:</p>
 <view-code language="javascript">api.on('failed', (event) =&gt; {
@@ -46,7 +42,6 @@ off();
 });
 </view-code>
 <p>The <code>detail</code> object always includes <code>requestId</code> for correlation.</p>
-<hr />
 <h2>Lifecycle-Gated Cleanup</h2>
 <p>Pass an <code>AbortSignal</code> for automatic listener removal:</p>
 <view-code language="javascript">mount({ ctrl }) {
@@ -55,7 +50,6 @@ off();
   }, ctrl.signal); // auto-removed on disconnect
 }
 </view-code>
-<hr />
 <h2>Emitting Custom Events</h2>
 <p>Emit telemetry events manually for custom instrumentation:</p>
 <view-code language="javascript">api.emit('custom:metric', { value: 42 });

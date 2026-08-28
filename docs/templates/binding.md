@@ -2,8 +2,6 @@
 
 Anza engines bind typed backend data structures—such as Rust Serde structs, Python dataclasses, and TypeScript interfaces—directly to server template tokens with zero runtime overhead.
 
----
-
 ## What You Get
 
 | Language | Engine Package | Binding Mechanism |
@@ -11,8 +9,6 @@ Anza engines bind typed backend data structures—such as Rust Serde structs, Py
 | **Rust** | `anza` | Direct `serde::Serialize` structs & `serde_json::Value` |
 | **Python** | `anza` | `@dataclass`, Pydantic models, or standard `dict` |
 | **TypeScript** | `@anzaui/engine` | Typed `Record<string, unknown>` and plain objects |
-
----
 
 ## Rust Engine Binding
 
@@ -47,8 +43,6 @@ let article = Article {
 let html = engine.render("feed/card.html", &article)?;
 ```
 
----
-
 ## Python Engine Binding
 
 In Python, use standard dataclasses or Pydantic models with `anza.render`:
@@ -80,8 +74,6 @@ article = Article(
 html = engine.render("feed/card.html", asdict(article))
 ```
 
----
-
 ## TypeScript Engine Binding
 
 In TypeScript (Node.js, Deno, Bun, or Cloudflare Workers), bind typed objects with `@anzaui/engine`:
@@ -111,8 +103,6 @@ const article: Article = {
 
 const html = await engine.render('feed/card.html', article);
 ```
-
----
 
 ## Slotted Child Composition
 

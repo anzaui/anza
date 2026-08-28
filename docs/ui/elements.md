@@ -4,8 +4,6 @@ The `element(tag, spec, base)` factory is the core of the Anza UI layer. It comp
 
 The higher-level `page()`, `dock()`, `view()`, and `part()` functions all delegate to `element()` internally. Understanding `element()` helps you use the definition layer more effectively.
 
----
-
 ## Signature
 
 ```javascript
@@ -17,8 +15,6 @@ element(tag, spec, base);
 | `tag` | string | yes | Custom element tag (must contain a hyphen) |
 | `spec` | object | yes | Element definition (see below) |
 | `base` | string | no | `import.meta.url` of the caller |
-
----
 
 ## Spec Shape
 
@@ -70,13 +66,9 @@ element(tag, spec, base);
 }
 ```
 
----
-
 ## Duplicate Registration Guard
 
 `element()` checks `customElements.get(tag)` and skips if already defined. A warning is logged in development.
-
----
 
 ## Resource Loading
 
@@ -88,29 +80,21 @@ Resources (templates and styles) are fetched once per registration and cached gl
 
 If a file template is given without `base`, an error is logged and the resource silently fails.
 
----
-
 ## Constructable Stylesheets
 
 When `CSSStyleSheet` and `adoptedStyleSheets` are supported, styles are compiled into a shared constructable stylesheet and adopted by the shadow root. This avoids `<style>` injection per instance and enables HMR.
 
 When unsupported, raw CSS text is injected as a `<style>` element in the shadow root.
 
----
-
 ## HMR (Hot Module Replacement)
 
 During development, the factory listens for `native:hmr:css` events. When a CSS file changes, the shared stylesheet is replaced in place using `replaceSync()`. All live instances update instantly without remounting.
-
----
 
 ## Shadow DOM
 
 Every declarative element opens a shadow root. The default mode is `open`. `closed` mode can be requested via `spec.mode`.
 
 Light DOM (`shadow: false` in the definition layer) is not supported and falls back to `open`.
-
----
 
 ## BaseElement
 
@@ -136,8 +120,6 @@ class MyElement extends BaseElement {
 customElements.define('my-element', MyElement);
 ```
 
----
-
 ## Reserved Names
 
 These names cannot be used in `spec.methods`:
@@ -148,8 +130,6 @@ These names cannot be used in `spec.methods`:
 - `mount`, `unmount`, `constructor`
 
 Using a reserved name logs a warning and the method is skipped.
-
----
 
 ## Related
 

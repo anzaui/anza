@@ -2,8 +2,6 @@
 
 Anza Server Layouts wrap individual page templates in a persistent HTML document shell. By combining document-level `<head>` metadata, CSS token definitions, and Web Standards **Declarative Shadow DOM (DSD)**, shells ensure instant initial rendering and zero-layout-shift navigation.
 
----
-
 ## What You Get
 
 | Feature | Description |
@@ -12,8 +10,6 @@ Anza Server Layouts wrap individual page templates in a persistent HTML document
 | **Origin Verification** | `<meta name="anza-key">` exposing the origin's Ed25519 public key for proxy validation |
 | **Declarative Shadow DOM** | Native `<template shadowrootmode="open">` container for root `<dock-main>` |
 | **Shared Design Tokens** | Root CSS variables for colors, typography, and layout spacing |
-
----
 
 ## Shell Architecture (`layout/shell.html`)
 
@@ -89,8 +85,6 @@ Below is the standard shell layout pattern used across Anza applications:
 </html>
 ```
 
----
-
 ## Nested Declarative Shadow DOM Docks
 
 Anza supports nesting custom element docks directly in server templates. Each dock encapsulates its internal styles while projecting light-DOM children into its `<slot>`:
@@ -119,8 +113,6 @@ Anza supports nesting custom element docks directly in server templates. Each do
 1. **Instant Hydration**: The browser parses and renders the shadow tree during initial HTML streaming before scripts run.
 2. **Style Isolation**: Styles defined inside a component's `<style>` tag do not bleed outward or affect siblings.
 3. **Seamless Swaps**: Client routers swap only the slotted light-DOM children (`{{content}}` or `{{articles}}`) without remounting parent chrome.
-
----
 
 ## Origin Key Distribution (`<meta name="anza-key">`)
 

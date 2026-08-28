@@ -2,8 +2,6 @@
 
 Complete reference for the security facade and individual functions.
 
----
-
 ## Facade
 
 ```javascript
@@ -79,8 +77,6 @@ Returns `Promise<'granted' | 'denied' | 'prompt'>`.
 
 Returns disposer function.
 
----
-
 ## Named Exports
 
 ```javascript
@@ -91,8 +87,6 @@ import {
   permission, watchPermission
 } from '@anzaui/anza/security';
 ```
-
----
 
 ## Return Types
 

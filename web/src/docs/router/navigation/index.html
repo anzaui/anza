@@ -1,6 +1,5 @@
 <h1>Navigation</h1>
 <p>Programmatic control over the browser history stack. All methods return a <code>{ committed, finished }</code> promise pair and degrade gracefully when the Navigation API is unavailable.</p>
-<hr />
 <h2>Navigate (Push)</h2>
 <p>Push a new history entry and navigate to a URL:</p>
 <view-code language="javascript">import { router } from '@anzaui/anza/router';
@@ -11,31 +10,26 @@ router.navigate('/user/42');
 <p>With state:</p>
 <view-code language="javascript">router.navigate('/settings', { state: { tab: 'profile' } });
 </view-code>
-<hr />
 <h2>Replace</h2>
 <p>Replace the current history entry instead of pushing:</p>
 <view-code language="javascript">router.replace('/settings?tab=profile');
 </view-code>
 <p>Use <code>replace</code> for filter updates, search queries, and modal state that should not create new history entries.</p>
-<hr />
 <h2>Back and Forward</h2>
 <view-code language="javascript">router.back();     // go back one step
 router.forward();  // go forward one step
 </view-code>
-<hr />
 <h2>Go</h2>
 <p>Traverse by an arbitrary delta:</p>
 <view-code language="javascript">router.go(-2);  // back two steps
 router.go(1);   // forward one step
 </view-code>
-<hr />
 <h2>Chainable Navigation</h2>
 <p>The <code>nav</code> object provides a fluent chainable API:</p>
 <view-code language="javascript">router.nav.to('/settings')
   .then(() =&gt; console.log('committed'))
   .catch(() =&gt; console.log('aborted'));
 </view-code>
-<hr />
 <h2>History State Inspection</h2>
 <view-code language="javascript">// Current entry
 const entry = router.current();
@@ -53,14 +47,12 @@ if (router.canBack()) { ... }
 // Can the user go forward?
 if (router.canForward()) { ... }
 </view-code>
-<hr />
 <h2>Auto-Bootstrap</h2>
 <p>The router attaches itself to the Navigation API automatically when the module loads. You do not need to call <code>setup()</code> manually in most cases. It happens inside the module's top-level execution:</p>
 <view-code language="javascript">if (typeof window !== 'undefined') {
   router.setup();
 }
 </view-code>
-<hr />
 <h2>Manual Setup and Teardown</h2>
 <p>For SSR, tests, and non-standard environments:</p>
 <view-code language="javascript">// Attach listeners explicitly
@@ -70,7 +62,6 @@ router.setup();
 router.destroy();
 </view-code>
 <p><code>setup()</code> is idempotent — calling it multiple times has no effect.</p>
-<hr />
 <h2>Navigation API Return Shape</h2>
 <p>Every navigation method returns an object with two promises:</p>
 <view-code language="javascript">const result = router.navigate('/settings');
@@ -82,7 +73,6 @@ await result.committed;
 await result.finished;
 </view-code>
 <p>If the Navigation API is unavailable, both promises resolve immediately.</p>
-<hr />
 <h2>Loading UI (soft-nav)</h2>
 <p>While a soft-nav fetch is in flight (page module, <code>template.html</code>, styles), the <strong>leaf</strong> dock shows a loading indicator by default (built-in <code>.anza-loading</code> CSS spinner). Hard refresh / boot (<code>direction: 'load'</code> or Navigation API <code>reload</code>) skips loading so SSG content is not covered.</p>
 <p>No dock/page config is required — create apps get the default automatically. Override ladder (highest wins): page <code>loading</code> → dock <code>loading</code> (leaf→root) → <code>router.loading.configure</code> → built-in spinner.</p>

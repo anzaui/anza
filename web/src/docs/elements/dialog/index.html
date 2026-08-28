@@ -1,11 +1,9 @@
 <h1>Dialog</h1>
 <p>Modal overlay wrapping the native <code>&lt;dialog&gt;</code> element for focus trap, backdrop, and Escape handling.</p>
 <p><strong>Tag:</strong> <code>ui-dialog</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/dialog</code></p>
-<hr />
 <h2>Import</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/dialog';
 </view-code>
-<hr />
 <h2>Basic usage</h2>
 <view-code language="html">&lt;ui-dialog id="confirm"&gt;
   &lt;h2&gt;Confirm&lt;/h2&gt;
@@ -20,7 +18,6 @@
   // dlg.close('ok');
 &lt;/script&gt;
 </view-code>
-<hr />
 <h2>Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>open</code></td><td>Boolean</td><td>Reflect</td><td>Mirrors open state; set via <code>showModal()</code> / <code>close()</code></td></tr>
@@ -36,7 +33,6 @@
 <p>This element is the modal-dialog branch of the overlay kit (alongside <a href="/docs/elements/drawer">drawer</a> / <a href="/docs/elements/sheet">sheet</a>). Architecture: <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
 <h3>Lifecycle / memory</h3>
 <p>Open/close and Escape handling stay on the dialog instance. Soft-nav aborts the hosting leaf’s <code>ctrl</code> so shadow-scoped listeners tear down with disconnect. Do not add raw <code>document</code> listeners from a leaf without <code>{ signal: ctrl.signal }</code>. See <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a> and <a href="/docs/events/troubleshooting">Orphan listeners after soft-nav</a>.</p>
-<hr />
 <h2>Related</h2>
 <ul>
 <li><a href="/docs/elements/index">Elements overview</a></li>

@@ -6,7 +6,6 @@
 import '@anzaui/anza/elements';
 </view-code>
 <p>Paths resolve via the package import map (<code>library/importmap.json</code>): <code>@anzaui/anza/elements/&lt;name&gt;</code> → <code>/elements/&lt;category&gt;/&lt;name&gt;/index.js</code>.</p>
-<hr />
 <h2>Categories</h2>
 <div class="table-wrap"><table><thead><tr><th>Category</th><th>Overview</th></tr></thead><tbody>
 <tr><td><a href="/docs/elements/primitives">Primitives</a></td><td>Buttons, icons, text, badges, …</td></tr>
@@ -17,7 +16,6 @@ import '@anzaui/anza/elements';
 <tr><td><a href="/docs/elements/navigation">Navigation</a></td><td>Tabs, nav, breadcrumb, pagination, steps</td></tr>
 <tr><td><a href="/docs/elements/layout">Layout</a></td><td>App, header, sidebar, stack, grid, …</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Full reference</h2>
 <h3>Phase 1</h3>
 <div class="table-wrap"><table><thead><tr><th>Element</th><th>Route</th></tr></thead><tbody>
@@ -81,7 +79,6 @@ import '@anzaui/anza/elements';
 <tr><td><a href="/docs/elements/scroll">Scroll</a></td><td><code>/docs/elements/scroll</code></td></tr>
 <tr><td><a href="/docs/elements/surface">Surface</a></td><td><code>/docs/elements/surface</code></td></tr>
 </tbody></table></div>
-<hr />
 <h2>Inventory</h2>
 <div class="table-wrap"><table><thead><tr><th>Category</th><th>Element</th><th>Tag</th><th>Import</th><th>Status</th></tr></thead><tbody>
 <tr><td>primitives</td><td><a href="/docs/elements/button">button</a></td><td><code>ui-button</code></td><td><code>@anzaui/anza/elements/button</code></td><td>Full</td></tr>
@@ -131,11 +128,9 @@ import '@anzaui/anza/elements';
 <tr><td>layout</td><td><a href="/docs/elements/scroll">scroll</a></td><td><code>ui-scroll</code></td><td><code>@anzaui/anza/elements/scroll</code></td><td>Full</td></tr>
 <tr><td>layout</td><td><a href="/docs/elements/surface">surface</a></td><td><code>ui-surface</code></td><td><code>@anzaui/anza/elements/surface</code></td><td>Full</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Lifecycle / memory</h2>
 <p>Kit elements bind listeners and observers with the component <code>AbortController</code> (<code>ctrl.signal</code>). Soft-nav swaps only the page leaf — disconnect aborts that leaf’s <code>ctrl</code> and tears down its <code>on</code> / <code>watch</code> / signal-owned work. Prefer shadow-scoped helpers (<code>on</code> with <code>attrs</code> / <code>not</code> / <code>key</code> / <code>scope: 'assigned'</code>, <code>watch.slot</code> for light-DOM boundaries); do not attach raw <code>document</code> / <code>body</code> listeners from a leaf without a signal. Overlay kit uses native top-layer APIs in-tree; <strong>toast</strong> is the deliberate <code>document.body</code> portal exception. Popover polyfill attachments use framework <code>globals</code>. See <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
 <p>See <a href="/docs/ui/context">Context — on / watch</a>, <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a>, and <a href="/docs/events/troubleshooting">Orphan listeners after soft-nav</a>.</p>
-<hr />
 <h2>Related</h2>
 <ul>
 <li><a href="/docs/ui/elements">UI <code>element()</code> factory</a></li>

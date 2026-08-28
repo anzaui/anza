@@ -4,15 +4,11 @@ Form-participating dropdown built on the Popover API and anchor positioning.
 
 **Tag:** `ui-select` · **Import:** `@anzaui/anza/elements/select`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/select';
 ```
-
----
 
 ## Basic usage
 
@@ -22,8 +18,6 @@ import '@anzaui/anza/elements/select';
   <button type="button" value="editor">Editor</button>
 </ui-select>
 ```
-
----
 
 ## Props
 
@@ -37,8 +31,6 @@ import '@anzaui/anza/elements/select';
 ## Notes
 
 Slotted children are options; each option’s `value` attribute (or text content) becomes the select value. Uses `form: true`. Trigger / list surfaces use `part="button"` and `part="popover"` (Popover API — same top-layer strategy as the [overlay kit](overlay.md)).
-
----
 
 ## Related
 

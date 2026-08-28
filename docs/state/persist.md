@@ -4,8 +4,6 @@
 
 This is **not** the tiered `@anzaui/anza/storage` facade. Prefer `state.storage` for hydrating `state.create` stores; use the storage package for general KV, OPFS, and Cache API. Give each a distinct DB name if both are open (see [storage/troubleshooting.md](../storage/troubleshooting.md)).
 
----
-
 ## Bridge pattern
 
 Hydrate a store from IndexedDB, then persist on change. Prefer this over inventing a second persistence layer with `@anzaui/anza/storage` for the same keys.
@@ -33,8 +31,6 @@ The important split is:
 | General KV, blobs, OPFS, Cache API, tier selection | `@anzaui/anza/storage` |
 
 Mixing both is fine, but treat them as separate persistence systems with separate database names.
-
----
 
 ## Basic Use
 
@@ -65,8 +61,6 @@ Signature shape: `set(storeName, key, value, options?)`, `get(storeName, key)`, 
 | `setDatabaseName(name)` | Isolate the DB name before first open |
 | `persist()` / `isPersisted()` | Ask the browser for persistent storage |
 
----
-
 ## Schema Migrations
 
 Register migration functions before opening the database:
@@ -88,8 +82,6 @@ Migrations run sequentially inside `onupgradeneeded`. Each function corresponds 
 
 Call `registerMigrations()` before any `get()` / `set()` opens IndexedDB. Once the first connection is live, changing the migration list in the same session will not re-run already-open upgrades.
 
----
-
 ## TTL
 
 ```javascript
@@ -101,8 +93,6 @@ await state.storage.get('keyval', 'token'); // null if expired
 ```
 
 TTL is stored on the record envelope alongside `lastAccessed`. Reads unwrap the record value for you, so consumers only see the stored payload or `null`.
-
----
 
 ## Quota-Aware Eviction
 
@@ -120,8 +110,6 @@ window.addEventListener('quota', (e) => {
 
 Eviction only applies to wrapped records in the store being written. If you want different retention policies, split data into different object stores instead of cramming everything into `keyval`.
 
----
-
 ## Query (filter function)
 
 Unlike `@anzaui/anza/storage` cursor `query`, `state.storage.query` takes a **predicate**:
@@ -135,8 +123,6 @@ const items = await state.storage.query('keyval', (value) => {
 Returns all records matching the filter function.
 
 This is intentionally different from `storage.query(...)` in the storage facade, which exposes IndexedDB cursor options. `state.storage.query()` is the simpler "load and filter values" path for app state.
-
----
 
 ## Persistence
 
@@ -154,8 +140,6 @@ const alreadyPersisted = await state.storage.isPersisted();
 ```
 
 Persistence reduces browser eviction pressure, but it does not replace your own migrations, validation, or corruption handling.
-
----
 
 ## Database Name
 
@@ -176,8 +160,6 @@ state.storage.setDatabaseName('test-db');
 ```
 
 Because the name is captured before the first `indexedDB.open(...)`, set it during boot or test setup, not halfway through an active app session.
-
----
 
 ## Related
 

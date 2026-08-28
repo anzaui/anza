@@ -1,6 +1,5 @@
 <h1>Components</h1>
 <p><code>view()</code> and <code>part()</code> define custom elements without route binding. They are the building blocks of pages and docks.</p>
-<hr />
 <h2>view()</h2>
 <p>A <code>view</code> is a composable, stateful Web Component. It has reactive properties, lifecycle hooks, and a template. The router never touches it directly — it is a UI primitive.</p>
 <view-code language="javascript">import { view } from '@anzaui/anza/defs';
@@ -28,7 +27,6 @@ view('user-card', {
 <li>Dialogs and modals that are not route-bound</li>
 <li>Complex stateful components that need reactive updates</li>
 </ul>
-<hr />
 <h2>part()</h2>
 <p>A <code>part</code> is an atomic, stateless UI primitive: buttons, icons, badges, chips. It has props but no reactive update loop.</p>
 <view-code language="javascript">import { part } from '@anzaui/anza/defs';
@@ -51,7 +49,6 @@ Parts are stateless — promote it to a 'view' if it needs reactive re-rendering
 <li>Buttons and badges</li>
 <li>Purely presentational elements</li>
 </ul>
-<hr />
 <h2>Shared Config Fields</h2>
 <p>Both <code>view()</code> and <code>part()</code> accept the same config fields as <code>page()</code>, minus routing-specific ones:</p>
 <div class="table-wrap"><table><thead><tr><th>Field</th><th>view</th><th>part</th></tr></thead><tbody>
@@ -66,7 +63,6 @@ Parts are stateless — promote it to a 'view' if it needs reactive re-rendering
 <tr><td><code>methods</code></td><td>yes</td><td>yes</td></tr>
 <tr><td><code>base</code></td><td>yes</td><td>yes</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Methods</h2>
 <p>Both support custom methods:</p>
 <view-code language="javascript">view('user-card', {
@@ -78,14 +74,12 @@ Parts are stateless — promote it to a 'view' if it needs reactive re-rendering
 });
 </view-code>
 <p>Methods are assigned to the element prototype.</p>
-<hr />
 <h2>File Templates</h2>
 <p>Same as pages and docks:</p>
 <view-code language="javascript">view('user-card', {
   template: { html: './card.html', css: './card.css' }
 }, import.meta.url);
 </view-code>
-<hr />
 <h2>Comparison</h2>
 <div class="table-wrap"><table><thead><tr><th>Concern</th><th>page</th><th>dock</th><th>view</th><th>part</th></tr></thead><tbody>
 <tr><td>Owns a URL</td><td>yes</td><td>no</td><td>no</td><td>no</td></tr>

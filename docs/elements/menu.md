@@ -6,15 +6,11 @@ Keyboard-accessible menu built on the Popover API with roving tabindex (arrows, 
 
 Architecture and when-to-use: [Overlay patterns](overlay.md).
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/menu';
 ```
-
----
 
 ## Basic usage
 
@@ -31,8 +27,6 @@ import '@anzaui/anza/elements/menu';
   document.querySelector('#actions').addEventListener('click', () => menu.toggle());
 </script>
 ```
-
----
 
 ## Props
 
@@ -53,8 +47,6 @@ Slotted `ui-button` / `button` / `[role=menuitem]` get `role="menuitem"` and rov
 ### Lifecycle / memory
 
 Key handlers bind on the popover surface via component `on`. Soft-nav aborts the leaf `ctrl`. See [Overlay patterns](overlay.md) and [Memory safety & framework globals](../ui/advanced.md).
-
----
 
 ## Related
 

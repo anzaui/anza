@@ -4,8 +4,6 @@ Common problems and their solutions.
 
 Use this page when the storage facade behaves differently from `state.storage`, when a tier returns `null` unexpectedly, or when browser capability / quota constraints leak into app behavior.
 
----
-
 ## Clash with `state.storage` / `platform-db`
 
 **Cause:** `@anzaui/anza/storage` and `state.storage` (`PlatformStorage`) both default to IndexedDB name `platform-db`.
@@ -23,8 +21,6 @@ state.storage.setDatabaseName('app-state');
 Use `storage` for tiered KV/blobs; use `state.storage` for store persistence. See [state/persist.md](../state/persist.md).
 
 If one package creates object stores and the other later opens the same DB name with a different migration plan, you can end up debugging the wrong abstraction. Separate names early and keep them stable.
-
----
 
 ## storage.get returns null
 
@@ -48,8 +44,6 @@ Quick checklist:
 - Remember that default reads use `idb`, fronted by the memory LRU.
 - For cache/OPFS flows, confirm the current browser actually supports the tier you selected.
 
----
-
 ## IndexedDB blocked
 
 **Cause:** Another tab has an older version open.
@@ -70,8 +64,6 @@ This event is emitted by the IndexedDB wrapper when an upgrade is waiting on ano
 
 If it repeats in development, close stale tabs and hard-reload after the upgrade completes.
 
----
-
 ## OPFS not available
 
 **Cause:** Not a secure context, or browser lacks support.
@@ -89,8 +81,6 @@ if (!supports.opfs) {
 
 OPFS generally requires a secure context and browser support. If the app must work broadly, decide the fallback tier up front instead of letting writes fail ad hoc.
 
----
-
 ## Data not persisting
 
 **Cause:** Using `memory` tier, or private browsing mode.
@@ -103,8 +93,6 @@ Also remember:
 - `storage.delete(key)` clears the memory copy even when you target another durable tier.
 - Cache-tier values are stored as `Response` bodies; JSON parses back to objects, otherwise you get text.
 
----
-
 ## Compression failed
 
 **Cause:** Compression Streams API unavailable, or non-serializable value.
@@ -112,8 +100,6 @@ Also remember:
 **Fix:** The facade falls back to uncompressed storage automatically. Check that values are serializable (no circular references, no functions).
 
 Only large IDB writes are candidates for gzip, and only when serialized size exceeds `storage.compressionThreshold` (default `65536`). Compression failure should not lose the write; it should only skip the optimization path.
-
----
 
 ## Quota exceeded
 
@@ -144,8 +130,6 @@ const dispose = storage.onQuotaWarning(({ usage, quota }) => {
 
 Automatic eviction first removes expired records, then evicts the least-recently-accessed wrapped IDB entries until usage drops back under the threshold.
 
----
-
 ## Write journal not replaying
 
 **Cause:** `localStorage` is disabled or full.
@@ -158,8 +142,6 @@ const confirmed = await storage.get('critical');
 ```
 
 The write journal is best-effort crash recovery for IDB writes. It relies on `localStorage`, so it can be unavailable in hardened privacy setups. Treat it as resilience, not as a transactional guarantee.
-
----
 
 ## Still not sure which layer is failing?
 
@@ -176,8 +158,6 @@ console.log(await storage.get('probe', 'cache'));
 ```
 
 If memory works but IDB does not, inspect migrations / blocked upgrades / private mode. If IDB works but OPFS does not, it is usually capability or secure-context related.
-
----
 
 ## Still stuck?
 

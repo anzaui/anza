@@ -4,15 +4,11 @@ Form-participating switch with `role="switch"` and `:state(on)` custom state.
 
 **Tag:** `ui-toggle` · **Import:** `@anzaui/anza/elements/toggle`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/toggle';
 ```
-
----
 
 ## Basic usage
 
@@ -20,8 +16,6 @@ import '@anzaui/anza/elements/toggle';
 <ui-toggle name="notifications" checked>Email alerts</ui-toggle>
 <ui-toggle disabled>Unavailable</ui-toggle>
 ```
-
----
 
 ## Props
 
@@ -34,8 +28,6 @@ import '@anzaui/anza/elements/toggle';
 ## Notes
 
 Toggle via click or Space/Enter. Uses `form: true`. Default slot is the label content.
-
----
 
 ## Related
 

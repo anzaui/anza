@@ -4,15 +4,11 @@ Drag-and-drop file picker with optional progress-tracked upload via the core upl
 
 **Tag:** `ui-upload` · **Import:** `@anzaui/anza/elements/upload`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/upload';
 ```
-
----
 
 ## Basic usage
 
@@ -20,8 +16,6 @@ import '@anzaui/anza/elements/upload';
 <ui-upload accept="image/*" multiple></ui-upload>
 <ui-upload url="/api/upload" accept=".pdf"></ui-upload>
 ```
-
----
 
 ## Props
 
@@ -40,7 +34,6 @@ import '@anzaui/anza/elements/upload';
 | `success` | Upload completed — `detail.files` |
 | `error` | Upload failed — `detail` is the error |
 
-
 ## Notes
 
 Click or drop onto the dropzone. With `url`, files are posted as `FormData` (`files` field) with progress UI.
@@ -48,8 +41,6 @@ Click or drop onto the dropzone. With `url`, files are posted as `FormData` (`fi
 ### Lifecycle / memory
 
 Dropzone and upload work use the element `ctrl.signal` so disconnect / soft-nav aborts in-flight requests and removes listeners. Prefer that pattern over raw `document` drag listeners. See [Memory safety & framework globals](../ui/advanced.md) and [Orphan listeners after soft-nav](../events/troubleshooting.md).
-
----
 
 ## Related
 

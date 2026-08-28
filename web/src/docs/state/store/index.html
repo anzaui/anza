@@ -1,6 +1,5 @@
 <h1>Store</h1>
 <p><code>ReactiveStore</code> is a Proxy-based reactive state container. It tracks read accesses, batches write notifications, and supports deep reactivity, snapshots, and hydration.</p>
-<hr />
 <h2>Create</h2>
 <view-code language="javascript">import { state } from '@anzaui/anza/state';
 
@@ -15,19 +14,16 @@ const store = state.create({ count: 0 });
 // With deep: true, mutations to nested properties trigger top-level key updates
 store.get('user').name = 'Bob'; // triggers 'user' subscribers
 </view-code>
-<hr />
 <h2>Get</h2>
 <view-code language="javascript">const count = store.get('count');
 </view-code>
 <p>Reading a property via <code>get</code> registers the active subscriber (if any) as a dependency. This is how derived values and reactive contexts know what to watch.</p>
-<hr />
 <h2>Set</h2>
 <view-code language="javascript">store.set('count', 5);
 store.set('count', 5, 'local'); // with source tag
 </view-code>
 <p>Setting a value to the same reference (via <code>Object.is</code>) is a no-op. Setting a different value schedules a notification.</p>
 <p>The <code>source</code> parameter is used by sync to prevent echo loops. <code>'local'</code> means the change originated in this tab.</p>
-<hr />
 <h2>Subscribe</h2>
 <view-code language="javascript">const off = store.subscribe('count', (val, key, prev) =&gt; {
   console.log(`${key}: ${prev} -&gt; ${val}`);
@@ -40,7 +36,6 @@ off(); // unsubscribe
 <tr><td><code>key</code></td><td>The key that changed</td></tr>
 <tr><td><code>prev</code></td><td>Previous value</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Batch</h2>
 <view-code language="javascript">store.batch(() =&gt; {
   store.set('a', 1);
@@ -49,27 +44,22 @@ off(); // unsubscribe
 });
 </view-code>
 <p>Multiple sets inside a batch produce a single microtask notification. Subscribers receive the final values.</p>
-<hr />
 <h2>Snapshot</h2>
 <view-code language="javascript">const data = store.snapshot();
 </view-code>
 <p>Returns a deep-cloned copy of the current state. Safe to serialize with <code>JSON.stringify</code>.</p>
-<hr />
 <h2>Hydrate</h2>
 <view-code language="javascript">store.hydrate({ count: 10, user: { name: 'Bob' } });
 </view-code>
 <p>Restores state from a snapshot. Uses batch internally, so subscribers fire once for all restored keys.</p>
-<hr />
 <h2>Reset</h2>
 <view-code language="javascript">store.reset({ count: 0 }); // clear all, then set new values
 </view-code>
-<hr />
 <h2>Broadcast / Sync</h2>
 <view-code language="javascript">store.broadcast('channel-name', ['count', 'user']);
 store.sync(['count', 'user'], 'channel-name'); // alias
 </view-code>
 <p>Replicates specified keys across browser tabs. See <a href="/docs/state/sync">sync.md</a>.</p>
-<hr />
 <h2>onMutation</h2>
 <view-code language="javascript">store.onMutation((key, value, source) =&gt; {
   console.log('Mutated:', key, value, source);

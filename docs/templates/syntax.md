@@ -2,8 +2,6 @@
 
 Anza Server Templates use double-curly brace delimiters (`{{token}}`) for dynamic variable substitution, content slot insertion, and component composition. The syntax is designed to be deterministic, zero-allocation during execution, and safe against cross-site scripting (XSS).
 
----
-
 ## What You Get
 
 | Syntax Pattern | Purpose | Example |
@@ -12,8 +10,6 @@ Anza Server Templates use double-curly brace delimiters (`{{token}}`) for dynami
 | `{{#raw slot}}` / `{{{slot}}}` | Raw unescaped HTML insertion for slotted docks and children | `<dock-main>{{content}}</dock-main>` |
 | `{{#each items}}` / Array map | Array rendering and list iterations | Repeated `<article>` cards |
 | `{{#if condition}}` | Optional section toggle based on boolean or presence | Conditional alert or badge |
-
----
 
 ## Variable Substitution
 
@@ -45,8 +41,6 @@ Renders as:
 </div>
 ```
 
----
-
 ## Auto-Escaping & Security
 
 All standard `{{token}}` variables are automatically HTML-escaped by the engine to prevent XSS vulnerabilities:
@@ -61,8 +55,6 @@ If a user supplies `<script>alert(1)</script>` inside `{{title}}`, it renders sa
 ```html
 <h1>&lt;script&gt;alert(1)&lt;/script&gt;</h1>
 ```
-
----
 
 ## Slotted Child Content
 
@@ -91,8 +83,6 @@ let page_html = engine.render("pages/home.html", &json!({
 }))?;
 ```
 
----
-
 ## Form Actions & URL Interpolation
 
 Variables can be interpolated directly into attribute values for dynamic links, form actions, and data attributes:
@@ -105,8 +95,6 @@ Variables can be interpolated directly into attribute values for dynamic links, 
   </form>
 </div>
 ```
-
----
 
 ## Performance Best Practices
 

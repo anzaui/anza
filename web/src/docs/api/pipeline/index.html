@@ -1,6 +1,5 @@
 <h1>Pipeline</h1>
 <p>The API client processes every request through a composable interceptor chain. Outbound interceptors modify the request descriptor. Inbound interceptors normalize the response or error.</p>
-<hr />
 <h2>Outbound Interceptors</h2>
 <p>Modify the request before it hits the network, or short-circuit with a cached/mock response:</p>
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
@@ -19,7 +18,6 @@ api.pipeline.outbound((descriptor) =&gt; {
   return descriptor;
 });
 </view-code>
-<hr />
 <h2>Inbound Interceptors</h2>
 <p>Normalize responses or errors after the network call:</p>
 <view-code language="javascript">api.pipeline.inbound((responseOrError) =&gt; {
@@ -32,7 +30,6 @@ api.pipeline.outbound((descriptor) =&gt; {
 });
 </view-code>
 <p>Inbound interceptors receive either a <code>Response</code> or an <code>Error</code>. They must return a <code>Response</code> or throw. The final interceptor's return value is what the caller receives.</p>
-<hr />
 <h2>Chaining</h2>
 <p><code>outbound</code> and <code>inbound</code> return the pipeline instance for chaining:</p>
 <view-code language="javascript">api.pipeline
@@ -42,7 +39,6 @@ api.pipeline.outbound((descriptor) =&gt; {
   .inbound(handleErrors);
 </view-code>
 <p>Interceptors run in registration order.</p>
-<hr />
 <h2>Built-In Interceptors</h2>
 <p>The API client registers one inbound interceptor automatically for telemetry:</p>
 <view-code language="javascript">api.pipeline.inbound((responseOrError) =&gt; {
@@ -50,7 +46,6 @@ api.pipeline.outbound((descriptor) =&gt; {
 });
 </view-code>
 <p>You can add your own alongside it. The built-in interceptor runs first (registered at module load), then yours.</p>
-<hr />
 <h2>Request Descriptor</h2>
 <p>Outbound interceptors receive and should return a descriptor object:</p>
 <view-code language="javascript">{

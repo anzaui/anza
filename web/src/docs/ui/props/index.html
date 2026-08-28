@@ -1,6 +1,5 @@
 <h1>Props</h1>
 <p>Props are reactive properties on declarative elements. They are typed, support default values, automatically reflect to attributes, and trigger batched update callbacks on change.</p>
-<hr />
 <h2>Declaring Props</h2>
 <view-code language="javascript">view('user-card', {
   props: {
@@ -10,7 +9,6 @@
   }
 });
 </view-code>
-<hr />
 <h2>Shorthand</h2>
 <p>Literal values are auto-detected:</p>
 <view-code language="javascript">props: {
@@ -20,14 +18,12 @@
 }
 </view-code>
 <p>This expands to the full config internally. Use the longhand form when you need <code>reflect</code>, <code>state</code>, or other options.</p>
-<hr />
 <h2>Supported Types</h2>
 <div class="table-wrap"><table><thead><tr><th>Type</th><th>Attribute Cast</th><th>Example</th></tr></thead><tbody>
 <tr><td><code>String</code></td><td>As-is</td><td><code>name="Alice"</code> → <code>'Alice'</code></td></tr>
 <tr><td><code>Number</code></td><td><code>Number(val)</code></td><td><code>age="42"</code> → <code>42</code></td></tr>
 <tr><td><code>Boolean</code></td><td>Presence = true</td><td><code>active</code> → <code>true</code>, absent → <code>false</code></td></tr>
 </tbody></table></div>
-<hr />
 <h2>Attribute Reflection</h2>
 <p>By default, props reflect to attributes. Disable it per prop:</p>
 <view-code language="javascript">props: {
@@ -35,7 +31,6 @@
 }
 </view-code>
 <p>Boolean reflection uses empty string (<code>active=""</code>) for true and removes the attribute for false.</p>
-<hr />
 <h2>Custom State (<code>:state()</code>)</h2>
 <p>Expose props as custom state pseudo-classes:</p>
 <view-code language="javascript">props: {
@@ -46,7 +41,6 @@
 <view-code language="css">user-card:state(loading) { opacity: 0.5; }
 </view-code>
 <p>Requires <code>ElementInternals</code> and the <code>states</code> API (Chrome 132+, Baseline 2026).</p>
-<hr />
 <h2>Initial Values</h2>
 <p>Props are initialized from attributes before <code>connectedCallback</code>:</p>
 <view-code language="html">&lt;user-card name="Alice" age="30" admin&gt;&lt;/user-card&gt;
@@ -57,7 +51,6 @@
 <li><code>Number</code> → <code>null</code></li>
 <li><code>Boolean</code> → <code>false</code></li>
 </ul>
-<hr />
 <h2>Programmatic Assignment</h2>
 <p>Set props from JavaScript:</p>
 <view-code language="javascript">const card = document.querySelector('user-card');
@@ -65,7 +58,6 @@ card.name = 'Bob';
 card.age = 25;
 </view-code>
 <p>The <code>change</code> hook fires after the assignment (batched via microtask or rAF depending on the <code>visual</code> flag).</p>
-<hr />
 <h2>Query Param Mapping</h2>
 <p>For route-bound elements (<code>page()</code>), declare <code>query</code> as a contract array to map URL query params onto element properties. The library casts values based on the declared type:</p>
 <view-code language="javascript">page('/search', {
@@ -77,7 +69,6 @@ card.age = 25;
 });
 </view-code>
 <p>Visiting <code>/search?q=hello&amp;page=2</code> automatically sets the properties <code>this.q = 'hello'</code> (String) and <code>this.page = 2</code> (Number) on the element, triggering update cycles.</p>
-<hr />
 <h2>Hash Mapping</h2>
 <p>Declare a <code>hash</code> prop to receive the URL hash:</p>
 <view-code language="javascript">props: {
@@ -85,7 +76,6 @@ card.age = 25;
 }
 </view-code>
 <p>Visiting <code>/about#team</code> sets <code>hash = '#team'</code>.</p>
-<hr />
 <h2>Property Change Callback</h2>
 <p>The <code>change</code> hook receives all pending changes in a single batch:</p>
 <view-code language="javascript">on: {

@@ -2,8 +2,6 @@
 
 The router provides a route-level cache backed by the browser Cache API. Prefetch view assets on hover or visibility so navigation is instant.
 
----
-
 ## Prefetch
 
 Fetch and cache a URL before the user navigates to it:
@@ -24,8 +22,6 @@ observer.observe(section, { callback: () => {
 
 Prefetch uses the Cache API with a 5-minute TTL. If the resource is already cached and not expired, it returns immediately.
 
----
-
 ## Cache Read and Write
 
 Direct cache access:
@@ -44,19 +40,13 @@ await router.cache.purge('/reports');
 await router.cache.purge();
 ```
 
----
-
 ## TTL Convention
 
 The cache stores an `x-expires-at` header on every response. When reading, expired entries are deleted automatically. The default TTL is 5 minutes.
 
----
-
 ## Graceful Degradation
 
 When the Cache API is unavailable (private mode, quota exceeded, unsupported browser), all cache operations return `null` silently. Navigation continues normally.
-
----
 
 ## When to Prefetch
 

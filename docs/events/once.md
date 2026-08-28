@@ -2,8 +2,6 @@
 
 `events.once` waits for a single event occurrence and resolves a promise with the event object. It uses the native `once: true` listener option and supports AbortSignal cancellation.
 
----
-
 ## Signature
 
 ```javascript
@@ -18,8 +16,6 @@ const event = await once(target, type, options);
 
 Returns a `Promise<Event>`.
 
----
-
 ## Basic Use
 
 ```javascript
@@ -29,8 +25,6 @@ import { events } from '@anzaui/anza/events';
 const click = await events.once(document.body, 'click');
 console.log('Clicked at', click.clientX, click.clientY);
 ```
-
----
 
 ## With AbortSignal
 
@@ -53,8 +47,6 @@ ctrl.abort();
 ```
 
 Aborting rejects the promise with `'Operation aborted'`.
-
----
 
 ## Use Cases
 
@@ -81,8 +73,6 @@ const interaction = await events.once(form, 'submit');
 logFirstInteraction(interaction);
 ```
 
----
-
 ## Options
 
 Pass standard `addEventListener` options:
@@ -93,8 +83,6 @@ const click = await events.once(document, 'click', {
   signal: ctrl.signal
 });
 ```
-
----
 
 ## Already Aborted Signal
 

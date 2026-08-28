@@ -4,15 +4,11 @@ Form-associated button with loading and disabled states, semantic token styling,
 
 **Tag:** `ui-button` · **Import:** `@anzaui/anza/elements/button`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/button';
 ```
-
----
 
 ## Basic usage
 
@@ -22,8 +18,6 @@ import '@anzaui/anza/elements/button';
 <ui-button disabled>Unavailable</ui-button>
 <ui-button loading>Working…</ui-button>
 ```
-
----
 
 ## Props
 
@@ -43,8 +37,6 @@ import '@anzaui/anza/elements/button';
 ## Notes
 
 Default slot content becomes the button label. Uses `form: true` so it participates in native forms.
-
----
 
 ## Related
 

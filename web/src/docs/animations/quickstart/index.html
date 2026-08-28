@@ -1,6 +1,5 @@
 <h1>Quick Start</h1>
 <p>Get animating in five minutes.</p>
-<hr />
 <h2>1. Animate an Element</h2>
 <view-code language="javascript">import { animations } from '@anzaui/anza/animations';
 
@@ -15,7 +14,6 @@ animations.animate(el, [
   { opacity: 1, transform: 'scale(1)' }
 ], { duration: 400, easing: 'ease-out' });
 </view-code>
-<hr />
 <h2>2. Stagger a List</h2>
 <view-code language="javascript">const items = document.querySelectorAll('.item');
 
@@ -30,7 +28,6 @@ await group.finished;
 // Or cancel mid-way
 group.cancel();
 </view-code>
-<hr />
 <h2>3. Chain a Sequence</h2>
 <view-code language="javascript">const seq = animations.sequence([
   [el, 'fade', { duration: 200 }],
@@ -41,7 +38,6 @@ group.cancel();
 await seq.finished;
 </view-code>
 <p>Each step starts when the previous finishes.</p>
-<hr />
 <h2>4. Register a Custom Template</h2>
 <view-code language="javascript">animations.register('bounce', [
   { transform: 'translateY(0)' },
@@ -52,7 +48,6 @@ await seq.finished;
 // Use it anywhere
 animations.animate(el, 'bounce');
 </view-code>
-<hr />
 <h2>5. Respect Reduced Motion</h2>
 <view-code language="javascript">if (animations.reduced()) {
   // Skip animations for accessibility
@@ -62,7 +57,6 @@ animations.animate(el, 'bounce');
 }
 </view-code>
 <p>This checks <code>prefers-reduced-motion: reduce</code> automatically.</p>
-<hr />
 <h2>6. Read CSS Tokens</h2>
 <view-code language="javascript">const dur = animations.duration('slow');   // e.g. 300
 const easing = animations.ease('spring');    // e.g. cubic-bezier(...)
@@ -70,7 +64,6 @@ const easing = animations.ease('spring');    // e.g. cubic-bezier(...)
 animations.animate(el, 'fade', { duration: dur, easing });
 </view-code>
 <p><code>duration()</code> and <code>ease()</code> read CSS custom properties at runtime, falling back to defaults.</p>
-<hr />
 <h2>Complete Working Example</h2>
 <view-code language="javascript">import { animations } from '@anzaui/anza/animations';
 

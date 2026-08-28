@@ -2,15 +2,11 @@
 
 Keep duplicate browser tabs in navigation sync. When the user navigates in one tab, all other same-origin tabs follow automatically.
 
----
-
 ## How It Works
 
 The router uses `BroadcastChannel` (`native-router-sync`) to broadcast navigation events. When a `navigatesuccess` fires locally, the current URL and state are posted to the channel. Other tabs receive the message and call `router.navigate()` to follow.
 
 A loop guard prevents echo: the tab that initiated the navigation ignores its own broadcast.
-
----
 
 ## Auto-Start
 
@@ -22,8 +18,6 @@ if (router.sync.active()) {
   console.log('sync is active');
 }
 ```
-
----
 
 ## Manual Controls
 
@@ -41,8 +35,6 @@ router.sync.start();
 router.sync.close();
 ```
 
----
-
 ## State Synchronization
 
 History state is included in the broadcast:
@@ -52,8 +44,6 @@ router.navigate('/settings', { state: { tab: 'profile' } });
 ```
 
 Receiving tabs restore the state along with the URL.
-
----
 
 ## Echo Guard
 
@@ -67,13 +57,9 @@ A one-macrotask delay prevents the echo guard from clearing too early when a gua
 // The delay gives the redirect time to settle before clearing the echo flag
 ```
 
----
-
 ## Browser Support
 
 Requires `BroadcastChannel` and `window.navigation`. Falls back silently when unavailable.
-
----
 
 ## When to Use
 
@@ -81,8 +67,6 @@ Requires `BroadcastChannel` and `window.navigation`. Falls back silently when un
 - Admin panels
 - Applications where the user expects consistent state across tabs
 - Forms that should not diverge between tabs
-
----
 
 ## When to Disable
 

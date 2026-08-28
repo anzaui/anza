@@ -8,8 +8,6 @@ Import pattern:
 import '@anzaui/anza/elements/<name>';
 ```
 
----
-
 ## Architecture (actual kit model)
 
 The kit does **not** use a shared body portal for overlays. Rendering strategies in source:
@@ -25,8 +23,6 @@ The kit does **not** use a shared body portal for overlays. Rendering strategies
 
 `ui-select` (forms) also uses the Popover API for its dropdown; see [select](select.md).
 
----
-
 ## When to use which
 
 | Need | Prefer | Why |
@@ -38,8 +34,6 @@ The kit does **not** use a shared body portal for overlays. Rendering strategies
 | Keyboard menu | `ui-menu` | Popover + roving tabindex, arrows / Home / End / Escape |
 | Hover / focus hint | `ui-tooltip` | Escape helper + popover/fixed; short non-interactive hints |
 | Transient status | `ui-toast` | Body portal + auto-dismiss — see [toast](toast.md) |
-
----
 
 ## Simple samples
 
@@ -91,8 +85,6 @@ Methods: `show()`, `hide()`, `toggle()`. Default slot projects into `part="popov
 ```
 
 Hover / focus shows the hint (`part="tooltip"`, `popover="manual"`). Positioning uses `escapeOverflow` so typical `overflow: hidden` ancestors do not clip the tip; fixed-position fallback when popover APIs are missing. Full page: [tooltip](tooltip.md).
-
----
 
 ## Advanced samples
 
@@ -163,8 +155,6 @@ ctrl.hide();   // clears position + scroll/resize listeners
 
 Strategies: `'popover'` when `showPopover` + `[popover]` exist; otherwise `'fixed'` (`position: fixed` + `data-escape-open`). Sync form: `escapeOverflow` from `@anzaui/anza/platform` (call `await guard.popover()` first if you need the polyfill). Full API: [Platform API](../platform/api.md), [Guards → escape](../platform/guards.md#escape).
 
----
-
 ## Lifecycle / memory / globals
 
 - Prefer component `on` / `watch` inside the overlay shadow. Soft-nav aborts the detached leaf’s `ctrl` and tears down signal-owned listeners.
@@ -173,8 +163,6 @@ Strategies: `'popover'` when `showPopover` + `[popover]` exist; otherwise `'fixe
 - **Tooltip escape** attaches scroll/resize reposition listeners only while open and clears them on hide / `ctrl` abort — not a long-lived document attachment.
 - **Toast** portals under `body` on purpose; dismiss timeouts clear on `el.ctrl.signal` abort. Own toast lifetime where it belongs — see [toast](toast.md).
 - Deeper notes: [Memory safety & framework globals](../ui/advanced.md), [Orphan listeners after soft-nav](../events/troubleshooting.md).
-
----
 
 ## Parts (quick reference)
 
@@ -186,8 +174,6 @@ Strategies: `'popover'` when `showPopover` + `[popover]` exist; otherwise `'fixe
 | `ui-drawer` | `dialog` |
 | `ui-sheet` | `dialog`, `handle`, `content` |
 | `ui-tooltip` | `wrapper`, `tooltip` |
-
----
 
 ## Elements
 
@@ -203,8 +189,6 @@ Strategies: `'popover'` when `showPopover` + `[popover]` exist; otherwise `'fixe
 Related feedback portal: [toast](toast.md) (`ui-toast`).
 
 See the [full inventory](index.md) and [ELEMENTS.md](../../plans/ELEMENTS.md) for phase status.
-
----
 
 ## Related
 

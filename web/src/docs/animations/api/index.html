@@ -1,6 +1,5 @@
 <h1>API Reference</h1>
 <p>Complete reference for the animations facade and utilities.</p>
-<hr />
 <h2>Facade</h2>
 <view-code language="javascript">import { animations } from '@anzaui/anza/animations';
 </view-code>
@@ -28,7 +27,6 @@
 <p>Resolves easing token. Names: <code>default</code>, <code>in</code>, <code>out</code>, <code>in-out</code>, <code>spring</code>, <code>linear</code>.</p>
 <h3><code>animations.reduced()</code></h3>
 <p>Returns <code>true</code> if <code>prefers-reduced-motion: reduce</code>.</p>
-<hr />
 <h2>Named Exports</h2>
 <view-code language="javascript">import {
   registry,
@@ -38,7 +36,6 @@
   duration, ease, reduced
 } from '@anzaui/anza/animations';
 </view-code>
-<hr />
 <h2>AnimationRegistry</h2>
 <view-code language="javascript">import { registry } from '@anzaui/anza/animations';
 </view-code>
@@ -47,7 +44,6 @@
 <p>Returns <code>{ keyframes, options }</code> or <code>null</code>.</p>
 <h3><code>registry.delete(name)</code></h3>
 <h3><code>registry.clear()</code></h3>
-<hr />
 <h2>Stagger Return</h2>
 <view-code language="javascript">{
   animations: Animation[],
@@ -56,11 +52,9 @@
   finished: Promise&lt;void[]&gt;
 }
 </view-code>
-<hr />
 <h2>Sequence Step</h2>
 <view-code language="javascript">[element, animationInput, options?]
 </view-code>
-<hr />
 <h2>Keyframe Options</h2>
 <div class="table-wrap"><table><thead><tr><th>Type</th><th>Options</th></tr></thead><tbody>
 <tr><td><code>fade</code></td><td><code>{ from?, to? }</code></td></tr>

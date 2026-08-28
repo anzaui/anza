@@ -1,6 +1,5 @@
 <h1>API Reference</h1>
 <p>Complete reference for the router facade and definition layer.</p>
-<hr />
 <h2>Router Facade</h2>
 <h3><code>router.register(pattern, handler, meta)</code></h3>
 <p>Register a route. Returns nothing.</p>
@@ -123,7 +122,6 @@ router.navigate('/settings', { state: { tab: 'profile' } });
 <p>Attach navigation listeners. Idempotent.</p>
 <h3><code>router.destroy()</code></h3>
 <p>Remove all listeners and reset internal state.</p>
-<hr />
 <h2>Definition Layer</h2>
 <h3><code>page(route, config, base)</code></h3>
 <p>Define a route-bound element.</p>
@@ -163,7 +161,6 @@ router.navigate('/settings', { state: { tab: 'profile' } });
   template: '&lt;svg&gt;...&lt;/svg&gt;'
 });
 </view-code>
-<hr />
 <h2>Internal Exports</h2>
 <p>For middleware and test utilities:</p>
 <view-code language="javascript">import { register, match, clear, getRoutes, load } from '@anzaui/anza/router';

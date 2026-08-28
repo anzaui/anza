@@ -12,8 +12,6 @@ import '@anzaui/anza/elements';
 
 Paths resolve via the package import map (`library/importmap.json`): `@anzaui/anza/elements/<name>` → `/elements/<category>/<name>/index.js`.
 
----
-
 ## Categories
 
 | Category | Overview |
@@ -25,8 +23,6 @@ Paths resolve via the package import map (`library/importmap.json`): `@anzaui/an
 | [Data](data.md) | Table, list, card, chart, stat |
 | [Navigation](navigation.md) | Tabs, nav, breadcrumb, pagination, steps |
 | [Layout](layout.md) | App, header, sidebar, stack, grid, … |
-
----
 
 ## Full reference
 
@@ -103,8 +99,6 @@ Architecture: [Overlay patterns](overlay.md). Tooltip escape uses `escapeOverflo
 | [Scroll](scroll.md) | `/docs/elements/scroll` |
 | [Surface](surface.md) | `/docs/elements/surface` |
 
----
-
 ## Inventory
 
 | Category | Element | Tag | Import | Status |
@@ -156,15 +150,11 @@ Architecture: [Overlay patterns](overlay.md). Tooltip escape uses `escapeOverflo
 | layout | [scroll](scroll.md) | `ui-scroll` | `@anzaui/anza/elements/scroll` | Full |
 | layout | [surface](surface.md) | `ui-surface` | `@anzaui/anza/elements/surface` | Full |
 
----
-
 ## Lifecycle / memory
 
 Kit elements bind listeners and observers with the component `AbortController` (`ctrl.signal`). Soft-nav swaps only the page leaf — disconnect aborts that leaf’s `ctrl` and tears down its `on` / `watch` / signal-owned work. Prefer shadow-scoped helpers (`on` with `attrs` / `not` / `key` / `scope: 'assigned'`, `watch.slot` for light-DOM boundaries); do not attach raw `document` / `body` listeners from a leaf without a signal. Overlay kit uses native top-layer APIs in-tree; **toast** is the deliberate `document.body` portal exception. Popover polyfill attachments use framework `globals`. See [Overlay patterns](overlay.md).
 
 See [Context — on / watch](../ui/context.md), [Memory safety & framework globals](../ui/advanced.md), and [Orphan listeners after soft-nav](../events/troubleshooting.md).
-
----
 
 ## Related
 

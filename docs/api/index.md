@@ -4,8 +4,6 @@ The Anza API layer is a baseline-native HTTP client built on `fetch`. It wraps e
 
 It is designed for production: transient network failures self-heal, caches invalidate by glob pattern, uploads report real-time progress, and streams parse NDJSON while preserving backpressure.
 
----
-
 ## What You Get
 
 - **HTTP methods** — `get`, `post`, `put`, `patch`, `delete` with automatic JSON body serialization and response parsing
@@ -18,15 +16,11 @@ It is designed for production: transient network failures self-heal, caches inva
 - **Retry with jitter** — exponential backoff for transient errors (timeouts, 5xx), instant fail for 4xx
 - **Error normalization** — every failure is a `PlatformError` with `code`, `message`, `context`, and `recoverable`
 
----
-
 ## Package
 
 ```javascript
 import { api } from '@anzaui/anza/api';
 ```
-
----
 
 ## File Map
 
@@ -44,8 +38,6 @@ import { api } from '@anzaui/anza/api';
 | [advanced.md](advanced.md) | Retry internals, AbortSignal composition, scheduler integration |
 | [api.md](api.md) | Complete API reference |
 | [troubleshooting.md](troubleshooting.md) | Common problems and how to fix them |
-
----
 
 ## One-File Example
 
@@ -69,8 +61,6 @@ for await (const chunk of api.stream('/logs')) {
   console.log(chunk);
 }
 ```
-
----
 
 ## Next Steps
 

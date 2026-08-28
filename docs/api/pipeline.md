@@ -2,8 +2,6 @@
 
 The API client processes every request through a composable interceptor chain. Outbound interceptors modify the request descriptor. Inbound interceptors normalize the response or error.
 
----
-
 ## Outbound Interceptors
 
 Modify the request before it hits the network, or short-circuit with a cached/mock response:
@@ -29,8 +27,6 @@ api.pipeline.outbound((descriptor) => {
 });
 ```
 
----
-
 ## Inbound Interceptors
 
 Normalize responses or errors after the network call:
@@ -48,8 +44,6 @@ api.pipeline.inbound((responseOrError) => {
 
 Inbound interceptors receive either a `Response` or an `Error`. They must return a `Response` or throw. The final interceptor's return value is what the caller receives.
 
----
-
 ## Chaining
 
 `outbound` and `inbound` return the pipeline instance for chaining:
@@ -64,8 +58,6 @@ api.pipeline
 
 Interceptors run in registration order.
 
----
-
 ## Built-In Interceptors
 
 The API client registers one inbound interceptor automatically for telemetry:
@@ -77,8 +69,6 @@ api.pipeline.inbound((responseOrError) => {
 ```
 
 You can add your own alongside it. The built-in interceptor runs first (registered at module load), then yours.
-
----
 
 ## Request Descriptor
 

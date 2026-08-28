@@ -1,13 +1,11 @@
 <h1>Scheduler</h1>
 <p>The platform scheduler provides prioritized task execution and cooperative yielding. It uses the native <code>scheduler</code> API when available, falling back to a microtask/macrotask polyfill.</p>
-<hr />
 <h2>Priorities</h2>
 <div class="table-wrap"><table><thead><tr><th>Priority</th><th>Latency</th><th>Use Case</th></tr></thead><tbody>
 <tr><td><code>user-blocking</code></td><td>Immediate</td><td>Critical UI, user input response</td></tr>
 <tr><td><code>user-visible</code></td><td>~16ms</td><td>Standard UI updates, API calls</td></tr>
 <tr><td><code>background</code></td><td><code>requestIdleCallback</code></td><td>Telemetry, prefetch, logging</td></tr>
 </tbody></table></div>
-<hr />
 <h2>Posting Tasks</h2>
 <view-code language="javascript">import { guard } from '@anzaui/anza/platform';
 
@@ -28,13 +26,11 @@ scheduler.postTask(() =&gt; {
   flushAnalyticsQueue();
 }, { priority: 'background' });
 </view-code>
-<hr />
 <h2>Delayed Tasks</h2>
 <view-code language="javascript">scheduler.postTask(() =&gt; {
   showTooltip();
 }, { delay: 200 });
 </view-code>
-<hr />
 <h2>Task Cancellation</h2>
 <view-code language="javascript">const controller = new AbortController();
 
@@ -45,7 +41,6 @@ scheduler.postTask(() =&gt; {
 // Cancel before it executes
 controller.abort();
 </view-code>
-<hr />
 <h2>Yielding</h2>
 <view-code language="javascript">import { guard } from '@anzaui/anza/platform';
 
@@ -57,7 +52,6 @@ async function processItems(items) {
 }
 </view-code>
 <p><code>guard.yield()</code> returns a promise that resolves after yielding to the event loop. On browsers with <code>scheduler.yield()</code>, it uses the native API. Otherwise it falls back to <code>setTimeout(..., 0)</code>.</p>
-<hr />
 <h2>Chunking Heavy Work</h2>
 <view-code language="javascript">async function buildIndex(records) {
   const index = new Map();

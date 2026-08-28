@@ -1,6 +1,5 @@
 <h1>TypeScript Engine</h1>
 <p>The Anza TypeScript Engine (<code>@anzaui/engine</code>) is a zero-dependency, JIT-optimized template and STUI streaming engine. It executes with identical behavior and wire compatibility across Node.js, Bun, Deno, Cloudflare Workers, and Vercel Edge.</p>
-<hr />
 <h2>What You Get</h2>
 <ul>
 <li><strong>Zero dependencies</strong> — Built exclusively on native Web Standards (<code>Request</code>, <code>Response</code>, <code>SubtleCrypto</code>)</li>
@@ -9,13 +8,11 @@
 <li><strong>Framework adapters</strong> — First-class helpers for Hono, Express, Fastify, and raw Fetch API</li>
 <li><strong>Live SSE streaming</strong> — Built-in <code>sseEvent()</code> helper for real-time Server-Sent Events</li>
 </ul>
-<hr />
 <h2>Installation</h2>
 <view-code language="bash">npm install @anzaui/engine
 # or: pnpm add @anzaui/engine
 # or: bun add @anzaui/engine
 </view-code>
-<hr />
 <h2>Quickstart (Web Standards / Fetch API)</h2>
 <view-code language="typescript">import { Setup, Page, Fragment, htmlResponse, jsonResponse } from '@anzaui/engine';
 
@@ -49,7 +46,6 @@ export default {
   },
 };
 </view-code>
-<hr />
 <h2>Framework Integration</h2>
 <h3>Hono</h3>
 <view-code language="typescript">import { Hono } from 'hono';

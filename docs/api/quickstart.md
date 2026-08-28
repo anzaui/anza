@@ -2,8 +2,6 @@
 
 Get a working request in five minutes.
 
----
-
 ## 1. Make a GET Request
 
 ```javascript
@@ -14,8 +12,6 @@ console.log(user.name);
 ```
 
 The client auto-parses JSON when the response `Content-Type` is `application/json`. Otherwise it returns text.
-
----
 
 ## 2. Make a POST Request
 
@@ -28,8 +24,6 @@ const result = await api.post('/posts', {
 
 Objects are auto-serialized to JSON. The `Content-Type: application/json` header is set automatically if not already present.
 
----
-
 ## 3. Register a Prefix
 
 Prefix routing keeps endpoints clean and isolates environment config:
@@ -41,8 +35,6 @@ api.prefix.add('default', 'https://api.example.com');
 const user = await api.get('/user/profile');
 ```
 
----
-
 ## 4. Cache a Response
 
 ```javascript
@@ -51,8 +43,6 @@ const products = await api.get('/products', { expiry: 60000 });
 ```
 
 On the next call within 60 seconds, the cached response is returned instantly. After expiry, the cache is stale and the network is hit again.
-
----
 
 ## 5. Listen for Errors
 
@@ -73,8 +63,6 @@ const off = api.on('error', handler);
 off(); // stop listening
 ```
 
----
-
 ## 6. Per-Request Events
 
 Scope listeners to a single request with the `on` option:
@@ -90,8 +78,6 @@ await api.get('/user/profile', {
 
 These listeners auto-cleanup when the request completes. No manual disposer needed.
 
----
-
 ## 7. Stream NDJSON
 
 ```javascript
@@ -101,8 +87,6 @@ for await (const chunk of api.stream('/logs/stream')) {
 ```
 
 Each chunk is a parsed JSON object. Backpressure is preserved natively via the Streams API.
-
----
 
 ## 8. Upload a File
 
@@ -120,8 +104,6 @@ await api.upload('/upload', form, {
 });
 ```
 
----
-
 ## 9. Abort a Request
 
 ```javascript
@@ -132,8 +114,6 @@ api.get('/slow-endpoint', { signal: controller.signal });
 // Cancel after 5 seconds
 setTimeout(() => controller.abort(), 5000);
 ```
-
----
 
 ## 10. Handle Errors
 
@@ -156,8 +136,6 @@ try {
 ```
 
 Every error is a `PlatformError` with `code`, `message`, `context`, and `recoverable`.
-
----
 
 ## Complete Working Example
 

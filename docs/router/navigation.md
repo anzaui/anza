@@ -2,8 +2,6 @@
 
 Programmatic control over the browser history stack. All methods return a `{ committed, finished }` promise pair and degrade gracefully when the Navigation API is unavailable.
 
----
-
 ## Navigate (Push)
 
 Push a new history entry and navigate to a URL:
@@ -21,8 +19,6 @@ With state:
 router.navigate('/settings', { state: { tab: 'profile' } });
 ```
 
----
-
 ## Replace
 
 Replace the current history entry instead of pushing:
@@ -33,16 +29,12 @@ router.replace('/settings?tab=profile');
 
 Use `replace` for filter updates, search queries, and modal state that should not create new history entries.
 
----
-
 ## Back and Forward
 
 ```javascript
 router.back();     // go back one step
 router.forward();  // go forward one step
 ```
-
----
 
 ## Go
 
@@ -53,8 +45,6 @@ router.go(-2);  // back two steps
 router.go(1);   // forward one step
 ```
 
----
-
 ## Chainable Navigation
 
 The `nav` object provides a fluent chainable API:
@@ -64,8 +54,6 @@ router.nav.to('/settings')
   .then(() => console.log('committed'))
   .catch(() => console.log('aborted'));
 ```
-
----
 
 ## History State Inspection
 
@@ -87,8 +75,6 @@ if (router.canBack()) { ... }
 if (router.canForward()) { ... }
 ```
 
----
-
 ## Auto-Bootstrap
 
 The router attaches itself to the Navigation API automatically when the module loads. You do not need to call `setup()` manually in most cases. It happens inside the module's top-level execution:
@@ -98,8 +84,6 @@ if (typeof window !== 'undefined') {
   router.setup();
 }
 ```
-
----
 
 ## Manual Setup and Teardown
 
@@ -114,8 +98,6 @@ router.destroy();
 ```
 
 `setup()` is idempotent — calling it multiple times has no effect.
-
----
 
 ## Navigation API Return Shape
 
@@ -132,8 +114,6 @@ await result.finished;
 ```
 
 If the Navigation API is unavailable, both promises resolve immediately.
-
----
 
 ## Loading UI (soft-nav)
 

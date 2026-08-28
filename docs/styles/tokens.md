@@ -2,8 +2,6 @@
 
 Anza implements a minimal design token architecture based on CSS custom properties. This system defines variables for base values (primitives), registers animatable variables via Houdini (registered), and maps them to themes and transitions (semantic).
 
----
-
 ## Token Architecture
 
 The token system is structured into three layers:
@@ -39,8 +37,6 @@ Semantic tokens map primitive choices to specific intents and themes in `/src/to
 *   **`light.css`**: Default Light theme mappings (e.g., `--color-surface-page` maps to white).
 *   **`dark.css`**: Dark theme overrides applied under `[data-theme="dark"]` or matching user preferences.
 *   **`contrast.css`**: WCAG AAA compliant high-contrast overrides applied under `[data-theme="high-contrast"]`.
-
----
 
 ## View Transition Tokens
 
@@ -110,5 +106,4 @@ If you prefer to use your own custom variable names throughout your codebase, yo
 ```
 
 This mapping allows you to maintain full control over the variable names in your application stylesheet while ensuring the library's layout and transition engines receive the correct values.
-
 

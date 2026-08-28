@@ -2,8 +2,6 @@
 
 Two in-memory cache implementations: a standard LRU for any value type, and a WeakRef-based variant that yields to the garbage collector under memory pressure.
 
----
-
 ## LRUCache
 
 Standard least-recently-used cache with TTL support.
@@ -22,8 +20,6 @@ console.log(cache.get('c')); // null
 
 When the cache is full, the least recently accessed entry is evicted.
 
----
-
 ## WeakLRUCache
 
 Uses `WeakRef` so values can be garbage collected. Values must be objects or functions.
@@ -41,8 +37,6 @@ const obj = cache.get('obj');
 
 Use `WeakLRUCache` for large objects where you prefer GC reclaiming memory over strict LRU eviction.
 
----
-
 ## TTL
 
 Both caches support TTL:
@@ -52,8 +46,6 @@ cache.set('temp', data, 60000); // expires after 60 seconds
 ```
 
 Expired entries return `null` on access and are removed from the cache.
-
----
 
 ## Storage Integration
 
@@ -66,8 +58,6 @@ await storage.get('profile');
 // Second read hits LRU cache
 await storage.get('profile');
 ```
-
----
 
 ## Methods
 

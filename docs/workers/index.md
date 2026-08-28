@@ -2,8 +2,6 @@
 
 The Anza workers layer provides a unified interface for browser concurrency primitives: dedicated worker pools, shared workers, broadcast channels, web locks, and offscreen canvas. It handles feature detection, graceful degradation, and lifecycle management automatically.
 
----
-
 ## What You Get
 
 - **Worker pools** — bounded, priority-queued task execution with starvation prevention
@@ -14,15 +12,11 @@ The Anza workers layer provides a unified interface for browser concurrency prim
 - **Offscreen canvas** — main-thread canvas rendering offloaded to a worker
 - **Feature detection** — `has.worker`, `has.shared`, `has.channel`, etc.
 
----
-
 ## Package
 
 ```javascript
 import { workers } from '@anzaui/anza/workers';
 ```
-
----
 
 ## File Map
 
@@ -37,8 +31,6 @@ import { workers } from '@anzaui/anza/workers';
 | [offscreen.md](offscreen.md) | OffscreenCanvas transfer to workers |
 | [api.md](api.md) | Complete API reference |
 | [troubleshooting.md](troubleshooting.md) | Common problems and how to fix them |
-
----
 
 ## One-File Example
 
@@ -59,8 +51,6 @@ await workers.lock('db:write', async () => {
   await saveToDatabase();
 });
 ```
-
----
 
 ## Next Steps
 

@@ -1,6 +1,5 @@
 <h1>Offscreen</h1>
 <p>Transfer an <code>HTMLCanvasElement</code> to a worker for off-main-thread rendering. The worker receives the canvas via <code>transferControlToOffscreen()</code>.</p>
-<hr />
 <h2>Transfer</h2>
 <view-code language="javascript">import { workers } from '@anzaui/anza/workers';
 
@@ -8,7 +7,6 @@ const canvas = document.getElementById('canvas');
 const handle = await workers.offscreen(canvas, '/workers/renderer.js');
 </view-code>
 <p>The worker must respond with <code>{ ok: true }</code> on the received port to signal readiness.</p>
-<hr />
 <h2>Worker Implementation</h2>
 <view-code language="javascript">// /workers/renderer.js
 self.onmessage = (e) =&gt; {
@@ -29,21 +27,17 @@ self.onmessage = (e) =&gt; {
   };
 };
 </view-code>
-<hr />
 <h2>Send Commands</h2>
 <view-code language="javascript">handle.send({ type: 'draw', shape: 'circle', x: 50, y: 50 });
 </view-code>
-<hr />
 <h2>Resize</h2>
 <view-code language="javascript">handle.resize({ width: 400, height: 300, dpr: 2 });
 </view-code>
 <p>Forwards new dimensions and device pixel ratio to the worker.</p>
-<hr />
 <h2>Close</h2>
 <view-code language="javascript">handle.close();
 </view-code>
 <p>Terminates the worker and releases the handle.</p>
-<hr />
 <h2>Requirements</h2>
 <p>Requires <code>OffscreenCanvas</code> and <code>transferControlToOffscreen()</code>. Check with the platform layer:</p>
 <view-code language="javascript">import { supports } from '@anzaui/anza/platform';

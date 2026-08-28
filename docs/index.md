@@ -2,8 +2,6 @@
 
 Anza is a modern, zero-dependency web framework and toolchain built around Native Browser ES Modules, Web Standards Custom Elements, Declarative Shadow DOM (DSD), and high-performance Server-Templated UI (STUI).
 
----
-
 ## What You Get
 
 | Pillar | Capability |
@@ -15,8 +13,6 @@ Anza is a modern, zero-dependency web framework and toolchain built around Nativ
 | **Offline-First Storage** | Integrated Service Worker cache managers, IndexedDB, and Origin Private File System (OPFS) primitives. |
 | **Rust Toolchain** | Lightning-fast static site generator (`anza build`), project linter (`anza check`), and development server with instant SSE hot reload. |
 
----
-
 ## Core Principles
 
 ### 1. Web Standards First
@@ -27,8 +23,6 @@ Server templates render standard HTML and Declarative Shadow DOM that works imme
 
 ### 3. Native Monospace Wire Envelopes
 Live streaming updates and soft page transitions travel as cryptographically verified JSON envelopes signed by the origin server using Ed25519 keys, verified by CDNs and edge proxies.
-
----
 
 ## Quick Example
 
@@ -54,8 +48,6 @@ element('counter-button', {
   }
 });
 ```
-
----
 
 <div class="doc-pagination">
   <span></span>

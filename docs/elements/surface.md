@@ -4,15 +4,11 @@ Styled surface for flat, elevated, or bordered panels.
 
 **Tag:** `ui-surface` · **Import:** `@anzaui/anza/elements/surface`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/surface';
 ```
-
----
 
 ## Basic usage
 
@@ -21,8 +17,6 @@ import '@anzaui/anza/elements/surface';
 <ui-surface variant="elevated">Elevated panel</ui-surface>
 <ui-surface variant="bordered">Bordered panel</ui-surface>
 ```
-
----
 
 ## Props
 
@@ -33,8 +27,6 @@ import '@anzaui/anza/elements/surface';
 ## Notes
 
 Default slot / `part="surface"`.
-
----
 
 ## Related
 

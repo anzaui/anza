@@ -4,15 +4,11 @@ Field wrapper that coordinates label, required marker, hint, error, and a contro
 
 **Tag:** `ui-field` · **Import:** `@anzaui/anza/elements/field`
 
----
-
 ## Import
 
 ```javascript
 import '@anzaui/anza/elements/field';
 ```
-
----
 
 ## Basic usage
 
@@ -24,8 +20,6 @@ import '@anzaui/anza/elements/field';
 </ui-field>
 ```
 
----
-
 ## Props
 
 | Prop | Type | Reflect | Description |
@@ -36,8 +30,6 @@ import '@anzaui/anza/elements/field';
 ## Notes
 
 Slots: `label`, `hint`, default (control), `error`. Not form-associated itself — wrap form controls inside.
-
----
 
 ## Related
 

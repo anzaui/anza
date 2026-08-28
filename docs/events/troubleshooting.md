@@ -2,8 +2,6 @@
 
 Common problems and their solutions.
 
----
-
 ## Listener not firing
 
 **Cause:** Wrong event name, or listener attached after emit.
@@ -19,8 +17,6 @@ events.emit('update', data);
 events.emit('update', data);
 events.on('update', handler); // missed it
 ```
-
----
 
 ## Memory leak with global listeners
 
@@ -39,8 +35,6 @@ events.on('update', handler, ctrl.signal);
 ctrl.abort();
 ```
 
----
-
 ## Delegation not matching shadow DOM elements
 
 **Cause:** The selector does not match any element in `composedPath()`.
@@ -55,8 +49,6 @@ events.delegate(document.body, 'span', 'click', handler); // matches
 events.delegate(document.body, 'my-el', 'click', handler);   // matches
 events.delegate(document.body, 'div', 'click', handler);    // no match
 ```
-
----
 
 ## Passive event warning
 
@@ -73,8 +65,6 @@ on.touchmove('.scroller', handler, { passive: false });
 
 Only do this when you genuinely need to block scrolling. Default passive is correct for most use cases. Click / submit / key handlers are non-passive by default.
 
----
-
 ## Orphan listeners after soft-nav
 
 **Cause:** Leaf page attached `document.addEventListener` or a `MutationObserver` without `{ signal: ctrl.signal }` (or a disposer called from `unmount`). Soft-nav swaps the leaf via `replaceChildren` / `swapView`; only `disconnectedCallback` → `ctrl.abort()` tears down leaf-owned work.
@@ -85,15 +75,11 @@ Framework-owned document attachments are registered in the internal `globals` re
 
 For overlay kit ownership (in-tree top-layer vs toast body portal): [Overlay patterns](../elements/overlay.md).
 
----
-
 ## MutationObserver thrash
 
 **Cause:** `watch.tree` or `watch.attr(..., '*')` on a busy subtree, or one shared observer that used to coarsen all registrations.
 
 **Fix:** Prefer `watch.attr(ref, 'open', …)` / `watch.kids(list, …)` with named filters. Observers are bucketed by fingerprint so a wide watch cannot drop `attributeFilter` on a neighbor. Avoid `ui.observe.mutation(document, …, { subtree: true })` — use a scoped root.
-
----
 
 ## once() promise never resolves
 
@@ -109,8 +95,6 @@ await events.once(document, 'click');
 const el = document.createElement('div');
 await events.once(el, 'click'); // never resolves
 ```
-
----
 
 ## AbortSignal not cleaning up
 
@@ -131,8 +115,6 @@ events.on('update', handler, ctrl.signal);
 // ctrl.abort() never called
 ```
 
----
-
 ## EventBus events leaking between modules
 
 **Cause:** Using the global bus for module-scoped communication.
@@ -147,8 +129,6 @@ moduleBus.on('internal', handler);
 ```
 
 Only use `events.emit` and `events.on` for truly global events.
-
----
 
 ## Still stuck?
 

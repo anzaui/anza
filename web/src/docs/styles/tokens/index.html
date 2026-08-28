@@ -1,6 +1,5 @@
 <h1>Design Tokens</h1>
 <p>Anza implements a minimal design token architecture based on CSS custom properties. This system defines variables for base values (primitives), registers animatable variables via Houdini (registered), and maps them to themes and transitions (semantic).</p>
-<hr />
 <h2>Token Architecture</h2>
 <p>The token system is structured into three layers:</p>
 <view-code language="text">[Primitives]   -&gt; Raw, immutable design constants (e.g., base colors, timings, fonts)
@@ -30,7 +29,6 @@
 <li><strong><code>dark.css</code></strong>: Dark theme overrides applied under <code>[data-theme="dark"]</code> or matching user preferences.</li>
 <li><strong><code>contrast.css</code></strong>: WCAG AAA compliant high-contrast overrides applied under <code>[data-theme="high-contrast"]</code>.</li>
 </ul>
-<hr />
 <h2>View Transition Tokens</h2>
 <p>Swap transitions between layout docks and pages are controlled via dedicated variables in <code>/src/tokens/semantic/transitions.css</code>:</p>
 <view-code language="css">:root {

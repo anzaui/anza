@@ -2,8 +2,6 @@
 
 Create a new Anza app and run it.
 
----
-
 ## Scaffold
 
 ```bash
@@ -37,8 +35,6 @@ Empty `src/docks/`, `src/views/`, and `src/parts/` folders (with `index.js` barr
 
 Apps need **no** `anza.json` at create time. Add one only when remapping roots, declaring extra page trees (`pages[]`), or listing additional service workers.
 
----
-
 ## Run
 
 ```bash
@@ -60,8 +56,6 @@ npx anza doctor   # soft: warnings print, exit 0
 npx anza check    # CI: warnings fail
 ```
 
----
-
 ## Generate more files
 
 Thin helpers into convention slots (updates the slot `index.js` barrel):
@@ -74,8 +68,6 @@ npx anza generate part button
 ```
 
 Flags: `--tree`, `--route`, `--via`, `--parent`, `-s/--src`. Docks are created **without** error-page HTML — fallbacks stay by reference ([fallbacks.md](../router/fallbacks.md)). Details: [build.md](build.md#generate) and [structure.md](structure.md#generate-anza-generate).
-
----
 
 ## What Was Generated
 
@@ -135,8 +127,6 @@ page('/', {
   template: '<h1>Home</h1>'
 });
 ```
-
----
 
 ## Next
 

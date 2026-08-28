@@ -1,7 +1,6 @@
 <h1>Hydration (DSD adopt)</h1>
 <p>When a public route ships contentful HTML with open Declarative Shadow DOM (DSD), Anza <strong>adopts</strong> that tree on upgrade instead of clearing and re-cloning. That is the Phase 2 client path for <a href="/docs/ssg/contract">SSG / Mode B HTML</a>.</p>
 <p>Anza does <strong>not</strong> own a production Node SSR runtime. HTML comes from Mode A (<code>anza build</code> / <code>anza dev</code> SSG) or Mode B (any-language templates). The client only adopts what is already in the document.</p>
-<hr />
 <h2>Boot sequence</h2>
 <ol>
 <li>Parser attaches open DSD → first paint with content and encapsulated styles (no JS).</li>
@@ -11,7 +10,6 @@
 <li>Attr → prop sync from SSG attributes; rehydrate <code>ref</code>s, tags cache, <code>on</code>, and <code>watch</code>.</li>
 <li>Soft-nav may CSR-mount a new leaf; full load / hard refresh hits contentful HTML again.</li>
 </ol>
-<hr />
 <h2>Adopt, don’t wipe</h2>
 <view-code language="javascript">// Conceptual — done inside the element factory
 const shadowRoot = this.shadowRoot || this.attachShadow({ mode: 'open' });
@@ -23,7 +21,6 @@ const shadowRoot = this.shadowRoot || this.attachShadow({ mode: 'open' });
 <li><strong>Styles</strong> — constructable sheets are assigned without removing DSD children; fallback <code>&lt;style&gt;</code> is skipped when DSD already shipped styles.</li>
 <li><strong>Mismatch</strong> — if the adopted tree fails hard sanity checks vs the client template (missing critical <code>ref</code>s / empty structure), one graceful re-render runs. No flash loop.</li>
 </ul>
-<hr />
 <h2>Soft-nav vs full load</h2>
 <div class="table-wrap"><table><thead><tr><th>Path</th><th>Behavior</th></tr></thead><tbody>
 <tr><td><strong>Full load / hard refresh</strong></td><td>Browser fetches SSG or Mode B HTML. Orchestrator reuses a matching leaf already in the dock — it must not wipe adopted SEO content.</td></tr>
@@ -32,7 +29,6 @@ const shadowRoot = this.shadowRoot || this.attachShadow({ mode: 'open' });
 </tbody></table></div>
 <p>Document / <code>#main</code> / <code>body</code> attachments belong only to named framework globals (<code>router.nav-click</code>, <code>router.container-mo</code>, <code>popover.*</code>) — not leaf <code>mount</code> code.</p>
 <p><code>sanitizeTemplateHtml</code> refuses a full HTML document (doctype / <code>&lt;html&gt;</code> / nested <code>dock-main</code> / <code>dock-docs</code>) as a page template so a mis-pointed fragment path cannot stack docks inside the leaf.</p>
-<hr />
 <h2>Safe to import anywhere</h2>
 <p><code>element()</code> / <code>page()</code> / <code>dock()</code> check for <code>customElements</code> before defining. In non-browser environments:</p>
 <ul>
@@ -42,7 +38,6 @@ const shadowRoot = this.shadowRoot || this.attachShadow({ mode: 'open' });
 <li><code>transition()</code> returns a resolved promise</li>
 </ul>
 <p>Define elements in the browser graph that upgrades SSG HTML; the factory itself is safe to import during build tooling.</p>
-<hr />
 <h2>Related</h2>
 <ul>
 <li><a href="/docs/ssg/contract">Page HTML contract</a> — Mode A / Mode B shape the client expects</li>
