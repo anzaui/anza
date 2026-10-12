@@ -170,6 +170,7 @@ dist/
     index.css
     ...
   routes.json            # Route manifest for the router
+  _headers               # Cache rules + per-route Link preloads (Cloudflare/Netlify format)
 types/                   # Beside dist/, never shipped (--types to move it)
   index.d.ts             # Global HTMLElementTagNameMap augmentation
   routes.d.ts            # RouteMap and element interfaces

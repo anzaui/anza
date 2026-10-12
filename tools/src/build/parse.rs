@@ -19,7 +19,10 @@ use super::graph::{Diagnostic, Kind};
 /// Parsed metadata for a single JS module.
 pub struct Parsed {
   pub ast: Program,
+  /// Static `import` / `export … from` specifiers.
   pub imports: Vec<(String, Span)>,
+  /// Literal dynamic `import("…")` specifiers.
+  pub dynamic: Vec<(String, Span)>,
   pub assets: Vec<(String, Span)>,
   pub prop_errors: Vec<(String, Span)>,
 }
@@ -60,6 +63,7 @@ pub fn parse(file: &Path, cm: &Arc<SourceMap>) -> Result<Parsed, Diagnostic> {
   Ok(Parsed {
     ast: program,
     imports: visitor.imports,
+    dynamic: visitor.dynamic,
     assets: visitor.assets,
     prop_errors: visitor.prop_errors,
   })
@@ -68,6 +72,7 @@ pub fn parse(file: &Path, cm: &Arc<SourceMap>) -> Result<Parsed, Diagnostic> {
 #[derive(Default)]
 struct Collector {
   imports: Vec<(String, Span)>,
+  dynamic: Vec<(String, Span)>,
   assets: Vec<(String, Span)>,
   prop_errors: Vec<(String, Span)>,
 }
@@ -107,7 +112,7 @@ impl Visit for Collector {
       if let Some(arg) = call.args.first() {
         if let Expr::Lit(Lit::Str(s)) = &*arg.expr {
           if let Some(v) = str_value(s) {
-            self.imports.push((v, s.span));
+            self.dynamic.push((v, s.span));
           }
         }
       }

@@ -29,7 +29,7 @@
 <li><code>&lt;link rel="stylesheet" href="/styles/index.css" /&gt;</code></li>
 </ul>
 </li>
-<li><strong>Route-scoped <code>modulepreload</code></strong> — <code>/app.js</code>, then via-dock modules, layouts, and the leaf page module (from <code>routes.json</code>).</li>
+<li><strong>Route-scoped <code>modulepreload</code></strong> — the route's full static import closure: <code>/app.js</code>, the via-dock modules, layouts and the leaf page module, then everything they import statically, breadth-first and each module once. Dynamic <code>import()</code> targets are not preloaded. The browser fetches every module in parallel instead of one import level at a time. <code>dist/_headers</code> repeats the first of these (plus the two stylesheets) as <code>Link</code> headers so hosts that support 103 Early Hints can start them before the HTML arrives.</li>
 <li><strong>Deferred entry</strong> — <code>&lt;script type="module" src="/app.js"&gt;&lt;/script&gt;</code> (or the route entry). Not blocking first paint beyond parser work; DSD paints without waiting on the full ESM graph.</li>
 </ol>
 <h2>Required <code>&lt;body&gt;</code></h2>

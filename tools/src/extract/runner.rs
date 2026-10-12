@@ -93,7 +93,7 @@ pub fn compile_into(
       //    Runs in build AND dev: otherwise `anza dev` recopies page fragments
       //    over dist/<route>/index.html and soft-nav/CSR fetch nested docs chrome
       //    (stacked dock-docs sidebars). emit() preserves fragments as template.html.
-      match crate::build::ssg::emit(src_dir, dist_dir) {
+      match crate::build::ssg::emit_with(src_dir, dist_dir, &report.module_graph) {
         Ok(stats) => outputs.extend(stats.outputs),
         Err(errs) => errors.extend(errs),
       }

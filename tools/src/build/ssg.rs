@@ -123,6 +123,18 @@ pub struct Stats {
 /// A missing or invalid `routes.json`, any failed route and any failed write
 /// is an error; every error is collected and returned.
 pub fn emit(src_dir: &Path, dist_dir: &Path) -> Result<Stats, Vec<String>> {
+  emit_with(src_dir, dist_dir, &super::graph::ModuleGraph::new())
+}
+
+/// [`emit`] with the static import graph of the build: every page then
+/// preloads its route's full static module closure (and `_headers` lists the
+/// first of them as `Link` preloads for 103 Early Hints). With an empty graph
+/// only the entry, dock and page modules are preloaded.
+pub fn emit_with(
+  src_dir: &Path,
+  dist_dir: &Path,
+  graph: &super::graph::ModuleGraph,
+) -> Result<Stats, Vec<String>> {
   let mut errors: Vec<String> = Vec::new();
   let site = load_site_config(src_dir);
 
@@ -163,16 +175,18 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) -> Result<Stats, Vec<String>> {
   // Routes are emitted in parallel; each worker touches only its own files.
   // Shared routes.json edits are collected and applied once afterwards —
   // concurrent read-modify-write of that file corrupted it and failed routes.
-  type Emitted = (String, Option<String>, Vec<PathBuf>);
+  type Emitted = (String, Option<String>, Vec<PathBuf>, Vec<String>);
   let results: Vec<Result<Emitted, (String, String)>> = plans
     .par_iter()
     .map(|plan| {
       let route = plan.route;
-      match emit_route(src_dir, plan, &sources, &docks, &importmap, &site) {
+      let preload = route_modules(route, &plan.docks, graph);
+      match emit_route(src_dir, plan, &sources, &importmap, &site, &preload) {
         Ok((preserved, written)) => Ok((
           normalize_route_path(&route.path),
           preserved.then(|| route.path.clone()),
           written,
+          preload,
         )),
         Err(err) => Err((route.path.clone(), err.to_string())),
       }
@@ -183,10 +197,12 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) -> Result<Stats, Vec<String>> {
   let mut outputs: Vec<PathBuf> = Vec::new();
   let mut ssg_paths: Vec<String> = Vec::with_capacity(results.len());
   let mut preserved_paths: Vec<String> = Vec::new();
+  let mut route_preloads: Vec<(String, Vec<String>)> = Vec::new();
   for res in results {
     match res {
-      Ok((path, preserved, written)) => {
+      Ok((path, preserved, written, preload)) => {
         emitted += 1;
+        route_preloads.push((path.clone(), preload));
         ssg_paths.push(path);
         preserved_paths.extend(preserved);
         outputs.extend(
@@ -219,6 +235,12 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) -> Result<Stats, Vec<String>> {
   }
   if site.robots {
     outputs.push(PathBuf::from("robots.txt"));
+  }
+
+  let base = site.base.as_deref().unwrap_or("");
+  match super::headers::emit(dist_dir, base, &head_stylesheets(), &route_preloads) {
+    Ok(()) => outputs.push(PathBuf::from(super::headers::FILE)),
+    Err(err) => errors.push(format!("SSG: cannot write _headers: {}", err)),
   }
 
   apply_base_path(dist_dir, &site, &mut errors);
@@ -446,13 +468,37 @@ fn plan_routes<'a>(
   (plans, Sources::load(wanted))
 }
 
+/// Site-root URL of the app entry module every SSG page loads.
+const ENTRY_MODULE: &str = "/app.js";
+
+/// Stylesheets linked from every SSG `<head>` (site-root URLs, in order).
+fn head_stylesheets() -> Vec<String> {
+  vec!["/tokens/index.css".to_string(), "/styles/index.css".to_string()]
+}
+
+/// Modules a route needs before it can run (site-root URLs, no deploy base):
+/// the entry, its docks, layouts and the page module, plus everything they
+/// import statically, breadth-first. Without a graph, only those roots.
+fn route_modules(
+  route: &RouteInfo,
+  docks: &[DockInfo],
+  graph: &super::graph::ModuleGraph,
+) -> Vec<String> {
+  let site_root = |f: &str| format!("/{}", f.trim_start_matches('/'));
+  let mut roots = vec![ENTRY_MODULE.to_string()];
+  roots.extend(docks.iter().filter_map(|d| d.file.as_deref()).map(site_root));
+  roots.extend(route.layouts.iter().map(|f| site_root(f)));
+  roots.extend(route.file.as_deref().map(site_root));
+  super::graph::static_closure(graph, roots.iter().map(String::as_str))
+}
+
 fn emit_route(
   src_dir: &Path,
   plan: &RoutePlan,
   sources: &Sources,
-  docks: &BTreeMap<String, DockInfo>,
   importmap: &str,
   site: &SsgSiteConfig,
+  preload: &[String],
 ) -> Result<(bool, Vec<PathBuf>), String> {
   let route = plan.route;
   let out_path = &plan.out_path;
@@ -491,7 +537,7 @@ fn emit_route(
   let body = build_dsd_tree(src_dir, sources, plan, &page_html, &page_css, h1_inner.as_deref())?;
   let head_extra = build_head(
     route,
-    docks,
+    preload,
     importmap,
     &title,
     &description,
@@ -643,7 +689,7 @@ fn output_path(dist_dir: &Path, path: &str) -> PathBuf {
 
 fn build_head(
   route: &RouteInfo,
-  docks: &BTreeMap<String, DockInfo>,
+  preload: &[String],
   importmap: &str,
   title: &str,
   description: &str,
@@ -703,68 +749,29 @@ fn build_head(
     ));
   }
 
-  head.push_str(&format!(
-    "  <link rel=\"stylesheet\" href=\"{}\" />\n",
-    escape_attr(&asset_href(site.base.as_deref(), "/tokens/index.css"))
-  ));
-  head.push_str(&format!(
-    "  <link rel=\"stylesheet\" href=\"{}\" />\n",
-    escape_attr(&asset_href(site.base.as_deref(), "/styles/index.css"))
-  ));
-
-  // Route-scoped modulepreload (mirrors tools/src/server/runner.rs).
-  let app_js = asset_href(site.base.as_deref(), "/app.js");
-  head.push_str(&format!(
-    "  <link rel=\"modulepreload\" href=\"{}\" />\n",
-    escape_attr(&app_js)
-  ));
-
-  let mut seen_modules = std::collections::HashSet::new();
-  seen_modules.insert(app_js.clone());
-
   let base = site.base.as_deref();
-  for via_name in &route.via {
-    if let Some(dock) = docks.get(via_name) {
-      if let Some(ref f) = dock.file {
-        let href = asset_href(base, &format!("/{}", f.trim_start_matches('/')));
-        if seen_modules.insert(href.clone()) {
-          head.push_str(&format!(
-            "  <link rel=\"modulepreload\" href=\"{}\" />\n",
-            escape_attr(&href)
-          ));
-        }
-      }
-    }
+  for sheet in head_stylesheets() {
+    head.push_str(&format!(
+      "  <link rel=\"stylesheet\" href=\"{}\" />\n",
+      escape_attr(&asset_href(base, &sheet))
+    ));
   }
-  for f in &route.layouts {
-    let raw = if f.starts_with('/') {
-      f.clone()
-    } else {
-      format!("/{}", f)
-    };
-    let href = asset_href(base, &raw);
-    if seen_modules.insert(href.clone()) {
-      head.push_str(&format!(
-        "  <link rel=\"modulepreload\" href=\"{}\" />\n",
-        escape_attr(&href)
-      ));
-    }
-  }
-  if let Some(ref f) = route.file {
-    let href = asset_href(base, &format!("/{}", f.trim_start_matches('/')));
-    if seen_modules.insert(href.clone()) {
-      head.push_str(&format!(
-        "  <link rel=\"modulepreload\" href=\"{}\" />\n",
-        escape_attr(&href)
-      ));
-    }
+
+  // The route's full static module closure (entry first, breadth-first), so
+  // the browser fetches every module in parallel instead of discovering them
+  // one import level at a time.
+  for module in preload {
+    head.push_str(&format!(
+      "  <link rel=\"modulepreload\" href=\"{}\" />\n",
+      escape_attr(&asset_href(base, module))
+    ));
   }
 
   head.push_str(&super::base::base_script_tag(base.unwrap_or("")));
   // Deferred entry — parser paints DSD first; modules upgrade later.
   head.push_str(&format!(
     "  <script type=\"module\" src=\"{}\"></script>\n",
-    escape_attr(&app_js)
+    escape_attr(&asset_href(base, ENTRY_MODULE))
   ));
   head
 }

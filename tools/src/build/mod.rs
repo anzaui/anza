@@ -10,6 +10,7 @@ pub mod base;
 pub mod cache;
 pub mod entries;
 pub mod graph;
+pub mod headers;
 pub mod html;
 pub mod order;
 pub mod parse;

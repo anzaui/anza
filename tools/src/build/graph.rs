@@ -73,6 +73,41 @@ pub struct Report {
   pub importmap: BTreeMap<String, String>,
   /// Every dist file this pass owns, relative to dist (copied or unchanged).
   pub outputs: Vec<PathBuf>,
+  /// Static import graph of the copied JS modules, keyed by site-root URL
+  /// (`/core/ui/index.js`), edges in source order. Dynamic `import()` is
+  /// not an edge: it is not needed before the module runs.
+  pub module_graph: ModuleGraph,
+}
+
+/// Site-root module URL -> its static imports (site-root URLs, source order).
+pub type ModuleGraph = BTreeMap<String, Vec<String>>;
+
+/// Every module reachable from `roots` through static imports, breadth-first
+/// (shallow modules first, so preload hints start the critical ones early),
+/// each URL once. Roots missing from the graph are still listed.
+pub fn static_closure<'a, I>(graph: &ModuleGraph, roots: I) -> Vec<String>
+where
+  I: IntoIterator<Item = &'a str>,
+{
+  let mut seen: AHashSet<String> = AHashSet::new();
+  let mut order: Vec<String> = Vec::new();
+  let mut queue: VecDeque<String> = VecDeque::new();
+  for root in roots {
+    if seen.insert(root.to_string()) {
+      queue.push_back(root.to_string());
+    }
+  }
+  while let Some(url) = queue.pop_front() {
+    if let Some(edges) = graph.get(&url) {
+      for next in edges {
+        if seen.insert(next.clone()) {
+          queue.push_back(next.clone());
+        }
+      }
+    }
+    order.push(url);
+  }
+  order
 }
 
 /// What a specifier resolved to.
@@ -181,6 +216,8 @@ pub fn resolve(
   }
 
   let mut modules = 0usize;
+  // Static JS import edges by absolute source path (mapped to URLs later).
+  let mut edges: BTreeMap<PathBuf, Vec<PathBuf>> = BTreeMap::new();
   let mut hashes: BTreeMap<PathBuf, String> = BTreeMap::new();
   let mut importmap: BTreeMap<String, String> = BTreeMap::new();
 
@@ -201,7 +238,8 @@ pub fn resolve(
       use rayon::prelude::*;
       frontier.par_iter().map(|m| visit_module(m, &ctx)).collect()
     };
-    for visit in visits {
+    for (module, visit) in frontier.iter().zip(visits) {
+      edges.insert(module.clone(), visit.edges);
       errors.extend(visit.errors);
       warnings.extend(visit.warnings);
       importmap.extend(visit.importmap);
@@ -283,6 +321,25 @@ pub fn resolve(
   let mut claimed: std::collections::HashSet<PathBuf> = std::collections::HashSet::new();
   jobs.retain(|(_, rel)| claimed.insert(rel.clone()));
   outputs.extend(jobs.iter().map(|(_, rel)| rel.clone()));
+
+  // Import graph in URL space, for modulepreload hints and Link headers.
+  let url_of: std::collections::HashMap<&PathBuf, String> = jobs
+    .iter()
+    .map(|(file, rel)| (*file, format!("/{}", rel.to_string_lossy().replace('\\', "/"))))
+    .collect();
+  let mut module_graph: ModuleGraph = BTreeMap::new();
+  for (module, deps) in &edges {
+    let Some(url) = url_of.get(module) else { continue };
+    let mut list: Vec<String> = Vec::new();
+    for dep in deps {
+      if let Some(dep_url) = url_of.get(dep) {
+        if !list.contains(dep_url) {
+          list.push(dep_url.clone());
+        }
+      }
+    }
+    module_graph.insert(url.clone(), list);
+  }
 
   // Serialize the import map once for every HTML file.
   let importmap_tag = super::html::importmap_tag(&importmap);
@@ -376,6 +433,7 @@ pub fn resolve(
     warnings,
     importmap,
     outputs,
+    module_graph,
   })
 }
 
@@ -414,6 +472,8 @@ struct Visit {
   importmap: Vec<(String, String)>,
   /// Reached files; `true` = an ESM import (walked further when it is JS).
   files: Vec<(PathBuf, bool)>,
+  /// Statically imported JS modules (no dynamic `import()`), source order.
+  edges: Vec<PathBuf>,
 }
 
 /// Parse one module and resolve its imports and asset literals.
@@ -445,7 +505,8 @@ fn visit_module(module: &Path, ctx: &WalkCtx) -> Visit {
   };
 
   // 1. ESM import specifiers -> walked as modules (if JS) or copied (assets).
-  for (spec, span) in &parsed.imports {
+  let statics = parsed.imports.iter().map(|i| (i, false));
+  for ((spec, span), dynamic) in statics.chain(parsed.dynamic.iter().map(|i| (i, true))) {
     match resolve(spec) {
       Resolution::External => {}
       Resolution::File(path, extless) => {
@@ -470,6 +531,9 @@ fn visit_module(module: &Path, ctx: &WalkCtx) -> Visit {
           out.importmap.push((spec.clone(), target.clone()));
         }
 
+        if !dynamic && is_js(&norm) {
+          out.edges.push(norm.clone());
+        }
         out.files.push((norm, true));
       }
       Resolution::Missing => {

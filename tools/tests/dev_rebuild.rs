@@ -97,6 +97,50 @@ fn base_change_invalidates_the_dev_cache() {
 }
 
 #[test]
+fn pages_preload_the_full_static_module_closure() {
+  let root = project("preload");
+  let (src, dist) = (root.join("src"), root.join("dist"));
+  write(&root, "src/app.js", "import './index.js';\n");
+  write(&root, "src/index.html", "<!DOCTYPE html><script type=\"module\" src=\"/app.js\"></script>\n");
+  write(
+    &root,
+    "src/pages/a/index.js",
+    "import './dep.js';\npage('/docs/a', { tag: 'doc-a', template: { html: './index.html' } });\n",
+  );
+  write(&root, "src/pages/a/dep.js", "import './deep.js';\nexport const lazy = () => import('./lazy.js');\n");
+  write(&root, "src/pages/a/deep.js", "export const x = 1;\n");
+  write(&root, "src/pages/a/lazy.js", "export const y = 2;\n");
+  compile(&src, &dist, false, &[]).expect("dev build");
+
+  let html = std::fs::read_to_string(dist.join("docs/a/index.html")).unwrap();
+  let preloads: Vec<&str> = html
+    .lines()
+    .filter(|l| l.contains("rel=\"modulepreload\""))
+    .collect();
+  // Breadth-first from the roots (entry, then the page module).
+  let order = [
+    "/app.js",
+    "/pages/a/index.js",
+    "/index.js",
+    "/pages/a/dep.js",
+    "/pages/b/index.js",
+    "/pages/a/deep.js",
+  ];
+  assert_eq!(preloads.len(), order.len(), "{preloads:#?}");
+  for (line, url) in preloads.iter().zip(order) {
+    assert!(line.contains(&format!("href=\"{url}\"")), "{line} != {url}");
+  }
+  // Dynamic imports are not needed up front.
+  assert!(!html.contains("lazy.js"));
+
+  let headers = std::fs::read_to_string(dist.join("_headers")).unwrap();
+  assert!(headers.contains("/*\n  Cache-Control: no-cache\n"), "{headers}");
+  assert!(headers.contains("/docs/a\n  Link: </tokens/index.css>; rel=preload; as=style"), "{headers}");
+  assert!(headers.contains("</pages/a/deep.js>; rel=modulepreload"), "{headers}");
+  let _ = std::fs::remove_dir_all(&root);
+}
+
+#[test]
 fn type_declarations_go_beside_dist_not_into_it() {
   let root = project("types");
   let (src, dist, types) = (root.join("src"), root.join("dist"), root.join("types"));

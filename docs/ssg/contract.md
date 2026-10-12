@@ -41,7 +41,7 @@ Emit in this order (charset/viewport first; import map before any `type="module"
 8. **Critical CSS** — at least:
    - `<link rel="stylesheet" href="/tokens/index.css" />`
    - `<link rel="stylesheet" href="/styles/index.css" />`
-9. **Route-scoped `modulepreload`** — `/app.js`, then via-dock modules, layouts, and the leaf page module (from `routes.json`).
+9. **Route-scoped `modulepreload`** — the route's full static import closure: `/app.js`, the via-dock modules, layouts and the leaf page module, then everything they import statically, breadth-first and each module once. Dynamic `import()` targets are not preloaded. The browser fetches every module in parallel instead of one import level at a time. `dist/_headers` repeats the first of these (plus the two stylesheets) as `Link` headers so hosts that support 103 Early Hints can start them before the HTML arrives.
 10. **Deferred entry** — `<script type="module" src="/app.js"></script>` (or the route entry). Not blocking first paint beyond parser work; DSD paints without waiting on the full ESM graph.
 
 ## Required `<body>`
