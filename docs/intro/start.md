@@ -14,20 +14,22 @@ This generates:
 
 | Path | Purpose |
 | ------ | ------- |
-| `src/app.js` | Entry point — imports UI, barrels, and defines a layout dock |
+| `src/app.js` | Entry point — imports UI, theme and barrels, registers the Service Worker |
 | `src/index.html` | HTML shell with importmap, tokens, styles, and module script |
 | `src/sw.js` | Service Worker entry — caching, routing, sync |
 | `src/pages/index.js` | Pages barrel |
 | `src/pages/entry/index.js` | Landing page definition |
 | `src/pages/entry/index.html` | Landing page markup |
 | `src/pages/entry/index.css` | Landing page styles |
-| `src/docks/index.js` | Docks barrel (empty until you add docks) |
+| `src/docks/index.js` | Docks barrel |
+| `src/docks/main/index.js` | Root layout dock: `dock('main')` |
 | `src/views/index.js` | Views barrel — global views slot |
 | `src/parts/index.js` | Parts barrel |
 | `src/tokens/` | Design tokens copied from the library (colors, spacing, typography) |
 | `src/styles/` | Global styles copied from the library (reset, layers, base) |
 | `importmap.json` | Empty starter for custom aliases |
-| `package.json` | Scripts: `dev` and `build` |
+| `package.json` | Scripts: `dev` and `build`; `@anzaui/anza` as a devDependency |
+| `.gitignore` | Ignores `node_modules/`, `dist/`, `.anzacache.json` |
 
 You own `src/tokens/` and `src/styles/`. The library copies them in as starter files; change them freely.
 
@@ -75,7 +77,6 @@ Flags: `--tree`, `--route`, `--via`, `--parent`, `-s/--src`. Docks are created *
 
 ```javascript
 import '@anzaui/anza/ui';
-import { dock } from '@anzaui/anza/ui';
 import '@anzaui/anza/theme';
 
 import './docks/index.js';
@@ -83,12 +84,11 @@ import './views/index.js';
 import './parts/index.js';
 import './pages/index.js';
 
+// Service Worker
 navigator.serviceWorker.register('/sw.js', { type: 'module' });
-
-dock('main');
 ```
 
-This initializes the UI system, loads barrels, registers the Service Worker, and creates a `main` dock. Source import order is free-form — `anza build` rewrites `dist/` into usage order (library → docks → views → parts → pages).
+This initializes the UI system and loads the barrels; `src/docks/main/index.js` creates the `main` dock with `dock('main')`. It also registers the Service Worker; to avoid stale files in dev, register it only on deployed hosts (see [sw/start.md](../sw/start.md#2-register-from-appjs)). Source import order is free-form — `anza build` rewrites `dist/` into usage order (library → docks → views → parts → pages).
 
 ### `src/pages/entry/index.js`
 

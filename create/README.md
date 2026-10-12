@@ -1,8 +1,6 @@
 # @anzaui/create-anza
 
-Scaffold a new anza app with one command.
-
-## Usage
+Creates a new Anza app. It runs the scaffolder that ships with `@anzaui/anza` (`@anzaui/anza/bin/create`).
 
 ```bash
 npm create @anzaui/anza myapp
@@ -11,27 +9,8 @@ npm install
 npm run dev
 ```
 
-This generates a complete project with:
+Generated layout: `src/index.html`, `src/app.js`, `src/sw.js`, `src/pages/entry/` (landing page: `index.js`, `index.html`, `index.css`), `src/docks/main/` (the `main` dock), barrels `src/{pages,docks,views,parts}/index.js`, starter `src/tokens/` and `src/styles/`, plus `package.json` (`dev`, `build` scripts), `importmap.json` and `.gitignore`. No `anza.json` is needed.
 
-- `src/app.js` — entry point with UI init, theme, and Service Worker
-- `src/index.html` — HTML shell with importmap, tokens, and styles
-- `src/sw.js` — Service Worker with caching strategies
-- `src/pages/index/` — welcome page (JS, HTML, CSS)
-- `src/tokens/` — design tokens copied from the library
-- `src/styles/` — global styles copied from the library
+Docs: [getting started](https://github.com/anzaui/anza/blob/main/docs/intro/start.md).
 
-## What it does
-
-`npm create @anzaui/anza` installs this package, which resolves the installed `@anzaui/anza` library and delegates to its scaffold logic. The library handles the actual file generation — this package is just the entry point.
-
-## Programmatic use
-
-```javascript
-import { run } from '@anzaui/anza/bin/create';
-
-run('/path/to/myapp', 'myapp', '/path/to/@anzaui/anza');
-```
-
-## License
-
-MIT © Aduki
+MIT © 2026 aduki, Labs

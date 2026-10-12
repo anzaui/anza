@@ -4,105 +4,82 @@
 
 <h1 align="center">Anza</h1>
 
-Anza is a web UI toolkit for building fast web applications using standard browser features. It combines client-side custom elements, client-side routing, an offline cache layer, a Rust-based development and static build CLI, and server-side template engines for Rust, TypeScript, and Python.
+Anza is a web UI toolkit built on standard browser features. It has four parts:
 
-## Features
+- **`@anzaui/anza`** (npm): the browser library. Custom elements, routing, state, storage, offline, animations and service worker helpers, all as plain ES modules.
+- **`anza`** (CLI): the dev server and static build, written in Rust. It is shipped with the npm package, so you run it as `npx anza …` or through `npm run …`.
+- **`@anzaui/create-anza`** (npm): the project scaffolder behind `npm create @anzaui/anza`.
+- **Server engines**: render full pages and signed JSON fragments from Rust (`anza` crate), TypeScript (`@anzaui/engine`) and Python (`anza` on PyPI).
 
-- **Standard Web Components**: Declarative custom elements with reactive state, Shadow DOM, and scoped styles.
-- **Client Routing**: Page and slot transitions with support for the browser View Transitions API.
-- **Offline & Cache**: Service worker cache management and IndexedDB data persistence.
-- **Static Generation (SSG)**: Fast HTML pre-rendering with Declarative Shadow DOM output.
-- **Server Template Engines**: Render full HTML pages and JSON envelope fragments from Rust, TypeScript, and Python backends with optional HMAC/Ed25519 payload signing.
-
-## Installation
-
-### Project Scaffolding
+## Quick start
 
 ```bash
-npm create @anzaui/anza my-project
-cd my-project
+npm create @anzaui/anza myapp
+cd myapp
 npm install
-anza dev
+npm run dev
 ```
 
-### CLI Tooling (Rust)
+The dev server runs on `http://localhost:3000`. The full walkthrough is in [docs/intro/start.md](docs/intro/start.md).
 
-Install or compile the CLI binary:
-
-```bash
-cargo install --path tools
-```
-
-Or build locally:
-
-```bash
-cargo build --release --manifest-path tools/Cargo.toml
-```
-
-## CLI Usage
-
-The `anza` command provides development, build, and validation tools:
-
-```bash
-# Start the local development server with hot module reloading
-anza dev
-
-# Verify project conventions, route definitions, and element bindings
-anza check
-
-# Build production bundle and pre-render static HTML pages
-anza build
-
-# Generate starter files for a new element, dock, or page
-anza generate element my-counter
-anza generate dock dashboard
-anza generate page settings
-```
-
-## Client Library Usage
-
-```html
-<script type="module" src="/src/app.js"></script>
-
-<!-- Slot containers update when routes or fragments change -->
-<anza-dock name="main">
-  <anza-page path="/" src="/src/pages/home/index.js"></anza-page>
-  <anza-page path="/about" src="/src/pages/about/index.js"></anza-page>
-</anza-dock>
-```
+## A page and an element
 
 ```javascript
-// src/elements/my-counter/index.js
-export class MyCounter extends HTMLElement {
-  connectedCallback() {
-    this.attachShadow({ mode: 'open' });
-    this.count = 0;
-    this.render();
-  }
+import { dock, page, view } from '@anzaui/anza/ui';
 
-  increment() {
-    this.count += 1;
-    this.render();
-  }
+dock('main'); // renders as <dock-main>
 
-  render() {
-    this.shadowRoot.innerHTML = `
-      <style>button { padding: 0.5rem 1rem; cursor: pointer; }</style>
-      <button>Count: ${this.count}</button>
-    `;
-    this.shadowRoot.querySelector('button').onclick = () => this.increment();
+view('hello-card', {
+  props: { name: { type: String, default: 'world' } },
+  template: '<p>Hello, <span ref="name"></span>!</p>',
+  on: {
+    connect({ refs }) { refs.name.textContent = this.name; }
   }
-}
-customElements.define('my-counter', MyCounter);
+});
+
+page('/', {
+  tag: 'page-home',
+  via: ['main'],
+  template: '<hello-card name="Anza"></hello-card>'
+});
 ```
 
-## Server Engines
+Components are defined with `element()`, `view()`, `part()`, `dock()` and `page()`. There are no classes to extend. Built-in elements use `ui-*` tags, docks use `dock-<name>`.
 
-Server-side template rendering libraries are available in `engines/`:
+## CLI
 
-- **Rust**: `engines/rust` (`anza` crate on crates.io)
-- **TypeScript / JavaScript**: `engines/ts` (`@anzaui/engine` package on npm)
-- **Python**: `engines/py` (`anza` package on PyPI)
+| Command | What it does |
+| ------- | ------------ |
+| `npx anza dev` | Dev server with live reload (`npm run dev` in a scaffolded app) |
+| `npx anza build` | Production build and static HTML into `dist/` (`npm run build`) |
+| `npx anza check` | Strict project structure check for CI; warnings fail |
+| `npx anza doctor` | Same checks as `check`, but warnings only print |
+| `npx anza scan` | Extract element metadata and type declarations |
+| `npx anza generate <page\|dock\|view\|part> <name>` | Create a file in the right folder and update its barrel |
+| `npx anza docs` | Build a docs site from Markdown (`--out`, `--all`) |
+
+`anza create` only prints a hint: new projects are created with `npm create @anzaui/anza <name>`.
+
+## Documentation
+
+- [Getting started](docs/intro/start.md) and [project structure](docs/intro/structure.md)
+- [UI](docs/ui/index.md), [router](docs/router/index.md), [state](docs/state/index.md), [storage](docs/storage/index.md), [service worker](docs/sw/index.md)
+- [Built-in elements](docs/elements/index.md)
+- [Server engines](docs/engines/index.md)
+- Package READMEs: [library](library/README.md), [create](create/README.md), [Rust engine](engines/rust/README.md), [TS engine](engines/ts/README.md), [Python engine](engines/py/README.md)
+
+## Repository
+
+| Path | Contents |
+| ---- | -------- |
+| `library/` | `@anzaui/anza` |
+| `create/` | `@anzaui/create-anza` |
+| `tools/` | The `anza` CLI (Rust crate `anza-cli`) |
+| `engines/` | Server engines (Rust, TypeScript, Python) |
+| `docs/` | Documentation source |
+| `web/` | The Anza website, built with Anza |
+
+Checks: `npm run check` (types), `npm test` (browser tests), `npm run doc:imports`, `npm run types:check`.
 
 ## License
 
