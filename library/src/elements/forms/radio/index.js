@@ -10,6 +10,9 @@
 
 import { ui } from '../../../core/ui/index.js';
 
+/** `checked` attribute at first mount: what a form reset restores. */
+const defaults = new WeakMap();
+
 ui.element('ui-radio', {
   style: './style.css',
   template: './index.html',
@@ -20,7 +23,9 @@ ui.element('ui-radio', {
     name: { type: String, reflect: true },
     value: { type: String, reflect: true }
   },
-  mount({ el, internals, on }) {
+  mount({ el, internals, ctrl }) {
+    if (!defaults.has(el)) defaults.set(el, el.hasAttribute('checked'));
+
     if (!el.hasAttribute('tabindex')) {
       el.setAttribute('tabindex', '0');
     }
@@ -28,19 +33,28 @@ ui.element('ui-radio', {
       el.setAttribute('role', 'radio');
     }
 
-    on.click(el, (e) => {
+    // User selection: sync the form value before `change`.
+    const select = () => {
+      el.checked = true;
+      syncAttributes(el, internals);
+      uncheckOthers(el);
+      el.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+    };
+
+    // The host is outside the shadow root, so `on` cannot bind it.
+    el.addEventListener('click', (e) => {
       if (el.disabled || el.checked) return;
       e.preventDefault();
-      el.checked = true;
-    });
+      select();
+    }, { signal: ctrl.signal });
 
-    on.keydown(el, (e) => {
+    el.addEventListener('keydown', (e) => {
       if (el.disabled || el.checked) return;
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
-        el.checked = true;
+        select();
       }
-    });
+    }, { signal: ctrl.signal });
 
     syncAttributes(el, internals);
   },
@@ -52,17 +66,20 @@ ui.element('ui-radio', {
       }
     }
   },
-  formResetCallback({ el, internals }) {
-    el.checked = el.hasAttribute('checked');
-    syncAttributes(el, internals);
+  // Form-associated hooks run with `this` bound to the element.
+  reset() {
+    this.checked = defaults.get(this) ?? false;
+    if (this._ctx) syncAttributes(this, this._ctx.internals);
   },
-  formDisabledCallback({ el, internals, disabled }) {
+  disabled(disabled) {
     if (disabled) {
-      el.removeAttribute('tabindex');
-    } else {
-      el.setAttribute('tabindex', '0');
+      this.removeAttribute('tabindex');
+    } else if (!this.disabled && !this.hasAttribute('tabindex')) {
+      this.setAttribute('tabindex', '0');
     }
-    syncAttributes(el, internals);
+  },
+  restore(state) {
+    this.checked = state != null;
   }
 }, import.meta.url);
 
@@ -98,7 +115,7 @@ function uncheckOthers(el) {
 
   // Find and query all other radio components in the same root node sharing the same name
   const root = el.getRootNode();
-  const radios = Array.from(root.querySelectorAll(`ui-radio[name="${name}"]`));
+  const radios = Array.from(root.querySelectorAll(`ui-radio[name="${CSS.escape(name)}"]`));
 
   for (const radio of radios) {
     if (radio !== el && radio.checked) {

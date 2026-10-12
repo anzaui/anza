@@ -639,6 +639,7 @@ export function element(tag, spec, base) {
                   on: this._on,
                   refs: this._refs,
                   watch: this._watch,
+                  internals: internalsMap.get(this),
                   name, 
                   val: v, 
                   old: o,

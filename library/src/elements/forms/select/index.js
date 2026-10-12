@@ -10,6 +10,9 @@
 
 import { ui } from '../../../core/ui/index.js';
 
+/** `value` attribute at first mount: what a form reset restores. */
+const defaults = new WeakMap();
+
 ui.element('ui-select', {
   style: './style.css',
   template: './index.html',
@@ -20,23 +23,28 @@ ui.element('ui-select', {
     disabled: { type: Boolean, reflect: true, state: true },
     required: { type: Boolean, reflect: true }
   },
-  mount({ el, internals, tags, on, watch }) {
+  mount({ el, internals, tags, on, ctrl }) {
     const slot = tags.one('slot');
     const trigger = tags.one('#trigger');
     const popover = tags.one('#dropdown');
+    if (!defaults.has(el)) defaults.set(el, el.getAttribute('value') ?? '');
 
-    on.slotchange(slot, () => {
-      const nodes = slot.assignedElements();
-      for (const node of nodes) {
-        on.click(node, (e) => {
-          const target = e.currentTarget;
-          const val = target.getAttribute('value') || target.textContent.trim();
-          el.value = val;
-          popover.hidePopover();
-        });
-      }
+    on.slotchange(slot, () => syncValue(el, tags, internals));
+
+    // Options are light-DOM children, outside the shadow root `on` covers:
+    // listen on the host and find the clicked option.
+    el.addEventListener('click', (e) => {
+      if (el.disabled) return;
+      const options = slot.assignedElements();
+      const option = e.composedPath().find((node) => options.includes(node));
+      if (!option) return;
+      const val = option.getAttribute('value') || option.textContent.trim();
+      if (popover.matches(':popover-open')) popover.hidePopover();
+      if (val === el.value) return;
+      el.value = val;
       syncValue(el, tags, internals);
-    });
+      el.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+    }, { signal: ctrl.signal });
 
     // Anchor positioning polyfill fallback where needed
     if (!('anchorName' in document.documentElement.style)) {
@@ -52,19 +60,22 @@ ui.element('ui-select', {
 
     syncAttributes(el, tags, internals);
   },
-  update({ el, name, val, tags, internals }) {
-    if (name === 'disabled' || name === 'value' || name === 'placeholder') {
+  update({ el, name, tags, internals }) {
+    if (name === 'disabled' || name === 'value' || name === 'placeholder' || name === 'required') {
       syncAttributes(el, tags, internals);
     }
   },
-  formResetCallback({ el, tags, internals }) {
-    el.value = el.getAttribute('value') || '';
-    syncAttributes(el, tags, internals);
+  // Form-associated hooks run with `this` bound to the element.
+  reset() {
+    this.value = defaults.get(this) ?? '';
+    if (this._ctx) syncAttributes(this, this._tags, this._ctx.internals);
   },
-  formDisabledCallback({ el, tags, internals, disabled }) {
-    const trigger = tags.one('#trigger');
-    trigger.disabled = disabled;
-    syncAttributes(el, tags, internals);
+  disabled(disabled) {
+    const trigger = this._tags?.one('#trigger');
+    if (trigger) trigger.disabled = disabled || this.disabled;
+  },
+  restore(state) {
+    if (typeof state === 'string') this.value = state;
   }
 }, import.meta.url);
 

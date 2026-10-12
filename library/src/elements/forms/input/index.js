@@ -10,6 +10,11 @@
 
 import { ui } from '../../../core/ui/index.js';
 
+/** Value attribute at first mount: what a form reset restores. */
+const defaults = new WeakMap();
+
+const ATTRS = ['type', 'placeholder', 'required', 'minlength', 'maxlength', 'min', 'max', 'pattern'];
+
 ui.element('ui-input', {
   style: './style.css',
   template: './index.html',
@@ -28,11 +33,12 @@ ui.element('ui-input', {
   },
   mount({ el, internals, tags, on }) {
     const input = tags.one('input');
+    if (!defaults.has(el)) defaults.set(el, el.getAttribute('value') ?? '');
 
     // Bind change and input event listeners
     on.input('input', () => {
       el.value = input.value;
-      validate(el, internals, input);
+      validate(internals, input);
     });
 
     on.change('input', () => {
@@ -40,6 +46,7 @@ ui.element('ui-input', {
     });
 
     syncAttributes(el, tags);
+    validate(internals, input);
   },
   update({ el, name, val, tags, internals }) {
     const input = tags.one('input');
@@ -47,51 +54,55 @@ ui.element('ui-input', {
     if (name === 'disabled') {
       input.disabled = !!val;
     } else if (name === 'value') {
-      input.value = val || '';
-    } else if (['type', 'placeholder', 'required', 'minlength', 'maxlength', 'min', 'max', 'pattern'].includes(name)) {
-      if (val !== null && val !== undefined) {
-        input.setAttribute(name, val);
-      } else {
-        input.removeAttribute(name);
-      }
+      if (input.value !== (val ?? '')) input.value = val ?? '';
+    } else if (ATTRS.includes(name)) {
+      setAttr(input, name, val);
     }
 
-    validate(el, internals, input);
+    validate(internals, input);
   },
-  formResetCallback({ el, tags }) {
-    el.value = el.getAttribute('value') || '';
-    const input = tags.one('input');
-    input.value = el.value;
+  // Form-associated hooks run with `this` bound to the element.
+  reset() {
+    this.value = defaults.get(this) ?? '';
+    const input = this._tags?.one('input');
+    if (!input) return;
+    input.value = this.value;
+    validate(this._ctx.internals, input);
   },
-  formDisabledCallback({ el, tags, disabled }) {
-    const input = tags.one('input');
-    input.disabled = disabled;
+  disabled(disabled) {
+    const input = this._tags?.one('input');
+    if (input) input.disabled = disabled || this.disabled;
+  },
+  restore(state) {
+    if (typeof state === 'string') this.value = state;
   }
 }, import.meta.url);
 
+/** Mirrors a prop onto the inner input; Boolean props toggle presence. */
+function setAttr(input, name, val) {
+  if (name === 'required') {
+    input.toggleAttribute('required', !!val);
+  } else if (val !== null && val !== undefined && !(typeof val === 'number' && Number.isNaN(val))) {
+    input.setAttribute(name, val);
+  } else {
+    input.removeAttribute(name);
+  }
+}
+
 function syncAttributes(el, tags) {
   const input = tags.one('input');
-  const disabled = el.disabled;
 
   // Proxy observed attributes down to native input inside Shadow DOM
-  const attrs = ['type', 'placeholder', 'required', 'minlength', 'maxlength', 'min', 'max', 'pattern'];
-  for (const attr of attrs) {
-    const val = el[attr];
-    if (val !== null && val !== undefined) {
-      input.setAttribute(attr, val);
-    } else {
-      input.removeAttribute(attr);
-    }
+  for (const attr of ATTRS) {
+    setAttr(input, attr, el[attr]);
   }
 
-  input.disabled = disabled;
+  input.disabled = el.disabled;
   input.value = el.value || '';
 }
 
-function validate(el, internals, input) {
-  const val = input.value;
-
-  internals.setFormValue(val);
+function validate(internals, input) {
+  internals.setFormValue(input.value);
 
   // Check validation and delegate state to ElementInternals
   if (!input.validity.valid) {

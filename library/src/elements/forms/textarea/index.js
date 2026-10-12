@@ -10,6 +10,11 @@
 
 import { ui } from '../../../core/ui/index.js';
 
+/** Value attribute at first mount: what a form reset restores. */
+const defaults = new WeakMap();
+
+const ATTRS = ['placeholder', 'required', 'minlength', 'maxlength', 'rows'];
+
 ui.element('ui-textarea', {
   style: './style.css',
   template: './index.html',
@@ -24,13 +29,14 @@ ui.element('ui-textarea', {
     autoresize: { type: Boolean, reflect: true },
     rows: { type: Number, reflect: true }
   },
-  mount({ el, internals, tags, on, watch }) {
+  mount({ el, internals, tags, on }) {
     const area = tags.one('textarea');
+    if (!defaults.has(el)) defaults.set(el, el.getAttribute('value') ?? '');
 
     on.input('textarea', () => {
       el.value = area.value;
       resize(el, area);
-      validate(el, internals, area);
+      validate(internals, area);
     });
 
     on.change('textarea', () => {
@@ -43,6 +49,7 @@ ui.element('ui-textarea', {
     el.ctrl.signal.addEventListener('abort', () => observer.disconnect());
 
     syncAttributes(el, tags);
+    validate(internals, area);
   },
   update({ el, name, val, tags, internals }) {
     const area = tags.one('textarea');
@@ -50,47 +57,50 @@ ui.element('ui-textarea', {
     if (name === 'disabled') {
       area.disabled = !!val;
     } else if (name === 'value') {
-      area.value = val || '';
-    } else if (['placeholder', 'required', 'minlength', 'maxlength', 'rows'].includes(name)) {
-      if (val !== null && val !== undefined) {
-        area.setAttribute(name, val);
-      } else {
-        area.removeAttribute(name);
-      }
+      if (area.value !== (val ?? '')) area.value = val ?? '';
+    } else if (ATTRS.includes(name)) {
+      setAttr(area, name, val);
     }
 
     resize(el, area);
-    validate(el, internals, area);
+    validate(internals, area);
   },
-  unmount({ el }) {
-    // ResizeObserver is cleaned up via AbortSignal in mount
+  // Form-associated hooks run with `this` bound to the element.
+  reset() {
+    this.value = defaults.get(this) ?? '';
+    const area = this._tags?.one('textarea');
+    if (!area) return;
+    area.value = this.value;
+    validate(this._ctx.internals, area);
   },
-  formResetCallback({ el, tags }) {
-    el.value = el.getAttribute('value') || '';
-    const area = tags.one('textarea');
-    area.value = el.value;
+  disabled(disabled) {
+    const area = this._tags?.one('textarea');
+    if (area) area.disabled = disabled || this.disabled;
   },
-  formDisabledCallback({ el, tags, disabled }) {
-    const area = tags.one('textarea');
-    area.disabled = disabled;
+  restore(state) {
+    if (typeof state === 'string') this.value = state;
   }
 }, import.meta.url);
 
+/** Mirrors a prop onto the inner textarea; Boolean props toggle presence. */
+function setAttr(area, name, val) {
+  if (name === 'required') {
+    area.toggleAttribute('required', !!val);
+  } else if (val !== null && val !== undefined && !(typeof val === 'number' && Number.isNaN(val))) {
+    area.setAttribute(name, val);
+  } else {
+    area.removeAttribute(name);
+  }
+}
+
 function syncAttributes(el, tags) {
   const area = tags.one('textarea');
-  const disabled = el.disabled;
 
-  const attrs = ['placeholder', 'required', 'minlength', 'maxlength', 'rows'];
-  for (const attr of attrs) {
-    const val = el[attr];
-    if (val !== null && val !== undefined) {
-      area.setAttribute(attr, val);
-    } else {
-      area.removeAttribute(attr);
-    }
+  for (const attr of ATTRS) {
+    setAttr(area, attr, el[attr]);
   }
 
-  area.disabled = disabled;
+  area.disabled = el.disabled;
   area.value = el.value || '';
 
   resize(el, area);
@@ -102,10 +112,8 @@ function resize(el, area) {
   area.style.height = `${area.scrollHeight}px`;
 }
 
-function validate(el, internals, area) {
-  const val = area.value;
-
-  internals.setFormValue(val);
+function validate(internals, area) {
+  internals.setFormValue(area.value);
 
   if (!area.validity.valid) {
     internals.setValidity(area.validity, area.validationMessage, area);

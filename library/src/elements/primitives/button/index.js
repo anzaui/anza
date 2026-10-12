@@ -35,16 +35,19 @@ ui.element('ui-button', {
       }
 
       const type = el.type;
-      if (type === 'submit') {
-        const form = internals.form;
-        if (form) {
+      const form = internals.form;
+      if (type === 'submit' && form) {
+        // A custom element cannot be requestSubmit()'s submitter, so the
+        // button contributes its name=value only for this submission.
+        const named = el.hasAttribute('name');
+        if (named) internals.setFormValue(el.value ?? '');
+        try {
           form.requestSubmit();
+        } finally {
+          if (named) internals.setFormValue(null);
         }
-      } else if (type === 'reset') {
-        const form = internals.form;
-        if (form) {
-          form.reset();
-        }
+      } else if (type === 'reset' && form) {
+        form.reset();
       }
 
       el.dispatchEvent(new CustomEvent('activate', { bubbles: true, composed: true }));

@@ -10,6 +10,9 @@
 
 import { ui } from '../../../core/ui/index.js';
 
+/** `checked` attribute at first mount: what a form reset restores. */
+const defaults = new WeakMap();
+
 ui.element('ui-checkbox', {
   style: './style.css',
   template: './index.html',
@@ -21,25 +24,37 @@ ui.element('ui-checkbox', {
     required: { type: Boolean, reflect: true },
     value: { type: String, reflect: true }
   },
-  mount({ el, internals, on }) {
+  mount({ el, internals, ctrl }) {
+    if (!defaults.has(el)) defaults.set(el, el.hasAttribute('checked'));
+
     // Tabindex defaults
     if (!el.hasAttribute('tabindex')) {
       el.setAttribute('tabindex', '0');
     }
 
-    on.click(el, (e) => {
+    // User toggle: sync the form value before `change` so listeners that
+    // read FormData see the new state.
+    const flip = () => {
+      el.indeterminate = false;
+      el.checked = !el.checked;
+      syncAttributes(el, internals);
+      el.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+    };
+
+    // The host is outside the shadow root, so `on` cannot bind it.
+    el.addEventListener('click', (e) => {
       if (el.disabled) return;
       e.preventDefault();
-      el.checked = !el.checked;
-    });
+      flip();
+    }, { signal: ctrl.signal });
 
-    on.keydown(el, (e) => {
+    el.addEventListener('keydown', (e) => {
       if (el.disabled) return;
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
-        el.checked = !el.checked;
+        flip();
       }
-    });
+    }, { signal: ctrl.signal });
 
     syncAttributes(el, internals);
   },
@@ -48,19 +63,21 @@ ui.element('ui-checkbox', {
       syncAttributes(el, internals);
     }
   },
-  formResetCallback({ el, internals }) {
-    el.checked = el.hasAttribute('checked');
-    syncAttributes(el, internals);
+  // Form-associated hooks run with `this` bound to the element.
+  reset() {
+    this.checked = defaults.get(this) ?? false;
+    this.indeterminate = false;
+    if (this._ctx) syncAttributes(this, this._ctx.internals);
   },
-  formDisabledCallback({ el, internals, disabled }) {
+  disabled(disabled) {
     if (disabled) {
-      el.removeAttribute('tabindex');
-    } else {
-      if (!el.hasAttribute('tabindex')) {
-        el.setAttribute('tabindex', '0');
-      }
+      this.removeAttribute('tabindex');
+    } else if (!this.disabled && !this.hasAttribute('tabindex')) {
+      this.setAttribute('tabindex', '0');
     }
-    syncAttributes(el, internals);
+  },
+  restore(state) {
+    this.checked = state != null;
   }
 }, import.meta.url);
 
