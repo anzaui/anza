@@ -95,3 +95,30 @@ fn base_change_invalidates_the_dev_cache() {
   assert!(!link.contains("/new/old/"), "{link}");
   let _ = std::fs::remove_dir_all(&root);
 }
+
+#[test]
+fn type_declarations_go_beside_dist_not_into_it() {
+  let root = project("types");
+  let (src, dist, types) = (root.join("src"), root.join("dist"), root.join("types"));
+  write(&root, "types/custom.d.ts", "export {};\n");
+
+  compile(&src, &dist, false, &[]).expect("dev build");
+  let shipped = files(&dist);
+  assert!(
+    shipped.iter().all(|p| !p.to_string_lossy().ends_with(".d.ts")),
+    "{shipped:?}"
+  );
+  assert!(shipped.contains(Path::new("routes.json")));
+  for rel in ["index.d.ts", "routes.d.ts", "pages/a/index.d.ts", "pages/b/index.d.ts"] {
+    assert!(types.join(rel).is_file(), "missing types/{rel}");
+  }
+
+  // Deleting a source prunes its generated declaration, never hand-written ones.
+  std::fs::remove_dir_all(src.join("pages/b")).unwrap();
+  write(&root, "src/index.js", "import './pages/a/index.js';\n");
+  compile(&src, &dist, false, &[]).expect("dev build after delete");
+  assert!(!types.join("pages/b/index.d.ts").exists());
+  assert!(types.join("pages/a/index.d.ts").is_file());
+  assert!(types.join("custom.d.ts").is_file());
+  let _ = std::fs::remove_dir_all(&root);
+}

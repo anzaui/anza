@@ -46,8 +46,12 @@ enum Command {
     #[arg(long)]
     watch: bool,
 
-    #[arg(long, default_value = "dist/types")]
+    /// Type declarations output directory.
+    #[arg(long, default_value = "types")]
     types: String,
+
+    #[arg(long, default_value = "dist")]
+    dist: String,
   },
   Build {
     #[arg(short, long, default_value = "src")]
@@ -55,6 +59,10 @@ enum Command {
 
     #[arg(long, default_value = "dist")]
     dist: String,
+
+    /// Type declarations output directory (default: `types/` beside dist).
+    #[arg(long)]
+    types: Option<String>,
 
     /// Entry module(s) to resolve from. Defaults to src/index.js plus any
     /// HTML module scripts discovered under src.
@@ -139,10 +147,11 @@ async fn main() {
 
   if let Some(command) = args.command {
     match command {
-      Command::Scan { src, watch, types } => {
+      Command::Scan { src, watch, types, dist } => {
         let src = PathBuf::from(src);
         let types = PathBuf::from(types);
-        if let Err(errors) = extract::run(&src, &types) {
+        let dist = PathBuf::from(dist);
+        if let Err(errors) = extract::run(&src, &dist, &types) {
           extract::report_errors(&errors);
           if !watch {
             anza_logs::error!("Scan failed: {} error(s)", errors.len());
@@ -151,22 +160,19 @@ async fn main() {
         }
 
         if watch {
-          let dist = types
-            .parent()
-            .map(|p| p.to_path_buf())
-            .unwrap_or_else(|| PathBuf::from("dist"));
           let (tx, _rx) = broadcast::channel::<HmrMessage>(16);
           watcher::start(src, dist, Vec::new(), tx, tokio::sync::watch::channel(0u64).0);
           tokio::signal::ctrl_c().await.unwrap();
         }
       }
-      Command::Build { src, dist, entry } => {
+      Command::Build { src, dist, types, entry } => {
         let entries = entry.into_iter().map(PathBuf::from).collect();
         let op = Build {
           src: PathBuf::from(src),
           dist: PathBuf::from(dist),
           entries,
           strict: true,
+          types: types.map(PathBuf::from),
         };
         if let Err(e) = op.run() {
           anza_logs::error!("{}", e);
@@ -277,6 +283,7 @@ async fn main() {
       dist,
       entries: Vec::new(),
       strict: true,
+      types: None,
     };
     if let Err(e) = op.run() {
       anza_logs::error!("{}", e);

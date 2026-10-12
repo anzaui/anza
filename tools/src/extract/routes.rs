@@ -388,12 +388,13 @@ fn resolve_container<'a>(
     .or_else(|| tag_to_spec.get(&format!("dock-{}", name)).copied())
 }
 
-/// Emits `routes.json` and `routes.d.ts` files to `dist_dir`.
+/// Emits `routes.json` to `dist_dir` and `routes.d.ts` to `types_dir`.
 ///
 /// `src_dir` is used to load an optional project-level `ssg.params.json`.
 pub fn emit(
   specs: &[(std::path::PathBuf, ExtractedSpec)],
   dist_dir: &Path,
+  types_dir: &Path,
   src_dir: &Path,
 ) -> Result<(), Vec<String>> {
   let mut entries: Vec<(RouteRecord, String)> = Vec::new();
@@ -752,7 +753,7 @@ declare global {{
     tag_mappings.join("\n")
   );
 
-  let dest_dts = dist_dir.join("routes.d.ts");
+  let dest_dts = types_dir.join("routes.d.ts");
   match crate::fs_atomic::write(&dest_dts, dts_content) {
     Ok(()) => anza_logs::success!("Route type declarations written to {}", dest_dts.display()),
     Err(err) => errors.push(err),

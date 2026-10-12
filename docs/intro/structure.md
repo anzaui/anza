@@ -399,7 +399,7 @@ dist/
   pages/
   tokens/
   styles/
-  types/
+types/                   # Generated .d.ts, beside dist/ (not shipped)
 ```
 
 The folder structure mirrors `src/`. Serve `dist/` as the document root. Public URLs are `/app.js`, `/importmap.json`, `/tokens/...` — not `/dist/app.js`. Mode A SSG writes contentful HTML per public route; soft-nav uses page fragments (`template.html` when the fragment path collides with SSG `index.html`).

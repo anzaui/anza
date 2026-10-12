@@ -169,8 +169,10 @@ dist/
   styles/
     index.css
     ...
-  types/
-    index.d.ts           # Global HTMLElementTagNameMap augmentation
+  routes.json            # Route manifest for the router
+types/                   # Beside dist/, never shipped (--types to move it)
+  index.d.ts             # Global HTMLElementTagNameMap augmentation
+  routes.d.ts            # RouteMap and element interfaces
 ```
 
-The folder structure inside `dist/` mirrors `src/`. Serve `dist/` as the site root; the browser resolves `/app.js` and friends natively (no `/dist` prefix).
+The folder structure inside `dist/` mirrors `src/`. Type declarations are for your editor, not the browser, so they go to `types/` next to `dist/` (`anza build --types <dir>` to change it). Serve `dist/` as the site root; the browser resolves `/app.js` and friends natively (no `/dist` prefix).

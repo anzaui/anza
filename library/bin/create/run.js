@@ -247,7 +247,7 @@ const STYLE = `.welcome {
 }
 `;
 
-const IGNORE = 'node_modules/\ndist/\n.anzacache.json\n';
+const IGNORE = 'node_modules/\ndist/\ntypes/\n.anzacache.json\n';
 
 /** Omits anza.json on purpose — zero-config defaults. */
 export function run(target, name, library) {

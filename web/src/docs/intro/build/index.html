@@ -115,7 +115,9 @@ anza generate part button
   styles/
     index.css
     ...
-  types/
-    index.d.ts           # Global HTMLElementTagNameMap augmentation
+  routes.json            # Route manifest for the router
+types/                   # Beside dist/, never shipped (--types to move it)
+  index.d.ts             # Global HTMLElementTagNameMap augmentation
+  routes.d.ts            # RouteMap and element interfaces
 </view-code>
-<p>The folder structure inside <code>dist/</code> mirrors <code>src/</code>. Serve <code>dist/</code> as the site root; the browser resolves <code>/app.js</code> and friends natively (no <code>/dist</code> prefix).</p>
+<p>The folder structure inside <code>dist/</code> mirrors <code>src/</code>. Type declarations are for your editor, not the browser, so they go to <code>types/</code> next to <code>dist/</code> (<code>anza build --types &lt;dir&gt;</code> to change it). Serve <code>dist/</code> as the site root; the browser resolves <code>/app.js</code> and friends natively (no <code>/dist</code> prefix).</p>

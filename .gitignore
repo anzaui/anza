@@ -2,6 +2,7 @@
 node_modules/
 target/
 dist/
+web/types/
 tmp/
 releases/
 book/

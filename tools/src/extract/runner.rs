@@ -20,7 +20,18 @@ pub fn build(
   compile(src_dir, dist_dir, true, entries)
 }
 
+/// Where `anza build` writes generated type declarations by default: a
+/// `types/` folder beside dist (`web/dist` -> `web/types`). The browser never
+/// needs `.d.ts` files, so they stay out of dist.
+pub fn default_types_dir(dist_dir: &Path) -> std::path::PathBuf {
+  match dist_dir.parent() {
+    Some(parent) if !parent.as_os_str().is_empty() => parent.join("types"),
+    _ => std::path::PathBuf::from("types"),
+  }
+}
+
 /// Run extraction, import-graph resolution and SSG, collecting every error.
+/// Type declarations go to [`default_types_dir`].
 ///
 /// `strict` (build mode) starts from a clean dist and removes it again when
 /// any stage fails, so a partial dist is never published. In dev mode the
@@ -31,7 +42,17 @@ pub fn compile(
   strict: bool,
   entries: &[std::path::PathBuf],
 ) -> Result<(), Vec<String>> {
-  let types_dir = dist_dir.join("types");
+  compile_into(src_dir, dist_dir, &default_types_dir(dist_dir), strict, entries)
+}
+
+/// [`compile`] with an explicit type declarations directory.
+pub fn compile_into(
+  src_dir: &Path,
+  dist_dir: &Path,
+  types_dir: &Path,
+  strict: bool,
+  entries: &[std::path::PathBuf],
+) -> Result<(), Vec<String>> {
   let mut errors: Vec<String> = Vec::new();
   let mut outputs: Vec<std::path::PathBuf> = Vec::new();
 
@@ -47,9 +68,9 @@ pub fn compile(
     return Err(vec![format!("cannot create {}: {}", dist_dir.display(), err)]);
   }
 
-  // 2. Type/route/tag extraction (writes dist/types, dist/routes.json,
-  //    and .tags.json siblings in src).
-  match run(src_dir, &types_dir) {
+  // 2. Type/route/tag extraction (writes dist/routes.json, the .d.ts files
+  //    into types_dir, and .tags.json siblings in src).
+  match run(src_dir, dist_dir, types_dir) {
     Ok(written) => outputs.extend(written),
     Err(errs) => errors.extend(errs),
   }
@@ -142,12 +163,19 @@ pub fn compile_dev(src_dir: &Path, dist_dir: &Path, entries: &[std::path::PathBu
   }
 }
 
-/// Extract element specs, write dist/types + routes.json/routes.d.ts and the
-/// `.tags.json` descriptors. Returns every error (unreadable or unparsable
-/// files, failed writes) instead of silently dropping pages.
+/// Extract element specs, write `dist/routes.json`, the type declarations
+/// (`index.d.ts`, `routes.d.ts`, one `.d.ts` per definition) into `types_dir`
+/// and the `.tags.json` descriptors. Returns every error (unreadable or
+/// unparsable files, failed writes) instead of silently dropping pages.
 ///
 /// On success returns the dist files written (relative to dist).
-pub fn run(src_dir: &Path, dist_types_dir: &Path) -> Result<Vec<std::path::PathBuf>, Vec<String>> {
+pub fn run(
+  src_dir: &Path,
+  dist_dir: &Path,
+  types_dir: &Path,
+) -> Result<Vec<std::path::PathBuf>, Vec<String>> {
+  let dist_types_dir = types_dir;
+  let mut written_types: Vec<std::path::PathBuf> = Vec::new();
   let mut outputs: Vec<std::path::PathBuf> = Vec::new();
   let mut errors: Vec<String> = Vec::new();
 
@@ -222,9 +250,7 @@ pub fn run(src_dir: &Path, dist_types_dir: &Path) -> Result<Vec<std::path::PathB
     let mut type_path = dist_types_dir.join(relative_path);
     type_path.set_extension("d.ts");
     // Write the custom element interface declaration
-    if let Ok(rel) = type_path.strip_prefix(dist_types_dir) {
-      outputs.push(std::path::Path::new("types").join(rel));
-    }
+    written_types.push(type_path.clone());
     let dts_content = generate_dts_content(spec);
     if let Err(err) = crate::fs_atomic::write(&type_path, dts_content.as_bytes()) {
       errors.push(err);
@@ -252,22 +278,53 @@ pub fn run(src_dir: &Path, dist_types_dir: &Path) -> Result<Vec<std::path::PathB
   global_typings.push_str("  }\n}\n\nexport {};\n");
   match crate::fs_atomic::write(&dist_types_dir.join("index.d.ts"), global_typings.as_bytes()) {
     Ok(()) => {
-      anza_logs::success!("Type augmentation registry updated inside dist/types/index.d.ts")
+      anza_logs::success!("Type declarations written to {}", dist_types_dir.display())
     }
     Err(err) => errors.push(err),
   }
 
-  // Emit routes.json for all specs that declare a url pattern
-  let dist_dir = dist_types_dir.parent().unwrap_or(dist_types_dir);
-  if let Err(errs) = super::routes::emit(&specs, dist_dir, src_dir) {
+  // Emit routes.json (dist) and routes.d.ts (types) for every url pattern.
+  if let Err(errs) = super::routes::emit(&specs, dist_dir, dist_types_dir, src_dir) {
     errors.extend(errs);
   }
 
   if errors.is_empty() {
-    outputs.extend(["types/index.d.ts", "routes.json", "routes.d.ts"].map(std::path::PathBuf::from));
+    written_types.push(dist_types_dir.join("index.d.ts"));
+    written_types.push(dist_types_dir.join("routes.d.ts"));
+    prune_types(dist_types_dir, &written_types);
+    outputs.push(std::path::PathBuf::from("routes.json"));
     Ok(outputs)
   } else {
     Err(errors)
+  }
+}
+
+/// First bytes of every declaration file anza generates. Only files that start
+/// with one of these are ever deleted from the types directory.
+const GENERATED_MARKERS: [&str; 3] = [
+  "/* Auto-generated by anza.",
+  "/* Auto-generated definition for <",
+  "/**\n * routes.d.ts\n",
+];
+
+/// Remove generated `.d.ts` files left in `types_dir` by deleted sources.
+/// Hand-written files (no generated header) are never touched.
+fn prune_types(types_dir: &Path, written: &[std::path::PathBuf]) {
+  let keep: std::collections::HashSet<&Path> = written.iter().map(|p| p.as_path()).collect();
+  for entry in WalkDir::new(types_dir).into_iter().filter_map(|e| e.ok()) {
+    let path = entry.path();
+    if !entry.file_type().is_file()
+      || keep.contains(path)
+      || !path.to_string_lossy().ends_with(".d.ts")
+    {
+      continue;
+    }
+    let generated = std::fs::read_to_string(path)
+      .map(|text| GENERATED_MARKERS.iter().any(|m| text.starts_with(m)))
+      .unwrap_or(false);
+    if generated {
+      let _ = std::fs::remove_file(path);
+    }
   }
 }
 
