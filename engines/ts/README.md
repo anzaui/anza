@@ -89,6 +89,13 @@ export default {
 };
 ```
 
+## Templates
+
+Templates use `{{name}}` placeholders and are parsed once at startup. Values
+are inserted without HTML escaping, so escape user input first. Template layout,
+rendering rules and signing: [docs/engines](https://github.com/anzaui/anza/tree/main/docs/engines)
+([TypeScript guide](https://github.com/anzaui/anza/blob/main/docs/engines/ts.md)).
+
 ## License
 
 MIT © 2026 aduki, Labs

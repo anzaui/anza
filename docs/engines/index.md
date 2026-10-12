@@ -59,6 +59,33 @@ Generates targeted JSON envelopes for real-time slot replacement and live stream
 }
 ```
 
+## Templates
+
+All three engines read the same template tree:
+
+```text
+templates/
+├── layout/
+│   └── shell.html      # document wrapper; the page goes into {{content}}
+├── pages/
+│   ├── home.html       # route "/"
+│   └── about.html      # route "/about"
+└── feed/
+    └── card.html       # any other file can be rendered as a fragment
+```
+
+- Placeholders are `{{name}}` (whitespace inside the braces is trimmed). An unclosed or empty placeholder is a load error.
+- Every template is loaded and parsed once, when `Setup` runs. Rendering only joins the parsed chunks with the parameter values.
+- A missing parameter renders as an empty string.
+- Values are **not HTML-escaped**. Escape anything that comes from users before binding it.
+- Fragments are addressed by their path under the root (`feed/card.html`) and a target `slot` name.
+
+The envelope (`slot`, `ts`, `html`, `sig`, `css`) and its signature are identical
+across engines. Page rendering differs slightly: the Python engine wraps the page
+in `<page-<route>>` with an open shadow root and requires `layout/shell.html`;
+the Rust and TypeScript engines insert the page markup as is and fall back to a
+minimal `<dock-main>` document when there is no shell. See each engine page.
+
 ## File Map
 
 | File | What It Covers |

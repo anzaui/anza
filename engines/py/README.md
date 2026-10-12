@@ -80,6 +80,13 @@ def card(card_id: str):
     return JSONResponse(env.to_dict())
 ```
 
+## Templates
+
+Templates use `{{name}}` placeholders and are parsed once at startup. Values
+are inserted without HTML escaping, so escape user input first. Template layout,
+rendering rules and signing: [docs/engines](https://github.com/anzaui/anza/tree/main/docs/engines)
+([Python guide](https://github.com/anzaui/anza/blob/main/docs/engines/py.md)).
+
 ## License
 
 MIT © 2026 aduki, Labs

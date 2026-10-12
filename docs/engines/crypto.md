@@ -14,14 +14,14 @@ ts:slot:html
 - **`slot`**: Target dock or slot identifier (e.g. `feed`, `main`).
 - **`html`**: Rendered HTML markup of the fragment.
 
-The client runtime validates the signature before mutating the DOM. Stale or tampered payloads are rejected immediately.
+The signature is hex-encoded in the envelope's `sig` field. Whoever receives the envelope (an edge worker, a proxy, another service, or your own browser code) verifies it with the matching `verify` helper and checks that `ts` is fresh. The browser library does not verify envelopes for you; see [Client-Side Verification](#client-side-verification).
 
 ## Signing Modes
 
 | Mode | Algorithm | Best For | Proxy / CDN Support | Auth Dependency |
 |------|-----------|----------|---------------------|-----------------|
 | **`Ed25519`** | Asymmetric Ed25519 | Public pages, multi-tier CDNs, microfrontends | Yes (Bypasses CDN TLS termination) | None |
-| **`SessionBound`** | HKDF-SHA256 $\rightarrow$ HMAC-SHA256 | Authenticated personalized streams | Yes | Derived from user session token |
+| **`SessionBound`** / `session` | Reserved (HKDF helpers exist, envelopes are not signed yet) | Authenticated personalized streams | — | — |
 | **`Hmac`** | HMAC-SHA256 | Internal VPC microservices / single origin | Yes | Pre-shared secret |
 | **`None`** | No Signature | Local development and testing | Yes | None |
 
@@ -32,11 +32,12 @@ Ed25519 uses public-key cryptography. The origin server holds the private key an
 ### Backend Setup (Rust)
 
 ```rust
-use anza::{Setup, SignOptions};
+use anza::Setup;
 
-let engine = Setup::new("./templates")
-    .with_signing(SignOptions::ed25519_pem_file("keys/origin_private.pem")?)
-    .run()?;
+// Raw 32-byte private and public key files
+let mut setup = Setup::new("./templates");
+setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub", false);
+let engine = setup.run()?;
 ```
 
 ### Backend Setup (TypeScript)

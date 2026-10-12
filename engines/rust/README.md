@@ -35,24 +35,24 @@ anza = { version = "0.5.1", features = ["axum"] }
 
 ```rust
 use std::sync::Arc;
-use anza::{Setup, SignOptions};
+use anza::Setup;
 
-let engine = Arc::new(
-    Setup::new("./templates")
-        .with_signing(SignOptions::hmac("your-secret-key-at-least-32-chars-long"))
-        .run()
-        .expect("Failed to initialize template engine")
-);
+let mut setup = Setup::new("./templates");
+setup.signing = Setup::hmac(b"your-secret-key-at-least-32-bytes");
+let engine = Arc::new(setup.run().expect("Failed to load templates"));
 ```
+
+`Setup::ed25519(private_key_file, public_key_file, false)` signs with Ed25519
+(raw 32-byte key files) instead; the default is no signature.
 
 ### 2. Render Full Pages
 
 ```rust
 use anza::Page;
 
-// Renders full HTML document with parameters interpolated into slots
+// templates/pages/home.html inside templates/layout/shell.html ({{content}})
 let doc = Page::new("/")
-    .with_param("title", "My Web App")
+    .param("title", "My Web App")
     .run(&engine)
     .expect("Failed to render page");
 
@@ -64,52 +64,52 @@ println!("{}", doc.html);
 ```rust
 use anza::Fragment;
 
-// Renders a specific template fragment targeting a slot
 let envelope = Fragment::new("card.html", "feed")
-    .with_param("title", "New Article")
+    .param("title", "New Article")
     .run(&engine)
     .expect("Failed to render fragment");
 
-// envelope contains: slot, html, ts, and signature
+// {"slot":"feed","ts":...,"html":"...","sig":"..."}
 let json = serde_json::to_string(&envelope).unwrap();
 ```
 
-### 4. Axum Integration Example
+### 4. Axum Integration Example (`features = ["axum"]`)
 
 ```rust
 use std::sync::Arc;
-use anza::{Setup, Page, Fragment, SignOptions};
-use axum::{routing::get, Router, response::{Html, Json}};
+use anza::{Fragment, Page, Setup};
+use axum::{routing::get, Router};
 
 #[tokio::main]
 async fn main() {
-    let engine = Arc::new(
-        Setup::new("./templates")
-            .with_signing(SignOptions::hmac("your-secret-key-at-least-32-chars-long"))
-            .run()
-            .unwrap()
-    );
+    let mut setup = Setup::new("./templates");
+    setup.signing = Setup::hmac(b"your-secret-key-at-least-32-bytes");
+    let engine = Arc::new(setup.run().unwrap());
 
     let app = Router::new()
         .route("/", get({
             let engine = engine.clone();
-            move || async move {
-                let doc = Page::new("/").with_param("title", "Home").run(&engine).unwrap();
-                Html(doc.html)
-            }
+            move || async move { Page::new("/").param("title", "Home").run(&engine).unwrap() }
         }))
         .route("/api/card", get({
             let engine = engine.clone();
-            move || async move {
-                let env = Fragment::new("card.html", "feed").run(&engine).unwrap();
-                Json(env)
-            }
+            move || async move { Fragment::new("card.html", "feed").run(&engine).unwrap() }
         }));
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
 ```
+
+`Document` and `Envelope` implement `IntoResponse` (Axum) and `Responder`
+(Actix-web) when the matching feature is on.
+
+## Templates
+
+Templates use `{{name}}` placeholders and are parsed once at startup. Values
+are inserted without HTML escaping, so escape user input first. Template layout,
+rendering rules and signing: [docs/engines](https://github.com/anzaui/anza/tree/main/docs/engines)
+([Rust guide](https://github.com/anzaui/anza/blob/main/docs/engines/rust.md)).
 
 ## License
 
