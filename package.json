@@ -13,6 +13,7 @@
     "doc:imports": "node tasks/doc-imports-check.js",
     "types:check": "node tasks/types-check.js",
     "versions:check": "node tasks/versions-check.js",
-    "doc:links": "node tasks/doc-links-check.js"
+    "doc:links": "node tasks/doc-links-check.js",
+    "worker:check": "node tasks/worker-check.js"
   }
 }

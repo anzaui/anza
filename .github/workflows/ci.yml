@@ -134,6 +134,9 @@ jobs:
       - name: SSG contract
         run: node tasks/ssg-contract-check.js
 
+      - name: Cloudflare worker routing
+        run: npm run worker:check
+
       # CLEAN/DIST.md §4. ubuntu-latest ships google-chrome (CHROME_PATH wins when set).
       - name: Load budgets (Fast 4G, 5 runs)
         run: npm run bench:load -- --budget --runs 5
