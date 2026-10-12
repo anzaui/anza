@@ -76,8 +76,8 @@ Also document `anza:ready`, `ctx.adopted`, element `::part`/`--el-*`/`:state()`,
 
 | ID | Sev | Problem | Fix |
 |----|-----|---------|-----|
-| X6 | L | Actions pinned by tag, `cross --git` HEAD, mdbook `latest`, `npm ci || npm install`, `ci.yml` without `permissions:` | Pin by SHA, `cross --locked --tag`, pin mdbook, drop the install fallback, `permissions: contents: read` |
-| X7 | L | `npm audit`: 17 high in dev-only tooling (puppeteer chain). `cargo deny`: rkyv advisory via lightningcss (unreachable), smartstring unmaintained | Update the test runner chain. Add `cargo deny` + `npm audit --omit=dev` to CI. Document the accepted advisory |
+| X6 | L | **Done:** Actions pinned by tag, `cross --git` HEAD, mdbook `latest`, `npm ci || npm install`, `ci.yml` without `permissions:` | Pin by SHA, `cross --locked --tag`, pin mdbook, drop the install fallback, `permissions: contents: read` |
+| X7 | L | `npm audit`: 17 high in dev-only tooling (puppeteer chain). `cargo deny`: rkyv advisory via lightningcss (unreachable), smartstring unmaintained | **Done:** CI `supply-chain` job runs `npm audit --omit=dev` (library, web, engines/ts: 0) and `cargo deny check advisories` (CLI + engine). `tools/deny.toml` records the two accepted advisories with reasons. The dev-only test-runner chain is accepted: npm's only "fix" is a downgrade to @web/test-runner 0.7.31. Re-check on the next test-runner release |
 
 ## Re-release
 

@@ -1,0 +1,13 @@
+# cargo deny check advisories (run in CI). Accepted advisories need a reason.
+[advisories]
+version = 2
+ignore = [
+  # rkyv 0.7 (via lightningcss -> parcel_sourcemap): out-of-bounds read when
+  # validating crafted archives. parcel_sourcemap uses rkyv only for its own
+  # binary source-map (de)serialization, which anza never calls; anza never
+  # reads rkyv archives. Revisit when lightningcss moves to parcel_sourcemap 3.
+  { id = "RUSTSEC-2026-0235", reason = "rkyv only reachable via parcel_sourcemap buffers anza never deserializes" },
+  # smartstring (via swc_ecma_parser) is unmaintained; informational, no
+  # known vulnerability. Revisit on the next swc upgrade.
+  { id = "RUSTSEC-2026-0249", reason = "unmaintained notice only; swc dependency" },
+]
