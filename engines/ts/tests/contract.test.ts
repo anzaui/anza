@@ -7,7 +7,7 @@ import * as fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { Setup, Envelope, AnzaError, formatEvent, formatPacket } from '../src/index.js';
 
-const FIXTURES = new URL('../../../fixtures/', import.meta.url);
+const FIXTURES = new URL('../../tests/fixtures/', import.meta.url);
 const fx = JSON.parse(fs.readFileSync(new URL('render.json', FIXTURES), 'utf8'));
 const rootOf = (name: string) => fileURLToPath(new URL(`render/${name}`, FIXTURES));
 

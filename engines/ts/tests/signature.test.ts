@@ -8,7 +8,7 @@ import * as path from 'node:path';
 import { Envelope, Setup, AnzaError, verifyEnvelope, type VerifyKey, type Engine } from '../src/index.js';
 import { hmac, ed25519 } from '../src/crypto/index.js';
 
-const fx = JSON.parse(fs.readFileSync(new URL('../../../fixtures/signature.json', import.meta.url), 'utf8'));
+const fx = JSON.parse(fs.readFileSync(new URL('../../tests/fixtures/signature.json', import.meta.url), 'utf8'));
 const SECRET: string = fx.keys.hmac_secret;
 const SEED = Buffer.from(fx.keys.ed25519_seed, 'hex');
 const PUBLIC = Buffer.from(fx.keys.ed25519_public, 'hex');

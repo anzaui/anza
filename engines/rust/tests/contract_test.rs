@@ -9,7 +9,7 @@ use {
 };
 
 fn fixtures() -> PathBuf {
-  PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/../fixtures"))
+  PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures"))
 }
 
 fn fixture() -> Value {

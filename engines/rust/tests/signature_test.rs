@@ -10,7 +10,7 @@ use {
 };
 
 fn fixture() -> Value {
-  let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../fixtures/signature.json");
+  let path = concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures/signature.json");
   serde_json::from_str(&fs::read_to_string(path).unwrap()).unwrap()
 }
 

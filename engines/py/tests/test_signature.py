@@ -8,7 +8,7 @@ from pathlib import Path
 from anza import AnzaError, Envelope, Fragment, Setup, SignOptions, VerifyKey, verify_envelope
 from anza.crypto import ed25519, hmac
 
-FIXTURE = json.loads((Path(__file__).resolve().parents[2] / "fixtures" / "signature.json").read_text(encoding="utf-8"))
+FIXTURE = json.loads((Path(__file__).resolve().parent / "fixtures" / "signature.json").read_text(encoding="utf-8"))
 SECRET = FIXTURE["keys"]["hmac_secret"]
 SEED = bytes.fromhex(FIXTURE["keys"]["ed25519_seed"])
 PUBLIC = bytes.fromhex(FIXTURE["keys"]["ed25519_public"])

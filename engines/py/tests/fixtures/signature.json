@@ -1,0 +1,190 @@
+{
+  "contract": "docs/engines/contract.md",
+  "keys": {
+    "hmac_secret": "anza-golden-hmac-secret-0123456789",
+    "ed25519_seed": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+    "ed25519_public": "03a107bff3ce10be1d70dd18e74bc09967e4d6309ba50d5f1ddc8664125531b8"
+  },
+  "cases": [
+    {
+      "name": "basic",
+      "envelope": {
+        "v": 2,
+        "slot": "feed",
+        "ts": 1724771234,
+        "html": "<ui-card>Live</ui-card>"
+      },
+      "message_hex": "616e7a612d7369672d76320a31303a313732343737313233340a343a666565640a32333a3c75692d636172643e4c6976653c2f75692d636172643e0a303a0a",
+      "hmac": "0df0caf9da7a53fb1ba5a3474e94f3aeef8df90ba4a0f845e014cd1b4dcd327f",
+      "ed25519": "ef42aebf9978d141cb6da6b518a2345df80af8b10b122d27490b1d0d88a9f68958a8a24e60a63e88fab76b5d60efaef5e63dc4c591498875022c4b428bb1260d"
+    },
+    {
+      "name": "css and unicode",
+      "envelope": {
+        "v": 2,
+        "slot": "main",
+        "ts": 1724771299,
+        "html": "<p class=\"x\">café ü 😀\nline</p>",
+        "css": ".x{color:red}"
+      },
+      "message_hex": "616e7a612d7369672d76320a31303a313732343737313239390a343a6d61696e0a33353a3c7020636c6173733d2278223e636166c3a920c3bc20f09f98800a6c696e653c2f703e0a31333a2e787b636f6c6f723a7265647d0a",
+      "hmac": "d70c0fb9059259f24f73a93e0cff565fcd08b16870dff0462cf38eef9d552a05",
+      "ed25519": "f308133fcca6f79b6508297ca2614ff3984d5f1d51d8fd13593684efe00992c3459007064f9243fc6dcfaf77b622d12752e2df23ee9e3a65dd58bb392520e500"
+    },
+    {
+      "name": "empty html",
+      "envelope": {
+        "v": 2,
+        "slot": "s",
+        "ts": 0,
+        "html": ""
+      },
+      "message_hex": "616e7a612d7369672d76320a313a300a313a730a303a0a303a0a",
+      "hmac": "bcb12d75899c4f69cfad22e79905d1fd950e5e827439df3b76394637cf6b00f4",
+      "ed25519": "bf67b223df970af98753256c5b3c21705af0beedde6ba33f74e52db9d039fdec7a3c9af15e5f6f1d1068f320ee9bc696a4aed7cb3bb2844c4255bbd969693109"
+    },
+    {
+      "name": "colon in slot",
+      "envelope": {
+        "v": 2,
+        "slot": "a:b",
+        "ts": 1,
+        "html": "c"
+      },
+      "message_hex": "616e7a612d7369672d76320a313a310a333a613a620a313a630a303a0a",
+      "hmac": "e3220b6f274cca21ea01ab3c3d81c025f55d327c9719f6a329d16bb922acc648",
+      "ed25519": "0c77aad591368444021d52acac39dbe1a5d351350941cdc7c92b0e73fb34ddd1dc193e6c1a4129c31b2d2f7c0614fc557dba3cffcedcb5c1cf0507ba08504c00"
+    },
+    {
+      "name": "colon in html",
+      "envelope": {
+        "v": 2,
+        "slot": "a",
+        "ts": 1,
+        "html": "b:c"
+      },
+      "message_hex": "616e7a612d7369672d76320a313a310a313a610a333a623a630a303a0a",
+      "hmac": "e91301a8dafae98322a2fff4c97b17d326c29bd8ae9cbef2f48db788302df0d7",
+      "ed25519": "e6e6714f594bf48ec5c69215a3ed7d7831fb74768c7df9b75fa3331ee996e379145e306fe3f5463601775e19f91ea9eead5700d635784d12d596c54fdbf45f08"
+    }
+  ],
+  "verify": {
+    "base": "basic",
+    "options": {
+      "slot": "feed",
+      "max_age_secs": 120,
+      "now": 1724771300
+    },
+    "accept": [
+      {
+        "name": "fresh",
+        "options": {}
+      },
+      {
+        "name": "exactly max age",
+        "options": {
+          "max_age_secs": 66
+        }
+      },
+      {
+        "name": "within future skew",
+        "options": {
+          "now": 1724771230
+        }
+      }
+    ],
+    "reject": [
+      {
+        "name": "v1 envelope",
+        "set": {
+          "v": 1
+        },
+        "reason": "unsupported envelope version"
+      },
+      {
+        "name": "no version",
+        "set": {
+          "v": null
+        },
+        "reason": "unsupported envelope version"
+      },
+      {
+        "name": "unsigned",
+        "sig": "drop",
+        "reason": "envelope is not signed"
+      },
+      {
+        "name": "sig + zz",
+        "sig": "append:zz",
+        "reason": "malformed signature"
+      },
+      {
+        "name": "non-ascii sig",
+        "sig": "literal:€a",
+        "reason": "malformed signature"
+      },
+      {
+        "name": "uppercase sig",
+        "sig": "upper",
+        "reason": "malformed signature"
+      },
+      {
+        "name": "sig + 00",
+        "sig": "append:00",
+        "reason": "bad signature"
+      },
+      {
+        "name": "expired",
+        "options": {
+          "max_age_secs": 65
+        },
+        "reason": "envelope expired"
+      },
+      {
+        "name": "future",
+        "options": {
+          "now": 1724771228
+        },
+        "reason": "envelope timestamp is in the future"
+      },
+      {
+        "name": "other slot",
+        "options": {
+          "slot": "main"
+        },
+        "reason": "slot mismatch"
+      },
+      {
+        "name": "moved slot",
+        "set": {
+          "slot": "main"
+        },
+        "options": {
+          "slot": "main"
+        },
+        "reason": "bad signature"
+      },
+      {
+        "name": "tampered html",
+        "set": {
+          "html": "<ui-card>Evil</ui-card>"
+        },
+        "reason": "bad signature"
+      },
+      {
+        "name": "tampered ts",
+        "set": {
+          "ts": 1724771235
+        },
+        "reason": "bad signature"
+      },
+      {
+        "name": "injected css",
+        "set": {
+          "css": "*{display:none}"
+        },
+        "reason": "bad signature"
+      }
+    ]
+  }
+}

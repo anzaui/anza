@@ -1,0 +1,160 @@
+{
+  "contract": "docs/engines/contract.md",
+  "roots": "render/<root>/",
+  "fragments": [
+    {
+      "name": "values",
+      "root": "basic",
+      "template": "values.html",
+      "params": {
+        "s": "<b>&'\"",
+        "i": 42,
+        "f": 1.5,
+        "g": 3.0,
+        "neg": -7,
+        "t": true,
+        "b": false,
+        "n": null,
+        "arr": [
+          1,
+          "a",
+          true,
+          null
+        ],
+        "obj": {
+          "a": 1,
+          "b": "x"
+        },
+        "u": "café"
+      },
+      "html": "s=<b>&'\" i=42 f=1.5 g=3 neg=-7 t=true b=false n= missing= arr=[1,\"a\",true,null] obj={\"a\":1,\"b\":\"x\"} u=café raw=<b>&'\""
+    },
+    {
+      "name": "values escaped",
+      "root": "basic",
+      "template": "values.html",
+      "params": {
+        "s": "<b>&'\"",
+        "i": 42,
+        "f": 1.5,
+        "g": 3.0,
+        "neg": -7,
+        "t": true,
+        "b": false,
+        "n": null,
+        "arr": [
+          1,
+          "a",
+          true,
+          null
+        ],
+        "obj": {
+          "a": 1,
+          "b": "x"
+        },
+        "u": "café"
+      },
+      "escape": true,
+      "html": "s=&lt;b&gt;&amp;&#39;&quot; i=42 f=1.5 g=3 neg=-7 t=true b=false n= missing= arr=[1,&quot;a&quot;,true,null] obj={&quot;a&quot;:1,&quot;b&quot;:&quot;x&quot;} u=café raw=<b>&'\""
+    },
+    {
+      "name": "trimmed slot names",
+      "root": "basic",
+      "template": "feed/card.html",
+      "params": {
+        "title": "T",
+        "body": "B"
+      },
+      "html": "<ui-card title=\"T\">B</ui-card>"
+    },
+    {
+      "name": "no params",
+      "root": "basic",
+      "template": "feed/card.html",
+      "params": null,
+      "html": "<ui-card title=\"\"></ui-card>"
+    }
+  ],
+  "pages": [
+    {
+      "name": "home in shell",
+      "root": "shell",
+      "route": "/",
+      "params": {
+        "title": "Home"
+      },
+      "html": "<html><title>Home</title><main><h1>Home</h1></main></html>"
+    },
+    {
+      "name": "nested page",
+      "root": "shell",
+      "route": "/docs/intro/",
+      "params": {
+        "title": "Docs"
+      },
+      "html": "<html><title>Docs</title><main><article>Docs: intro</article></main></html>"
+    },
+    {
+      "name": "catch-all",
+      "root": "shell",
+      "route": "/no/such/page",
+      "params": {
+        "title": "X"
+      },
+      "html": "<html><title>X</title><main><p>catch-all X</p></main></html>"
+    },
+    {
+      "name": "engine owns content",
+      "root": "shell",
+      "route": "/",
+      "params": {
+        "title": "T",
+        "content": "EVIL"
+      },
+      "html": "<html><title>T</title><main><h1>T</h1></main></html>"
+    },
+    {
+      "name": "traversal",
+      "root": "shell",
+      "route": "/../secret",
+      "params": {},
+      "error": "NOT_FOUND"
+    },
+    {
+      "name": "default shell",
+      "root": "plain",
+      "route": "/",
+      "params": {
+        "title": "Plain"
+      },
+      "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Anza App</title>\n</head>\n<body>\n  <dock-main>\n    <template shadowrootmode=\"open\">\n      <slot></slot>\n    </template>\n    <h1>Plain</h1>\n  </dock-main>\n</body>\n</html>"
+    },
+    {
+      "name": "unknown route",
+      "root": "plain",
+      "route": "/missing",
+      "params": {},
+      "error": "NOT_FOUND"
+    }
+  ],
+  "sse": [
+    {
+      "envelope": {
+        "v": 2,
+        "slot": "feed",
+        "ts": 1724771234,
+        "html": "<p class=\"x\">café \"q\"\t\n</p>",
+        "sig": "abababababababababababababababababababababababababababababababab"
+      },
+      "packet": "{\"v\":2,\"slot\":\"feed\",\"ts\":1724771234,\"html\":\"<p class=\\\"x\\\">café \\\"q\\\"\\t\\n</p>\",\"sig\":\"abababababababababababababababababababababababababababababababab\"}",
+      "frame": "event: template\ndata: {\"v\":2,\"slot\":\"feed\",\"ts\":1724771234,\"html\":\"<p class=\\\"x\\\">café \\\"q\\\"\\t\\n</p>\",\"sig\":\"abababababababababababababababababababababababababababababababab\"}\n\n"
+    }
+  ],
+  "manifest": {
+    "root": "basic",
+    "templates": {
+      "values.html": "e4f5f496a2e445239c06db1effb80b3526cd68a2c1cd57a2db1ac255022e19c8",
+      "feed/card.html": "76b49131949f7baf0099ced142531370495d9dc70b0cadede87896d005f652db"
+    }
+  }
+}

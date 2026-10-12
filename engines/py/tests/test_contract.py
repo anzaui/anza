@@ -8,7 +8,7 @@ from pathlib import Path
 
 from anza import AnzaError, Envelope, Fragment, Page, Setup, format_event, format_packet
 
-FIXTURES = Path(__file__).resolve().parents[2] / "fixtures"
+FIXTURES = Path(__file__).resolve().parent / "fixtures"
 FX = json.loads((FIXTURES / "render.json").read_text(encoding="utf-8"))
 
 
