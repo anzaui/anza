@@ -67,10 +67,10 @@ Lower-confidence leads (verify while in Phase 3): one task yield per element dur
 |----|-----|---------|-------|-----|
 | [x] D13 | H | **Root module name clashes.** `state`, `storage`, `sync`, `events`, `cache`, `view` and `reset` are each exported by two core modules. Per the ES spec, `export *` silently **drops** ambiguous names, so `import { state } from '@anzaui/anza'` is `undefined`. Types now match this behaviour. | `library/src/index.js` | Decision: explicit re-exports picking one winner per name, or keep them dropped and document "import from the subpath". |
 | [x] D14 | C | Template/engine docs claimed auto-escaping and `each`/`if` blocks, which no engine has (an **XSS trap**). Rust/Python docs described APIs that don't exist. Docs claimed the browser verifies envelope signatures. | `docs/engines`, `docs/templates`, engine READMEs | Fixed in the docs. |
-| [ ] D15 | M | mdBook engine docs (`engines/rust/docs`, `engines/ts/docs`) probably repeat the wrong API from D14. | `engines/*/docs` | Audit them against code, the same way as D14. |
+| [x] D15 | M | mdBook engine docs (`engines/rust/docs`, `engines/ts/docs`) probably repeat the wrong API from D14. | `engines/*/docs` | Audit them against code, the same way as D14. |
 | [ ] D16 | M | `web/src/docs` is stale for about 30 changed docs pages. | `web/src/docs` | Regenerate. Then S3/S4 (one generator, generated in CI, untracked). |
 | [x] D17 | H | Scaffolded apps registered the SW on localhost with `'*'` CacheFirst (same stale-reload trap as R1). | `library/bin/create/run.js` | Fixed. |
-| [ ] D18 | L | Changelog still lacks 0.3.4 and 0.3.8 entries. | `CHANGELOG.md` | Write them from `git log`. |
+| [x] D18 | L | Changelog still lacks 0.3.4 and 0.3.8 entries. | `CHANGELOG.md` | Write them from `git log`. |
 
 ## B — Rust build pipeline correctness (`tools/`)
 
@@ -99,6 +99,16 @@ Build performance (scaling and dev latency; not urgent at 0.1 s):
 | [ ] BP3 | `rewrite_html_urls`: 6 `find` calls per iteration (quadratic on big pages). 15 sequential `replace` calls in `rewrite_js_root_literals`. `dist/index.html` processed twice. | One `aho-corasick` / `memchr::memmem` pass. |
 | [~] BP4 | Importmap re-serialized per HTML file. `strip_importmap` drains in a loop. `escape_html`/`interpolate_params` take multiple passes. | Serialize once. Single-pass scanners. `write!` into a pre-sized String. |
 
+## E — Server engines (found while fixing the engine docs, 2026-10-12)
+
+| ID | Sev | Finding | Where | Fix |
+|----|-----|---------|-------|-----|
+| [ ] E1 | H | Page fallback interpolates the route into HTML **unescaped** (reflected XSS). | `engines/rust` page fallback | Escape. Add a test with `<script>` in the path. Check the TS/Py fallbacks too. |
+| [ ] E2 | M | `watch` feature never reloads: the event receiver is dropped. | `engines/rust` engine/file watch | Keep the receiver alive and reload templates on change. Test. |
+| [ ] E3 | M | `Engine::manifest()` hashes the BLAKE3 digest again instead of hex-encoding it. | `engines/rust` manifest | Hex-encode. Fixture test against a known digest. This is a breaking change to the manifest hash value, so note it in the changelog. |
+| [ ] E4 | M | `SignMode::SessionBound` and `publish_meta` are no-ops. `adapters::tower` is empty. | `engines/rust` | Implement or remove from the public API (needs a FREEZE §4 entry if removed). |
+| [ ] E5 | L | `engines/ts/package-lock.json` still has the name `"anza"`. | `engines/ts` | Regenerate the lock name to `@anzaui/engine`. |
+
 ## H — Repo hygiene and tooling
 
 | ID | Sev | Finding | Where | Fix |
@@ -111,7 +121,7 @@ Build performance (scaling and dev latency; not urgent at 0.1 s):
 | [x] H6 | H | CI never runs the **library** (tsc + browser tests), the main published package. | `.github/workflows/ci.yml` | Add a library job. |
 | [x] H7 | M | `Cargo.lock` is gitignored, so the CLI isn't reproducible and the CI cache key `hashFiles('tools/Cargo.lock')` never changes. The engines/rust cache path is the wrong `target/`. | `.gitignore:59`, `ci.yml`, `pages.yml`, `release.yml` | Commit `tools/Cargo.lock` and fix the paths. |
 | [x] H8 | M | `library/package.json` has no devDependencies (tsc only works because it's installed globally) and ships without the LICENSE it lists in `files`. | `library/package.json` | Add `typescript`, `@web/test-runner`. Copy the LICENSE. |
-| [ ] H9 | M | Release check only compares the tag to `library/package.json`. `create` pins `@anzaui/anza@0.5.0` by hand. | `.github/workflows/release.yml`, `create/package.json` | Have one version source, checked in CI. |
+| [x] H9 | M | Release check only compares the tag to `library/package.json`. `create` pins `@anzaui/anza@0.5.0` by hand. | `.github/workflows/release.yml`, `create/package.json` | Have one version source, checked in CI. |
 | [x] H10 | L | `.gitignore` has rules copied from other projects (`k8/hermes`, `config/prod.toml`, `*.onnx`, `book/`) and a broad `*.bin`. | `.gitignore` | Rewrite it minimally. |
 | [x] H11 | L | Local-only clutter: `report.md`, `reserch.md`, `DESIGN.md`, `SKILL.md`, `engines/*/{DESIGN,DOC,STRUCTURE,SKILL}.md`, `test/`, `tmp/`, `examples/` (891 MB with Rust `target/`). | root, `engines/*` | Fold useful content into docs, delete the rest locally. |
 | [x] H12 | L | Test log noise: `[Router] <dock-main id="main"> is required but was not found` thrown outside a test. | `library/src/core/router/boot.js:50` | Find the test that isn't awaited and add cleanup. |
