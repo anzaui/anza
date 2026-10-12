@@ -10,10 +10,15 @@
 export interface FetchEventLike {
   readonly request: Request;
   respondWith(response: Response | Promise<Response>): void;
+  waitUntil(promise: Promise<unknown>): void;
 }
 
+/**
+ * A strategy responds first; when `event` is given, background cache writes
+ * are passed to `event.waitUntil()`.
+ */
 export interface Strategy {
-  handle(request: Request, error?: unknown): Promise<Response>;
+  handle(request: Request, event?: FetchEventLike): Response | Promise<Response>;
 }
 
 export interface StrategyOptions {
@@ -23,7 +28,7 @@ export interface StrategyOptions {
 
 export class CacheFirst implements Strategy {
   constructor(cacheName: string, options?: StrategyOptions);
-  handle(request: Request): Promise<Response>;
+  handle(request: Request, event?: FetchEventLike): Promise<Response>;
 }
 
 export class NetworkFirst implements Strategy {
@@ -33,26 +38,26 @@ export class NetworkFirst implements Strategy {
     /** Cached page served for failed navigations. */
     fallbackUrl?: string;
   });
-  handle(request: Request): Promise<Response>;
+  handle(request: Request, event?: FetchEventLike): Promise<Response>;
 }
 
 export class StaleRevalidate implements Strategy {
   constructor(cacheName: string, options?: StrategyOptions);
-  handle(request: Request): Promise<Response>;
+  handle(request: Request, event?: FetchEventLike): Promise<Response>;
 }
 
 export class CacheThenNetwork implements Strategy {
   constructor(cacheName: string, options?: StrategyOptions);
-  handle(request: Request): Promise<Response>;
+  handle(request: Request, event?: FetchEventLike): Promise<Response>;
 }
 
 export class NetworkOnly implements Strategy {
-  handle(request: Request): Promise<Response>;
+  handle(request: Request, event?: FetchEventLike): Promise<Response>;
 }
 
 export class CacheOnly implements Strategy {
   constructor(cacheName: string);
-  handle(request: Request): Promise<Response>;
+  handle(request: Request, event?: FetchEventLike): Promise<Response>;
 }
 
 export class OfflineFallback implements Strategy {
@@ -65,9 +70,17 @@ export type RoutePattern = string | URLPatternInit;
 
 export class Router {
   constructor();
-  /** Registers a pattern and its strategy. The first matching route wins. */
+  /**
+   * Registers a pattern and its strategy. When several routes match, the most
+   * specific wins (catch-alls lowest, then by literal path length; ties keep
+   * registration order).
+   */
   register(pattern: RoutePattern, strategy: Strategy): void;
-  /** Responds to GET/HEAD fetch events that match a route; returns true if handled. */
+  /**
+   * Responds to GET/HEAD fetch events that match a route and passes the event
+   * to the strategy. Event streams and `/hmr` are never handled. Returns true
+   * if handled.
+   */
   handle(event: FetchEventLike): boolean;
 }
 

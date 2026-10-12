@@ -4,6 +4,8 @@ Complete reference for the Service Worker toolkit.
 
 ## Strategies
 
+Every strategy has `handle(request, event?)`. It responds first; with an `event`, the cache write is passed to `event.waitUntil()`.
+
 ### `new CacheFirst(cacheName, options)`
 
 | Param | Type | Description |
@@ -67,11 +69,11 @@ Factory. Returns a new `Router` instance.
 | Param | Type | Description |
 | ------ | ---- | ----------- |
 | `pattern` | string \| URLPatternInit | URL to match |
-| `strategy` | object | Any object with `handle(request)` method |
+| `strategy` | object | Any object with a `handle(request, event)` method |
 
 ### `router.handle(event)`
 
-Returns `true` if a route matched and `event.respondWith()` was called. Returns `false` otherwise.
+Responds with the most specific matching route (catch-alls lose to any literal path; ties keep registration order) and passes `event` to the strategy. Returns `true` if a route matched and `event.respondWith()` was called. Returns `false` otherwise. `GET`/`HEAD` only; event streams and `/hmr` are never intercepted.
 
 ## Lifecycle
 

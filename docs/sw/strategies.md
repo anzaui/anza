@@ -1,6 +1,13 @@
 # Strategies
 
-Seven caching strategies for intercepting `fetch` events inside a Service Worker. Each is a class with a `handle(request)` method that returns a Response.
+Seven caching strategies for intercepting `fetch` events inside a Service Worker. Each is a class with a `handle(request, event?)` method that returns a Response.
+
+Every strategy **responds first** and writes the cache afterwards. When the
+router calls a strategy it passes the `FetchEvent` as the second argument, and
+the cache write goes to `event.waitUntil()` so the worker stays alive until it
+finishes. Call `handle(request, event)` the same way from your own code.
+Strategies never intercept event streams (`Accept: text/event-stream`) or the
+dev server's `/hmr` channel.
 
 ## CacheFirst
 
@@ -10,14 +17,14 @@ Tries cache first. Falls back to network on miss. Stores the network response in
 import { CacheFirst } from '@anzaui/anza/sw';
 
 const strategy = new CacheFirst('shell-v1', { ttl: 3600000 });
-const response = await strategy.handle(request);
+const response = await strategy.handle(request, event);
 ```
 
 | Option | Type | Default | Description |
 | ------ | ---- | ------- | ----------- |
 | `ttl` | number | — | Time-to-live in milliseconds; stored as `x-expires-at` header |
 
-Use this for static assets: JS, CSS, fonts, images.
+Use this for files whose URL changes when their content changes (content-hashed or `?v=` versioned assets). For unhashed JS/CSS use `StaleRevalidate`, otherwise an old file is served until the cache name changes.
 
 ## NetworkFirst
 

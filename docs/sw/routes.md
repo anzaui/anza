@@ -15,12 +15,19 @@ const r = router();
 ## Register Patterns
 
 ```javascript
-r.register('*', new CacheFirst('shell-v1'));
 r.register('/api/users/:id', new NetworkFirst('api-v1'));
-r.register('*', new NetworkOnly());
+r.register('/api/*', new NetworkFirst('api-v1', { timeout: 3000 }));
+r.register('*', new StaleRevalidate('shell-v1'));
 ```
 
-Patterns are matched in order. The first match wins and `event.respondWith()` is called synchronously.
+When several patterns match, the **most specific** one wins: catch-alls (`'*'`,
+`'/*'`) score lowest, and any other pattern scores by the length of its literal
+path, so `/api/users/:id` beats `/api/*`, which beats `'*'`. Ties keep
+registration order. `event.respondWith()` is called synchronously.
+
+Only `GET` and `HEAD` requests are routed. Event streams
+(`Accept: text/event-stream`) and the dev server's `/hmr` channel are never
+intercepted.
 
 | Pattern | Matches |
 | ------ | ------- |
@@ -57,11 +64,11 @@ The `Router` class normalizes strings into `URLPattern` instances automatically.
 
 ### `router.register(pattern, strategy)`
 
-Add a route. `pattern` can be a string or `URLPatternInit` object. `strategy` is any object with a `handle(request)` method that returns a `Response` or Promise.
+Add a route. `pattern` can be a string or `URLPatternInit` object. `strategy` is any object with a `handle(request, event)` method that returns a `Response` or Promise; the router passes the `FetchEvent` so background cache writes can use `event.waitUntil()`.
 
 ### `router.handle(event)`
 
-Test the event request against all registered routes in order. Returns `true` if matched, `false` otherwise.
+Picks the most specific route matching the request and calls `event.respondWith()`. Returns `true` if matched, `false` otherwise (including non-GET/HEAD requests and event streams).
 
 ### `new Router()`
 
