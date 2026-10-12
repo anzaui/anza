@@ -34,7 +34,17 @@ Merged f69936c…1a5dd3d (+ bf8b3a5: `npm run worker:check` in CI). 163 tools te
 | W1 | M | SSG `<head>` hard-codes only `/favicon.ico`. `apple-touch-icon.png` not shipped | Copy the shell's `icon` / `alternate icon` / `apple-touch-icon` / `manifest` links into SSG heads, and copy the referenced files |
 | X9 | L | `_headers` has no security headers | Add `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `frame-ancestors` via CSP (CSP-safe output already) |
 
-## Lane B — server engines (`engines/{rust,ts,py}`)
+## Lane B — server engines (`engines/{rust,ts,py}`) — DONE 2026-10-13
+
+Merged 8863f3d…4e333aa. Rust 43 / TS 37 / Py 56 tests.
+- **Signatures:** v2 (length-prefixed `ts`/`slot`/`html`/`css`, so `css` is now signed), plus `verify_envelope` checking version, freshness, slot and a constant-time comparison.
+- **Keys:** validated at setup and redacted from debug output. Python Ed25519 uses `cryptography` only.
+- **Templates:** pages only from `pages/`, strict template names, fragment allowlist, shared `escape_html` with an opt-in `escape`.
+- **Contract:** written in `docs/engines/contract.md`, with golden fixtures in `engines/fixtures/`. Digest is SHA-256 everywhere.
+- **Perf:** Rust unsigned fragment 8.3 → 1.8 µs, `Data<Value>` 1040 → 14.7 µs. Ed25519 about 1.5–1.9× faster in every engine.
+- **Gap:** the ≤1.5× target holds against map-lookup concat, not plain concat (Rust 3.7×, from SipHash lookups).
+- CI installs the Python engine with its deps (this commit).
+
 
 | ID | Sev | Problem | Fix |
 |----|-----|---------|-----|
