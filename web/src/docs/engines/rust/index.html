@@ -94,7 +94,7 @@ setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub");
 // No signature (development)
 setup.signing = SignMode::None;
 </view-code>
-<p>The signature is hex-encoded; see <a href="/docs/engines/crypto">crypto.md</a>.</p>
+<p>The signature is hex-encoded; see <a href="/docs/engines/crypto">Cryptographic Verification</a>.</p>
 <h2>Page Rendering</h2>
 <p><code>Page::new(route)</code> maps the route to a template: <code>/</code> → <code>pages/home.html</code>,
 <code>/about</code> → <code>pages/about.html</code>, then falls back to <code>about.html</code> and
@@ -105,7 +105,7 @@ a minimal document with a <code>&lt;dock-main&gt;</code> is emitted.</p>
 <p><code>Stream</code> renders an envelope like <code>Fragment</code>; <code>stream::sse::frame::encode(&amp;envelope)</code>
 formats it as an SSE <code>template</code> event and <code>stream::ws::packet::encode</code> as a
 WebSocket text frame. With the <code>axum</code> feature, <code>adapters::axum::stream::event</code>
-returns an <code>axum::response::sse::Event</code>. See <a href="/docs/engines/streaming">streaming.md</a>.</p>
+returns an <code>axum::response::sse::Event</code>. See <a href="/docs/engines/streaming">Real-Time Streaming</a>.</p>
 <h2>Crate Layout</h2>
 <div class="table-wrap"><table><thead><tr><th>Module</th><th>Contents</th></tr></thead><tbody>
 <tr><td><code>data::r#in</code></td><td><code>Setup</code> (config) and the <code>Page</code>, <code>Fragment</code>, <code>Stream</code> operations</td></tr>

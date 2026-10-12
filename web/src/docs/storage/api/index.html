@@ -1,6 +1,6 @@
 <h1>API Reference</h1>
 <p>Complete reference for the storage facade and internal classes.</p>
-<p><strong>vs <code>state.storage</code>:</strong> this package is the tiered KV / OPFS / Cache facade. <code>state.storage</code> (<code>PlatformStorage</code>) persists reactive-store snapshots and supports a filter-function <code>query</code>. Give each a distinct IndexedDB database name (both default to <code>platform-db</code>) — see <a href="/docs/storage/troubleshooting">troubleshooting.md</a>.</p>
+<p><strong>vs <code>state.storage</code>:</strong> this package is the tiered KV / OPFS / Cache facade. <code>state.storage</code> (<code>PlatformStorage</code>) persists reactive-store snapshots and supports a filter-function <code>query</code>. Give each a distinct IndexedDB database name (both default to <code>platform-db</code>) — see <a href="/docs/storage/troubleshooting">Troubleshooting</a>.</p>
 <h2>Facade</h2>
 <view-code language="javascript">import { storage } from '@anzaui/anza/storage';
 </view-code>
@@ -60,7 +60,7 @@ await storage.persist();
 const ok = await storage.persisted();
 </view-code>
 <h3><code>storage.onQuotaWarning(handler)</code></h3>
-<p>Registers a quota warning listener; returns a disposer. Also see <a href="/docs/storage/quota">quota.md</a>.</p>
+<p>Registers a quota warning listener; returns a disposer. Also see <a href="/docs/storage/quota">Quota</a>.</p>
 <h3><code>storage.compressionThreshold</code></h3>
 <p>Number (default <code>65536</code>). Values whose serialized length exceeds this may be gzip-compressed on IDB write when Compression Streams are available.</p>
 <h2>Database</h2>

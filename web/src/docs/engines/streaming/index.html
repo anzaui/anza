@@ -37,7 +37,7 @@ source.addEventListener('template', (event) =&gt; {
 trust: <code>sanitize()</code> from <code>@anzaui/anza/security</code> strips custom elements, so it
 is meant for user content, not for engine fragments. Verify <code>sig</code> with the
 engine's <code>verify</code> helper on any server or edge hop that relays the stream (see
-<a href="/docs/engines/crypto">crypto.md</a>).</p>
+<a href="/docs/engines/crypto">Cryptographic Verification</a>).</p>
 <h3>2. <code>api.stream()</code> (NDJSON)</h3>
 <p><code>api.stream()</code> reads a newline-delimited JSON body (one envelope per line,
 <code>Content-Type: application/x-ndjson</code>) and yields each line already parsed:</p>

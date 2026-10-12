@@ -82,7 +82,7 @@ Setup(root="./templates", signing=SignOptions(mode="hmac", secret="..."))
 Setup(root="./templates", signing=SignOptions(mode="ed25519", private_key="&lt;64 hex chars&gt;"))
 Setup(root="./templates")  # mode="none": no signature
 </view-code>
-<p>HMAC and Ed25519 raise <code>AnzaError</code> when their key is missing. See <a href="/docs/engines/crypto">crypto.md</a>.</p>
+<p>HMAC and Ed25519 raise <code>AnzaError</code> when their key is missing. See <a href="/docs/engines/crypto">Cryptographic Verification</a>.</p>
 <h2>Page Rendering</h2>
 <p><code>Page(route, params)</code> maps the route to a template: <code>/</code> → <code>pages/home.html</code>,
 <code>/about</code> → <code>pages/about.html</code>. The page is wrapped in open declarative shadow
@@ -104,7 +104,7 @@ async def stream_feed():
     return StreamingResponse(events(), media_type="text/event-stream")
 </view-code>
 <p><code>Stream(template, slot, params).run(engine)</code> returns the same SSE text in one
-call. See <a href="/docs/engines/streaming">streaming.md</a>.</p>
+call. See <a href="/docs/engines/streaming">Real-Time Streaming</a>.</p>
 <h2>Package Layout</h2>
 <div class="table-wrap"><table><thead><tr><th>Package</th><th>Contents</th></tr></thead><tbody>
 <tr><td><code>anza.data.input</code></td><td><code>Setup</code>, <code>Page</code>, <code>Fragment</code>, <code>Stream</code></td></tr>

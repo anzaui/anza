@@ -1,9 +1,9 @@
 <h1>Guards</h1>
 <blockquote>
-<p><strong>Not platform feature-gates.</strong> Navigation guards (<code>router.guard</code>, <code>page({ guard })</code>) block or redirect navigations. For polyfills and capability checks, see <a href="/docs/platform/guards">platform/guards.md</a>.</p>
+<p><strong>Not platform feature-gates.</strong> Navigation guards (<code>router.guard</code>, <code>page({ guard })</code>) block or redirect navigations. For polyfills and capability checks, see <a href="/docs/platform/guards">Guards</a>.</p>
 </blockquote>
 <p>Guards block or redirect navigation before the DOM changes. They run at two points in the navigation lifecycle: pre-commit (before the URL updates) and post-commit (after, as a Safari fallback).</p>
-<p>When a guard <strong>throws</strong>, the router emits <code>error</code> with <code>phase: 'guard'</code> and renders the <strong>error</strong> fallback leaf (shared library built-in, or a dock / <code>configure</code> / route override). See <a href="/docs/router/fallbacks">fallbacks.md</a>.</p>
+<p>When a guard <strong>throws</strong>, the router emits <code>error</code> with <code>phase: 'guard'</code> and renders the <strong>error</strong> fallback leaf (shared library built-in, or a dock / <code>configure</code> / route override). See <a href="/docs/router/fallbacks">Fallbacks (404 / 5xx / offline)</a>.</p>
 <h2>Global Guards</h2>
 <p>Register a guard that runs on every navigation:</p>
 <view-code language="javascript">import { router } from '@anzaui/anza/router';

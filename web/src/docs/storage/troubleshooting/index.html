@@ -10,7 +10,7 @@ import { state } from '@anzaui/anza/state';
 storage.configure({ idb: { name: 'app-kv' } });
 state.storage.setDatabaseName('app-state');
 </view-code>
-<p>Use <code>storage</code> for tiered KV/blobs; use <code>state.storage</code> for store persistence. See <a href="/docs/state/persist">state/persist.md</a>.</p>
+<p>Use <code>storage</code> for tiered KV/blobs; use <code>state.storage</code> for store persistence. See <a href="/docs/state/persist">Persist</a>.</p>
 <p>If one package creates object stores and the other later opens the same DB name with a different migration plan, you can end up debugging the wrong abstraction. Separate names early and keep them stable.</p>
 <h2>storage.get returns null</h2>
 <p><strong>Cause:</strong> Key never set, expired, or wrong tier.</p>

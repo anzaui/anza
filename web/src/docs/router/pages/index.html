@@ -139,7 +139,7 @@ on: {
   }
 });
 </view-code>
-<p>See <a href="/docs/router/guards">guards.md</a> for full guard documentation.</p>
+<p>See <a href="/docs/router/guards">Guards</a> for full guard documentation.</p>
 <h3><code>error</code></h3>
 <p>Optional override when this route matches but the guard or handler throws. Same shapes as dock fallbacks (<code>{ tag }</code>, HTML, …). Without it, the resolver still mounts the shared library built-in (or a dock / <code>configure</code> override) into the <strong>leaf</strong> dock — you do not need per-route error HTML files.</p>
 <view-code language="javascript">page('/admin/:id', {
@@ -148,7 +148,7 @@ on: {
   error: { tag: 'page-admin-error' }
 });
 </view-code>
-<p>See <a href="/docs/router/fallbacks">fallbacks.md</a> for defaults and the full ladder.</p>
+<p>See <a href="/docs/router/fallbacks">Fallbacks (404 / 5xx / offline)</a> for defaults and the full ladder.</p>
 <h3><code>ssg</code></h3>
 <p>Optional build-time SSG controls for public routes:</p>
 <view-code language="javascript">page('/docs/ssg/expand/:slug', {
@@ -162,7 +162,7 @@ on: {
 </view-code>
 <p>Use <code>ssg.expand</code> only for routes whose concrete param values are known at build time. Unexpanded param patterns stay client-matchable but do not emit <code>dist/&lt;route&gt;/index.html</code>. See <a href="/docs/ssg/index">SSG overview</a> and the <a href="/docs/ssg/contract">SSG contract</a>.</p>
 <h3>Scaffold / generate</h3>
-<p><code>anza generate page &lt;name&gt;</code> writes <code>index.js</code> + HTML/CSS into a page tree and updates the barrel — it does <strong>not</strong> create error-page files. Fallbacks stay by reference on docks/pages. Layout contract: <a href="/docs/intro/structure">intro/structure.md</a>.</p>
+<p><code>anza generate page &lt;name&gt;</code> writes <code>index.js</code> + HTML/CSS into a page tree and updates the barrel — it does <strong>not</strong> create error-page files. Fallbacks stay by reference on docks/pages. Layout contract: <a href="/docs/intro/structure">Structure</a>.</p>
 <h3><code>meta</code></h3>
 <p>Additional metadata passed to the route registry:</p>
 <view-code language="javascript">meta: { analytics: 'checkout' }
@@ -180,7 +180,7 @@ on: {
 <h2>Soft-nav vs hard refresh</h2>
 <ul>
 <li><strong>Soft-nav</strong> — the router keeps parent docks; only the page leaf inside the leaf dock is swapped (CSR mount when the tag changes). Soft-nav loads the page <strong>fragment</strong> (often <code>template.html</code> after Mode A preserves it), never the full SSG document.</li>
-<li><strong>Hard refresh / full load</strong> — the browser fetches contentful SSG or Mode B HTML (<code>anza build</code> and <code>anza dev</code>); the client adopts open DSD and must not wipe SEO content. See <a href="/docs/ui/hydration">ui/hydration.md</a>.</li>
+<li><strong>Hard refresh / full load</strong> — the browser fetches contentful SSG or Mode B HTML (<code>anza build</code> and <code>anza dev</code>); the client adopts open DSD and must not wipe SEO content. See <a href="/docs/ui/hydration">Hydration (DSD adopt)</a>.</li>
 </ul>
 <h2>Boot Gate</h2>
 <p><code>page()</code> automatically gates the initial route match on the element's custom element definition:</p>

@@ -5,7 +5,7 @@
 <p>Register a route. Returns nothing.</p>
 <div class="table-wrap"><table><thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>pattern</code></td><td>string</td><td>URL pattern or absolute URL</td></tr>
-<tr><td><code>handler</code></td><td>string | function | object</td><td>See <a href="/docs/router/handlers">handlers.md</a></td></tr>
+<tr><td><code>handler</code></td><td>string | function | object</td><td>See <a href="/docs/router/handlers">Handlers</a></td></tr>
 <tr><td><code>meta</code></td><td>object</td><td>Optional metadata (<code>container</code>, <code>parent</code>, <code>via</code>)</td></tr>
 </tbody></table></div>
 <view-code language="javascript">router.register('/', 'page-home');
@@ -50,7 +50,7 @@ dispose(); // remove
 });
 </view-code>
 <h3><code>router.pages</code></h3>
-<p>Optional app-level fallback tags / HTML for <code>notfound</code>, <code>error</code>, and <code>offline</code> when no dock in the chain defines the kind. Bare docks already use shared library built-ins — see <a href="/docs/router/fallbacks">fallbacks.md</a>.</p>
+<p>Optional app-level fallback tags / HTML for <code>notfound</code>, <code>error</code>, and <code>offline</code> when no dock in the chain defines the kind. Bare docks already use shared library built-ins — see <a href="/docs/router/fallbacks">Fallbacks (404 / 5xx / offline)</a>.</p>
 <view-code language="javascript">router.pages.configure({
   notfound: { tag: 'page-not-found' },
   error: { tag: 'page-server-error' }
@@ -193,4 +193,4 @@ await transitions.run(() =&gt; panel.replaceChildren(next), {
 <tr><td><code>dockName</code></td><td>Default <code>dock-&lt;registryKey&gt;</code></td></tr>
 <tr><td><code>prefersReducedMotion</code></td><td>Motion preference helper</td></tr>
 </tbody></table></div>
-<p>Full behaviour: <a href="/docs/router/transitions">transitions.md</a>, <a href="/docs/ui/transitions">ui/transitions.md</a>.</p>
+<p>Full behaviour: <a href="/docs/router/transitions">Transitions</a>, <a href="/docs/ui/transitions">Transitions</a>.</p>
