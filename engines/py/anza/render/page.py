@@ -1,3 +1,4 @@
+import html
 import re
 from typing import Any
 from ..models.document import Document
@@ -30,8 +31,9 @@ def render_page(engine: Engine, route: str, params: Any = None) -> Document:
                     if not callable(val):
                         shell_params[k] = val
 
-    # Route name for custom element tag
-    route_name = clean_route if clean_route else "home"
+    # Route name for custom element tag. The route comes from the request URL:
+    # keep only characters valid in a custom element name.
+    route_name = re.sub(r"[^a-z0-9]+", "-", clean_route).strip("-") or "home"
     tag_name = f"page-{route_name}"
 
     # Construct Open Declarative Shadow DOM
@@ -40,7 +42,7 @@ def render_page(engine: Engine, route: str, params: Any = None) -> Document:
     shell_params["content"] = dsd_content
     shell_params["main"] = dsd_content
     shell_params["body"] = dsd_content
-    shell_params["route"] = route
+    shell_params["route"] = html.escape(route)
 
     # 4. Render shell wrapper
     full_html = shell_tpl.bind(shell_params)

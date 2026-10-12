@@ -2,6 +2,16 @@ import type { Engine } from '../engine/cache/engine.js';
 import type { Params } from '../engine/slot/index.js';
 import { Document } from '../models/document.js';
 
+/** Escape text for HTML element content. The route comes from the request URL. */
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export async function renderPageDocument(engine: Engine, route: string, params?: Params): Promise<Document> {
   const cleanRoute = route.replace(/^\/+|\/+$/g, '');
   const templateName = cleanRoute === '' ? 'pages/home.html' : `pages/${cleanRoute}.html`;
@@ -19,7 +29,7 @@ export async function renderPageDocument(engine: Engine, route: string, params?:
         const indexTpl = engine.get('pages/index.html');
         content = indexTpl.bind(params);
       } catch {
-        content = `<div class="content">Route: ${route}</div>`;
+        content = `<div class="content">Route: ${escapeHtml(route)}</div>`;
       }
     }
   }

@@ -37,7 +37,11 @@ class Engine:
         if tpl:
             return tpl
 
-        # Fallback load on-demand
+        # Fallback load on-demand. Names can come from request paths (pages/<route>),
+        # so refuse anything that resolves outside the template root.
+        root = self.root.resolve()
+        if not (root / normalized).resolve().is_relative_to(root):
+            raise AnzaError.not_found(f"Template '{normalized}' is outside '{self.root}'")
         try:
             tpl = one(self.root, normalized)
             self.cache.insert(normalized, tpl)

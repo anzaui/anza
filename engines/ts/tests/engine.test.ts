@@ -95,3 +95,15 @@ test('engine/fragment - dynamic signed envelope generation', async () => {
 
   await fs.rm(tempDir, { recursive: true, force: true });
 });
+
+test('render/page - unknown route fallback escapes the route', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'anza-ts-xss-'));
+  try {
+    const engine = await new Setup({ root: dir }).run();
+    const doc = await new Page('/<script>alert(1)</script>', {}).run(engine);
+    assert.ok(!doc.html.includes('<script>alert(1)</script>'), 'route must not be injected as markup');
+    assert.ok(doc.html.includes('Route: /&lt;script&gt;alert(1)&lt;/script&gt;'));
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
+});
