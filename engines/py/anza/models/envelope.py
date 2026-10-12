@@ -36,4 +36,7 @@ class Envelope:
 
     def to_json(self) -> str:
         """Compact JSON, byte-identical to the Rust and TS engines."""
-        return json.dumps(self.to_dict(), separators=(",", ":"), ensure_ascii=False)
+        data = self.to_dict()
+        # Identical output either way for ASCII text; the ASCII encoder is faster.
+        ascii_only = all(v.isascii() for v in data.values() if isinstance(v, str))
+        return json.dumps(data, separators=(",", ":"), ensure_ascii=ascii_only)

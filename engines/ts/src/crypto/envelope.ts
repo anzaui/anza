@@ -24,20 +24,19 @@ export const SIGNATURE_DOMAIN = 'anza-sig-v2\n';
 /** Default tolerance for a timestamp ahead of the verifier's clock. */
 export const DEFAULT_SKEW_SECS = 5;
 
-function field(value: string): Buffer {
-  const bytes = Buffer.from(value, 'utf8');
-  return Buffer.concat([Buffer.from(`${bytes.length}:`, 'latin1'), bytes, Buffer.from('\n', 'latin1')]);
+const field = (value: string): string => `${Buffer.byteLength(value, 'utf8')}:${value}\n`;
+
+/**
+ * The v2 message as a string; its UTF-8 encoding is the signed bytes. Hashing
+ * this directly avoids building intermediate buffers.
+ */
+export function signatureText(ts: number, slot: string, html: string, css?: string | null): string {
+  return SIGNATURE_DOMAIN + field(String(ts)) + field(slot) + field(html) + field(css ?? '');
 }
 
 /** The exact bytes a v2 signature covers. */
 export function signatureMessage(ts: number, slot: string, html: string, css?: string | null): Buffer {
-  return Buffer.concat([
-    Buffer.from(SIGNATURE_DOMAIN, 'latin1'),
-    field(String(ts)),
-    field(slot),
-    field(html),
-    field(css ?? ''),
-  ]);
+  return Buffer.from(signatureText(ts, slot, html, css), 'utf8');
 }
 
 /** The key that checks an envelope signature. */
@@ -63,7 +62,7 @@ export type ReceivedEnvelope = Partial<EnvelopeData> & { v?: unknown; ts?: unkno
 export function verifyWith(
   envelope: ReceivedEnvelope,
   options: VerifyOptions,
-  checkSig: (message: Buffer, sig: string) => boolean
+  checkSig: (message: string, sig: string) => boolean
 ): void {
   if (!envelope || envelope.v !== ENVELOPE_VERSION) throw AnzaError.crypto('unsupported envelope version');
   const { ts, slot, html, css, sig } = envelope;
@@ -77,7 +76,7 @@ export function verifyWith(
   if (ts > now + skew) throw AnzaError.crypto('envelope timestamp is in the future');
   if (now - ts > options.maxAgeSecs) throw AnzaError.crypto('envelope expired');
   if (slot !== options.slot) throw AnzaError.crypto('slot mismatch');
-  if (!checkSig(signatureMessage(ts, slot, html, css), sig)) throw AnzaError.crypto('bad signature');
+  if (!checkSig(signatureText(ts, slot, html, css), sig)) throw AnzaError.crypto('bad signature');
 }
 
 /**

@@ -25,7 +25,7 @@ const INSPECT = Symbol.for('nodejs.util.inspect.custom');
  */
 export class Signer {
   readonly mode: SignOptions['mode'];
-  #hmac?: crypto.KeyObject;
+  #hmac?: Buffer;
   #ed25519?: crypto.KeyObject;
   #public?: Buffer;
 
@@ -45,7 +45,7 @@ export class Signer {
         if (bytes.length < HMAC_MIN_SECRET) {
           throw AnzaError.crypto(`HMAC secret must be at least ${HMAC_MIN_SECRET} bytes`);
         }
-        signer.#hmac = crypto.createSecretKey(bytes);
+        signer.#hmac = bytes;
         return signer;
       }
       case 'ed25519': {
@@ -75,7 +75,7 @@ export class Signer {
   }
 
   /** Check a lowercase-hex signature made by this signer (constant-time). Always `false` when signing is off. */
-  verify(message: Uint8Array, signatureHex: string): boolean {
+  verify(message: string | Uint8Array, signatureHex: string): boolean {
     if (this.#hmac) {
       const actual = decodeLength(signatureHex, 32);
       if (!actual) return false;
@@ -84,7 +84,8 @@ export class Signer {
     if (this.#ed25519) {
       const actual = decodeLength(signatureHex, 64);
       if (!actual) return false;
-      return crypto.verify(null, message, crypto.createPublicKey(this.#ed25519), actual);
+      const data = typeof message === 'string' ? Buffer.from(message, 'utf8') : message;
+      return crypto.verify(null, data, crypto.createPublicKey(this.#ed25519), actual);
     }
     return false;
   }

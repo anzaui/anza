@@ -17,19 +17,6 @@ export interface CompileOptions {
 
 const hasOwn = Object.hasOwn;
 
-function lookup(params: Params, name: string): unknown {
-  if (!params) return undefined;
-  if (params instanceof Map) return params.get(name);
-  if (Array.isArray(params)) {
-    for (let j = 0; j < params.length; j++) {
-      if (params[j][0] === name) return params[j][1];
-    }
-    return undefined;
-  }
-  // Own properties only: `{{toString}}` or `{{__proto__}}` never reach the prototype.
-  return hasOwn(params, name) ? (params as Record<string, unknown>)[name] : undefined;
-}
-
 /**
  * A value as slot text (see `docs/engines/contract.md`): strings as-is,
  * `true`/`false`, numbers via `String()` (integral floats have no `.0`),
@@ -46,22 +33,62 @@ export function stringify(val: unknown): string | undefined {
   return String(val);
 }
 
-/** Compile chunks into a renderer. */
+/**
+ * Compile chunks into a renderer. The template is flattened once into
+ * `statics[0] slot[0] statics[1] … slot[n-1] statics[n]`; a render does one
+ * type check on `params`, then one lookup per slot.
+ */
 export function compile(chunks: Chunk[], options: CompileOptions = {}): CompiledRenderer {
   const escape = Boolean(options.escape);
-  const parts = chunks.filter((c) => c.type !== 'static' || c.value.length > 0);
+  const statics: string[] = [''];
+  const names: string[] = [];
+  const escapes: boolean[] = [];
+  for (const c of chunks) {
+    if (c.type === 'static') {
+      statics[statics.length - 1] += c.value;
+    } else {
+      names.push(c.name);
+      escapes.push(escape && c.type === 'slot');
+      statics.push('');
+    }
+  }
+  const n = names.length;
+  const anyEscape = escapes.includes(true);
+  // Names an inherited `Object.prototype` member could answer; only these
+  // need an own-property check on plain objects.
+  const risky = names.map((name) => name === '__proto__' || name in Object.prototype);
+  const text = anyEscape
+    ? (val: unknown, i: number): string => {
+        const s = typeof val === 'string' ? val : stringify(val);
+        return s === undefined ? '' : escapes[i] ? escapeHtml(s) : s;
+      }
+    : (val: unknown): string => (typeof val === 'string' ? val : (stringify(val) ?? ''));
 
   return function render(params?: Params): string {
-    let out = '';
-    for (let i = 0; i < parts.length; i++) {
-      const p = parts[i];
-      if (p.type === 'static') {
-        out += p.value;
-        continue;
-      }
-      const text = stringify(lookup(params, p.name));
-      if (text === undefined) continue;
-      out += escape && p.type === 'slot' ? escapeHtml(text) : text;
+    let out = statics[0];
+    if (!params) {
+      for (let i = 0; i < n; i++) out += statics[i + 1];
+      return out;
+    }
+    if (params instanceof Map) {
+      for (let i = 0; i < n; i++) out += text(params.get(names[i]), i) + statics[i + 1];
+      return out;
+    }
+    if (Array.isArray(params)) {
+      // One pass over the pairs (first one wins), then one over the slots.
+      const map = new Map<string, unknown>();
+      for (let j = params.length - 1; j >= 0; j--) map.set(params[j][0], params[j][1]);
+      for (let i = 0; i < n; i++) out += text(map.get(names[i]), i) + statics[i + 1];
+      return out;
+    }
+    // Own properties only: `{{toString}}` or `{{__proto__}}` never reach the prototype.
+    const obj = params as Record<string, unknown>;
+    const proto = Object.getPrototypeOf(obj);
+    const plain = proto === Object.prototype || proto === null;
+    for (let i = 0; i < n; i++) {
+      const name = names[i];
+      const own = plain && !risky[i] ? true : hasOwn(obj, name);
+      out += (own ? text(obj[name], i) : '') + statics[i + 1];
     }
     return out;
   };

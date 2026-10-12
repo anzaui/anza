@@ -1,11 +1,12 @@
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Union
 
 from ...crypto import digest
 from ...errors import AnzaError
-from ..slot import Chunk, extract, string
+from ..slot import Chunk, extract
+from ..slot.bind import Renderer
 
 #: Default cap on a template file's size: 1 MiB.
 DEFAULT_MAX_TEMPLATE_BYTES = 1024 * 1024
@@ -20,12 +21,16 @@ class Template:
     chunks: list[Chunk]
     #: HTML-escape ``{{slot}}`` values (``Setup.escape``).
     escape: bool = False
+    renderer: Renderer = field(init=False, repr=False, compare=False)
+
+    def __post_init__(self) -> None:
+        self.renderer = Renderer(self.chunks, self.escape)
 
     def bind(self, params: Any = None) -> str:
-        return string(self.chunks, params, self.escape)
+        return self.renderer(params)
 
     def render(self, params: Any = None) -> str:
-        return string(self.chunks, params, self.escape)
+        return self.renderer(params)
 
 
 def _inside(root: Path, path: Path) -> bool:

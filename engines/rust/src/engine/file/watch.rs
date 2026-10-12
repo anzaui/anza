@@ -88,7 +88,7 @@ fn apply(root: &Path, cache: &CacheStore, path: &Path, options: &super::LoadOpti
     if let Ok(templates) = super::load::all_with(path, options) {
       for (sub, tpl) in templates {
         let full = format!("{}/{}", name.trim_end_matches('/'), sub);
-        cache.insert(full.clone(), crate::engine::file::Template { name: full, ..tpl });
+        cache.insert(full.clone(), tpl.renamed(full));
       }
     }
     return;

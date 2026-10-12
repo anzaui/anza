@@ -1,5 +1,5 @@
 import { Signer, type SignOptions } from '../../crypto/signer.js';
-import { signatureMessage, verifyWith, type ReceivedEnvelope, type VerifyOptions } from '../../crypto/envelope.js';
+import { signatureText, verifyWith, type ReceivedEnvelope, type VerifyOptions } from '../../crypto/envelope.js';
 import { AnzaError } from '../../errors/index.js';
 import { Document, Envelope, Manifest } from '../../models/index.js';
 import type { Params } from '../slot/index.js';
@@ -50,7 +50,7 @@ export class Engine {
   }
 
   async signPayload(ts: number, slot: string, html: string): Promise<string | undefined> {
-    return this.signer.sign(signatureMessage(ts, slot, html));
+    return this.signer.sign(signatureText(ts, slot, html));
   }
 
   /**
@@ -71,7 +71,7 @@ export class Engine {
     if (!fragmentAllowed(this.fragments, templateName)) throw AnzaError.notFound(`Template '${templateName}' not found`);
     const html = tpl.bind(params);
     const ts = Math.floor(Date.now() / 1000);
-    const sig = this.signer.sign(signatureMessage(ts, slot, html));
+    const sig = this.signer.mode === 'none' ? undefined : this.signer.sign(signatureText(ts, slot, html));
 
     return new Envelope(slot, ts, html, sig);
   }

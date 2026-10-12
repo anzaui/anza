@@ -1,7 +1,7 @@
 use {
   crate::{
     crypto::digest,
-    engine::slot::{bind::{self, Data, Params}, extract, Chunk},
+    engine::slot::{bind::{Data, Params, Plan}, extract, Chunk},
     errors::{Error, Result},
   },
   serde::Serialize,
@@ -26,17 +26,43 @@ pub struct Template {
   pub chunks: Vec<Chunk>,
   /// HTML-escape `{{slot}}` values (`Setup::escape`).
   pub escape: bool,
+  plan: Plan,
 }
 
 impl Template {
-  /// Bind any parameter source (Value, tuples, arrays, slices, HashMaps, or () for empty)
-  pub fn bind<P: Params + ?Sized>(&self, params: &P) -> Result<String> {
-    bind::string_with(&self.chunks, params, self.escape)
+  /// Parse and compile `raw`. `name` is the cache key (relative to the root).
+  pub fn new(name: impl Into<String>, path: impl Into<PathBuf>, raw: impl Into<String>, escape: bool) -> Result<Self> {
+    let raw = raw.into();
+    let chunks = extract(&raw)?;
+    let plan = Plan::new(&chunks, escape);
+    Ok(Self {
+      name: name.into(),
+      path: path.into(),
+      digest: digest::content(raw.as_bytes()),
+      raw,
+      chunks,
+      escape,
+      plan,
+    })
   }
 
-  /// Render directly from any struct implementing `serde::Serialize`
+  /// The same template under another cache key.
+  pub fn renamed(&self, name: impl Into<String>) -> Self {
+    Self {
+      name: name.into(),
+      ..self.clone()
+    }
+  }
+
+  /// Bind any parameter source (Value, tuples, arrays, slices, HashMaps, or () for empty)
+  pub fn bind<P: Params + ?Sized>(&self, params: &P) -> Result<String> {
+    Ok(self.plan.bind(params))
+  }
+
+  /// Render directly from any struct implementing `serde::Serialize`. The
+  /// struct is converted to a `serde_json::Value` once.
   pub fn render<T: Serialize>(&self, data: &T) -> Result<String> {
-    bind::string_with(&self.chunks, &Data(data), self.escape)
+    Ok(self.plan.bind(&Data(data)))
   }
 }
 
@@ -98,17 +124,7 @@ pub fn one_with(root: &Path, rel_path: &Path, options: &LoadOptions) -> Result<T
     return Err(Error::template(format!("Template '{}' is larger than {} bytes", name, options.max_bytes)));
   }
   let raw = String::from_utf8(bytes).map_err(|_| Error::template(format!("Template '{}' is not valid UTF-8", name)))?;
-  let digest = digest::content(raw.as_bytes());
-  let chunks = extract(&raw)?;
-
-  Ok(Template {
-    name,
-    path: full_path,
-    raw,
-    digest,
-    chunks,
-    escape: options.escape,
-  })
+  Template::new(name, full_path, raw, options.escape)
 }
 
 pub fn all(root: &Path) -> Result<HashMap<String, Template>> {

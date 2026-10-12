@@ -26,6 +26,7 @@ def render_fragment(
         css=None,
     )
 
-    envelope.sig = engine.signer.sign(envelope.message())
+    if engine.signer.mode != "none":
+        envelope.sig = engine.signer.sign(envelope.message())
 
     return envelope

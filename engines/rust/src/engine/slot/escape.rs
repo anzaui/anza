@@ -5,15 +5,34 @@
 use std::borrow::Cow;
 
 #[inline]
-fn entity(b: u8) -> Option<&'static [u8]> {
+fn entity_str(b: u8) -> Option<&'static str> {
   match b {
-    b'&' => Some(b"&amp;"),
-    b'<' => Some(b"&lt;"),
-    b'>' => Some(b"&gt;"),
-    b'"' => Some(b"&quot;"),
-    b'\'' => Some(b"&#39;"),
+    b'&' => Some("&amp;"),
+    b'<' => Some("&lt;"),
+    b'>' => Some("&gt;"),
+    b'"' => Some("&quot;"),
+    b'\'' => Some("&#39;"),
     _ => None,
   }
+}
+
+#[inline]
+fn entity(b: u8) -> Option<&'static [u8]> {
+  entity_str(b).map(str::as_bytes)
+}
+
+/// Append `text` to `out`, HTML-escaped.
+pub fn escape_push(out: &mut String, text: &str) {
+  let mut last = 0;
+  for (i, &b) in text.as_bytes().iter().enumerate() {
+    if let Some(rep) = entity_str(b) {
+      // `b` is ASCII, so `i` is a char boundary.
+      out.push_str(&text[last..i]);
+      out.push_str(rep);
+      last = i + 1;
+    }
+  }
+  out.push_str(&text[last..]);
 }
 
 /// Append `text` to `out`, HTML-escaped.
@@ -35,10 +54,9 @@ pub fn escape_html(text: &str) -> Cow<'_, str> {
   if !text.bytes().any(|b| entity(b).is_some()) {
     return Cow::Borrowed(text);
   }
-  let mut out = Vec::with_capacity(text.len() + 16);
-  escape_into(&mut out, text);
-  // Only ASCII bytes were replaced by ASCII, so this is still UTF-8.
-  Cow::Owned(String::from_utf8(out).unwrap_or_default())
+  let mut out = String::with_capacity(text.len() + 16);
+  escape_push(&mut out, text);
+  Cow::Owned(out)
 }
 
 #[cfg(test)]

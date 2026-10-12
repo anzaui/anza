@@ -66,7 +66,8 @@ pub struct Engine {
 }
 
 impl Engine {
-  pub fn get(&self, name: &str) -> Result<Template> {
+  /// The cached template `name` (shared, never copied).
+  pub fn get(&self, name: &str) -> Result<Arc<Template>> {
     lookup::get(&self.cache, name)
   }
 
@@ -108,7 +109,10 @@ impl Engine {
     }
     let html = tpl.bind(params)?;
     let ts = envelope::now()?;
-    let sig = self.signer.sign(&envelope::message(ts, slot, &html, None));
+    let sig = match self.signer {
+      Signer::None => None,
+      _ => self.signer.sign(&envelope::message(ts, slot, &html, None)),
+    };
 
     Ok(Envelope {
       v: envelope::VERSION,

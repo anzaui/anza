@@ -24,15 +24,7 @@ struct SampleArticle {
 #[test]
 fn test_struct_direct_rendering() {
   let template = "<article id=\"art-{{id}}\"><h1>{{title}}</h1><span>By {{author}}</span><a href=\"/{{slug}}\">Link</a></article>";
-  let chunks = anza::engine::slot::extract(template).unwrap();
-  let tpl = anza::engine::file::Template {
-    name: "test.html".into(),
-    path: std::path::PathBuf::from("test.html"),
-    raw: template.into(),
-    digest: [0u8; 32],
-    chunks,
-    escape: false,
-  };
+  let tpl = anza::engine::file::Template::new("test.html", "test.html", template, false).unwrap();
 
   let art = SampleArticle {
     id: 101,
