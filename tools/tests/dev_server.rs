@@ -86,7 +86,7 @@ async fn start(dist: &Path) -> (u16, broadcast::Sender<HmrMessage>) {
   let (tx, _rx) = broadcast::channel::<HmrMessage>(256);
   let dist = dist.to_path_buf();
   let server_tx = tx.clone();
-  tokio::spawn(async move { anza_cli::server::runner::serve(listener, &dist, server_tx).await });
+  tokio::spawn(async move { anza_cli::server::runner::serve(listener, &dist, server_tx, None).await });
   (port, tx)
 }
 
@@ -181,4 +181,41 @@ async fn dev_responses_revalidate_with_strong_etags() {
   let missing = get(port, "/nope.js", &[]).await;
   assert_eq!(missing.status, 404);
   assert_eq!(missing.header("cache-control").as_deref(), Some("no-cache"));
+}
+
+#[tokio::test]
+async fn route_manifest_is_held_in_memory_and_reloaded_after_rebuilds() {
+  let fx = fixture("routes");
+  let (src, dist) = (fx.root.join("src"), fx.root.join("dist"));
+  let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+  let port = listener.local_addr().unwrap().port();
+  let (tx, _rx) = broadcast::channel::<HmrMessage>(256);
+  let (rebuilt, rebuilt_rx) = tokio::sync::watch::channel(0u64);
+  let served = dist.clone();
+  tokio::spawn(async move { anza_cli::server::runner::serve(listener, &served, tx, Some(rebuilt_rx)).await });
+
+  assert_eq!(get(port, "/docs/a", &[]).await.status, 200);
+  assert_eq!(get(port, "/docs/b", &[]).await.status, 404);
+
+  // A corrupt manifest on disk is not re-read per request.
+  let manifest = std::fs::read_to_string(dist.join("routes.json")).unwrap();
+  std::fs::write(dist.join("routes.json"), "{ nope").unwrap();
+  assert_eq!(get(port, "/docs/a", &[]).await.status, 200);
+  std::fs::write(dist.join("routes.json"), manifest).unwrap();
+
+  // Add a route, rebuild, signal: the new route is served.
+  write(&fx.root, "src/index.js", "import './pages/a/index.js';\nimport './pages/b/index.js';\n");
+  write(&fx.root, "src/pages/b/index.js", "page('/docs/b', { tag: 'doc-b', template: { html: './index.html' } });\n");
+  write(&fx.root, "src/pages/b/index.html", "<h1>b</h1>\n");
+  compile(&src, &dist, false, &[]).expect("rebuild");
+  rebuilt.send_modify(|n| *n += 1);
+  let mut status = 0;
+  for _ in 0..50 {
+    status = get(port, "/docs/b", &[]).await.status;
+    if status == 200 {
+      break;
+    }
+    tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+  }
+  assert_eq!(status, 200);
 }

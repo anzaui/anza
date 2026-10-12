@@ -34,6 +34,7 @@ pub fn start(
   dist_path: PathBuf,
   entries: Vec<PathBuf>,
   tx: broadcast::Sender<HmrMessage>,
+  rebuilt: tokio::sync::watch::Sender<u64>,
 ) {
   let (event_tx, mut event_rx) = tokio::sync::mpsc::unbounded_channel();
 
@@ -57,6 +58,7 @@ pub fn start(
     entries,
     base.clone(),
     tx.clone(),
+    rebuilt,
   ));
 
   tokio::spawn(async move {
@@ -116,6 +118,7 @@ async fn rebuild_worker(
   entries: Vec<PathBuf>,
   base: String,
   tx: broadcast::Sender<HmrMessage>,
+  rebuilt: tokio::sync::watch::Sender<u64>,
 ) {
   let canonical = std::fs::canonicalize(&src).unwrap_or_else(|_| src.clone());
   let mut pending: Option<Batch> = None;
@@ -137,6 +140,7 @@ async fn rebuild_worker(
       .await
       .ok();
     anza_logs::watcher!("Rebuilt in {:?}", started.elapsed());
+    rebuilt.send_modify(|n| *n += 1);
 
     for msg in &batch.after {
       anza_logs::watcher!("HMR: {:?} -> {}", msg.kind, msg.path);

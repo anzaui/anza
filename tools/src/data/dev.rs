@@ -27,15 +27,17 @@ impl Dev {
     extract::compile_dev(&self.src, &self.dist, &self.entries);
 
     let (tx, _rx) = broadcast::channel::<HmrMessage>(server::runner::HMR_CHANNEL);
+    // Bumped after every rebuild so the server reloads its route manifest.
+    let (rebuilt_tx, rebuilt_rx) = tokio::sync::watch::channel(0u64);
     let dist = self.dist.clone();
     let server_tx = tx.clone();
     let port = self.port;
 
     tokio::spawn(async move {
-      server::run(port, &dist, server_tx).await;
+      server::run(port, &dist, server_tx, rebuilt_rx).await;
     });
 
-    watcher::start(self.src.clone(), self.dist.clone(), self.entries.clone(), tx);
+    watcher::start(self.src.clone(), self.dist.clone(), self.entries.clone(), tx, rebuilt_tx);
     tokio::signal::ctrl_c().await.map_err(|e| e.to_string())?;
     anza_logs::info!("Shutting down native pipeline safely.");
     Ok(())

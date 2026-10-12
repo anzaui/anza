@@ -151,7 +151,7 @@ async fn main() {
             .map(|p| p.to_path_buf())
             .unwrap_or_else(|| PathBuf::from("dist"));
           let (tx, _rx) = broadcast::channel::<HmrMessage>(16);
-          watcher::start(src, dist, Vec::new(), tx);
+          watcher::start(src, dist, Vec::new(), tx, tokio::sync::watch::channel(0u64).0);
           tokio::signal::ctrl_c().await.unwrap();
         }
       }

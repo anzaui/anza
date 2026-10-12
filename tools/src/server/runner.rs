@@ -17,7 +17,8 @@ use axum::{
 };
 use futures_util::stream::{self, Stream, StreamExt};
 use tokio::net::TcpListener;
-use tokio::sync::broadcast;
+use std::sync::RwLock;
+use tokio::sync::{broadcast, watch};
 use tower_http::cors::CorsLayer;
 use tower_http::services::ServeDir;
 
@@ -28,6 +29,9 @@ pub struct ServerState {
   pub src_dir: PathBuf,
   /// Deploy base from ssg.json (e.g. `/anza`) — strip from incoming paths in dev.
   pub deploy_base: String,
+  /// Parsed `routes.json` of the served dist, reloaded after every rebuild
+  /// (never parsed per request).
+  routes: RwLock<Arc<Vec<RouteInfo>>>,
 }
 
 /// Mirror GitHub Pages subpath hosting: `/anza/styles/...` → `/styles/...`.
@@ -63,6 +67,29 @@ impl ServerState {
       tx,
       src_dir: src_dir.to_path_buf(),
       deploy_base: crate::build::base::load_deploy_base(src_dir),
+      routes: RwLock::new(Arc::new(Vec::new())),
+    }
+  }
+
+  /// Current route manifest (cheap: an `Arc` clone).
+  fn routes(&self) -> Arc<Vec<RouteInfo>> {
+    self.routes.read().map(|r| r.clone()).unwrap_or_default()
+  }
+
+  /// Re-read `routes.json`. A missing or unparsable file keeps the last good
+  /// manifest (a failed dev rebuild keeps serving the last good output).
+  pub async fn reload_routes(&self) {
+    let path = self.src_dir.join("routes.json");
+    let Ok(text) = tokio::fs::read_to_string(&path).await else {
+      return;
+    };
+    match serde_json::from_str::<RoutesManifest>(&text) {
+      Ok(manifest) => {
+        if let Ok(mut routes) = self.routes.write() {
+          *routes = Arc::new(manifest.routes);
+        }
+      }
+      Err(err) => anza_logs::warn!("cannot parse {}: {}", path.display(), err),
     }
   }
 }
@@ -86,15 +113,36 @@ pub fn router(state: Arc<ServerState>) -> Router {
     .with_state(state)
 }
 
-/// Serve `router` for `src_dir` on an already bound listener.
-pub async fn serve(listener: TcpListener, src_dir: &Path, tx: broadcast::Sender<HmrMessage>) {
-  let app = router(Arc::new(ServerState::new(src_dir, tx)));
+/// Serve `router` for `src_dir` on an already bound listener. The route
+/// manifest is loaded now and again each time `rebuilt` changes.
+pub async fn serve(
+  listener: TcpListener,
+  src_dir: &Path,
+  tx: broadcast::Sender<HmrMessage>,
+  rebuilt: Option<watch::Receiver<u64>>,
+) {
+  let state = Arc::new(ServerState::new(src_dir, tx));
+  state.reload_routes().await;
+  if let Some(mut rebuilt) = rebuilt {
+    let state = state.clone();
+    tokio::spawn(async move {
+      while rebuilt.changed().await.is_ok() {
+        state.reload_routes().await;
+      }
+    });
+  }
+  let app = router(state);
   if let Err(err) = axum::serve(listener, app).await {
     anza_logs::error!("Dev server stopped: {}", err);
   }
 }
 
-pub async fn run(port: u16, src_dir: &Path, tx: broadcast::Sender<HmrMessage>) {
+pub async fn run(
+  port: u16,
+  src_dir: &Path,
+  tx: broadcast::Sender<HmrMessage>,
+  rebuilt: watch::Receiver<u64>,
+) {
   let deploy_base = crate::build::base::load_deploy_base(src_dir);
   if !deploy_base.is_empty() {
     anza_logs::info!(
@@ -116,7 +164,7 @@ pub async fn run(port: u16, src_dir: &Path, tx: broadcast::Sender<HmrMessage>) {
   };
 
   anza_logs::server!("Dev Server launched at http://localhost:{}", bound_port);
-  serve(listener, src_dir, tx).await;
+  serve(listener, src_dir, tx, Some(rebuilt)).await;
 }
 
 async fn bind_port(host: &str, start_port: u16) -> Result<(TcpListener, u16), String> {
@@ -187,7 +235,7 @@ async fn hmr_handler(
   Sse::new(stream).keep_alive(KeepAlive::new().interval(Duration::from_secs(30)))
 }
 
-#[derive(serde::Deserialize, Debug)]
+#[derive(serde::Deserialize, Debug, Clone)]
 struct RouteInfo {
   #[allow(dead_code)]
   tag: String,
@@ -272,6 +320,10 @@ fn preload_as(path: &str) -> &'static str {
   }
 }
 
+async fn is_file(path: &Path) -> bool {
+  tokio::fs::metadata(path).await.map_or(false, |m| m.is_file())
+}
+
 /// Automatically serves HTML files, falling back to index.html for SPA routing.
 async fn handle_html_fallback(
   State(state): State<Arc<ServerState>>,
@@ -282,17 +334,8 @@ async fn handle_html_fallback(
   let clean = path.strip_prefix("/dist").unwrap_or(path).trim_end_matches('/');
   let clean = if clean.is_empty() { "/" } else { clean };
 
-  // Check if the path matches a registered route in routes.json
-  let routes_path = state.src_dir.join("routes.json");
-  let is_route = if let Ok(content) = std::fs::read_to_string(&routes_path) {
-    if let Ok(manifest) = serde_json::from_str::<RoutesManifest>(&content) {
-      manifest.routes.iter().any(|r| match_route(&r.path, clean).is_some())
-    } else {
-      false
-    }
-  } else {
-    false
-  };
+  let routes = state.routes();
+  let is_route = routes.iter().any(|r| match_route(&r.path, clean).is_some());
 
   if !is_route && clean != "/" {
     return Response::builder()
@@ -314,37 +357,33 @@ async fn handle_html_fallback(
       .join("index.html")
   };
 
-  let (html_file, is_ssg) = if ssg_file.exists() && clean != "/" {
+  let index = state.src_dir.join("index.html");
+  let (html_file, is_ssg) = if clean != "/" && is_file(&ssg_file).await {
     (ssg_file, true)
-  } else if clean == "/" && state.src_dir.join("index.html").exists() {
+  } else if clean == "/" && is_file(&index).await {
     // Root may be SSG home or SPA shell — serve dist/index.html either way.
-    (state.src_dir.join("index.html"), true)
+    (index, true)
   } else {
-    (state.src_dir.join("index.html"), false)
+    (index, false)
   };
 
-  match std::fs::read_to_string(&html_file) {
+  match tokio::fs::read_to_string(&html_file).await {
     Ok(mut html) => {
       anza_logs::server!("Serving HTML {}: {}", if is_ssg { "SSG" } else { "fallback" }, html_file.display());
 
       // Preload injection only for the SPA shell (SSG pages already embed preloads).
       let fallback = !is_ssg && html_file.file_name().map_or(false, |name| name == "index.html");
       if fallback {
-        let routes = state.src_dir.join("routes.json");
         let mut inject = String::new();
         let mut route = None;
         let mut params = std::collections::HashMap::new();
 
-        if let Ok(content) = std::fs::read_to_string(&routes) {
-          if let Ok(manifest) = serde_json::from_str::<RoutesManifest>(&content) {
-            for r in manifest.routes {
-              // Use clean (normalized) path — same variable as the is_route check above.
-              if let Some(p) = match_route(&r.path, clean) {
-                route = Some(r);
-                params = p;
-                break;
-              }
-            }
+        for r in routes.iter() {
+          // Use clean (normalized) path — same variable as the is_route check above.
+          if let Some(p) = match_route(&r.path, clean) {
+            route = Some(r);
+            params = p;
+            break;
           }
         }
 
@@ -405,14 +444,9 @@ async fn handle_html_fallback(
             .join("mocks")
             .join(format!("{}.json", api.trim_start_matches('/')));
 
-          let data = if mock.exists() {
-            if let Ok(content) = std::fs::read_to_string(&mock) {
-              serde_json::from_str(&content).unwrap_or_else(|_| serde_json::Value::Object(param))
-            } else {
-              serde_json::Value::Object(param)
-            }
-          } else {
-            serde_json::Value::Object(param)
+          let data = match tokio::fs::read_to_string(&mock).await {
+            Ok(content) => serde_json::from_str(&content).unwrap_or_else(|_| serde_json::Value::Object(param)),
+            Err(_) => serde_json::Value::Object(param),
           };
 
           map.insert(api, data);
