@@ -9,6 +9,8 @@
  * Source: doc 13 — Offline and Background §3
  */
 
+import { isStreamRequest } from './routes.js';
+
 /**
  * Returns a Response suitable for `cache.put` without locking the caller's body.
  * Always clones (or rebuilds from a clone) so strategies can still `return response`.
@@ -38,6 +40,7 @@ export class CacheFirst {
   }
 
   async handle(request) {
+    if (isStreamRequest(request)) return fetch(request);
     const cache = await caches.open(this.cacheName);
     const cachedResponse = await cache.match(request);
 
@@ -75,6 +78,7 @@ export class NetworkFirst {
   }
 
   async handle(request) {
+    if (isStreamRequest(request)) return fetch(request);
     const cache = await caches.open(this.cacheName);
     const cachedResponse = await cache.match(request);
 
@@ -123,6 +127,7 @@ export class StaleRevalidate {
   }
 
   async handle(request) {
+    if (isStreamRequest(request)) return fetch(request);
     const cache = await caches.open(this.cacheName);
     const cachedResponse = await cache.match(request);
 
@@ -163,6 +168,7 @@ export class CacheThenNetwork {
   }
 
   async handle(request) {
+    if (isStreamRequest(request)) return fetch(request);
     const cache = await caches.open(this.cacheName);
     const cachedResponse = await cache.match(request);
 
@@ -229,6 +235,7 @@ export class CacheOnly {
   }
 
   async handle(request) {
+    if (isStreamRequest(request)) return fetch(request);
     const cache = await caches.open(this.cacheName);
     const cachedResponse = await cache.match(request);
     if (!cachedResponse) {

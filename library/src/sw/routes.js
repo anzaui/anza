@@ -71,30 +71,70 @@ function createFallbackMatcher(pathnamePattern) {
   };
 }
 
+/**
+ * Specificity score for a route pattern. Catch-alls score -1; any other
+ * pattern scores the length of its literal pathname (wildcards and named
+ * groups stripped), so `/api/*` beats `*` and `/api/v2/*` beats `/api/*`.
+ */
+function specificity(pattern) {
+  let path = '*';
+  if (typeof pattern === 'string') path = pattern;
+  else if (pattern && typeof pattern.pathname === 'string') path = pattern.pathname;
+  if (path === '*' || path === '/*' || path === '') return -1;
+  return path.replace(/:[A-Za-z0-9_]+(\([^)]*\))?|[*?+()]/g, '').length;
+}
+
+/**
+ * Requests the SW must never intercept: Server-Sent Event streams (the body
+ * never ends, so caching one hangs) and the dev server's `/hmr` channel.
+ */
+export function isStreamRequest(request) {
+  try {
+    const accept = request?.headers?.get?.('accept') || '';
+    if (accept.includes('text/event-stream')) return true;
+    return new URL(request.url).pathname.endsWith('/hmr');
+  } catch {
+    return false;
+  }
+}
+
 export class Router {
   constructor() {
     this.routes = [];
+    this._sorted = true;
   }
 
   /**
-   * Registers a URLPattern and a matching caching strategy.
+   * Registers a URLPattern and a matching caching strategy. When several
+   * patterns match, the most specific one wins (ties keep registration order).
    */
   register(pattern, strategy) {
     this.routes.push({
       pattern: normalize(pattern),
-      strategy
+      strategy,
+      score: specificity(pattern),
+      order: this.routes.length
     });
+    this._sorted = false;
   }
 
   /**
-   * Handles an incoming fetch event, matching registered patterns sequentially
-   * and intercepting matches.
+   * Handles an incoming fetch event, intercepting it with the strategy of the
+   * most specific matching route. Event streams and `/hmr` are never handled.
    */
   handle(event) {
     const { request } = event;
     const method = request?.method || 'GET';
     if (method !== 'GET' && method !== 'HEAD') {
       return false;
+    }
+    if (isStreamRequest(request)) {
+      return false;
+    }
+
+    if (!this._sorted) {
+      this.routes.sort((a, b) => b.score - a.score || a.order - b.order);
+      this._sorted = true;
     }
 
     for (const route of this.routes) {
