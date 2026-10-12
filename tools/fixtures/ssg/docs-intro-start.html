@@ -5,810 +5,76 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Getting Started — Anza</title>
   <meta name="description" content="Create a project, run the dev server, and ship your first Anza page." />
-  <link rel="canonical" href="/docs/intro/start" />
+  <link rel="canonical" href="https://anza.aduki.org/docs/intro/start" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Anza" />
   <meta property="og:title" content="Getting Started — Anza" />
   <meta property="og:description" content="Create a project, run the dev server, and ship your first Anza page." />
-  <meta property="og:url" content="/docs/intro/start" />
-  <meta name="twitter:card" content="summary" />
-  <script type="importmap">
-{
-  "imports": {
-    "@anzaui/anza/defs": "/core/ui/defs/index.js",
-    "@anzaui/anza/router": "/core/router/index.js",
-    "@anzaui/anza/sw": "/sw/index.js",
-    "@anzaui/anza/theme": "/core/theme/index.js",
-    "@anzaui/anza/ui": "/core/ui/index.js"
-  }
-}
-  </script>
-  <link rel="stylesheet" href="/tokens/index.css" />
-  <link rel="stylesheet" href="/styles/index.css" />
-  <link rel="modulepreload" href="/app.js" />
-  <link rel="modulepreload" href="/docks/docs/index.js" />
-  <link rel="modulepreload" href="/docks/content/index.js" />
-  <link rel="modulepreload" href="/docs/intro/start/index.js" />
-  <script type="module" src="/app.js"></script>
+  <meta property="og:url" content="https://anza.aduki.org/docs/intro/start" />
+  <meta property="og:image" content="https://anza.aduki.org/og.png" />
+  <meta property="og:image:alt" content="Getting Started — Anza" />
+  <meta property="article:modified_time" content="2026-10-13T01:37:38+03:00" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Getting Started — Anza" />
+  <meta name="twitter:description" content="Create a project, run the dev server, and ship your first Anza page." />
+  <meta name="twitter:image" content="https://anza.aduki.org/og.png" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@id":"https://anza.aduki.org/#website","@type":"WebSite","name":"Anza","url":"https://anza.aduki.org/"},{"@id":"https://anza.aduki.org/docs/intro/start#webpage","@type":"WebPage","breadcrumb":{"@id":"https://anza.aduki.org/docs/intro/start#breadcrumb"},"dateModified":"2026-10-13T01:37:38+03:00","description":"Create a project, run the dev server, and ship your first Anza page.","inLanguage":"en","isPartOf":{"@id":"https://anza.aduki.org/#website"},"name":"Getting Started — Anza","url":"https://anza.aduki.org/docs/intro/start"},{"@id":"https://anza.aduki.org/docs/intro/start#breadcrumb","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://anza.aduki.org/","name":"Anza","position":1},{"@type":"ListItem","item":"https://anza.aduki.org/docs","name":"Docs","position":2},{"@type":"ListItem","item":"https://anza.aduki.org/docs/intro","name":"Intro","position":3},{"@type":"ListItem","item":"https://anza.aduki.org/docs/intro/start","name":"Start","position":4}]},{"@id":"https://anza.aduki.org/docs/intro/start#article","@type":"TechArticle","dateModified":"2026-10-13T01:37:38+03:00","description":"Create a project, run the dev server, and ship your first Anza page.","headline":"Start","image":"https://anza.aduki.org/og.png","inLanguage":"en","isPartOf":{"@id":"https://anza.aduki.org/#website"},"mainEntityOfPage":{"@id":"https://anza.aduki.org/docs/intro/start#webpage"},"publisher":{"@id":"https://anza.aduki.org/#website"}}]}</script>
+  <link rel="icon" href="/assets/favicon-54e540cd.svg" type="image/svg+xml" />
+  <link rel="alternate icon" href="/assets/favicon-12a5e0e6.ico" type="image/x-icon" />
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon-af52abf4.png" />
+  
+  <link rel="stylesheet" href="/assets/tokens-styles-e9638192.css" />
+  <link rel="preload" href="/assets/shared-dc496420.css" as="style" />
+  <link rel="preload" href="/assets/docs-367341ca.css" as="style" />
+  <link rel="preload" href="/assets/inter-latin-34d21839.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="modulepreload" href="/assets/core-65d41f2c.js" />
+  <link rel="modulepreload" href="/assets/elements-bd270e08.js" />
+  <link rel="modulepreload" href="/assets/rolldown-runtime-69407f07.js" />
+  <script type="module" src="/assets/app-565892f6.js"></script>
 
 </head>
 <body>
 <dock-main id="main">
 <template shadowrootmode="open">
 <style>
-:host { contain: layout; display: block; }
+:host{contain:layout;display:block}
 </style>
 <slot></slot>
 </template>
 <dock-docs>
 <template shadowrootmode="open">
 <style>
-:host { contain: layout; display: block; }
-:host {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  max-width: 1200px;
-  min-width: 1200px;
-}
-
-/* at screen size less than 1200px, make it 100% */
-@media (max-width: 1200px) {
-  :host {
-    max-width: 100%;
-    min-width: 100%;
-    padding: 0 20px;
-  }
-}
-
-/* ─── Shell ───────────────────────────────────────── */
-.docs-header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: var(--background);
-  border-bottom: 1px solid color-mix(in oklch, var(--text-color) 10%, transparent);
-  font-family: var(--font-ui);
-  /* transition: background 280ms var(--ease-out), border-color 280ms; */
-}
-html[data-theme="dark"] .docs-header {
-  border-bottom-color: var(--border);
-}
-
-.header-inner {
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  height: 54px;
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-/* ─── Logo ────────────────────────────────────────── */
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  text-decoration: none;
-  flex-shrink: 0;
-}
-
-.logo-mark {
-  width: 24px;
-  height: 24px;
-  border-radius: 7px;
-  background: var(--accent-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: background 280ms;
-}
-
-.version {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--accent-color);
-  background: color-mix(in oklch, var(--accent-color) 12%, transparent);
-  padding: 2px 7px;
-  border-radius: 999px;
-  letter-spacing: 0.01em;
-  line-height: 1.6;
-}
-
-/* ─── Nav ─────────────────────────────────────────── */
-.header-nav {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  margin-left: 0.75rem;
-  flex: 1;
-}
-
-.nav-link {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--nav-color);
-  text-decoration: none;
-  padding: 5px 10px;
-  border-radius: 6px;
-  transition: color 120ms var(--ease-out), background 120ms;
-}
-.nav-link:hover {
-  color: var(--title-color);
-  background: color-mix(in oklch, var(--text-color) 7%, transparent);
-}
-.nav-link.active {
-  color: var(--accent-color);
-  background: color-mix(in oklch, var(--accent-color) 9%, transparent);
-}
-.nav-link--gh {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-left: auto;
-  color: var(--label-color);
-}
-
-/* ─── Actions ─────────────────────────────────────── */
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-/* ─── Orbital theme toggle ────────────────────────── */
-.theme-toggle {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.orbital {
-  width: 42px;
-  height: 26px;
-  border-radius: 999px;
-  background: var(--surface);
-  border: 1px solid color-mix(in oklch, var(--text-color) 14%, transparent);
-  position: relative;
-  transition: background 300ms var(--ease-in-out), border-color 300ms;
-  overflow: visible;
-}
-.orbital.dark {
-  background: color-mix(in oklch, var(--accent-color) 10%, transparent);
-  border-color: color-mix(in oklch, var(--accent-color) 22%, transparent);
-}
-
-/* Dots that appear in dark mode */
-.orbital::before {
-  content: '·  ·';
-  position: absolute;
-  left: 6px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 9px;
-  letter-spacing: 1px;
-  color: var(--accent-color);
-  opacity: 0;
-  transition: opacity 240ms;
-  pointer-events: none;
-  line-height: 1;
-}
-.orbital.dark::before {
-  opacity: 0.55;
-}
-
-.orbital-knob {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--background);
-  border: 1px solid color-mix(in oklch, var(--text-color) 12%, transparent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 300ms var(--ease-in-out), background 300ms, border-color 300ms;
-  transform: translateX(0);
-}
-.orbital.dark .orbital-knob {
-  transform: translateX(16px);
-  border-color: color-mix(in oklch, var(--accent-color) 40%, transparent);
-}
-
-.icon-sun { color: var(--accent-color); }
-.icon-moon { color: var(--accent-color); display: none; }
-.orbital.dark .icon-sun  { display: none; }
-.orbital.dark .icon-moon { display: block; }
-
-/* ─── Mobile hamburger button ─────────────────────── */
-.mobile-menu-btn {
-  display: none;
-  width: 30px;
-  height: 30px;
-  background: none;
-  border: 1px solid color-mix(in oklch, var(--text-color) 14%, transparent);
-  border-radius: 8px;
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  transition: background 120ms, border-color 120ms;
-}
-.mobile-menu-btn:hover {
-  background: color-mix(in oklch, var(--text-color) 6%, transparent);
-}
-
-.hamburger {
-  width: 16px;
-  height: 8px;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.hamburger span {
-  display: block;
-  width: 100%;
-  height: 2px;
-  border-radius: 1px;
-  background: var(--text-color);
-  transition: transform 200ms var(--ease-in-out), opacity 150ms;
-  transform-origin: center;
-}
-
-button.mobile-menu-btn[aria-expanded="true"] .hamburger span:nth-child(1) {
-  transform: translateY(3px) rotate(45deg);
-}
-button.mobile-menu-btn[aria-expanded="true"] .hamburger span:nth-child(2) {
-  transform: translateY(-3px) rotate(-45deg);
-}
-
-/* ─── Sidebar backdrop ────────────────────────────── */
-.sidebar-backdrop {
-  display: none;
-}
-
-/* ─── Responsive ──────────────────────────────────── */
-@media (max-width: 600px) {
-  .header-nav { display: none; }
-
-  .header-inner {
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    height: 54px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1.2rem;
-  }
-
-  .header-actions {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex-shrink: 0;
-  }
-
-  .mobile-menu-btn { display: flex; }
-
-  /* ─── Mobile sidebar drawer ─────────────────────── */
-  div.docs-container {
-    grid-template-columns: 1fr;
-  }
-
-  aside.docs-sidebar-left {
-    position: fixed;
-    top: 54px;
-    left: 0;
-    width: 100%;
-    height: calc(100vh - 54px);
-    background: var(--background);
-    z-index: 200;
-    transform: translateX(-100%);
-    transition: transform 280ms var(--ease-in-out);
-    padding: 16px 20px;
-    box-sizing: border-box;
-    overflow-y: auto;
-    border-right: none;
-  }
-
-  aside.docs-sidebar-left.open {
-    transform: translateX(0);
-  }
-
-  .sidebar-backdrop {
-    display: block;
-    position: fixed;
-    inset: 54px 0 0 0;
-    background: rgba(0, 0, 0, 0.35);
-    z-index: 199;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 200ms var(--ease-out), visibility 200ms;
-  }
-
-  .sidebar-backdrop.visible {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  aside.docs-sidebar-right {
-    display: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .orbital, .orbital-knob, .hamburger span,
-  .docs-sidebar-left, .sidebar-backdrop, .nav-link, .docs-header { transition: none !important; }
-}
-
-/* ─── Container ───────────────────────────────────── */
-div.docs-container {
-  display: grid;
-  grid-template-columns: 200px 1fr 250px;
-  column-gap: 20px;
-  row-gap: 20px;
-  height: calc(100vh - 54px);
-  overflow: hidden;
-  margin-top: 12px;
-}
-
-/* at 1200px width, make the left sidebar 150px */
-@media (max-width: 1200px) {
-  div.docs-container {
-    grid-template-columns: 160px 1fr 230px;
-    row-gap: 16px;
-    column-gap: 16px;
-    margin-top: 10px;
-  }
-}
-
-
-/* ─── Sidebar Left ─────────────────────────────────── */
-aside.docs-sidebar-left {
-  overflow-y: auto;
-  scrollbar-width: none;
-  scrollbar-color: var(--border) transparent;
-}
-
-aside.docs-sidebar-left::-webkit-scrollbar {
-  width: none;
-  display: none;
-}
-
-aside.docs-sidebar-left::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-aside.docs-sidebar-left::-webkit-scrollbar-thumb {
-  background-color: var(--border);
-  border-radius: 3px;
-  transition: background 120ms var(--ease-out);
-}
-
-aside.docs-sidebar-left::-webkit-scrollbar-thumb:hover {
-  background-color: var(--accent-color);
-}
-
-/* ─── Sidebar Right ────────────────────────────────── */
-aside.docs-sidebar-right {
-  overflow-y: auto;
-  scrollbar-width: none;
-  scrollbar-color: var(--border) transparent;
-}
-
-aside.docs-sidebar-right::-webkit-scrollbar {
-  width: none;
-  display: none;
-}
-
-aside.docs-sidebar-right::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-aside.docs-sidebar-right::-webkit-scrollbar-thumb {
-  background-color: none;
-  border-radius: none;
-}
-
-/* ─── Kill the browser's default marker ──────────── */
-.sidebar-group summary {
-  list-style: none;
-}
-.sidebar-group summary::-webkit-details-marker {
-  display: none;
-}
-
-/* ─── Header is now a summary ─────────────────────── */
-.sidebar-group-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 8px;
-  border-radius: 6px;
-  cursor: pointer;
-  user-select: none;
-  transition: background 120ms var(--ease-out);
-}
-
-.sidebar-group-header:hover {
-  background: color-mix(in oklch, var(--text-color) 6%, transparent);
-}
-
-.sidebar-group-header h3 {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--text-color);
-  flex: 1;
-  margin: 0;
-}
-
-/* ─── Chevron via [open] attribute ────────────────── */
-.group-chevron {
-  width: 14px;
-  height: 14px;
-  color: color-mix(in oklch, var(--text-color) 35%, transparent);
-  flex-shrink: 0;
-  transition: transform 240ms var(--ease-in-out), color 120ms;
-}
-
-details[open] .group-chevron {
-  transform: rotate(90deg);
-  color: var(--accent-color);
-}
-
-/* ─── Links wrapper — no grid trick needed anymore ── */
-.sidebar-group-links {
-  padding-bottom: 4px;
-}
-
-/* ─── Links (unchanged) ───────────────────────────── */
-.sidebar-group a {
-  display: block;
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--nav-color);
-  text-decoration: none;
-  padding: 5px 8px 5px 18px;
-  border-radius: 6px;
-  position: relative;
-  transition: color 120ms var(--ease-out), background 120ms;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.sidebar-group a:hover {
-  color: var(--title-color);
-  background: color-mix(in oklch, var(--text-color) 6%, transparent);
-}
-
-.sidebar-group a.active {
-  color: var(--accent-color);
-  background: color-mix(in oklch, var(--accent-color) 9%, transparent);
-  font-weight: 500;
-}
-
-.sidebar-group a.active::before {
-  content: '';
-  position: absolute;
-  left: 6px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: var(--accent-color);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .group-chevron { transition: none; }
-}
-
-/* ─── Reduced motion ──────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  aside.docs-sidebar-left .sidebar-group-links,
-  .group-chevron { transition: none; }
-}
-
-main.docs-content {
-  margin: 0;
-  padding: 0 10px 50px;
-  overflow-y: auto;
-  scroll-behavior: smooth;
-  scrollbar-width: none;
-}
-
-main.docs-content::-webkit-scrollbar {
-  visibility: hidden;
-  display: none;
-}
-
-/* ─── Shell ───────────────────────────────────────── */
-.docs-sidebar-right {
-  padding: 0 0 24px 10px;
-  overflow-y: auto;
-  scrollbar-width: none;
-  font-family: var(--font-ui);
-}
-
-.docs-sidebar-right::-webkit-scrollbar {
-  display: none;
-}
-
-/* ─── Sticky inner ────────────────────────────────── */
-.toc-inner {
-  position: sticky;
-  top: 72px;
-}
-
-/* ─── Heading ─────────────────────────────────────── */
-.docs-sidebar-right h4 {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--text-color);
-  margin: 0 0 10px 0;
-  padding: 0 8px;
-}
-
-/* ─── List ────────────────────────────────────────── */
-.toc-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.toc-list li {
-  margin: 0;
-}
-
-/* ─── Links — h2 ──────────────────────────────────── */
-.toc-list a {
-  display: block;
-  font-size: 12.5px;
-  font-weight: 400;
-  line-height: var(--leading-normal);
-  color: var(--nav-color);
-  text-decoration: none;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  padding: 3px 8px;
-  border-radius: 5px;
-  transition:
-    color var(--duration-fast) var(--ease-out),
-    background var(--duration-fast) var(--ease-out);
-}
-
-.toc-list a:hover {
-  color: var(--title-color);
-  background: color-mix(in oklch, var(--text-color) 6%, transparent);
-}
-
-.toc-list a.active {
-  color: var(--accent-color);
-  font-weight: 500;
-  background: color-mix(in oklch, var(--accent-color) 8%, transparent);
-}
-
-/* ─── h3 — your JS sets padding-left and font-size inline,
-       these rules only handle color so they won't conflict ── */
-.toc-list a[style*="padding-left"] {
-  color: color-mix(in oklch, var(--nav-color) 75%, transparent);
-  font-size: 12px;
-}
-
-.toc-list a[style*="padding-left"]:hover {
-  color: var(--title-color);
-  background: color-mix(in oklch, var(--text-color) 6%, transparent);
-}
-
-.toc-list a[style*="padding-left"].active {
-  color: var(--accent-color);
-  font-weight: 500;
-  background: color-mix(in oklch, var(--accent-color) 8%, transparent);
-}
-
-/* ─── Reduced motion ──────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  .toc-list a { transition: none; }
-}
-
-/* ─── Mobile ───────────────────────────────────────── */
-@media (max-width: 1000px) {
-  div.docs-container {
-    grid-template-columns: 160px 1fr;
-    row-gap: 16px;
-    column-gap: 16px;
-    margin-top: 10px;
-  }
-
-  .docs-sidebar-right {
-    display: none;
-    visibility: hidden;
-  }
-}
-
-
-/* ─── Mobile ───────────────────────────────────────── */
-@media (max-width: 800px) {
-  :host {
-    max-width: 100% !important;
-    min-width: 100% !important;
-    padding: 0 10px !important;
-  }
-
-  div.docs-container {
-    grid-template-columns: 150px 1fr;
-    row-gap: 16px;
-    column-gap: 16px;
-    margin-top: 10px;
-  }
-
-  .docs-sidebar-right {
-    display: none;
-    visibility: hidden;
-  }
-}
-
-/* ─── Mobile ───────────────────────────────────────── */
-@media (max-width: 600px) {
-  :host {
-    max-width: 100% !important;
-    min-width: 100% !important;
-    padding: 0 10px !important;
-  }
-
-  div.docs-container {
-    display: flex;
-    flex-flow: column;
-    row-gap: 16px;
-    column-gap: 16px;
-    margin-top: 10px;
-  }
-
-  .docs-sidebar-right {
-    display: none;
-    visibility: hidden;
-  }
-
-  main.docs-content {
-    margin: 0;
-    padding: 0 0 50px;
-    overflow-y: auto;
-    scroll-behavior: smooth;
-    scrollbar-width: none;
-    -ms-overflow-style: none; /* IE and Edge */
-  }
-
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  main.docs-content::-webkit-scrollbar {
-    display: none;
-  }
-}
+:host{contain:layout;display:block}
 </style>
-<header class="docs-header" ref="header">
-  <div class="header-inner">
-    <a href="/" class="logo" aria-label="Anza home">
-      <div class="logo-mark">
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 14 14"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M3 11L7 3L11 11M5.2 8.5H8.8"
-            stroke="white"
-            stroke-width="1.6"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-      </div>
-      <span class="version">v0.4.3</span>
-    </a>
-
-    <nav class="header-nav" aria-label="Primary navigation">
-      <a href="/docs" class="nav-link active">Docs</a>
-      <a
-        href="https://github.com/anzaui/anza"
-        class="nav-link nav-link--gh"
-        target="_blank"
-        rel="noopener"
-      >
-        <svg
-          width="15"
-          height="15"
-          viewBox="0 0 16 16"
-          fill="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0016 8c0-4.42-3.58-8-8-8z"
-          />
-        </svg>
-        GitHub
-      </a>
-    </nav>
-
-    <div class="header-actions">
-      <button
-        class="theme-toggle"
-        id="themeToggle"
-        aria-label="Toggle dark mode"
-        aria-pressed="false"
-      >
-        <div class="orbital">
-          <div class="orbital-knob">
-            <svg
-              class="icon-sun"
-              width="10"
-              height="10"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              aria-hidden="true"
-            >
-              <circle cx="12" cy="12" r="4" />
-              <path
-                d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
-              />
-            </svg>
-            <svg
-              class="icon-moon"
-              width="10"
-              height="10"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              aria-hidden="true"
-            >
-              <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
-            </svg>
-          </div>
-        </div>
-      </button>
-
-      <button
-        class="mobile-menu-btn"
-        id="mobileMenuBtn"
-        aria-label="Open navigation"
-        aria-expanded="false"
-        aria-controls="leftSidebar"
-      >
-        <div class="hamburger">
-          <span></span>
-          <span></span>
-        </div>
-      </button>
-    </div>
-  </div>
-</header>
-
+<link rel="stylesheet" href="/assets/docs-367341ca.css" />
 <div class="docs-container">
-  <!-- Left Sidebar: Navigation links -->
+  <!-- Left Sidebar: Full height, includes logo at top and collapsible nav groups below -->
   <aside class="docs-sidebar-left" ref="leftSidebar">
+    <div class="sidebar-header">
+      <a href="/" class="logo" aria-label="Anza home">
+        <div class="logo-mark">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <defs>
+              <linearGradient id="header-logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#1ecf4e" />
+                <stop offset="100%" stop-color="#80DBFF" />
+              </linearGradient>
+            </defs>
+            <circle cx="12" cy="12" r="10" fill="url(#header-logo-gradient)" fill-opacity="0.12" stroke="url(#header-logo-gradient)" stroke-width="1.5"></circle>
+            <path d="M9.38886 15.1629C9.89331 15.5 10.5955 15.5 12 15.5C13.4045 15.5 14.1067 15.5 14.6111 15.1629C14.8295 15.017 15.017 14.8295 15.1629 14.6111C15.5 14.1067 15.5 13.4045 15.5 12C15.5 10.5955 15.5 9.89331 15.1629 9.38886C15.017 9.17048 14.8295 8.98298 14.6111 8.83706C14.1067 8.5 13.4045 8.5 12 8.5C10.5955 8.5 9.89331 8.5 9.38886 8.83706C9.17048 8.98298 8.98298 9.17048 8.83706 9.38886C8.5 9.89331 8.5 10.5955 8.5 12C8.5 13.4045 8.5 14.1067 8.83706 14.6111C8.98298 14.8295 9.17048 15.017 9.38886 15.1629Z"
+              fill="url(#header-logo-gradient)" fill-opacity="0.12" stroke="url(#header-logo-gradient)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <span class="version">v0.6.0</span><!-- x-release-please-version -->
+      </a>
+    </div>
+
     <nav class="sidebar-nav">
       <details class="sidebar-group" open>
         <summary class="sidebar-group-header">
@@ -827,7 +93,7 @@ main.docs-content::-webkit-scrollbar {
           </svg>
         </summary>
         <div class="sidebar-group-links">
-          <a href="/docs/intro/index" class="active">Introduction</a>
+          <a href="/docs/intro" class="active">Introduction</a>
           <a href="/docs/intro/install">Installation</a>
           <a href="/docs/intro/start">Quick Start</a>
           <a href="/docs/intro/build">Build</a>
@@ -837,7 +103,62 @@ main.docs-content::-webkit-scrollbar {
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
+        <summary class="sidebar-group-header">
+          <h3>Server-Templated UI</h3>
+          <svg
+            class="group-chevron"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 4l4 4-4 4" />
+          </svg>
+        </summary>
+        <div class="sidebar-group-links">
+          <a href="/docs/engines">Overview</a>
+          <a href="/docs/engines/rust">Rust Engine</a>
+          <a href="/docs/engines/ts">TypeScript Engine</a>
+          <a href="/docs/engines/py">Python Engine</a>
+          <a href="/docs/engines/crypto">Cryptographic Verification</a>
+          <a href="/docs/engines/streaming">Real-Time Streaming</a>
+        </div>
+      </details>
+
+      <div class="sidebar-divider"></div>
+
+      <details class="sidebar-group">
+        <summary class="sidebar-group-header">
+          <h3>Templates</h3>
+          <svg
+            class="group-chevron"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 4l4 4-4 4" />
+          </svg>
+        </summary>
+        <div class="sidebar-group-links">
+          <a href="/docs/templates">Overview</a>
+          <a href="/docs/templates/syntax">Syntax &amp; Tokens</a>
+          <a href="/docs/templates/layouts">Layouts &amp; Shells</a>
+          <a href="/docs/templates/components">Components &amp; Partials</a>
+          <a href="/docs/templates/binding">Data Binding</a>
+        </div>
+      </details>
+
+      <div class="sidebar-divider"></div>
+
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>UI</h3>
           <svg
@@ -854,12 +175,12 @@ main.docs-content::-webkit-scrollbar {
           </svg>
         </summary>
         <div class="sidebar-group-links">
-          <a href="/docs/ui/index">Overview</a>
+          <a href="/docs/ui">Overview</a>
           <a href="/docs/ui/quickstart">Quickstart</a>
           <a href="/docs/ui/elements">Elements</a>
           <a href="/docs/ui/props">Props</a>
           <a href="/docs/ui/templates">Templates</a>
-          <a href="/docs/styles/index">Styles</a>
+          <a href="/docs/styles">Styles</a>
           <a href="/docs/styles/tokens">Tokens</a>
           <a href="/docs/ui/lifecycle">Lifecycle</a>
           <a href="/docs/ui/context">Context</a>
@@ -877,7 +198,7 @@ main.docs-content::-webkit-scrollbar {
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>Elements</h3>
           <svg
@@ -894,7 +215,7 @@ main.docs-content::-webkit-scrollbar {
           </svg>
         </summary>
         <div class="sidebar-group-links">
-          <a href="/docs/elements/index">Overview</a>
+          <a href="/docs/elements">Overview</a>
           <a href="/docs/elements/primitives">Primitives</a>
           <a href="/docs/elements/forms">Forms</a>
           <a href="/docs/elements/overlay">Overlay</a>
@@ -920,14 +241,40 @@ main.docs-content::-webkit-scrollbar {
           <a href="/docs/elements/upload">Upload</a>
           <a href="/docs/elements/form">Form</a>
           <a href="/docs/elements/dialog">Dialog</a>
+          <a href="/docs/elements/popover">Popover</a>
+          <a href="/docs/elements/tooltip">Tooltip</a>
+          <a href="/docs/elements/menu">Menu</a>
+          <a href="/docs/elements/drawer">Drawer</a>
+          <a href="/docs/elements/sheet">Sheet</a>
           <a href="/docs/elements/alert">Alert</a>
+          <a href="/docs/elements/toast">Toast</a>
+          <a href="/docs/elements/progress">Progress</a>
+          <a href="/docs/elements/skeleton">Skeleton</a>
+          <a href="/docs/elements/empty">Empty</a>
+          <a href="/docs/elements/table">Table</a>
+          <a href="/docs/elements/list">List</a>
+          <a href="/docs/elements/card">Card</a>
+          <a href="/docs/elements/chart">Chart</a>
+          <a href="/docs/elements/stat">Stat</a>
+          <a href="/docs/elements/nav">Nav</a>
           <a href="/docs/elements/tabs">Tabs</a>
+          <a href="/docs/elements/breadcrumb">Breadcrumb</a>
+          <a href="/docs/elements/pagination">Pagination</a>
+          <a href="/docs/elements/steps">Steps</a>
+          <a href="/docs/elements/app">App</a>
+          <a href="/docs/elements/header">Header</a>
+          <a href="/docs/elements/sidebar">Sidebar</a>
+          <a href="/docs/elements/stack">Stack</a>
+          <a href="/docs/elements/grid">Grid</a>
+          <a href="/docs/elements/split">Split</a>
+          <a href="/docs/elements/scroll">Scroll</a>
+          <a href="/docs/elements/surface">Surface</a>
         </div>
       </details>
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>SSG &amp; SEO</h3>
           <svg
@@ -944,14 +291,16 @@ main.docs-content::-webkit-scrollbar {
           </svg>
         </summary>
         <div class="sidebar-group-links">
+          <a href="/docs/ssg">Overview</a>
           <a href="/docs/ssg/contract">HTML contract</a>
+          <a href="/docs/ssg/expand/foo">Parametric expand</a>
           <a href="/docs/ui/hydration">Hydration</a>
         </div>
       </details>
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>Router</h3>
           <svg
@@ -968,7 +317,7 @@ main.docs-content::-webkit-scrollbar {
           </svg>
         </summary>
         <div class="sidebar-group-links">
-          <a href="/docs/router/index">Overview</a>
+          <a href="/docs/router">Overview</a>
           <a href="/docs/router/quickstart">Quickstart</a>
           <a href="/docs/router/routes">Routes</a>
           <a href="/docs/router/handlers">Handlers</a>
@@ -990,7 +339,7 @@ main.docs-content::-webkit-scrollbar {
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>State</h3>
           <svg
@@ -1007,7 +356,7 @@ main.docs-content::-webkit-scrollbar {
           </svg>
         </summary>
         <div class="sidebar-group-links">
-          <a href="/docs/state/index">Overview</a>
+          <a href="/docs/state">Overview</a>
           <a href="/docs/state/quickstart">Quickstart</a>
           <a href="/docs/state/store">Store</a>
           <a href="/docs/state/derived">Derived</a>
@@ -1020,7 +369,7 @@ main.docs-content::-webkit-scrollbar {
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>Service Worker</h3>
           <svg
@@ -1037,7 +386,7 @@ main.docs-content::-webkit-scrollbar {
           </svg>
         </summary>
         <div class="sidebar-group-links">
-          <a href="/docs/sw/index">Overview</a>
+          <a href="/docs/sw">Overview</a>
           <a href="/docs/sw/start">Getting Started</a>
           <a href="/docs/sw/strategies">Strategies</a>
           <a href="/docs/sw/routes">Routes</a>
@@ -1048,7 +397,7 @@ main.docs-content::-webkit-scrollbar {
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>API</h3>
           <svg
@@ -1065,7 +414,7 @@ main.docs-content::-webkit-scrollbar {
           </svg>
         </summary>
         <div class="sidebar-group-links">
-          <a href="/docs/api/index">Overview</a>
+          <a href="/docs/api">Overview</a>
           <a href="/docs/api/quickstart">Quickstart</a>
           <a href="/docs/api/requests">Requests</a>
           <a href="/docs/api/caching">Caching</a>
@@ -1083,7 +432,7 @@ main.docs-content::-webkit-scrollbar {
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>Events</h3>
           <svg
@@ -1100,7 +449,7 @@ main.docs-content::-webkit-scrollbar {
           </svg>
         </summary>
         <div class="sidebar-group-links">
-          <a href="/docs/events/index">Overview</a>
+          <a href="/docs/events">Overview</a>
           <a href="/docs/events/quickstart">Quickstart</a>
           <a href="/docs/events/listen">Listen</a>
           <a href="/docs/events/bus">Bus</a>
@@ -1114,7 +463,7 @@ main.docs-content::-webkit-scrollbar {
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>Storage</h3>
           <svg
@@ -1131,7 +480,7 @@ main.docs-content::-webkit-scrollbar {
           </svg>
         </summary>
         <div class="sidebar-group-links">
-          <a href="/docs/storage/index">Overview</a>
+          <a href="/docs/storage">Overview</a>
           <a href="/docs/storage/quickstart">Quickstart</a>
           <a href="/docs/storage/idb">IndexedDB</a>
           <a href="/docs/storage/opfs">OPFS</a>
@@ -1146,7 +495,7 @@ main.docs-content::-webkit-scrollbar {
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>Animations</h3>
           <svg
@@ -1163,7 +512,7 @@ main.docs-content::-webkit-scrollbar {
           </svg>
         </summary>
         <div class="sidebar-group-links">
-          <a href="/docs/animations/index">Overview</a>
+          <a href="/docs/animations">Overview</a>
           <a href="/docs/animations/quickstart">Quickstart</a>
           <a href="/docs/animations/animate">Animate</a>
           <a href="/docs/animations/sequence">Sequence</a>
@@ -1178,7 +527,7 @@ main.docs-content::-webkit-scrollbar {
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>Workers</h3>
           <svg
@@ -1195,7 +544,7 @@ main.docs-content::-webkit-scrollbar {
           </svg>
         </summary>
         <div class="sidebar-group-links">
-          <a href="/docs/workers/index">Overview</a>
+          <a href="/docs/workers">Overview</a>
           <a href="/docs/workers/quickstart">Quickstart</a>
           <a href="/docs/workers/dedicated">Dedicated</a>
           <a href="/docs/workers/shared">Shared</a>
@@ -1210,7 +559,7 @@ main.docs-content::-webkit-scrollbar {
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>Security</h3>
           <svg
@@ -1227,7 +576,7 @@ main.docs-content::-webkit-scrollbar {
           </svg>
         </summary>
         <div class="sidebar-group-links">
-          <a href="/docs/security/index">Overview</a>
+          <a href="/docs/security">Overview</a>
           <a href="/docs/security/quickstart">Quickstart</a>
           <a href="/docs/security/crypto">Crypto</a>
           <a href="/docs/security/sanitize">Sanitize</a>
@@ -1240,7 +589,7 @@ main.docs-content::-webkit-scrollbar {
 
       <div class="sidebar-divider"></div>
 
-      <details class="sidebar-group" open>
+      <details class="sidebar-group">
         <summary class="sidebar-group-header">
           <h3>Platform</h3>
           <svg
@@ -1257,7 +606,7 @@ main.docs-content::-webkit-scrollbar {
           </svg>
         </summary>
         <div class="sidebar-group-links">
-          <a href="/docs/platform/index">Overview</a>
+          <a href="/docs/platform">Overview</a>
           <a href="/docs/platform/quickstart">Quickstart</a>
           <a href="/docs/platform/supports">Supports</a>
           <a href="/docs/platform/guards">Guards</a>
@@ -1271,943 +620,259 @@ main.docs-content::-webkit-scrollbar {
 
   <div class="sidebar-backdrop" ref="sidebarBackdrop" aria-hidden="true"></div>
 
-  <!-- Main Content Area -->
-  <main class="docs-content">
-    <!-- Renders dock-doccontent child in Light DOM -->
-    <slot></slot>
-  </main>
+  <!-- Main Content Column with Top Header -->
+  <div class="docs-main-wrapper">
+    <header class="docs-header" ref="header">
+      <div class="header-inner">
+        <button
+          class="mobile-menu-btn"
+          id="mobileMenuBtn"
+          aria-label="Open navigation"
+          aria-expanded="false"
+          aria-controls="leftSidebar"
+        >
+          <div class="hamburger">
+            <span></span>
+            <span></span>
+          </div>
+        </button>
 
-  <!-- Right Sidebar: Table of Contents -->
-  <aside class="docs-sidebar-right" ref="rightSidebar">
-    <h4>What's on this page</h4>
-    <ul class="toc-list" ref="tocList"></ul>
-  </aside>
+        <div class="header-breadcrumbs">
+          <a href="/docs" class="crumb-link">Docs</a>
+          <span class="crumb-sep">/</span>
+          <span class="crumb-current" ref="crumbCurrent">Overview</span>
+        </div>
+
+        <div class="header-center">
+          <div class="header-search-pill">
+            <svg
+              class="search-icon"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+            <span class="search-placeholder">Search docs...</span>
+            <kbd class="search-kbd">⌘K</kbd>
+          </div>
+        </div>
+
+        <nav class="header-nav" aria-label="Primary navigation">
+          <a href="/docs/elements" class="nav-link">Elements</a>
+          <a href="/docs/engines" class="nav-link">Engines</a>
+          <a href="/docs/api" class="nav-link">API</a>
+          <a
+            href="https://github.com/anzaui/anza"
+            class="nav-link nav-link--gh"
+            target="_blank"
+            rel="noopener"
+            aria-label="GitHub Repository"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0016 8c0-4.42-3.58-8-8-8z"
+              />
+            </svg>
+          </a>
+        </nav>
+
+        <div class="header-actions">
+          <button
+            class="theme-toggle"
+            id="themeToggle"
+            aria-label="Toggle dark mode"
+            aria-pressed="false"
+          >
+            <div class="orbital">
+              <div class="orbital-knob">
+                <svg
+                  class="icon-sun"
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="4" />
+                  <path
+                    d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+                  />
+                </svg>
+                <svg
+                  class="icon-moon"
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                </svg>
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="docs-body">
+      <!-- Main Content Area -->
+      <main class="docs-content" ref="content">
+        <!-- Renders dock-doccontent child in Light DOM -->
+        <slot></slot>
+      </main>
+
+      <!-- Right Sidebar: Table of Contents -->
+      <aside class="docs-sidebar-right" ref="rightSidebar">
+        <h4>What's on this page</h4>
+        <ul class="toc-list" ref="tocList"></ul>
+      </aside>
+    </div>
+  </div>
 </div>
 </template>
 <dock-doccontent>
 <template shadowrootmode="open">
 <style>
-:host { contain: layout; display: block; }
+:host{contain:layout;display:block}
 </style>
 <slot></slot>
 </template>
 <doc-intro-start class="page-content">
 <template shadowrootmode="open">
-<style>
-@charset "UTF-8";
-
-/* ═══════════════════════════════════════════════════
-   DOCS SHARED — base reset + content styles
-   Tokens: light.css / dark.css / typography.css /
-           motion.css / spacing.css / table.css
-   ═══════════════════════════════════════════════════ */
-
-
-/* ─── Box model + inheritance ─────────────────────── */
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-  color: var(--text-color);
-}
-
-*:focus {
-  outline: inherit !important;
-}
-
-::selection {
-  background-color: var(--tab-background);
-}
-
-
-/* ─── Scrollbar ───────────────────────────────────── */
-
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar, var(--gray-color)) transparent;
-}
-
-*::-webkit-scrollbar {
-  width: 3px;
-  height: 3px;
-}
-
-*::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-*::-webkit-scrollbar-thumb {
-  background: var(--scrollbar, var(--gray-color));
-  border-radius: 50px;
-}
-
-
-/* ═══════════════════════════════════════════════════
-   TYPOGRAPHY
-   ═══════════════════════════════════════════════════ */
-
-/* ─── Headings — untouched structure, refined tokens ─ */
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading, var(--font-sans));
-  font-weight: 600;
-  color: var(--title-color);
-  line-height: var(--leading-tight);
-  margin: 10px 0;
-}
-
-h1 { font-size: var(--text-xl); font-weight: 700; margin: 0 0 10px; }
-h2 { font-size: var(--text-lg);   margin: 30px 0 10px; }
-h3 { font-size: var(--text-md);   margin: 20px 0 10px; }
-h4 { font-size: var(--text-sm); }
-h5 { font-size: var(--text-sm); }
-h6 { font-size: var(--text-xs); }
-
-@media (max-width: 700px) {
-  h1, h2, h3, h4, h5, h6 { margin: 5px 0; }
-}
-
-
-/* ─── Body copy ───────────────────────────────────── */
-
-p {
-  margin: 5px 0;
-  font-family: var(--font-body, var(--font-sans));
-  font-size: var(--text-base);
-  line-height: var(--leading-normal);
-  color: var(--text-color);
-}
-
-figcaption p {
-  font-size: var(--text-sm) !important;
-}
-
-
-/* ─── Links ───────────────────────────────────────── */
-
-a {
-  font-weight: var(--weight-medium);
-  color: var(--anchor-color);
-  text-decoration: none;
-  transition: color var(--duration-fast) var(--ease-out),
-              text-decoration-color var(--duration-fast) var(--ease-out);
-}
-
-a:hover,
-a:focus {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-
-/* ─── Inline text ─────────────────────────────────── */
-
-b, strong { font-weight: var(--weight-semibold); }
-
-small { font-size: 80%; }
-
-abbr[title] {
-  border-bottom: none;
-  text-decoration: underline dotted;
-}
-
-sub, sup {
-  font-size: 75%;
-  line-height: 0;
-  position: relative;
-  vertical-align: baseline;
-}
-sub { bottom: -0.25em; }
-sup { top: -0.5em; }
-
-
-/* ─── Blockquote ──────────────────────────────────── */
-
-blockquote {
-  margin: 24px 0;
-  padding: 16px 24px;
-  border-left: 3px solid var(--border, var(--surface));
-  background-color: var(--surfaceSunken, var(--surface));
-  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
-  color: var(--nav-color);
-  font-style: italic;
-}
-
-blockquote p {
-  margin: 0;
-  line-height: var(--leading-relaxed);
-}
-
-blockquote p + p {
-  margin-top: 12px;
-}
-
-blockquote cite {
-  display: block;
-  margin-top: 10px;
-  font-size: var(--text-sm);
-  color: var(--nav-color);
-  font-style: normal;
-  opacity: 0.75;
-}
-
-blockquote cite::before {
-  content: "— ";
-}
-
-
-/* ═══════════════════════════════════════════════════
-   CODE
-   ═══════════════════════════════════════════════════ */
-
-/* ─── Inline code ─────────────────────────────────── */
-
-code {
-  font-family: var(--font-mono);
-  font-size: 0.875em;
-  background-color: var(--prism-background);
-  color: var(--prism-text);
-  padding: 0.15em 0.45em;
-  border-radius: var(--radius-md);
-  transition: background-color var(--duration-normal) var(--ease-out),
-              color var(--duration-normal) var(--ease-out);
-}
-
-
-/* ─── Code block ──────────────────────────────────── */
-
-pre {
-  background-color: var(--surfaceElevated, var(--surface)) !important;
-  border: 1px solid var(--border, var(--surface));
-  border-radius: var(--radius-lg);
-  padding: 32px 24px 24px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  position: relative;
-  transition: background-color var(--duration-normal) var(--ease-out),
-              border-color var(--duration-normal) var(--ease-out);
-  scrollbar-width: thin;
-  scrollbar-color: var(--border, var(--surface)) transparent;
-}
-
-pre::-webkit-scrollbar        { height: 4px; }
-pre::-webkit-scrollbar-track  { background: transparent; }
-pre::-webkit-scrollbar-thumb  {
-  background-color: var(--border, var(--surface));
-  border-radius: var(--radius-sm);
-}
-pre::-webkit-scrollbar-thumb:hover {
-  background-color: var(--nav-color);
-}
-
-pre code {
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  background: none;
-  color: inherit;
-  padding: 0;
-  border-radius: 0;
-}
-
-
-/* ─── Kbd ─────────────────────────────────────────── */
-
-kbd {
-  font-family: var(--font-ui);
-  font-size: 0.75em;
-  background: color-mix(in oklch, var(--text-color) 8%, transparent);
-  border: 1px solid color-mix(in oklch, var(--text-color) 16%, transparent);
-  border-radius: var(--radius-sm);
-  padding: 2px 6px;
-  color: var(--label-color);
-  line-height: 1.6;
-}
-
-
-/* ═══════════════════════════════════════════════════
-   LISTS
-   ═══════════════════════════════════════════════════ */
-
-/* ─── Unordered ───────────────────────────────────── */
-
-ul {
-  list-style: none;
-  padding-left: 0;
-  margin: 24px 0;
-  font-family: var(--font-body, var(--font-sans));
-}
-
-ul li {
-  position: relative;
-  padding-left: 1.5rem;
-  margin: 8px 0;
-  font-size: var(--text-base);
-  color: var(--text-color);
-  line-height: var(--leading-relaxed);
-}
-
-/* Level 1 — filled dot, accent */
-ul li::before {
-  content: '';
-  position: absolute;
-  left: calc(0.5rem + 2px);
-  top: 0.65em;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background-color: var(--accent-color);
-}
-
-/* Level 2 — hollow ring */
-ul ul { margin: 8px 0; }
-
-ul ul li::before {
-  width: 4px;
-  height: 4px;
-  background-color: transparent;
-  border: 1.5px solid var(--accent-color);
-  top: 0.68em;
-}
-
-/* Level 3 — small square, muted */
-ul ul ul li::before {
-  border-radius: var(--radius-sm);
-  border: none;
-  background-color: var(--nav-color);
-}
-
-
-/* ─── Ordered ─────────────────────────────────────── */
-
-ol {
-  list-style: none;
-  padding-left: 0;
-  margin: 24px 0;
-  font-family: var(--font-body, var(--font-sans));
-  counter-reset: docs-ol;
-}
-
-ol li {
-  position: relative;
-  padding-left: 2rem;
-  margin: 8px 0;
-  font-size: var(--text-base);
-  color: var(--text-color);
-  line-height: var(--leading-relaxed);
-  counter-increment: docs-ol;
-}
-
-ol li::before {
-  content: counter(docs-ol);
-  position: absolute;
-  left: 0;
-  top: 0.05em;
-  width: 1.5rem;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-  font-family: var(--font-ui);
-  color: var(--accent-color);
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-}
-
-/* Level 2 — alpha, muted */
-ol ol {
-  margin: 8px 0;
-  counter-reset: docs-ol-alpha;
-}
-
-ol ol li { counter-increment: docs-ol-alpha; }
-
-ol ol li::before {
-  content: counter(docs-ol-alpha, lower-alpha) '.';
-  color: var(--nav-color);
-  font-weight: var(--weight-medium);
-}
-
-/* Mixed nesting */
-ol ul, ul ol { margin: 8px 0; }
-
-
-/* ─── Definition list ─────────────────────────────── */
-
-dl {
-  margin: 24px 0;
-  font-family: var(--font-body, var(--font-sans));
-}
-
-dt {
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-  color: var(--title-color);
-  letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  margin-top: 20px;
-}
-
-dt:first-child { margin-top: 0; }
-
-dd {
-  margin: 4px 0 0 16px;
-  font-size: var(--text-base);
-  color: var(--text-color);
-  line-height: var(--leading-relaxed);
-}
-
-dd + dd { margin-top: 4px; }
-
-
-/* ─── Responsive lists ────────────────────────────── */
-
-@media (max-width: 700px) {
-  ul li, ol li { font-size: var(--text-md); }
-}
-
-
-/* ═══════════════════════════════════════════════════
-   HORIZONTAL RULE
-   ═══════════════════════════════════════════════════ */
-
-hr {
-  border: none;
-  border-top: 1px solid color-mix(in oklch, var(--text-color) 10%, transparent);
-  margin: 32px 0;
-}
-
-html[data-theme="dark"] hr {
-  border-top-color: var(--border);
-}
-
-
-/* ═══════════════════════════════════════════════════
-   MEDIA
-   ═══════════════════════════════════════════════════ */
-
-img, video {
-  max-width: 100%;
-  height: auto;
-  border-style: none;
-  border-radius: var(--radius-lg);
-  display: block;
-}
-
-figure {
-  margin: 24px 0;
-}
-
-figcaption {
-  margin-top: 8px;
-  font-size: var(--text-sm);
-  color: var(--nav-color);
-  text-align: center;
-}
-
-
-/* ═══════════════════════════════════════════════════
-   FORMS (base resets only — no component styles)
-   ═══════════════════════════════════════════════════ */
-
-button, input, optgroup, select, textarea {
-  font-family: inherit;
-  font-size: 100%;
-  line-height: 1.15;
-  margin: 0;
-}
-
-button, input   { overflow: visible; }
-button, select  { text-transform: none; }
-
-button,
-[type="button"],
-[type="reset"],
-[type="submit"] {
-  appearance: button;
-  -webkit-appearance: button;
-}
-
-button::-moz-focus-inner,
-[type="button"]::-moz-focus-inner,
-[type="reset"]::-moz-focus-inner,
-[type="submit"]::-moz-focus-inner {
-  border-style: none;
-  padding: 0;
-}
-
-textarea  { overflow: auto; }
-progress  { vertical-align: baseline; }
-
-fieldset {
-  padding: 0.35em 0.75em 0.625em;
-}
-
-legend {
-  box-sizing: border-box;
-  color: inherit;
-  display: table;
-  max-width: 100%;
-  padding: 0;
-  white-space: normal;
-}
-
-
-/* ═══════════════════════════════════════════════════
-   TABLES
-   Tokens come from table.css / table-tokens.css.
-   ═══════════════════════════════════════════════════ */
-
-div.table-wrap {
-  width: 100%;
-  margin: 20px 0 12px;
-  overflow-x: auto;
-  border-radius: var(--table-radius, var(--radius-lg));
-  border: 1px solid var(--table-border);
-  background-color: var(--table-bg);
-  scrollbar-width: thin;
-  scrollbar-color: var(--table-scrollbar-thumb) var(--table-scrollbar-track);
-}
-
-div.table-wrap::-webkit-scrollbar        { height: 4px; }
-div.table-wrap::-webkit-scrollbar-track  { background: var(--table-scrollbar-track); }
-div.table-wrap::-webkit-scrollbar-thumb  {
-  background-color: var(--table-scrollbar-thumb);
-  border-radius: var(--radius-pill);
-}
-
-div.table-wrap table {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: var(--table-font);
-  font-size: var(--table-font-size);
-  line-height: var(--table-line-height);
-  background-color: var(--table-bg);
-}
-
-/* Caption */
-div.table-wrap table caption {
-  caption-side: top;
-  text-align: left;
-  padding: var(--table-pad-y) var(--table-pad-x);
-  font-size: var(--table-caption-size);
-  font-style: var(--table-caption-style);
-  color: var(--table-caption-color);
-  border-bottom: 1px solid var(--table-header-border);
-}
-
-/* Header */
-div.table-wrap thead th {
-  background-color: var(--table-header-bg);
-  color: var(--table-header-color);
-  font-family: var(--table-font);
-  font-size: var(--table-header-size);
-  font-weight: var(--table-header-weight);
-  letter-spacing: var(--table-header-tracking);
-  text-transform: var(--table-header-transform);
-  text-align: left;
-  padding: var(--table-pad-y) var(--table-pad-x);
-  border-bottom: 2px solid var(--table-header-border);
-  white-space: nowrap;
-}
-
-/* Numeric columns */
-div.table-wrap thead th[data-type="number"],
-div.table-wrap tbody td[data-type="number"] {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Body rows */
-div.table-wrap tbody tr {
-  background-color: var(--table-row-bg);
-  transition: background-color var(--duration-fast) var(--ease-out);
-}
-
-div.table-wrap tbody tr:nth-child(even) {
-  background-color: var(--table-row-bg-alt);
-}
-
-div.table-wrap tbody tr:hover {
-  background-color: var(--table-row-bg-hover);
-}
-
-div.table-wrap tbody td {
-  color: var(--table-row-color);
-  padding: var(--table-pad-y) var(--table-pad-x);
-  border-bottom: 1px solid var(--table-row-border);
-  vertical-align: middle;
-}
-
-div.table-wrap tbody tr:last-child td {
-  border-bottom: none;
-}
-
-/* Footer */
-div.table-wrap tfoot td {
-  background-color: var(--table-footer-bg);
-  color: var(--table-footer-color);
-  font-size: var(--table-header-size);
-  font-weight: var(--table-header-weight);
-  padding: var(--table-pad-y) var(--table-pad-x);
-  border-top: 2px solid var(--table-footer-border);
-}
-
-/* Responsive table */
-@media (max-width: 700px) {
-  div.table-wrap {
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-  }
-
-  div.table-wrap thead th,
-  div.table-wrap tbody td,
-  div.table-wrap tfoot td {
-    padding: var(--table-pad-y-sm) var(--table-pad-x-sm);
-    white-space: nowrap;
-  }
-
-  div.table-wrap table caption {
-    padding: var(--table-pad-y-sm) var(--table-pad-x-sm);
-  }
-}
-
-
-/* ═══════════════════════════════════════════════════
-   DOCS-SPECIFIC CONTENT COMPONENTS
-   ═══════════════════════════════════════════════════ */
-
-/* ─── Callouts ────────────────────────────────────── */
-
-.callout {
-  display: flex;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: var(--radius-lg);
-  margin: 20px 0;
-  font-size: var(--text-sm);
-  line-height: var(--leading-normal);
-}
-
-.callout-icon {
-  flex-shrink: 0;
-  width: 18px;
-  height: 18px;
-  margin-top: 1px;
-}
-
-.callout p { margin: 0; font-size: inherit; }
-
-.callout.info {
-  background: var(--tab-background);
-  border-left: 3px solid var(--accent-color);
-  color: var(--text-color);
-}
-
-.callout.warn {
-  background: var(--warn-background);
-  border-left: 3px solid var(--warn-color);
-  color: var(--text-color);
-}
-
-.callout.error {
-  background: var(--error-background);
-  border-left: 3px solid var(--error-color);
-  color: var(--text-color);
-}
-
-.callout.success {
-  background: var(--que-background);
-  border-left: 3px solid var(--success-color);
-  color: var(--text-color);
-}
-
-
-/* ─── Badge / pill ────────────────────────────────── */
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--font-ui);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
-  padding: 2px 8px;
-  border-radius: var(--radius-pill);
-  line-height: 1.6;
-  white-space: nowrap;
-}
-
-.badge.new     { background: var(--tab-background);   color: var(--accent-color); }
-.badge.updated { background: var(--que-background);   color: var(--alt-color); }
-.badge.deprecated {
-  background: var(--warn-background);
-  color: var(--warn-color);
-  text-decoration: line-through;
-}
-
-
-/* ─── Step list (numbered guide steps) ───────────── */
-
-.steps {
-  list-style: none;
-  padding: 0;
-  margin: 24px 0;
-  counter-reset: steps-counter;
-}
-
-.steps li {
-  counter-increment: steps-counter;
-  display: flex;
-  gap: 16px;
-  padding: 0 0 24px 0;
-  position: relative;
-}
-
-/* Connector line */
-.steps li:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  left: 13px;
-  top: 28px;
-  bottom: 0;
-  width: 1px;
-  background: color-mix(in oklch, var(--accent-color) 25%, transparent);
-}
-
-.steps li::before {
-  content: counter(steps-counter);
-  flex-shrink: 0;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: color-mix(in oklch, var(--accent-color) 12%, transparent);
-  border: 1px solid color-mix(in oklch, var(--accent-color) 30%, transparent);
-  color: var(--accent-color);
-  font-family: var(--font-ui);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 1px;
-}
-
-.steps li > div,
-.steps li > p { margin: 0; padding-top: 3px; }
-
-
-/* ─── Prop / API reference table rows ────────────── */
-
-.prop-name {
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  color: var(--accent-color);
-}
-
-.prop-type {
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  color: var(--anchor-color);
-}
-
-.prop-default {
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  color: var(--nav-color);
-}
-
-
-/* ─── Docs content wrapper ────────────────────────── */
-
-.doc-content {
-  max-width: 720px;
-  padding: 32px 40px;
-  font-family: var(--font-body, var(--font-sans));
-}
-
-@media (max-width: 700px) {
-  .doc-content {
-    padding: 20px 16px;
-  }
-}
-
-
-/* ═══════════════════════════════════════════════════
-   REDUCED MOTION
-   ═══════════════════════════════════════════════════ */
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    transition-duration: 0ms !important;
-    animation-duration: 0ms !important;
-  }
-}
-</style>
-<!-- Main Content -->
-<h1>Start</h1>
+<link rel="stylesheet" href="/assets/shared-dc496420.css" />
+<h1 id="start">Start</h1>
 <p>Create a new Anza app and run it.</p>
-
-<!-- Scaffold Section -->
-<h2>Scaffold</h2>
-<view-code language="bash">
-  npm create @anzaui/anza myapp
-  cd myapp
-  npm install
+<h2 id="scaffold">Scaffold</h2>
+<view-code language="bash">npm create @anzaui/anza myapp
+cd myapp
+npm install
 </view-code>
 <p>This generates:</p>
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Path</th>
-        <th>Purpose</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>src/app.js</code></td>
-        <td>Entry point — imports the UI system and defines a layout dock</td>
-      </tr>
-      <tr>
-        <td><code>src/index.html</code></td>
-        <td>HTML shell with importmap, tokens, styles, and module script</td>
-      </tr>
-      <tr>
-        <td><code>src/sw.js</code></td>
-        <td>Service Worker entry — caching, routing, sync</td>
-      </tr>
-      <tr>
-        <td><code>src/pages/entry/index.js</code></td>
-        <td>Landing page definition</td>
-      </tr>
-      <tr>
-        <td><code>src/pages/entry/index.html</code></td>
-        <td>Landing page markup</td>
-      </tr>
-      <tr>
-        <td><code>src/pages/entry/index.css</code></td>
-        <td>Landing page styles</td>
-      </tr>
-      <tr>
-        <td><code>src/tokens/</code></td>
-        <td>Design tokens copied from the library (colors, spacing, typography)</td>
-      </tr>
-      <tr>
-        <td><code>src/styles/</code></td>
-        <td>Global styles copied from the library (reset, layers, base)</td>
-      </tr>
-      <tr>
-        <td><code>importmap.json</code></td>
-        <td>Empty starter for custom aliases</td>
-      </tr>
-      <tr>
-        <td><code>package.json</code></td>
-        <td>Scripts: <code>dev</code> and <code>build</code></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-<p>
-  You own <code>src/tokens/</code> and <code>src/styles/</code>. The library copies them in as starter files; change
-  them freely.
-</p>
-
-<!-- Run Section -->
-<h2>Run</h2>
-<view-code language="bash">
-  npm run dev
+<div class="table-wrap"><table><thead><tr><th>Path</th><th>Purpose</th></tr></thead><tbody>
+<tr><td><code>src/app.js</code></td><td>Entry point — imports UI, theme and barrels, registers the Service Worker</td></tr>
+<tr><td><code>src/index.html</code></td><td>HTML shell with importmap, tokens, styles, and module script</td></tr>
+<tr><td><code>src/sw.js</code></td><td>Service Worker entry — caching, routing, sync</td></tr>
+<tr><td><code>src/pages/index.js</code></td><td>Pages barrel</td></tr>
+<tr><td><code>src/pages/entry/index.js</code></td><td>Landing page definition</td></tr>
+<tr><td><code>src/pages/entry/index.html</code></td><td>Landing page markup</td></tr>
+<tr><td><code>src/pages/entry/index.css</code></td><td>Landing page styles</td></tr>
+<tr><td><code>src/docks/index.js</code></td><td>Docks barrel</td></tr>
+<tr><td><code>src/docks/main/index.js</code></td><td>Root layout dock: <code>dock('main')</code></td></tr>
+<tr><td><code>src/views/index.js</code></td><td>Views barrel — global views slot</td></tr>
+<tr><td><code>src/parts/index.js</code></td><td>Parts barrel</td></tr>
+<tr><td><code>src/tokens/</code></td><td>Design tokens copied from the library (colors, spacing, typography)</td></tr>
+<tr><td><code>src/styles/</code></td><td>Global styles copied from the library (reset, layers, base)</td></tr>
+<tr><td><code>importmap.json</code></td><td>Empty starter for custom aliases</td></tr>
+<tr><td><code>package.json</code></td><td>Scripts: <code>dev</code> and <code>build</code>; <code>@anzaui/anza</code> as a devDependency</td></tr>
+<tr><td><code>.gitignore</code></td><td>Ignores <code>node_modules/</code>, <code>dist/</code>, <code>.anzacache.json</code></td></tr>
+</tbody></table></div>
+<p>You own <code>src/tokens/</code> and <code>src/styles/</code>. The library copies them in as starter files; change them freely.</p>
+<p>Empty <code>src/docks/</code>, <code>src/views/</code>, and <code>src/parts/</code> folders (with <code>index.js</code> barrels) are teaching affordances — optional at runtime. You may rename the landing folder, add extra page trees (e.g. <code>src/docs/</code>), or skip <code>src/sw.js</code> for static sites. Full required / recommended / optional tables, index-per-folder convention, and optional <code>anza.json</code> remaps: <a href="/docs/intro/structure">Structure</a>.</p>
+<p>Apps need <strong>no</strong> <code>anza.json</code> at create time. Add one only when remapping roots, declaring extra page trees (<code>pages[]</code>), or listing additional service workers.</p>
+<h2 id="run">Run</h2>
+<view-code language="bash">npm run dev
 </view-code>
 <p>Opens a dev server on <code>http://localhost:3000</code> with:</p>
 <ul>
-  <li>Import graph resolution into <code>dist/</code></li>
-  <li>Separate <code>dist/importmap.json</code> linked from HTML</li>
-  <li>CSS hot-swapping via SSE</li>
-  <li>JS and HTML auto-reload on change</li>
+<li>Import graph resolution into <code>dist/</code></li>
+<li>Separate <code>dist/importmap.json</code> linked from HTML</li>
+<li>Mode A SSG for public routes (hard refresh) + CSR fragments for soft-nav</li>
+<li>CSS hot-swapping via SSE</li>
+<li>JS and HTML auto-reload on change</li>
 </ul>
-
-<!-- Generated Files Section -->
-<h2>What Was Generated</h2>
-
-<!-- App.js File -->
-<h3><code>src/app.js</code></h3>
-<view-code language="javascript">
-  import '@anzaui/anza/ui';
-  import { dock } from '@anzaui/anza/ui';
-
-  // Register the Service Worker
-  navigator.serviceWorker.register('/sw.js');
-
-  // Layout shell
-  dock('main');
-
-  import './pages/index.js';
+<p>Validate the layout before shipping:</p>
+<view-code language="bash">npx anza doctor   # soft: warnings print, exit 0
+npx anza check    # CI: warnings fail
 </view-code>
-<p>
-  This initializes the UI system, registers the Service Worker, creates a <code>main</code> dock, and loads the welcome
-  page.
-</p>
-
-<!-- Entry Page File -->
-<h3><code>src/pages/entry/index.js</code></h3>
-<view-code language="javascript">
-  import { page } from '@anzaui/anza/ui';
-
-  page('/', {
-    tag: 'page-welcome',
-    via: ['main'],
-    template: { html: './index.html', css: './index.css' }
-  }, import.meta.url);
+<h2 id="generate-more-files">Generate more files</h2>
+<p>Thin helpers into convention slots (updates the slot <code>index.js</code> barrel):</p>
+<view-code language="bash">npx anza generate page about
+npx anza generate dock sidebar --parent main
+npx anza generate view card
+npx anza generate part button
 </view-code>
-<p>
-  Defines a route at <code>/</code> that renders through the <code>main</code> dock, loading its markup and styles from
-  sibling files.
-</p>
+<p>Flags: <code>--tree</code>, <code>--route</code>, <code>--via</code>, <code>--parent</code>, <code>-s/--src</code>. Docks are created <strong>without</strong> error-page HTML — fallbacks stay by reference (<a href="/docs/router/fallbacks">Fallbacks (404 / 5xx / offline)</a>). Details: <a href="/docs/intro/build#generate">Build: Generate</a> and <a href="/docs/intro/structure#generate-anza-generate">Structure: Generate (anza generate)</a>.</p>
+<h2 id="what-was-generated">What Was Generated</h2>
+<h3 id="srcappjs"><code>src/app.js</code></h3>
+<view-code language="javascript">import '@anzaui/anza/ui';
+import '@anzaui/anza/theme';
 
-<!-- Customization Section -->
-<h3>Customizing the landing page</h3>
-<p>
-  The <code>src/pages/entry/</code> folder is the scaffold default. You can rename it, delete it, or replace it with
-  any folder or files you want. The only requirement is that <code>src/pages/index.js</code> imports whatever defines
-  your <code>/</code> route.
-</p>
-<view-code language="javascript">
-  // src/pages/index.js
-  import './entry/index.js'; // default — can rename
-  import './home/index.js'; // or call it home
-  import './landing/index.js'; // or landing
+import './docks/index.js';
+import './views/index.js';
+import './parts/index.js';
+import './pages/index.js';
+
+// Service Worker
+navigator.serviceWorker.register('/sw.js', { type: 'module' });
+</view-code>
+<p>This initializes the UI system and loads the barrels; <code>src/docks/main/index.js</code> creates the <code>main</code> dock with <code>dock('main')</code>. It also registers the Service Worker; to avoid stale files in dev, register it only on deployed hosts (see <a href="/docs/sw/start#2-register-from-appjs">Start: 2. Register from app.js</a>). Source import order is free-form — <code>anza build</code> rewrites <code>dist/</code> into usage order (library → docks → views → parts → pages).</p>
+<h3 id="srcpagesentryindexjs"><code>src/pages/entry/index.js</code></h3>
+<view-code language="javascript">import { page } from '@anzaui/anza/ui';
+
+page('/', {
+  tag: 'page-welcome',
+  via: ['main'],
+  template: { html: './index.html', css: './index.css' }
+}, import.meta.url);
+</view-code>
+<p>Defines a route at <code>/</code> that renders through the <code>main</code> dock, loading its markup and styles from sibling files.</p>
+<h3 id="customizing-the-landing-page">Customizing the landing page</h3>
+<p>The <code>src/pages/entry/</code> folder is the scaffold default. You can rename it, delete it, or replace it with any folder or files you want. The only requirement is that <code>src/pages/index.js</code> imports whatever defines your <code>/</code> route.</p>
+<view-code language="javascript">// src/pages/index.js
+import './entry/index.js';     // default — can rename
+import './home/index.js';      // or call it home
+import './landing/index.js';   // or landing
 </view-code>
 <p>You can also define the route inline without a separate folder:</p>
-<view-code language="javascript">
-  // src/pages/index.js
-  import { page } from '@anzaui/anza/ui';
+<view-code language="javascript">// src/pages/index.js
+import { page } from '@anzaui/anza/ui';
 
-  page('/', {
-    tag: 'page-home',
-    via: ['main'],
-    template: '&lt;h1&gt;Home&lt;/h1&gt;'
-  });
+page('/', {
+  tag: 'page-home',
+  via: ['main'],
+  template: '&lt;h1&gt;Home&lt;/h1&gt;'
+});
 </view-code>
+<h2 id="next">Next</h2>
+<p>Add a new page (hand-write or <code>anza generate page about</code>):</p>
+<view-code language="javascript">import { page } from '@anzaui/anza/ui';
 
-<!-- Next Steps Section -->
-<h2>Next</h2>
-<p>Add a new page:</p>
-<view-code language="javascript">
-  import { page } from '@anzaui/anza/ui';
-
-  page('/about', {
-    tag: 'page-about',
-    via: ['main'],
-    template: '&lt;h1&gt;About&lt;/h1&gt;'
-  });
+page('/about', {
+  tag: 'page-about',
+  via: ['main'],
+  template: '&lt;h1&gt;About&lt;/h1&gt;'
+});
 </view-code>
-<p>
-  Clicking <code>&lt;a href="/about"&gt;</code> is intercepted, matched, and swapped inside <code>main</code> without a
-  reload.
-</p>
+<p>Import it from <code>src/pages/index.js</code> if you did not use <code>generate</code> (generate updates the barrel for you).</p>
+<p>Clicking <code>&lt;a href="/about"&gt;</code> is intercepted, matched, and soft-nav swaps only the page leaf inside <code>main</code> — the dock stays mounted. Both <code>anza dev</code> and <code>anza build</code> emit contentful SSG HTML per public route for hard refresh; soft-nav loads page fragments (see <a href="/docs/ssg/contract">Page HTML contract (Mode A SSG · Mode B templates)</a>).</p>
+<h3 id="suggested-reading-order">Suggested reading order</h3>
+<ol>
+<li><a href="/docs/intro/structure">Structure</a> — what must exist; <code>anza.json</code>; doctor/check</li>
+<li><a href="/docs/intro/build">Build</a> — flags, SSG, generate</li>
+<li><a href="/docs/router/pages">Pages</a> / <a href="/docs/router/docks">Docks</a> — <code>page</code> / <code>dock</code></li>
+<li><a href="/docs/router/fallbacks">Fallbacks (404 / 5xx / offline)</a> — 404 / error / offline without folder copies</li>
+</ol>
 </template>
   <h1>Start</h1>
 </doc-intro-start>
