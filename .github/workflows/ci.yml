@@ -28,6 +28,9 @@ jobs:
       - name: Browser tests
         run: cd library && npm test
 
+      - name: Doc imports
+        run: npm run doc:imports
+
   rust:
     name: Rust (CLI + engine)
     runs-on: ubuntu-latest
