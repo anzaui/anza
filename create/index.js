@@ -29,20 +29,18 @@ if (!library || !existsSync(join(library, 'package.json'))) {
 
 const { run } = await import(join(library, 'bin', 'create', 'index.js'));
 
-const arg = process.argv[2];
+const args = process.argv.slice(2);
+const force = args.includes('--force');
+const arg = args.find((a) => !a.startsWith('-')) ?? args.find((a) => a === '--help' || a === '-h');
 
 if (!arg || arg === '--help' || arg === '-h') {
-  console.log('Usage: npm create @anzaui/anza <name>');
+  console.log('Usage: npm create @anzaui/anza <name> [-- --force]');
   console.log('       npm create @anzaui/anza .   (scaffold in current dir)');
+  console.log('Refuses to overwrite existing files unless --force is given.');
   process.exit(arg ? 0 : 1);
 }
 
 const target = resolve(arg);
 const name = arg === '.' ? basename(process.cwd()) : basename(target);
 
-if (existsSync(target) && arg !== '.') {
-  console.error(`'${target}' already exists.`);
-  process.exit(1);
-}
-
-run(target, name, library);
+run(target, name, library, { force });

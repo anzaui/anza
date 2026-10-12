@@ -299,7 +299,8 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "test": "wtr",
+    "test": "wtr && npm run test:bin",
+    "test:bin": "node --test tests/bin/create.mjs",
     "serve": "npx @web/dev-server --port 8080 --node-resolve false",
     "check": "tsc --noEmit -p tsconfig.json"
   },

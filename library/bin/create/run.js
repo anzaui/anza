@@ -5,8 +5,8 @@
  * The only scaffolder: `anza create` just points to `npm create @anzaui/anza`.
  */
 
-import { join } from 'path';
-import { existsSync, mkdirSync } from 'fs';
+import { join, relative } from 'path';
+import { existsSync, mkdirSync, readdirSync, statSync } from 'fs';
 import * as logs from '../common/index.js';
 import * as copy from './copy.js';
 import * as write from './write.js';
@@ -253,55 +253,16 @@ const STYLE = `.welcome {
 
 const IGNORE = 'node_modules/\ndist/\ntypes/\n.anzacache.json\n';
 
-/** Omits anza.json on purpose — zero-config defaults. */
-export function run(target, name, library) {
-  if (existsSync(target)) {
-    logs.error(`Target directory already exists: ${target}`);
-    process.exit(1);
-  }
+/** Every file under `dir`, as paths relative to `dir`. */
+function listFiles(dir) {
+  return readdirSync(dir, { recursive: true, withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => relative(dir, join(entry.parentPath ?? entry.path, entry.name)));
+}
 
-  logs.info(`Scaffolding anza app: ${name}`);
-
-  for (const dir of DIRS) {
-    const path = join(target, dir);
-    try {
-      mkdirSync(path, { recursive: true });
-    } catch (e) {
-      logs.error(`Failed to create ${path}: ${e.message}`);
-      process.exit(1);
-    }
-  }
-
-  const libTokens = join(library, 'src', 'tokens');
-  const libStyles = join(library, 'src', 'styles');
-  const appTokens = join(target, 'src', 'tokens');
-  const appStyles = join(target, 'src', 'styles');
-
-  if (existsSync(libTokens)) {
-    if (copy.copy(libTokens, appTokens)) {
-      logs.compiler('Copied library tokens -> src/tokens/');
-    }
-  }
-
-  if (existsSync(libStyles)) {
-    if (copy.copy(libStyles, appStyles)) {
-      logs.compiler('Copied library styles -> src/styles/');
-    }
-  }
-
-  write.write(join(target, 'src', 'index.html'), HTML(name));
-  write.write(join(target, 'src', 'app.js'), APP);
-  write.write(join(target, 'src', 'sw.js'), SW);
-  write.write(join(target, 'src', 'pages', 'entry', 'index.js'), PAGE);
-  write.write(join(target, 'src', 'pages', 'entry', 'index.html'), MARKUP(name));
-  write.write(join(target, 'src', 'pages', 'entry', 'index.css'), STYLE);
-  write.write(join(target, 'src', 'pages', 'index.js'), PAGES_BARREL);
-  write.write(join(target, 'src', 'docks', 'index.js'), DOCKS_BARREL);
-  write.write(join(target, 'src', 'docks', 'main', 'index.js'), DOCK_MAIN);
-  write.write(join(target, 'src', 'views', 'index.js'), VIEWS_BARREL);
-  write.write(join(target, 'src', 'parts', 'index.js'), PARTS_BARREL);
-
-  const manifest = JSON.stringify({
+/** package.json for the new app. */
+function manifest(name) {
+  return JSON.stringify({
     name,
     version: '0.1.0',
     private: true,
@@ -317,14 +278,85 @@ export function run(target, name, library) {
       rolldown: '^1.2.13',
     }
   }, null, 2) + '\n';
+}
 
-  write.write(join(target, 'package.json'), manifest);
-  write.write(join(target, 'importmap.json'), '{}\n');
-  write.write(join(target, '.gitignore'), IGNORE);
+/**
+ * Scaffolds an app into `target`. The directory may already exist (e.g.
+ * `npm create @anzaui/anza .`), but if any file the scaffold would write is
+ * already there the run stops and lists the conflicts, unless
+ * `options.force` is set. Omits anza.json on purpose — zero-config defaults.
+ *
+ * @param {string} target
+ * @param {string} name
+ * @param {string} library  Root of the installed @anzaui/anza package.
+ * @param {{ force?: boolean }} [options]
+ */
+export function run(target, name, library, options = {}) {
+  if (existsSync(target) && !statSync(target).isDirectory()) {
+    logs.error(`Target exists and is not a directory: ${target}`);
+    process.exit(1);
+  }
+
+  const files = [
+    [join('src', 'index.html'), HTML(name)],
+    [join('src', 'app.js'), APP],
+    [join('src', 'sw.js'), SW],
+    [join('src', 'pages', 'entry', 'index.js'), PAGE],
+    [join('src', 'pages', 'entry', 'index.html'), MARKUP(name)],
+    [join('src', 'pages', 'entry', 'index.css'), STYLE],
+    [join('src', 'pages', 'index.js'), PAGES_BARREL],
+    [join('src', 'docks', 'index.js'), DOCKS_BARREL],
+    [join('src', 'docks', 'main', 'index.js'), DOCK_MAIN],
+    [join('src', 'views', 'index.js'), VIEWS_BARREL],
+    [join('src', 'parts', 'index.js'), PARTS_BARREL],
+    ['package.json', manifest(name)],
+    ['importmap.json', '{}\n'],
+    ['.gitignore', IGNORE],
+  ];
+
+  const copies = [
+    [join(library, 'src', 'tokens'), join('src', 'tokens'), 'tokens'],
+    [join(library, 'src', 'styles'), join('src', 'styles'), 'styles'],
+  ].filter(([src]) => existsSync(src));
+
+  const planned = [
+    ...files.map(([rel]) => rel),
+    ...copies.flatMap(([src, dst]) => listFiles(src).map((rel) => join(dst, rel))),
+  ];
+
+  const conflicts = planned.filter((rel) => existsSync(join(target, rel)));
+  if (conflicts.length > 0 && !options.force) {
+    logs.error(`Refusing to overwrite ${conflicts.length} existing file(s) in ${target}:`);
+    for (const rel of conflicts) logs.error(`  ${rel}`);
+    logs.error('Pick an empty directory, or re-run with --force to overwrite them.');
+    process.exit(1);
+  }
+
+  logs.info(`Scaffolding anza app: ${name}`);
+
+  for (const dir of DIRS) {
+    const path = join(target, dir);
+    try {
+      mkdirSync(path, { recursive: true });
+    } catch (e) {
+      logs.error(`Failed to create ${path}: ${e.message}`);
+      process.exit(1);
+    }
+  }
+
+  for (const [src, dst, label] of copies) {
+    if (copy.copy(src, join(target, dst))) {
+      logs.compiler(`Copied library ${label} -> src/${label}/`);
+    }
+  }
+
+  for (const [rel, content] of files) {
+    write.write(join(target, rel), content);
+  }
 
   logs.success(`Created ${target}`);
   logs.info('Next steps:');
-  logs.info(`  cd ${name}`);
+  if (target !== process.cwd()) logs.info(`  cd ${name}`);
   logs.info('  npm install');
   logs.info('  npm run dev');
 }
