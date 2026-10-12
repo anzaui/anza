@@ -225,13 +225,19 @@ pub fn resolve(
   collect_css_imports(src, &mut reached);
 
   // Populate hashes for all reached files (including assets and HTML).
+  // mtime + size are checked first; unchanged files keep their cached hash.
+  let mut stats: BTreeMap<PathBuf, super::cache::Stat> = BTreeMap::new();
   {
     use rayon::prelude::*;
-    let computed: Vec<(PathBuf, String)> = reached
+    let prior = cache.as_ref();
+    let computed: Vec<(PathBuf, String, super::cache::Stat)> = reached
       .par_iter()
-      .filter_map(|file| super::cache::hash(file).map(|h| (file.clone(), h)))
+      .filter_map(|file| super::cache::hash_cached(file, prior).map(|(h, st)| (file.clone(), h, st)))
       .collect();
-    hashes.extend(computed);
+    for (file, hash, st) in computed {
+      hashes.insert(file.clone(), hash);
+      stats.insert(file, st);
+    }
   }
 
   // Dev cache key: the import map, structure slots and deploy base config are
@@ -358,11 +364,11 @@ pub fn resolve(
 
   if !errors.is_empty() {
     // Keep the cache of what did succeed so a dev rebuild retries the rest.
-    save_cache(&project, version, dev, &config, hashes);
+    save_cache(&project, version, dev, &config, hashes, stats);
     return Err(errors);
   }
 
-  save_cache(&project, version, dev, &config, hashes);
+  save_cache(&project, version, dev, &config, hashes, stats);
 
   Ok(Report {
     copied,
@@ -533,12 +539,15 @@ fn save_cache(
   dev: bool,
   config: &str,
   hashes: BTreeMap<PathBuf, String>,
+  mut stats: BTreeMap<PathBuf, super::cache::Stat>,
 ) {
+  stats.retain(|file, _| hashes.contains_key(file));
   let cache = super::cache::Cache {
     version: version.to_string(),
     dev,
     config: config.to_string(),
     hashes,
+    stats,
     timestamp: std::time::SystemTime::now()
       .duration_since(std::time::UNIX_EPOCH)
       .unwrap_or_default()
