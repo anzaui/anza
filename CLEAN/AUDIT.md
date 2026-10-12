@@ -3,7 +3,7 @@
 Severity: **C** critical · **H** high · **M** medium · **L** low.
 Status: `[ ]` open · `[~]` partly done · `[x]` closed.
 
-Partly done: H3 (`anza docs` is the only generator, and web/src/docs gets untracked after the next release ships `--pages` in the binary that cf-build.sh downloads), E4 (decided: `#[deprecated]` now, remove in 0.6.0; Rust work queued after DIST stage A), R5 (interim headers, final once names are hashed), P1 (lazy loading at runtime, build-time inlining is left), P12 (element fetch count 138 → 0, the page-load benchmark is left).
+Partly done: H3 (`anza docs` is the only generator, and web/src/docs gets untracked after the next release ships `--pages` in the binary that cf-build.sh downloads), E4 (decided: `#[deprecated]` now, remove in 0.6.0; Rust work queued after DIST stage A), R5 (interim headers, final once names are hashed), P1 (lazy loading at runtime, build-time inlining is left), P4 (SSG preloads CSS; element CSS still uses fetch until stage B inlining).
 
 ## R — Reload / "needs a hard refresh"
 
@@ -32,15 +32,15 @@ The bottleneck is the **network waterfall**, not CPU.
 | [~] P1 | H | `import '@anzaui/anza/elements'` defines all 46 elements at once, and each one fetches style + template + tags: **~138 requests** even for unused elements. | `library/src/elements/index.js`, `core/ui/define/element.js:133-136` | Fetch on first connect (default `lazy`), then build-time inlining (P-phase). |
 | [x] P2 | H | Each element's 3 fetches run **one after another** (CSS → HTML → tags.json). | `core/ui/define/utils.js:47-69, 96, 112` | `Promise.all`, and cache the in-flight promise rather than the result (also fixes S1). |
 | [x] P3 | H | Pre-rendered (SSG/DSD) elements still await `getResources()` before `mount()`. The router polls rAF up to 50× for it. | `element.js:259-263`, `core/router/cascade.js:96-99` | When the shadow root is adopted, wire refs/on/mount right away. Fetch lazily only for a mismatch check. |
-| [ ] P4 | M | CSS preloaded with `as="style"` but loaded via `fetch()`, so the preload doesn't match and the file downloads twice. SSG head never preloads templates/CSS. | `tools/src/server/runner.rs:239-247`, `tools/src/build/ssg.rs:496-540` | Match the destination, or drop the fetch by inlining (P-phase). |
-| [ ] P5 | M | Render-blocking `@import` chains (10 + 4). | `library/src/tokens/index.css:10-23`, `styles/index.css:8-11` | Concatenate in the build. |
+| [~] P4 | M | CSS preloaded with `as="style"` but loaded via `fetch()`, so the preload doesn't match and the file downloads twice. SSG head never preloads templates/CSS. | `tools/src/server/runner.rs:239-247`, `tools/src/build/ssg.rs:496-540` | Match the destination, or drop the fetch by inlining (P-phase). |
+| [x] P5 | M | Render-blocking `@import` chains (10 + 4). | `library/src/tokens/index.css:10-23`, `styles/index.css:8-11` | Concatenate in the build. |
 | [x] P6 | H (dev) | **Any** save (even CSS) runs a full `extract::compile`: walks all of src, rebuilds the graph, re-emits SSG for all ~194 routes. Hash cache re-reads every file. | `tools/src/watcher/runner.rs:87-104`, `tools/src/extract/runner.rs:25-62`, `tools/src/build/cache.rs:23-30` | CSS/HTML: copy + HMR immediately. JS: rebuild only the affected part of the graph. SSG only for affected routes. mtime/size check before hashing. |
 | [x] P7 | M | Blocking `std::fs` in an async handler, and `routes.json` parsed twice per fallback request. | `tools/src/server/runner.rs:261, 300, 312, 383` | Keep the manifest in `ServerState` and refresh it on watch events. Use `tokio::fs`. |
 | [x] P8 | M | SW awaits `cache.put` before responding. TTL path reads the whole body into a blob. StaleRevalidate update not passed to `waitUntil`. NetworkFirst timer never cleared. | `library/src/sw/strategies.js:16-29, 54-57, 84-87` | Respond first, then `event.waitUntil(put)`. Clear the timer. |
 | [x] P9 | M | Every storage `set` awaits `navigator.storage.estimate()` (even memory tier), writes a sync localStorage journal and stringifies twice. | `library/src/core/storage/index.js:205, 232-245` | Throttle the quota check, skip it for memory, stringify once. |
 | [x] P10 | L | Store queues a microtask per write (no "already scheduled" flag). | `library/src/core/state/store.js:172-176` | Add a `#scheduled` flag. |
 | [x] P11 | L | Router `register` re-sorts on every call (O(n²) overall). | `library/src/core/router/match.js:68-91` | Sort once, lazily, before the first match. |
-| [~] P12 | M | `bugs/speed.md` benchmarks measure the wrong things (in-memory string formatting, sync loops). Nothing measures load waterfall or save→HMR time. | `tools/tests/speed.rs:92-120`, `library/tests/core/platform/speed.test.js` | Replace with the benchmarks in PHASES.md Phase 3. |
+| [x] P12 | M | `bugs/speed.md` benchmarks measure the wrong things (in-memory string formatting, sync loops). Nothing measures load waterfall or save→HMR time. | `tools/tests/speed.rs:92-120`, `library/tests/core/platform/speed.test.js` | Replace with the benchmarks in PHASES.md Phase 3. |
 
 Lower-confidence leads (verify while in Phase 3): one task yield per element during parsing (`element.js:270-275`), per-element MutationObserver with shallow invalidation (`core/ui/define/proxy.js:250-254`), 60 s `setInterval` cache scan (`sw/expire.js:40`).
 

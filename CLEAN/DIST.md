@@ -21,6 +21,16 @@ waits on a chain of requests, ships no junk, and is cached correctly forever
 
 Run this again after every DIST step (the script is in Phase D step 0).
 
+### Stage A results (2026-10-12, `npm run bench:load`: HTTP/2, Fast 4G, cold, median of 3, brotli KB)
+
+| page | requests | depth | doc KB | JS KB | CSS KB | LCP ms | ready ms |
+|---|---|---|---|---|---|---|---|
+| / | 296 → 281 | 7 → 3 | 4.2 → 6.3 | 139 → 133 | 11.5 → 6.7 | 1796 → 1140 | 1761 → 1092 |
+| /docs/intro/start | 300 → 287 | 6 → 3 | 13.2 → 8.5 | 139 → 131 | 16.9 → 14.7 | 1292 → 896 | 1783 → 1072 |
+| /docs/elements/button | 300 → 287 | 6 → 3 | 11.4 → 6.9 | 139 → 131 | 16.9 → 14.7 | 1268 → 948 | 1763 → 1117 |
+
+Repeated inline CSS across pages: 6.5 MB → 7 KB. Total HTML: 13.5 MB → 10.2 MB. The remaining depth of 3 comes from the Google Fonts `@import` chain. Requests and JS are still far over budget, which stage B (inlining + Rolldown chunks + hashing) fixes.
+
 ## 2. Target output
 
 ```
