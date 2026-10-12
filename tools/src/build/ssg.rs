@@ -99,6 +99,9 @@ struct DockInfo {
   tag: String,
   file: Option<String>,
   html: Option<String>,
+  /// `html` was guessed from the dock file location, not declared: a missing
+  /// file falls back to the default `<slot></slot>` instead of an error.
+  html_inferred: bool,
   css: Vec<String>,
 }
 
@@ -112,8 +115,8 @@ pub struct Stats {
 /// Emit SSG HTML for every eligible route into `dist_dir`.
 ///
 /// Must run after `routes.json` exists and the import graph has copied assets.
-/// Prefer reading component templates from `src_dir` (unpolluted); fall back to
-/// `dist_dir` when needed.
+/// Templates and CSS are read from `src_dir` only (through a cache loaded
+/// before the parallel step); a declared file that is missing is an error.
 ///
 /// A missing or invalid `routes.json`, any failed route and any failed write
 /// is an error; every error is collected and returned.
@@ -150,13 +153,19 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) -> Result<Stats, Vec<String>> {
       return Err(errors);
     }
   };
+  // Resolve docks and load every source file SSG needs before the parallel
+  // step: workers only read this cache (never dist, never the disk), so shared
+  // docks/CSS are read once instead of once per route.
+  let (plans, sources) = plan_routes(src_dir, dist_dir, &eligible_routes, &docks);
+
   // Routes are emitted in parallel; each worker touches only its own files.
   // Shared routes.json edits are collected and applied once afterwards —
   // concurrent read-modify-write of that file corrupted it and failed routes.
-  let results: Vec<Result<(String, Option<String>), (String, String)>> = eligible_routes
+  let results: Vec<Result<(String, Option<String>), (String, String)>> = plans
     .par_iter()
-    .map(|route| {
-      match emit_route(src_dir, dist_dir, route, &docks, &importmap, &site) {
+    .map(|plan| {
+      let route = plan.route;
+      match emit_route(src_dir, plan, &sources, &docks, &importmap, &site) {
         Ok(preserved) => Ok((normalize_route_path(&route.path), preserved.then(|| route.path.clone()))),
         Err(err) => Err((route.path.clone(), err.to_string())),
       }
@@ -292,6 +301,7 @@ fn collect_docks(routes: &[RouteInfo]) -> HashMap<String, DockInfo> {
       tag: route.tag.clone(),
       file: route.file.clone(),
       html: route.html.clone(),
+      html_inferred: false,
       css,
     };
     docks.insert(route.path.clone(), info.clone());
@@ -303,20 +313,135 @@ fn collect_docks(routes: &[RouteInfo]) -> HashMap<String, DockInfo> {
   docks
 }
 
-fn emit_route(
+/// Everything one route needs, resolved before the parallel step.
+struct RoutePlan<'a> {
+  route: &'a RouteInfo,
+  out_path: PathBuf,
+  /// `route.via` resolved to docks, in the same (root → leaf) order.
+  docks: Vec<DockInfo>,
+  /// Set when the SSG document takes the CSR fragment's `index.html` slot.
+  preserve: Option<Preserve>,
+}
+
+/// CSR fragment that must move to `template.html` (see `preserve_csr_template`).
+struct Preserve {
+  /// Template path as written in the page module (e.g. `./index.html`).
+  html_rel: String,
+  /// Fragment tags descriptor in src (`index.tags.json`).
+  tags_src: PathBuf,
+  /// Built page module in dist and its content, read before the parallel step
+  /// (it is this pipeline's own graph output, not an input template).
+  module: Option<(PathBuf, String)>,
+}
+
+/// Source files read by SSG, loaded once before the parallel step.
+struct Sources {
+  files: HashMap<PathBuf, Result<String, String>>,
+}
+
+impl Sources {
+  fn load(paths: std::collections::BTreeSet<PathBuf>) -> Self {
+    use rayon::prelude::*;
+    let files = paths
+      .into_par_iter()
+      .map(|path| {
+        let text = std::fs::read_to_string(&path)
+          .map_err(|e| format!("cannot read {}: {}", path.display(), e));
+        (path, text)
+      })
+      .collect();
+    Sources { files }
+  }
+
+  /// A required source file; missing or unreadable is an error.
+  fn read(&self, path: &Path) -> Result<&str, String> {
+    match self.files.get(path) {
+      Some(Ok(text)) => Ok(text),
+      Some(Err(err)) => Err(err.clone()),
+      None => Err(format!("source file not loaded: {}", path.display())),
+    }
+  }
+
+  /// An optional source file.
+  fn optional(&self, path: &Path) -> Option<&str> {
+    match self.files.get(path) {
+      Some(Ok(text)) => Some(text),
+      _ => None,
+    }
+  }
+}
+
+/// Resolve docks and collect the source files of every route, then load them.
+fn plan_routes<'a>(
   src_dir: &Path,
   dist_dir: &Path,
-  route: &RouteInfo,
+  routes: &[&'a RouteInfo],
+  docks: &HashMap<String, DockInfo>,
+) -> (Vec<RoutePlan<'a>>, Sources) {
+  let mut wanted = std::collections::BTreeSet::new();
+  let mut dock_tags: HashMap<String, Option<String>> = HashMap::new();
+  let mut plans = Vec::with_capacity(routes.len());
+
+  for route in routes {
+    let out_path = output_path(dist_dir, &route.path);
+    if let Ok(path) = page_html_path(src_dir, route) {
+      wanted.insert(path);
+    }
+    wanted.extend(page_css_paths(src_dir, route));
+
+    let mut route_docks = Vec::with_capacity(route.via.len());
+    for via_name in &route.via {
+      let dock = resolve_dock(via_name, docks, route, src_dir, &mut dock_tags);
+      if let Some(path) = dock_html_path(src_dir, &dock) {
+        wanted.insert(path);
+      }
+      wanted.extend(dock_css_paths(src_dir, &dock));
+      route_docks.push(dock);
+    }
+
+    let preserve = csr_fragment_slot(dist_dir, route, &out_path).map(|(file, html_rel)| {
+      let mut tags_src = src_dir.join(normalize_rel(
+        &Path::new(file).parent().unwrap_or(Path::new("")).join(&html_rel),
+      ));
+      tags_src.set_extension("tags.json");
+      wanted.insert(tags_src.clone());
+      let module_path = dist_dir.join(file);
+      let module = std::fs::read_to_string(&module_path)
+        .ok()
+        .map(|text| (module_path, text));
+      Preserve {
+        html_rel,
+        tags_src,
+        module,
+      }
+    });
+
+    plans.push(RoutePlan {
+      route,
+      out_path,
+      docks: route_docks,
+      preserve,
+    });
+  }
+
+  (plans, Sources::load(wanted))
+}
+
+fn emit_route(
+  src_dir: &Path,
+  plan: &RoutePlan,
+  sources: &Sources,
   docks: &HashMap<String, DockInfo>,
   importmap: &str,
   site: &SsgSiteConfig,
 ) -> Result<bool, String> {
-  let out_path = output_path(dist_dir, &route.path);
+  let route = plan.route;
+  let out_path = &plan.out_path;
 
   // Raw fragment (no `{{param}}` interpolation): the shared CSR template.
-  let raw_html = read_page_html(src_dir, dist_dir, route)?;
+  let raw_html = read_page_html(src_dir, sources, route)?;
   let page_html = interpolate_params(&raw_html, &route.ssg_params);
-  let page_css = read_page_css(src_dir, dist_dir, route);
+  let page_css = read_page_css(src_dir, sources, route)?;
   let page_css = interpolate_params(&page_css, &route.ssg_params);
 
   let h1_text = extract_h1_text(&page_html);
@@ -344,7 +469,7 @@ fn emit_route(
   .unwrap_or_else(|| normalize_route_path(&route.path));
   let canonical = absolutize(site.origin.as_deref(), &path_canonical);
 
-  let body = build_dsd_tree(src_dir, dist_dir, route, docks, &page_html, &page_css, h1_inner.as_deref())?;
+  let body = build_dsd_tree(src_dir, sources, plan, &page_html, &page_css, h1_inner.as_deref())?;
   let head_extra = build_head(
     route,
     docks,
@@ -380,7 +505,7 @@ fn emit_route(
   // atomic writes; the SSG document goes last so a failure never leaves the
   // module pointing at a template that was not written.
   let mut outputs: Vec<(PathBuf, Vec<u8>)> = Vec::new();
-  let preserved = preserve_csr_template(dist_dir, route, &out_path, &raw_html, &mut outputs)?;
+  let preserved = preserve_csr_template(plan, sources, &raw_html, &mut outputs);
   outputs.push((out_path.clone(), html.into_bytes()));
   for (path, bytes) in &outputs {
     crate::fs_atomic::write(path, bytes)?;
@@ -389,68 +514,58 @@ fn emit_route(
   Ok(preserved)
 }
 
+/// When the page fragment's dist path equals the SSG `index.html` output,
+/// returns the page module file and its template path.
+fn csr_fragment_slot<'r>(dist_dir: &Path, route: &'r RouteInfo, ssg_out: &Path) -> Option<(&'r str, String)> {
+  let file = route.file.as_deref()?;
+  let html_rel = route.html.as_deref().unwrap_or("./index.html");
+  if html_rel.starts_with('/') {
+    // Absolute site-root templates never share the route's index.html slot.
+    return None;
+  }
+  let parent = Path::new(file).parent().unwrap_or_else(|| Path::new(""));
+  let fragment_dist = dist_dir.join(normalize_rel(&parent.join(html_rel)));
+  // Only rewrite when SSG would clobber the CSR fragment.
+  (fragment_dist == ssg_out).then(|| (file, html_rel.to_string()))
+}
+
 /// When the page fragment path equals the SSG `index.html` output, keep the
 /// fragment as `template.html` and point the built page module at it.
 /// Returns true when the caller must point the route's routes.json `html` at
 /// `template.html` (done once, after all routes are emitted). Files to write
 /// are pushed onto `outputs`; nothing is written here.
 fn preserve_csr_template(
-  dist_dir: &Path,
-  route: &RouteInfo,
-  ssg_out: &Path,
+  plan: &RoutePlan,
+  sources: &Sources,
   page_html: &str,
   outputs: &mut Vec<(PathBuf, Vec<u8>)>,
-) -> Result<bool, String> {
-  let Some(file) = route.file.as_deref() else {
-    return Ok(false);
+) -> bool {
+  let Some(ref preserve) = plan.preserve else {
+    return false;
   };
-  let html_rel = route.html.as_deref().unwrap_or("./index.html");
-  if html_rel.starts_with('/') {
-    // Absolute site-root templates never share the route's index.html slot.
-    return Ok(false);
-  }
-
-  let fragment_dist = {
-    let base = Path::new(file);
-    let parent = base.parent().unwrap_or_else(|| Path::new(""));
-    dist_dir.join(normalize_rel(&parent.join(html_rel)))
-  };
-
-  // Only rewrite when SSG would clobber the CSR fragment.
-  if fragment_dist != ssg_out {
-    return Ok(false);
-  }
-
-  let parent = ssg_out.parent().unwrap_or_else(|| Path::new(""));
+  let parent = plan.out_path.parent().unwrap_or_else(|| Path::new(""));
   let preserve_path = parent.join("template.html");
   outputs.push((preserve_path.clone(), page_html.as_bytes().to_vec()));
 
   // Soft-nav derives tags URL as template.html → template.tags.json.
   // CSR extract emits index.tags.json beside the fragment; copy it over.
-  let mut tags_src = fragment_dist.clone();
-  tags_src.set_extension("tags.json");
-  if tags_src.exists() {
-    let tags = std::fs::read(&tags_src)
-      .map_err(|e| format!("cannot read {}: {}", tags_src.display(), e))?;
-    outputs.push((parent.join("template.tags.json"), tags));
+  if let Some(tags) = sources.optional(&preserve.tags_src) {
+    outputs.push((parent.join("template.tags.json"), tags.as_bytes().to_vec()));
   }
 
-  let js_path = dist_dir.join(file);
-  if js_path.exists() {
-    let src = std::fs::read_to_string(&js_path)
-      .map_err(|e| format!("cannot read {}: {}", js_path.display(), e))?;
-    let rewritten = rewrite_template_html_path(&src, html_rel, "./template.html");
-    if rewritten != src {
-      outputs.push((js_path, rewritten.into_bytes()));
+  if let Some((ref js_path, ref src)) = preserve.module {
+    let rewritten = rewrite_template_html_path(src, &preserve.html_rel, "./template.html");
+    if &rewritten != src {
+      outputs.push((js_path.clone(), rewritten.into_bytes()));
     }
   }
 
   anza_logs::compiler!(
     "SSG preserved CSR fragment {} → {}",
-    fragment_dist.display(),
+    plan.out_path.display(),
     preserve_path.display()
   );
-  Ok(true)
+  true
 }
 
 fn rewrite_template_html_path(source: &str, from: &str, to: &str) -> String {
@@ -657,13 +772,13 @@ fn dsd_host(tag: &str, attrs: &str, shadow_inner: &str, light_children: &str) ->
 
 fn build_dsd_tree(
   src_dir: &Path,
-  dist_dir: &Path,
-  route: &RouteInfo,
-  docks: &HashMap<String, DockInfo>,
+  sources: &Sources,
+  plan: &RoutePlan,
   page_html: &str,
   page_css: &str,
   light_h1: Option<&str>,
 ) -> Result<String, String> {
+  let route = plan.route;
   // Innermost: the leaf page custom element with open DSD.
   // `class="page-content"` matches the client orchestrator's soft-nav marker so
   // boot/`found` reuses this leaf (adopt) instead of swapping a CSR clone over it.
@@ -678,9 +793,8 @@ fn build_dsd_tree(
   // Wrap via chain from leaf → root so outer docks contain inner ones.
   // Each wrap attaches the previous tree as a light-DOM child (after the
   // parent's DSD template) so slots project the nested hosts.
-  for via_name in route.via.iter().rev() {
-    let dock = resolve_dock(via_name, docks, route, src_dir);
-    let (tpl_html, tpl_css) = read_dock_assets(src_dir, dist_dir, &dock)?;
+  for (via_name, dock) in route.via.iter().zip(plan.docks.iter()).rev() {
+    let (tpl_html, tpl_css) = read_dock_assets(src_dir, sources, dock)?;
     let attrs = if via_name == "main" || dock.tag == "dock-main" {
       " id=\"main\""
     } else {
@@ -703,7 +817,13 @@ fn build_dsd_tree(
   Ok(inner)
 }
 
-fn resolve_dock(name: &str, docks: &HashMap<String, DockInfo>, route: &RouteInfo, src_dir: &Path) -> DockInfo {
+fn resolve_dock(
+  name: &str,
+  docks: &HashMap<String, DockInfo>,
+  route: &RouteInfo,
+  src_dir: &Path,
+  dock_tags: &mut HashMap<String, Option<String>>,
+) -> DockInfo {
   if let Some(d) = docks.get(name) {
     return d.clone();
   }
@@ -726,17 +846,14 @@ fn resolve_dock(name: &str, docks: &HashMap<String, DockInfo>, route: &RouteInfo
     .iter()
     .find(|l| l.contains(&needle) || l.ends_with(&format!("docks/{}.js", name)))
     .cloned();
-  let html = route
-    .templates
-    .iter()
-    .find(|t| t.contains(&needle))
-    .map(|t| t.clone())
-    .or_else(|| {
-      file.as_ref().map(|f| {
-        let parent = Path::new(f).parent().unwrap_or(Path::new(""));
-        format!("/{}/index.html", parent.display()).replace('\\', "/")
-      })
-    });
+  let declared = route.templates.iter().find(|t| t.contains(&needle)).cloned();
+  let html_inferred = declared.is_none() && file.is_some();
+  let html = declared.or_else(|| {
+    file.as_ref().map(|f| {
+      let parent = Path::new(f).parent().unwrap_or(Path::new(""));
+      format!("/{}/index.html", parent.display()).replace('\\', "/")
+    })
+  });
   let css: Vec<String> = route
     .styles
     .iter()
@@ -746,13 +863,19 @@ fn resolve_dock(name: &str, docks: &HashMap<String, DockInfo>, route: &RouteInfo
 
   let tag = file
     .as_ref()
-    .and_then(|f| parse_dock_tag(src_dir, f))
+    .and_then(|f| {
+      dock_tags
+        .entry(f.clone())
+        .or_insert_with(|| parse_dock_tag(src_dir, f))
+        .clone()
+    })
     .unwrap_or_else(|| format!("dock-{}", name));
 
   DockInfo {
     tag,
     file,
     html,
+    html_inferred,
     css,
   }
 }
@@ -797,23 +920,26 @@ fn light_dom_heading(h1_inner: Option<&str>) -> String {
   }
 }
 
-fn read_page_html(src_dir: &Path, dist_dir: &Path, route: &RouteInfo) -> Result<String, String> {
+fn page_html_path(src_dir: &Path, route: &RouteInfo) -> Result<PathBuf, String> {
   let html_rel = route.html.as_deref().unwrap_or("./index.html");
   let file = route
     .file
     .as_deref()
     .ok_or_else(|| format!("route {} has no file", route.path))?;
-  let path = resolve_asset_file(src_dir, dist_dir, file, html_rel);
-  let raw = std::fs::read_to_string(&path)
-    .map_err(|e| format!("read page html {}: {}", path.display(), e))?;
-  Ok(strip_injected_importmap(&raw))
+  Ok(src_asset_path(src_dir, file, html_rel))
 }
 
-fn read_page_css(src_dir: &Path, dist_dir: &Path, route: &RouteInfo) -> String {
-  let mut parts = Vec::new();
-  let file = route.file.as_deref().unwrap_or("");
-  let mut seen = std::collections::HashSet::new();
+fn read_page_html(src_dir: &Path, sources: &Sources, route: &RouteInfo) -> Result<String, String> {
+  let path = page_html_path(src_dir, route)?;
+  let raw = sources
+    .read(&path)
+    .map_err(|e| format!("read page html: {}", e))?;
+  Ok(strip_injected_importmap(raw))
+}
 
+/// Page-local and shared stylesheets inlined into the page DSD, in order.
+fn page_css_paths(src_dir: &Path, route: &RouteInfo) -> Vec<PathBuf> {
+  let file = route.file.as_deref().unwrap_or("");
   let page_dir = route.file.as_ref().and_then(|f| {
     Path::new(f)
       .parent()
@@ -839,94 +965,79 @@ fn read_page_css(src_dir: &Path, dist_dir: &Path, route: &RouteInfo) -> String {
     }
   }
 
-  for c in candidates {
-    if seen.insert(c.clone()) {
-      if let Some(text) = read_css_asset(src_dir, dist_dir, file, &c) {
-        parts.push(text);
-      }
-    }
+  let mut seen = std::collections::HashSet::new();
+  candidates
+    .into_iter()
+    .filter(|c| seen.insert(c.clone()))
+    .filter_map(|c| css_asset_path(src_dir, file, &c))
+    .collect()
+}
+
+fn read_page_css(src_dir: &Path, sources: &Sources, route: &RouteInfo) -> Result<String, String> {
+  let mut parts = Vec::new();
+  for path in page_css_paths(src_dir, route) {
+    parts.push(sources.read(&path)?);
   }
-  parts.join("\n")
+  Ok(parts.join("\n"))
+}
+
+/// Dock template in src, if the dock has one.
+fn dock_html_path(src_dir: &Path, dock: &DockInfo) -> Option<PathBuf> {
+  let h = dock.html.as_deref()?;
+  // Absolute site-root paths from routes.templates, or relative to dock file.
+  Some(src_asset_path(src_dir, dock.file.as_deref().unwrap_or(""), h))
+}
+
+fn dock_css_paths(src_dir: &Path, dock: &DockInfo) -> Vec<PathBuf> {
+  let file = dock.file.as_deref().unwrap_or("");
+  let mut seen = std::collections::HashSet::new();
+  dock
+    .css
+    .iter()
+    .filter(|c| seen.insert(c.to_string()))
+    .filter_map(|c| css_asset_path(src_dir, file, c))
+    .collect()
 }
 
 fn read_dock_assets(
   src_dir: &Path,
-  dist_dir: &Path,
+  sources: &Sources,
   dock: &DockInfo,
 ) -> Result<(String, String), String> {
-  let file = dock.file.as_deref().unwrap_or("");
-  let html = if let Some(ref h) = dock.html {
-    // Absolute site-root paths from routes.templates, or relative to dock file.
-    let path = if h.starts_with('/') {
-      let rel = h.trim_start_matches('/');
-      let from_src = src_dir.join(rel);
-      if from_src.exists() {
-        from_src
-      } else {
-        dist_dir.join(rel)
-      }
-    } else {
-      resolve_asset_file(src_dir, dist_dir, file, h)
-    };
-    match std::fs::read_to_string(&path) {
-      Ok(raw) => strip_injected_importmap(&raw),
-      Err(_) => "<slot></slot>".to_string(),
-    }
-  } else {
-    "<slot></slot>".to_string()
+  let html = match dock_html_path(src_dir, dock) {
+    Some(path) => match sources.read(&path) {
+      Ok(raw) => strip_injected_importmap(raw),
+      // A guessed `<dock dir>/index.html` that does not exist: default slot.
+      Err(_) if dock.html_inferred => "<slot></slot>".to_string(),
+      Err(err) => return Err(format!("dock <{}> template: {}", dock.tag, err)),
+    },
+    None => "<slot></slot>".to_string(),
   };
 
   let mut css_parts = Vec::new();
-  let mut seen = std::collections::HashSet::new();
-  for c in &dock.css {
-    if seen.insert(c.clone()) {
-      if let Some(text) = read_css_asset(src_dir, dist_dir, file, c) {
-        css_parts.push(text);
-      }
-    }
+  for path in dock_css_paths(src_dir, dock) {
+    css_parts.push(sources.read(&path)?);
   }
   Ok((html, css_parts.join("\n")))
 }
 
-fn read_css_asset(src_dir: &Path, dist_dir: &Path, base_file: &str, asset: &str) -> Option<String> {
-  let path = if asset.starts_with('/') {
-    let rel = asset.trim_start_matches('/');
-    let from_src = src_dir.join(rel);
-    if from_src.exists() {
-      from_src
-    } else {
-      dist_dir.join(rel)
-    }
-  } else if !base_file.is_empty() {
-    resolve_asset_file(src_dir, dist_dir, base_file, asset)
+/// Stylesheet path in src; relative assets need a defining file.
+fn css_asset_path(src_dir: &Path, base_file: &str, asset: &str) -> Option<PathBuf> {
+  if asset.starts_with('/') || !base_file.is_empty() {
+    Some(src_asset_path(src_dir, base_file, asset))
   } else {
-    return None;
-  };
-  std::fs::read_to_string(path).ok()
+    None
+  }
 }
 
-/// Resolve a relative asset against the defining JS file, preferring `src`.
-fn resolve_asset_file(src_dir: &Path, dist_dir: &Path, base_file: &str, asset: &str) -> PathBuf {
+/// Resolve an asset in src: site-root paths from `src_dir`, relative paths
+/// against the defining JS file. SSG never reads dist.
+fn src_asset_path(src_dir: &Path, base_file: &str, asset: &str) -> PathBuf {
   if asset.starts_with('/') {
-    let rel = asset.trim_start_matches('/');
-    let from_src = src_dir.join(rel);
-    if from_src.exists() {
-      return from_src;
-    }
-    return dist_dir.join(rel);
+    return src_dir.join(asset.trim_start_matches('/'));
   }
-
-  let base = Path::new(base_file);
-  let parent = base.parent().unwrap_or_else(|| Path::new(""));
-  let joined = parent.join(asset);
-  let normalized = normalize_rel(&joined);
-
-  let from_src = src_dir.join(&normalized);
-  if from_src.exists() {
-    from_src
-  } else {
-    dist_dir.join(&normalized)
-  }
+  let parent = Path::new(base_file).parent().unwrap_or_else(|| Path::new(""));
+  src_dir.join(normalize_rel(&parent.join(asset)))
 }
 
 fn normalize_rel(path: &Path) -> PathBuf {
@@ -1538,7 +1649,11 @@ mod tests {
     for i in 0..count {
       let dir = dist.join(format!("docs/p{i}"));
       std::fs::create_dir_all(&dir).unwrap();
+      // The graph copy of the fragment sits at the SSG slot; SSG reads src.
       std::fs::write(dir.join("index.html"), format!("<h1>Page {i}</h1><p>Body.</p>")).unwrap();
+      let src_dir = src.join(format!("docs/p{i}"));
+      std::fs::create_dir_all(&src_dir).unwrap();
+      std::fs::write(src_dir.join("index.html"), format!("<h1>Page {i}</h1><p>Body.</p>")).unwrap();
       std::fs::write(
         dir.join("index.js"),
         format!("page('/docs/p{i}', {{ template: {{ html: './index.html' }} }});"),
@@ -1666,6 +1781,36 @@ mod tests {
     assert!(doc.contains("<h1>Hi Ann</h1>"), "{doc}");
     let template = std::fs::read_to_string(dist.join("docs/a/template.html")).unwrap();
     assert_eq!(template, "<h1>Hi {{name}}</h1>");
+    let _ = std::fs::remove_dir_all(&root);
+  }
+
+  #[test]
+  fn ssg_reads_src_only_and_missing_declared_files_are_errors() {
+    let (root, src, dist) = temp_project("src-only");
+    // Page template exists only in dist: must not be picked up.
+    std::fs::create_dir_all(dist.join("docs/a")).unwrap();
+    std::fs::write(dist.join("docs/a/index.html"), "<h1>dist</h1>").unwrap();
+    // Page b is fine, but its declared dock template is missing.
+    std::fs::create_dir_all(src.join("docs/b")).unwrap();
+    std::fs::write(src.join("docs/b/index.html"), "<h1>B</h1>").unwrap();
+    // Page c uses a dock whose template is only inferred: default slot.
+    std::fs::create_dir_all(src.join("docs/c")).unwrap();
+    std::fs::write(src.join("docs/c/index.html"), "<h1>C</h1>").unwrap();
+    let manifest = serde_json::json!({ "routes": [
+      { "tag": "doc-a", "path": "/docs/a", "file": "docs/a/index.js", "ssg": true },
+      { "tag": "doc-b", "path": "/docs/b", "file": "docs/b/index.js", "ssg": true,
+        "via": ["side"], "layouts": ["docks/side/index.js"], "templates": ["/docks/side/index.html"] },
+      { "tag": "doc-c", "path": "/docs/c", "file": "docs/c/index.js", "ssg": true,
+        "via": ["content"], "layouts": ["docks/content/index.js"] },
+    ]});
+    std::fs::write(dist.join("routes.json"), manifest.to_string()).unwrap();
+
+    let errors = emit(&src, &dist).expect_err("missing sources are errors");
+    assert_eq!(errors.len(), 2, "{errors:?}");
+    assert!(errors.iter().any(|e| e.contains("/docs/a") && e.contains("src")), "{errors:?}");
+    assert!(errors.iter().any(|e| e.contains("/docs/b") && e.contains("docks/side/index.html")), "{errors:?}");
+    let c = std::fs::read_to_string(dist.join("docs/c/index.html")).unwrap();
+    assert!(c.contains("<dock-content>") && c.contains("<slot></slot>"), "{c}");
     let _ = std::fs::remove_dir_all(&root);
   }
 }
