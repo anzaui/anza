@@ -50,15 +50,17 @@ impl Setup {
   pub fn run(&self) -> Result<Engine> {
     self.validate()?;
     let templates = file::load::all(&self.root)?;
+    let cache = Arc::new(CacheStore::new(templates));
+    // With the `watch` feature, template edits are reloaded into the cache.
     let watcher = if self.watch {
-      Some(file::watch::listen(&self.root)?)
+      Some(file::watch::listen(&self.root, cache.clone())?)
     } else {
       None
     };
 
     Ok(Engine {
       root: self.root.clone(),
-      cache: Arc::new(CacheStore::new(templates)),
+      cache,
       signing: self.signing.clone(),
       watcher,
     })

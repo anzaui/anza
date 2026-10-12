@@ -15,7 +15,7 @@ at startup; a render walks the pre-split chunks and copies parameter values in.
 - **Framework adapters** — `IntoResponse` (Axum) and `Responder` (Actix-web) for `Document` and `Envelope`, plus SSE helpers
 - **Serde binding** — render any `Serialize` value with `Template::render`, or wrap it in `Data(...)`
 - **Signing** — HMAC-SHA256 or Ed25519 signatures over `ts:slot:html`
-- **Watch (incomplete)** — the `watch` feature starts a file watcher, but changes are not reloaded yet; restart to pick up template edits
+- **Watch** — with the `watch` feature and `Setup { watch: true, .. }`, edited, added and removed `.html` templates are reloaded into the cache
 
 ## Installation
 
@@ -33,7 +33,7 @@ tokio = { version = "1", features = ["full"] }
 | `axum` | `IntoResponse` for `Document` (HTML) and `Envelope` (JSON); `adapters::axum::stream::event` builds an SSE `Event` |
 | `actix` | `Responder` for `Document` and `Envelope`; `adapters::actix::stream::bytes` for SSE bodies |
 | `tower` | Placeholder: pulls in `tower`, but `adapters::tower` has no `Service` yet |
-| `watch` | Starts a `notify` watcher on the root; events are not applied to the cache yet |
+| `watch` | Watches the root with `notify` and reloads changed templates into the cache |
 | `full` | All of the above |
 
 ## Quickstart (Axum)
