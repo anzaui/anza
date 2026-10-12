@@ -1,6 +1,6 @@
 {
   "name": "@anzaui/create-anza",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "Create a new anza app — `npm create @anzaui/anza`",
   "type": "module",
   "bin": {
@@ -10,7 +10,7 @@
     "index.js"
   ],
   "dependencies": {
-    "@anzaui/anza": "0.5.1"
+    "@anzaui/anza": "0.6.0"
   },
   "keywords": [
     "anza",
