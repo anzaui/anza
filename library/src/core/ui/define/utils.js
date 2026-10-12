@@ -35,8 +35,43 @@ async function fetchTextResource(url, tag, kind) {
  */
 const inflight = new Map();
 
+/**
+ * Build-time inlined resources (internal). `anza build` prepends a
+ * registration to each definition module whose spec names relative
+ * style/template files: the key is the resolved URL the runtime would fetch
+ * (`new URL('./style.css', import.meta.url).href`), the value the CSS/HTML
+ * text or the tags descriptor object. Dev and unbuilt apps have no entries
+ * and fetch as before.
+ *
+ * @param {string} url
+ * @returns {unknown} the inlined value, or undefined
+ */
+function inlined(url) {
+  const registry = globalThis.__anzaInline;
+  return registry && typeof registry.get === 'function' ? registry.get(url) : undefined;
+}
+
+/** Compiles CSS text into a shared sheet, or keeps the text without constructable sheets. */
+function compileStyle(text) {
+  if (supportsSheets) {
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync(text);
+    return sheet;
+  }
+  return text;
+}
+
 /** Fetches and compiles one asset (`style` → sheet or CSS text, `template` → fragment, `tags` → descriptor). */
 async function compileAsset(url, kind, tag) {
+  const inline = inlined(url);
+  if (inline !== undefined) {
+    if (kind === 'tags') return validateDescriptor(inline);
+    if (typeof inline === 'string') {
+      return kind === 'template'
+        ? createTemplateFragment(sanitizeTemplateHtml(inline, tag))
+        : compileStyle(inline);
+    }
+  }
   if (kind === 'tags') {
     try {
       const res = await fetch(url);
@@ -53,12 +88,7 @@ async function compileAsset(url, kind, tag) {
   if (kind === 'template') {
     return createTemplateFragment(sanitizeTemplateHtml(text, tag));
   }
-  if (supportsSheets) {
-    const sheet = new CSSStyleSheet();
-    sheet.replaceSync(text);
-    return sheet;
-  }
-  return text;
+  return compileStyle(text);
 }
 
 /**

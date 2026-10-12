@@ -24,6 +24,10 @@ pub struct Parsed {
   /// Literal dynamic `import("…")` specifiers.
   pub dynamic: Vec<(String, Span)>,
   pub assets: Vec<(String, Span)>,
+  /// Relative (`./`, `../`) assets of definition specs that a production
+  /// build inlines into the module: every style, and every template except
+  /// `page()` HTML (route-sized content the SSG already ships in HTML).
+  pub inline: Vec<String>,
   pub prop_errors: Vec<(String, Span)>,
 }
 
@@ -65,6 +69,7 @@ pub fn parse(file: &Path, cm: &Arc<SourceMap>) -> Result<Parsed, Diagnostic> {
     imports: visitor.imports,
     dynamic: visitor.dynamic,
     assets: visitor.assets,
+    inline: visitor.inline,
     prop_errors: visitor.prop_errors,
   })
 }
@@ -74,6 +79,7 @@ struct Collector {
   imports: Vec<(String, Span)>,
   dynamic: Vec<(String, Span)>,
   assets: Vec<(String, Span)>,
+  inline: Vec<String>,
   prop_errors: Vec<(String, Span)>,
 }
 
@@ -128,7 +134,7 @@ impl Visit for Collector {
             if obj.sym == "ui" && (prop.sym == "element" || prop.sym == "container") {
               if call.args.len() >= 2 {
                 if let Expr::Object(spec) = &*call.args[1].expr {
-                  self.scan_spec(spec);
+                  self.scan_spec(spec, false);
                 }
               }
             }
@@ -138,7 +144,7 @@ impl Visit for Collector {
           if matches!(ident.sym.as_ref(), "page" | "dock" | "view" | "part") {
             if call.args.len() >= 2 {
               if let Expr::Object(spec) = &*call.args[1].expr {
-                self.scan_spec(spec);
+                self.scan_spec(spec, ident.sym == "page");
               }
             }
           }
@@ -153,19 +159,24 @@ impl Visit for Collector {
 
 impl Collector {
   /// Records a relative asset path (template/style) for copying into dist.
-  fn push_asset(&mut self, s: &swc_ecma_ast::Str) {
+  /// `inline`: the asset may be inlined into the module by a production build.
+  fn push_asset(&mut self, s: &swc_ecma_ast::Str, inline: bool) {
     if let Some(v) = str_value(s) {
       if (v.starts_with("./") || v.starts_with("../") || v.starts_with('/'))
           && !v.starts_with("/*")
           && !v.starts_with("<!--")
           && !v.contains('{')
           && !v.contains('<') {
+        if inline && !v.starts_with('/') && !self.inline.contains(&v) {
+          self.inline.push(v.clone());
+        }
         self.assets.push((v, s.span));
       }
     }
   }
 
-  fn scan_spec(&mut self, spec: &ObjectLit) {
+  /// `page`: the spec belongs to a `page()` call (its HTML is not inlined).
+  fn scan_spec(&mut self, spec: &ObjectLit, page: bool) {
     for prop in &spec.props {
       if let PropOrSpread::Prop(p) = prop {
         if let Prop::KeyValue(kv) = &**p {
@@ -173,13 +184,14 @@ impl Collector {
             match key.sym.as_ref() {
               // Legacy form: template/style are direct string paths.
               "template" | "style" => {
+                let inline = !(page && key.sym == "template");
                 match &*kv.value {
-                  Expr::Lit(Lit::Str(s)) => self.push_asset(s),
+                  Expr::Lit(Lit::Str(s)) => self.push_asset(s, inline),
                   Expr::Array(arr) => {
                     for elem in &arr.elems {
                       if let Some(e) = elem {
                         if let Expr::Lit(Lit::Str(s)) = &*e.expr {
-                          self.push_asset(s);
+                          self.push_asset(s, inline);
                         }
                       }
                     }
@@ -191,13 +203,14 @@ impl Collector {
                         if let Prop::KeyValue(ikv) = &**inner {
                           if let PropName::Ident(ik) = &ikv.key {
                             if ik.sym == "html" || ik.sym == "css" {
+                              let inline = !(page && ik.sym == "html");
                               match &*ikv.value {
-                                Expr::Lit(Lit::Str(s)) => self.push_asset(s),
+                                Expr::Lit(Lit::Str(s)) => self.push_asset(s, inline),
                                 Expr::Array(arr) => {
                                   for elem in &arr.elems {
                                     if let Some(e) = elem {
                                       if let Expr::Lit(Lit::Str(s)) = &*e.expr {
-                                        self.push_asset(s);
+                                        self.push_asset(s, inline);
                                       }
                                     }
                                   }

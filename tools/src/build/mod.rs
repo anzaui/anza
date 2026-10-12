@@ -14,6 +14,7 @@ pub mod entries;
 pub mod graph;
 pub mod headers;
 pub mod html;
+pub mod inline;
 pub mod order;
 pub mod parse;
 pub mod resolve;

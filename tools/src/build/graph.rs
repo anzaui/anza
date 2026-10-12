@@ -165,7 +165,7 @@ pub fn resolve(
   // Load build cache for incremental rebuilds.
   let mut cache = super::cache::load(&project);
   // Bump when emit transforms change (e.g. import-order rewrite) so caches rebuild.
-  let version = "1.0.3";
+  let version = "1.0.4";
 
   // Invalidate cache if version or mode mismatch.
   if let Some(ref c) = cache {
@@ -220,6 +220,8 @@ pub fn resolve(
   let mut edges: BTreeMap<PathBuf, Vec<PathBuf>> = BTreeMap::new();
   let mut hashes: BTreeMap<PathBuf, String> = BTreeMap::new();
   let mut importmap: BTreeMap<String, String> = BTreeMap::new();
+  // Definition modules -> relative style/template assets to inline (production).
+  let mut inline: BTreeMap<PathBuf, Vec<(String, PathBuf)>> = BTreeMap::new();
 
   // Parallel BFS: parse and resolve one frontier (BFS level) at a time, then
   // merge the results in queue order, so reached/diagnostics match a serial walk.
@@ -240,6 +242,9 @@ pub fn resolve(
     };
     for (module, visit) in frontier.iter().zip(visits) {
       edges.insert(module.clone(), visit.edges);
+      if !dev && !visit.inline.is_empty() {
+        inline.insert(module.clone(), visit.inline);
+      }
       errors.extend(visit.errors);
       warnings.extend(visit.warnings);
       importmap.extend(visit.importmap);
@@ -369,7 +374,13 @@ pub fn resolve(
             .map_err(|e| format!("cannot read {}: {}", file.display(), e))
             .and_then(|content| {
               let ordered = super::order::rewrite_with(&content, file, src, &order_slots);
-              crate::fs_atomic::write(&target, ordered.as_bytes())
+              match inline.get(file) {
+                Some(assets) => {
+                  let prelude = super::inline::prelude(assets)?;
+                  crate::fs_atomic::write(&target, format!("{}{}", prelude, ordered).as_bytes())
+                }
+                None => crate::fs_atomic::write(&target, ordered.as_bytes()),
+              }
             })
         } else {
           crate::fs_atomic::copy(file, &target)
@@ -474,6 +485,8 @@ struct Visit {
   files: Vec<(PathBuf, bool)>,
   /// Statically imported JS modules (no dynamic `import()`), source order.
   edges: Vec<PathBuf>,
+  /// Relative definition assets to inline: (specifier, resolved file).
+  inline: Vec<(String, PathBuf)>,
 }
 
 /// Parse one module and resolve its imports and asset literals.
@@ -577,6 +590,13 @@ fn visit_module(module: &Path, ctx: &WalkCtx) -> Visit {
         });
       }
       Resolution::External => {}
+    }
+  }
+
+  // Inlinable assets: resolved files only (a missing one is reported above).
+  for spec in &parsed.inline {
+    if let Resolution::File(path, _) = resolve(spec) {
+      out.inline.push((spec.clone(), normalize(&path)));
     }
   }
 
