@@ -132,33 +132,39 @@ import { page, dock, view, part } from '@anzaui/anza/defs';
 Define a route-bound element.
 
 - **`route`**: `string | string[]` - A single route pattern or an array of route patterns (e.g. `'/blog'` or `['/blog', '/blog/:slug']`).
-- **`config` fields**: `tag`, `via`, `container`, `template`, `style`, `props`, `params`, `query`, `hash`, `on`, `guard`, `error`, `meta`.
+- **`config` fields**: `tag`, `via`, `container`, `template`, `style`, `props`, `params`, `query`, `hash`, `on`, `guard`, `error`, `loading`, `seo`, `meta`.
   - `params`: `Array<{ name: string, type: Function }>` - path parameter contract (e.g., `[{ name: 'slug', type: String }]`).
   - `query`: `Array<{ name: string, type: Function }>` - query parameter contract (e.g., `[{ name: 'tab', type: String }]`).
   - `error` (optional): route-scoped error leaf override — see [router/fallbacks.md](../router/fallbacks.md).
+  - `loading` (optional): soft-nav loading override for this page (`false` disables it).
+
+Page resources always load when the page first connects.
 
 ### `dock(name, config, base)`
 
 Define a container shell.
 
-- **`config` fields**: `tag`, `parent`, `template`, `style`, `params`, `query`, `on`, `notfound`, `error`, `offline`.
+- **`config` fields**: `tag`, `parent`, `template`, `style`, `props`, `on`, `notfound`, `error`, `offline`, `loading`, `transition`, `eager`.
   - `notfound` / `error` / `offline` (optional): branded overrides only — bare docks use shared library built-ins; see [router/fallbacks.md](../router/fallbacks.md).
-  - `params`: `Array<{ name: string, type: Function }>` - path parameter contract.
-  - `query`: `Array<{ name: string, type: Function }>` - query parameter contract.
+  - `loading` (optional): soft-nav loading UI for this subtree; `false` disables it.
+  - `transition` (optional): `false` disables the dock's View Transition; `{ name }` overrides the default `dock-<name>`.
+  - `eager` (optional): fetch file resources at define time instead of on first connect.
 
-Default tag: `dock-<name>`. Default parent: `'body'`.
+Default tag: `dock-<name>`. Default parent: `'main'`.
 
 ### `view(tag, config, base)`
 
 Define a stateful component.
 
-Config: `tag`, `template`, `style`, `props`, `on`, `methods`.
+Config: `template`, `style`, `props`, `on`, `methods`, `form`, `eager`.
 
 ### `part(tag, config, base)`
 
 Define a stateless primitive.
 
-Config: `tag`, `template`, `style`, `props`, `on`, `methods`.
+Config: `template`, `style`, `props`, `on`, `methods`, `eager`.
+
+`eager: true` (view, part, dock, element) fetches file resources (template, style, tags) at define time. By default they load when the first instance connects.
 
 Warns if `on.change` is declared.
 
@@ -181,6 +187,7 @@ Warns if `on.change` is declared.
   url: string,
   container: string,
   form: boolean,
+  eager: boolean,   // fetch file resources at define time (default: on first connect)
   associated: (form) => any,
   disabled: (value) => any,
   reset: () => any,

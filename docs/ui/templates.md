@@ -28,6 +28,24 @@ view('user-card', {
 
 Paths are resolved relative to the third argument (`import.meta.url`). The native toolchain copies assets during build.
 
+### When files load
+
+File resources load on **first connect** (lazy, the default): defining an
+element costs no requests until one is used on the page. The style, template
+and tags descriptor are fetched in parallel, once per element type. Pass
+`eager: true` (on `element()`, `view()`, `part()` or `dock()`) to start the
+fetch at define time instead, for an element you know will render right away:
+
+```javascript
+view('app-header', {
+  template: { html: './header.html', css: './header.css' },
+  eager: true
+}, import.meta.url);
+```
+
+Pre-rendered (declarative shadow DOM) elements mount immediately without
+waiting for these files.
+
 ## Tagged Template Literal
 
 For rapid prototyping outside the element factory:

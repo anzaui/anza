@@ -262,6 +262,8 @@ export interface ElementSpec<
   mode?: ShadowRootMode;
   props?: Props;
   form?: Form;
+  /** Fetch URL resources (template, style, tags) at define time instead of on first connect. */
+  eager?: boolean;
   url?: string;
   container?: string;
   query?: readonly string[] | string[];
@@ -457,6 +459,8 @@ export interface DefConfig<Props extends PropsDefinition = {}> {
   template?: string | DefTemplate;
   style?: string | string[];
   form?: boolean;
+  /** Fetch file resources at define time instead of on first connect (the default). */
+  eager?: boolean;
   methods?: Record<string, (...args: any[]) => any>;
   /** `this` is the element; helpers declared under `on` are callable as methods. */
   on?: DefHooks<ComponentHost<Props> & Record<string, any>>;
