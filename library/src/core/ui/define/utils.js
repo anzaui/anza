@@ -29,8 +29,80 @@ async function fetchTextResource(url, tag, kind) {
 }
 
 /**
- * Preloads style and HTML template resources asynchronously exactly once.
- * Returns { templateNode, stylesheets, cssText, tagsDescriptor }.
+ * In-flight asset loads keyed by resolved URL. Concurrent callers share one
+ * promise (one fetch, one CSSStyleSheet / template fragment). On success the
+ * value moves to `assetCache`; failures are dropped so a later call retries.
+ */
+const inflight = new Map();
+
+/** Fetches and compiles one asset (`style` → sheet or CSS text, `template` → fragment, `tags` → descriptor). */
+async function compileAsset(url, kind, tag) {
+  if (kind === 'tags') {
+    try {
+      const res = await fetch(url);
+      // A missing descriptor is normal: cache the miss as null.
+      if (!res.ok) return null;
+      return validateDescriptor(await res.json());
+    } catch (_) {
+      return undefined; // network error: don't cache, retry later
+    }
+  }
+
+  const text = await fetchTextResource(url, tag, kind);
+  if (text == null) return undefined;
+  if (kind === 'template') {
+    return createTemplateFragment(sanitizeTemplateHtml(text, tag));
+  }
+  if (supportsSheets) {
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync(text);
+    return sheet;
+  }
+  return text;
+}
+
+/**
+ * Returns the compiled asset for `url`, sharing one in-flight load between
+ * concurrent callers. Resolves to `undefined` when the asset failed to load.
+ */
+function loadAsset(url, kind, tag) {
+  if (assetCache.has(url)) return Promise.resolve(assetCache.get(url));
+  const pending = inflight.get(url);
+  if (pending) return pending;
+
+  const promise = compileAsset(url, kind, tag)
+    .catch((err) => {
+      console.error(`Failed to load ${kind} resource ${url} for element ${tag}:`, err);
+      return undefined;
+    })
+    .then((value) => {
+      if (inflight.get(url) === promise) {
+        inflight.delete(url);
+        if (value !== undefined) assetCache.set(url, value);
+      }
+      return value;
+    });
+  inflight.set(url, promise);
+  return promise;
+}
+
+/**
+ * Drops a cached or in-flight asset so the next load fetches it again
+ * (used by HTML hot-swap).
+ */
+export function evictAsset(url) {
+  assetCache.delete(url);
+  inflight.delete(url);
+}
+
+/** URL of the `.tags.json` descriptor that sits next to a template. */
+export function tagsUrlFor(templateUrl) {
+  return resolveAssetUrl(templateUrl.replace(/\.html$/, '.tags.json'));
+}
+
+/**
+ * Loads style, template and tags descriptor resources in parallel, each at
+ * most once per URL. Returns { templateNode, stylesheets, cssText, tagsDescriptor }.
  * When constructable stylesheets are unsupported, stylesheets is an empty array and
  * cssText carries the concatenated raw CSS for <style> injection.
  */
@@ -40,33 +112,26 @@ export async function preloadResources(tag, styleUrls, templateUrl, inlineTempla
   let cssTextAcc = '';
   let tagsDescriptor = null;
 
-  // Compile / Fetch styles — resolve under __ANZA_BASE__ before cache/fetch.
+  // Resolve under __ANZA_BASE__ before cache/fetch.
   const rawUrls = Array.isArray(styleUrls) ? styleUrls : (styleUrls ? [styleUrls] : []);
   const urls = rawUrls.map((u) => resolveAssetUrl(u));
+  const resolvedTemplate = templateUrl ? resolveAssetUrl(templateUrl) : null;
 
-  await Promise.all(urls.map(async (url) => {
-    if (assetCache.has(url)) {
-      const cached = assetCache.get(url);
-      if (supportsSheets) {
-        stylesheets.push(cached);
-      } else {
-        cssTextAcc += cached + '\n';
-      }
+  const [styles, fetchedTemplate, fetchedTags] = await Promise.all([
+    Promise.all(urls.map((url) => loadAsset(url, 'style', tag))),
+    resolvedTemplate ? loadAsset(resolvedTemplate, 'template', tag) : null,
+    resolvedTemplate ? loadAsset(tagsUrlFor(resolvedTemplate), 'tags', tag) : null
+  ]);
+
+  // Keep declaration order regardless of which fetch finished first.
+  for (const value of styles) {
+    if (value == null) continue;
+    if (supportsSheets) {
+      stylesheets.push(value);
     } else {
-      const css = await fetchTextResource(url, tag, 'style');
-      if (css != null) {
-        if (supportsSheets) {
-          const sheet = new CSSStyleSheet();
-          sheet.replaceSync(css);
-          assetCache.set(url, sheet);
-          stylesheets.push(sheet);
-        } else {
-          assetCache.set(url, css);
-          cssTextAcc += css + '\n';
-        }
-      }
+      cssTextAcc += value + '\n';
     }
-  }));
+  }
 
   if (inlineStyle) {
     const inlineStyles = Array.isArray(inlineStyle) ? inlineStyle : [inlineStyle];
@@ -86,39 +151,9 @@ export async function preloadResources(tag, styleUrls, templateUrl, inlineTempla
 
   const cssText = cssTextAcc.trim() ? cssTextAcc : null;
 
-  // Compile / Fetch Template markup
-  if (templateUrl) {
-    const resolvedTemplate = resolveAssetUrl(templateUrl);
-    if (assetCache.has(resolvedTemplate)) {
-      templateNode = assetCache.get(resolvedTemplate);
-    } else {
-      try {
-        const html = await fetchTextResource(resolvedTemplate, tag, 'template');
-        if (html != null) {
-          templateNode = createTemplateFragment(sanitizeTemplateHtml(html, tag));
-          assetCache.set(resolvedTemplate, templateNode);
-        }
-      } catch (err) {
-        console.error(`Failed to fetch template resource for element ${tag}:`, err);
-      }
-    }
-
-    // Fetch Tags Descriptor
-    const tagsUrl = resolveAssetUrl(resolvedTemplate.replace(/\.html$/, '.tags.json'));
-    if (assetCache.has(tagsUrl)) {
-      tagsDescriptor = assetCache.get(tagsUrl);
-    } else {
-      try {
-        const res = await fetch(tagsUrl);
-        if (res.ok) {
-          const raw = await res.json();
-          tagsDescriptor = validateDescriptor(raw);
-          assetCache.set(tagsUrl, tagsDescriptor);
-        }
-      } catch (_) {
-        // Safe to ignore — not all elements have a tags descriptor
-      }
-    }
+  if (resolvedTemplate) {
+    templateNode = fetchedTemplate ?? null;
+    tagsDescriptor = fetchedTags ?? null;
   } else if (inlineTemplate) {
     templateNode = createTemplateFragment(inlineTemplate);
   }
