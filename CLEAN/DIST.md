@@ -41,6 +41,10 @@ Repeated inline CSS across pages: 6.5 MB → 7 KB. Total HTML: 13.5 MB → 10.2 
 
 Everything passes except **requests before ready on docs pages (15 > 12)**: 4 CSS + 6 JS chunks (including a 0.1 KB Rolldown runtime and a 0.3 KB app chunk) + ~4 font files (4 families). Phase 6 should decide the font families.
 
+### Trim results (2026-10-12): all §4 budgets pass
+
+`/` 9 requests, docs pages 12 (exactly at budget), depth 2, JS 49.4 KB br, ready ≈ 0.46 s. Global CSS is merged into one hashed file per page, and routes that every page needs go into the entry chunk. CI job `bench` enforces the budgets. Margin comes from P13.
+
 ## 2. Target output
 
 ```

@@ -42,6 +42,8 @@ The bottleneck is the **network waterfall**, not CPU.
 | [x] P11 | L | Router `register` re-sorts on every call (O(n²) overall). | `library/src/core/router/match.js:68-91` | Sort once, lazily, before the first match. |
 | [x] P12 | M | `bugs/speed.md` benchmarks measure the wrong things (in-memory string formatting, sync loops). Nothing measures load waterfall or save→HMR time. | `tools/tests/speed.rs:92-120`, `library/tests/core/platform/speed.test.js` | Replace with the benchmarks in PHASES.md Phase 3. |
 
+| [ ] P13 | M | Pre-rendered (SSG) pages still fetch their `template.html`, `template.tags.json` and the page `shared.css` again while hydrating, although the server already rendered them. Docs pages sit exactly at the 12-request budget because of it. | `library/src/core/ui/define/*`, `core/router/*` | Adopted page roots use the DSD content plus the inlined tags descriptor. Fetch only on soft navigation. Expected: docs pages 12 → about 9 requests. |
+
 Lower-confidence leads (verify while in Phase 3): one task yield per element during parsing (`element.js:270-275`), per-element MutationObserver with shallow invalidation (`core/ui/define/proxy.js:250-254`), 60 s `setInterval` cache scan (`sw/expire.js:40`).
 
 ## D — Docs inconsistent with code
