@@ -14,21 +14,25 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-### Fixed
-
-- **Stale files after an edit ("needs a hard refresh")** — the service worker is no longer registered on local hosts, and old workers and caches are removed there. Event streams and `/hmr` are never intercepted. The SW router picks the most specific matching route, so `/api/*` is no longer shadowed by `'*'`. Unhashed files are served `no-cache` in production.
-- Strategies respond first and write the cache through `event.waitUntil`.
-- HTML hot-swap runs the same pipeline as a cold load.
-- Docs imported symbols that are not exported (`boot`, `isCallback`, `listenStream`, `CacheStorage`, `specRegistry`, deep `router/*` paths); they now use the public API.
-
 ### Changed
 
-- **Element resources load on first connect** (lazy by default); `eager: true` on `element()`, `view()`, `part()` and `dock()` fetches them at define time. Style, template and tags are fetched in parallel, and pre-rendered elements mount before their files arrive.
-- Storage quota checks are throttled to once a minute and skipped for the memory tier; store flushes are coalesced; routes are sorted lazily.
-- `@anzaui/anza/router` exports `gate`, `ready`, `reset`; `@anzaui/anza/security` exports `seal`, `unseal`; `@anzaui/anza/storage` exports `quota`.
+- **Element resources load on first connect** (lazy by default). Pass `eager: true` to `element()`, `view()`, `part()` or `dock()` to fetch them at define time, as before.
+- **`anza build` fails on errors.** Any SSG, extract, copy or write error, a missing or invalid `routes.json`, a duplicate route or two routes writing the same file now fails the build (exit 1) and lists every error. `anza dev` logs them and keeps serving.
+- **The CLI crate is renamed `anza-cli`** (the command is still `anza`; the engine crate keeps the name `anza`). `anza create` now points to `npm create @anzaui/anza`.
+- `anza build` and `anza dev` lock the project, so they never write the same `dist/` at once.
+- Faster runtime and builds: element style, template and tags are fetched in parallel and pre-rendered elements mount before their files arrive; service worker strategies respond first and cache through `event.waitUntil`; quota checks are throttled and store flushes coalesced; `anza build` walks the import graph and copies files in parallel (`web/` release build: 124 ms to 71 ms).
+- Releases: one version for every package, bumped by release-please and checked in CI (`npm run versions:check`).
+
+### Fixed
+
+- **Stale files after an edit ("needs a hard refresh").** The service worker is not registered on local hosts, and old workers and caches are removed there. Event streams and `/hmr` are never intercepted. The most specific SW route wins, so `/api/*` is no longer shadowed by `'*'`. Unhashed files are served `no-cache` in production.
+- Scaffolded apps (`npm create @anzaui/anza`) register the service worker on real hosts only and cache safely.
+- HTML hot-swap runs the same pipeline as a cold load; the dev cache is invalidated when the import map, structure or base path change, and outputs of deleted files are removed.
+- Build output is deterministic, written atomically, and SSG reads templates and CSS from `src`.
+- Root exports: `state`, `sync`, `storage`, `events`, `view`, `cache` and `reset` were silently dropped from `@anzaui/anza` (name clashes between modules); each is now re-exported from one module.
+- Missing exports added: `gate`, `ready`, `reset` (`./router`), `seal`, `unseal` (`./security`), `quota` (`./storage`).
 - Types match the runtime: the root `index.d.ts` is a flat re-export, and `./defs`, `./sw`, `./elements/*` and `./bin/create` have types.
-- The CLI crate is renamed `anza-cli`; the command is still `anza`. `anza create` points to `npm create @anzaui/anza`.
-- Repository cleanup: stale `package/` and tracked `dist/` removed, `tools/Cargo.lock` committed, one shared Cargo target dir, CI runs the library type check and browser tests plus doc-import and type-coverage checks.
+- Docs: every documented `@anzaui/anza` import resolves (checked in CI); engine and template docs no longer claim auto-escaping, `each`/`if` blocks or browser-side signature checks.
 
 ---
 
