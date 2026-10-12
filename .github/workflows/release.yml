@@ -2,12 +2,19 @@ name: Release
 
 # Builds the CLI binaries for a `v<version>` tag and attaches them to the
 # GitHub release. Normally called by release-please.yml after a release PR is
-# merged; a tag pushed by hand still triggers it directly.
+# merged; a tag pushed by hand still triggers it directly, and it can be run
+# manually for an existing tag (Actions -> Release -> Run workflow).
 on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
   workflow_call:
+    inputs:
+      tag:
+        description: Release tag, e.g. v0.6.0
+        required: true
+        type: string
+  workflow_dispatch:
     inputs:
       tag:
         description: Release tag, e.g. v0.6.0
@@ -96,11 +103,15 @@ jobs:
 
       - name: Build (native)
         if: '!matrix.cross'
-        run: cd tools && CARGO_TARGET_DIR=target cargo build --release --target ${{ matrix.target }}
+        env:
+          CARGO_TARGET_DIR: target
+        run: cd tools && cargo build --release --target ${{ matrix.target }}
 
       - name: Build (cross)
         if: matrix.cross
-        run: cd tools && CARGO_TARGET_DIR=target cross build --release --target ${{ matrix.target }}
+        env:
+          CARGO_TARGET_DIR: target
+        run: cd tools && cross build --release --target ${{ matrix.target }}
 
       - name: Rename binary
         shell: bash
