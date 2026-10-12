@@ -102,6 +102,30 @@ Doctor/check findings append `docs/intro/structure.md` so CI logs link back to t
 
 After `npm run build`, publish `dist/` as the **document root** of any static host (nginx, Netlify, Cloudflare Pages, S3, …). Asset URLs are site-root paths (`/app.js`, `/tokens/...`) — never `/dist/...`.
 
+#### Headers and caching (`_headers`)
+
+`anza build` writes `dist/_headers` in the format Cloudflare (Workers static assets and Pages) and Netlify read:
+
+- `/*` gets `Cache-Control: no-cache`, so browsers revalidate every file (a cheap `304` with `ETag`) and a deploy shows up on the next normal reload. File names aren't content-hashed yet, so nothing can be cached as `immutable`.
+- Each SSG route gets a `Link` header with its stylesheets (`rel=preload; as=style`) and its first modules (`rel=modulepreload`), most important first. Cloudflare can send these as **103 Early Hints**, so the browser starts fetching before the HTML arrives. Cloudflare allows at most 100 rules and 2,000 characters per line, so the list is cut to one line, and sites with more than about 50 routes get one rule per first path segment (`/docs` and `/docs/*`) with the preloads every route in it shares.
+
+On Cloudflare, `_headers` applies only to responses the static assets layer serves. A Worker that builds its own responses must set the same headers itself (see `web/worker.js`). Other hosts ignore the file: copy its rules into your server config.
+
+#### Precompressed files (`.br`, `.gz`)
+
+Production builds write `file.br` (brotli, quality 11) and `file.gz` (gzip, level 9) next to every `.html`, `.js`, `.css`, `.json` and `.svg` file of 1 KB or more. They're compressed once at build time at the highest level, which a CDN compressing on the fly usually doesn't use. The output is deterministic. To serve them, turn on precompressed lookup in your server:
+
+| Server | Setting |
+|--------|---------|
+| nginx | `gzip_static on;` and, with the [brotli module](https://github.com/google/ngx_brotli), `brotli_static on;` |
+| Caddy | `file_server { precompressed br gzip }` |
+| Apache | `mod_rewrite` rules that serve `file.br` when `Accept-Encoding` has `br`, with `Content-Encoding: br` and the original `Content-Type` |
+| Express / Node | a static middleware with precompressed support, such as `express-static-gzip` |
+
+The server must send `Vary: Accept-Encoding` and the original file's `Content-Type`, not `application/x-brotli`.
+
+Cloudflare and most CDNs compress responses themselves and don't look for `.br` siblings, so there the files are just unused extra uploads. Remove them before deploying if they matter (`find dist -name '*.br' -o -name '*.gz' | xargs rm`). `anza dev` never writes them.
+
 #### GitHub Pages
 
 A [GitHub Pages project site](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages#types-of-github-pages-sites) is served under `/<repository>/` (user/org sites use `owner.github.io` at `/`). Root-absolute browser URLs like `/styles/shared.css` resolve against the **domain** root ([URL standard](https://developer.mozilla.org/en-US/docs/Web/API/URL_API/Resolving_relative_references)), so they 404 on project Pages unless rewritten.

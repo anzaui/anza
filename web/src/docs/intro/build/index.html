@@ -64,6 +64,23 @@ npx anza check
 <p>Doctor/check findings append <code>docs/intro/structure.md</code> so CI logs link back to the contract.</p>
 <h3>Deploy</h3>
 <p>After <code>npm run build</code>, publish <code>dist/</code> as the <strong>document root</strong> of any static host (nginx, Netlify, Cloudflare Pages, S3, …). Asset URLs are site-root paths (<code>/app.js</code>, <code>/tokens/...</code>) — never <code>/dist/...</code>.</p>
+<h4>Headers and caching (<code>_headers</code>)</h4>
+<p><code>anza build</code> writes <code>dist/_headers</code> in the format Cloudflare (Workers static assets and Pages) and Netlify read:</p>
+<ul>
+<li><code>/*</code> gets <code>Cache-Control: no-cache</code>, so browsers revalidate every file (a cheap <code>304</code> with <code>ETag</code>) and a deploy shows up on the next normal reload. File names aren't content-hashed yet, so nothing can be cached as <code>immutable</code>.</li>
+<li>Each SSG route gets a <code>Link</code> header with its stylesheets (<code>rel=preload; as=style</code>) and its first modules (<code>rel=modulepreload</code>), most important first. Cloudflare can send these as <strong>103 Early Hints</strong>, so the browser starts fetching before the HTML arrives. Cloudflare allows at most 100 rules and 2,000 characters per line, so the list is cut to one line, and sites with more than about 50 routes get one rule per first path segment (<code>/docs</code> and <code>/docs/*</code>) with the preloads every route in it shares.</li>
+</ul>
+<p>On Cloudflare, <code>_headers</code> applies only to responses the static assets layer serves. A Worker that builds its own responses must set the same headers itself (see <code>web/worker.js</code>). Other hosts ignore the file: copy its rules into your server config.</p>
+<h4>Precompressed files (<code>.br</code>, <code>.gz</code>)</h4>
+<p>Production builds write <code>file.br</code> (brotli, quality 11) and <code>file.gz</code> (gzip, level 9) next to every <code>.html</code>, <code>.js</code>, <code>.css</code>, <code>.json</code> and <code>.svg</code> file of 1 KB or more. They're compressed once at build time at the highest level, which a CDN compressing on the fly usually doesn't use. The output is deterministic. To serve them, turn on precompressed lookup in your server:</p>
+<div class="table-wrap"><table><thead><tr><th>Server</th><th>Setting</th></tr></thead><tbody>
+<tr><td>nginx</td><td><code>gzip_static on;</code> and, with the <a href="https://github.com/google/ngx_brotli">brotli module</a>, <code>brotli_static on;</code></td></tr>
+<tr><td>Caddy</td><td><code>file_server { precompressed br gzip }</code></td></tr>
+<tr><td>Apache</td><td><code>mod_rewrite</code> rules that serve <code>file.br</code> when <code>Accept-Encoding</code> has <code>br</code>, with <code>Content-Encoding: br</code> and the original <code>Content-Type</code></td></tr>
+<tr><td>Express / Node</td><td>a static middleware with precompressed support, such as <code>express-static-gzip</code></td></tr>
+</tbody></table></div>
+<p>The server must send <code>Vary: Accept-Encoding</code> and the original file's <code>Content-Type</code>, not <code>application/x-brotli</code>.</p>
+<p>Cloudflare and most CDNs compress responses themselves and don't look for <code>.br</code> siblings, so there the files are just unused extra uploads. Remove them before deploying if they matter (<code>find dist -name '*.br' -o -name '*.gz' | xargs rm</code>). <code>anza dev</code> never writes them.</p>
 <h4>GitHub Pages</h4>
 <p>A <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages#types-of-github-pages-sites">GitHub Pages project site</a> is served under <code>/&lt;repository&gt;/</code> (user/org sites use <code>owner.github.io</code> at <code>/</code>). Root-absolute browser URLs like <code>/styles/shared.css</code> resolve against the <strong>domain</strong> root (<a href="https://developer.mozilla.org/en-US/docs/Web/API/URL_API/Resolving_relative_references">URL standard</a>), so they 404 on project Pages unless rewritten.</p>
 <p><strong><code>*.github.io/&lt;repo&gt;</code> (no custom domain):</strong> set <code>"base": "/your-repo"</code> in <code>ssg.json</code> (next to or inside <code>src/</code>) or env <code>ANZA_BASE_PATH</code> so the build injects <code>globalThis.__ANZA_BASE__</code>, rewrites asset URLs in SSG HTML, and soft-nav style/template fetches hit <code>/your-repo/styles/...</code>. Publish <code>dist/</code> as the artifact <strong>document root</strong> — do not nest files under a <code>your-repo/</code> folder; Pages adds the repo prefix.</p>

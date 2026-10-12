@@ -110,6 +110,14 @@ pub fn compile_into(
     }
   }
 
+  // 5. Production: precompressed .br / .gz siblings, once every file is final.
+  if strict && errors.is_empty() {
+    match crate::build::compress::precompress(dist_dir) {
+      Ok(count) => anza_logs::success!("Precompressed {} file(s) (.br, .gz)", count),
+      Err(errs) => errors.extend(errs),
+    }
+  }
+
   if errors.is_empty() {
     if !strict {
       // Dev keeps dist between builds: drop outputs of deleted sources/routes.

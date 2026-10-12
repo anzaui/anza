@@ -9,3 +9,11 @@ debug = "line-tables-only"
 
 [profile.dev.package."*"]
 debug = false
+
+# Compressors run at max level on every `anza build`. Optimizing them cuts a
+# debug-binary build of web/ from ~15 s to ~9 s (release: ~3 s).
+[profile.dev.package.brotli]
+opt-level = 3
+
+[profile.dev.package.miniz_oxide]
+opt-level = 3

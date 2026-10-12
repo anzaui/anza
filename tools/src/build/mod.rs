@@ -8,6 +8,7 @@
 
 pub mod base;
 pub mod cache;
+pub mod compress;
 pub mod css;
 pub mod entries;
 pub mod graph;
