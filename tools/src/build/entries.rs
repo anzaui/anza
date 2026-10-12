@@ -15,45 +15,37 @@ pub fn collect(src: &Path, entries: &[PathBuf]) -> Vec<PathBuf> {
   }
 
   // HTML files under src contribute their module-script and stylesheet entry points.
-  for item in walkdir::WalkDir::new(src).sort_by_file_name()
+  let html_files: Vec<PathBuf> = walkdir::WalkDir::new(src)
+    .sort_by_file_name()
     .into_iter()
     .filter_map(|e| e.ok())
-  {
-    let path = item.path();
-    if path.extension().map_or(false, |e| e == "html") {
-      // Add the HTML file itself to roots so that it is copied to dist.
-      roots.push(path.to_path_buf());
+    .map(|e| e.into_path())
+    .filter(|p| p.extension().map_or(false, |e| e == "html"))
+    .collect();
 
-      // Module scripts
-      for spec in module_scripts(path) {
-        if spec.starts_with("./") || spec.starts_with("../") || spec.starts_with('/') {
-          let dir = path.parent().unwrap_or(src);
-          let resolved = if let Some(stripped) = spec.strip_prefix("/dist/") {
-            // Legacy /dist/ prefix (pre Phase 0); treat as site-root.
-            src.join(stripped)
-          } else if let Some(stripped) = spec.strip_prefix('/') {
-            src.join(stripped)
-          } else {
-            dir.join(&spec)
-          };
-          roots.push(resolved);
-        }
-      }
+  // Parse each HTML file once, in parallel (order is kept by collect).
+  let linked: Vec<(Vec<String>, Vec<String>)> = {
+    use rayon::prelude::*;
+    html_files.par_iter().map(|p| linked_assets(p)).collect()
+  };
 
-      // Stylesheet links
-      for spec in stylesheets(path) {
-        if spec.starts_with("./") || spec.starts_with("../") || spec.starts_with('/') {
-          let dir = path.parent().unwrap_or(src);
-          let resolved = if let Some(stripped) = spec.strip_prefix("/dist/") {
-            // Legacy /dist/ prefix (pre Phase 0); treat as site-root.
-            src.join(stripped)
-          } else if let Some(stripped) = spec.strip_prefix('/') {
-            src.join(stripped)
-          } else {
-            dir.join(&spec)
-          };
-          roots.push(resolved);
-        }
+  for (path, (scripts, styles)) in html_files.iter().zip(linked) {
+    // Add the HTML file itself to roots so that it is copied to dist.
+    roots.push(path.clone());
+
+    // Module scripts, then stylesheet links.
+    for spec in scripts.into_iter().chain(styles) {
+      if spec.starts_with("./") || spec.starts_with("../") || spec.starts_with('/') {
+        let dir = path.parent().unwrap_or(src);
+        let resolved = if let Some(stripped) = spec.strip_prefix("/dist/") {
+          // Legacy /dist/ prefix (pre Phase 0); treat as site-root.
+          src.join(stripped)
+        } else if let Some(stripped) = spec.strip_prefix('/') {
+          src.join(stripped)
+        } else {
+          dir.join(&spec)
+        };
+        roots.push(resolved);
       }
     }
   }
@@ -74,39 +66,27 @@ pub fn collect(src: &Path, entries: &[PathBuf]) -> Vec<PathBuf> {
   roots
 }
 
-/// Extract `<script type="module" src="...">` targets from an HTML file.
-fn module_scripts(path: &Path) -> Vec<String> {
+/// `<script type="module" src>` targets and `<link rel="stylesheet" href>`
+/// targets of an HTML file, from a single parse.
+fn linked_assets(path: &Path) -> (Vec<String>, Vec<String>) {
   let content = match std::fs::read_to_string(path) {
     Ok(c) => c,
-    Err(_) => return Vec::new(),
+    Err(_) => return (Vec::new(), Vec::new()),
   };
   // Ignore `<script>` samples inside `<view-code>` docs snippets.
   let content = crate::build::html::opaque_view_code(&content);
   let doc = scraper::Html::parse_document(&content);
-  let sel = match scraper::Selector::parse("script[type=module][src]") {
-    Ok(s) => s,
-    Err(_) => return Vec::new(),
+  let select = |selector: &str, attr: &str| -> Vec<String> {
+    match scraper::Selector::parse(selector) {
+      Ok(sel) => doc
+        .select(&sel)
+        .filter_map(|el| el.value().attr(attr).map(|s| s.to_string()))
+        .collect(),
+      Err(_) => Vec::new(),
+    }
   };
-  doc
-    .select(&sel)
-    .filter_map(|el| el.value().attr("src").map(|s| s.to_string()))
-    .collect()
-}
-
-/// Extract `<link rel="stylesheet" href="...">` targets from an HTML file.
-fn stylesheets(path: &Path) -> Vec<String> {
-  let content = match std::fs::read_to_string(path) {
-    Ok(c) => c,
-    Err(_) => return Vec::new(),
-  };
-  let content = crate::build::html::opaque_view_code(&content);
-  let doc = scraper::Html::parse_document(&content);
-  let sel = match scraper::Selector::parse("link[rel=stylesheet][href]") {
-    Ok(s) => s,
-    Err(_) => return Vec::new(),
-  };
-  doc
-    .select(&sel)
-    .filter_map(|el| el.value().attr("href").map(|s| s.to_string()))
-    .collect()
+  (
+    select("script[type=module][src]", "src"),
+    select("link[rel=stylesheet][href]", "href"),
+  )
 }

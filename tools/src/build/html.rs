@@ -138,14 +138,22 @@ pub fn strip_importmap(html: &str) -> String {
 
 /// Inject importmap link and optional HMR script into an HTML string.
 pub fn inject_assets(html: &str, map: &BTreeMap<String, String>, dev: bool) -> String {
-  let clean = strip_importmap(html);
+  inject_assets_with(html, &importmap_tag(map), dev)
+}
 
+/// The inline import map block injected into HTML (serialize once per build).
+pub fn importmap_tag(map: &BTreeMap<String, String>) -> String {
   let json = serde_json::json!({ "imports": map });
   let text = serde_json::to_string_pretty(&json).unwrap_or_default();
-  let tag = format!(
+  format!(
     "\n<script type=\"importmap\">\n{}\n</script>\n",
     text
-  );
+  )
+}
+
+/// [`inject_assets`] with a pre-serialized [`importmap_tag`].
+pub fn inject_assets_with(html: &str, tag: &str, dev: bool) -> String {
+  let clean = strip_importmap(html);
 
   let hmr = if dev {
     r#"
@@ -216,7 +224,7 @@ pub fn inject_assets(html: &str, map: &BTreeMap<String, String>, dev: bool) -> S
   let mut out = clean;
   if let Some(pos) = out.find("<head>") {
     let insert = pos + 6;
-    out.insert_str(insert, &tag);
+    out.insert_str(insert, tag);
   } else if let Some(pos) = out.find("<html>") {
     let insert = pos + 6;
     let combined = format!("<head>{}</head>", tag);

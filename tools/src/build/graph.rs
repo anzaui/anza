@@ -184,132 +184,32 @@ pub fn resolve(
   let mut hashes: BTreeMap<PathBuf, String> = BTreeMap::new();
   let mut importmap: BTreeMap<String, String> = BTreeMap::new();
 
-  while let Some(module) = queue.pop_front() {
-    if let Some(hash) = super::cache::hash(&module) {
-      hashes.insert(module.clone(), hash);
-    }
-
-    modules += 1;
-    let parsed = match super::parse::parse(&module, &cm) {
-      Ok(p) => p,
-      Err(diag) => {
-        errors.push(diag);
-        continue;
-      }
+  // Parallel BFS: parse and resolve one frontier (BFS level) at a time, then
+  // merge the results in queue order, so reached/diagnostics match a serial walk.
+  let ctx = WalkCtx {
+    src,
+    project: &project,
+    user_map: &user_map,
+    lib_map: &lib_map,
+    lib_src: &lib_src,
+    cm: &cm,
+  };
+  while !queue.is_empty() {
+    let frontier: Vec<PathBuf> = queue.drain(..).collect();
+    modules += frontier.len();
+    let visits: Vec<Visit> = {
+      use rayon::prelude::*;
+      frontier.par_iter().map(|m| visit_module(m, &ctx)).collect()
     };
-
-    // Validate dock() definitions for naming ambiguities
-    let dock_diagnostics = super::transform::validate(&module, &parsed.ast);
-    for diag in dock_diagnostics {
-      warnings.push(diag);
-    }
-
-    let importer = module.parent().map(|p| p.to_path_buf()).unwrap_or_default();
-
-    // 1. ESM import specifiers -> walked as modules (if JS) or copied (assets).
-    for (spec, span) in &parsed.imports {
-      match super::resolve::spec(
-        spec,
-        &importer,
-        src,
-        &project,
-        &user_map,
-        &lib_map,
-        &lib_src,
-      ) {
-        Resolution::External => {}
-        Resolution::File(path, extless) => {
-          let norm = normalize(&path);
-          if extless {
-            let (l, c) = pos(&cm, *span);
-            warnings.push(Diagnostic {
-              kind: Kind::Import,
-              file: module.clone(),
-              line: l,
-              col: c,
-              message: format!(
-                "extensionless import '{}' — browsers need explicit extensions",
-                spec
-              ),
-            });
-          }
-
-          if user_map.contains_key(spec) {
-            if let Some(target) = user_map.get(spec) {
-              importmap.insert(spec.clone(), target.clone());
-            }
-          } else if lib_map.contains_key(spec) {
-            if let Some(target) = lib_map.get(spec) {
-              importmap.insert(spec.clone(), target.clone());
-            }
-          }
-
-          if reached.insert(norm.clone()) && is_js(&norm) {
-            queue.push_back(norm);
-          }
-        }
-        Resolution::Missing => {
-          let (l, c) = pos(&cm, *span);
-          errors.push(Diagnostic {
-            kind: Kind::Import,
-            file: module.clone(),
-            line: l,
-            col: c,
-            message: format!("unresolved import '{}'", spec),
-          });
+    for visit in visits {
+      errors.extend(visit.errors);
+      warnings.extend(visit.warnings);
+      importmap.extend(visit.importmap);
+      for (file, follow) in visit.files {
+        if reached.insert(file.clone()) && follow && is_js(&file) {
+          queue.push_back(file);
         }
       }
-    }
-
-    // 2. Asset string literals (template/style and other relative assets).
-    for (asset, span) in &parsed.assets {
-      match super::resolve::spec(
-        asset,
-        &importer,
-        src,
-        &project,
-        &user_map,
-        &lib_map,
-        &lib_src,
-      ) {
-        Resolution::File(path, _extless) => {
-          let norm = normalize(&path);
-          reached.insert(norm.clone());
-          if norm.extension().map_or(false, |e| e == "html") {
-            let mut tags = norm.clone();
-            tags.set_extension("tags.json");
-            if tags.exists() {
-              reached.insert(normalize(&tags));
-            }
-          }
-        }
-        Resolution::Missing => {
-          let (l, c) = pos(&cm, *span);
-          errors.push(Diagnostic {
-            kind: Kind::Import,
-            file: module.clone(),
-            line: l,
-            col: c,
-            message: format!("missing asset '{}'", asset),
-          });
-        }
-        Resolution::External => {}
-      }
-    }
-
-    // 3. Prop-type diagnostics from ui.element specs.
-    for (bad, span) in &parsed.prop_errors {
-      let (l, c) = pos(&cm, *span);
-      errors.push(Diagnostic {
-        kind: Kind::Type,
-        file: module.clone(),
-        line: l,
-        col: c,
-        message: format!(
-          "unsupported prop type '{}' (use Boolean, Number, or String)",
-          bad
-        ),
-      });
     }
   }
 
@@ -325,10 +225,13 @@ pub fn resolve(
   collect_css_imports(src, &mut reached);
 
   // Populate hashes for all reached files (including assets and HTML).
-  for file in &reached {
-    if let Some(hash) = super::cache::hash(file) {
-      hashes.insert(file.clone(), hash);
-    }
+  {
+    use rayon::prelude::*;
+    let computed: Vec<(PathBuf, String)> = reached
+      .par_iter()
+      .filter_map(|file| super::cache::hash(file).map(|h| (file.clone(), h)))
+      .collect();
+    hashes.extend(computed);
   }
 
   // Dev cache key: the import map, structure slots and deploy base config are
@@ -354,61 +257,75 @@ pub fn resolve(
     }
   }
 
-  // Copy every reachable file into `dist`, mirroring structure.
-  let mut copied = 0usize;
+  // Copy every reachable file into `dist`, mirroring structure. Jobs are
+  // sorted so the result never depends on hash-set order; when a project file
+  // and a library file map to the same dist path, the project file wins.
+  let mut jobs: Vec<(&PathBuf, PathBuf)> = Vec::with_capacity(reached.len());
   for file in &reached {
-    let (rel, target) = if file.starts_with(src) {
-      if let Ok(r) = file.strip_prefix(src) {
-        (r, dist.join(r))
-      } else {
-        continue;
-      }
+    let rel = if file.starts_with(src) {
+      file.strip_prefix(src).ok()
     } else if let Some(ref lib) = lib_src {
-      if file.starts_with(lib) {
-        if let Ok(r) = file.strip_prefix(lib) {
-          (r, dist.join(r))
-        } else {
-          continue;
-        }
-      } else {
-        continue;
-      }
+      file.strip_prefix(lib).ok()
     } else {
-      continue;
+      None
     };
+    if let Some(rel) = rel {
+      jobs.push((file, rel.to_path_buf()));
+    }
+  }
+  jobs.sort_by(|a, b| (!a.0.starts_with(src), a.0).cmp(&(!b.0.starts_with(src), b.0)));
+  let mut claimed: std::collections::HashSet<PathBuf> = std::collections::HashSet::new();
+  jobs.retain(|(_, rel)| claimed.insert(rel.clone()));
+  outputs.extend(jobs.iter().map(|(_, rel)| rel.clone()));
 
-    outputs.push(rel.to_path_buf());
-    let hash = hashes.get(file);
-    let prior = cache.as_ref().and_then(|c| c.hashes.get(file));
-    let copy = hash != prior || !target.exists();
-
-    if copy {
-      let result = if target.extension().map_or(false, |ext| ext == "html") {
-        std::fs::read_to_string(file)
-          .map_err(|e| format!("cannot read {}: {}", file.display(), e))
-          .and_then(|content| {
-            let injected = super::html::inject_assets(&content, &importmap, dev);
-            crate::fs_atomic::write(&target, injected.as_bytes())
-          })
-      } else if is_js(file) {
-        // Rewrite static imports into usage order (library → docks → views →
-        // parts → pages). Source may import in any order; dist loads correctly.
-        std::fs::read_to_string(file)
-          .map_err(|e| format!("cannot read {}: {}", file.display(), e))
-          .and_then(|content| {
-            let ordered = super::order::rewrite_with(&content, file, src, &order_slots);
-            crate::fs_atomic::write(&target, ordered.as_bytes())
-          })
-      } else {
-        crate::fs_atomic::copy(file, &target)
-      };
-      match result {
-        Ok(()) => copied += 1,
-        Err(err) => {
-          // Forget the hash so the next (dev) build retries this file.
-          hashes.remove(file);
-          errors.push(Diagnostic::io(&target, err));
+  // Serialize the import map once for every HTML file.
+  let importmap_tag = super::html::importmap_tag(&importmap);
+  let results: Vec<Result<bool, (PathBuf, Diagnostic)>> = {
+    use rayon::prelude::*;
+    jobs
+      .par_iter()
+      .map(|(file, rel)| {
+        let file: &PathBuf = file;
+        let target = dist.join(rel);
+        let hash = hashes.get(file);
+        let prior = cache.as_ref().and_then(|c| c.hashes.get(file));
+        if hash == prior && target.exists() {
+          return Ok(false);
         }
+        let result = if target.extension().map_or(false, |ext| ext == "html") {
+          std::fs::read_to_string(file)
+            .map_err(|e| format!("cannot read {}: {}", file.display(), e))
+            .and_then(|content| {
+              let injected = super::html::inject_assets_with(&content, &importmap_tag, dev);
+              crate::fs_atomic::write(&target, injected.as_bytes())
+            })
+        } else if is_js(file) {
+          // Rewrite static imports into usage order (library → docks → views →
+          // parts → pages). Source may import in any order; dist loads correctly.
+          std::fs::read_to_string(file)
+            .map_err(|e| format!("cannot read {}: {}", file.display(), e))
+            .and_then(|content| {
+              let ordered = super::order::rewrite_with(&content, file, src, &order_slots);
+              crate::fs_atomic::write(&target, ordered.as_bytes())
+            })
+        } else {
+          crate::fs_atomic::copy(file, &target)
+        };
+        result
+          .map(|()| true)
+          .map_err(|err| (file.clone(), Diagnostic::io(&target, err)))
+      })
+      .collect()
+  };
+  let mut copied = 0usize;
+  for result in results {
+    match result {
+      Ok(true) => copied += 1,
+      Ok(false) => {}
+      Err((file, diag)) => {
+        // Forget the hash so the next (dev) build retries this file.
+        hashes.remove(&file);
+        errors.push(diag);
       }
     }
   }
@@ -471,6 +388,143 @@ fn config_key(
   }
   std::env::var("ANZA_BASE_PATH").ok().hash(&mut h);
   format!("{:x}", h.finish())
+}
+
+/// Shared, read-only inputs of the import-graph walk.
+struct WalkCtx<'a> {
+  src: &'a Path,
+  project: &'a Path,
+  user_map: &'a std::collections::HashMap<String, String>,
+  lib_map: &'a std::collections::HashMap<String, String>,
+  lib_src: &'a Option<PathBuf>,
+  cm: &'a Arc<SourceMap>,
+}
+
+/// What one module contributes to the graph.
+#[derive(Default)]
+struct Visit {
+  errors: Vec<Diagnostic>,
+  warnings: Vec<Diagnostic>,
+  importmap: Vec<(String, String)>,
+  /// Reached files; `true` = an ESM import (walked further when it is JS).
+  files: Vec<(PathBuf, bool)>,
+}
+
+/// Parse one module and resolve its imports and asset literals.
+fn visit_module(module: &Path, ctx: &WalkCtx) -> Visit {
+  let mut out = Visit::default();
+  let cm = ctx.cm;
+  let parsed = match super::parse::parse(module, cm) {
+    Ok(p) => p,
+    Err(diag) => {
+      out.errors.push(diag);
+      return out;
+    }
+  };
+
+  // Validate dock() definitions for naming ambiguities
+  out.warnings.extend(super::transform::validate(module, &parsed.ast));
+
+  let importer = module.parent().map(|p| p.to_path_buf()).unwrap_or_default();
+  let resolve = |spec: &str| {
+    super::resolve::spec(
+      spec,
+      &importer,
+      ctx.src,
+      ctx.project,
+      ctx.user_map,
+      ctx.lib_map,
+      ctx.lib_src,
+    )
+  };
+
+  // 1. ESM import specifiers -> walked as modules (if JS) or copied (assets).
+  for (spec, span) in &parsed.imports {
+    match resolve(spec) {
+      Resolution::External => {}
+      Resolution::File(path, extless) => {
+        let norm = normalize(&path);
+        if extless {
+          let (l, c) = pos(cm, *span);
+          out.warnings.push(Diagnostic {
+            kind: Kind::Import,
+            file: module.to_path_buf(),
+            line: l,
+            col: c,
+            message: format!(
+              "extensionless import '{}' — browsers need explicit extensions",
+              spec
+            ),
+          });
+        }
+
+        if let Some(target) = ctx.user_map.get(spec) {
+          out.importmap.push((spec.clone(), target.clone()));
+        } else if let Some(target) = ctx.lib_map.get(spec) {
+          out.importmap.push((spec.clone(), target.clone()));
+        }
+
+        out.files.push((norm, true));
+      }
+      Resolution::Missing => {
+        let (l, c) = pos(cm, *span);
+        out.errors.push(Diagnostic {
+          kind: Kind::Import,
+          file: module.to_path_buf(),
+          line: l,
+          col: c,
+          message: format!("unresolved import '{}'", spec),
+        });
+      }
+    }
+  }
+
+  // 2. Asset string literals (template/style and other relative assets).
+  for (asset, span) in &parsed.assets {
+    match resolve(asset) {
+      Resolution::File(path, _extless) => {
+        let norm = normalize(&path);
+        let tags = if norm.extension().map_or(false, |e| e == "html") {
+          let mut tags = norm.clone();
+          tags.set_extension("tags.json");
+          tags.exists().then(|| normalize(&tags))
+        } else {
+          None
+        };
+        out.files.push((norm, false));
+        if let Some(tags) = tags {
+          out.files.push((tags, false));
+        }
+      }
+      Resolution::Missing => {
+        let (l, c) = pos(cm, *span);
+        out.errors.push(Diagnostic {
+          kind: Kind::Import,
+          file: module.to_path_buf(),
+          line: l,
+          col: c,
+          message: format!("missing asset '{}'", asset),
+        });
+      }
+      Resolution::External => {}
+    }
+  }
+
+  // 3. Prop-type diagnostics from ui.element specs.
+  for (bad, span) in &parsed.prop_errors {
+    let (l, c) = pos(cm, *span);
+    out.errors.push(Diagnostic {
+      kind: Kind::Type,
+      file: module.to_path_buf(),
+      line: l,
+      col: c,
+      message: format!(
+        "unsupported prop type '{}' (use Boolean, Number, or String)",
+        bad
+      ),
+    });
+  }
+  out
 }
 
 fn save_cache(
