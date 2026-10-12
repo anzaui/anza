@@ -128,12 +128,33 @@ pub fn compile_with(
       match crate::build::ssg::emit_with(src_dir, dist_dir, &report.module_graph, strict) {
         Ok(stats) => {
           outputs.extend(stats.outputs.iter().cloned());
-          // 5. Production: Rolldown chunks (falls back to unbundled output).
           if strict && errors.is_empty() {
-            if options.bundle {
-              bundle(src_dir, dist_dir, &report, &stats, &mut errors);
-            } else {
-              anza_logs::info!("Bundling off (--no-bundle): dist loads unbundled modules");
+            // 5. Production: content-hashed CSS, fonts and images.
+            let mut hints = stats.hints.clone();
+            match crate::build::hash::run(dist_dir, &stats.base, &mut hints) {
+              Ok(map) => {
+                if !map.is_empty() {
+                  anza_logs::success!("Hashed {} asset(s) into {}/assets", map.len(), dist_dir.display());
+                }
+                if let Err(err) = crate::build::headers::emit(dist_dir, &stats.base, &hints) {
+                  errors.push(format!("cannot write _headers: {}", err));
+                }
+              }
+              Err(errs) => errors.extend(errs),
+            }
+            // 6. Rolldown chunks (falls back to unbundled output).
+            if errors.is_empty() {
+              if options.bundle {
+                bundle(src_dir, dist_dir, &report, &hints, &stats.base, &mut errors);
+              } else {
+                anza_logs::info!("Bundling off (--no-bundle): dist loads unbundled modules");
+              }
+            }
+            // 7. Service worker precache list from the final file names.
+            if errors.is_empty() {
+              if let Err(err) = crate::build::hash::precache(dist_dir, &stats.base) {
+                errors.push(err);
+              }
             }
           }
         }
@@ -145,7 +166,7 @@ pub fn compile_with(
     }
   }
 
-  // 6. Production: precompressed .br / .gz siblings, once every file is final.
+  // 8. Production: precompressed .br / .gz siblings, once every file is final.
   if strict && errors.is_empty() {
     match crate::build::compress::precompress(dist_dir) {
       Ok(count) => anza_logs::success!("Precompressed {} file(s) (.br, .gz)", count),
@@ -172,7 +193,8 @@ fn bundle(
   src_dir: &Path,
   dist_dir: &Path,
   report: &crate::build::graph::Report,
-  stats: &crate::build::ssg::Stats,
+  hints: &[crate::build::headers::Hints],
+  base: &str,
   errors: &mut Vec<String>,
 ) {
   let input = crate::build::bundle::Input {
@@ -182,8 +204,8 @@ fn bundle(
     definitions: &report.definitions,
     library: &report.library,
     importmap: &report.importmap,
-    hints: &stats.hints,
-    base: &stats.base,
+    hints,
+    base,
   };
   match crate::build::bundle::run(&input) {
     Ok(crate::build::bundle::Outcome::Bundled { chunks, rolldown }) => {

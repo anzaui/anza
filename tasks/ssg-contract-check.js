@@ -66,13 +66,16 @@ function checkPage(html, label, { requireTitle = true, requireJsonLd = false, re
   assertContains(html, 'shadowrootmode="open"', label);
   assertAbsent(html, 'shadowrootmode="closed"', label);
   assertNoDistAssetUrls(html, label);
-  assertContains(html, `href="${tokensCss}"`, label);
-  assertContains(html, `href="${stylesCss}"`, label);
+  // Production builds link content-hashed copies (/assets/tokens-<hash>.css).
+  const assetsDir = requireBase ? assetPath('/assets/') : '/assets/';
+  for (const [plain, name] of [[tokensCss, 'tokens'], [stylesCss, 'styles']]) {
+    if (new RegExp(`href="${assetsDir}${name}-[0-9a-f]{8}\\.css"`).test(html)) ok(`${label}: links hashed ${name} CSS`);
+    else assertContains(html, `href="${plain}"`, label);
+  }
   assertContains(html, 'rel="modulepreload"', label);
   // Production builds load a content-hashed entry chunk from /assets/ (no
   // import map left); unbundled builds (--no-bundle, no rolldown) load
   // /app.js through the import map.
-  const assetsDir = requireBase ? assetPath('/assets/') : '/assets/';
   const bundled = new RegExp(`<script type="module" src="${assetsDir}app-[0-9a-f]{8,}\\.js"`).test(html);
   if (bundled) {
     ok(`${label}: loads the bundled entry chunk`);

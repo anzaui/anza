@@ -13,6 +13,7 @@ pub mod compress;
 pub mod css;
 pub mod entries;
 pub mod graph;
+pub mod hash;
 pub mod headers;
 pub mod html;
 pub mod inline;

@@ -5,14 +5,17 @@ import { precache, router, CacheFirst, NetworkFirst, StaleRevalidate, claim } fr
 
 // Bump SHELL/API names when shipping path-breaking asset fixes so the activate
 // step drops entries that would otherwise pin stale JS.
-const SHELL = 'shell-v5';
-const API = 'api-v5';
+const SHELL = 'shell-v6';
+const API = 'api-v6';
 const KEEP = new Set([SHELL, API, 'platform-offline-fallback']);
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
     (async () => {
-      await precache(SHELL, ['/index.html', '/app.js', '/tokens/index.css', '/styles/index.css']);
+      // `anza build` writes the list of hashed files (self.__ANZA_PRECACHE__);
+      // an unbuilt worker falls back to the unhashed shell.
+      const shell = self.__ANZA_PRECACHE__ ?? ['/index.html', '/app.js', '/tokens/index.css', '/styles/index.css'];
+      await precache(SHELL, shell);
       await self.skipWaiting();
     })()
   );
@@ -29,11 +32,11 @@ self.addEventListener('activate', (e) => {
 });
 
 /**
- * Content-hashed (`app.3f9a1c2e.js`, `app-3f9a1c2e.css`) or versioned
+ * Content-hashed build output (`/assets/app-3f9a1c2e.js`) or versioned
  * (`?v=…`) URLs never change, so they may be served CacheFirst. Everything
  * else may change under the same URL and is revalidated in the background.
  */
-const HASHED = /[.-][0-9a-f]{8,}\.[a-z0-9]+$/i;
+const HASHED = /\/assets\/[^/]+-[0-9a-f]{8,}\.[a-z0-9]+$/i;
 function isVersioned(url) {
   return HASHED.test(url.pathname) || url.searchParams.has('v');
 }

@@ -8,14 +8,14 @@
  * Worker builds, so the Worker sets the same Cache-Control itself and keeps
  * any headers (Link preloads included) that `env.ASSETS.fetch` returned.
  *
- * Caching: only content-hashed file names (`app.3f9a1c2e.js`) are immutable.
- * Every other file (unhashed JS/CSS, importmap.json, routes.json, sw.js) and
+ * Caching (same rules as `_headers`): the content-hashed build output under
+ * `/assets/` (`/assets/core-3f9a1c2e.js`) is immutable. Every other file
+ * (page templates, sw.js, importmap.json, routes.json, unbundled modules) and
  * every HTML document is `no-cache`, so a deploy is picked up on the next
  * normal reload (the browser revalidates instead of trusting a year-long cache).
- * No file name is hashed yet, so today this matches `_headers` (`/*` no-cache).
  */
 
-const HASHED = /[.-][0-9a-f]{8,}\.[a-z0-9]+$/i;
+const HASHED = /^\/assets\/[^/]+-[0-9a-f]{8,}\.[a-z0-9]+$/i;
 const IMMUTABLE = 'public, max-age=31536000, immutable';
 const REVALIDATE = 'no-cache';
 

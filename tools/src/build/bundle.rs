@@ -156,7 +156,7 @@ pub fn run(input: &Input) -> Result<Outcome, Vec<String>> {
     }
   }
 
-  apply(input, &manifest, &html_files, &inputs)?;
+  apply(input, &manifest, &html_files)?;
   let chunks = manifest.chunks.iter().map(|c| (c.file.clone(), c.name.clone())).collect();
   Ok(Outcome::Bundled { chunks, rolldown: manifest.rolldown })
 }
@@ -417,7 +417,7 @@ fn chunk_closure(chunks: &HashMap<&str, &Chunk>, file: &str) -> Vec<String> {
 
 /// Rewrite dist for the chunks: HTML, `_headers`, import map; remove the
 /// bundled source modules.
-fn apply(input: &Input, manifest: &Manifest, html_files: &[PathBuf], inputs: &BTreeSet<String>) -> Result<(), Vec<String>> {
+fn apply(input: &Input, manifest: &Manifest, html_files: &[PathBuf]) -> Result<(), Vec<String>> {
   let dist = input.dist_dir;
   let base = input.base;
   let by_file: HashMap<&str, &Chunk> = manifest.chunks.iter().map(|c| (c.file.as_str(), c)).collect();
@@ -498,9 +498,7 @@ fn apply(input: &Input, manifest: &Manifest, html_files: &[PathBuf], inputs: &BT
   let mut dirs: BTreeSet<PathBuf> = BTreeSet::new();
   for chunk in &manifest.chunks {
     for module in &chunk.modules {
-      // The entry files stay until the service worker precache list is
-      // generated from the build (they are no longer loaded by any page).
-      if keep.contains(module) || inputs.contains(module) {
+      if keep.contains(module) {
         continue;
       }
       let path = dist.join(module.trim_start_matches('/'));

@@ -93,7 +93,10 @@ const KEEP = new Set([SHELL, API]);
 self.addEventListener('install', (e) => {
   e.waitUntil(
     (async () => {
-      await precache(SHELL, ['/index.html', '/app.js', '/tokens/index.css', '/styles/index.css']);
+      // \`anza build\` writes the list of hashed files (self.__ANZA_PRECACHE__);
+      // an unbuilt worker falls back to the unhashed shell.
+      const shell = self.__ANZA_PRECACHE__ ?? ['/index.html', '/app.js', '/tokens/index.css', '/styles/index.css'];
+      await precache(SHELL, shell);
       await self.skipWaiting();
     })()
   );
@@ -109,9 +112,10 @@ self.addEventListener('activate', (e) => {
   e.waitUntil(Promise.all([pruneOld(), claim()]));
 });
 
-// Content-hashed (app.3f9a1c2e.js) or versioned (?v=...) URLs never change and
-// may be served CacheFirst. Everything else is revalidated in the background.
-const HASHED = /[.-][0-9a-f]{8,}\\.[a-z0-9]+$/i;
+// Content-hashed build output (/assets/app-3f9a1c2e.js) or versioned (?v=...)
+// URLs never change and may be served CacheFirst. Everything else is
+// revalidated in the background.
+const HASHED = /\\/assets\\/[^/]+-[0-9a-f]{8,}\\.[a-z0-9]+$/i;
 const immutable = new CacheFirst(SHELL);
 const revalidate = new StaleRevalidate(SHELL);
 const assets = {
