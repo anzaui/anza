@@ -1,7 +1,9 @@
 # AUDIT — findings (2026-10-12)
 
 Severity: **C** critical · **H** high · **M** medium · **L** low.
-Status: `[ ]` open · `[x]` closed (add the PR/commit).
+Status: `[ ]` open · `[~]` partly done · `[x]` closed.
+
+Partly done: R1 (client done, the dev-server no-op `/sw.js` is left), R5 (interim headers, final once names are hashed), P1 (lazy loading at runtime, build-time inlining is left), P12 (element fetch count 138 → 0, the page-load benchmark is left).
 
 ## R — Reload / "needs a hard refresh"
 
@@ -10,16 +12,16 @@ CacheFirst, and production sends `immutable` for files whose names never change.
 
 | ID | Sev | Finding | Where | Fix |
 |----|-----|---------|-------|-----|
-| [ ] R1 | C | SW is registered on every host, including localhost. `'*'` → `CacheFirst('shell-v4')` with a constant cache name, so after an edit the old JS/CSS is served forever. | `web/src/app.js:18`, `web/src/sw.js:24-25`, `library/src/sw/strategies.js:40-64` | Don't register on localhost or in dev, and ship a one-time dev unregister plus cache wipe. CacheFirst only for hashed assets. Unhashed JS/CSS use NetworkFirst or StaleRevalidate. |
+| [~] R1 | C | SW is registered on every host, including localhost. `'*'` → `CacheFirst('shell-v4')` with a constant cache name, so after an edit the old JS/CSS is served forever. | `web/src/app.js:18`, `web/src/sw.js:24-25`, `library/src/sw/strategies.js:40-64` | Don't register on localhost or in dev, and ship a one-time dev unregister plus cache wipe. CacheFirst only for hashed assets. Unhashed JS/CSS use NetworkFirst or StaleRevalidate. |
 | [ ] R2 | C | Pages served in dev have **no HMR client**. `ssg::emit` overwrites the HTML that `inject_assets` injected into, and `build_head` never adds the client. Checked: `curl /` returns 0 `EventSource`. | `tools/src/build/html.rs:140-234`, `tools/src/extract/runner.rs:62`, `tools/src/build/ssg.rs:424-550`, `tools/src/server/runner.rs:282-298` | Inject the HMR script **at serve time** for every HTML response in dev. Remove it from build output. |
 | [ ] R3 | H | Dev responses have no `Cache-Control` and no ETag, so the browser serves modules from heuristic cache. | `tools/src/server/runner.rs:76-86, 415` | Add a dev-wide layer that sets `Cache-Control: no-cache` (and ETag/304). |
-| [ ] R4 | H | `/hmr` (SSE) is not bypassed in the SW. CacheFirst awaits `cache.put` on a response body that never ends, so HMR hangs. | `web/src/sw.js:29-46`, `strategies.js:55-56` | Bypass `/hmr` and anything with `Accept: text/event-stream`. |
-| [ ] R5 | H | Prod sends `max-age=31536000, immutable` for **every** path with a dot, including unhashed `app.js`, modules, `importmap.json`, `routes.json` and `sw/*.js`. After a deploy, users need a hard reload. | `web/worker.js:6-15` | `no-cache` for unhashed files, sw.js and HTML. `immutable` only once assets have content hashes (P-phase). |
-| [ ] R6 | M | `/api/*` NetworkFirst is never reached because `'*'` is registered first and the first match wins. | `web/src/sw.js:25-26`, `library/src/sw/routes.js:100-112` | Register specific routes first, or make the router pick the most specific match. |
+| [x] R4 | H | `/hmr` (SSE) is not bypassed in the SW. CacheFirst awaits `cache.put` on a response body that never ends, so HMR hangs. | `web/src/sw.js:29-46`, `strategies.js:55-56` | Bypass `/hmr` and anything with `Accept: text/event-stream`. |
+| [~] R5 | H | Prod sends `max-age=31536000, immutable` for **every** path with a dot, including unhashed `app.js`, modules, `importmap.json`, `routes.json` and `sw/*.js`. After a deploy, users need a hard reload. | `web/worker.js:6-15` | `no-cache` for unhashed files, sw.js and HTML. `immutable` only once assets have content hashes (P-phase). |
+| [x] R6 | M | `/api/*` NetworkFirst is never reached because `'*'` is registered first and the first match wins. | `web/src/sw.js:25-26`, `library/src/sw/routes.js:100-112` | Register specific routes first, or make the router pick the most specific match. |
 | [ ] R7 | L | Every copied `.html` fragment (component templates) gets the import map and HMR script injected. | `tools/src/build/graph.rs:342-344` | Inject only into real documents (`<!DOCTYPE`/`<html>`). |
-| [ ] R8 | M? | HTML hot-swap skips `sanitizeTemplateHtml`, drops the tags descriptor and leaves the old template in `assetCache`. *(suspected)* | `library/src/core/ui/define/element.js:176` | Run the same pipeline as a cold load, and evict the cache entry. |
+| [x] R8 | M? | HTML hot-swap skips `sanitizeTemplateHtml`, drops the tags descriptor and leaves the old template in `assetCache`. *(suspected)* | `library/src/core/ui/define/element.js:176` | Run the same pipeline as a cold load, and evict the cache entry. |
 | [ ] R9 | M? | SSE stream ends on `RecvError::Lagged`, and the channel holds only 16, so events are silently lost. *(suspected)* | `tools/src/server/runner.rs:157`, `tools/src/data/dev.rs:27` | On lag, send a "full reload" event instead of closing. |
-| [ ] R10 | L? | The prod worker always serves the SPA shell for extensionless paths, never the SSG HTML. | `web/worker.js:18-27` | Try `pathname/index.html` first. |
+| [x] R10 | L? | The prod worker always serves the SPA shell for extensionless paths, never the SSG HTML. | `web/worker.js:18-27` | Try `pathname/index.html` first. |
 
 ## P — Performance ("a bit slower")
 
@@ -27,18 +29,18 @@ The bottleneck is the **network waterfall**, not CPU.
 
 | ID | Sev | Finding | Where | Fix |
 |----|-----|---------|-------|-----|
-| [ ] P1 | H | `import '@anzaui/anza/elements'` defines all 46 elements at once, and each one fetches style + template + tags: **~138 requests** even for unused elements. | `library/src/elements/index.js`, `core/ui/define/element.js:133-136` | Fetch on first connect (default `lazy`), then build-time inlining (P-phase). |
-| [ ] P2 | H | Each element's 3 fetches run **one after another** (CSS → HTML → tags.json). | `core/ui/define/utils.js:47-69, 96, 112` | `Promise.all`, and cache the in-flight promise rather than the result (also fixes S1). |
-| [ ] P3 | H | Pre-rendered (SSG/DSD) elements still await `getResources()` before `mount()`. The router polls rAF up to 50× for it. | `element.js:259-263`, `core/router/cascade.js:96-99` | When the shadow root is adopted, wire refs/on/mount right away. Fetch lazily only for a mismatch check. |
+| [~] P1 | H | `import '@anzaui/anza/elements'` defines all 46 elements at once, and each one fetches style + template + tags: **~138 requests** even for unused elements. | `library/src/elements/index.js`, `core/ui/define/element.js:133-136` | Fetch on first connect (default `lazy`), then build-time inlining (P-phase). |
+| [x] P2 | H | Each element's 3 fetches run **one after another** (CSS → HTML → tags.json). | `core/ui/define/utils.js:47-69, 96, 112` | `Promise.all`, and cache the in-flight promise rather than the result (also fixes S1). |
+| [x] P3 | H | Pre-rendered (SSG/DSD) elements still await `getResources()` before `mount()`. The router polls rAF up to 50× for it. | `element.js:259-263`, `core/router/cascade.js:96-99` | When the shadow root is adopted, wire refs/on/mount right away. Fetch lazily only for a mismatch check. |
 | [ ] P4 | M | CSS preloaded with `as="style"` but loaded via `fetch()`, so the preload doesn't match and the file downloads twice. SSG head never preloads templates/CSS. | `tools/src/server/runner.rs:239-247`, `tools/src/build/ssg.rs:496-540` | Match the destination, or drop the fetch by inlining (P-phase). |
 | [ ] P5 | M | Render-blocking `@import` chains (10 + 4). | `library/src/tokens/index.css:10-23`, `styles/index.css:8-11` | Concatenate in the build. |
 | [ ] P6 | H (dev) | **Any** save (even CSS) runs a full `extract::compile`: walks all of src, rebuilds the graph, re-emits SSG for all ~194 routes. Hash cache re-reads every file. | `tools/src/watcher/runner.rs:87-104`, `tools/src/extract/runner.rs:25-62`, `tools/src/build/cache.rs:23-30` | CSS/HTML: copy + HMR immediately. JS: rebuild only the affected part of the graph. SSG only for affected routes. mtime/size check before hashing. |
 | [ ] P7 | M | Blocking `std::fs` in an async handler, and `routes.json` parsed twice per fallback request. | `tools/src/server/runner.rs:261, 300, 312, 383` | Keep the manifest in `ServerState` and refresh it on watch events. Use `tokio::fs`. |
-| [ ] P8 | M | SW awaits `cache.put` before responding. TTL path reads the whole body into a blob. StaleRevalidate update not passed to `waitUntil`. NetworkFirst timer never cleared. | `library/src/sw/strategies.js:16-29, 54-57, 84-87` | Respond first, then `event.waitUntil(put)`. Clear the timer. |
-| [ ] P9 | M | Every storage `set` awaits `navigator.storage.estimate()` (even memory tier), writes a sync localStorage journal and stringifies twice. | `library/src/core/storage/index.js:205, 232-245` | Throttle the quota check, skip it for memory, stringify once. |
-| [ ] P10 | L | Store queues a microtask per write (no "already scheduled" flag). | `library/src/core/state/store.js:172-176` | Add a `#scheduled` flag. |
-| [ ] P11 | L | Router `register` re-sorts on every call (O(n²) overall). | `library/src/core/router/match.js:68-91` | Sort once, lazily, before the first match. |
-| [ ] P12 | M | `bugs/speed.md` benchmarks measure the wrong things (in-memory string formatting, sync loops). Nothing measures load waterfall or save→HMR time. | `tools/tests/speed.rs:92-120`, `library/tests/core/platform/speed.test.js` | Replace with the benchmarks in PHASES.md Phase 3. |
+| [x] P8 | M | SW awaits `cache.put` before responding. TTL path reads the whole body into a blob. StaleRevalidate update not passed to `waitUntil`. NetworkFirst timer never cleared. | `library/src/sw/strategies.js:16-29, 54-57, 84-87` | Respond first, then `event.waitUntil(put)`. Clear the timer. |
+| [x] P9 | M | Every storage `set` awaits `navigator.storage.estimate()` (even memory tier), writes a sync localStorage journal and stringifies twice. | `library/src/core/storage/index.js:205, 232-245` | Throttle the quota check, skip it for memory, stringify once. |
+| [x] P10 | L | Store queues a microtask per write (no "already scheduled" flag). | `library/src/core/state/store.js:172-176` | Add a `#scheduled` flag. |
+| [x] P11 | L | Router `register` re-sorts on every call (O(n²) overall). | `library/src/core/router/match.js:68-91` | Sort once, lazily, before the first match. |
+| [~] P12 | M | `bugs/speed.md` benchmarks measure the wrong things (in-memory string formatting, sync loops). Nothing measures load waterfall or save→HMR time. | `tools/tests/speed.rs:92-120`, `library/tests/core/platform/speed.test.js` | Replace with the benchmarks in PHASES.md Phase 3. |
 
 Lower-confidence leads (verify while in Phase 3): one task yield per element during parsing (`element.js:270-275`), per-element MutationObserver with shallow invalidation (`core/ui/define/proxy.js:250-254`), 60 s `setInterval` cache scan (`sw/expire.js:40`).
 
@@ -101,5 +103,5 @@ Build performance (scaling and dev latency; not urgent at 0.1 s):
 | [ ] H9 | M | Release check only compares the tag to `library/package.json`. `create` pins `@anzaui/anza@0.5.0` by hand. | `.github/workflows/release.yml`, `create/package.json` | Have one version source, checked in CI. |
 | [x] H10 | L | `.gitignore` has rules copied from other projects (`k8/hermes`, `config/prod.toml`, `*.onnx`, `book/`) and a broad `*.bin`. | `.gitignore` | Rewrite it minimally. |
 | [ ] H11 | L | Local-only clutter: `report.md`, `reserch.md`, `DESIGN.md`, `SKILL.md`, `engines/*/{DESIGN,DOC,STRUCTURE,SKILL}.md`, `test/`, `tmp/`, `examples/` (891 MB with Rust `target/`). | root, `engines/*` | Fold useful content into docs, delete the rest locally. |
-| [ ] H12 | L | Test log noise: `[Router] <dock-main id="main"> is required but was not found` thrown outside a test. | `library/src/core/router/boot.js:50` | Find the test that isn't awaited and add cleanup. |
+| [x] H12 | L | Test log noise: `[Router] <dock-main id="main"> is required but was not found` thrown outside a test. | `library/src/core/router/boot.js:50` | Find the test that isn't awaited and add cleanup. |
 | [x] H13 | L | `create/index.js:20-22` local fallback points at the repo root, which has no `bin/create`. | `create/index.js` | Point at `library/bin/create`. |
