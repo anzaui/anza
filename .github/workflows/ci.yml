@@ -7,92 +7,75 @@ on:
     branches: [main]
 
 jobs:
-  tools:
-    name: Tools & CLI Runtime
+  library:
+    name: Library (types + browser tests)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Rust Toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Cache Cargo Dependencies
-        uses: actions/cache@v4
+      - uses: actions/setup-node@v4
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            tools/target
-          key: ${{ runner.os }}-tools-cargo-${{ hashFiles('tools/Cargo.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-tools-cargo-
+          node-version: 22
+          cache: npm
+          cache-dependency-path: library/package-lock.json
 
-      - name: Build & Test Tools CLI Runtime
-        run: |
-          cargo test --manifest-path tools/Cargo.toml --verbose
+      - name: Install
+        run: cd library && npm ci
+
+      - name: Type check
+        run: cd library && npm run check
+
+      - name: Browser tests
+        run: cd library && npm test
 
   rust:
-    name: Rust Base Engine
+    name: Rust (CLI + engine)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Rust Toolchain
-        uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@stable
 
-      - name: Cache Cargo Dependencies
-        uses: actions/cache@v4
+      # One shared target dir for both crates (.cargo/config.toml).
+      - uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('engines/rust/Cargo.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-
+          workspaces: |
+            tools -> ../target
+            engines/rust -> ../../target
 
-      - name: Test Rust Base Engine
-        run: |
-          cd engines/rust
-          cargo test --verbose
+      - name: Test CLI
+        run: cargo test --manifest-path tools/Cargo.toml
+
+      - name: Test engine
+        run: cargo test --manifest-path engines/rust/Cargo.toml
 
   typescript:
-    name: TypeScript Base Engine
+    name: TypeScript engine
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
-      - name: Build & Test TypeScript Base Engine
+      - name: Build & test
         run: |
           cd engines/ts
-          npm ci || npm install
+          npm ci
           npm test
 
   python:
-    name: Python Base Engine
+    name: Python engine
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Test Python Base Engine
+      - name: Test
         run: |
           cd engines/py
           python -m unittest discover -s tests -v
