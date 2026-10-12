@@ -23,11 +23,13 @@
  *   npm run bench:load -- --runs 5 --json --out /tmp/bench.json
  *   npm run bench:load -- --budget          # exit 1 when a DIST §4 budget fails
  *   npm run bench:load -- --dist web/dist --page /docs/intro/start
+ *   npm run bench:load -- --page /docs/intro/start --runs 1 --list   # print each request
  *
  * BENCH_DUMP=<file> writes the raw request list of the last run (debugging).
  *
  * Needs a local Chrome/Chromium (CHROME_PATH, or found the same way
- * @web/test-runner-chrome finds it) and puppeteer-core from library/node_modules.
+ * @web/test-runner-chrome finds it, then on PATH and in common install
+ * paths) and puppeteer-core from library/node_modules.
  */
 
 import { createRequire } from 'node:module';
@@ -59,7 +61,7 @@ const INLINE_CSS_MIN = 200;
 const DEFAULT_PAGES = ['/', '/docs/intro/start', '/docs/elements/button'];
 
 function parseArgs(argv) {
-  const opts = { dist: join(ROOT, 'web', 'dist'), runs: 3, pages: [], json: false, out: null, budget: false, cpu: 1 };
+  const opts = { dist: join(ROOT, 'web', 'dist'), runs: 3, pages: [], json: false, out: null, budget: false, cpu: 1, list: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     const next = () => argv[++i];
@@ -69,6 +71,7 @@ function parseArgs(argv) {
     else if (a === '--json') opts.json = true;
     else if (a === '--out') opts.out = resolve(next());
     else if (a === '--budget') opts.budget = true;
+    else if (a === '--list') opts.list = true;
     else if (a === '--cpu') opts.cpu = Math.max(1, Number(next()) || 1);
     else if (a === '--help' || a === '-h') {
       console.log(readFileSync(fileURLToPath(import.meta.url), 'utf8').split('*/')[0]);
@@ -212,6 +215,9 @@ function findChrome() {
       return execFileSync('which', [name], { encoding: 'utf8' }).trim();
     } catch {}
   }
+  for (const path of ['/opt/google/chrome/chrome', '/usr/bin/google-chrome', '/usr/bin/chromium', '/snap/bin/chromium']) {
+    if (existsSync(path)) return path;
+  }
   throw new Error('no Chrome found: set CHROME_PATH');
 }
 
@@ -326,7 +332,26 @@ async function measure(browser, origin, path, cpu) {
     loadMs: probe.loadEvent || loadMs,
     readyMs,
     readyEvents: probe.ready.length,
+    requests: list.map((r) => ({
+      url: r.url.replace(/^https:\/\/localhost:\d+/, ''),
+      type: r.type,
+      initiator: r.parent ? r.parent.replace(/^https:\/\/localhost:\d+/, '') : null,
+      startMs: r.start,
+      KB: r.bytes / 1024,
+      beforeReady: r.start <= readyMs,
+    })),
   };
+}
+
+/** Print the request list of one run (URL, type, initiator, start, size). */
+function printRequests(page, run) {
+  console.log(`\nrequests for ${page} (last run; * = before ready):`);
+  for (const r of [...run.requests].sort((a, b) => a.startMs - b.startMs)) {
+    console.log(
+      `${r.beforeReady ? '*' : ' '} ${fmt(r.startMs).padStart(5)} ms ${r.type.padEnd(10)} ${fmt(r.KB, 1).padStart(6)} KB  ${r.url}` +
+        (r.initiator ? `  <- ${r.initiator}` : '')
+    );
+  }
 }
 
 const median = (xs) => {
@@ -476,6 +501,7 @@ async function main() {
   if (opts.out) writeFileSync(opts.out, JSON.stringify(report, null, 2) + '\n');
   if (opts.json) console.log(JSON.stringify(report, null, 2));
   else table(results, stat);
+  if (opts.list) for (const { page, runs } of results) printRequests(page, runs[runs.length - 1]);
 
   if (opts.budget) {
     const fails = checkBudgets(results, stat);
