@@ -1,0 +1,11 @@
+# One shared target dir for every crate in the repo (tools, tools/src/logs,
+# engines/rust, examples). Dependencies compile once instead of per crate.
+[build]
+target-dir = "target"
+
+# Dev builds: keep line tables for our crates, no debuginfo for dependencies.
+[profile.dev]
+debug = "line-tables-only"
+
+[profile.dev.package."*"]
+debug = false

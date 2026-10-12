@@ -63,14 +63,14 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
+      # Release binaries build into tools/target explicitly: `cross` runs in a
+      # container that only mounts tools/, so the repo-root .cargo/config.toml
+      # target-dir is not visible there.
       - name: Cache Cargo
-        uses: actions/cache@v4
+        uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            tools/target
-          key: ${{ runner.os }}-${{ matrix.target }}-cargo-${{ hashFiles('tools/Cargo.lock') }}
+          workspaces: tools -> target
+          key: ${{ matrix.target }}
 
       - name: Install cross
         if: matrix.cross
@@ -78,11 +78,11 @@ jobs:
 
       - name: Build (native)
         if: '!matrix.cross'
-        run: cd tools && cargo build --release --target ${{ matrix.target }}
+        run: cd tools && CARGO_TARGET_DIR=target cargo build --release --target ${{ matrix.target }}
 
       - name: Build (cross)
         if: matrix.cross
-        run: cd tools && cross build --release --target ${{ matrix.target }}
+        run: cd tools && CARGO_TARGET_DIR=target cross build --release --target ${{ matrix.target }}
 
       - name: Rename binary
         shell: bash

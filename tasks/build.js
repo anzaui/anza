@@ -13,7 +13,8 @@ import { existsSync } from 'fs';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const tools = join(root, '..', 'tools');
-const targetDir = join(tools, 'target');
+// Shared repo-root target dir (see .cargo/config.toml).
+const targetDir = join(tools, '..', 'target');
 
 if (!existsSync(join(tools, 'Cargo.toml'))) {
   console.error('Error: tools/Cargo.toml not found. Run from repo root.');

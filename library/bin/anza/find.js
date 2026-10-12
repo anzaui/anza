@@ -14,7 +14,7 @@ const PLATFORMS = {
 };
 
 export function resolve(root, here) {
-  const dev = join(root, 'tools', 'target', 'release', 'anza');
+  const dev = join(root, 'target', 'release', 'anza');
   if (existsSync(dev)) return dev;
 
   const platform = process.platform;

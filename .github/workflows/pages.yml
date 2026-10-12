@@ -30,13 +30,9 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Cache Cargo
-        uses: actions/cache@v4
+        uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            tools/target
-          key: ${{ runner.os }}-pages-cargo-${{ hashFiles('tools/Cargo.lock') }}
+          workspaces: tools -> ../target
 
       - name: Build anza CLI
         run: cd tools && cargo build --release
@@ -49,10 +45,10 @@ jobs:
         run: cd web && (npm ci || npm install)
 
       - name: Structure check
-        run: cd web && ../tools/target/release/anza check
+        run: cd web && ../target/release/anza check
 
       - name: Production build
-        run: cd web && ../tools/target/release/anza build
+        run: cd web && ../target/release/anza build
 
       - name: Prepare Pages artifact
         run: |
