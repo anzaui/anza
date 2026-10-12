@@ -11,7 +11,7 @@ Anza Server Templates are zero-overhead `.html` files designed for high-performa
 | **Token Binding** | Fast string substitution for `{{token}}` variables and slotted content injections |
 | **Component Modularity** | Clean separation of Shell layouts (`layout/shell.html`), Pages (`pages/home.html`), and Partials (`feed/card.html`) |
 | **Dual Mode Output** | Output either full HTML documents for SEO crawlers or signed STUI stream envelopes for clients |
-| **Universal Engine Support** | Native parsers and renderers for Rust, Python (FastAPI/ASGI/Flask), and TypeScript (Node/Hono) |
+| **Universal Engine Support** | The same template syntax in Rust, Python (FastAPI/ASGI/Flask) and TypeScript (Node/Hono) |
 
 ## Template Structure
 
@@ -88,24 +88,24 @@ templates/
 In Rust:
 
 ```rust
-use anza::Engine;
+use anza::{Page, Setup};
 use serde_json::json;
 
-let engine = Engine::new("templates")?;
+let engine = Setup::new("templates").run()?;
 
-// Render partial card
-let card_html = engine.render("feed/card.html", &json!({
+// Render a partial card (any Serialize value)
+let card_html = engine.get("feed/card.html")?.render(&json!({
     "slug": "getting-started",
     "title": "Getting Started with Anza STUI",
     "summary": "Build high-performance web applications with server templates.",
     "created": "2026-08-28"
 }))?;
 
-// Render full shell
-let full_page = engine.render_page("pages/home.html", &json!({
-    "title": "Home — Anza Blog",
-    "articles": card_html
-}))?;
+// Render the "/" page (pages/home.html) inside layout/shell.html
+let full_page = Page::new("/")
+    .param("title", "Home — Anza Blog")
+    .param("articles", card_html)
+    .run(&engine)?;
 ```
 
 ## Dual Rendering Modes
@@ -127,7 +127,7 @@ Server templates support two output targets without code duplication:
 
 ## Next Steps
 
-- **[Syntax & Tokens](/docs/templates/syntax)**: Learn interpolation rules, array iteration, and escaping.
-- **[Layouts & Shells](/docs/templates/layouts)**: Build composable shells and nested Declarative Shadow DOM docks.
-- **[Components & Partials](/docs/templates/components)**: Encapsulate UI cards, scoped styles, and forms.
-- **[Data Binding](/docs/templates/binding)**: Connect Rust, Python, and TypeScript backend models to templates.
+- **[Syntax & Tokens](syntax.md)**: Placeholder rules and escaping (values are not escaped for you).
+- **[Layouts & Shells](layouts.md)**: Build composable shells and nested Declarative Shadow DOM docks.
+- **[Components & Partials](components.md)**: Encapsulate UI cards, scoped styles, and forms.
+- **[Data Binding](binding.md)**: Connect Rust, Python, and TypeScript backend models to templates.

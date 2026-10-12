@@ -1,6 +1,6 @@
 # Data Binding
 
-Anza engines bind typed backend data structures—such as Rust Serde structs, Python dataclasses, and TypeScript interfaces—directly to server template tokens with zero runtime overhead.
+Anza engines bind backend data (Rust Serde structs, Python dataclasses, TypeScript objects) to `{{token}}` placeholders. Values are converted to strings and inserted without HTML escaping.
 
 ## What You Get
 
@@ -12,10 +12,10 @@ Anza engines bind typed backend data structures—such as Rust Serde structs, Py
 
 ## Rust Engine Binding
 
-In Rust, any struct deriving `serde::Serialize` can be passed directly to `render`:
+In Rust, any struct deriving `serde::Serialize` can be passed to `Template::render`:
 
 ```rust
-use anza::Engine;
+use anza::Setup;
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -28,7 +28,7 @@ struct Article {
     created: String,
 }
 
-let engine = Engine::new("templates")?;
+let engine = Setup::new("templates").run()?;
 
 let article = Article {
     id: 42,
@@ -40,16 +40,16 @@ let article = Article {
 };
 
 // Render component template
-let html = engine.render("feed/card.html", &article)?;
+let html = engine.get("feed/card.html")?.render(&article)?;
 ```
 
 ## Python Engine Binding
 
-In Python, use standard dataclasses or Pydantic models with `anza.render`:
+In Python, pass dataclasses, Pydantic models or dicts; attributes are read by name:
 
 ```python
-from dataclasses import dataclass, asdict
-import anza
+from dataclasses import dataclass
+from anza import Setup
 
 @dataclass
 class Article:
@@ -60,7 +60,7 @@ class Article:
     author: str
     created: str
 
-engine = anza.Engine("templates")
+engine = Setup(root="templates").run()
 
 article = Article(
     id=42,
@@ -71,7 +71,7 @@ article = Article(
     created="2026-08-28"
 )
 
-html = engine.render("feed/card.html", asdict(article))
+html = engine.get_template("feed/card.html").bind(article)
 ```
 
 ## TypeScript Engine Binding
@@ -79,7 +79,7 @@ html = engine.render("feed/card.html", asdict(article))
 In TypeScript (Node.js, Deno, Bun, or Cloudflare Workers), bind typed objects with `@anzaui/engine`:
 
 ```typescript
-import { Engine } from '@anzaui/engine';
+import { Setup } from '@anzaui/engine';
 
 interface Article {
   id: number;
@@ -90,7 +90,7 @@ interface Article {
   created: string;
 }
 
-const engine = new Engine({ path: './templates' });
+const engine = await new Setup({ root: './templates' }).run();
 
 const article: Article = {
   id: 42,
@@ -101,7 +101,7 @@ const article: Article = {
   created: '2026-08-28'
 };
 
-const html = await engine.render('feed/card.html', article);
+const html = engine.get('feed/card.html').bind(article);
 ```
 
 ## Slotted Child Composition
@@ -110,22 +110,19 @@ When combining parent and child templates, pass the rendered child strings into 
 
 ```rust
 // 1. Render all feed cards
+let card = engine.get("feed/card.html")?;
 let cards_html: String = articles
     .iter()
-    .map(|a| engine.render("feed/card.html", a))
+    .map(|a| card.render(a))
     .collect::<Result<Vec<_>, _>>()?
     .join("\n");
 
-// 2. Render page with cards bound into {{articles}} slot
-let page_html = engine.render("pages/home.html", &json!({
-    "count": articles.len(),
-    "articles": cards_html
-}))?;
-
-// 3. Render outer shell with page bound into {{content}} slot
-let full_doc = engine.render_shell(&json!({
-    "title": "Home — Anza Blog",
-    "description": "High-performance STUI blog powered by Anza.",
-    "content": page_html
-}))?;
+// 2. Render the "/" page with the cards bound into {{articles}};
+//    Page also binds layout/shell.html with the page in {{content}}
+let full_doc = Page::new("/")
+    .param("title", "Home — Anza Blog")
+    .param("description", "High-performance STUI blog powered by Anza.")
+    .param("count", articles.len().to_string())
+    .param("articles", cards_html)
+    .run(&engine)?;
 ```

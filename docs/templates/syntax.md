@@ -1,15 +1,24 @@
 # Template Syntax & Tokens
 
-Anza Server Templates use double-curly brace delimiters (`{{token}}`) for dynamic variable substitution, content slot insertion, and component composition. The syntax is designed to be deterministic, zero-allocation during execution, and safe against cross-site scripting (XSS).
+Anza Server Templates have one construct: the `{{token}}` placeholder. It is
+replaced with the value of the matching parameter. The same syntax works in the
+Rust, TypeScript and Python engines.
 
 ## What You Get
 
-| Syntax Pattern | Purpose | Example |
+| Syntax | Purpose | Example |
 |---|---|---|
-| `{{variable}}` | Auto-escaped scalar substitution (strings, numbers, dates) | `<h1>{{title}}</h1>` |
-| `{{#raw slot}}` / `{{{slot}}}` | Raw unescaped HTML insertion for slotted docks and children | `<dock-main>{{content}}</dock-main>` |
-| `{{#each items}}` / Array map | Array rendering and list iterations | Repeated `<article>` cards |
-| `{{#if condition}}` | Optional section toggle based on boolean or presence | Conditional alert or badge |
+| `{{variable}}` | Inserts the parameter's value as is | `<h1>{{title}}</h1>` |
+
+There are no loops, conditionals or filters. Build lists and optional sections
+in your handler and pass the resulting HTML in as a parameter (see
+[Slotted Child Content](#slotted-child-content)).
+
+Rules:
+
+- Whitespace inside the braces is trimmed: `{{ title }}` is the same as `{{title}}`.
+- An unclosed `{{` or an empty `{{}}` is an error when the templates load.
+- A missing parameter renders as an empty string.
 
 ## Variable Substitution
 
@@ -41,24 +50,25 @@ Renders as:
 </div>
 ```
 
-## Auto-Escaping & Security
+## Escaping & Security
 
-All standard `{{token}}` variables are automatically HTML-escaped by the engine to prevent XSS vulnerabilities:
+**Values are not HTML-escaped.** Whatever string you pass is written into the
+output unchanged, which is what lets a parameter carry pre-rendered HTML. Any
+value that comes from users must be escaped by your code before rendering:
 
-- `&` becomes `&amp;`
-- `<` becomes `&lt;`
-- `>` becomes `&gt;`
-- `"` becomes `&quot;`
-- `'` becomes `&#x27;`
+- `&` → `&amp;`
+- `<` → `&lt;`
+- `>` → `&gt;`
+- `"` → `&quot;`
+- `'` → `&#x27;`
 
-If a user supplies `<script>alert(1)</script>` inside `{{title}}`, it renders safely as:
-```html
-<h1>&lt;script&gt;alert(1)&lt;/script&gt;</h1>
-```
+For example, in Python use `html.escape(value, quote=True)`; in TypeScript or
+Rust, a small helper that replaces those five characters.
 
 ## Slotted Child Content
 
-When composing nested templates or docks, slotted child content (such as pre-rendered HTML cards or nested dock views) is injected into designated slot tokens:
+When composing nested templates or docks, render the children first and pass
+the HTML in as a parameter:
 
 ```html
 <dock-feed class="articles-feed">
@@ -69,23 +79,26 @@ When composing nested templates or docks, slotted child content (such as pre-ren
 </dock-feed>
 ```
 
-In the backend handler:
+In the backend handler (Rust):
 ```rust
-let articles_html: String = articles
+let card = engine.get("feed/card.html")?;
+let articles_html = articles
     .iter()
-    .map(|a| engine.render("feed/card.html", a))
+    .map(|a| card.render(a))
     .collect::<Result<Vec<_>, _>>()?
     .join("\n");
 
-let page_html = engine.render("pages/home.html", &json!({
-    "count": articles.len(),
-    "articles": articles_html
-}))?;
+let mut params = HashMap::new();
+params.insert("count".to_string(), articles.len().to_string());
+params.insert("articles".to_string(), articles_html);
+let html = engine.get("pages/home.html")?.bind(&params)?;
 ```
 
 ## Form Actions & URL Interpolation
 
-Variables can be interpolated directly into attribute values for dynamic links, form actions, and data attributes:
+Variables can be interpolated into attribute values for links, form actions and
+data attributes. Escape them (and URL-encode path segments) when they come from
+users:
 
 ```html
 <div class="card-footer">
@@ -98,6 +111,6 @@ Variables can be interpolated directly into attribute values for dynamic links, 
 
 ## Performance Best Practices
 
-1. **Pre-compile Templates at Startup**: Load and parse template files once when the server initializes (`Engine::new("templates")`).
-2. **Avoid Heavy Logic in Markup**: Perform data transformations, formatting, and sorting in backend handlers before passing data to templates.
-3. **Use Monospace Envelopes for Streaming**: For real-time updates, pass the rendered template string directly into `engine.sign_envelope()`.
+1. **Load templates at startup**: `Setup(...).run()` reads and parses every template once; renders never touch the filesystem.
+2. **Keep logic out of markup**: format, sort and filter data in your handler before rendering.
+3. **Render fragments for streaming**: use `Fragment` (or `engine.render_fragment` / `renderFragment`) to get a signed envelope, then encode it as an SSE event. See [engines/streaming.md](../engines/streaming.md).

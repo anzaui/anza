@@ -126,31 +126,28 @@ In server route handlers, query records from your database and map each item to 
 ```rust
 let articles: Vec<Article> = db::get_recent_articles(&pool).await?;
 
+let card = engine.get("feed/card.html")?;
 let feed_html: String = articles
     .iter()
-    .map(|article| engine.render("feed/card.html", &article))
+    .map(|article| card.render(article))
     .collect::<Result<Vec<_>, _>>()?
     .join("\n");
 
-let page_html = engine.render_page("pages/home.html", &json!({
-    "count": articles.len(),
-    "articles": feed_html
-}))?;
+let doc = Page::new("/")
+    .param("count", articles.len().to_string())
+    .param("articles", feed_html)
+    .run(&engine)?;
 ```
 
 ### In Python (FastAPI)
 ```python
 articles = await db.get_recent_articles()
 
-feed_html = "\n".join([
-    engine.render("feed/card.html", article.to_dict())
-    for article in articles
-])
+card = engine.get_template("feed/card.html")
+feed_html = "\n".join(card.bind(article) for article in articles)
 
-return engine.render_page("pages/home.html", {
-    "count": len(articles),
-    "articles": feed_html
-})
+doc = Page("/", {"count": len(articles), "articles": feed_html}).run(engine)
+return HTMLResponse(doc.html)
 ```
 
 ## Live Stream Dispatch
@@ -158,9 +155,12 @@ return engine.render_page("pages/home.html", {
 When a new article is created, render its partial immediately and broadcast a signed STUI envelope to all connected stream clients:
 
 ```rust
-let card_html = engine.render("feed/card.html", &new_article)?;
-let envelope = engine.sign_envelope("dock-feed", &card_html, anza::StreamMode::Prepend)?;
+// Render the card as a signed envelope targeting the "feed" slot
+let mut params = HashMap::new();
+params.insert("title".to_string(), new_article.title.clone());
+let envelope = engine.render_fragment("feed/card.html", "feed", &params)?;
 
-// Broadcast envelope to SSE clients
-sse_broadcaster.send(envelope)?;
+// Broadcast the SSE frame ("event: template\ndata: {...}\n\n") to clients
+let frame = anza::stream::sse::frame::encode(&envelope);
+sse_broadcaster.send(frame)?;
 ```
