@@ -13,7 +13,6 @@
 <h2>Signing Modes</h2>
 <div class="table-wrap"><table><thead><tr><th>Mode</th><th>Algorithm</th><th>Best For</th><th>Proxy / CDN Support</th><th>Auth Dependency</th></tr></thead><tbody>
 <tr><td><strong><code>Ed25519</code></strong></td><td>Asymmetric Ed25519</td><td>Public pages, multi-tier CDNs, microfrontends</td><td>Yes (Bypasses CDN TLS termination)</td><td>None</td></tr>
-<tr><td><strong><code>SessionBound</code></strong> / <code>session</code></td><td>Reserved (HKDF helpers exist, envelopes are not signed yet)</td><td>Authenticated personalized streams</td><td>—</td><td>—</td></tr>
 <tr><td><strong><code>Hmac</code></strong></td><td>HMAC-SHA256</td><td>Internal VPC microservices / single origin</td><td>Yes</td><td>Pre-shared secret</td></tr>
 <tr><td><strong><code>None</code></strong></td><td>No Signature</td><td>Local development and testing</td><td>Yes</td><td>None</td></tr>
 </tbody></table></div>
@@ -24,7 +23,7 @@
 
 // Raw 32-byte private and public key files
 let mut setup = Setup::new("./templates");
-setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub", false);
+setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub");
 let engine = setup.run()?;
 </view-code>
 <h3>Backend Setup (TypeScript)</h3>

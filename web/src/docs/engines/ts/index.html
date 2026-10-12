@@ -118,8 +118,7 @@ passing it in.</p>
 await new Setup({ root: './templates', signing: { mode: 'ed25519', privateKey: seed32Bytes } }).run();
 </view-code>
 <p><code>privateKey</code> is a raw 32-byte seed, a PEM/DER key, or a <code>KeyObject</code>. When the
-key is missing, or with <code>mode: 'session'</code> (not implemented yet), envelopes are
-sent without <code>sig</code>. See <a href="/docs/engines/crypto">crypto.md</a>.</p>
+key is missing, envelopes are sent without <code>sig</code>. See <a href="/docs/engines/crypto">crypto.md</a>.</p>
 <h2>Page Rendering</h2>
 <p><code>Page(route)</code> maps the route to a template: <code>/</code> → <code>pages/home.html</code>, <code>/about</code> →
 <code>pages/about.html</code>, then falls back to <code>about.html</code> and <code>pages/index.html</code>. The

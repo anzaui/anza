@@ -82,8 +82,7 @@ Setup(root="./templates", signing=SignOptions(mode="hmac", secret="..."))
 Setup(root="./templates", signing=SignOptions(mode="ed25519", private_key="&lt;64 hex chars&gt;"))
 Setup(root="./templates")  # mode="none": no signature
 </view-code>
-<p><code>mode="session"</code> is accepted but does not sign yet. HMAC and Ed25519 raise
-<code>AnzaError</code> when their key is missing. See <a href="/docs/engines/crypto">crypto.md</a>.</p>
+<p>HMAC and Ed25519 raise <code>AnzaError</code> when their key is missing. See <a href="/docs/engines/crypto">crypto.md</a>.</p>
 <h2>Page Rendering</h2>
 <p><code>Page(route, params)</code> maps the route to a template: <code>/</code> → <code>pages/home.html</code>,
 <code>/about</code> → <code>pages/about.html</code>. The page is wrapped in open declarative shadow

@@ -20,7 +20,6 @@ tokio = { version = "1", features = ["full"] }
 <tr><td><em>(default)</em></td><td>No web framework and no async runtime</td></tr>
 <tr><td><code>axum</code></td><td><code>IntoResponse</code> for <code>Document</code> (HTML) and <code>Envelope</code> (JSON); <code>adapters::axum::stream::event</code> builds an SSE <code>Event</code></td></tr>
 <tr><td><code>actix</code></td><td><code>Responder</code> for <code>Document</code> and <code>Envelope</code>; <code>adapters::actix::stream::bytes</code> for SSE bodies</td></tr>
-<tr><td><code>tower</code></td><td>Placeholder: pulls in <code>tower</code>, but <code>adapters::tower</code> has no <code>Service</code> yet</td></tr>
 <tr><td><code>watch</code></td><td>Watches the root with <code>notify</code> and reloads changed templates into the cache</td></tr>
 <tr><td><code>full</code></td><td>All of the above</td></tr>
 </tbody></table></div>
@@ -90,13 +89,12 @@ let mut setup = Setup::new("./templates");
 setup.signing = Setup::hmac(b"pre-shared-secret-key-32-bytes!!");
 
 // Ed25519: the files hold the raw 32-byte private key and public key
-setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub", false);
+setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub");
 
 // No signature (development)
 setup.signing = SignMode::None;
 </view-code>
-<p><code>SignMode::SessionBound</code> is accepted but does not sign yet. The signature is
-hex-encoded; see <a href="/docs/engines/crypto">crypto.md</a>.</p>
+<p>The signature is hex-encoded; see <a href="/docs/engines/crypto">crypto.md</a>.</p>
 <h2>Page Rendering</h2>
 <p><code>Page::new(route)</code> maps the route to a template: <code>/</code> → <code>pages/home.html</code>,
 <code>/about</code> → <code>pages/about.html</code>, then falls back to <code>about.html</code> and
@@ -117,6 +115,6 @@ returns an <code>axum::response::sse::Event</code>. See <a href="/docs/engines/s
 <tr><td><code>render</code></td><td>Page and fragment rendering</td></tr>
 <tr><td><code>crypto</code></td><td><code>hmac</code>, <code>ed25519</code> (sign / verify), <code>hkdf</code>, <code>blake</code> digests</td></tr>
 <tr><td><code>stream</code></td><td>SSE and WebSocket encoders</td></tr>
-<tr><td><code>adapters</code></td><td>Axum and Actix-web integration (feature-gated); <code>tower</code> is an empty placeholder</td></tr>
+<tr><td><code>adapters</code></td><td>Axum and Actix-web integration (feature-gated)</td></tr>
 <tr><td><code>models</code></td><td><code>Document</code>, <code>Envelope</code>, <code>Manifest</code></td></tr>
 </tbody></table></div>
