@@ -46,6 +46,8 @@ npm run build
 
 This runs `anza build`. Same graph resolution, but starts from a clean `dist/` and fails on unresolved imports or syntax errors.
 
+Production builds also optimize CSS with [Lightning CSS](https://lightningcss.dev/): every stylesheet in `dist/` has its local `@import` chain inlined (`/tokens/index.css` becomes one request instead of eleven) and is minified for current browsers (Chrome/Edge 120+, Firefox 121+, Safari/iOS 16.4+). External `@import url(https://…)` rules are kept. A stylesheet that Lightning CSS can't process is left as written, with a warning. `anza dev` serves CSS exactly as written.
+
 Public routes get **Mode A SSG** (also during `anza dev`): contentful HTML with open Declarative Shadow DOM under `dist/<route>/index.html`, so hard refresh works on a plain static server. Publish `dist/` as the **document root**. Asset URLs are site-root paths (`/app.js`, `/tokens/...`) — never `/dist/...`.
 
 When the page’s CSR fragment path would collide with that SSG `index.html`, the emitter keeps the fragment as `template.html` and rewrites the built page module plus `routes.json` so soft-nav fetches the fragment — not the full document. Overview: [ssg/index.md](../ssg/index.md). Contract: [ssg/contract.md](../ssg/contract.md). Hydration: [ui/hydration.md](../ui/hydration.md).
@@ -140,6 +142,7 @@ Flags: `--tree`, `--route`, `--via` (comma-separated), `--parent`, `-s/--src`.
 | `-s, --src` | `src` | Source directory |
 | `-p, --port` | `3000` | Dev server port |
 | `--dist` | `dist` | Output directory |
+| `--types` | `types` beside `--dist` | With `build` — where the generated `.d.ts` files go |
 | `-e, --entry` | `src/app.js` | Additional entry modules |
 | `--strict` | off | With `doctor` — promote warnings to failures |
 | `--tree` | first `pages[]` | With `generate page` — page tree under `src` |

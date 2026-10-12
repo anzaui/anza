@@ -29,6 +29,7 @@
 <li><code>&lt;link rel="stylesheet" href="/styles/index.css" /&gt;</code></li>
 </ul>
 </li>
+<li><strong>Shadow stylesheet preloads</strong> — <code>&lt;link rel="preload" as="style"&gt;</code> for every stylesheet the DSD templates link (see below).</li>
 <li><strong>Route-scoped <code>modulepreload</code></strong> — the route's full static import closure: <code>/app.js</code>, the via-dock modules, layouts and the leaf page module, then everything they import statically, breadth-first and each module once. Dynamic <code>import()</code> targets are not preloaded. The browser fetches every module in parallel instead of one import level at a time. <code>dist/_headers</code> repeats the first of these (plus the two stylesheets) as <code>Link</code> headers so hosts that support 103 Early Hints can start them before the HTML arrives.</li>
 <li><strong>Deferred entry</strong> — <code>&lt;script type="module" src="/app.js"&gt;&lt;/script&gt;</code> (or the route entry). Not blocking first paint beyond parser work; DSD paints without waiting on the full ESM graph.</li>
 </ol>
@@ -56,7 +57,8 @@
 <li>Each custom element that owns encapsulated UI includes an open Declarative Shadow DOM template as a direct child.</li>
 <li><strong>Light-DOM nesting (required):</strong> nested hosts (<code>dock-docs</code>, <code>dock-doccontent</code>, leaf page) MUST be <strong>light-DOM children</strong> of their parent host — siblings <strong>after</strong> that parent's <code>&lt;template shadowrootmode="open"&gt;</code>, never inside it. Shadow + <code>&lt;slot&gt;</code> only projects light-DOM children; hosts baked into a parent shadow template will not slot, and cascade adopt (which walks <code>parent.children</code>) will miss them and wipe SSG on hard refresh.</li>
 <li>Registry keys in <code>via</code> are <code>main</code> / <code>docs</code> / <code>content</code>; custom element tags are <code>dock-main</code> / <code>dock-docs</code> / <code>dock-doccontent</code> (not <code>dock-content</code>).</li>
-<li>Leaf (and layout) template HTML/CSS are inlined into DSD so first paint does not wait on template fetches.</li>
+<li>Leaf (and layout) template HTML is inlined into DSD so first paint does not wait on template fetches.</li>
+<li><strong>Styles in DSD:</strong> a stylesheet that more than one page uses (or that is over 8 KB) is linked from inside the shadow template, <code>&lt;link rel="stylesheet" href="/docks/docs/index.css" /&gt;</code>, and preloaded in <code>&lt;head&gt;</code> with <code>&lt;link rel="preload" as="style"&gt;</code>. The browser downloads and parses it once, shares it between shadow roots and caches it across pages. CSS used by one page only, and CSS with <code>{{param}}</code> placeholders, stays inline in a <code>&lt;style&gt;</code>. Each dock shadow also starts with a tiny inline <code>:host { contain: layout; display: block; }</code>. Chromium does not paint content after an in-body stylesheet link until the sheet has loaded, so there is no flash of unstyled content; the head preload keeps that wait short.</li>
 <li><code>/</code> nests the page leaf under <code>dock-main</code> only (no docs chrome).</li>
 </ul>
 <h3>Open-only Declarative Shadow DOM</h3>

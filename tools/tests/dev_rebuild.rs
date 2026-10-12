@@ -141,6 +141,42 @@ fn pages_preload_the_full_static_module_closure() {
 }
 
 #[test]
+fn shared_dsd_css_is_linked_and_unique_css_stays_inline() {
+  let root = project("dsdcss");
+  let (src, dist) = (root.join("src"), root.join("dist"));
+  for p in ["a", "b"] {
+    write(
+      &root,
+      &format!("src/pages/{p}/index.js"),
+      &format!("page('/docs/{p}', {{ tag: 'doc-{p}', template: {{ html: './index.html', css: '/styles/shared.css' }} }});\n"),
+    );
+  }
+  write(&root, "src/styles/shared.css", ".shared { color: red; }\n");
+  write(&root, "src/index.js", "import './pages/a/index.js';\nimport './pages/b/index.js';\nimport './pages/c/index.js';\n");
+  write(
+    &root,
+    "src/pages/c/index.js",
+    "page('/docs/c', { tag: 'doc-c', template: { html: './index.html', css: './index.css' } });\n",
+  );
+  write(&root, "src/pages/c/index.html", "<h1>c</h1>\n");
+  write(&root, "src/pages/c/index.css", ".only-c { color: blue; }\n");
+  compile(&src, &dist, false, &[]).expect("dev build");
+
+  let a = std::fs::read_to_string(dist.join("docs/a/index.html")).unwrap();
+  assert!(a.contains("<link rel=\"preload\" href=\"/styles/shared.css\" as=\"style\" />"), "{a}");
+  assert!(a.contains("<template shadowrootmode=\"open\">\n<link rel=\"stylesheet\" href=\"/styles/shared.css\" />"), "{a}");
+  assert!(!a.contains(".shared"), "{a}");
+
+  let c = std::fs::read_to_string(dist.join("docs/c/index.html")).unwrap();
+  assert!(c.contains("<style>\n.only-c { color: blue; }\n</style>"), "{c}");
+  assert!(!c.contains("rel=\"preload\" href=\"/pages/c/index.css\""), "{c}");
+
+  let headers = std::fs::read_to_string(dist.join("_headers")).unwrap();
+  assert!(headers.contains("</styles/shared.css>; rel=preload; as=style"), "{headers}");
+  let _ = std::fs::remove_dir_all(&root);
+}
+
+#[test]
 fn type_declarations_go_beside_dist_not_into_it() {
   let root = project("types");
   let (src, dist, types) = (root.join("src"), root.join("dist"), root.join("types"));

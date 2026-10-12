@@ -659,7 +659,7 @@ function applyStyles(root, stylesheets, cssText, adopted) {
     // Constructable sheets do not wipe existing DSD nodes
     root.adoptedStyleSheets = stylesheets;
   } else if (cssText) {
-    if (!adopted || !root.querySelector('style')) {
+    if (!adopted || !root.querySelector('style, link[rel="stylesheet"]')) {
       const style = document.createElement('style');
       style.textContent = cssText;
       root.prepend(style);

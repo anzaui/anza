@@ -27,6 +27,7 @@
 <view-code language="bash">npm run build
 </view-code>
 <p>This runs <code>anza build</code>. Same graph resolution, but starts from a clean <code>dist/</code> and fails on unresolved imports or syntax errors.</p>
+<p>Production builds also optimize CSS with <a href="https://lightningcss.dev/">Lightning CSS</a>: every stylesheet in <code>dist/</code> has its local <code>@import</code> chain inlined (<code>/tokens/index.css</code> becomes one request instead of eleven) and is minified for current browsers (Chrome/Edge 120+, Firefox 121+, Safari/iOS 16.4+). External <code>@import url(https://…)</code> rules are kept. A stylesheet that Lightning CSS can't process is left as written, with a warning. <code>anza dev</code> serves CSS exactly as written.</p>
 <p>Public routes get <strong>Mode A SSG</strong> (also during <code>anza dev</code>): contentful HTML with open Declarative Shadow DOM under <code>dist/&lt;route&gt;/index.html</code>, so hard refresh works on a plain static server. Publish <code>dist/</code> as the <strong>document root</strong>. Asset URLs are site-root paths (<code>/app.js</code>, <code>/tokens/...</code>) — never <code>/dist/...</code>.</p>
 <p>When the page’s CSR fragment path would collide with that SSG <code>index.html</code>, the emitter keeps the fragment as <code>template.html</code> and rewrites the built page module plus <code>routes.json</code> so soft-nav fetches the fragment — not the full document. Overview: <a href="/docs/ssg/index">ssg/index.md</a>. Contract: <a href="/docs/ssg/contract">ssg/contract.md</a>. Hydration: <a href="/docs/ui/hydration">ui/hydration.md</a>.</p>
 <h3>SEO extras (<code>ssg.json</code>)</h3>
@@ -89,6 +90,7 @@ anza generate part button
 <tr><td><code>-s, --src</code></td><td><code>src</code></td><td>Source directory</td></tr>
 <tr><td><code>-p, --port</code></td><td><code>3000</code></td><td>Dev server port</td></tr>
 <tr><td><code>--dist</code></td><td><code>dist</code></td><td>Output directory</td></tr>
+<tr><td><code>--types</code></td><td><code>types</code> beside <code>--dist</code></td><td>With <code>build</code> — where the generated <code>.d.ts</code> files go</td></tr>
 <tr><td><code>-e, --entry</code></td><td><code>src/app.js</code></td><td>Additional entry modules</td></tr>
 <tr><td><code>--strict</code></td><td>off</td><td>With <code>doctor</code> — promote warnings to failures</td></tr>
 <tr><td><code>--tree</code></td><td>first <code>pages[]</code></td><td>With <code>generate page</code> — page tree under <code>src</code></td></tr>

@@ -123,17 +123,20 @@ pub struct Stats {
 /// A missing or invalid `routes.json`, any failed route and any failed write
 /// is an error; every error is collected and returned.
 pub fn emit(src_dir: &Path, dist_dir: &Path) -> Result<Stats, Vec<String>> {
-  emit_with(src_dir, dist_dir, &super::graph::ModuleGraph::new())
+  emit_with(src_dir, dist_dir, &super::graph::ModuleGraph::new(), false)
 }
 
 /// [`emit`] with the static import graph of the build: every page then
 /// preloads its route's full static module closure (and `_headers` lists the
 /// first of them as `Link` preloads for 103 Early Hints). With an empty graph
 /// only the entry, dock and page modules are preloaded.
+///
+/// `production` minifies the CSS that stays inline in the DSD.
 pub fn emit_with(
   src_dir: &Path,
   dist_dir: &Path,
   graph: &super::graph::ModuleGraph,
+  production: bool,
 ) -> Result<Stats, Vec<String>> {
   let mut errors: Vec<String> = Vec::new();
   let site = load_site_config(src_dir);
@@ -171,22 +174,33 @@ pub fn emit_with(
   // step: workers only read this cache (never dist, never the disk), so shared
   // docks/CSS are read once instead of once per route.
   let (plans, sources) = plan_routes(src_dir, dist_dir, &eligible_routes, &docks);
+  let styler = Styler {
+    src_dir,
+    sources: &sources,
+    usage: css_usage(src_dir, &plans),
+    production,
+    base: site.base.as_deref(),
+  };
 
   // Routes are emitted in parallel; each worker touches only its own files.
   // Shared routes.json edits are collected and applied once afterwards —
   // concurrent read-modify-write of that file corrupted it and failed routes.
-  type Emitted = (String, Option<String>, Vec<PathBuf>, Vec<String>);
+  type Emitted = (String, Option<String>, Vec<PathBuf>, super::headers::Hints);
   let results: Vec<Result<Emitted, (String, String)>> = plans
     .par_iter()
     .map(|plan| {
       let route = plan.route;
       let preload = route_modules(route, &plan.docks, graph);
-      match emit_route(src_dir, plan, &sources, &importmap, &site, &preload) {
-        Ok((preserved, written)) => Ok((
+      match emit_route(src_dir, plan, &sources, &styler, &importmap, &site, &preload) {
+        Ok((preserved, written, sheets)) => Ok((
           normalize_route_path(&route.path),
           preserved.then(|| route.path.clone()),
           written,
-          preload,
+          super::headers::Hints {
+            path: normalize_route_path(&route.path),
+            styles: head_stylesheets().into_iter().chain(sheets).collect(),
+            modules: preload,
+          },
         )),
         Err(err) => Err((route.path.clone(), err.to_string())),
       }
@@ -197,12 +211,12 @@ pub fn emit_with(
   let mut outputs: Vec<PathBuf> = Vec::new();
   let mut ssg_paths: Vec<String> = Vec::with_capacity(results.len());
   let mut preserved_paths: Vec<String> = Vec::new();
-  let mut route_preloads: Vec<(String, Vec<String>)> = Vec::new();
+  let mut route_hints: Vec<super::headers::Hints> = Vec::new();
   for res in results {
     match res {
-      Ok((path, preserved, written, preload)) => {
+      Ok((path, preserved, written, hints)) => {
         emitted += 1;
-        route_preloads.push((path.clone(), preload));
+        route_hints.push(hints);
         ssg_paths.push(path);
         preserved_paths.extend(preserved);
         outputs.extend(
@@ -238,7 +252,7 @@ pub fn emit_with(
   }
 
   let base = site.base.as_deref().unwrap_or("");
-  match super::headers::emit(dist_dir, base, &head_stylesheets(), &route_preloads) {
+  match super::headers::emit(dist_dir, base, &route_hints) {
     Ok(()) => outputs.push(PathBuf::from(super::headers::FILE)),
     Err(err) => errors.push(format!("SSG: cannot write _headers: {}", err)),
   }
@@ -492,22 +506,104 @@ fn route_modules(
   super::graph::static_closure(graph, roots.iter().map(String::as_str))
 }
 
+/// Number of SSG routes whose DSD uses each stylesheet (dock or page CSS).
+fn css_usage(src_dir: &Path, plans: &[RoutePlan]) -> HashMap<PathBuf, usize> {
+  let mut usage: HashMap<PathBuf, usize> = HashMap::new();
+  for plan in plans {
+    let mut paths: HashSet<PathBuf> = page_css_paths(src_dir, plan.route).into_iter().collect();
+    for dock in &plan.docks {
+      paths.extend(dock_css_paths(src_dir, dock));
+    }
+    for path in paths {
+      *usage.entry(path).or_default() += 1;
+    }
+  }
+  usage
+}
+
+/// Stylesheets used by one route only and at most this big stay inline.
+const INLINE_CSS_MAX: usize = 8 * 1024;
+
+/// Decides how each shadow root gets its CSS: stylesheets shared by several
+/// pages (or large) are linked, so the browser downloads and parses them once
+/// and caches them across pages; small page-unique CSS stays inline.
+struct Styler<'a> {
+  src_dir: &'a Path,
+  sources: &'a Sources,
+  usage: HashMap<PathBuf, usize>,
+  production: bool,
+  base: Option<&'a str>,
+}
+
+impl Styler<'_> {
+  /// `<style>`/`<link>` markup for a shadow root, in cascade order: the
+  /// `prelude` rules first, then `paths`. Linked site-root URLs are appended
+  /// to `linked` (for head preloads and Link headers).
+  fn shadow(
+    &self,
+    prelude: &str,
+    paths: &[PathBuf],
+    params: &BTreeMap<String, String>,
+    linked: &mut Vec<String>,
+  ) -> Result<String, String> {
+    let mut out = String::new();
+    let mut inline = String::from(prelude);
+    for path in paths {
+      let text = self.sources.read(path)?;
+      let url = path
+        .strip_prefix(self.src_dir)
+        .ok()
+        .map(|rel| format!("/{}", rel.to_string_lossy().replace('\\', "/")));
+      let shared = self.usage.get(path).copied().unwrap_or(0) > 1 || text.len() > INLINE_CSS_MAX;
+      // `{{param}}` placeholders make the CSS route-specific: inline it.
+      match url {
+        Some(url) if shared && !text.contains("{{") => {
+          out.push_str(&self.style(&inline));
+          inline.clear();
+          out.push_str(&format!(
+            "<link rel=\"stylesheet\" href=\"{}\" />\n",
+            escape_attr(&asset_href(self.base, &url))
+          ));
+          if !linked.contains(&url) {
+            linked.push(url);
+          }
+        }
+        _ => {
+          if !inline.is_empty() {
+            inline.push('\n');
+          }
+          inline.push_str(&interpolate_params(text, params));
+        }
+      }
+    }
+    out.push_str(&self.style(&inline));
+    Ok(out)
+  }
+
+  fn style(&self, css: &str) -> String {
+    if self.production && !css.trim().is_empty() {
+      style_block(&super::css::minify_inline(css))
+    } else {
+      style_block(css)
+    }
+  }
+}
+
 fn emit_route(
   src_dir: &Path,
   plan: &RoutePlan,
   sources: &Sources,
+  styler: &Styler,
   importmap: &str,
   site: &SsgSiteConfig,
   preload: &[String],
-) -> Result<(bool, Vec<PathBuf>), String> {
+) -> Result<(bool, Vec<PathBuf>, Vec<String>), String> {
   let route = plan.route;
   let out_path = &plan.out_path;
 
   // Raw fragment (no `{{param}}` interpolation): the shared CSR template.
   let raw_html = read_page_html(src_dir, sources, route)?;
   let page_html = interpolate_params(&raw_html, &route.ssg_params);
-  let page_css = read_page_css(src_dir, sources, route)?;
-  let page_css = interpolate_params(&page_css, &route.ssg_params);
 
   let h1_text = extract_h1_text(&page_html);
   let h1_inner = extract_h1_inner_html(&page_html);
@@ -534,9 +630,11 @@ fn emit_route(
   .unwrap_or_else(|| normalize_route_path(&route.path));
   let canonical = absolutize(site.origin.as_deref(), &path_canonical);
 
-  let body = build_dsd_tree(src_dir, sources, plan, &page_html, &page_css, h1_inner.as_deref())?;
+  let mut sheets: Vec<String> = Vec::new();
+  let body = build_dsd_tree(src_dir, sources, styler, plan, &page_html, h1_inner.as_deref(), &mut sheets)?;
   let head_extra = build_head(
     route,
+    &sheets,
     preload,
     importmap,
     &title,
@@ -576,7 +674,7 @@ fn emit_route(
     crate::fs_atomic::write(path, bytes)?;
   }
   anza_logs::compiler!("SSG {}", out_path.display());
-  Ok((preserved, outputs.into_iter().map(|(path, _)| path).collect()))
+  Ok((preserved, outputs.into_iter().map(|(path, _)| path).collect(), sheets))
 }
 
 /// When the page fragment's dist path equals the SSG `index.html` output,
@@ -689,6 +787,7 @@ fn output_path(dist_dir: &Path, path: &str) -> PathBuf {
 
 fn build_head(
   route: &RouteInfo,
+  shadow_sheets: &[String],
   preload: &[String],
   importmap: &str,
   title: &str,
@@ -757,6 +856,15 @@ fn build_head(
     ));
   }
 
+  // Stylesheets linked from inside the DSD templates: fetch them with the
+  // head CSS instead of when the parser reaches each shadow root.
+  for sheet in shadow_sheets {
+    head.push_str(&format!(
+      "  <link rel=\"preload\" href=\"{}\" as=\"style\" />\n",
+      escape_attr(&asset_href(base, sheet))
+    ));
+  }
+
   // The route's full static module closure (entry first, breadth-first), so
   // the browser fetches every module in parallel instead of discovering them
   // one import level at a time.
@@ -799,16 +907,18 @@ fn dsd_host(tag: &str, attrs: &str, shadow_inner: &str, light_children: &str) ->
 fn build_dsd_tree(
   src_dir: &Path,
   sources: &Sources,
+  styler: &Styler,
   plan: &RoutePlan,
   page_html: &str,
-  page_css: &str,
   light_h1: Option<&str>,
+  sheets: &mut Vec<String>,
 ) -> Result<String, String> {
   let route = plan.route;
   // Innermost: the leaf page custom element with open DSD.
   // `class="page-content"` matches the client orchestrator's soft-nav marker so
   // boot/`found` reuses this leaf (adopt) instead of swapping a CSR clone over it.
-  let shadow = format!("{}{}", style_block(page_css), page_html.trim());
+  let page_styles = styler.shadow("", &page_css_paths(src_dir, route), &route.ssg_params, sheets)?;
+  let shadow = format!("{}{}", page_styles, page_html.trim());
   let mut inner = dsd_host(
     &route.tag,
     " class=\"page-content\"",
@@ -820,7 +930,7 @@ fn build_dsd_tree(
   // Each wrap attaches the previous tree as a light-DOM child (after the
   // parent's DSD template) so slots project the nested hosts.
   for (via_name, dock) in route.via.iter().zip(plan.docks.iter()).rev() {
-    let (tpl_html, tpl_css) = read_dock_assets(src_dir, sources, dock)?;
+    let tpl_html = read_dock_html(src_dir, sources, dock)?;
     let attrs = if via_name == "main" || dock.tag == "dock-main" {
       " id=\"main\""
     } else {
@@ -832,9 +942,13 @@ fn build_dsd_tree(
     } else {
       tpl_html
     };
-    let mut css = String::from(":host { contain: layout; display: block; }\n");
-    css.push_str(&tpl_css);
-    let shadow = format!("{}{}", style_block(&css), body.trim());
+    let dock_styles = styler.shadow(
+      ":host { contain: layout; display: block; }",
+      &dock_css_paths(src_dir, dock),
+      &BTreeMap::new(),
+      sheets,
+    )?;
+    let shadow = format!("{}{}", dock_styles, body.trim());
     // Trailing newline keeps nested host indentation readable in View Source.
     let light = format!("{}\n", inner);
     inner = dsd_host(&dock.tag, attrs, &shadow, &light);
@@ -991,20 +1105,14 @@ fn page_css_paths(src_dir: &Path, route: &RouteInfo) -> Vec<PathBuf> {
     }
   }
 
+  // Dedupe on the resolved file: `./index.css` and `/pages/x/index.css` are
+  // the same stylesheet and must not be emitted twice.
   let mut seen = std::collections::HashSet::new();
   candidates
     .into_iter()
-    .filter(|c| seen.insert(c.clone()))
     .filter_map(|c| css_asset_path(src_dir, file, &c))
+    .filter(|path| seen.insert(path.clone()))
     .collect()
-}
-
-fn read_page_css(src_dir: &Path, sources: &Sources, route: &RouteInfo) -> Result<String, String> {
-  let mut parts = Vec::new();
-  for path in page_css_paths(src_dir, route) {
-    parts.push(sources.read(&path)?);
-  }
-  Ok(parts.join("\n"))
 }
 
 /// Dock template in src, if the dock has one.
@@ -1020,16 +1128,12 @@ fn dock_css_paths(src_dir: &Path, dock: &DockInfo) -> Vec<PathBuf> {
   dock
     .css
     .iter()
-    .filter(|c| seen.insert(c.to_string()))
     .filter_map(|c| css_asset_path(src_dir, file, c))
+    .filter(|path| seen.insert(path.clone()))
     .collect()
 }
 
-fn read_dock_assets(
-  src_dir: &Path,
-  sources: &Sources,
-  dock: &DockInfo,
-) -> Result<(String, String), String> {
+fn read_dock_html(src_dir: &Path, sources: &Sources, dock: &DockInfo) -> Result<String, String> {
   let html = match dock_html_path(src_dir, dock) {
     Some(path) => match sources.read(&path) {
       Ok(raw) => strip_injected_importmap(raw),
@@ -1039,12 +1143,7 @@ fn read_dock_assets(
     },
     None => "<slot></slot>".to_string(),
   };
-
-  let mut css_parts = Vec::new();
-  for path in dock_css_paths(src_dir, dock) {
-    css_parts.push(sources.read(&path)?);
-  }
-  Ok((html, css_parts.join("\n")))
+  Ok(html)
 }
 
 /// Stylesheet path in src; relative assets need a defining file.

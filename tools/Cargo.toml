@@ -35,4 +35,5 @@ pulldown-cmark = { version = "0.12", default-features = false, features = ["html
 ahash = "0.8"
 memchr = "2.7"
 aho-corasick = "1.1"
+lightningcss = { version = "=1.0.0-alpha.72", default-features = false, features = ["bundler"] }
 

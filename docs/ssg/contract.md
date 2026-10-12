@@ -41,8 +41,9 @@ Emit in this order (charset/viewport first; import map before any `type="module"
 8. **Critical CSS** — at least:
    - `<link rel="stylesheet" href="/tokens/index.css" />`
    - `<link rel="stylesheet" href="/styles/index.css" />`
-9. **Route-scoped `modulepreload`** — the route's full static import closure: `/app.js`, the via-dock modules, layouts and the leaf page module, then everything they import statically, breadth-first and each module once. Dynamic `import()` targets are not preloaded. The browser fetches every module in parallel instead of one import level at a time. `dist/_headers` repeats the first of these (plus the two stylesheets) as `Link` headers so hosts that support 103 Early Hints can start them before the HTML arrives.
-10. **Deferred entry** — `<script type="module" src="/app.js"></script>` (or the route entry). Not blocking first paint beyond parser work; DSD paints without waiting on the full ESM graph.
+9. **Shadow stylesheet preloads** — `<link rel="preload" as="style">` for every stylesheet the DSD templates link (see below).
+10. **Route-scoped `modulepreload`** — the route's full static import closure: `/app.js`, the via-dock modules, layouts and the leaf page module, then everything they import statically, breadth-first and each module once. Dynamic `import()` targets are not preloaded. The browser fetches every module in parallel instead of one import level at a time. `dist/_headers` repeats the first of these (plus the two stylesheets) as `Link` headers so hosts that support 103 Early Hints can start them before the HTML arrives.
+11. **Deferred entry** — `<script type="module" src="/app.js"></script>` (or the route entry). Not blocking first paint beyond parser work; DSD paints without waiting on the full ESM graph.
 
 ## Required `<body>`
 
@@ -72,7 +73,8 @@ Walk the route’s `via` chain (outer → inner) and nest custom elements so the
 - Each custom element that owns encapsulated UI includes an open Declarative Shadow DOM template as a direct child.
 - **Light-DOM nesting (required):** nested hosts (`dock-docs`, `dock-doccontent`, leaf page) MUST be **light-DOM children** of their parent host — siblings **after** that parent's `<template shadowrootmode="open">`, never inside it. Shadow + `<slot>` only projects light-DOM children; hosts baked into a parent shadow template will not slot, and cascade adopt (which walks `parent.children`) will miss them and wipe SSG on hard refresh.
 - Registry keys in `via` are `main` / `docs` / `content`; custom element tags are `dock-main` / `dock-docs` / `dock-doccontent` (not `dock-content`).
-- Leaf (and layout) template HTML/CSS are inlined into DSD so first paint does not wait on template fetches.
+- Leaf (and layout) template HTML is inlined into DSD so first paint does not wait on template fetches.
+- **Styles in DSD:** a stylesheet that more than one page uses (or that is over 8 KB) is linked from inside the shadow template, `<link rel="stylesheet" href="/docks/docs/index.css" />`, and preloaded in `<head>` with `<link rel="preload" as="style">`. The browser downloads and parses it once, shares it between shadow roots and caches it across pages. CSS used by one page only, and CSS with `{{param}}` placeholders, stays inline in a `<style>`. Each dock shadow also starts with a tiny inline `:host { contain: layout; display: block; }`. Chromium does not paint content after an in-body stylesheet link until the sheet has loaded, so there is no flash of unstyled content; the head preload keeps that wait short.
 - `/` nests the page leaf under `dock-main` only (no docs chrome).
 
 ### Open-only Declarative Shadow DOM
