@@ -2,6 +2,16 @@
 
 All notable changes to the Rust template and STUI streaming engine are documented here.
 
+## [Unreleased]
+
+### Changed
+- **Breaking: `Engine::manifest()` values.** Each entry is now the hex BLAKE3 digest of the template content (what `b3sum` prints). It used to be the BLAKE3 of that digest, so every stored manifest value changes.
+- `engine::file::watch::listen` takes the engine's `CacheStore`.
+
+### Fixed
+- The unknown-route page fallback escapes the request path (reflected XSS). Routes with `.`/`..` segments never select a template by name.
+- The `watch` feature reloads edited and added templates and evicts removed ones (events used to be dropped).
+
 ## [0.5.1] — 2026-10-12
 
 ### Changed

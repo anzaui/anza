@@ -46,7 +46,7 @@ impl Engine {
     let mut manifest = Manifest::new();
     let lock = self.cache.templates.read().map_err(|e| Error::internal(e.to_string()))?;
     for (name, tpl) in lock.iter() {
-      manifest.insert(name.clone(), blake::digest::hex(&tpl.digest));
+      manifest.insert(name.clone(), blake::digest::encode(&tpl.digest));
     }
     Ok(manifest)
   }
