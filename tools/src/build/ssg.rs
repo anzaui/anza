@@ -4,7 +4,7 @@
 // public / SSG-eligible route. Writes dist/<route>/index.html (and dist/index.html
 // for `/`) so plain static hosts can hard-refresh without JS.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
 use serde::Deserialize;
@@ -134,11 +134,14 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) {
   use rayon::prelude::*;
 
   let eligible_routes: Vec<&RouteInfo> = manifest.routes.iter().filter(|r| should_ssg(r)).collect();
-  let results: Vec<Result<String, (String, String)>> = eligible_routes
+  // Routes are emitted in parallel; each worker touches only its own files.
+  // Shared routes.json edits are collected and applied once afterwards —
+  // concurrent read-modify-write of that file corrupted it and failed routes.
+  let results: Vec<Result<(String, Option<String>), (String, String)>> = eligible_routes
     .par_iter()
     .map(|route| {
       match emit_route(src_dir, dist_dir, route, &docks, &importmap, &site) {
-        Ok(()) => Ok(normalize_route_path(&route.path)),
+        Ok(preserved) => Ok((normalize_route_path(&route.path), preserved.then(|| route.path.clone()))),
         Err(err) => Err((route.path.clone(), err.to_string())),
       }
     })
@@ -146,16 +149,22 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) {
 
   let mut emitted = 0usize;
   let mut ssg_paths: Vec<String> = Vec::with_capacity(results.len());
+  let mut preserved_paths: Vec<String> = Vec::new();
   for res in results {
     match res {
-      Ok(path) => {
+      Ok((path, preserved)) => {
         emitted += 1;
         ssg_paths.push(path);
+        preserved_paths.extend(preserved);
       }
       Err((route_path, err)) => {
         anza_logs::warn!("SSG failed for {}: {}", route_path, err);
       }
     }
+  }
+
+  if let Err(err) = rewrite_routes_html_field(dist_dir, &preserved_paths, "./template.html") {
+    anza_logs::warn!("SSG failed to update routes.json: {}", err);
   }
 
   if emitted > 0 {
@@ -240,7 +249,7 @@ fn emit_route(
   docks: &HashMap<String, DockInfo>,
   importmap: &str,
   site: &SsgSiteConfig,
-) -> Result<(), String> {
+) -> Result<bool, String> {
   let out_path = output_path(dist_dir, &route.path);
   if let Some(parent) = out_path.parent() {
     std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
@@ -307,28 +316,30 @@ fn emit_route(
   // path is `./index.html`, it collides with this SSG document — the leaf then
   // mounts a full nested dock tree in its shadow (stacked docs chrome). Preserve
   // the fragment beside the SSG page and rewrite the dist module + routes.json.
-  preserve_csr_template(dist_dir, route, &out_path, &page_html)?;
+  let preserved = preserve_csr_template(dist_dir, route, &out_path, &page_html)?;
 
   std::fs::write(&out_path, html).map_err(|e| e.to_string())?;
   anza_logs::compiler!("SSG {}", out_path.display());
-  Ok(())
+  Ok(preserved)
 }
 
 /// When the page fragment path equals the SSG `index.html` output, keep the
 /// fragment as `template.html` and point the built page module at it.
+/// Returns true when the caller must point the route's routes.json `html` at
+/// `template.html` (done once, after all routes are emitted).
 fn preserve_csr_template(
   dist_dir: &Path,
   route: &RouteInfo,
   ssg_out: &Path,
   page_html: &str,
-) -> Result<(), String> {
+) -> Result<bool, String> {
   let Some(file) = route.file.as_deref() else {
-    return Ok(());
+    return Ok(false);
   };
   let html_rel = route.html.as_deref().unwrap_or("./index.html");
   if html_rel.starts_with('/') {
     // Absolute site-root templates never share the route's index.html slot.
-    return Ok(());
+    return Ok(false);
   }
 
   let fragment_dist = {
@@ -339,7 +350,7 @@ fn preserve_csr_template(
 
   // Only rewrite when SSG would clobber the CSR fragment.
   if fragment_dist != ssg_out {
-    return Ok(());
+    return Ok(false);
   }
 
   let parent = ssg_out.parent().unwrap_or_else(|| Path::new(""));
@@ -364,13 +375,12 @@ fn preserve_csr_template(
     }
   }
 
-  rewrite_routes_html_field(dist_dir, &route.path, "./template.html")?;
   anza_logs::compiler!(
     "SSG preserved CSR fragment {} → {}",
     fragment_dist.display(),
     preserve_path.display()
   );
-  Ok(())
+  Ok(true)
 }
 
 fn rewrite_template_html_path(source: &str, from: &str, to: &str) -> String {
@@ -391,7 +401,12 @@ fn rewrite_template_html_path(source: &str, from: &str, to: &str) -> String {
   out
 }
 
-fn rewrite_routes_html_field(dist_dir: &Path, route_path: &str, new_html: &str) -> Result<(), String> {
+/// Point the `html` field of every route in `route_paths` at `new_html`.
+/// Single read-modify-write of routes.json; must not be called concurrently.
+fn rewrite_routes_html_field(dist_dir: &Path, route_paths: &[String], new_html: &str) -> Result<(), String> {
+  if route_paths.is_empty() {
+    return Ok(());
+  }
   let routes_path = dist_dir.join("routes.json");
   let content = std::fs::read_to_string(&routes_path).map_err(|e| e.to_string())?;
   let mut value: serde_json::Value =
@@ -399,13 +414,13 @@ fn rewrite_routes_html_field(dist_dir: &Path, route_path: &str, new_html: &str) 
   let Some(routes) = value.get_mut("routes").and_then(|r| r.as_array_mut()) else {
     return Ok(());
   };
+  let targets: HashSet<&str> = route_paths.iter().map(String::as_str).collect();
   for route in routes {
     let path = route.get("path").and_then(|p| p.as_str()).unwrap_or("");
-    if path == route_path {
+    if targets.contains(path) {
       if let Some(obj) = route.as_object_mut() {
         obj.insert("html".into(), serde_json::Value::String(new_html.into()));
       }
-      break;
     }
   }
   let pretty = serde_json::to_string_pretty(&value).map_err(|e| e.to_string())?;
@@ -1436,5 +1451,56 @@ mod tests {
       extract_first_p_text(html).as_deref(),
       Some("Real intro.")
     );
+  }
+
+  /// Regression: parallel emission used to read-modify-write routes.json from
+  /// every worker, corrupting it and leaving bare fragments at index.html.
+  #[test]
+  fn emit_many_preserved_routes_keeps_documents_and_manifest() {
+    let root = std::env::temp_dir().join(format!("anza-ssg-race-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&root);
+    let src = root.join("src");
+    let dist = root.join("dist");
+    std::fs::create_dir_all(&src).unwrap();
+
+    let count = 300;
+    let mut routes = Vec::with_capacity(count);
+    for i in 0..count {
+      let dir = dist.join(format!("docs/p{i}"));
+      std::fs::create_dir_all(&dir).unwrap();
+      std::fs::write(dir.join("index.html"), format!("<h1>Page {i}</h1><p>Body.</p>")).unwrap();
+      std::fs::write(
+        dir.join("index.js"),
+        format!("page('/docs/p{i}', {{ template: {{ html: './index.html' }} }});"),
+      )
+      .unwrap();
+      routes.push(serde_json::json!({
+        "tag": format!("doc-p{i}"),
+        "path": format!("/docs/p{i}"),
+        "file": format!("docs/p{i}/index.js"),
+        "html": "./index.html",
+        "ssg": true,
+      }));
+    }
+    let manifest = serde_json::json!({ "routes": routes, "version": 1 });
+    std::fs::write(dist.join("routes.json"), serde_json::to_string_pretty(&manifest).unwrap()).unwrap();
+
+    emit(&src, &dist);
+
+    let text = std::fs::read_to_string(dist.join("routes.json")).unwrap();
+    let parsed: serde_json::Value = serde_json::from_str(&text).expect("routes.json stays valid JSON");
+    let parsed = parsed["routes"].as_array().unwrap();
+    assert_eq!(parsed.len(), count);
+    assert!(parsed.iter().all(|r| r["html"] == "./template.html"));
+    for i in 0..count {
+      let dir = dist.join(format!("docs/p{i}"));
+      let doc = std::fs::read_to_string(dir.join("index.html")).unwrap();
+      assert!(doc.starts_with("<!DOCTYPE html>"), "route /docs/p{i} left a bare fragment");
+      let fragment = std::fs::read_to_string(dir.join("template.html")).unwrap();
+      assert!(fragment.contains(&format!("<h1>Page {i}</h1>")));
+      let module = std::fs::read_to_string(dir.join("index.js")).unwrap();
+      assert!(module.contains("html: './template.html'"));
+    }
+    let _ = std::fs::remove_dir_all(&root);
   }
 }
