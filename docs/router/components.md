@@ -14,13 +14,13 @@ view('user-card', {
     name: { type: String, default: '' },
     age:  { type: Number }
   },
-  template: '<span>{{ name }}</span>',
+  template: '<span ref="name"></span>',
   on: {
-    connect({ el }) {
-      console.log('user-card mounted');
+    connect({ el, refs }) {
+      refs.name.textContent = el.name;
     },
-    change({ name, val }) {
-      if (name === 'name') el.querySelector('span').textContent = val;
+    change({ name, val, refs }) {
+      if (name === 'name') refs.name.textContent = val;
     }
   }
 });

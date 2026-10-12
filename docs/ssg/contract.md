@@ -9,7 +9,7 @@ Normative shape for every public, indexable HTML response. **Mode A** (`anza bui
 
 Sibling: the **folder** contract (required / recommended / optional project slots, optional `anza.json`) lives in [Structure](../intro/structure.md).
 
-Overview of Phases 0–6: [SSG & SEO](index.md). Client adopt details: [Hydration (DSD adopt)](../ui/hydration.md).
+Overview: [SSG & SEO](index.md). Client adopt details: [Hydration (DSD adopt)](../ui/hydration.md).
 
 Golden samples: [tools/fixtures/ssg/](../../tools/fixtures/ssg/).
 
@@ -35,8 +35,9 @@ Emit in this order (charset/viewport first; import map before any `type="module"
 2. **`<title>`** — unique per route: `seo.title`, else `"{H1} — {Section} — {siteName}"` (path-derived name when there is no H1).
 3. **Meta description** — unique per route: `seo.description`, else the first paragraph cut at a word boundary (155 characters), with the section name added to short or repeated ones.
 4. **Canonical** — `link rel="canonical"` (path or absolute URL when origin is set).
-5. **Social** — `og:type` (`article` under `/docs/`, else `website`), `og:site_name`, `og:title`, `og:description`, `og:url`, `og:image` (+ `og:image:alt`) when an image is set, `twitter:card` (`summary_large_image` with an image), `twitter:title`, `twitter:description`, `twitter:image`.
+5. **Social** — `og:type` (`article` under `/docs/`, else `website`), `og:site_name`, `og:title`, `og:description`, `og:url`, `og:image` (+ `og:image:alt`) when an image is set, `twitter:card` (`summary_large_image` with an image), `twitter:title`, `twitter:description`, `twitter:image`. Docs pages with a known date also get `article:modified_time`.
 6. **JSON-LD** (Mode A default) — light-DOM `@graph` linked by `@id`: `WebSite`, `WebPage`, `BreadcrumbList` and, for `/docs/*`, `TechArticle` (`headline`, `dateModified`), via `ssg.json` `jsonLd` (does not touch DSD).
+   Mode A then copies the app shell's `icon`, `apple-touch-icon` and `manifest` links (or `/favicon.ico` when the shell has none).
 7. **Import map** — inline `<script type="importmap">…</script>` preferred; else `src="/importmap.json"`. Must appear **before** module scripts.
 8. **Critical CSS** — at least:
    - `<link rel="stylesheet" href="/tokens/index.css" />`
@@ -112,6 +113,7 @@ Public paths with `:param` (or `*`) are **not** SSG’d by default — `routes.j
 
 ```javascript
 page('/docs/ssg/expand/:slug', {
+  tag: 'doc-ssg-expand',
   params: [{ name: 'slug', type: String }],
   ssg: {
     expand: [

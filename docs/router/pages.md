@@ -84,7 +84,7 @@ template: { html: './home.html', css: './home.css', shadow: false }
 
 Setting `shadow: false` renders into the light DOM instead of a shadow root.
 
-For public/indexable pages, build-time SSG still emits the route HTML contract around the page host. Soft-nav continues to fetch only the page fragment (`index.html` or preserved `template.html`), not the full SSG document. See [SSG contract](../ssg/contract.md).
+For public/indexable pages, build-time SSG still emits the route HTML contract around the page host. Soft-nav continues to fetch only the page fragment (`index.html` or preserved `template.html`), not the full SSG document. See [Page HTML contract (Mode A SSG · Mode B templates)](../ssg/contract.md).
 
 ### `style`
 
@@ -250,7 +250,32 @@ page('/docs/ssg/expand/:slug', {
 }, import.meta.url);
 ```
 
-Use `ssg.expand` only for routes whose concrete param values are known at build time. Unexpanded param patterns stay client-matchable but do not emit `dist/<route>/index.html`. See [SSG overview](../ssg/index.md) and the [SSG contract](../ssg/contract.md).
+Use `ssg.expand` only for routes whose concrete param values are known at build time. Unexpanded param patterns stay client-matchable but do not emit `dist/<route>/index.html`. See [SSG & SEO](../ssg/index.md) and the [Page HTML contract (Mode A SSG · Mode B templates)](../ssg/contract.md).
+
+### `seo`
+
+Build-time `<head>` fields for the route's SSG page. The build reads them from the source, so use string literals.
+
+```javascript
+page('/pricing', {
+  tag: 'page-pricing',
+  via: ['main'],
+  seo: {
+    title: 'Pricing — Acme',
+    description: 'Plans and prices for teams of every size.',
+    image: '/og.png'
+  }
+}, import.meta.url);
+```
+
+| Field | Default |
+| ----- | ------- |
+| `title` | `"{H1} — {Section} — {siteName}"` |
+| `description` | The first paragraph of the page HTML |
+| `canonical` | The route path |
+| `image` | The site `image` in `ssg.json` |
+
+See [SSG & SEO](../ssg/index.md#simple-mode-a-page-seo).
 
 ### Scaffold / generate
 

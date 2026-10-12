@@ -1,6 +1,6 @@
 # Build
 
-The `anza` CLI resolves your ESM import graph, copies reachable files into `dist/`, generates type declarations, and serves the result. You call it through npm scripts.
+The `anza` CLI resolves your ESM import graph, copies reachable files into `dist/`, generates type declarations, and serves the result. `anza dev` serves unbundled modules. `anza build` bundles them with Rolldown when it is installed. You call both through npm scripts.
 
 ## Dev Server
 
@@ -10,17 +10,19 @@ npm run dev
 
 This runs `anza dev` under the hood. It starts a server on `http://localhost:3000` and:
 
-1. Resolves the import graph from `src/app.js`, `src/sw.js`, and HTML module scripts
-2. Copies reachable modules into `dist/`
+1. Resolves the import graph from the module scripts and stylesheets of every HTML file under `src/`, plus `src/sw.js`
+2. Copies reachable modules into `dist/`, unbundled
 3. Writes `dist/importmap.json` with resolved library mappings
-4. Injects `<script type="importmap" src="/importmap.json">` into HTML
+4. Replaces any import map in each HTML document with an inline `<script type="importmap">` holding the same mappings
 5. Emits **Mode A SSG** for public routes (same contract as production — see below)
 6. Watches `src/` for changes and rebuilds incrementally
 7. Pushes HMR events via SSE
 
 CSS files are hot-swapped. JS and HTML changes trigger a reload. A hard refresh serves the SSG HTML from `dist/`; soft-nav loads page fragments (not full SSG documents).
 
-Override the port:
+The dev server answers `/sw.js` with a worker that deletes every cache and unregisters itself, so a service worker from an earlier production build can't serve stale files.
+
+If the port is taken, the server tries the next ports and logs the one it uses. Override the port:
 
 ```bash
 npx anza dev --port 8080
@@ -36,15 +38,13 @@ With `0.0.0.0` (or `::`), requests by IP address (`http://192.168.1.20:3000`) ar
 
 ## Compile-Time Route Validation
 
-During both `dev` and `build` phases, the Rust compiler performs design-by-contract checks on all page and dock definitions. It scans route pattern strings (e.g. `'/blog/:slug'`) and cross-references them with the declared `params` and `query` contract arrays.
-
-If a route parameter (like `:slug`) is present in the route but missing from the component's `params` array, the CLI prints a descriptive warning:
+During both `dev` and `build`, the CLI checks each route pattern (e.g. `'/blog/:slug'`) against the spec's `params` array. If a dynamic segment has no matching entry, it prints a warning:
 
 ```text
-[WARN] Page tag 'page-blog-post' defines route '/blog/:slug' but has no parameter contract declared for ':slug'.
+[anza] WARN  <page-blog-post> in pages/blog/index.js — route "/blog/:slug" has dynamic segment ":slug" but no matching entry in the `params` array. The library will inject it as a String. Add `{ name: 'slug', type: String }` to silence.
 ```
 
-These warnings are non-blocking: compilation still succeeds and the router will fallback to string matching, but developers get early visibility into contract mismatches.
+The warning does not fail the build. The parameter is passed to the page as a string.
 
 ## Production Build
 
@@ -82,20 +82,58 @@ Public routes get **Mode A SSG** (also during `anza dev`): contentful HTML with 
 
 When the page’s CSR fragment path would collide with that SSG `index.html`, the emitter keeps the fragment as `template.html` and rewrites the built page module plus `routes.json` so soft-nav fetches the fragment — not the full document. Overview: [SSG & SEO](../ssg/index.md). Contract: [Page HTML contract (Mode A SSG · Mode B templates)](../ssg/contract.md). Hydration: [Hydration (DSD adopt)](../ui/hydration.md).
 
-### SEO extras (`ssg.json`)
+### SEO (`ssg.json`)
 
-Optional `ssg.json` next to (or inside) `src/` configures site origin and build-time SEO files:
+An optional `ssg.json` in the project root or inside `src/` configures the site:
 
 ```json
 {
   "origin": "https://example.com",
-  "siteName": "Anza"
+  "siteName": "Example",
+  "image": "/og.png",
+  "jsonLd": true,
+  "sitemap": true,
+  "robots": true
 }
 ```
 
-- **`origin`** (or env `ANZA_SITE_ORIGIN`) — absolute canonicals, `og:url`, sitemap `<loc>`, and robots `Sitemap:`
-- Always emits `dist/sitemap.xml` + `dist/robots.txt` for Mode A routes (unless disabled in `ssg.json`)
-- Emits JSON-LD `WebSite` / `WebPage` in the SSG document `<head>` (light DOM; does not affect DSD hydration)
+| Key | Default | Effect |
+|-----|---------|--------|
+| `origin` | none | Absolute URLs for canonicals, `og:url`, sitemap `<loc>` and the robots `Sitemap:` line. Env `ANZA_SITE_ORIGIN` overrides it. Without it, these use site-root paths and the build warns |
+| `siteName` | `Anza` | Last part of page titles, `og:site_name`, the JSON-LD `WebSite` name |
+| `image` | none | Social preview image for pages without their own `seo.image` (site-root path or absolute URL, ideally 1200×630). A site-root path is copied from `src/` into `dist/` |
+| `base` | none | Deploy base path (see [GitHub Pages](#github-pages)). Env `ANZA_BASE_PATH` overrides it |
+| `jsonLd` | `true` | Emit the JSON-LD script |
+| `sitemap` | `true` | Emit `dist/sitemap.xml` |
+| `robots` | `true` | Emit `dist/robots.txt` |
+
+Each page can set its own values with the `seo` option of `page()`:
+
+```javascript
+import { page } from '@anzaui/anza/ui';
+
+page('/pricing', {
+  tag: 'page-pricing',
+  via: ['main'],
+  template: { html: './index.html' },
+  seo: {
+    title: 'Pricing — Example',
+    description: 'Plans and prices for teams of every size.',
+    image: '/og/pricing.png'
+  }
+}, import.meta.url);
+```
+
+`seo` accepts `title`, `description`, `canonical` and `image`. Every SSG page gets:
+
+- **Title.** `seo.title` when set. Otherwise `"{H1} — {Section} — {siteName}"`, where H1 is the page's first `<h1>` (or a name made from the path) and Section is the parent page's H1 for pages two or more levels deep (`/docs/router/pages` → "Pages — Router — Anza"). Repeated parts are dropped.
+- **Description.** `seo.description`, else the first `<p>` cut at a word boundary (about 155 characters), else the title.
+- **Canonical link** and **Open Graph / Twitter tags**: `og:type` (`article` under `/docs/`, else `website`), `og:site_name`, `og:title`, `og:description`, `og:url`, `og:image` (from `seo.image`, else the site `image`), `twitter:card` (`summary_large_image` with an image, else `summary`), `twitter:title`, `twitter:description`, `twitter:image`.
+- **JSON-LD**: one `@graph` with `WebSite`, `WebPage`, a `BreadcrumbList` for nested pages, and a `TechArticle` for docs pages. Docs pages also carry `dateModified` and `article:modified_time`.
+
+`dist/sitemap.xml` lists every SSG route. Each `<lastmod>` is the date of the last git commit that touched the page's source files, or the file modification time outside git. It is never the build time. `dist/robots.txt` points at the sitemap.
+
+A route that ends in `/index` names the section page: `/docs/router/index` is titled and linked as `/docs/router`. The docs generator gives section index pages the URL `/docs/<section>` directly.
 
 ## Diagnostics
 
@@ -200,12 +238,12 @@ Flags: `--tree`, `--route`, `--via` (comma-separated), `--parent`, `-s/--src`.
 | Flag | Default | Description |
 | ------ | ------- | ----------- |
 | `-s, --src` | `src` | Source directory |
-| `-p, --port` | `3000` | Dev server port |
-| `--host` | `127.0.0.1` | Dev server bind address (`0.0.0.0` to serve the LAN) |
+| `-p, --port` | `3000` | Dev server port (the next free port is used if it is taken) |
+| `--host` | `127.0.0.1` | Dev server bind address (`0.0.0.0` or `::` to serve the LAN) |
 | `--dist` | `dist` | Output directory |
 | `--types` | `types` beside `--dist` | With `build` — where the generated `.d.ts` files go |
 | `--no-bundle` | off | With `build` — ship unbundled modules instead of Rolldown chunks |
-| `-e, --entry` | `src/app.js` | Additional entry modules |
+| `-e, --entry` | module scripts of `src/**/*.html` | With `build` / `dev` — extra entry modules (repeatable) |
 | `--strict` | off | With `doctor` — promote warnings to failures |
 | `--tree` | first `pages[]` | With `generate page` — page tree under `src` |
 | `--route` | `/{name}` | With `generate page` — route path |
@@ -214,32 +252,40 @@ Flags: `--tree`, `--route`, `--via` (comma-separated), `--parent`, `-s/--src`.
 
 ## Output
 
-After `npm run build`:
+After `npm run build` with Rolldown installed (paths depend on your routes):
 
 ```text
 dist/
-  index.html              # HTML with injected importmap link
-  importmap.json         # Generated library mappings
-  app.js                 # Entry and resolved dependencies
-  sw.js                  # Service Worker entry with rewritten imports
-  sw/                    # Copied SW library modules
+  index.html               # SSG HTML for /
+  about/
+    index.html             # SSG HTML for /about
+  docs/
+    router/
+      index.html           # SSG HTML for the /docs/router section page
+  assets/
+    app-1a2b3c4d.js        # Entry chunk (see Bundling)
+    core-5e6f7a8b.js
+    route-docs-9c0d1e2f.js
+    tokens-11111111.css    # Hashed stylesheets, fonts and images
   pages/
-    index/
-      index.js
-      index.html
-      index.css
-  tokens/
-    index.css
-    ...
-  styles/
-    index.css
-    ...
-  routes.json            # Route manifest for the router
-  404.html               # App shell for unknown URLs (noindex)
-  _headers               # Cache rules + per-route Link preloads (Cloudflare/Netlify format)
-types/                   # Beside dist/, never shipped (--types to move it)
-  index.d.ts             # Global HTMLElementTagNameMap augmentation
-  routes.d.ts            # RouteMap and element interfaces
+    entry/
+      index.html           # Page fragment for soft-nav (template.html if an SSG page uses this path)
+  sw.js                    # Service worker, starts with self.__ANZA_PRECACHE__
+  routes.json              # Route manifest for the router
+  404.html                 # App shell for unknown URLs (noindex)
+  _headers                 # Cache, security and Link headers (Cloudflare/Netlify format)
+  sitemap.xml              # Every SSG route with <lastmod>
+  robots.txt               # Points at the sitemap
+  favicon.ico              # Copied when src/favicon.ico exists
+  index.html.br            # Precompressed siblings of files >= 1 KB
+  index.html.gz
+types/                     # Beside dist/, never shipped (--types to move it)
+  index.d.ts               # Global HTMLElementTagNameMap augmentation
+  routes.d.ts              # RouteMap and element interfaces
 ```
 
-The folder structure inside `dist/` mirrors `src/`. Type declarations are for your editor, not the browser, so they go to `types/` next to `dist/` (`anza build --types <dir>` to change it). Serve `dist/` as the site root; the browser resolves `/app.js` and friends natively (no `/dist` prefix).
+Bundled source modules are removed from `dist/`. Modules the service worker imports stay where they are. `importmap.json` is kept only when some bare specifier stays external.
+
+With `anza build --no-bundle`, or when Rolldown is missing, `dist/` instead mirrors `src/`: `app.js`, `pages/`, `docks/`, the library modules your graph reaches, and `importmap.json`. `anza dev` writes that layout too (with SSG HTML, `404.html`, `_headers`, `sitemap.xml` and `robots.txt`), but no `assets/` and no `.br`/`.gz` files.
+
+Type declarations are for your editor, not the browser, so they go to `types/` next to `dist/` (`anza build --types <dir>` to change it). Serve `dist/` as the site root. URLs are site-root paths (`/assets/app-1a2b3c4d.js`), never `/dist/...`.

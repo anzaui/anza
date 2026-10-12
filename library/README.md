@@ -18,12 +18,18 @@ npm install
 npm run dev
 ```
 
+Use `.` as the name to scaffold into the current directory. Existing files
+are never overwritten unless you add `-- --force`.
+
 Or add it to an existing project:
 
 ```bash
 npm install --save-dev @anzaui/anza
 npx anza dev
 ```
+
+`anza build` bundles production output with Rolldown when your project has
+it (`npm install -D rolldown`); otherwise it ships unbundled modules.
 
 ## Example
 
@@ -36,7 +42,7 @@ view('hello-card', {
   props: { name: { type: String, default: 'world' } },
   template: '<p>Hello, <span ref="name"></span>!</p>',
   on: {
-    connect({ refs }) { refs.name.textContent = this.name; }
+    connect({ el, refs }) { refs.name.textContent = el.name; }
   }
 });
 

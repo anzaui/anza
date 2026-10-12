@@ -15,12 +15,18 @@ cd myapp
 npm install
 ```
 
+Use `.` as the name to scaffold into the current directory. The scaffolder refuses to overwrite existing files: it lists the conflicts and exits. Add `-- --force` to overwrite them:
+
+```bash
+npm create @anzaui/anza . -- --force
+```
+
 This generates:
 
 | Path | Purpose |
 | ------ | ------- |
-| `src/app.js` | Entry point — imports UI, theme and barrels, registers the Service Worker |
-| `src/index.html` | HTML shell with importmap, tokens, styles, and module script |
+| `src/app.js` | Entry point — imports UI, theme and barrels, registers the Service Worker on deployed hosts |
+| `src/index.html` | HTML shell with import map, tokens, styles, module script and `<dock-main>` |
 | `src/sw.js` | Service Worker entry — caching, routing, sync |
 | `src/pages/index.js` | Pages barrel |
 | `src/pages/entry/index.js` | Landing page definition |
@@ -33,8 +39,8 @@ This generates:
 | `src/tokens/` | Design tokens copied from the library (colors, spacing, typography) |
 | `src/styles/` | Global styles copied from the library (reset, layers, base) |
 | `importmap.json` | Empty starter for custom aliases |
-| `package.json` | Scripts: `dev` and `build`; `@anzaui/anza` as a devDependency |
-| `.gitignore` | Ignores `node_modules/`, `dist/`, `.anzacache.json` |
+| `package.json` | Scripts: `dev` and `build`; devDependencies `@anzaui/anza` and `rolldown` (the production bundler) |
+| `.gitignore` | Ignores `node_modules/`, `dist/`, `types/`, `.anzacache.json` |
 
 You own `src/tokens/` and `src/styles/`. The library copies them in as starter files; change them freely.
 
@@ -50,8 +56,8 @@ npm run dev
 
 Opens a dev server on `http://localhost:3000` with:
 
-- Import graph resolution into `dist/`
-- Separate `dist/importmap.json` linked from HTML
+- Import graph resolution into `dist/` (unbundled modules)
+- The import map inlined into each HTML document
 - Mode A SSG for public routes (hard refresh) + CSR fragments for soft-nav
 - CSS hot-swapping via SSE
 - JS and HTML auto-reload on change
@@ -89,11 +95,27 @@ import './views/index.js';
 import './parts/index.js';
 import './pages/index.js';
 
-// Service Worker
-navigator.serviceWorker.register('/sw.js', { type: 'module' });
+// Service Worker: real hosts only. On local hosts, remove workers and caches
+// left over from earlier builds so the dev server never serves stale files.
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
+if ('serviceWorker' in navigator) {
+  if (LOCAL_HOSTS.has(location.hostname)) {
+    navigator.serviceWorker
+      .getRegistrations()
+      .then(async (regs) => {
+        if (!regs.length) return;
+        await Promise.all(regs.map((reg) => reg.unregister()));
+        const keys = await caches.keys();
+        await Promise.all(keys.map((key) => caches.delete(key)));
+      })
+      .catch(() => {});
+  } else {
+    navigator.serviceWorker.register('/sw.js', { type: 'module' });
+  }
+}
 ```
 
-This initializes the UI system and loads the barrels; `src/docks/main/index.js` creates the `main` dock with `dock('main')`. It also registers the Service Worker; to avoid stale files in dev, register it only on deployed hosts (see [Start: 2. Register from app.js](../sw/start.md#2-register-from-appjs)). Source import order is free-form — `anza build` rewrites `dist/` into usage order (library → docks → views → parts → pages).
+This initializes the UI system and loads the barrels; `src/docks/main/index.js` creates the `main` dock with `dock('main')`. The Service Worker is registered only on deployed hosts, so local development never serves stale cached files (see [Start: 2. Register from app.js](../sw/start.md#2-register-from-appjs)). Source import order is free-form — `anza build` rewrites `dist/` into usage order (library → docks → views → parts → pages).
 
 ### `src/pages/entry/index.js`
 

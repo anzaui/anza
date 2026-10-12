@@ -173,10 +173,10 @@ Prefer dock / `configure` tags for normal apps. Handlers are for full manual con
 | Soft-nav miss / error | Leaf swap inside deepest `via` dock; parents stay; VT + `signal` honored |
 | Hard refresh miss | Same resolver after boot gates |
 | Guard throws | `error` event with `phase: 'guard'` → error leaf ([Guards](guards.md)) |
-| SSG / static host | Unknown URL may be host `404` or SPA shell; CSR paints the dock-scoped leaf after boot |
+| SSG / static host | Unknown URL gets `dist/404.html` (the app shell, `noindex`) with status 404 when the host serves it; CSR paints the dock-scoped leaf after boot |
 | Scaffold | Bare `dock('main')` — no error-page files in `src/docks/` |
 
-Host HTML 404 and Mode A SSG emission are separate from this CSR leaf resolver. See [SSG & SEO](../ssg/index.md).
+The site-wide `dist/404.html` that `anza build` writes is not a dock fallback: it boots the app, and this resolver paints the leaf. See [SSG & SEO](../ssg/index.md#unknown-urls-404).
 
 ## Related
 

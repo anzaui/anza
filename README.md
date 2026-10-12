@@ -20,6 +20,8 @@ npm install
 npm run dev
 ```
 
+Use `.` as the name to scaffold into the current directory. The scaffolder won't overwrite existing files unless you add `-- --force`.
+
 The dev server runs on `http://localhost:3000`. The full walkthrough is in [docs/intro/start.md](docs/intro/start.md).
 
 ## A page and an element
@@ -33,7 +35,7 @@ view('hello-card', {
   props: { name: { type: String, default: 'world' } },
   template: '<p>Hello, <span ref="name"></span>!</p>',
   on: {
-    connect({ refs }) { refs.name.textContent = this.name; }
+    connect({ el, refs }) { refs.name.textContent = el.name; }
   }
 });
 
@@ -51,7 +53,7 @@ Components are defined with `element()`, `view()`, `part()`, `dock()` and `page(
 | Command | What it does |
 | ------- | ------------ |
 | `npx anza dev` | Dev server with live reload on `127.0.0.1:3000` (`--port`, `--host 0.0.0.0` for the LAN; `npm run dev` in a scaffolded app) |
-| `npx anza build` | Production build and static HTML into `dist/` (`npm run build`) |
+| `npx anza build` | Production build into `dist/`: static HTML per public route, modules bundled with Rolldown when installed (`--no-bundle` to skip; `npm run build`) |
 | `npx anza check` | Strict project structure check for CI; warnings fail |
 | `npx anza doctor` | Same checks as `check`, but warnings only print |
 | `npx anza scan` | Extract element metadata and type declarations |

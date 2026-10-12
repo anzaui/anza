@@ -25,7 +25,7 @@ Semantic required (not only path existence):
 3. Root dock (default name `main`) registered via `dock(...)` before pages that `via` it — `anza check` **warns** if missing; **errors** if a `via` name has no `dock()`.
 4. Shell uses **site-root** asset URLs (`/app.js`, `/tokens/...`, `/styles/...`) — see [Page HTML contract (Mode A SSG · Mode B templates)](../ssg/contract.md).
 
-Apps need **no** `anza.json`. `anza create` / `npm create @anzaui/anza` writes the default tree. Add `anza.json` only when remapping roots, declaring extra page trees, or listing additional service workers.
+Apps need **no** `anza.json`. `npm create @anzaui/anza` writes the default tree (`anza create` only prints that command). Add `anza.json` only when remapping roots, declaring extra page trees, or listing additional service workers.
 
 ### Recommended (scaffold creates; tooling may warn if missing)
 
@@ -83,7 +83,7 @@ Source may import modules in **any** order. **`anza build` / extract** rewrites 
 5. Pages (including extra trees such as `docs/`)  
 6. Other relative modules  
 
-Mid-file static imports are hoisted into that ordered block. Semantics stay multi-file ESM (no bundling). Rely on the build — do not treat source import order as load order. Remapped slot names from `anza.json` (`docks`, `views`, `parts`, `pages`) feed the classifier.
+Mid-file static imports are hoisted into that ordered block. `anza dev` and `anza build --no-bundle` keep the modules as separate files; a default `anza build` then bundles them with Rolldown. Rely on the build — do not treat source import order as load order. Remapped slot names from `anza.json` (`docks`, `views`, `parts`, `pages`) feed the classifier.
 
 ## Validate (`anza doctor` / `anza check`)
 
@@ -146,72 +146,42 @@ Each leaf gets `index.js` (+ `index.html` / `index.css`). Import the barrel from
 | `importmap.json` | Empty starter for user aliases; CLI merges library mappings at build |
 | `anza.json` | **Optional** structure remaps + extra page trees / SW list (scaffold omits it) |
 | `ssg.json` | Optional SSG / SEO settings (sibling until optional merge into `anza.json`) |
-| `.gitignore` | Excludes `node_modules/`, `dist/`, `.anzacache.json` |
+| `.gitignore` | Excludes `node_modules/`, `dist/`, `types/`, `.anzacache.json` |
 
 ## What the scaffold generates
 
 ### `src/app.js`
 
-```javascript
-import '@anzaui/anza/ui';
-import { dock } from '@anzaui/anza/ui';
-import '@anzaui/anza/theme';
-
-import './docks/index.js';
-import './views/index.js';
-import './parts/index.js';
-import './pages/index.js';
-
-navigator.serviceWorker.register('/sw.js', { type: 'module' });
-
-dock('main');
-```
-
-Bootstraps the UI, loads barrels, registers the Service Worker, and creates a `main` dock. All pages render through this dock by default unless they set another `via`. Import order in source is free-form; build rewrites `dist/` into usage order.
+Imports `@anzaui/anza/ui`, `@anzaui/anza/theme` and the four barrels (`docks`, `views`, `parts`, `pages`). On deployed hosts it registers `/sw.js`; on `localhost` it unregisters old workers and deletes their caches instead. The full file is shown in [Start](start.md#srcappjs). The `main` dock is created in `src/docks/main/index.js` with `dock('main')`. All pages render through it unless they set another `via`. Import order in source is free-form; the build rewrites `dist/` into usage order.
 
 ### `src/index.html`
 
 ```html
-<script type="importmap" src="/importmap.json"></script>
-<link rel="stylesheet" href="/tokens/index.css">
-<link rel="stylesheet" href="/styles/index.css">
-<script type="module" src="/app.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>myapp</title>
+
+    <script type="importmap" src="/importmap.json"></script>
+
+    <link rel="stylesheet" href="/tokens/index.css" />
+    <link rel="stylesheet" href="/styles/index.css" />
+
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <dock-main id="main"></dock-main>
+  </body>
+</html>
 ```
 
-The shell loads the import map, design tokens, global styles, and the app entry. The CLI injects the HMR script in dev mode.
+The shell loads design tokens, global styles and the app entry. The CLI replaces the import map tag with an inline `<script type="importmap">` holding the merged mappings, and the dev server adds its live-reload script.
 
 ### `src/sw.js`
 
-```javascript
-import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@anzaui/anza/sw';
-
-const SHELL = 'shell-v2';
-const API = 'api-v2';
-
-self.addEventListener('install', (e) => {
-  e.waitUntil(
-    (async () => {
-      await precache(SHELL, ['/index.html', '/app.js', '/tokens/index.css', '/styles/index.css']);
-      await self.skipWaiting();
-    })()
-  );
-});
-
-self.addEventListener('activate', (e) => {
-  e.waitUntil(Promise.all([pruneStale(SHELL), claim()]));
-});
-
-const r = router();
-r.register('*', new CacheFirst(SHELL));
-r.register('/api/*', new NetworkFirst(API, { timeout: 3000 }));
-
-self.addEventListener('fetch', (e) => {
-  if (r.handle(e)) return;
-  e.respondWith(fetch(e.request));
-});
-```
-
-Pre-caches the app shell. Static assets use `CacheFirst`; API calls use `NetworkFirst` with a 3-second timeout. Bump `SHELL` / `API` when shipping path-breaking asset URL changes. See [Start](../sw/start.md).
+Precaches the app shell on install (the hashed file list `self.__ANZA_PRECACHE__` that `anza build` writes, or the unhashed shell when unbuilt), deletes other caches on activate, serves `/api/*` with `NetworkFirst` (3-second timeout), serves hashed `/assets/` files with `CacheFirst` and everything else with `StaleRevalidate`. Navigations, non-GET requests, event streams and page fragments bypass the worker. Bump the `SHELL` / `API` cache names when shipping path-breaking asset changes. See [Start](../sw/start.md).
 
 ### `src/pages/entry/index.js`
 
@@ -361,7 +331,7 @@ Or fix the page `via: ['…']` to match an existing registry key. Folder under `
 
 ### Missing recommended tokens / styles / SW
 
-Copy from a fresh `anza create`, or drop the slot if you intentionally skip offline / design tokens (warn-only unless `anza check`).
+Copy from a fresh `npm create @anzaui/anza` project, or drop the slot if you intentionally skip offline / design tokens (warn-only unless `anza check`).
 
 ## Fallbacks are not folders
 
@@ -387,19 +357,26 @@ src/styles/
 
 ## Build output
 
-`npm run dev` and `npm run build` emit to `dist/`:
+`npm run dev` writes `dist/` as a mirror of `src/` (unbundled modules plus SSG HTML per public route):
 
 ```text
 dist/
-  index.html
+  index.html             # SSG HTML for /
   importmap.json
   app.js
   sw.js
-  sw/                    # Copied SW library modules
   pages/
+  docks/
   tokens/
   styles/
+  routes.json
+  404.html
+  _headers
+  sitemap.xml
+  robots.txt
 types/                   # Generated .d.ts, beside dist/ (not shipped)
 ```
 
-The folder structure mirrors `src/`. Serve `dist/` as the document root. Public URLs are `/app.js`, `/importmap.json`, `/tokens/...` — not `/dist/app.js`. Mode A SSG writes contentful HTML per public route; soft-nav uses page fragments (`template.html` when the fragment path collides with SSG `index.html`).
+`npm run build` starts from an empty `dist/`, moves stylesheets, fonts and images to content-hashed names under `dist/assets/`, bundles the modules into hashed chunks there, and writes `.br`/`.gz` files. See [Build: Output](build.md#output).
+
+Serve `dist/` as the document root. Public URLs are site-root paths (`/app.js`, `/tokens/...`), not `/dist/app.js`. Mode A SSG writes contentful HTML per public route; soft-nav uses page fragments (`template.html` when the fragment path collides with SSG `index.html`).

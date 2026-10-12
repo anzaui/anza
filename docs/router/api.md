@@ -263,7 +263,12 @@ Define a stateful component.
 ```javascript
 view('user-card', {
   props: { name: { type: String } },
-  template: '<span>{{ name }}</span>'
+  template: '<span ref="name"></span>',
+  on: {
+    change({ name, val, refs }) {
+      if (name === 'name') refs.name.textContent = val;
+    }
+  }
 });
 ```
 
