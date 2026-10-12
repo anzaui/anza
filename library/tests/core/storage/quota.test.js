@@ -33,8 +33,9 @@ describe('Storage Quota Warnings', () => {
     });
 
     try {
-      // Execute a write, which will trigger a proactive check
-      await storage.set('quota-trigger-key', 'some-value', 'memory');
+      // A persistent write triggers the (throttled) proactive check; memory writes skip it.
+      await storage.set('quota-trigger-key', 'some-value', 'idb');
+      await storage.delete('quota-trigger-key');
 
       if (!warningData) {
         throw new Error('Quota warning was not triggered');

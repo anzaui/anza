@@ -56,6 +56,7 @@ export class ReactiveStore {
   #listeners = new Map(); // key -> Set<callback>
   #batching = false;
   #pendingNotifications = new Set();
+  #scheduled = false; // one flush microtask at a time
   #onMutationCallback = null;
   #options;
   #proxies;
@@ -177,7 +178,10 @@ export class ReactiveStore {
   }
 
   #scheduleQueue() {
+    if (this.#scheduled) return;
+    this.#scheduled = true;
     queueMicrotask(() => {
+      this.#scheduled = false;
       if (this.#pendingNotifications.size === 0) return;
       const keys = [...this.#pendingNotifications];
       this.#pendingNotifications.clear();

@@ -49,9 +49,9 @@ function unwrapExpiry(value) {
 }
 
 // Helper functions for transparent compression
-async function compress(value) {
+async function compress(value, serialized) {
   const isObject = typeof value === 'object' && value !== null;
-  const stringVal = isObject ? JSON.stringify(value) : String(value);
+  const stringVal = serialized ?? (isObject ? JSON.stringify(value) : String(value));
   const bytes = new TextEncoder().encode(stringVal);
   const stream = new ReadableStream({
     start(controller) {
@@ -78,6 +78,18 @@ async function decompress(envelope) {
   const response = new Response(stream);
   const text = await response.text();
   return envelope._type === 'json' ? JSON.parse(text) : text;
+}
+
+// Quota checks call navigator.storage.estimate(), which is slow; run at most
+// one per interval, and never for the in-memory tier.
+const QUOTA_CHECK_INTERVAL = 60000;
+let lastQuotaCheck = -Infinity;
+
+function checkQuotaThrottled() {
+  const now = Date.now();
+  if (now - lastQuotaCheck < QUOTA_CHECK_INTERVAL) return null;
+  lastQuotaCheck = now;
+  return quota.check();
 }
 
 // Replay write journal automatically on startup
@@ -201,22 +213,26 @@ export const storage = {
   async set(key, value, tierOrOptions = 'idb') {
     const { tier, ttl } = resolve(tierOrOptions);
 
-    // Quota proactive check before write
-    await quota.check();
-
     if (tier === 'memory') {
       lru.set(key, value, ttl);
       return;
     }
+
+    // Proactive quota check before a persistent write (throttled)
+    await checkQuotaThrottled();
 
     if (tier === 'opfs') {
       await opfs.set(key, wrapExpiry(value, ttl));
       return;
     }
 
+    // Serialize once; reused by the cache tier, the journal and compression.
+    const isObject = typeof value === 'object' && value !== null;
+    const serialized = isObject ? JSON.stringify(value) : String(value);
+
     if (tier === 'cache') {
       const response = new Response(
-        typeof value === 'object' ? JSON.stringify(value) : String(value),
+        serialized,
         {
           headers: {
             'content-type': typeof value === 'object' ? 'application/json' : 'text/plain'
@@ -231,7 +247,10 @@ export const storage = {
     const journalKey = `storage:journal:${key}`;
     if (typeof localStorage !== 'undefined') {
       try {
-        localStorage.setItem(journalKey, JSON.stringify({ key, value }));
+        const journal = isObject
+          ? `{"key":${JSON.stringify(key)},"value":${serialized}}`
+          : JSON.stringify({ key, value });
+        localStorage.setItem(journalKey, journal);
       } catch (err) {
         console.warn('Failed to write journal:', err);
       }
@@ -240,10 +259,9 @@ export const storage = {
     try {
       let finalValue = value;
       if (supports.compression) {
-        const serialized = typeof value === 'object' ? JSON.stringify(value) : String(value);
         if (serialized.length > this.compressionThreshold) {
           try {
-            finalValue = await compress(value);
+            finalValue = await compress(value, serialized);
           } catch (err) {
             console.error('Compression failed:', err);
           }

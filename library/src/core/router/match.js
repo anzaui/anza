@@ -13,6 +13,21 @@ import { stripBase } from './base.js';
 import { insert as trieInsert, find as trieFind, clear as trieClear } from './trie.js';
 
 const routes = [];
+// Routes are sorted lazily, once before the next match (P11), instead of on
+// every register() call.
+let sorted = true;
+
+/** Sort routes by specificity (descending) then length (longer first) (RT-04). */
+function ensureSorted() {
+  if (sorted) return;
+  routes.sort((a, b) => {
+    const specA = getSpecificity(a.patternStr);
+    const specB = getSpecificity(b.patternStr);
+    if (specA !== specB) return specB - specA;
+    return b.patternStr.length - a.patternStr.length;
+  });
+  sorted = true;
+}
 // Resolve Pattern class at module load if available natively (RT-03)
 let Pattern = typeof URLPattern !== 'undefined' ? URLPattern : null;
 
@@ -87,13 +102,7 @@ export function register(patternStr, handler, meta = {}) {
   // scan below — trieInsert returns false for those.
   trieInsert(patternStr, route);
 
-  // Sort routes by specificity (descending) and length (longer first) at registration time (RT-04)
-  routes.sort((a, b) => {
-    const specA = getSpecificity(a.patternStr);
-    const specB = getSpecificity(b.patternStr);
-    if (specA !== specB) return specB - specA;
-    return b.patternStr.length - a.patternStr.length;
-  });
+  sorted = false;
 }
 
 /**
@@ -107,6 +116,7 @@ export async function match(url) {
 
   // Fast path: O(k) radix-trie lookup on the pathname. Covers the common case
   // of plain/:param/* patterns without compiling or executing a URLPattern.
+  ensureSorted();
   const trieHit = trieFind(routePath);
   if (trieHit) {
     return finalize(trieHit.route, trieHit.params, targetUrl, null);
@@ -168,6 +178,7 @@ async function finalize(route, params, targetUrl, result) {
  */
 export function clear() {
   routes.length = 0;
+  sorted = true;
   trieClear();
 }
 
@@ -175,6 +186,7 @@ export function clear() {
  * Returns all currently registered routes.
  */
 export function getRoutes() {
+  ensureSorted();
   return routes;
 }
 
