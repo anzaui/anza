@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "anza"
 version = "0.6.0"
-description = "Ultra-fast, zero-dependency, cryptographically verified Server-Templated UI (STUI) engine for Python"
+description = "Ultra-fast, cryptographically verified Server-Templated UI (STUI) engine for Python"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
@@ -33,10 +33,11 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
 ]
-dependencies = []
+dependencies = [
+    "cryptography>=42.0.0",
+]
 
 [project.optional-dependencies]
-crypto = ["cryptography>=41.0.0"]
 test = ["pytest>=7.0.0"]
 
 [tool.setuptools.packages.find]
