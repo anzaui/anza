@@ -36,5 +36,5 @@ Uses `aria-label="Breadcrumb"`. Parts: `nav`, `list`. Slot children into the ord
 ## Related
 
 - [Elements overview](index.md)
-- [Navigation](navigation.md)
+- [Navigation](index.md#navigation)
 - [Nav](nav.md)

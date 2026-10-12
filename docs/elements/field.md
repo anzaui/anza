@@ -39,5 +39,5 @@ Slots: `label`, `hint`, default (control), `error`. Not form-associated itself â
 ## Related
 
 - [Elements overview](index.md)
-- [Forms](forms.md)
+- [Forms](index.md#forms)
 - [Input](input.md)

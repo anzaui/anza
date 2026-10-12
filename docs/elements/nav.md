@@ -41,6 +41,6 @@ Defaults `role="navigation"`. Inner markup uses `part="nav"`; put links / list i
 ## Related
 
 - [Elements overview](index.md)
-- [Navigation](navigation.md)
+- [Navigation](index.md#navigation)
 - [Breadcrumb](breadcrumb.md)
 - [Link](link.md)

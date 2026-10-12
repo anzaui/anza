@@ -37,4 +37,4 @@ Sets `aria-label="Avatar of {name}"` when `name` is present and no label is set.
 ## Related
 
 - [Elements overview](index.md)
-- [Primitives](primitives.md)
+- [Primitives](index.md#primitives)

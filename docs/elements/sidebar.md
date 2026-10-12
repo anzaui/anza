@@ -48,6 +48,6 @@ Default slot content sits in `part="wrapper"`.
 ## Related
 
 - [Elements overview](index.md)
-- [Layout](layout.md)
+- [Layout](index.md#layout)
 - [App](app.md)
 - [Nav](nav.md)

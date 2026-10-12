@@ -48,5 +48,5 @@ import '@anzaui/anza/elements/stat';
 ## Related
 
 - [Elements overview](index.md)
-- [Data](data.md)
+- [Data](index.md#data)
 - [Chart](chart.md)

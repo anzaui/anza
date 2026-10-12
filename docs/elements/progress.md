@@ -47,5 +47,5 @@ Sets `role="progressbar"` and `aria-valuenow` / `aria-valuemin` / `aria-valuemax
 ## Related
 
 - [Elements overview](index.md)
-- [Feedback](feedback.md)
+- [Feedback](index.md#feedback)
 - [Spinner](spinner.md)

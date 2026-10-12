@@ -46,5 +46,5 @@ import '@anzaui/anza/elements/card';
 ## Related
 
 - [Elements overview](index.md)
-- [Data](data.md)
+- [Data](index.md#data)
 - [Surface](surface.md)

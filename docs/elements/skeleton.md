@@ -42,6 +42,6 @@ The reduced-motion listener is signal-owned. Soft-nav disconnect aborts the leaf
 ## Related
 
 - [Elements overview](index.md)
-- [Feedback](feedback.md)
+- [Feedback](index.md#feedback)
 - [Spinner](spinner.md)
 - [Memory safety & framework globals](../ui/advanced.md)

@@ -42,5 +42,5 @@ Children go in the default slot (`part="stack"`).
 ## Related
 
 - [Elements overview](index.md)
-- [Layout](layout.md)
+- [Layout](index.md#layout)
 - [Grid](grid.md)

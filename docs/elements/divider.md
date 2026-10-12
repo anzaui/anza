@@ -36,4 +36,4 @@ Defaults `role="separator"` when unset.
 ## Related
 
 - [Elements overview](index.md)
-- [Primitives](primitives.md)
+- [Primitives](index.md#primitives)

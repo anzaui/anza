@@ -40,6 +40,6 @@ Draws with CSS tokens `--color-interactive`, `--color-border-default`, `--color-
 ## Related
 
 - [Elements overview](index.md)
-- [Data](data.md)
+- [Data](index.md#data)
 - [Stat](stat.md)
 - [Memory safety & framework globals](../ui/advanced.md)

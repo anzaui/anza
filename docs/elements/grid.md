@@ -41,6 +41,6 @@ Default slot / `part="grid"`.
 ## Related
 
 - [Elements overview](index.md)
-- [Layout](layout.md)
+- [Layout](index.md#layout)
 - [Stack](stack.md)
 - [Split](split.md)

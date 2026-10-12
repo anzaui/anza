@@ -51,5 +51,5 @@ Collects descendants with `formAssociated` constructors. Payload keys come from 
 ## Related
 
 - [Elements overview](index.md)
-- [Forms](forms.md)
-- [Form association](../ui/forms.md)
+- [Forms](index.md#forms)
+- [Form association](../ui/form-associated.md)

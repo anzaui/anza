@@ -57,7 +57,7 @@ Default slot is the toast body (`role="status"`, `part="toast"`). After `duratio
 ## Related
 
 - [Elements overview](index.md)
-- [Feedback](feedback.md)
+- [Feedback](index.md#feedback)
 - [Alert](alert.md)
 - [Overlay patterns](overlay.md) (native top-layer vs this body-portal exception)
 - [Memory safety & framework globals](../ui/advanced.md)

@@ -47,5 +47,5 @@ Uses `form: true`. Form reset restores the attribute `value` (or empty).
 ## Related
 
 - [Elements overview](index.md)
-- [Forms](forms.md)
-- [Form association](../ui/forms.md)
+- [Forms](index.md#forms)
+- [Form association](../ui/form-associated.md)

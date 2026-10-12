@@ -41,6 +41,6 @@ Two children in the default slot; `part="split"` wraps them.
 ## Related
 
 - [Elements overview](index.md)
-- [Layout](layout.md)
+- [Layout](index.md#layout)
 - [Grid](grid.md)
 - [Sidebar](sidebar.md)

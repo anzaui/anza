@@ -45,5 +45,5 @@ import '@anzaui/anza/elements/empty';
 ## Related
 
 - [Elements overview](index.md)
-- [Feedback](feedback.md)
+- [Feedback](index.md#feedback)
 - [Alert](alert.md)

@@ -42,6 +42,6 @@ Slotted children get `role="step"` and a `state` of `completed`, `active`, or un
 ## Related
 
 - [Elements overview](index.md)
-- [Navigation](navigation.md)
+- [Navigation](index.md#navigation)
 - [Tabs](tabs.md)
 - [Memory safety & framework globals](../ui/advanced.md)

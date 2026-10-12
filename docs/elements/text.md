@@ -40,5 +40,5 @@ Default slot content is projected into the dynamic root (`part="text"`).
 ## Related
 
 - [Elements overview](index.md)
-- [Primitives](primitives.md)
+- [Primitives](index.md#primitives)
 - [Tokens](../styles/tokens.md)

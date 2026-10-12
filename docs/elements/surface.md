@@ -36,5 +36,5 @@ Default slot / `part="surface"`.
 ## Related
 
 - [Elements overview](index.md)
-- [Layout](layout.md)
+- [Layout](index.md#layout)
 - [Card](card.md)

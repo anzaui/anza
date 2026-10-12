@@ -56,6 +56,6 @@ Prev/next `on.click` and the Navigation API listener abort with the component `c
 ## Related
 
 - [Elements overview](index.md)
-- [Navigation](navigation.md)
+- [Navigation](index.md#navigation)
 - [Tabs](tabs.md)
 - [Memory safety & framework globals](../ui/advanced.md)

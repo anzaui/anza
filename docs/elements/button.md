@@ -46,4 +46,4 @@ Default slot content becomes the button label. Uses `form: true` so it participa
 ## Related
 
 - [Elements overview](index.md)
-- [Form association](../ui/forms.md) (when `form: true`)
+- [Form association](../ui/form-associated.md) (when `form: true`)

@@ -62,5 +62,5 @@ Open/close and Escape handling stay on the dialog instance. Soft-nav aborts the 
 - [Overlay patterns](overlay.md)
 - [Drawer](drawer.md) / [Sheet](sheet.md)
 - [Platform API](../platform/api.md)
-- [Form association](../ui/forms.md) (when `form: true`)
+- [Form association](../ui/form-associated.md) (when `form: true`)
 - [Memory safety & framework globals](../ui/advanced.md)

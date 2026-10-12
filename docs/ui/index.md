@@ -41,7 +41,7 @@ import { BaseElement } from '@anzaui/anza/ui';
 | File | What It Covers |
 | ----- | ---------------- |
 | [Quick Start](quickstart.md) | Your first component in five minutes |
-| [Elements](elements.md) | The `element()` factory and spec shape |
+| [Elements](factory.md) | The `element()` factory and spec shape |
 | [Props](props.md) | Reactive properties, types, reflection, state |
 | [Templates](templates.md) | Inline, file-based, and tagged template literals |
 | [Styles](../styles/index.md) | CSS loading, constructable stylesheets, HMR |
@@ -50,7 +50,7 @@ import { BaseElement } from '@anzaui/anza/ui';
 | [Scheduling](scheduling.md) | Cooperative task scheduling |
 | [Observers](observers.md) | Safe observer factories; `mutation.scoped` |
 | [Transitions](transitions.md) | View transitions wrapper |
-| [Forms](forms.md) | Form-associated custom elements |
+| [Forms](form-associated.md) | Form-associated custom elements |
 | [Hydration (DSD adopt)](hydration.md) | Adopt open DSD from SSG / Mode B HTML |
 | [Advanced Topics](advanced.md) | Internals, globals, `getAttachmentStats` |
 | [API Reference](api.md) | Complete API reference |

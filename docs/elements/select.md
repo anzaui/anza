@@ -40,6 +40,6 @@ Slotted children are options; each option’s `value` attribute (or text content
 ## Related
 
 - [Elements overview](index.md)
-- [Forms](forms.md)
+- [Forms](index.md#forms)
 - [Overlay patterns](overlay.md)
-- [Form association](../ui/forms.md)
+- [Form association](../ui/form-associated.md)

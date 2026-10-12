@@ -37,4 +37,4 @@ Default slot content is the badge label.
 ## Related
 
 - [Elements overview](index.md)
-- [Primitives](primitives.md)
+- [Primitives](index.md#primitives)

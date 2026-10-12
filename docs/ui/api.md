@@ -18,7 +18,7 @@ ui.define('my-element', MyClass);
 
 ### `ui.element(tag, spec, base)`
 
-Declarative element factory. See [Elements](elements.md).
+Declarative element factory. See [Elements](factory.md).
 
 ### `ui.container(tag, spec, base)`
 

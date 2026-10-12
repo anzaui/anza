@@ -42,5 +42,5 @@ Default slot receives the table (or table wrap). Pair with a host/page `.table-w
 ## Related
 
 - [Elements overview](index.md)
-- [Data](data.md)
+- [Data](index.md#data)
 - [List](list.md)

@@ -33,4 +33,4 @@ Defaults `role="progressbar"` and `aria-label="Loading"`. Animation pauses when 
 ## Related
 
 - [Elements overview](index.md)
-- [Primitives](primitives.md)
+- [Primitives](index.md#primitives)

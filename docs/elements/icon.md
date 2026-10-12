@@ -38,4 +38,4 @@ Without `aria-label` / `aria-labelledby`, the SVG is `aria-hidden`. Provide a la
 ## Related
 
 - [Elements overview](index.md)
-- [Primitives](primitives.md)
+- [Primitives](index.md#primitives)

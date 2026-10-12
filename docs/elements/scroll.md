@@ -40,5 +40,5 @@ Content lives in `part="viewport"`.
 ## Related
 
 - [Elements overview](index.md)
-- [Layout](layout.md)
+- [Layout](index.md#layout)
 - [Surface](surface.md)

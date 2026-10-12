@@ -45,6 +45,6 @@ _None — composition via slots._
 ## Related
 
 - [Elements overview](index.md)
-- [Layout](layout.md)
+- [Layout](index.md#layout)
 - [Header](header.md)
 - [Sidebar](sidebar.md)

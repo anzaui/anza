@@ -40,5 +40,5 @@ Inner container uses `role="list"` and `part="list"`.
 ## Related
 
 - [Elements overview](index.md)
-- [Data](data.md)
+- [Data](index.md#data)
 - [Table](table.md)

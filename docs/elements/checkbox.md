@@ -39,5 +39,5 @@ Toggle via click or Space/Enter. Uses `form: true`. Default slot is the label co
 ## Related
 
 - [Elements overview](index.md)
-- [Forms](forms.md)
-- [Form association](../ui/forms.md)
+- [Forms](index.md#forms)
+- [Form association](../ui/form-associated.md)

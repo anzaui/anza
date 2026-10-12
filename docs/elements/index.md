@@ -2,14 +2,14 @@
 title: "Elements"
 order: 4
 seo_title: "Elements — Anza"
-description: "Inventory and import map for the Anza ui-* custom element kit."
+description: "The ui-* custom element kit: every element by category, with imports and shared behaviour."
 ---
 
 # Elements
 
-Shipped custom element kit under `library/src/elements/`. These are ready-made `ui-*` components — distinct from the [`element()` factory docs](../ui/elements.md).
+The kit is a set of ready-made `ui-*` custom elements in `library/src/elements/`. Each one is built with the [`element()` factory](../ui/factory.md). To build your own, read that page.
 
-Import one element (registers the custom element as a side effect) or the full barrel:
+Import one element, or the whole kit:
 
 ```javascript
 import '@anzaui/anza/elements/button';
@@ -17,156 +17,119 @@ import '@anzaui/anza/elements/button';
 import '@anzaui/anza/elements';
 ```
 
-Paths resolve via the package import map (`library/importmap.json`): `@anzaui/anza/elements/<name>` → `/elements/<category>/<name>/index.js`.
+Importing registers the tag. The package import map resolves `@anzaui/anza/elements/<name>` to `/elements/<category>/<name>/index.js`. The barrel also exports `showToast`:
 
-## Categories
+```javascript
+import { showToast } from '@anzaui/anza/elements';
+```
 
-| Category | Overview |
-| -------- | -------- |
-| [Primitives](primitives.md) | Buttons, icons, text, badges, … |
-| [Forms](forms.md) | Input, select, checkbox, field, … |
-| [Overlay](overlay.md) | Dialog, drawer, menu, tooltip, … |
-| [Feedback](feedback.md) | Alert, toast, progress, skeleton, … |
-| [Data](data.md) | Table, list, card, chart, stat |
-| [Navigation](navigation.md) | Tabs, nav, breadcrumb, pagination, steps |
-| [Layout](layout.md) | App, header, sidebar, stack, grid, … |
+## Primitives
 
-## Full reference
+| Element | Tag | What it is |
+| ------- | --- | ---------- |
+| [Button](button.md) | `ui-button` | Form-associated button with variants, sizes and a loading state |
+| [Icon](icon.md) | `ui-icon` | SVG sprite icon |
+| [Badge](badge.md) | `ui-badge` | Compact status label |
+| [Avatar](avatar.md) | `ui-avatar` | Profile image with an initials fallback |
+| [Divider](divider.md) | `ui-divider` | Horizontal or vertical separator |
+| [Text](text.md) | `ui-text` | Typography bound to the design tokens |
+| [Link](link.md) | `ui-link` | Router-aware link |
+| [Spinner](spinner.md) | `ui-spinner` | Indeterminate loading indicator |
 
-### Phase 1
+## Forms
 
-| Element | Route |
-| ------- | ----- |
-| [Button](button.md) | `/docs/elements/button` |
-| [Input](input.md) | `/docs/elements/input` |
-| [Dialog](dialog.md) | `/docs/elements/dialog` |
-| [Alert](alert.md) | `/docs/elements/alert` |
-| [Tabs](tabs.md) | `/docs/elements/tabs` |
+These controls are form-associated: they submit with a native `<form>`, take part in validation, and restore their first-mount value on form reset. See [Form-associated elements](../ui/form-associated.md).
 
-### Phase 2 — Primitives + forms
+| Element | Tag | What it is |
+| ------- | --- | ---------- |
+| [Input](input.md) | `ui-input` | Single-line text control |
+| [Textarea](textarea.md) | `ui-textarea` | Multi-line text control |
+| [Select](select.md) | `ui-select` | Dropdown built on the Popover API |
+| [Checkbox](checkbox.md) | `ui-checkbox` | Checkbox with an indeterminate state |
+| [Radio](radio.md) | `ui-radio` | Radio button, grouped by `name` |
+| [Toggle](toggle.md) | `ui-toggle` | On/off switch |
+| [Field](field.md) | `ui-field` | Label, hint and error wrapper for a control |
+| [Upload](upload.md) | `ui-upload` | Drag-and-drop file picker |
+| [Form](form.md) | `ui-form` | Validates its controls and submits JSON |
 
-| Element | Route |
-| ------- | ----- |
-| [Icon](icon.md) | `/docs/elements/icon` |
-| [Badge](badge.md) | `/docs/elements/badge` |
-| [Avatar](avatar.md) | `/docs/elements/avatar` |
-| [Divider](divider.md) | `/docs/elements/divider` |
-| [Text](text.md) | `/docs/elements/text` |
-| [Link](link.md) | `/docs/elements/link` |
-| [Spinner](spinner.md) | `/docs/elements/spinner` |
-| [Textarea](textarea.md) | `/docs/elements/textarea` |
-| [Select](select.md) | `/docs/elements/select` |
-| [Checkbox](checkbox.md) | `/docs/elements/checkbox` |
-| [Radio](radio.md) | `/docs/elements/radio` |
-| [Toggle](toggle.md) | `/docs/elements/toggle` |
-| [Field](field.md) | `/docs/elements/field` |
-| [Upload](upload.md) | `/docs/elements/upload` |
-| [Form](form.md) | `/docs/elements/form` |
+## Overlay
 
-### Phase 3 — Feedback
+| Element | Tag | What it is |
+| ------- | --- | ---------- |
+| [Dialog](dialog.md) | `ui-dialog` | Modal dialog on the native `<dialog>` |
+| [Popover](popover.md) | `ui-popover` | Anchored panel on the Popover API |
+| [Tooltip](tooltip.md) | `ui-tooltip` | Hover and focus hint |
+| [Menu](menu.md) | `ui-menu` | Keyboard-navigable action menu |
+| [Drawer](drawer.md) | `ui-drawer` | Side panel on the native `<dialog>` |
+| [Sheet](sheet.md) | `ui-sheet` | Bottom sheet with drag to dismiss |
 
-| Element | Route |
-| ------- | ----- |
-| [Toast](toast.md) | `/docs/elements/toast` |
-| [Progress](progress.md) | `/docs/elements/progress` |
-| [Skeleton](skeleton.md) | `/docs/elements/skeleton` |
-| [Empty](empty.md) | `/docs/elements/empty` |
+[Overlay patterns](overlay.md) explains how the overlays share the top layer.
 
-### Overlay kit (Full)
+## Feedback
 
-| Element | Route |
-| ------- | ----- |
-| [Popover](popover.md) | `/docs/elements/popover` |
-| [Tooltip](tooltip.md) | `/docs/elements/tooltip` |
-| [Menu](menu.md) | `/docs/elements/menu` |
-| [Drawer](drawer.md) | `/docs/elements/drawer` |
-| [Sheet](sheet.md) | `/docs/elements/sheet` |
+| Element | Tag | What it is |
+| ------- | --- | ---------- |
+| [Alert](alert.md) | `ui-alert` | Inline message with a severity |
+| [Toast](toast.md) | `ui-toast` | Temporary notification |
+| [Progress](progress.md) | `ui-progress` | Determinate progress bar |
+| [Skeleton](skeleton.md) | `ui-skeleton` | Loading placeholder |
+| [Empty](empty.md) | `ui-empty` | Empty-state panel |
 
-Architecture: [Overlay patterns](overlay.md). Tooltip escape uses `escapeOverflow` / `guard.escape`.
+## Data
 
-### Phase 4 — Data + navigation + layout
+| Element | Tag | What it is |
+| ------- | --- | ---------- |
+| [Table](table.md) | `ui-table` | Styled wrapper for a native table |
+| [List](list.md) | `ui-list` | List panel |
+| [Card](card.md) | `ui-card` | Card with header, body and footer slots |
+| [Chart](chart.md) | `ui-chart` | Canvas bar or line chart |
+| [Stat](stat.md) | `ui-stat` | Metric with a label and a trend |
 
-| Element | Route |
-| ------- | ----- |
-| [Table](table.md) | `/docs/elements/table` |
-| [List](list.md) | `/docs/elements/list` |
-| [Card](card.md) | `/docs/elements/card` |
-| [Chart](chart.md) | `/docs/elements/chart` |
-| [Stat](stat.md) | `/docs/elements/stat` |
-| [Nav](nav.md) | `/docs/elements/nav` |
-| [Breadcrumb](breadcrumb.md) | `/docs/elements/breadcrumb` |
-| [Pagination](pagination.md) | `/docs/elements/pagination` |
-| [Steps](steps.md) | `/docs/elements/steps` |
-| [App](app.md) | `/docs/elements/app` |
-| [Header](header.md) | `/docs/elements/header` |
-| [Sidebar](sidebar.md) | `/docs/elements/sidebar` |
-| [Stack](stack.md) | `/docs/elements/stack` |
-| [Grid](grid.md) | `/docs/elements/grid` |
-| [Split](split.md) | `/docs/elements/split` |
-| [Scroll](scroll.md) | `/docs/elements/scroll` |
-| [Surface](surface.md) | `/docs/elements/surface` |
+## Navigation
 
-## Inventory
+| Element | Tag | What it is |
+| ------- | --- | ---------- |
+| [Nav](nav.md) | `ui-nav` | Navigation landmark |
+| [Tabs](tabs.md) | `ui-tabs` | Tab list with keyboard navigation |
+| [Breadcrumb](breadcrumb.md) | `ui-breadcrumb` | Breadcrumb trail |
+| [Pagination](pagination.md) | `ui-pagination` | Previous/next page control |
+| [Steps](steps.md) | `ui-steps` | Step indicator |
 
-| Category | Element | Tag | Import | Status |
-| -------- | ------- | --- | ------ | ------ |
-| primitives | [button](button.md) | `ui-button` | `@anzaui/anza/elements/button` | Full |
-| primitives | [icon](icon.md) | `ui-icon` | `@anzaui/anza/elements/icon` | Full |
-| primitives | [badge](badge.md) | `ui-badge` | `@anzaui/anza/elements/badge` | Full |
-| primitives | [avatar](avatar.md) | `ui-avatar` | `@anzaui/anza/elements/avatar` | Full |
-| primitives | [divider](divider.md) | `ui-divider` | `@anzaui/anza/elements/divider` | Full |
-| primitives | [text](text.md) | `ui-text` | `@anzaui/anza/elements/text` | Full |
-| primitives | [link](link.md) | `ui-link` | `@anzaui/anza/elements/link` | Full |
-| primitives | [spinner](spinner.md) | `ui-spinner` | `@anzaui/anza/elements/spinner` | Full |
-| forms | [input](input.md) | `ui-input` | `@anzaui/anza/elements/input` | Full |
-| forms | [textarea](textarea.md) | `ui-textarea` | `@anzaui/anza/elements/textarea` | Full |
-| forms | [select](select.md) | `ui-select` | `@anzaui/anza/elements/select` | Full |
-| forms | [checkbox](checkbox.md) | `ui-checkbox` | `@anzaui/anza/elements/checkbox` | Full |
-| forms | [radio](radio.md) | `ui-radio` | `@anzaui/anza/elements/radio` | Full |
-| forms | [toggle](toggle.md) | `ui-toggle` | `@anzaui/anza/elements/toggle` | Full |
-| forms | [field](field.md) | `ui-field` | `@anzaui/anza/elements/field` | Full |
-| forms | [upload](upload.md) | `ui-upload` | `@anzaui/anza/elements/upload` | Full |
-| forms | [form](form.md) | `ui-form` | `@anzaui/anza/elements/form` | Full |
-| overlay | [dialog](dialog.md) | `ui-dialog` | `@anzaui/anza/elements/dialog` | Full |
-| overlay | [popover](popover.md) | `ui-popover` | `@anzaui/anza/elements/popover` | Full |
-| overlay | [tooltip](tooltip.md) | `ui-tooltip` | `@anzaui/anza/elements/tooltip` | Full |
-| overlay | [menu](menu.md) | `ui-menu` | `@anzaui/anza/elements/menu` | Full |
-| overlay | [drawer](drawer.md) | `ui-drawer` | `@anzaui/anza/elements/drawer` | Full |
-| overlay | [sheet](sheet.md) | `ui-sheet` | `@anzaui/anza/elements/sheet` | Full |
-| feedback | [alert](alert.md) | `ui-alert` | `@anzaui/anza/elements/alert` | Full |
-| feedback | [toast](toast.md) | `ui-toast` | `@anzaui/anza/elements/toast` | Full |
-| feedback | [progress](progress.md) | `ui-progress` | `@anzaui/anza/elements/progress` | Full |
-| feedback | [skeleton](skeleton.md) | `ui-skeleton` | `@anzaui/anza/elements/skeleton` | Full |
-| feedback | [empty](empty.md) | `ui-empty` | `@anzaui/anza/elements/empty` | Full |
-| data | [table](table.md) | `ui-table` | `@anzaui/anza/elements/table` | Full |
-| data | [list](list.md) | `ui-list` | `@anzaui/anza/elements/list` | Full |
-| data | [card](card.md) | `ui-card` | `@anzaui/anza/elements/card` | Full |
-| data | [chart](chart.md) | `ui-chart` | `@anzaui/anza/elements/chart` | Full |
-| data | [stat](stat.md) | `ui-stat` | `@anzaui/anza/elements/stat` | Full |
-| navigation | [nav](nav.md) | `ui-nav` | `@anzaui/anza/elements/nav` | Full |
-| navigation | [tabs](tabs.md) | `ui-tabs` | `@anzaui/anza/elements/tabs` | Full |
-| navigation | [breadcrumb](breadcrumb.md) | `ui-breadcrumb` | `@anzaui/anza/elements/breadcrumb` | Full |
-| navigation | [pagination](pagination.md) | `ui-pagination` | `@anzaui/anza/elements/pagination` | Full |
-| navigation | [steps](steps.md) | `ui-steps` | `@anzaui/anza/elements/steps` | Full |
-| layout | [app](app.md) | `ui-app` | `@anzaui/anza/elements/app` | Full |
-| layout | [header](header.md) | `ui-header` | `@anzaui/anza/elements/header` | Full |
-| layout | [sidebar](sidebar.md) | `ui-sidebar` | `@anzaui/anza/elements/sidebar` | Full |
-| layout | [stack](stack.md) | `ui-stack` | `@anzaui/anza/elements/stack` | Full |
-| layout | [grid](grid.md) | `ui-grid` | `@anzaui/anza/elements/grid` | Full |
-| layout | [split](split.md) | `ui-split` | `@anzaui/anza/elements/split` | Full |
-| layout | [scroll](scroll.md) | `ui-scroll` | `@anzaui/anza/elements/scroll` | Full |
-| layout | [surface](surface.md) | `ui-surface` | `@anzaui/anza/elements/surface` | Full |
+## Layout
 
-## Lifecycle / memory
+| Element | Tag | What it is |
+| ------- | --- | ---------- |
+| [App](app.md) | `ui-app` | Application shell with header, sidebar and main slots |
+| [Header](header.md) | `ui-header` | Top bar |
+| [Sidebar](sidebar.md) | `ui-sidebar` | Collapsible side panel |
+| [Stack](stack.md) | `ui-stack` | Flex stack with a gap |
+| [Grid](grid.md) | `ui-grid` | Responsive CSS grid |
+| [Split](split.md) | `ui-split` | Two-pane layout |
+| [Scroll](scroll.md) | `ui-scroll` | Scroll container |
+| [Surface](surface.md) | `ui-surface` | Flat, elevated or bordered panel |
 
-Kit elements bind listeners and observers with the component `AbortController` (`ctrl.signal`). Soft-nav swaps only the page leaf — disconnect aborts that leaf’s `ctrl` and tears down its `on` / `watch` / signal-owned work. Prefer shadow-scoped helpers (`on` with `attrs` / `not` / `key` / `scope: 'assigned'`, `watch.slot` for light-DOM boundaries); do not attach raw `document` / `body` listeners from a leaf without a signal. Overlay kit uses native top-layer APIs in-tree; **toast** is the deliberate `document.body` portal exception. Popover polyfill attachments use framework `globals`. See [Overlay patterns](overlay.md).
+## Styling
 
-See [Context — on / watch](../ui/context.md), [Memory safety & framework globals](../ui/advanced.md), and [Orphan listeners after soft-nav](../events/troubleshooting.md).
+Every element page has a Styling section with three lists:
+
+- `::part()` names you can style from outside the shadow root.
+- Component custom properties, set on the host (for example `--btn-bg` on `ui-button`). They default to semantic tokens.
+- Custom states, matched with `:state()` (for example `ui-checkbox:state(checked)`).
+
+```css
+ui-checkbox:state(checked)::part(box) {
+  border-width: 2px;
+}
+```
+
+## Cleanup
+
+Elements bind their listeners and observers to the component `AbortController` (`ctrl.signal`). When a soft navigation swaps a page, the old page's elements disconnect and their listeners are removed. Overlays use the native top layer in place. The toast is the one exception: it moves itself under `document.body` so it survives page swaps.
+
+If you add listeners to `document` or `window` from an element, pass `{ signal: ctrl.signal }`. See [Context](../ui/context.md) and [Orphan listeners after soft-nav](../events/troubleshooting.md).
 
 ## Related
 
-- [UI `element()` factory](../ui/elements.md)
-- [Form association](../ui/forms.md)
-- [Hydration / DSD adopt](../ui/hydration.md)
-- [Memory safety & framework globals](../ui/advanced.md)
-- [Events troubleshooting](../events/troubleshooting.md)
+- [UI `element()` factory](../ui/factory.md)
+- [Form-associated elements](../ui/form-associated.md)
+- [Hydration](../ui/hydration.md)

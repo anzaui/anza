@@ -50,5 +50,5 @@ Dropzone and upload work use the element `ctrl.signal` so disconnect / soft-nav 
 ## Related
 
 - [Elements overview](index.md)
-- [Forms](forms.md)
+- [Forms](index.md#forms)
 - [Memory safety & framework globals](../ui/advanced.md)
