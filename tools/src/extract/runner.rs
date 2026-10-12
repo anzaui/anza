@@ -53,6 +53,31 @@ pub fn compile_into(
   strict: bool,
   entries: &[std::path::PathBuf],
 ) -> Result<(), Vec<String>> {
+  compile_with(src_dir, dist_dir, types_dir, strict, entries, &Options::default())
+}
+
+/// Production build switches.
+#[derive(Debug, Clone)]
+pub struct Options {
+  /// Bundle into Rolldown chunks (production only; `--no-bundle` turns it off).
+  pub bundle: bool,
+}
+
+impl Default for Options {
+  fn default() -> Self {
+    Options { bundle: true }
+  }
+}
+
+/// [`compile_into`] with explicit [`Options`].
+pub fn compile_with(
+  src_dir: &Path,
+  dist_dir: &Path,
+  types_dir: &Path,
+  strict: bool,
+  entries: &[std::path::PathBuf],
+  options: &Options,
+) -> Result<(), Vec<String>> {
   let mut errors: Vec<String> = Vec::new();
   let mut outputs: Vec<std::path::PathBuf> = Vec::new();
 
@@ -87,7 +112,7 @@ pub fn compile_into(
         report.copied,
         dist_dir.display()
       );
-      outputs.extend(report.outputs);
+      outputs.extend(report.outputs.iter().cloned());
 
       // 4. Mode A SSG — contentful HTML with open DSD for public routes.
       //    Runs in build AND dev: otherwise `anza dev` recopies page fragments
@@ -101,7 +126,17 @@ pub fn compile_into(
         }
       }
       match crate::build::ssg::emit_with(src_dir, dist_dir, &report.module_graph, strict) {
-        Ok(stats) => outputs.extend(stats.outputs),
+        Ok(stats) => {
+          outputs.extend(stats.outputs.iter().cloned());
+          // 5. Production: Rolldown chunks (falls back to unbundled output).
+          if strict && errors.is_empty() {
+            if options.bundle {
+              bundle(src_dir, dist_dir, &report, &stats, &mut errors);
+            } else {
+              anza_logs::info!("Bundling off (--no-bundle): dist loads unbundled modules");
+            }
+          }
+        }
         Err(errs) => errors.extend(errs),
       }
     }
@@ -110,7 +145,7 @@ pub fn compile_into(
     }
   }
 
-  // 5. Production: precompressed .br / .gz siblings, once every file is final.
+  // 6. Production: precompressed .br / .gz siblings, once every file is final.
   if strict && errors.is_empty() {
     match crate::build::compress::precompress(dist_dir) {
       Ok(count) => anza_logs::success!("Precompressed {} file(s) (.br, .gz)", count),
@@ -130,6 +165,44 @@ pub fn compile_into(
     std::fs::remove_dir_all(dist_dir).ok();
   }
   Err(errors)
+}
+
+/// Run the production bundler; a missing toolchain only warns.
+fn bundle(
+  src_dir: &Path,
+  dist_dir: &Path,
+  report: &crate::build::graph::Report,
+  stats: &crate::build::ssg::Stats,
+  errors: &mut Vec<String>,
+) {
+  let input = crate::build::bundle::Input {
+    src_dir,
+    dist_dir,
+    graph: &report.module_graph,
+    definitions: &report.definitions,
+    library: &report.library,
+    importmap: &report.importmap,
+    hints: &stats.hints,
+    base: &stats.base,
+  };
+  match crate::build::bundle::run(&input) {
+    Ok(crate::build::bundle::Outcome::Bundled { chunks, rolldown }) => {
+      anza_logs::success!(
+        "Bundled with rolldown {} into {} chunk(s) under {}/{}",
+        rolldown,
+        chunks.len(),
+        dist_dir.display(),
+        crate::build::bundle::ASSETS
+      );
+    }
+    Ok(crate::build::bundle::Outcome::Skipped(reason)) => {
+      anza_logs::warn!(
+        "Not bundled: {}. dist loads unbundled modules (install rolldown as a devDependency to bundle, or pass --no-bundle to silence this)",
+        reason
+      );
+    }
+    Err(errs) => errors.extend(errs),
+  }
 }
 
 /// Delete files under `dist_dir` that the last successful compile did not

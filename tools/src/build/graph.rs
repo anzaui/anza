@@ -77,6 +77,11 @@ pub struct Report {
   /// (`/core/ui/index.js`), edges in source order. Dynamic `import()` is
   /// not an edge: it is not needed before the module runs.
   pub module_graph: ModuleGraph,
+  /// Modules with definition calls (site-root URL -> kinds such as `page`,
+  /// `element`, `dock`), for production chunking.
+  pub definitions: BTreeMap<String, Vec<String>>,
+  /// Site-root URLs of the copied modules that come from the library.
+  pub library: std::collections::BTreeSet<String>,
 }
 
 /// Site-root module URL -> its static imports (site-root URLs, source order).
@@ -222,6 +227,7 @@ pub fn resolve(
   let mut importmap: BTreeMap<String, String> = BTreeMap::new();
   // Definition modules -> relative style/template assets to inline (production).
   let mut inline: BTreeMap<PathBuf, Vec<(String, PathBuf)>> = BTreeMap::new();
+  let mut defs: BTreeMap<PathBuf, Vec<String>> = BTreeMap::new();
 
   // Parallel BFS: parse and resolve one frontier (BFS level) at a time, then
   // merge the results in queue order, so reached/diagnostics match a serial walk.
@@ -242,6 +248,9 @@ pub fn resolve(
     };
     for (module, visit) in frontier.iter().zip(visits) {
       edges.insert(module.clone(), visit.edges);
+      if !visit.defs.is_empty() {
+        defs.insert(module.clone(), visit.defs);
+      }
       if !dev && !visit.inline.is_empty() {
         inline.insert(module.clone(), visit.inline);
       }
@@ -345,6 +354,15 @@ pub fn resolve(
     }
     module_graph.insert(url.clone(), list);
   }
+  let definitions: BTreeMap<String, Vec<String>> = defs
+    .into_iter()
+    .filter_map(|(module, kinds)| url_of.get(&module).map(|url| (url.clone(), kinds)))
+    .collect();
+  let library: std::collections::BTreeSet<String> = jobs
+    .iter()
+    .filter(|(file, _)| is_js(file) && !file.starts_with(src))
+    .filter_map(|(file, _)| url_of.get(file).cloned())
+    .collect();
 
   // Serialize the import map once for every HTML file.
   let importmap_tag = super::html::importmap_tag(&importmap);
@@ -445,6 +463,8 @@ pub fn resolve(
     importmap,
     outputs,
     module_graph,
+    definitions,
+    library,
   })
 }
 
@@ -487,6 +507,8 @@ struct Visit {
   edges: Vec<PathBuf>,
   /// Relative definition assets to inline: (specifier, resolved file).
   inline: Vec<(String, PathBuf)>,
+  /// Definition call kinds (see `parse::Parsed::defs`).
+  defs: Vec<String>,
 }
 
 /// Parse one module and resolve its imports and asset literals.
@@ -592,6 +614,8 @@ fn visit_module(module: &Path, ctx: &WalkCtx) -> Visit {
       Resolution::External => {}
     }
   }
+
+  out.defs = parsed.defs.clone();
 
   // Inlinable assets: resolved files only (a missing one is reported above).
   for spec in &parsed.inline {

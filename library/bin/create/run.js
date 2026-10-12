@@ -308,6 +308,9 @@ export function run(target, name, library) {
     },
     devDependencies: {
       '@anzaui/anza': 'latest',
+      // Production bundler used by `anza build` (optional: without it the
+      // build ships unbundled modules).
+      rolldown: '^1.2.13',
     }
   }, null, 2) + '\n';
 

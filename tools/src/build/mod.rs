@@ -7,6 +7,7 @@
 // future scope).
 
 pub mod base;
+pub mod bundle;
 pub mod cache;
 pub mod compress;
 pub mod css;

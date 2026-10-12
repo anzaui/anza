@@ -50,6 +50,26 @@ Production builds also optimize CSS with [Lightning CSS](https://lightningcss.de
 
 Production builds also put each element's resources into its module: when an `element()`, `view()`, `part()`, `dock()` or `page()` spec names a relative stylesheet, template or `.tags.json` descriptor, the built module carries their contents and the runtime uses them instead of fetching (one constructable stylesheet per element type, adopted by every instance). `page()` HTML templates stay files, since they're route-sized and the SSG HTML already contains them, and so do stylesheets with `@import` or relative `url()`. `anza dev` and apps without a build fetch the files as before.
 
+### Bundling (production)
+
+`anza build` bundles the module graph into a few minified, content-hashed ES module chunks under `dist/assets/`, using [Rolldown](https://rolldown.rs) 1.x through its JS API. Rolldown is a devDependency of **your project** (projects made by `npm create @anzaui/anza` already list it):
+
+```bash
+npm install -D rolldown
+```
+
+| Chunk | Contains |
+|-------|----------|
+| `app-<hash>.js` | The entry (`src/app.js`) and the modules only it imports |
+| `core-<hash>.js` | Library modules that two or more routes need |
+| `route-<group>-<hash>.js` | The page modules of one route group (`route-index` for `/`, `route-docs` for `/docs/*`, …) |
+| `elements-<hash>.js` | Element, view, part and dock definitions that every route needs |
+| `el-<name>-<hash>.js` | One chunk per element that only some routes need |
+
+Modules loaded only through `import()` get their own chunks. Each page preloads the chunks its entry imports (`<link rel="modulepreload">` and the `Link` header in `_headers`), so all of them start downloading with the HTML. Since bare `@anzaui/anza/*` imports are resolved during bundling, the import map is dropped (it's kept only for specifiers that stay external). The bundled source modules are removed from `dist/`. `import.meta.url` keeps pointing at each module's original location, so relative `new URL('./x', import.meta.url)` and element templates resolve as before.
+
+If Node, the bundle script or `rolldown` can't be found, or an HTML page has an inline `<script type="module">` that needs the import map, the build warns and ships the unbundled modules with full `modulepreload` lists. `anza build --no-bundle` always does that. `anza dev` never bundles.
+
 Public routes get **Mode A SSG** (also during `anza dev`): contentful HTML with open Declarative Shadow DOM under `dist/<route>/index.html`, so hard refresh works on a plain static server. Publish `dist/` as the **document root**. Asset URLs are site-root paths (`/app.js`, `/tokens/...`) — never `/dist/...`.
 
 When the page’s CSR fragment path would collide with that SSG `index.html`, the emitter keeps the fragment as `template.html` and rewrites the built page module plus `routes.json` so soft-nav fetches the fragment — not the full document. Overview: [ssg/index.md](../ssg/index.md). Contract: [ssg/contract.md](../ssg/contract.md). Hydration: [ui/hydration.md](../ui/hydration.md).
@@ -169,6 +189,7 @@ Flags: `--tree`, `--route`, `--via` (comma-separated), `--parent`, `-s/--src`.
 | `-p, --port` | `3000` | Dev server port |
 | `--dist` | `dist` | Output directory |
 | `--types` | `types` beside `--dist` | With `build` — where the generated `.d.ts` files go |
+| `--no-bundle` | off | With `build` — ship unbundled modules instead of Rolldown chunks |
 | `-e, --entry` | `src/app.js` | Additional entry modules |
 | `--strict` | off | With `doctor` — promote warnings to failures |
 | `--tree` | first `pages[]` | With `generate page` — page tree under `src` |

@@ -28,6 +28,9 @@ pub struct Parsed {
   /// build inlines into the module: every style, and every template except
   /// `page()` HTML (route-sized content the SSG already ships in HTML).
   pub inline: Vec<String>,
+  /// Definition calls in this module, by kind (`element`, `container`,
+  /// `page`, `dock`, `view`, `part`), in source order.
+  pub defs: Vec<String>,
   pub prop_errors: Vec<(String, Span)>,
 }
 
@@ -70,6 +73,7 @@ pub fn parse(file: &Path, cm: &Arc<SourceMap>) -> Result<Parsed, Diagnostic> {
     dynamic: visitor.dynamic,
     assets: visitor.assets,
     inline: visitor.inline,
+    defs: visitor.defs,
     prop_errors: visitor.prop_errors,
   })
 }
@@ -80,6 +84,7 @@ struct Collector {
   dynamic: Vec<(String, Span)>,
   assets: Vec<(String, Span)>,
   inline: Vec<String>,
+  defs: Vec<String>,
   prop_errors: Vec<(String, Span)>,
 }
 
@@ -133,6 +138,7 @@ impl Visit for Collector {
           if let (Expr::Ident(obj), MemberProp::Ident(prop)) = (&*member.obj, &member.prop) {
             if obj.sym == "ui" && (prop.sym == "element" || prop.sym == "container") {
               if call.args.len() >= 2 {
+                self.defs.push(prop.sym.to_string());
                 if let Expr::Object(spec) = &*call.args[1].expr {
                   self.scan_spec(spec, false);
                 }
@@ -143,6 +149,7 @@ impl Visit for Collector {
         Expr::Ident(ident) => {
           if matches!(ident.sym.as_ref(), "page" | "dock" | "view" | "part") {
             if call.args.len() >= 2 {
+              self.defs.push(ident.sym.to_string());
               if let Expr::Object(spec) = &*call.args[1].expr {
                 self.scan_spec(spec, ident.sym == "page");
               }

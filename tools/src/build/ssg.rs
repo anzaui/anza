@@ -112,6 +112,11 @@ pub struct Stats {
   pub emitted: usize,
   /// Every file written, relative to dist.
   pub outputs: Vec<PathBuf>,
+  /// Per-route preloads written to `_headers` (for the production bundler,
+  /// which maps the modules to chunks and rewrites the file).
+  pub hints: Vec<super::headers::Hints>,
+  /// Deploy base path (`""` when none).
+  pub base: String,
 }
 
 /// Emit SSG HTML for every eligible route into `dist_dir`.
@@ -260,7 +265,12 @@ pub fn emit_with(
   apply_base_path(dist_dir, &site, &mut errors);
 
   if errors.is_empty() {
-    Ok(Stats { emitted, outputs })
+    Ok(Stats {
+      emitted,
+      outputs,
+      hints: route_hints,
+      base: base.to_string(),
+    })
   } else {
     Err(errors)
   }

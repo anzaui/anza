@@ -64,6 +64,10 @@ enum Command {
     #[arg(long)]
     types: Option<String>,
 
+    /// Keep the unbundled module output (no Rolldown chunks).
+    #[arg(long)]
+    no_bundle: bool,
+
     /// Entry module(s) to resolve from. Defaults to src/index.js plus any
     /// HTML module scripts discovered under src.
     #[arg(short, long)]
@@ -165,7 +169,7 @@ async fn main() {
           tokio::signal::ctrl_c().await.unwrap();
         }
       }
-      Command::Build { src, dist, types, entry } => {
+      Command::Build { src, dist, types, no_bundle, entry } => {
         let entries = entry.into_iter().map(PathBuf::from).collect();
         let op = Build {
           src: PathBuf::from(src),
@@ -173,6 +177,7 @@ async fn main() {
           entries,
           strict: true,
           types: types.map(PathBuf::from),
+          no_bundle,
         };
         if let Err(e) = op.run() {
           anza_logs::error!("{}", e);
@@ -284,6 +289,7 @@ async fn main() {
       entries: Vec::new(),
       strict: true,
       types: None,
+      no_bundle: false,
     };
     if let Err(e) = op.run() {
       anza_logs::error!("{}", e);

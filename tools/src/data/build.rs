@@ -9,6 +9,8 @@ pub struct Build {
   pub strict: bool,
   /// Type declarations output (default: `types/` beside dist).
   pub types: Option<PathBuf>,
+  /// Production: skip Rolldown bundling (`--no-bundle`).
+  pub no_bundle: bool,
 }
 
 impl Build {
@@ -26,7 +28,14 @@ impl Build {
       .types
       .clone()
       .unwrap_or_else(|| extract::default_types_dir(&self.dist));
-    extract::compile_into(&self.src, &self.dist, &types, self.strict, &self.entries).map_err(|errors| {
+    extract::compile_with(
+      &self.src,
+      &self.dist,
+      &types,
+      self.strict,
+      &self.entries,
+      &extract::Options { bundle: !self.no_bundle },
+    ).map_err(|errors| {
       extract::report_errors(&errors);
       format!("Build failed: {} error(s)", errors.len())
     })

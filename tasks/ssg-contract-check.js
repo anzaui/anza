@@ -69,8 +69,17 @@ function checkPage(html, label, { requireTitle = true, requireJsonLd = false, re
   assertContains(html, `href="${tokensCss}"`, label);
   assertContains(html, `href="${stylesCss}"`, label);
   assertContains(html, 'rel="modulepreload"', label);
-  assertContains(html, `src="${appJs}"`, label);
-  assertContains(html, 'type="importmap"', label);
+  // Production builds load a content-hashed entry chunk from /assets/ (no
+  // import map left); unbundled builds (--no-bundle, no rolldown) load
+  // /app.js through the import map.
+  const assetsDir = requireBase ? assetPath('/assets/') : '/assets/';
+  const bundled = new RegExp(`<script type="module" src="${assetsDir}app-[0-9a-f]{8,}\\.js"`).test(html);
+  if (bundled) {
+    ok(`${label}: loads the bundled entry chunk`);
+  } else {
+    assertContains(html, `src="${appJs}"`, label);
+    assertContains(html, 'type="importmap"', label);
+  }
   if (requireBase && base) {
     assertContains(html, 'globalThis.__ANZA_BASE__', label);
   }
