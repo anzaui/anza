@@ -9,6 +9,7 @@ superseded by this folder until the program is done.
 | [FREEZE.md](./FREEZE.md) | Spec freeze: what may **not** change during cleanup, and the rules for what may. |
 | [SWEEP.md](./SWEEP.md) | What to delete, move, merge or untrack. Minimal repo target layout. |
 | [PHASES.md](./PHASES.md) | Ordered fix phases with exit criteria. Work top to bottom. |
+| [HARDEN.md](./HARDEN.md) | **Current:** security, SEO, engine and UI fixes before re-cutting v0.6.0. |
 | [DIST.md](./DIST.md) | Measured `dist/` baseline, target output layout, step-by-step browser optimization, CI budgets. |
 | [RESEARCH.md](./RESEARCH.md) | Outside research and tools (with sources) backing the decisions. |
 
