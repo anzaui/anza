@@ -343,5 +343,39 @@ describe('API Prefix, Cache, and Events Engine', () => {
         throw new Error(`Expected cached data, got: ${JSON.stringify(result)}`);
       }
     });
+
+    it('ignores a clobbering element that is not script[type=application/json]', () => {
+      const img = document.createElement('img');
+      img.id = 'anza-state';
+      img.setAttribute('alt', '{"__route":{"url":"/evil","params":{},"query":{}}}');
+      img.textContent = '{"__route":{"url":"/evil","params":{},"query":{}}}';
+      document.body.prepend(img);
+      try {
+        api.sync();
+        const state = api.state();
+        if (state.url === '/evil') throw new Error('clobbered anza-state was read');
+      } finally {
+        img.remove();
+      }
+    });
+
+    it('does not serve prototype keys from the hydrated state', async () => {
+      const script = document.createElement('script');
+      script.id = 'anza-state';
+      script.type = 'application/json';
+      script.textContent = JSON.stringify({ 'https://api.example.com/x': { ok: 1 } });
+      document.head.appendChild(script);
+      api.sync();
+
+      let fetched = 0;
+      globalThis.fetch = async () => {
+        fetched++;
+        return new Response('{"live":true}', { status: 200, headers: { 'Content-Type': 'application/json' } });
+      };
+      for (const key of ['toString', 'constructor', '__proto__']) {
+        await api.get(key).catch(() => {});
+      }
+      if (fetched !== 3) throw new Error(`expected 3 network fetches, got ${fetched}`);
+    });
   });
 });

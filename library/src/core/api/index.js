@@ -22,7 +22,9 @@ let cache = null;
 
 function sync() {
   if (typeof document === 'undefined') return;
-  const el = document.getElementById('anza-state');
+  // Selector (not getElementById) so an injected <img id="anza-state"> or
+  // <form name> cannot stand in for the server-rendered JSON payload.
+  const el = document.querySelector('script#anza-state[type="application/json"]');
   if (el) {
     try {
       cache = JSON.parse(el.textContent);
@@ -77,7 +79,7 @@ pipeline.inbound((responseOrError) => {
 async function request(url, method, body, opts = {}) {
   const resolvedUrl = prefixes.resolve(url);
   
-  if (method === 'GET' && cache && resolvedUrl in cache) {
+  if (method === 'GET' && cache && Object.hasOwn(cache, resolvedUrl)) {
     return JSON.parse(JSON.stringify(cache[resolvedUrl]));
   }
   

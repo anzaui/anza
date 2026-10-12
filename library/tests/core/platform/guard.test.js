@@ -128,4 +128,30 @@ describe('Platform Guard', () => {
       reset('schedulerPostTask');
     }
   });
+
+  it('sanitizer() never parses input through innerHTML before sanitizing', async () => {
+    const descAPI = Object.getOwnPropertyDescriptor(supports, 'sanitizerAPI');
+    const savedSanitizer = Object.getOwnPropertyDescriptor(globalThis, 'Sanitizer');
+    let legacyCalled = false;
+    window.__guardXss = false;
+    Object.defineProperty(supports, 'sanitizerAPI', { get: () => true, configurable: true });
+    Object.defineProperty(globalThis, 'Sanitizer', {
+      value: class { sanitize(node) { legacyCalled = true; return document.createDocumentFragment(); } },
+      configurable: true,
+      writable: true
+    });
+    try {
+      const s = await guard.sanitizer();
+      const out = s.sanitizeToString('<img src=x onerror="window.__guardXss=true">');
+      await new Promise((r) => setTimeout(r, 50));
+      if (legacyCalled) throw new Error('legacy Sanitizer.sanitize path still used');
+      if (window.__guardXss) throw new Error('onerror ran during sanitization');
+      if (!String(out).includes('&lt;img')) throw new Error(`unexpected output: ${out}`);
+    } finally {
+      Object.defineProperty(supports, 'sanitizerAPI', descAPI);
+      if (savedSanitizer) Object.defineProperty(globalThis, 'Sanitizer', savedSanitizer);
+      else delete globalThis.Sanitizer;
+      delete window.__guardXss;
+    }
+  });
 });

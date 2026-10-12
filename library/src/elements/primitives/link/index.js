@@ -11,6 +11,23 @@
 import { ui } from '../../../core/ui/index.js';
 import { router } from '../../../core/router/index.js';
 
+const UNSAFE_PROTOCOLS = new Set(['javascript:', 'data:', 'vbscript:']);
+
+/**
+ * Returns href unchanged when it is safe to put on an <a>, else ''. Parsed
+ * with URL so tab/newline/control-character and mixed-case tricks are
+ * normalised exactly as the browser would when following the link.
+ */
+function safeHref(href) {
+  if (!href) return '';
+  try {
+    const url = new URL(href, document.baseURI);
+    return UNSAFE_PROTOCOLS.has(url.protocol) ? '' : href;
+  } catch {
+    return '';
+  }
+}
+
 ui.element('ui-link', {
   style: './style.css',
   template: './index.html',
@@ -35,11 +52,15 @@ ui.element('ui-link', {
   methods: {
     _update() {
       const a = this.shadowRoot.querySelector('a');
-      const href = this.href || '';
+      const href = safeHref(this.href);
       const target = this.target;
       const external = this.external || href.startsWith('http://') || href.startsWith('https://');
 
-      a.href = href;
+      if (href) {
+        a.setAttribute('href', href);
+      } else {
+        a.removeAttribute('href');
+      }
       if (target) {
         a.target = target;
       } else {
@@ -69,8 +90,8 @@ ui.element('ui-link', {
     },
     _syncState() {
       const a = this.shadowRoot.querySelector('a');
-      const href = this.href;
-      
+      const href = safeHref(this.href);
+
       if (this.hasAttribute('current')) {
         const currentVal = this.current;
         a.setAttribute('aria-current', currentVal);
@@ -88,7 +109,7 @@ ui.element('ui-link', {
       }
     },
     _click(e) {
-      const href = this.href;
+      const href = safeHref(this.href);
       const target = this.target;
       const external = this.external || href?.startsWith('http://') || href?.startsWith('https://');
 
