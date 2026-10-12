@@ -148,3 +148,15 @@ Why this order:
 5. Delete `CLEAN/`. Lift the freeze.
 
 **Exit:** `v0.6.0` published from CI with no manual steps. `CLEAN/` removed.
+
+## Phase 6 — Docs website redesign (after the library work is done)
+
+Requested 2026-10-12. Starts only after Phases B–5 land, so the site describes the final library and is built by the final toolchain (bundled, hashed dist).
+
+1. **Design from first principles, not from the current look.** Write a short `web/DESIGN-PRINCIPLES.md` before touching CSS: reading comfort first (measure, type scale, contrast), one clear navigation model, content over chrome, works without JS (SSG pages are complete), fast on Fast 4G (DIST budgets apply), accessible (keyboard, focus, reduced motion, WCAG AA contrast), light/dark from the same tokens.
+2. **Navigation redesign.** The user dislikes the current nav. Rebuild header + sidebar + in-page TOC + prev/next as one system: stable sidebar generated from the docs tree (Phase B docs generator), clear current-page state, collapsible groups, search entry point, mobile drawer.
+3. **Built with Anza itself, done right:** `ui-*` elements, docks/pages/views, tokens, and no one-off hacks. The site doubles as the reference app, so whatever it needs and the library lacks is a library bug.
+4. **Content pass:** landing page, getting started, and API pages follow one template: what it is, minimal example, options table, pitfalls.
+5. **Verify:** Lighthouse/Puppeteer budgets from DIST.md on the home page, a docs page and an element page; screenshots in light/dark at mobile and desktop widths; keyboard-only navigation pass.
+
+**Exit:** the user signs off on the design. All DIST budgets pass on the site.
