@@ -92,6 +92,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install (with runtime deps, e.g. cryptography)
+        run: python -m pip install -e engines/py
+
       - name: Test
         run: |
           cd engines/py
