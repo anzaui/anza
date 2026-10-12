@@ -1,12 +1,12 @@
 # Cryptographic Verification
 
-In distributed architectures with CDNs (Cloudflare, Fastly) and reverse proxies terminating SSL/TLS, standard transport-layer security only protects the connection between the client and the edge proxy—not between the origin and the client.
+TLS protects each hop, but a CDN or proxy that terminates TLS can still change a
+response. Signed envelopes let whoever receives a fragment check that it came
+from the origin unchanged.
 
-Anza provides end-to-end payload integrity via signed envelopes.
+## 1. Signing modes
 
-## 1. Supported Signing Modes
-
-Configured in `Setup`:
+`SignOptions` (in `src/engine/cache/engine.ts`), passed to `Setup`:
 
 ```typescript
 export interface SignOptions {
@@ -18,17 +18,30 @@ export interface SignOptions {
 }
 ```
 
-| Mode | Use Case | CDN / Proxy Compatible? | Verification API |
-|---|---|---|---|
-| **`ed25519`** | Public streams behind CDNs | ✅ **100% (Asymmetric Origin Public Key)** | `crypto.subtle.verify({ name: "Ed25519" }, ...)` |
-| **`hmac`** | Shared-secret microfrontends | ✅ Yes (Shared secret) | `crypto.subtle.verify({ name: "HMAC" }, ...)` |
-| **`session`** | User-isolated personalized streams | ✅ Yes (Derived from session token) | HKDF-derived HMAC |
-| **`none`** | Local testing & development | ✅ Yes | N/A |
+| Mode | What happens | Verify with |
+|---|---|---|
+| **`ed25519`** | `sig` = hex Ed25519 signature, using `privateKey` | `crypto.ed25519.verify` with the public key |
+| **`hmac`** | `sig` = hex HMAC-SHA256, using `secret` | `crypto.hmac.verify` with the same secret |
+| **`session`** | Reserved: no `sig` is added yet | — |
+| **`none`** | No `sig` (the default) | — |
 
-## 2. Canonical Wire Format
+Notes:
 
-Signatures are computed strictly over the canonical string:
+- If `privateKey` (ed25519) or `secret` (hmac) is missing, envelopes are sent
+  **unsigned** without an error.
+- `publicKey` and `publishMeta` are stored but not used: the engine does not
+  inject the public key into pages.
 
-$$\text{Canonical Message} = \text{ts} \parallel \texttt{":"} \parallel \text{slot} \parallel \texttt{":"} \parallel \text{html}$$
+## 2. Signed message
 
-Any alteration by an intermediate proxy to the timestamp, target slot, or HTML content results in an immediate signature mismatch.
+The signature covers `${ts}:${slot}:${html}`, exactly as returned by
+`envelope.message()`. Changing the timestamp, slot or HTML breaks the
+signature. Checking that `ts` is recent (to reject replays) is up to the
+verifier.
+
+## 3. Who verifies
+
+The engine only signs. The Anza browser library does **not** verify envelopes:
+it has no envelope or stream handler. Verify on the server or edge that relays
+fragments with the `verify` helpers, or in your own browser code with
+`crypto.subtle.verify` (see [Ed25519](ed25519.md)).

@@ -1,44 +1,36 @@
-# Session Key Derivation via HKDF
+# Key Derivation with HKDF
 
-When applications stream personalized or user-scoped components, each user session requires an isolated signing key to prevent cross-tenant message forgery.
+The package includes an HKDF-SHA256 helper (RFC 5869) for deriving per-session
+keys, for example a per-user HMAC secret from a session token.
 
-## 1. HKDF-SHA256 Derivation Architecture
+> `mode: 'session'` does not use it yet: that mode adds no signature. To sign per
+> session today, derive a key and pass it to `crypto.hmac.sign` yourself.
 
-Instead of storing ephemeral signing keys in Redis or server memory, Anza derives deterministic 32-byte stream keys from the user's session token or JWT signature using HMAC-based Extract-and-Expand Key Derivation (HKDF-SHA256, RFC 5869).
+## 1. TypeScript API
 
-```
-   User Session Token / JWT Signature
-                  │
-                  ▼ (IKM: Input Keying Material)
-     ┌────────────────────────┐
-     │      HKDF-Extract      │ ◄── Master Salt (Configured on Engine)
-     └───────────┬────────────┘
-                 │ (PRK: Pseudorandom Key)
-                 ▼
-     ┌────────────────────────┐
-     │      HKDF-Expand       │ ◄── Info: "anza-stui-user-stream-v1"
-     └───────────┬────────────┘
-                 │
-                 ▼
-      User-Scoped 32-byte Stream Key
-```
-
-## 2. TypeScript API Usage
-
-Located in `src/crypto/hkdf.ts`:
+`src/crypto/hkdf.ts`, exported as `crypto.hkdf`:
 
 ```typescript
-import { crypto as anzaCrypto } from 'anza';
-
-const sessionToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
-const engineSalt = 'anza-cluster-salt-2026';
-const info = 'user-live-feed';
-
-const userStreamKey = await anzaCrypto.hkdf.deriveKey(sessionToken, engineSalt, info, 32);
-console.log('Derived Key Length:', userStreamKey.length); // 32 bytes
+deriveKey(
+  ikm: string | Uint8Array,
+  salt?: string | Uint8Array,              // default: empty
+  info: string | Uint8Array = 'anza-stui-session-v1',
+  keylen = 32,
+): Promise<Buffer>;
 ```
 
-### Properties
+```typescript
+import { crypto as anzaCrypto } from '@anzaui/engine';
 
-1. **Stateless**: The server re-derives the stream key on incoming SSE requests without cache lookups or database hits.
-2. **Cryptographic Isolation**: Knowing one user's derived key provides zero information about other users' keys.
+const sessionToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+const userKey = await anzaCrypto.hkdf.deriveKey(sessionToken, 'anza-cluster-salt-2026', 'user-live-feed', 32);
+
+const sig = anzaCrypto.hmac.sign(userKey, '1724771200:feed:<ui-card>Hi</ui-card>');
+```
+
+## 2. Properties
+
+1. **Stateless**: the same inputs always give the same key, so the server can
+   re-derive it per request.
+2. **Isolation**: knowing one derived key does not reveal the input key or other
+   derived keys.

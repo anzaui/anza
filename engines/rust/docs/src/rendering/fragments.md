@@ -1,13 +1,13 @@
-# Dynamic Fragment Envelopes
+# Fragment Envelopes
 
-Partial HTTP fetches and live streams emit the signed Anza `Envelope`.
+Fragments and pushes return an `Envelope`.
 
-## 1. The `Envelope` Struct
+## 1. `Envelope`
 
-Located in `src/models/envelope.rs`:
+`anza::Envelope` (in `src/models/envelope.rs`):
 
 ```rust
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Envelope {
   pub slot: String,
   pub ts: u64,
@@ -19,32 +19,46 @@ pub struct Envelope {
 }
 ```
 
-- **`slot`**: The target DOM slot or element ID in the client document.
-- **`ts`**: Unix timestamp in seconds for freshness validation and replay prevention.
-- **`html`**: Rendered semantic HTML fragment.
-- **`sig`**: Hex-encoded signature calculated over the canonical message `format!("{}:{}:{}", ts, slot, html)`.
-- **`css`**: Optional dynamic stylesheet override scoped to the fragment.
+- **`slot`**: the target name you chose when rendering.
+- **`ts`**: Unix time in seconds when the envelope was rendered.
+- **`html`**: the bound fragment HTML (not escaped).
+- **`sig`**: hex signature over `format!("{}:{}:{}", ts, slot, html)`, present for `Hmac` and `Ed25519` signing.
+- **`css`**: optional CSS text; the engine never sets it, use `.style(css)`.
 
-## 2. Rendering a Fragment in Rust
+Helpers: `Envelope::new(slot, ts, html)`, `.sign(sig)`, `.style(css)` and
+`.message()` (returns the `ts:slot:html` string that is signed).
 
-Located in `src/render/fragment/render.rs`:
+## 2. Rendering a fragment
 
 ```rust
-use anza::render::fragment::render as render_fragment;
+use anza::Fragment;
 
-let envelope = render_fragment(
-  &engine,
-  "feed/card.html",
-  "feed-slot",
-  &[
-    ("title", "New Event Received"),
-    ("status", "processed"),
-  ]
-)?;
+let envelope = Fragment::new("feed/card.html", "feed-slot")
+  .param("title", "New Event Received")
+  .param("status", "processed")
+  .run(&engine)?;
 
-println!("Slot: {}", envelope.slot);
-println!("Timestamp: {}", envelope.ts);
-println!("Signature: {:?}", envelope.sig);
+println!("slot: {}", envelope.slot);
+println!("ts:   {}", envelope.ts);
+println!("sig:  {:?}", envelope.sig);
 ```
 
-The engine automatically handles parameter binding, fetches current system time, calculates the cryptographic signature according to configured `SignOptions`, and packages the result into the `Envelope`.
+`Engine::render_fragment` looks up the template, binds the params, takes the
+current time, signs `ts:slot:html` according to `engine.signing`, and returns the
+envelope. The same function is available as
+`anza::render::fragment::envelope(&engine, template, slot, &params)`.
+
+To bind structured data instead of string pairs, bind the template yourself and
+build the envelope:
+
+```rust
+use anza::Envelope;
+
+let tpl = engine.get("feed/card.html")?;
+let html = tpl.render(&article)?; // any serde::Serialize value
+let ts = 1_724_771_200;
+let mut env = Envelope::new("feed".to_string(), ts, html);
+if let Some(sig) = engine.sign_payload(ts, &env.slot, &env.html)? {
+  env = env.sign(sig);
+}
+```

@@ -1,45 +1,46 @@
 # Server-Sent Events (SSE)
 
-Server-Sent Events provide lightweight, unidirectional streaming over standard HTTP/2 and HTTP/3.
+## 1. Encoding a frame
 
-## 1. The `formatEvent` / `sseEvent` Helper
-
-Located in `src/stream/sse.ts`:
+`src/stream/sse.ts` (`formatEvent`; `sseEvent` is the same function from the web
+adapter):
 
 ```typescript
-import { sseEvent, Envelope } from 'anza';
+import { Envelope, sseEvent } from '@anzaui/engine';
 
-const envelope = new Envelope(
-  'feed',
-  1724771200,
-  '<article>Live Post</article>',
-  '9f83...'
-);
+const envelope = new Envelope('feed', 1724771200, '<article>Live Post</article>');
 
-const wireChunk = sseEvent(envelope);
-// Outputs: "event: template\ndata: {\"slot\":\"feed\",...}\n\n"
+const frame = sseEvent(envelope);
+// 'event: template\ndata: {"slot":"feed","ts":1724771200,"html":"<article>Live Post</article>"}\n\n'
 ```
 
-## 2. Native Node.js HTTP Streaming
+## 2. Node.js HTTP streaming
 
 ```typescript
 import * as http from 'node:http';
-import { sseEvent } from 'anza';
+import { Fragment, Setup, sseEvent } from '@anzaui/engine';
 
-http.createServer(async (req, res) => {
-  if (req.url === '/feed/stream') {
+const engine = await new Setup({ root: './templates' }).run();
+
+http
+  .createServer((req, res) => {
+    if (req.url !== '/feed/stream') {
+      res.writeHead(404).end();
+      return;
+    }
+
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       Connection: 'keep-alive',
     });
 
-    setInterval(async () => {
-      const envelope = await engine.renderFragment('feed/card.html', 'feed', {
-        title: 'Live Event',
-      });
+    const timer = setInterval(async () => {
+      const envelope = await new Fragment('feed/card.html', 'feed', { title: 'Live Event' }).run(engine);
       res.write(sseEvent(envelope));
     }, 2000);
-  }
-}).listen(3000);
+
+    req.on('close', () => clearInterval(timer));
+  })
+  .listen(3000);
 ```

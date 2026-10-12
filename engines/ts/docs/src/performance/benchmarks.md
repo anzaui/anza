@@ -1,20 +1,25 @@
-# JIT Closure Speed & V8 Optimization
+# Benchmarks
 
-Benchmarking template interpolation speed across different parameter types in V8 / Node.js.
+No benchmark numbers are published for the TypeScript engine. Earlier versions of
+this page listed latencies that were not backed by a reproducible benchmark, so
+they were removed.
 
-## 1. Parameter Binding Latency
+## Measuring it yourself
 
-Tested on Node.js v20 / Linux x86_64:
+```typescript
+import { compile, extract } from '@anzaui/engine';
 
-| Operation | Latency | Operations / Second |
-|---|---|---|
-| Plain Object `{ id: 101, title: '...' }` | **180 ns** | **5,500,000 ops/s** |
-| Native `Map.get()` lookup | **220 ns** | **4,500,000 ops/s** |
-| Array of Key-Value tuples `[['id', 101]]` | **260 ns** | **3,800,000 ops/s** |
-| Full SSR Page Compilation | **6.7 ms (Batch test)** | **~15,000 req/s** |
+const render = compile(extract('<ui-card id="{{id}}"><b>{{title}}</b></ui-card>'));
+const params = { id: 101, title: 'Hello' };
 
-## 2. Why Closures Outperform AST Interpreters
+const runs = 1_000_000;
+const start = performance.now();
+for (let i = 0; i < runs; i++) render(params);
+const ms = performance.now() - start;
 
-1. **Hidden Class Optimization**: Direct object property lookups (`obj[p.name]`) leverage V8's inline caches (ICs).
-2. **Loop Unrolling**: Modern JS engines unroll the static chunk traversal.
-3. **Zero Intermediate Objects**: Does not construct intermediary AST nodes or wrapper instances during execution.
+console.log(`${((ms * 1e6) / runs).toFixed(0)} ns per render`);
+```
+
+Compare plain objects, `Map`s and `[key, value]` arrays with your real templates;
+object parameters are expected to be the fastest because they are a direct
+property lookup.

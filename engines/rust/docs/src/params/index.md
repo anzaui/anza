@@ -1,8 +1,11 @@
-# Parameter Binding & The `Params` Trait
+# Parameter Binding & the `Params` Trait
 
-Parameter interpolation in Anza is governed by the `Params` trait defined in `src/engine/slot/bind.rs`.
+`Template::bind` takes anything that implements `anza::Params`
+(`src/engine/slot/bind.rs`). The builders (`Page`, `Fragment`, `Stream`) and the
+`Engine::render_*` methods always use `HashMap<String, String>`; the other
+implementations are for binding a template yourself with `engine.get(name)?.bind(...)`.
 
-## 1. The `Params` Trait Definition
+## 1. The trait
 
 ```rust
 use std::borrow::Cow;
@@ -12,31 +15,41 @@ pub trait Params {
 }
 ```
 
-By returning `Cow<'_, str>`, the engine supports:
-- **`Cow::Borrowed(&'a str)`**: Direct borrowed slices from existing domain models—**zero allocations and zero string copies**.
-- **`Cow::Owned(String)`**: Dynamically formatted numbers or generated timestamps when needed.
+`Cow::Borrowed` lets a value be copied straight from your data without an extra
+`String`; `Cow::Owned` is for values that must be formatted (numbers, dates).
+Returning `None` renders the placeholder as an empty string.
 
-## 2. Built-in Implementations
+## 2. Built-in implementations
 
-### Key-Value Slices `&[(&str, &str)]`
+| Type | Notes |
+|---|---|
+| `()` | No values |
+| `[(&str, &str); N]` and `[(&str, &str)]` | Linear search; no allocation |
+| `HashMap<String, String>` | Borrowed values |
+| `serde_json::Value` | Object keys; numbers and booleans are formatted, `null` is empty, arrays/objects are rendered as JSON text |
+| `Data<T: Serialize>` | Serializes `T` to a `serde_json::Value` **on every lookup** |
+| `&T` where `T: Params` | Forwards |
+
 ```rust
-let params = [("title", "STUI Guide"), ("author", "Sarah")];
-let html = tpl.bind(&params);
+use std::collections::HashMap;
+use anza::Data;
+
+let tpl = engine.get("feed/card.html")?;
+
+let html = tpl.bind(&[("title", "STUI Guide"), ("author", "Sarah")])?;
+let html = tpl.bind(&())?;
+
+let mut map = HashMap::new();
+map.insert("title".to_string(), "Dynamic Title".to_string());
+let html = tpl.bind(&map)?;
+
+let html = tpl.bind(&serde_json::json!({ "title": "From JSON", "count": 3 }))?;
+
+// Any Serialize value (equivalent to tpl.render(&profile)):
+let html = tpl.bind(&Data(&profile))?;
 ```
 
-### Static Array of Tuples `[(&str, &str); N]`
-```rust
-let html = tpl.bind(&[("title", "STUI Guide")]);
-```
+`HashMap<&str, &str>` does **not** implement `Params`; use an array of pairs or
+`HashMap<String, String>`.
 
-### Empty Context `()`
-```rust
-let html = tpl.bind(&());
-```
-
-### `HashMap<String, String>` and `HashMap<&str, &str>`
-```rust
-let mut map = std::collections::HashMap::new();
-map.insert("title", "Dynamic Title");
-let html = tpl.bind(&map);
-```
+All values are inserted **without HTML escaping**. Escape untrusted input first.

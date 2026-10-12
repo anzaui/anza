@@ -1,13 +1,12 @@
 # Full-Page SSR & Open Declarative Shadow DOM
 
-Server-Templated UI (STUI) renders complete HTML documents wrapped with Open Declarative Shadow DOM (`<template shadowrootmode="open">`).
+A page render returns a complete HTML document. Templates can use open
+Declarative Shadow DOM (`<template shadowrootmode="open">`) so that shadow roots
+exist before any JavaScript runs.
 
-## 1. How Open Declarative Shadow DOM Works
-
-Declarative Shadow DOM allows server-rendered HTML to define scoped shadow trees without requiring JavaScript execution in the browser.
+## 1. Open Declarative Shadow DOM
 
 ```html
-<!-- Server-Rendered Output -->
 <dock-main>
   <template shadowrootmode="open">
     <style>
@@ -16,42 +15,45 @@ Declarative Shadow DOM allows server-rendered HTML to define scoped shadow trees
     <slot></slot>
   </template>
   <div class="page-content">
-    <h1>Sub-millisecond First Contentful Paint</h1>
+    <h1>Rendered on the server</h1>
   </div>
 </dock-main>
 ```
 
-When the browser parses this HTML:
-1. It attaches a `ShadowRoot` to `<dock-main>` immediately during HTML streaming.
-2. Scoped styles apply instantly before JavaScript bundles are fetched or executed.
-3. Search engines (Googlebot, Bing) crawl the light-DOM slot content directly.
+When the browser parses this HTML it attaches a `ShadowRoot` to `<dock-main>`
+during parsing, so scoped styles apply before scripts load, and the light-DOM
+content is visible to crawlers. A custom element defined later finds the existing
+root in `this.shadowRoot` instead of creating a new one.
 
-## 2. Non-Destructive Client-Side Adoption
+The engine does not add shadow roots to your templates (except in the fallback
+document below); write the `<template shadowrootmode="open">` markup yourself.
 
-When custom element JavaScript initializes later:
-
-```javascript
-class DockMain extends HTMLElement {
-  connectedCallback() {
-    // Adopts existing server-rendered shadowRoot without re-mounting or flashing!
-    const shadow = this.shadowRoot;
-  }
-}
-customElements.define('dock-main', DockMain);
-```
-
-No Virtual DOM reconciliation, no layout shifts (CLS = 0), and zero hydration tax.
-
-## 3. Invoking SSR in TypeScript
+## 2. Rendering a page
 
 ```typescript
-import { Page, htmlResponse } from 'anza';
+import { Page, htmlResponse } from '@anzaui/engine';
 
-const doc = await new Page('/', {
+const doc = await new Page('/article', {
   title: 'Deep Dive into STUI',
   author: 'Alex Rivera',
 }).run(engine);
 
-// doc.html contains the full <!DOCTYPE html> document
-return htmlResponse(doc);
+// doc.html holds the full document
+const response = htmlResponse(doc);
 ```
+
+`engine.renderPage` (`src/render/page.ts`) does this:
+
+1. Map the route to a template: `/` → `pages/home.html`, `/article` →
+   `pages/article.html`. If that is missing, try `article.html`, then
+   `pages/index.html`.
+2. Bind the page template with the params. If no page template exists, the
+   content is `<div class="content">Route: <route></div>` (the route is inserted
+   unescaped).
+3. If `layout/shell.html` exists, bind it with the params plus `content` and
+   `slot_main` set to the page HTML.
+4. Otherwise emit a minimal `<!DOCTYPE html>` document whose `<body>` holds a
+   `<dock-main>` with an open shadow root and the page content.
+
+The route is used as is: there is no route-parameter matching (`/article/my-slug`
+looks for `pages/article/my-slug.html`).

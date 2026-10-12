@@ -1,32 +1,30 @@
-# Express.js Integration
+# Express Integration
 
-The Express adapter provides response helpers for `res.send()`, `res.json()`, and Server-Sent Events.
+`src/adapters/express.ts` provides `sendHtml`, `sendJson` and `sendSse`.
 
-## 1. Handlers in Express
-
-Located in `src/adapters/express.ts`:
+## 1. Handlers
 
 ```typescript
 import express from 'express';
-import { Setup, Page, Fragment } from 'anza';
-import { sendHtml, sendJson, sendSse } from 'anza/adapters/express.js';
+import { Fragment, Page, Setup } from '@anzaui/engine';
+import { sendHtml, sendJson, sendSse } from '@anzaui/engine/adapters/express';
 
 const engine = await new Setup({ root: './templates' }).run();
 const app = express();
 
-// Full-Page SSR
+// Full page
 app.get('/', async (req, res) => {
   const doc = await new Page('/', { title: 'Express STUI' }).run(engine);
   sendHtml(res, doc);
 });
 
-// Partial Signed Fragment
+// Signed fragment
 app.get('/card', async (req, res) => {
   const envelope = await new Fragment('feed/card.html', 'main', { status: 'online' }).run(engine);
   sendJson(res, envelope);
 });
 
-// SSE Stream
+// SSE stream
 app.get('/stream', (req, res) => {
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
@@ -34,10 +32,12 @@ app.get('/stream', (req, res) => {
     Connection: 'keep-alive',
   });
 
-  setInterval(async () => {
-    const env = await engine.renderFragment('feed/card.html', 'feed', { title: 'Live Update' });
-    sendSse(res, env);
+  const timer = setInterval(async () => {
+    const envelope = await new Fragment('feed/card.html', 'feed', { title: 'Live Update' }).run(engine);
+    sendSse(res, envelope);
   }, 2000);
+
+  req.on('close', () => clearInterval(timer));
 });
 
 app.listen(3000);

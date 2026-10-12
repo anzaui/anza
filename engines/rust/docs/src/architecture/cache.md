@@ -1,64 +1,65 @@
-# Template Caching & Storage
+# Template Cache
 
-Templates are loaded, hashed with BLAKE3, and stored in an in-memory index at server boot.
+Templates are loaded, hashed with BLAKE3 and stored in memory by `Setup::run()`.
 
-## 1. The `Template` Struct
+## 1. `Template`
 
-Located in `src/engine/file/load.rs`:
+`anza::engine::file::Template` (in `src/engine/file/load.rs`):
 
 ```rust
 #[derive(Debug, Clone)]
 pub struct Template {
-  pub name: String,
-  pub path: PathBuf,
-  pub raw: String,
-  pub digest: String,
+  pub name: String,      // path relative to the root, e.g. "pages/home.html"
+  pub path: PathBuf,     // root.join(name)
+  pub raw: String,       // file contents
+  pub digest: [u8; 32],  // BLAKE3 hash of the contents
   pub chunks: Vec<Chunk>,
+}
+
+impl Template {
+  pub fn bind<P: Params + ?Sized>(&self, params: &P) -> Result<String>;
+  pub fn render<T: serde::Serialize>(&self, data: &T) -> Result<String>;
 }
 ```
 
-- **`name`**: Normalized relative path identifier without leading slashes (e.g. `"pages/home.html"`).
-- **`path`**: Absolute filesystem path.
-- **`raw`**: Full raw HTML string.
-- **`digest`**: 64-character hex BLAKE3 hash of the file contents.
-- **`chunks`**: Pre-compiled AST chunks ready for instant interpolation.
-
-## 2. In-Memory Store and Engine Coordination
-
-Located in `src/engine/cache/store.rs` and `src/engine/cache/engine.rs`:
+## 2. Store and engine
 
 ```rust
-pub struct Store {
-  pub templates: HashMap<String, Template>,
+pub struct CacheStore {
+  pub templates: RwLock<HashMap<String, Template>>,
 }
 
 pub struct Engine {
   pub root: PathBuf,
-  pub cache: Store,
-  pub signing: SignOptions,
+  pub cache: Arc<CacheStore>,
+  pub signing: SignMode,
+  pub watcher: Option<FileWatcher>,
 }
 ```
 
-### Template Lookup
+`Engine` is not `Clone`. Share it with `Arc<Engine>` (Axum state) or
+`web::Data<Engine>` (Actix-web).
 
-Template lookup is an $O(1)$ hash map read. If a requested template is absent, `Engine::get` returns `Error::NotFound`:
+### Lookup
+
+`Engine::get(name)` takes a read lock and returns a **clone** of the template,
+or `Error::NotFound`:
 
 ```rust
 let tpl = engine.get("feed/card.html")?;
-let rendered = tpl.bind(&[("title", "Hello World")]);
+let html = tpl.bind(&[("title", "Hello World")])?;
 ```
 
-## 3. Template Manifest & Hash Auditing
+## 3. Manifest
 
-The engine generates a `Manifest` containing all active template digests:
+`Engine::manifest()` returns `Result<Manifest>`. `Manifest::templates` is a
+`HashMap<String, String>` from template name to a 64-character hex BLAKE3 digest
+derived from the template contents. It changes whenever a file changes, so it can
+be used for cache busting or deployment checks.
 
 ```rust
-let manifest = engine.manifest();
+let manifest = engine.manifest()?;
 for (name, digest) in &manifest.templates {
-  println!("Template: {} -> BLAKE3: {}", name, &digest[..12]);
+  println!("{name} -> {}", &digest[..12]);
 }
 ```
-
-This manifest enables:
-1. **Deterministic Cache Busting**: Client components can verify if their cached shadow roots match the server's compiled template digest.
-2. **Cold-Start Verification**: Verifies template integrity against deployment build artifacts.

@@ -1,59 +1,73 @@
 # Anza Engine: TypeScript & JavaScript Reference
 
-**Anza** (`@anzaui/anza-engine` / `anza`) is a zero-dependency, JIT-optimized Server-Templated UI (STUI) template and component streaming engine for modern JavaScript and TypeScript backends.
-
-It delivers sub-millisecond initial page renders using **Open Declarative Shadow DOM (DSD)** and provides cryptographically signed component envelopes for dynamic partial fetches and Server-Sent Events (SSE) streams.
+The TypeScript engine (npm package **`@anzaui/engine`**) renders server-templated
+UI (STUI) from plain `.html` files: full HTML pages for the first load, and JSON
+**envelopes** (`{ slot, ts, html, sig?, css? }`) for fragments, fetches and
+SSE/WebSocket pushes. Envelopes can be signed with HMAC-SHA256 or Ed25519 over
+`ts:slot:html`.
 
 ```
-┌─────────────────┐       Initial SSR (HTML + Open DSD)        ┌─────────────────┐
-│                 ├───────────────────────────────────────────►│                 │
-│   Node / Bun    │                                            │  Client Browser │
-│   (Anza Engine) │       Signed Dynamic Envelopes (SSE/Fetch) │ (Native Custom  │
-│                 ├───────────────────────────────────────────►│   Elements)     │
-└─────────────────┘      [ts:slot:html + Ed25519/HMAC Sig]     └─────────────────┘
+┌─────────────────┐   Full page (HTML, open DSD)            ┌─────────────────┐
+│  Node / Bun /   ├────────────────────────────────────────►│     Browser     │
+│  Deno server    │   Envelopes over fetch / SSE / WS       │ (custom elements│
+│ (@anzaui/engine)├────────────────────────────────────────►│  + your code)   │
+└─────────────────┘   { slot, ts, html, sig? }              └─────────────────┘
 ```
 
-## Key Characteristics
+## Key points
 
-1. **Zero External Runtime Dependencies**:
-   - Built on native Web Standards (`globalThis.crypto.subtle`) and standard library primitives.
-   - Operates identically across **Node.js (>=18)**, **Bun**, **Deno**, **Cloudflare Workers**, and **Vercel Edge**.
+1. **No runtime dependencies.** The engine uses Node built-ins (`node:crypto`,
+   `node:fs`). It runs on Node.js 18+, and on Bun and Deno through their Node
+   compatibility. It does not run on runtimes without a filesystem (see
+   [Edge runtimes](runtimes/edge.md)).
+2. **Parse once.** `Setup.run()` reads every `.html` file under the root, splits
+   it into static strings and `{{name}}` placeholders, and builds a render
+   function per template. No parsing or regular expressions at request time.
+3. **Placeholders only.** The syntax is `{{name}}`. There are no loops,
+   conditionals, filters or includes. Values are inserted **without HTML
+   escaping**: escape anything that comes from users before you bind it.
+4. **Two outputs.** `Page` returns a `Document` (full HTML). `Fragment` and
+   `Stream` return an `Envelope`.
+5. **Signing.** `mode: 'hmac'` and `mode: 'ed25519'` add a hex `sig` to every
+   envelope. `mode: 'session'` exists but does not sign yet. The browser library
+   does not verify signatures for you (see
+   [Cryptographic Verification](crypto/index.md)).
 
-2. **JIT Closure Compilation**:
-   - Templates are parsed once at boot into flat AST chunks and compiled into V8 JIT-optimized closures.
-   - Parameter interpolation executes in **single-digit nanoseconds** with zero regular expression evaluations at request time.
+## Quick example
 
-3. **Dual-Mode Rendering**:
-   - **Mode A (Full-Page SSR)**: Emits complete HTML documents with open Declarative Shadow DOM shells (`<template shadowrootmode="open">`) for instantaneous paint and SEO crawling.
-   - **Mode B (Fragment Envelopes)**: Emits signed JSON envelopes (`{ slot, ts, html, sig, css }`) for partial updates and live SSE streams.
-
-4. **Cryptographic Tamper-Proofing**:
-   - Every partial envelope includes a cryptographic signature computed over `ts:slot:html`.
-   - Supports **Asymmetric Ed25519** (for CDN/proxy TLS termination bypass), **HMAC-SHA256**, and **HKDF session-bound keys**.
-
-## Quick Example
+```bash
+npm install @anzaui/engine
+```
 
 ```typescript
-import { Setup, Page, Fragment, htmlResponse, jsonResponse } from 'anza';
+import { Setup, Page, Fragment } from '@anzaui/engine';
 
-// 1. Initialize engine once
+// 1. Load and parse ./templates once.
 const engine = await new Setup({
   root: './templates',
-  signing: {
-    mode: 'hmac',
-    secret: 'super-secret-origin-key-32-bytes!!',
-  },
-  watch: false,
+  signing: { mode: 'hmac', secret: 'super-secret-origin-key-32-bytes' },
 }).run();
 
-// 2. Render full SSR page with open Declarative Shadow DOM
+// 2. Full page: templates/pages/home.html inside templates/layout/shell.html.
 const doc = await new Page('/', { title: 'Home Page' }).run(engine);
 console.log(doc.html);
 
-// 3. Render signed partial component fragment for SSE/fetch
+// 3. Signed fragment envelope from templates/feed/card.html.
 const envelope = await new Fragment('feed/card.html', 'main', {
   title: 'Real-Time Update',
   author: 'Alex',
 }).run(engine);
 console.log(JSON.stringify(envelope, null, 2));
 ```
+
+## Exports
+
+- `@anzaui/engine`: `Setup`, `Page`, `Fragment`, `Stream`, `Engine`, `Template`,
+  `Document`, `Envelope`, `Manifest`, `AnzaError`, `extract`, `compile`,
+  `string`, `one`, `all`, `formatEvent`, `formatPacket`, `htmlResponse`,
+  `jsonResponse`, `sseEvent`, and the namespaces `crypto` (`digest`, `ed25519`,
+  `hkdf`, `hmac`) and `adapters` (`web`, `hono`, `express`, `fastify`). Types:
+  `SetupOptions`, `SignOptions`, `Params`, `Chunk`, `CompiledRenderer`,
+  `EnvelopeData`, `ErrorCode`.
+- `@anzaui/engine/adapters/web`, `…/adapters/hono`, `…/adapters/express`,
+  `…/adapters/fastify`: the framework helpers.

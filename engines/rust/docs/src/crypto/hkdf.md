@@ -1,44 +1,36 @@
-# Session Key Derivation via HKDF
+# Key Derivation with HKDF
 
-When applications stream personalized or user-scoped components, each user session requires an isolated signing key to prevent cross-tenant message forgery.
+The crate includes an HKDF-SHA256 helper (RFC 5869) for deriving per-session
+keys, for example a per-user HMAC secret from a session token.
 
-## 1. HKDF-SHA256 Derivation Architecture
+> `SignMode::SessionBound` does not use it yet: that mode adds no signature.
+> To sign per session today, derive a key and build an engine (or call
+> `anza::crypto::hmac::sign::payload`) with it yourself.
 
-Instead of storing ephemeral signing keys in Redis or server memory, Anza derives deterministic 32-byte stream keys from the user's session token or JWT signature using HMAC-based Extract-and-Expand Key Derivation (HKDF-SHA256, RFC 5869).
+## 1. Rust API
 
-```
-   User Session Token / JWT Signature
-                  │
-                  ▼ (IKM: Input Keying Material)
-     ┌────────────────────────┐
-     │      HKDF-Extract      │ ◄── Master Salt (Configured on Engine)
-     └───────────┬────────────┘
-                 │ (PRK: Pseudorandom Key)
-                 ▼
-     ┌────────────────────────┐
-     │      HKDF-Expand       │ ◄── Info: "anza-stui-user-stream-v1"
-     └───────────┬────────────┘
-                 │
-                 ▼
-      User-Scoped 32-byte Stream Key
-```
-
-## 2. Rust API Usage
-
-Located in `src/crypto/hkdf/derive.rs`:
+`src/crypto/hkdf/derive.rs`:
 
 ```rust
-use anza::crypto::hkdf::derive as derive_key;
-
-let session_token = b"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
-let engine_salt = b"anza-cluster-salt-2026";
-let info = b"user-live-feed";
-
-let user_stream_key = derive_key(session_token, engine_salt, info, 32)?;
-assert_eq!(user_stream_key.len(), 32);
+// anza::crypto::hkdf::derive
+pub fn key(ikm: &[u8], salt: Option<&[u8]>, info: &[u8]) -> anza::Result<[u8; 32]>;
 ```
 
-### Properties
+```rust
+use anza::crypto::{hkdf::derive, hmac::sign};
 
-1. **Stateless**: The server re-derives the stream key on incoming SSE requests without cache lookups or database hits.
-2. **Cryptographic Isolation**: Knowing one user's derived key provides zero information about other users' keys.
+let session_token = b"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+let salt = b"anza-cluster-salt-2026";
+
+let user_key: [u8; 32] = derive::key(session_token, Some(salt), b"user-live-feed")?;
+
+let envelope_message = b"1724771200:feed:<ui-card>Hi</ui-card>";
+let sig = sign::payload(&user_key, envelope_message)?;
+```
+
+## 2. Properties
+
+1. **Stateless**: the same inputs always give the same key, so the server can
+   re-derive it per request.
+2. **Isolation**: knowing one derived key does not reveal the input key or other
+   derived keys.

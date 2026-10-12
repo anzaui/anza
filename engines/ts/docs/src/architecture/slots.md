@@ -1,10 +1,11 @@
-# AST & JIT Closure Compilation
+# Slot Parsing & Render Functions
 
-Template parsing splits markup into static text slices and dynamic slot tokens.
+Template parsing splits markup into static strings and slot names, then builds a
+render function.
 
-## 1. Chunk Type Definition
+## 1. `Chunk`
 
-Located in `src/engine/slot/parse.ts`:
+`src/engine/slot/parse.ts`:
 
 ```typescript
 export type Chunk =
@@ -12,31 +13,31 @@ export type Chunk =
   | { type: 'slot'; name: string };
 ```
 
-- **`{ type: 'static', value }`**: Unchanging HTML markup slices.
-- **`{ type: 'slot', name }`**: Placeholder keys (e.g. `{{user_name}}` becomes `name: "user_name"`).
+- **`{ type: 'static', value }`**: HTML text, written as is.
+- **`{ type: 'slot', name }`**: the trimmed placeholder name (`{{ user_name }}` becomes `'user_name'`).
 
-## 2. Single-Pass Extraction
+## 2. `extract`
 
-The `extract(template: string)` function parses template strings without regular expressions:
+`extract(template: string): Chunk[]` scans the string once with `indexOf`. An
+unclosed `{{` or an empty `{{}}` throws an `AnzaError` with code `TEMPLATE`.
+There is no other syntax: no loops, conditionals, filters, comments or escaping.
 
 ```typescript
-import { extract } from 'anza';
+import { extract } from '@anzaui/engine';
 
-const template = '<ui-card><span slot="title">{{title}}</span><div class="count">{{count}}</div></ui-card>';
-const chunks = extract(template);
-
-// chunks = [
+const chunks = extract('<ui-card><span slot="title">{{title}}</span><b>{{count}}</b></ui-card>');
+// [
 //   { type: 'static', value: '<ui-card><span slot="title">' },
-//   { type: 'slot', name: 'title' },
-//   { type: 'static', value: '</span><div class="count">' },
-//   { type: 'slot', name: 'count' },
-//   { type: 'static', value: '</div></ui-card>' }
+//   { type: 'slot',   name: 'title' },
+//   { type: 'static', value: '</span><b>' },
+//   { type: 'slot',   name: 'count' },
+//   { type: 'static', value: '</b></ui-card>' },
 // ]
 ```
 
-## 3. The Compiled JIT Renderer
+## 3. `compile` and `Params`
 
-Located in `src/engine/slot/bind.ts`:
+`src/engine/slot/bind.ts`:
 
 ```typescript
 export type Params =
@@ -47,9 +48,14 @@ export type Params =
   | undefined;
 
 export type CompiledRenderer = (params?: Params) => string;
+
+export function compile(chunks: Chunk[]): CompiledRenderer;
+export function string(chunks: Chunk[], params?: Params): string; // compile + call
 ```
 
-When `compile(chunks)` creates the renderer:
-1. It loops through the pre-split parts using indexed array iterations.
-2. It accepts plain objects, Maps, or array tuples with zero conversion overhead.
-3. String additions (`out += p.value` / `out += val`) leverage V8's rope strings and flat string optimizations.
+The renderer:
+
+1. Accepts a plain object, a `Map` or an array of `[key, value]` pairs.
+2. Writes nothing for a missing, `undefined` or `null` value; any other value is
+   converted with string concatenation (`3` becomes `"3"`).
+3. Inserts values **without HTML escaping**.

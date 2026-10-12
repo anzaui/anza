@@ -1,32 +1,32 @@
-# Zero-Copy String Concatenation
+# Memory Layout
 
-Understanding how JavaScript runtimes manage strings ensures zero memory fragmentation across long-running server processes.
-
-## 1. Memory Layout of Loaded Templates
-
-When a template is loaded into memory:
+## 1. A loaded template
 
 ```
-Template Instance:
+Template
 ┌─────────────────────────────────────────────────────────────┐
-│ name:     string ("feed/card.html")                         │
-│ path:     string ("/app/templates/feed/card.html")          │
-│ digest:   string ("8a3f...") (64 hex characters)            │
-│ raw:      string ("<ui-card>{{title}}</ui-card>")           │
+│ name:     'feed/card.html'                                  │
+│ path:     'templates/feed/card.html'                        │
+│ raw:      '<ui-card>{{title}}</ui-card>'                    │
+│ digest:   hex SHA-256 of raw (64 characters)                │
 │ chunks:   Chunk[]                                           │
 │           ├── { type: 'static', value: '<ui-card>' }        │
 │           ├── { type: 'slot',   name: 'title' }             │
 │           └── { type: 'static', value: '</ui-card>' }       │
-│ renderer: (params) => string (Pre-compiled Closure)        │
+│ renderer: (params?) => string                               │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-All templates are immutable after engine startup, enabling thread-safe concurrent access across all Node.js cluster worker threads or Web Worker isolates.
+Each template keeps the raw text, the chunks and the closure's own parts array.
+Templates are not changed after startup unless `watch: true` is set, in which
+case the whole `Map` is replaced when a file changes.
 
-## 2. String Accumulator Mechanics
+## 2. What a render allocates
 
 During `tpl.bind(params)`:
 
-1. Static strings are borrowed directly from memory.
-2. The runtime string accumulator leverages V8 sequential rope concatenation without intermediate allocation garbage collection pauses.
-3. Emitted strings are passed directly to `res.end()` or Web `Response` stream buffers.
+1. Static strings are reused from the parts array.
+2. The output is built with `+=`; JavaScript engines use rope strings for this,
+   so intermediate copies are usually avoided until the string is flattened.
+3. Non-string values (numbers, booleans) are converted to strings as they are
+   appended.

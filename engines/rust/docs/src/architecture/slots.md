@@ -1,10 +1,10 @@
-# AST & Slot Chunking
+# Slot Chunking
 
-Slot extraction transforms raw template strings into flat, contiguous chunks.
+Slot extraction turns a template string into a flat list of chunks.
 
-## 1. Chunk Enum Definition
+## 1. `Chunk`
 
-Located in `src/engine/slot/parse.rs`:
+`anza::engine::slot::Chunk` (defined in `src/engine/slot/parse.rs`):
 
 ```rust
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -14,60 +14,47 @@ pub enum Chunk {
 }
 ```
 
-- **`Chunk::Static`**: Holds immutable HTML byte slices. These are written directly into the destination buffer via `buffer.extend_from_slice()`.
-- **`Chunk::Slot`**: Holds the trimmed slot key name (e.g. `{{user_name}}` becomes `"user_name"`).
+- **`Chunk::Static`**: HTML bytes, written to the output as is.
+- **`Chunk::Slot`**: the trimmed placeholder name (`{{ user_name }}` becomes `"user_name"`).
 
-## 2. Extraction Algorithm
+## 2. `extract`
 
-The `extract(template: &str)` function performs a single-pass scan through the input string:
+`anza::engine::slot::extract(template: &str) -> anza::Result<Vec<Chunk>>` scans
+the string once:
 
-1. Finds opening delimiter `{{`.
-2. Slices preceding text as `Chunk::Static(text.as_bytes().to_vec())`.
-3. Finds matching closing delimiter `}}`.
-4. Trims whitespace inside the placeholder and records `Chunk::Slot(name)`.
-5. Returns `Result<Vec<Chunk>>`.
+1. Find the next `{{`; the text before it becomes a `Chunk::Static`.
+2. Find the next `}}`; the trimmed text between becomes a `Chunk::Slot`.
+3. The rest of the string becomes a final `Chunk::Static`.
 
-If an unclosed `{{` or empty placeholder `{{}}` is encountered, the parser fails fast with `Error::Template`.
-
-```rust
-use anza::engine::slot::parse::{extract, Chunk};
-
-let raw = "<div class=\"user\">{{name}} is {{status}}</div>";
-let chunks = extract(raw)?;
-
-assert_eq!(chunks.len(), 4);
-// chunks[0] = Chunk::Static(b"<div class=\"user\">".to_vec())
-// chunks[1] = Chunk::Slot("name".into())
-// chunks[2] = Chunk::Static(b" is ".to_vec())
-// chunks[3] = Chunk::Slot("status".into())
-```
-
-## 3. Buffer Pre-Allocation
-
-In `src/engine/slot/bind.rs`, the rendering pass computes exact capacity requirements before writing bytes:
+An unclosed `{{` or an empty `{{}}` returns `Error::Template`. There is no other
+syntax: no loops, conditionals, filters, comments or escaping.
 
 ```rust
-pub fn string<P: Params + ?Sized>(chunks: &[Chunk], params: &P) -> String {
-  let static_size: usize = chunks.iter().map(|c| match c {
-    Chunk::Static(b) => b.len(),
-    Chunk::Slot(_) => 16,
-  }).sum();
+use anza::engine::slot::{extract, Chunk};
 
-  let mut buf = String::with_capacity(static_size);
-  for chunk in chunks {
-    match chunk {
-      Chunk::Static(bytes) => {
-        if let Ok(s) = std::str::from_utf8(bytes) {
-          buf.push_str(s);
-        }
-      }
-      Chunk::Slot(name) => {
-        if let Some(val) = params.resolve(name) {
-          buf.push_str(&val);
-        }
-      }
-    }
-  }
-  buf
-}
+let chunks = extract("<div class=\"user\">{{name}} is {{status}}</div>")?;
+
+assert_eq!(chunks.len(), 5);
+assert_eq!(chunks[1], Chunk::Slot("name".into()));
+assert_eq!(chunks[3], Chunk::Slot("status".into()));
+// chunks[0], [2] and [4] are Chunk::Static
 ```
+
+## 3. Binding
+
+`anza::engine::slot::{string, inject}` (in `src/engine/slot/bind.rs`) do the
+rendering:
+
+```rust
+pub fn string<P: Params + ?Sized>(chunks: &[Chunk], params: &P) -> Result<String>;
+pub fn inject<P: Params + ?Sized, W: std::io::Write>(
+  chunks: &[Chunk],
+  params: &P,
+  out: &mut W,
+) -> Result<()>;
+```
+
+`string` sizes a `Vec<u8>` (static bytes + 32 bytes per slot), calls `inject`,
+and converts the result to a `String`. For each `Chunk::Slot`, the value comes
+from `params.resolve(name)`; a missing value writes nothing. Values are written
+**as is, without HTML escaping**.

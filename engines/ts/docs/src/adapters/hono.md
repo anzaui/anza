@@ -1,42 +1,43 @@
 # Hono Integration
 
-Hono runs universally across Cloudflare Workers, Node.js, Bun, Deno, and AWS Lambda.
-
-## 1. Full-Page SSR & Fragment Handlers
+## 1. Page, fragment and SSE handlers
 
 ```typescript
 import { Hono } from 'hono';
-import { Setup, htmlResponse, jsonResponse, sseEvent } from 'anza';
+import { stream } from 'hono/streaming';
+import { Fragment, Page, Setup } from '@anzaui/engine';
+import { html, json, sseEvent } from '@anzaui/engine/adapters/hono';
 
 const engine = await new Setup({ root: './templates' }).run();
 const app = new Hono();
 
-// 1. Full-Page SSR with Open DSD
+// Full page
 app.get('/', async (c) => {
-  const doc = await engine.renderPage('/', {
-    title: 'Anza + Hono',
-  });
-  return htmlResponse(doc);
+  const doc = await new Page('/', { title: 'Anza + Hono' }).run(engine);
+  return html(c, doc);
 });
 
-// 2. Dynamic Signed Fragment
+// Signed fragment
 app.get('/card/:id', async (c) => {
-  const envelope = await engine.renderFragment('feed/card.html', 'feed', {
-    id: c.req.param('id'),
+  const envelope = await new Fragment('feed/card.html', 'feed', {
+    id: c.req.param('id'), // not escaped: validate or escape user input
     title: 'Live Stream Update',
-  });
-  return jsonResponse(envelope);
+  }).run(engine);
+  return json(c, envelope);
 });
 
-// 3. Live SSE Stream
-app.get('/feed/stream', async (c) => {
-  return c.stream(async (stream) => {
-    const envelope = await engine.renderFragment('feed/card.html', 'feed', {
-      title: 'Hono Push Event',
-    });
-    await stream.write(sseEvent(envelope));
+// One SSE event
+app.get('/feed/stream', (c) => {
+  c.header('Content-Type', 'text/event-stream');
+  return stream(c, async (s) => {
+    const envelope = await new Fragment('feed/card.html', 'feed', { title: 'Hono Push Event' }).run(engine);
+    await s.write(sseEvent(envelope));
   });
 });
 
 export default app;
 ```
+
+`html(c, doc, status?)` calls `c.html(...)` and `json(c, envelope, status?)` calls
+`c.json(...)`. Because the engine reads templates from disk, run Hono on Node,
+Bun or Deno.

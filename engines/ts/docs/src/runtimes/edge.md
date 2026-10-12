@@ -1,29 +1,23 @@
-# Cloudflare Workers & Edge Runtimes
+# Edge Runtimes (Cloudflare Workers and similar)
 
-Edge workers operate in resource-constrained V8 isolates where fast startup time and low memory footprints are mandatory.
+Edge runtimes are **not supported** today:
 
-## 1. Cloudflare Workers Integration
+- `Setup.run()` loads templates from the filesystem with `node:fs`, which edge
+  isolates do not provide.
+- `CacheStore` (needed to construct an `Engine` by hand) is not exported from the
+  package.
+- Digests and signatures use `node:crypto`, not `crypto.subtle`. Some platforms
+  offer it behind a Node compatibility flag, but this is untested.
 
-Because Anza core requires zero node-specific native modules, it bundles directly into Cloudflare Workers:
+What does work without a filesystem is the template core: `extract` and
+`compile` only use plain JavaScript.
 
 ```typescript
-import { Engine, CacheStore, Template, htmlResponse } from 'anza';
+import { compile, extract } from '@anzaui/engine';
 
-// Inlined or bundled template definitions
-const templates = new Map<string, Template>();
-const cache = new CacheStore(templates);
-const engine = new Engine('/', cache, { mode: 'none' });
-
-export default {
-  async fetch(request: Request, env: any): Promise<Response> {
-    const doc = await engine.renderPage('/', { title: 'Cloudflare Edge STUI' });
-    return htmlResponse(doc);
-  },
-};
+const render = compile(extract('<ui-card>{{title}}</ui-card>'));
+const html = render({ title: 'Rendered at the edge' }); // not escaped
 ```
 
-## 2. Advantages on the Edge
-
-1. **Near-Zero Cold Start**: No heavy framework bundle to initialize or parse.
-2. **Sub-10MB Memory Profile**: In-memory chunk stores consume less than 2MB of RAM for hundreds of templates.
-3. **Web Crypto Native**: Uses Cloudflare's native `crypto.subtle` for hardware-accelerated signature generation.
+Wrapping the result in an envelope and signing it then needs your own code
+(for example `crypto.subtle` HMAC over `${ts}:${slot}:${html}`).

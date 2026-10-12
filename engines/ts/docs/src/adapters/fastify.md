@@ -1,31 +1,30 @@
 # Fastify Integration
 
-The Fastify adapter provides type-safe reply helpers for high-throughput microservices.
+`src/adapters/fastify.ts` provides `sendHtml` and `sendJson`. There is no SSE
+helper; write `sseEvent(envelope)` to the raw response yourself.
 
-## 1. Handlers in Fastify
-
-Located in `src/adapters/fastify.ts`:
+## 1. Handlers
 
 ```typescript
 import Fastify from 'fastify';
-import { Setup } from 'anza';
-import { sendHtml, sendJson } from 'anza/adapters/fastify.js';
+import { Fragment, Page, Setup } from '@anzaui/engine';
+import { sendHtml, sendJson } from '@anzaui/engine/adapters/fastify';
 
 const fastify = Fastify();
 const engine = await new Setup({ root: './templates' }).run();
 
-// Full-Page SSR
+// Full page
 fastify.get('/', async (request, reply) => {
-  const doc = await engine.renderPage('/', { title: 'Fastify STUI' });
+  const doc = await new Page('/', { title: 'Fastify STUI' }).run(engine);
   return sendHtml(reply, doc);
 });
 
-// Partial Signed Fragment
+// Signed fragment
 fastify.get('/card/:id', async (request, reply) => {
   const { id } = request.params as { id: string };
-  const envelope = await engine.renderFragment('feed/card.html', 'feed', { id, title: 'Item' });
+  const envelope = await new Fragment('feed/card.html', 'feed', { id, title: 'Item' }).run(engine);
   return sendJson(reply, envelope);
 });
 
-fastify.listen({ port: 3000 });
+await fastify.listen({ port: 3000 });
 ```

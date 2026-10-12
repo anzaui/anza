@@ -1,46 +1,37 @@
-# WebSocket Packetization
+# WebSocket Frames
 
-For bidirectional applications requiring uplink user events alongside downlink template streams, Anza formats envelopes into text frames.
+For WebSockets, send the envelope JSON as a text message.
 
-## 1. The `Packet` Encoder
+## 1. Encoding
 
-Located in `src/stream/ws/packet.rs`:
+`src/stream/ws/packet.rs`:
 
 ```rust
-use anza::stream::ws::packet::format as format_ws_packet;
-use anza::models::envelope::Envelope;
+use anza::{stream::ws, Envelope};
 
-let envelope = Envelope {
-  slot: "notifications".into(),
-  ts: 1724771200,
-  html: "<ui-toast>Order Shipped</ui-toast>".into(),
-  sig: Some("3a9f...".into()),
-  css: None,
-};
+let envelope = Envelope::new("notifications", 1_724_771_200, "<ui-toast>Order Shipped</ui-toast>");
 
-let json_payload = format_ws_packet(&envelope)?;
-// Transmit json_payload over WebSocket connection
+let text: String = ws::encode(&envelope);
+// send `text` as a WebSocket text message with your framework
 ```
 
-## 2. Client-Side WebSocket Reception
+## 2. Receiving in the browser
 
-When receiving a WebSocket frame:
+The Anza browser library has no WebSocket envelope handler, so this is your code.
+If the envelopes are signed and you want to check them in the browser, see
+[Ed25519](../crypto/ed25519.md#3-verifying-in-the-browser-your-code). Remember
+that `html` is not escaped by the engine.
 
 ```javascript
 ws.onmessage = async (event) => {
   const envelope = JSON.parse(event.data);
-  
-  // 1. Verify signature
-  const valid = await verifyEnvelope(envelope);
-  if (!valid) {
-    console.error("Tampered WebSocket envelope rejected");
+
+  if (!(await verifyEnvelope(envelope, publicKeyBytes))) {
+    console.error('Rejected envelope');
     return;
   }
 
-  // 2. Locate target dock slot and replace content
-  const targetSlot = document.querySelector(`[data-slot="${envelope.slot}"]`);
-  if (targetSlot) {
-    targetSlot.innerHTML = envelope.html;
-  }
+  const target = document.querySelector(`[data-slot="${envelope.slot}"]`);
+  if (target) target.innerHTML = envelope.html;
 };
 ```

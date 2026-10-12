@@ -17,7 +17,7 @@ STUI bridges server-side rendering and client-side web components. It enables su
 
 | Engine | Package / Crate | Ecosystem | Key Feature |
 |--------|-----------------|-----------|-------------|
-| [rust.md](rust.md) | `anza` (Cargo) | Axum, Actix-web, Tower | Zero-copy byte slices, sub-millisecond latency |
+| [rust.md](rust.md) | `anza` (Cargo) | Axum, Actix-web | Zero-copy byte slices, sub-millisecond latency |
 | [ts.md](ts.md) | `@anzaui/engine` (npm) | Node.js, Bun, Deno, Hono, Express | Zero dependencies, JIT closure compilation |
 | [py.md](py.md) | `anza` (PyPI) | FastAPI, Starlette, Flask, Django | Pure standard library, async streaming generator |
 | [crypto.md](crypto.md) | Built-in | All engines | Ed25519, HMAC-SHA256, and HKDF session key derivation |

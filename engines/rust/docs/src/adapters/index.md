@@ -1,27 +1,30 @@
 # Framework Adapters
 
-Anza provides native response types and middleware adapters for popular Rust web frameworks.
+Adapters are behind Cargo features, so the default build has no web framework.
 
-## 1. Feature Flags
-
-Enable the respective framework feature in `Cargo.toml`:
+## 1. Feature flags
 
 ```toml
 [dependencies]
-# For Axum integration:
-anza = { version = "0.1", features = ["axum"] }
+# Axum 0.8
+anza = { version = "0.5", features = ["axum"] }
 
-# For Actix-web integration:
-anza = { version = "0.1", features = ["actix"] }
+# Actix-web 4
+anza = { version = "0.5", features = ["actix"] }
 
-# For Tower middleware:
-anza = { version = "0.1", features = ["tower"] }
-
-# All features:
-anza = { version = "0.1", features = ["full"] }
+# Everything
+anza = { version = "0.5", features = ["full"] }
 ```
 
-## 2. Universal Trait Implementation
+| Feature | Provides |
+|---|---|
+| `axum` | `IntoResponse` for `Document` (HTML) and `Envelope` (JSON); `anza::adapters::axum::event` for SSE |
+| `actix` | `Responder` for `Document` (HTML) and `Envelope` (JSON); `anza::adapters::actix::bytes` for SSE |
+| `tower` | Pulls in `tower`; the `adapters::tower` module is an empty placeholder, there is no `Service` yet |
+| `watch` | Starts a `notify` watcher on the template root; changes are not reloaded yet |
+| `full` | All of the above |
 
-- **`IntoResponse` for Axum**: `Document` and `Envelope` implement `axum::response::IntoResponse`.
-- **`Responder` for Actix-web**: `Document` and `Envelope` implement `actix_web::Responder`.
+## 2. Sharing the engine
+
+`Engine` is not `Clone`. Wrap it in `Arc<Engine>` for Axum state, or in
+`actix_web::web::Data<Engine>` (which is an `Arc`) for Actix-web.

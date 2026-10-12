@@ -1,11 +1,12 @@
-# Bun & Deno Runtimes
+# Bun & Deno
 
-Anza executes natively in Bun and Deno without polyfills or build steps.
+Bun and Deno implement the Node.js APIs the engine uses. Neither is covered by
+the engine's test suite, so check your setup.
 
-## 1. Bun Execution
+## 1. Bun
 
 ```typescript
-import { Setup, htmlResponse, jsonResponse } from 'anza';
+import { Fragment, Page, Setup, htmlResponse, jsonResponse } from '@anzaui/engine';
 
 const engine = await new Setup({ root: './templates' }).run();
 
@@ -15,12 +16,12 @@ export default {
     const url = new URL(req.url);
 
     if (url.pathname === '/') {
-      const doc = await engine.renderPage('/', { title: 'Bun STUI' });
+      const doc = await new Page('/', { title: 'Bun STUI' }).run(engine);
       return htmlResponse(doc);
     }
 
     if (url.pathname === '/card') {
-      const envelope = await engine.renderFragment('feed/card.html', 'main', { title: 'Card' });
+      const envelope = await new Fragment('feed/card.html', 'main', { title: 'Card' }).run(engine);
       return jsonResponse(envelope);
     }
 
@@ -29,22 +30,23 @@ export default {
 };
 ```
 
-Run directly:
 ```bash
 bun run server.ts
 ```
 
-## 2. Deno Execution
-
-In Deno, import directly via npm specifier or local module:
+## 2. Deno
 
 ```typescript
-import { Setup, htmlResponse } from 'npm:anza';
+import { Page, Setup, htmlResponse } from 'npm:@anzaui/engine';
 
 const engine = await new Setup({ root: './templates' }).run();
 
-Deno.serve({ port: 3000 }, async (req) => {
-  const doc = await engine.renderPage('/', { title: 'Deno STUI' });
+Deno.serve({ port: 3000 }, async () => {
+  const doc = await new Page('/', { title: 'Deno STUI' }).run(engine);
   return htmlResponse(doc);
 });
+```
+
+```bash
+deno run --allow-read --allow-net server.ts
 ```

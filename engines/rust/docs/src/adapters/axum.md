@@ -1,49 +1,67 @@
 # Axum Integration
 
-The `axum` feature provides automatic conversion from `Document` to HTML responses and `Envelope` to JSON responses.
+With the `axum` feature, `Document` converts to an HTML response and `Envelope`
+to a JSON response, so handlers can return them directly.
 
-## 1. Full-Page SSR Handler
+## 1. Page handler
 
 ```rust
-use axum::{extract::State, response::IntoResponse, routing::get, Router};
-use anza::{engine::cache::engine::Engine, render::page::compile as render_page};
+use std::sync::Arc;
 
-async fn handle_home(State(engine): State<Engine>) -> impl IntoResponse {
-  let doc = render_page(&engine, "/", &[("title", "Home Page")]).unwrap();
-  // Document implements IntoResponse -> Content-Type: text/html; charset=utf-8
-  doc
+use anza::{Document, Engine, Page};
+use axum::{extract::State, http::StatusCode};
+
+async fn home(State(engine): State<Arc<Engine>>) -> Result<Document, StatusCode> {
+  Page::new("/")
+    .param("title", "Home Page")
+    .run(&engine)
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 ```
 
-## 2. Dynamic Fragment Handler
+## 2. Fragment handler
 
 ```rust
-use axum::{extract::{Path, State}, response::IntoResponse};
-use anza::{engine::cache::engine::Engine, render::fragment::render as render_fragment};
+use std::sync::Arc;
 
-async fn handle_card(
-  State(engine): State<Engine>,
+use anza::{Engine, Envelope, Fragment};
+use axum::{
+  extract::{Path, State},
+  http::StatusCode,
+};
+
+async fn card(
+  State(engine): State<Arc<Engine>>,
   Path(id): Path<String>,
-) -> impl IntoResponse {
-  let envelope = render_fragment(
-    &engine,
-    "feed/card.html",
-    "feed",
-    &[("id", id.as_str()), ("title", "Updated Card")]
-  ).unwrap();
-
-  // Envelope implements IntoResponse -> Content-Type: application/json
-  envelope
+) -> Result<Envelope, StatusCode> {
+  Fragment::new("feed/card.html", "feed")
+    .param("id", id) // not escaped: validate or escape user input
+    .param("title", "Updated Card")
+    .run(&engine)
+    .map_err(|_| StatusCode::NOT_FOUND)
 }
 ```
 
-## 3. Assembling the Router
+## 3. Router
 
 ```rust
-pub fn build_router(engine: Engine) -> Router {
-  Router::new()
-    .route("/", get(handle_home))
-    .route("/card/:id", get(handle_card))
-    .with_state(engine)
+use std::sync::Arc;
+
+use anza::Setup;
+use axum::{routing::get, Router};
+
+#[tokio::main]
+async fn main() {
+  let engine = Arc::new(Setup::new("templates").run().expect("load templates"));
+
+  let app = Router::new()
+    .route("/", get(home))
+    .route("/card/{id}", get(card))
+    .with_state(engine);
+
+  let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+  axum::serve(listener, app).await.unwrap();
 }
 ```
+
+For SSE, see [Server-Sent Events](../streaming/sse.md).

@@ -1,53 +1,51 @@
 # Server-Sent Events (SSE)
 
-Server-Sent Events provide lightweight, unidirectional streaming over standard HTTP/2 and HTTP/3.
+## 1. Encoding a frame
 
-## 1. The `Event` Formatter
-
-Located in `src/stream/sse/event.rs`:
+`src/stream/sse/frame.rs`:
 
 ```rust
-use anza::stream::sse::event::format as format_sse_event;
-use anza::models::envelope::Envelope;
+use anza::{stream::sse, Envelope};
 
-let envelope = Envelope {
-  slot: "feed".into(),
-  ts: 1724771200,
-  html: "<article>Live Post</article>".into(),
-  sig: Some("9f83...".into()),
-  css: None,
-};
+let envelope = Envelope::new("feed", 1_724_771_200, "<article>Live Post</article>");
 
-let wire_chunk = format_sse_event(&envelope)?;
-assert!(wire_chunk.starts_with("event: template\ndata: {"));
-assert!(wire_chunk.ends_with("\n\n"));
+let frame: String = sse::encode(&envelope);
+assert!(frame.starts_with("event: template\ndata: {"));
+assert!(frame.ends_with("\n\n"));
 ```
 
-## 2. Axum SSE Stream Route Handler
+`encode` returns a `String` (not a `Result`). Write it to any streaming
+response body.
+
+## 2. Axum SSE route
+
+With the `axum` feature, `anza::adapters::axum::event` turns an envelope into an
+`axum::response::sse::Event` named `template`. This example also needs
+`futures-util` and `tokio` (with the `time` feature) in your own `Cargo.toml`.
 
 ```rust
-use axum::{response::sse::{Event, KeepAlive, Sse}, extract::State};
-use futures_util::stream::Stream;
-use std::time::Duration;
+use std::{sync::Arc, time::Duration};
 
-pub async fn stream_feed(
-  State(engine): State<Engine>,
-) -> Sse<impl Stream<Item = Result<Event, std::convert::Infallible>>> {
-  let stream = async_stream::stream! {
-    loop {
-      tokio::time::sleep(Duration::from_secs(2)).await;
-      
-      let envelope = engine.render_fragment(
-        "feed/card.html",
-        "feed",
-        &[("title", "Live Event")]
-      ).unwrap();
+use anza::{adapters::axum::event, Engine, Fragment};
+use axum::{
+  extract::State,
+  response::sse::{Event, KeepAlive, Sse},
+};
+use futures_util::stream::{self, Stream};
 
-      let json = serde_json::to_string(&envelope).unwrap();
-      yield Ok(Event::default().event("template").data(json));
-    }
-  };
+async fn stream_feed(
+  State(engine): State<Arc<Engine>>,
+) -> Sse<impl Stream<Item = Result<Event, axum::Error>>> {
+  let updates = stream::unfold(engine, |engine| async move {
+    tokio::time::sleep(Duration::from_secs(2)).await;
+    let item = Fragment::new("feed/card.html", "feed")
+      .param("title", "Live Event")
+      .run(&engine)
+      .map_err(axum::Error::new)
+      .and_then(event);
+    Some((item, engine))
+  });
 
-  Sse::new(stream).keep_alive(KeepAlive::default())
+  Sse::new(updates).keep_alive(KeepAlive::default())
 }
 ```

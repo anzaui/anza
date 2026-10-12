@@ -1,67 +1,73 @@
-# Anza Engine: Rust STUI Reference
+# Anza Engine: Rust Reference
 
-**Anza** (`anza`) is a lightweight, zero-allocation Server-Templated UI (STUI) template and component streaming engine built for high-performance Rust web services.
-
-It delivers sub-millisecond initial page renders using **Open Declarative Shadow DOM (DSD)** and provides cryptographically signed component envelopes for dynamic partial fetches and Server-Sent Events (SSE) streams.
+The Rust engine (crate **`anza`**) renders server-templated UI (STUI) from plain
+`.html` files: full HTML pages for the first load, and JSON **envelopes**
+(`{ slot, ts, html, sig?, css? }`) for fragments, fetches and SSE/WebSocket
+pushes. Envelopes can be signed with HMAC-SHA256 or Ed25519 over `ts:slot:html`.
 
 ```
-┌─────────────────┐       Initial SSR (HTML + Open DSD)        ┌─────────────────┐
-│                 ├───────────────────────────────────────────►│                 │
-│   Rust Server   │                                            │  Client Browser │
-│   (Anza Engine) │       Signed Dynamic Envelopes (SSE/Fetch) │ (Native Custom  │
-│                 ├───────────────────────────────────────────►│   Elements)     │
-└─────────────────┘      [ts:slot:html + Ed25519/HMAC Sig]     └─────────────────┘
+┌─────────────────┐   Full page (HTML, open DSD)            ┌─────────────────┐
+│   Rust server   ├────────────────────────────────────────►│     Browser     │
+│  (crate `anza`) │   Envelopes over fetch / SSE / WS       │ (custom elements│
+│                 ├────────────────────────────────────────►│  + your code)   │
+└─────────────────┘   { slot, ts, html, sig? }              └─────────────────┘
 ```
 
-## Key Characteristics
+> The CLI is a different crate: **`anza-cli`** (its binary is `anza`). This book
+> covers only the engine crate `anza`.
 
-1. **Ultra-Minimal Footprint**:
-   - `default = []` in `Cargo.toml`. Zero mandatory web frameworks or async runtimes in the core crate.
-   - Opt-in features for `axum`, `actix`, `tower`, and `watch`.
+## Key points
 
-2. **Zero-Copy Parameter Resolution**:
-   - Standalone `.html` files are chunked into contiguous static byte slices and slot indices at startup.
-   - Domain structs implement the `Params` trait via `Cow<'_, str>` returns, eliminating heap allocations, intermediate string clones, and runtime regex matching.
+1. **Small core.** `default = []` in `Cargo.toml`: no web framework and no async
+   runtime unless you enable the `axum`, `actix`, `tower` or `watch` features.
+2. **Parse once.** `Setup::run()` reads every `.html` file under the root and
+   splits it into static byte chunks and `{{name}}` placeholders. Rendering only
+   copies chunks and parameter values into one pre-sized buffer.
+3. **Placeholders only.** The syntax is `{{name}}`. There are no loops,
+   conditionals, filters or includes. Values are inserted **without HTML
+   escaping**: escape anything that comes from users before you bind it.
+4. **Two outputs.** `Page` returns a `Document` (full HTML). `Fragment` and
+   `Stream` return an `Envelope`.
+5. **Signing.** `SignMode::Hmac` and `SignMode::Ed25519` add a hex `sig` to every
+   envelope. `SignMode::SessionBound` exists but does not sign yet. The browser
+   library does not verify signatures for you (see
+   [Cryptographic Verification](crypto/index.md)).
 
-3. **Dual-Mode Rendering**:
-   - **Mode A (Full-Page SSR)**: Emits complete HTML documents with open Declarative Shadow DOM shells (`<template shadowrootmode="open">`) for instantaneous paint and SEO crawling.
-   - **Mode B (Fragment Envelopes)**: Emits signed JSON envelopes (`{ slot, ts, html, sig, css }`) for partial updates and live SSE streams.
+## Quick example
 
-4. **Cryptographic Tamper-Proofing**:
-   - Every partial envelope includes a cryptographic signature computed over `ts:slot:html`.
-   - Supports **Asymmetric Ed25519** (for CDN/proxy TLS termination bypass), **HMAC-SHA256**, and **HKDF session-bound keys**.
-
-## Quick Example
+```toml
+[dependencies]
+anza = "0.5"
+serde_json = "1"
+```
 
 ```rust
-use anza::{
-  data::r#in::setup::Setup,
-  engine::cache::engine::{Engine, SignOptions},
-  models::document::Document,
-  render::page::compile as render_page,
-};
+use anza::{Fragment, Page, Setup};
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-  // 1. Initialize engine with templates directory
-  let engine: Engine = Setup::new("templates")
-    .signing(SignOptions::Hmac {
-      secret: "super-secret-origin-key-32-bytes!!".into(),
-    })
-    .run()?;
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+  // 1. Load and parse ./templates once.
+  let mut setup = Setup::new("templates");
+  setup.signing = Setup::hmac(b"super-secret-origin-key-32-bytes");
+  let engine = setup.run()?;
 
-  // 2. Render full SSR page with open Declarative Shadow DOM
-  let doc: Document = render_page(&engine, "/", &[("title", "Home Page")])?;
-  println!("Rendered SSR HTML:\n{}", doc.html);
+  // 2. Full page: templates/pages/home.html inside templates/layout/shell.html.
+  let doc = Page::new("/").param("title", "Home Page").run(&engine)?;
+  println!("{}", doc.html);
 
-  // 3. Render signed partial component fragment for SSE/fetch
-  let env = engine.render_fragment(
-    "feed/card.html",
-    "main",
-    &[("title", "Real-Time Update"), ("author", "Alex")]
-  )?;
-  println!("Signed Envelope:\n{}", serde_json::to_string_pretty(&env)?);
+  // 3. Signed fragment envelope from templates/feed/card.html.
+  let env = Fragment::new("feed/card.html", "main")
+    .param("title", "Real-Time Update")
+    .param("author", "Alex")
+    .run(&engine)?;
+  println!("{}", serde_json::to_string_pretty(&env)?);
 
   Ok(())
 }
 ```
+
+## Root exports
+
+`anza::{Setup, Page, Fragment, Stream, Engine, SignMode, Params, Data, Document,
+Envelope, Manifest, Error, Result}`. Everything else is reached through its module
+path (`anza::crypto::…`, `anza::stream::…`, `anza::render::…`,
+`anza::engine::…`, `anza::adapters::…`).

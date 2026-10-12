@@ -1,33 +1,33 @@
 # Buffer Pre-Sizing & Memory Layout
 
-Understanding how Anza manages memory ensures zero memory fragmentation across long-running server processes.
-
-## 1. Memory Layout of Loaded Templates
-
-When a template is loaded into memory:
+## 1. A loaded template
 
 ```
-Template Struct:
+Template
 ┌─────────────────────────────────────────────────────────────┐
-│ name:   String ("feed/card.html")                           │
-│ path:   PathBuf ("/app/templates/feed/card.html")           │
-│ digest: String ("8a3f...") (64 hex characters)              │
-│ raw:    String ("<ui-card>{{title}}</ui-card>")             │
+│ name:   String   "feed/card.html"                           │
+│ path:   PathBuf  "templates/feed/card.html"                 │
+│ raw:    String   "<ui-card>{{title}}</ui-card>"             │
+│ digest: [u8; 32] BLAKE3 of raw                              │
 │ chunks: Vec<Chunk>                                          │
-│         ├── Chunk::Static (b"<ui-card>")                    │
-│         ├── Chunk::Slot   ("title")                         │
-│         └── Chunk::Static (b"</ui-card>")                   │
+│         ├── Chunk::Static(b"<ui-card>")                     │
+│         ├── Chunk::Slot("title")                            │
+│         └── Chunk::Static(b"</ui-card>")                    │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-All templates are immutable after engine startup, enabling thread-safe concurrent access across all worker threads without `Mutex` or `RwLock` overhead.
+Each template keeps both the raw text and the chunks, so memory is roughly twice
+the template source size. Templates live in an `RwLock<HashMap>` inside an
+`Arc<CacheStore>` and are not changed after startup.
 
-## 2. Rendering Allocation Breakdown
+## 2. What a render allocates
 
-During `tpl.bind(&params)`:
+During `tpl.bind(&params)` (`anza::engine::slot::string`):
 
-1. **Pass 1 (Length Calculation)**: Computes `sum(static_bytes_len) + estimated_slot_len`.
-2. **Pass 2 (Single Allocation)**: Allocates `String::with_capacity(total_len)`.
-3. **Pass 3 (Contiguous Copy)**: Directly copies static slices and borrowed string slices into the allocated buffer.
+1. **Estimate**: sum of static chunk lengths + 32 bytes per placeholder.
+2. **Allocate**: one `Vec<u8>` with that capacity (it grows if values are longer).
+3. **Copy**: static chunks and resolved values are written in order.
+4. **Convert**: the bytes become a `String` (UTF-8 check, no copy).
 
-Zero reallocations, zero heap fragmentation.
+Values that `Params` returns as `Cow::Owned` (numbers, `Data`, JSON values)
+allocate their own strings before being copied.

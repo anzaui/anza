@@ -1,47 +1,53 @@
-# Architecture & Core Design
+# Architecture
 
-The TypeScript engine structure mirrors the Hao platform architectural standard, separating the template lifecycle into four discrete phases: **Extraction**, **Indexing**, **Resolution**, and **Envelopment**.
+The engine has three steps: **load** (read and hash files), **parse** (split into
+chunks and build a render function) and **render** (call the function, then
+optionally sign).
 
 ```
-  templates/*.html
-         │
-         ▼ (Startup / Watcher)
-  ┌──────────────┐
-  │ File Loader  │ ──► SHA-256 Digest Hashing
-  └──────┬───────┘
-         │
+  templates/**/*.html
+         │  Setup.run()
          ▼
   ┌──────────────┐
-  │ Slot Parser  │ ──► Chunk[] [ { type: 'static' }, { type: 'slot' } ]
+  │ File loader  │ ──► SHA-256 digest of each file
   └──────┬───────┘
-         │
          ▼
   ┌──────────────┐
-  │ JIT Compiler │ ──► (params) => string (V8 Optimized Function)
+  │ Slot parser  │ ──► Chunk[]  { type: 'static' } | { type: 'slot' }
   └──────┬───────┘
-         │
          ▼
   ┌──────────────┐
-  │ Engine Cache │ ──► Map<string, Template> (Pre-allocated)
+  │ compile()    │ ──► (params?) => string
   └──────┬───────┘
-         │
-         ├───► renderPage() ────► Document (Full SSR + Open DSD)
-         └───► renderFragment() ► Envelope (Slot + Timestamp + HTML + Signature)
+         ▼
+  ┌──────────────┐
+  │ Cache store  │ ──► Map<string, Template>
+  └──────┬───────┘
+         ├───► engine.renderPage()     ► Document
+         └───► engine.renderFragment() ► Envelope (+ signature)
 ```
 
-## 1. JIT Closure Compilation
+## 1. Render functions
 
-Instead of walking an AST or performing regex substitutions on incoming HTTP requests, Anza compiles each template into a direct closure at startup.
+`compile(chunks)` returns a closure that walks the pre-split parts and
+concatenates static strings and parameter values. It has separate loops for plain
+objects, `Map`s and `[key, value]` arrays, so no conversion happens per request.
 
-When the closure executes, V8 JIT compiles it to machine code. Slot parameter reads use direct object property lookups, executing in **sub-100 nanoseconds**.
+## 2. Template names
 
-## 2. Directory Layout Convention
+A template's name is its path relative to the root with `/` separators, e.g.
+`feed/card.html`. Only files ending in `.html` are loaded. Page rendering uses
+these names:
 
-Templates reside in a dedicated folder hierarchy:
+| Path | Used by |
+|---|---|
+| `layout/shell.html` | Optional document shell for every page. The page goes into `{{content}}` (also `{{slot_main}}`). |
+| `pages/home.html` | Route `/` |
+| `pages/<route>.html` | Route `/<route>` (fallbacks: `<route>.html`, then `pages/index.html`) |
+| anything else | Fragments, addressed by name, e.g. `feed/card.html` |
 
-| Directory | Role | Example |
-|---|---|---|
-| `layout/` | Global document shells (`<html>`, `<head>`, `<dock-*>`) | `layout/shell.html` |
-| `pages/` | Route-specific views (`<page-home>`, `<page-article>`) | `pages/home.html` |
-| `feed/` | Reusable dynamic fragments (`<ui-card>`, `<ui-alert>`) | `feed/card.html` |
-| `docks/` | Persistent application dock frames | `docks/main.html` |
+## 3. Reloading
+
+With `watch: true`, `Setup` watches the root with `fs.watch(root, { recursive: true })`
+and reloads **all** templates when any `.html` file changes. Recursive watching
+needs Node.js 20+ on Linux. Use it in development only.

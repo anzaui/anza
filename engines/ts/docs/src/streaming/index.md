@@ -1,30 +1,35 @@
 # Real-Time Streaming
 
-Server-Sent Events (SSE) and WebSockets allow Node.js and Bun backends to push live component fragment updates directly into client shadow roots.
-
-## 1. Streaming Lifecycle
+Server-Sent Events (SSE) and WebSockets carry the same `Envelope` JSON as a
+fragment fetch. The engine provides the encoders; the transport (and the loop
+that pushes updates) is your server's.
 
 ```
-  Client (EventSource / WS)              Node/Bun Server (Anza Engine)
-            │                                           │
-            │  1. GET /feed/stream (HTTP/2 SSE)         │
+  Client (EventSource / WS)              Node / Bun / Deno server
+            │  1. GET /feed/stream (SSE)                │
             ├──────────────────────────────────────────►│
-            │                                           │
             │  2. event: template                       │
-            │     data: {"slot":"feed","html":...,...}  │
-            │◄──────────────────────────────────────────┤ (Push Fragment 1)
-            │                                           │
-            │  3. event: template                       │
-            │     data: {"slot":"feed","html":...,...}  │
-            │◄──────────────────────────────────────────┤ (Push Fragment 2)
-            │                                           │
-            ▼                                           ▼
+            │     data: {"slot":"feed","ts":…,"html":…} │
+            │◄──────────────────────────────────────────┤
+            │  3. event: template …                     │
+            │◄──────────────────────────────────────────┤
 ```
 
-## 2. The STUI Stream Protocol
+## Wire format
 
-Every stream message represents an atomic DOM update for a specific slot:
+Each SSE message is:
 
-1. **`event: template`**: Declares that the payload is a STUI template envelope.
-2. **`data: { ... }`**: JSON-serialized `Envelope` containing `slot`, `ts`, `html`, and `sig`.
-3. **Double Newline `\n\n`**: Standard SSE frame terminator.
+1. **`event: template`**
+2. **`data: <Envelope JSON>`** with `slot`, `ts`, `html` and, when signed, `sig`
+3. a blank line (`\n\n`)
+
+A WebSocket message is the envelope JSON as a text frame.
+
+| Helper | Output |
+|---|---|
+| `formatEvent(envelope)` / `sseEvent(envelope)` | `"event: template\ndata: {…}\n\n"` |
+| `formatPacket(envelope)` | `"{…}"` |
+| `adapters.express.sendSse(res, envelope)` | Writes `formatEvent(envelope)` to an Express response |
+
+The browser library has no built-in listener for these events. Use
+`EventSource` / `WebSocket` and apply `envelope.html` to the target yourself.

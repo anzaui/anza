@@ -1,45 +1,37 @@
-# WebSocket Packetization
+# WebSocket Frames
 
-For bidirectional applications requiring uplink user events alongside downlink template streams, Anza formats envelopes into text frames.
+For WebSockets, send the envelope JSON as a text message.
 
-## 1. The `formatPacket` Helper
+## 1. Encoding
 
-Located in `src/stream/ws.ts`:
+`src/stream/ws.ts`:
 
 ```typescript
-import { formatPacket } from 'anza';
-import { Envelope } from 'anza';
+import { Envelope, formatPacket } from '@anzaui/engine';
 
-const envelope = new Envelope(
-  'notifications',
-  1724771200,
-  '<ui-toast>Order Shipped</ui-toast>',
-  '3a9f...'
-);
+const envelope = new Envelope('notifications', 1724771200, '<ui-toast>Order Shipped</ui-toast>');
 
-const jsonPayload = formatPacket(envelope);
-// Transmit jsonPayload over ws.send(jsonPayload)
+const text = formatPacket(envelope); // JSON.stringify(envelope)
+// socket.send(text) with your WebSocket library
 ```
 
-## 2. Client-Side WebSocket Reception
+## 2. Receiving in the browser
 
-When receiving a WebSocket frame:
+The Anza browser library has no WebSocket envelope handler, so this is your code.
+If the envelopes are signed and you want to check them in the browser, see
+[Ed25519](../crypto/ed25519.md#3-verifying-in-the-browser-your-code). Remember
+that `html` is not escaped by the engine.
 
 ```javascript
 ws.onmessage = async (event) => {
   const envelope = JSON.parse(event.data);
-  
-  // 1. Verify signature
-  const valid = await verifyEnvelope(envelope);
-  if (!valid) {
-    console.error("Tampered WebSocket envelope rejected");
+
+  if (!(await verifyEnvelope(envelope, publicKeyBytes))) {
+    console.error('Rejected envelope');
     return;
   }
 
-  // 2. Locate target dock slot and replace content
-  const targetSlot = document.querySelector(`[data-slot="${envelope.slot}"]`);
-  if (targetSlot) {
-    targetSlot.innerHTML = envelope.html;
-  }
+  const target = document.querySelector(`[data-slot="${envelope.slot}"]`);
+  if (target) target.innerHTML = envelope.html;
 };
 ```

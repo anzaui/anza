@@ -10,7 +10,7 @@ at startup; a render walks the pre-split chunks and copies parameter values in.
 - **Framework adapters** — `IntoResponse` (Axum) and `Responder` (Actix-web) for `Document` and `Envelope`, plus SSE helpers
 - **Serde binding** — render any `Serialize` value with `Template::render`, or wrap it in `Data(...)`
 - **Signing** — HMAC-SHA256 or Ed25519 signatures over `ts:slot:html`
-- **Live reload** — optional `watch` feature reloads templates when files change
+- **Watch (incomplete)** — the `watch` feature starts a file watcher, but changes are not reloaded yet; restart to pick up template edits
 
 ## Installation
 
@@ -27,8 +27,8 @@ tokio = { version = "1", features = ["full"] }
 | *(default)* | No web framework and no async runtime |
 | `axum` | `IntoResponse` for `Document` (HTML) and `Envelope` (JSON); `adapters::axum::stream::event` builds an SSE `Event` |
 | `actix` | `Responder` for `Document` and `Envelope`; `adapters::actix::stream::bytes` for SSE bodies |
-| `tower` | A Tower `Service` wrapper (`adapters::tower`) |
-| `watch` | Filesystem watcher (`notify`) for reloading templates in development |
+| `tower` | Placeholder: pulls in `tower`, but `adapters::tower` has no `Service` yet |
+| `watch` | Starts a `notify` watcher on the root; events are not applied to the cache yet |
 | `full` | All of the above |
 
 ## Quickstart (Axum)
@@ -145,5 +145,5 @@ returns an `axum::response::sse::Event`. See [streaming.md](streaming.md).
 | `render` | Page and fragment rendering |
 | `crypto` | `hmac`, `ed25519` (sign / verify), `hkdf`, `blake` digests |
 | `stream` | SSE and WebSocket encoders |
-| `adapters` | Axum, Actix-web and Tower integration (feature-gated) |
+| `adapters` | Axum and Actix-web integration (feature-gated); `tower` is an empty placeholder |
 | `models` | `Document`, `Envelope`, `Manifest` |

@@ -1,57 +1,43 @@
-# HMAC-SHA256 & Tamper Rejection
+# HMAC-SHA256
 
-HMAC-SHA256 provides symmetric signing for microfrontends, internal services, and direct client-server connections sharing a pre-shared secret.
+HMAC-SHA256 uses one shared secret for signing and verifying. Use it when every
+verifier is trusted with the secret (internal services, your own edge). Never
+ship the secret to browsers.
 
-## 1. TypeScript API Usage
+## 1. TypeScript API
 
-Located in `src/crypto/hmac.ts`:
+`src/crypto/hmac.ts`, exported as `crypto.hmac`:
 
 ```typescript
-import { crypto as anzaCrypto } from 'anza';
+sign(secret: string | Uint8Array, data: string | Uint8Array): string;
+verify(secret: string | Uint8Array, data: string | Uint8Array, signatureHex: string): boolean;
+```
+
+```typescript
+import { crypto as anzaCrypto } from '@anzaui/engine';
 
 const secret = 'my-secure-cluster-shared-secret-32b';
-const payload = '1724771200:feed:<ui-alert>OK</ui-alert>';
+const message = '1724771200:feed:<ui-alert>OK</ui-alert>';
 
-// 1. Sign
-const sig = anzaCrypto.hmac.sign(secret, payload);
-
-// 2. Constant-time verification
-const ok = anzaCrypto.hmac.verify(secret, payload, sig);
-console.log('Verified:', ok);
+const sig = anzaCrypto.hmac.sign(secret, message);
+console.log(anzaCrypto.hmac.verify(secret, message, sig)); // true
 ```
 
-## 2. Constant-Time Timing-Safe Verification
+## 2. Constant-time comparison
 
-To protect against side-channel timing attacks, `verify()` compares signatures in constant time:
+`verify` recomputes the MAC and compares it with `crypto.timingSafeEqual` after a
+length check. It returns `false` for invalid input instead of throwing.
+
+## 3. Tampering
+
+Any change to the timestamp, slot or HTML makes verification fail:
 
 ```typescript
-import * as crypto from 'node:crypto';
+import assert from 'node:assert';
 
-export function verify(secret: string | Uint8Array, data: string | Uint8Array, signatureHex: string): boolean {
-  try {
-    const expected = sign(secret, data);
-    const expectedBuf = Buffer.from(expected, 'hex');
-    const actualBuf = Buffer.from(signatureHex, 'hex');
-    if (expectedBuf.length !== actualBuf.length) {
-      return false;
-    }
-    return crypto.timingSafeEqual(expectedBuf, actualBuf);
-  } catch {
-    return false;
-  }
-}
+assert.equal(anzaCrypto.hmac.verify(secret, '1724771200:feed:<ui-alert>Corrupted</ui-alert>', sig), false);
+assert.equal(anzaCrypto.hmac.verify(secret, '1724779999:feed:<ui-alert>OK</ui-alert>', sig), false);
 ```
 
-## 3. Tamper Rejection Test Guarantees
-
-Any modification to the rendered HTML, target slot identifier, or timestamp causes immediate verification rejection:
-
-```typescript
-// Modifying a single character in the HTML
-const tamperedPayload = '1724771200:feed:<ui-alert>Corrupted</ui-alert>';
-assert.strictEqual(anzaCrypto.hmac.verify(secret, tamperedPayload, sig), false);
-
-// Replay attack with modified timestamp
-const stalePayload = '1724779999:feed:<ui-alert>OK</ui-alert>';
-assert.strictEqual(anzaCrypto.hmac.verify(secret, stalePayload, sig), false);
-```
+Replaying an old, unchanged envelope still verifies; reject old `ts` values
+yourself.

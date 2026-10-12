@@ -1,12 +1,15 @@
-# Multi-Runtime Support
+# Runtime Support
 
-Anza is written to pure Web Standards and Node.js built-in APIs, allowing identical execution across all major JavaScript runtimes.
+The engine is written against Node.js built-ins. It runs wherever those are
+available.
 
-## 1. Supported Runtimes
+| Runtime | Status | Notes |
+|---|---|---|
+| **Node.js 18+** | Supported (tests run on Node) | `watch: true` needs Node 20+ on Linux (recursive `fs.watch`) |
+| **Bun** | Expected to work via Bun's Node compatibility | Not covered by the test suite |
+| **Deno** | Expected to work via `npm:` specifiers and Node compatibility | Not covered by the test suite |
+| **Cloudflare Workers / edge** | Not supported | No filesystem for `Setup`; see [Edge runtimes](edge.md) |
 
-| Runtime | Cryptographic Engine | File Loading | Streaming API |
-|---|---|---|---|
-| **Node.js (>=18)** | `node:crypto` / `globalThis.crypto.subtle` | `node:fs/promises` | `node:http` ServerResponse |
-| **Bun (>=1.0)** | Native Web Crypto & `node:crypto` | `Bun.file()` / `node:fs` | `ReadableStream` & SSE |
-| **Deno (>=1.35)** | Native Web Crypto | `Deno.readTextFile()` | `ReadableStream` |
-| **Cloudflare Workers** | Edge Web Crypto | Bundled VFS / KV | `Response` streaming |
+APIs used: `node:crypto` (SHA-256, HMAC, Ed25519, HKDF), `node:fs` /
+`node:fs/promises` (loading and watching), `node:path`, `Buffer`, and the global
+`Response` (web adapter only).

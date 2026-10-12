@@ -1,59 +1,60 @@
-# Zero-Copy Struct Implementation
+# Implementing `Params` for Your Structs
 
-To achieve maximum rendering throughput without intermediate dictionary allocations, implement `Params` directly on domain structs.
+Implementing `Params` directly on a struct avoids building a `HashMap` or a JSON
+value for each render: string fields are borrowed, and only formatted values
+allocate.
 
-## 1. Struct `Params` Implementation
+## 1. Implementation
 
 ```rust
 use std::borrow::Cow;
-use anza::engine::slot::bind::Params;
+use anza::Params;
 
 pub struct Article {
   pub id: i64,
   pub slug: String,
   pub title: String,
-  pub summary: String,
   pub author: String,
-  pub created: String,
 }
 
 impl Params for Article {
   fn resolve(&self, key: &str) -> Option<Cow<'_, str>> {
     match key {
       "id" => Some(Cow::Owned(self.id.to_string())),
-      "slug" => Some(Cow::Borrowed(&self.slug)),
-      "title" => Some(Cow::Borrowed(&self.title)),
-      "summary" => Some(Cow::Borrowed(&self.summary)),
-      "author" => Some(Cow::Borrowed(&self.author)),
-      "created" => Some(Cow::Borrowed(&self.created)),
+      "slug" => Some(Cow::Borrowed(self.slug.as_str())),
+      "title" => Some(Cow::Borrowed(self.title.as_str())),
+      "author" => Some(Cow::Borrowed(self.author.as_str())),
       _ => None,
     }
   }
 }
 ```
 
-## 2. Advantages over HashMap / JSON
-
-| Technique | Heap Allocations During Render | String Clones | Execution Latency |
-|---|---|---|---|
-| Manual `HashMap.insert()` | $\mathcal{O}(N)$ (Map buckets & keys) | $N$ clones | ~1.8 µs |
-| `serde_json::to_value()` | $\mathcal{O}(N)$ (Value tree allocation) | Full clone | ~3.2 µs |
-| **`impl Params for Struct`** | **0 (Zero)** | **0 (Borrowed references)** | **< 60 ns** |
-
-## 3. Usage with Templates
-
-Once implemented, pass the struct reference directly to `tpl.bind(&struct)`:
+## 2. Usage
 
 ```rust
 let article = Article {
   id: 42,
   slug: "stui-in-rust".into(),
   title: "Server-Templated UI in Rust".into(),
-  summary: "Sub-millisecond SSR".into(),
   author: "Alex Rivera".into(),
-  created: "2026-08-27".into(),
 };
 
-// Zero allocations during render!
-let html = tpl.bind(&article);
+let html = engine.get("feed/article.html")?.bind(&article)?;
 ```
+
+`Engine::get` clones the template out of the cache, and `bind` allocates the
+output buffer once (plus any growth if values are longer than the estimate).
+
+## 3. Compared with the alternatives
+
+| Technique | Extra work per render |
+|---|---|
+| `impl Params for Struct` | None for borrowed fields |
+| `HashMap<String, String>` | Building the map (one `String` per key and value) |
+| `serde_json::Value` | Building the value tree |
+| `Data(&value)` / `Template::render` | Serializing the whole value once **per placeholder** |
+
+No benchmark numbers are published for these; measure in your own setup.
+
+Values are inserted without HTML escaping, whichever technique you use.
