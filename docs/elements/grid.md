@@ -39,4 +39,3 @@ Default slot / `part="grid"`.
 - [Layout](layout.md)
 - [Stack](stack.md)
 - [Split](split.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

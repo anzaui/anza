@@ -38,4 +38,3 @@ Draws with CSS tokens `--color-interactive`, `--color-border-default`, `--color-
 - [Data](data.md)
 - [Stat](stat.md)
 - [Memory safety & framework globals](../ui/advanced.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

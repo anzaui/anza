@@ -24,4 +24,4 @@ Full docs in this category: [input](input.md), [textarea](textarea.md), [select]
 | [upload](upload.md) | `ui-upload` | `@anzaui/anza/elements/upload` | Full |
 | [form](form.md) | `ui-form` | `@anzaui/anza/elements/form` | Full |
 
-See the [full inventory](index.md) and [ELEMENTS.md](../../plans/ELEMENTS.md) for phase status.
+See the [full inventory](index.md).

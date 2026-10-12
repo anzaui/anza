@@ -29,4 +29,3 @@ Defaults `role="progressbar"` and `aria-label="Loading"`. Animation pauses when 
 
 - [Elements overview](index.md)
 - [Primitives](primitives.md)
-- [Planning: ELEMENTS.md](../../plans/ELEMENTS.md)

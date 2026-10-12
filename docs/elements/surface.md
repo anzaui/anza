@@ -33,4 +33,3 @@ Default slot / `part="surface"`.
 - [Elements overview](index.md)
 - [Layout](layout.md)
 - [Card](card.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

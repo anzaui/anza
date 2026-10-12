@@ -1,6 +1,4 @@
 //! Docs site generator (`anza docs`) — markdown + config.toml → dist-first tree.
-//!
-//! See plans/DOCS-GENERATOR.md.
 
 mod config;
 mod transform;

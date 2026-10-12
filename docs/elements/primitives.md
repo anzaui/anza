@@ -23,4 +23,4 @@ Full docs in this category: [button](button.md), [icon](icon.md), [badge](badge.
 | [link](link.md) | `ui-link` | `@anzaui/anza/elements/link` | Full |
 | [spinner](spinner.md) | `ui-spinner` | `@anzaui/anza/elements/spinner` | Full |
 
-See the [full inventory](index.md) and [ELEMENTS.md](../../plans/ELEMENTS.md) for phase status.
+See the [full inventory](index.md).

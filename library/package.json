@@ -158,8 +158,12 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "test": "npx @web/test-runner",
+    "test": "wtr",
     "serve": "npx @web/dev-server --port 8080 --node-resolve false",
     "check": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@web/test-runner": "^0.20.2",
+    "typescript": "~6.0.3"
   }
 }

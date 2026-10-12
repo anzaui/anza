@@ -36,4 +36,3 @@ Slots: `label`, `hint`, default (control), `error`. Not form-associated itself â
 - [Elements overview](index.md)
 - [Forms](forms.md)
 - [Input](input.md)
-- [Planning: ELEMENTS.md](../../plans/ELEMENTS.md)

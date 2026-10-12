@@ -46,4 +46,3 @@ Default slot content sits in `part="wrapper"`.
 - [Layout](layout.md)
 - [App](app.md)
 - [Nav](nav.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

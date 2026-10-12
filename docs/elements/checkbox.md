@@ -36,4 +36,3 @@ Toggle via click or Space/Enter. Uses `form: true`. Default slot is the label co
 - [Elements overview](index.md)
 - [Forms](forms.md)
 - [Form association](../ui/forms.md)
-- [Planning: ELEMENTS.md](../../plans/ELEMENTS.md)

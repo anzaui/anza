@@ -33,4 +33,3 @@ Default slot content is the badge label.
 
 - [Elements overview](index.md)
 - [Primitives](primitives.md)
-- [Planning: ELEMENTS.md](../../plans/ELEMENTS.md)

@@ -2,7 +2,7 @@
 
 Normative **folder contract** for Anza apps: one spine humans learn once, optional slots, and an optional `anza.json` for remaps. Validate with `anza doctor` (soft) or `anza check` (strict CI). Sibling metaphor: [ssg/contract.md](../ssg/contract.md) is the HTML contract; this page is the **project layout** contract.
 
-Planning detail: [plans/STRUCTURE.md](../../plans/STRUCTURE.md). JSON Schema: [`@anzaui/anza/schemas/anza.schema.json`](../../library/schemas/anza.schema.json).
+JSON Schema: [`@anzaui/anza/schemas/anza.schema.json`](../../library/schemas/anza.schema.json).
 
 Tone: **one spine, many leaves** — same story as hierarchical docks.
 

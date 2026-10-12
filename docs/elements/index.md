@@ -75,7 +75,7 @@ Paths resolve via the package import map (`library/importmap.json`): `@anzaui/an
 | [Drawer](drawer.md) | `/docs/elements/drawer` |
 | [Sheet](sheet.md) | `/docs/elements/sheet` |
 
-Architecture: [Overlay patterns](overlay.md). Tooltip escape uses `escapeOverflow` / `guard.escape` ([plans/ELEMENTS.md](../../plans/ELEMENTS.md)).
+Architecture: [Overlay patterns](overlay.md). Tooltip escape uses `escapeOverflow` / `guard.escape`.
 
 ### Phase 4 — Data + navigation + layout
 
@@ -163,4 +163,3 @@ See [Context — on / watch](../ui/context.md), [Memory safety & framework globa
 - [Hydration / DSD adopt](../ui/hydration.md)
 - [Memory safety & framework globals](../ui/advanced.md)
 - [Events troubleshooting](../events/troubleshooting.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

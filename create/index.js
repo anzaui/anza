@@ -18,8 +18,8 @@ try {
   const anzaPkg = require.resolve('@anzaui/anza/package.json');
   library = dirname(anzaPkg);
 } catch (_) {
-  // Fallback for local development — resolve relative to this script in the repo
-  library = dirname(dirname(new URL(import.meta.url).pathname));
+  // Fallback for local development — the library lives beside create/ in the repo
+  library = join(dirname(dirname(new URL(import.meta.url).pathname)), 'library');
 }
 
 if (!library || !existsSync(join(library, 'package.json'))) {

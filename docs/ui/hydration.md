@@ -55,4 +55,3 @@ Define elements in the browser graph that upgrades SSG HTML; the factory itself 
 - [Page HTML contract](../ssg/contract.md) — Mode A / Mode B shape the client expects
 - [Lifecycle](lifecycle.md) — mount / connect after adopt
 - [Context](context.md) — `refs`, `tags`, `on`, `watch` after rehydrate
-- Planning: [PHASE-II.md](../../plans/PHASE-II.md), [SSG-SEO.md](../../plans/SSG-SEO.md)

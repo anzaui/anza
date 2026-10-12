@@ -43,4 +43,3 @@ _None — composition via slots._
 - [Layout](layout.md)
 - [Header](header.md)
 - [Sidebar](sidebar.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

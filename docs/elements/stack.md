@@ -39,4 +39,3 @@ Children go in the default slot (`part="stack"`).
 - [Elements overview](index.md)
 - [Layout](layout.md)
 - [Grid](grid.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

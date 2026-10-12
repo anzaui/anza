@@ -39,4 +39,3 @@ Default slot receives the table (or table wrap). Pair with a host/page `.table-w
 - [Elements overview](index.md)
 - [Data](data.md)
 - [List](list.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

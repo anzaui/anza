@@ -55,4 +55,3 @@ Key handlers bind on the popover surface via component `on`. Soft-nav aborts the
 - [Elements overview](index.md)
 - [Platform API](../platform/api.md) (`guard.popover`)
 - [Guards](../platform/guards.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

@@ -60,4 +60,3 @@ Pointer drag and close handling stay on the sheet instance / `el.ctrl`. Soft-nav
 - [Drawer](drawer.md)
 - [Elements overview](index.md)
 - [Platform API](../platform/api.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

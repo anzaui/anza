@@ -57,4 +57,3 @@ Default slot is the toast body (`role="status"`, `part="toast"`). After `duratio
 - [Overlay patterns](overlay.md) (native top-layer vs this body-portal exception)
 - [Memory safety & framework globals](../ui/advanced.md)
 - [Orphan listeners after soft-nav](../events/troubleshooting.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

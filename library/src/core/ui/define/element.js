@@ -197,7 +197,7 @@ export function element(tag, spec, base) {
       super();
       // Adopt existing open DSD shadow when present; otherwise CSR attach.
       // Also consume a lingering light-DOM <template shadowrootmode> (polyfill path).
-      // See plans/PHASE-II.md §2 / SSG-SEO Phase 2 — never wipe pre-rendered trees.
+      // SSG adoption: never wipe pre-rendered trees.
       let adopted = Boolean(this.shadowRoot);
       let shadowRoot = this.shadowRoot;
       if (!shadowRoot) {

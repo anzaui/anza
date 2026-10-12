@@ -99,10 +99,10 @@ function rewriteLinks(html, currentMdPath) {
     const pathPart = hashIdx === -1 ? href : href.slice(0, hashIdx);
     const hash = hashIdx === -1 ? '' : href.slice(hashIdx);
     if (!pathPart.endsWith('.md')) return match;
-    // Ignore links that escape the docs tree (e.g. plans/)
+    // Ignore links that escape the docs tree (e.g. ../../library/)
     const route = mdHrefToRoute(pathPart, currentMdPath);
     if (!route.startsWith('/docs')) return match;
-    // plans/ and other repo paths resolve outside docsDir → may not start cleanly;
+    // Repo paths outside docsDir → may not start cleanly;
     // reject if the resolved file is outside docs/
     const targetFs = join(dirname(currentMdPath), pathPart);
     const resolved = relative(docsDir, targetFs);

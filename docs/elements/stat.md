@@ -45,4 +45,3 @@ import '@anzaui/anza/elements/stat';
 - [Elements overview](index.md)
 - [Data](data.md)
 - [Chart](chart.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

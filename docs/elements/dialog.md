@@ -59,4 +59,3 @@ Open/close and Escape handling stay on the dialog instance. Soft-nav aborts the 
 - [Platform API](../platform/api.md)
 - [Form association](../ui/forms.md) (when `form: true`)
 - [Memory safety & framework globals](../ui/advanced.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

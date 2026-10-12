@@ -6,7 +6,7 @@ Sibling: the **folder** contract (required / recommended / optional project slot
 
 Overview of Phases 0–6: [index.md](index.md). Client adopt details: [ui/hydration.md](../ui/hydration.md).
 
-Golden samples: [plans/fixtures/ssg/](../../plans/fixtures/ssg/). Planning context: [plans/SSG-SEO.md](../../plans/SSG-SEO.md).
+Golden samples: [tools/fixtures/ssg/](../../tools/fixtures/ssg/).
 
 ## Site-root asset URLs
 

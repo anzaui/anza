@@ -48,4 +48,3 @@ Collects descendants with `formAssociated` constructors. Payload keys come from 
 - [Elements overview](index.md)
 - [Forms](forms.md)
 - [Form association](../ui/forms.md)
-- [Planning: ELEMENTS.md](../../plans/ELEMENTS.md)

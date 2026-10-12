@@ -16,7 +16,7 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const fixturesDir = join(root, 'plans', 'fixtures', 'ssg');
+const fixturesDir = join(root, 'tools', 'fixtures', 'ssg');
 const webDir = join(root, 'web');
 const distDir = join(webDir, 'dist');
 const builtIntro = join(distDir, 'docs', 'intro', 'start', 'index.html');
@@ -152,7 +152,7 @@ function maybeRebuild() {
   } else {
     console.log('Rebuilding web…');
   }
-  const anzaBin = join(root, 'tools', 'target', 'release', 'anza');
+  const anzaBin = join(root, 'target', 'release', 'anza');
   const env = { ...process.env };
   if (existsSync(anzaBin)) {
     env.PATH = `${dirname(anzaBin)}${env.PATH ? `:${env.PATH}` : ''}`;

@@ -2,8 +2,6 @@
  * Internal framework-global listener/observer registry.
  * App code should prefer component `on` / `watch` / `events.*` with AbortSignal.
  * Soft-nav and unit tests assert `globals.count()` stays stable across navigations.
- *
- * @see plans/MUTATIONS-EVENTS.md Phase 4
  */
 
 const entries = new Map();

@@ -24,4 +24,4 @@ Chart’s `ResizeObserver` disconnects on the component abort signal. Soft-nav d
 | [chart](chart.md) | `ui-chart` | `@anzaui/anza/elements/chart` | Full |
 | [stat](stat.md) | `ui-stat` | `@anzaui/anza/elements/stat` | Full |
 
-See the [full inventory](index.md) and [ELEMENTS.md](../../plans/ELEMENTS.md) for phase status.
+See the [full inventory](index.md).

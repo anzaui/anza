@@ -41,4 +41,3 @@ Keyboard and click handlers are shadow-scoped and abort with the component `ctrl
 - [Navigation](navigation.md)
 - [Form association](../ui/forms.md) (when `form: true`)
 - [Memory safety & framework globals](../ui/advanced.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

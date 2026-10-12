@@ -38,4 +38,3 @@ Slotted children are options; each option’s `value` attribute (or text content
 - [Forms](forms.md)
 - [Overlay patterns](overlay.md)
 - [Form association](../ui/forms.md)
-- [Planning: ELEMENTS.md](../../plans/ELEMENTS.md)

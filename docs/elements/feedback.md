@@ -26,4 +26,4 @@ Toasts and similar feedback that may append a container under `body` must dispos
 | [skeleton](skeleton.md) | `ui-skeleton` | `@anzaui/anza/elements/skeleton` | Full |
 | [empty](empty.md) | `ui-empty` | `@anzaui/anza/elements/empty` | Full |
 
-See the [full inventory](index.md) and [ELEMENTS.md](../../plans/ELEMENTS.md) for phase status.
+See the [full inventory](index.md).

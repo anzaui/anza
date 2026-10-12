@@ -47,4 +47,3 @@ Dropzone and upload work use the element `ctrl.signal` so disconnect / soft-nav 
 - [Elements overview](index.md)
 - [Forms](forms.md)
 - [Memory safety & framework globals](../ui/advanced.md)
-- [Planning: ELEMENTS.md](../../plans/ELEMENTS.md)

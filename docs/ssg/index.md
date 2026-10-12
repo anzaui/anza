@@ -4,7 +4,7 @@ Anza ships **contentful HTML** for public routes so hard refresh and crawlers se
 
 Portable rule: treat `dist/` as the **site root**. Public URLs are `/app.js`, `/importmap.json`, `/docs/...` — never `/dist/...`.
 
-Planning track (Phases 0–6): [plans/SSG-SEO.md](../../plans/SSG-SEO.md). Client adopt: [ui/hydration.md](../ui/hydration.md). Normative markup: [contract.md](contract.md).
+Client adopt: [ui/hydration.md](../ui/hydration.md). Normative markup: [contract.md](contract.md).
 
 ## Modes
 
@@ -13,7 +13,7 @@ Planning track (Phases 0–6): [plans/SSG-SEO.md](../../plans/SSG-SEO.md). Clien
 | **A — Pure static** | `anza build` / `anza dev` | SSG emitter → `dist/<route>/index.html` | `dist/` as site root |
 | **B — Any-lang templates** | Request time | Jinja / EJS / HBS / Go / Node / … | Same `dist/` static files |
 
-Both modes must satisfy the [page HTML contract](contract.md) so hydration has one adoption path. Examples: `examples/mode-b-python/`, `examples/mode-b-go/`, `examples/mode-b-node/`. Goldens: `plans/fixtures/ssg/`.
+Both modes must satisfy the [page HTML contract](contract.md) so hydration has one adoption path. Examples: `examples/mode-b-python/`, `examples/mode-b-go/`, `examples/mode-b-node/`. Goldens: `tools/fixtures/ssg/`.
 
 ## What shipped (Phases 0–6)
 

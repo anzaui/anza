@@ -41,4 +41,3 @@ Defaults `role="radio"` and `aria-checked`. Uses `form: true`.
 - [Elements overview](index.md)
 - [Forms](forms.md)
 - [Form association](../ui/forms.md)
-- [Planning: ELEMENTS.md](../../plans/ELEMENTS.md)

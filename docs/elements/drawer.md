@@ -61,4 +61,3 @@ Close handling stays on the dialog instance. Soft-nav aborts the leaf `ctrl`. Se
 - [Sheet](sheet.md)
 - [Elements overview](index.md)
 - [Platform API](../platform/api.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

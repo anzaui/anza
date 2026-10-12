@@ -44,4 +44,3 @@ Sets `role="progressbar"` and `aria-valuenow` / `aria-valuemin` / `aria-valuemax
 - [Elements overview](index.md)
 - [Feedback](feedback.md)
 - [Spinner](spinner.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

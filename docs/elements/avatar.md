@@ -33,4 +33,3 @@ Sets `aria-label="Avatar of {name}"` when `name` is present and no label is set.
 
 - [Elements overview](index.md)
 - [Primitives](primitives.md)
-- [Planning: ELEMENTS.md](../../plans/ELEMENTS.md)

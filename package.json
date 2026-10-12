@@ -1,15 +1,13 @@
 {
-  "name": "native-monorepo",
+  "name": "anza",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/build.js",
-    "release": "node scripts/release.js",
-    "dry": "node scripts/release.js --dry",
-    "test": "cd library && npm test",
-    "check": "cd library && npm run check"
-  },
-  "dependencies": {
-    "jsdom": "^29.1.1"
+    "build": "node tasks/build.js",
+    "test": "npm --prefix library test",
+    "check": "npm --prefix library run check",
+    "ssg:check": "node tasks/ssg-contract-check.js",
+    "docs": "node tasks/docs.js",
+    "publish:npm": "node tasks/publish.js"
   }
 }

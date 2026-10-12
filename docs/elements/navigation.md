@@ -24,4 +24,4 @@ Tabs, pagination, and steps bind click / keyboard / slotchange handlers with sha
 | [pagination](pagination.md) | `ui-pagination` | `@anzaui/anza/elements/pagination` | Full |
 | [steps](steps.md) | `ui-steps` | `@anzaui/anza/elements/steps` | Full |
 
-See the [full inventory](index.md) and [ELEMENTS.md](../../plans/ELEMENTS.md) for phase status.
+See the [full inventory](index.md).

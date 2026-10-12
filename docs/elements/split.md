@@ -39,4 +39,3 @@ Two children in the default slot; `part="split"` wraps them.
 - [Layout](layout.md)
 - [Grid](grid.md)
 - [Sidebar](sidebar.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

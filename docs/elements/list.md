@@ -37,4 +37,3 @@ Inner container uses `role="list"` and `part="list"`.
 - [Elements overview](index.md)
 - [Data](data.md)
 - [Table](table.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

@@ -39,4 +39,3 @@ Defaults `role="navigation"`. Inner markup uses `part="nav"`; put links / list i
 - [Navigation](navigation.md)
 - [Breadcrumb](breadcrumb.md)
 - [Link](link.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

@@ -37,4 +37,3 @@ Default slot content is projected into the dynamic root (`part="text"`).
 - [Elements overview](index.md)
 - [Primitives](primitives.md)
 - [Tokens](../styles/tokens.md)
-- [Planning: ELEMENTS.md](../../plans/ELEMENTS.md)

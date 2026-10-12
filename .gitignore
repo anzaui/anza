@@ -1,38 +1,29 @@
-# generated
+# Dependencies and build output
 node_modules/
+target/
 dist/
-releases/
 tmp/
+releases/
 book/
-*.db
-*.db-wal
-*.db-shm
-*.db-journal
-
-# Examples & Tests (Local Only)
-examples/
-test/
-
-# Python
+.anzacache.json
+*.egg-info/
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
 .pytest_cache/
 .venv/
 venv/
-*.egg-info/
-build/
+engines/py/build/
+coverage/
+lcov.info
+*.log
+*.prof
+**/*.rs.bk
 
-# Local Dev Design Docs
-DESIGN.md
-SKILL.md
-STRUCTURE.md
-DOC.md
-report.md
-reserch.md
-REPORT.md
-RESEARCH.md
+# Local-only sandboxes (examples/ gets a minimal tracked set later, see CLEAN D-3)
+examples/
+test/
+
+# Local design notes (never published)
 **/DESIGN.md
 **/SKILL.md
 **/STRUCTURE.md
@@ -41,49 +32,24 @@ RESEARCH.md
 **/reserch.md
 **/REPORT.md
 **/RESEARCH.md
+!CLEAN/RESEARCH.md
 
-# OS
+# Prebuilt CLI binaries
+library/bin/anza/anza-*
+
+# Env and secrets
+.env
+.env.*
+!.env.example
+
+# OS / editors
 .DS_Store
 Thumbs.db
-
-# editors
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# ── Rust ──────────────────────────────────────────────────────────────────────
-target/
-**/*.rs.bk
-Cargo.lock
-
-# ── Environment ───────────────────────────────────────────────────────────────
-.env
-.env.*
-!.env.example
-
-# ── Config secrets ────────────────────────────────────────────────────────────
-config/prod.toml
-config/staging.toml
-
-# ── Kubernetes secrets ────────────────────────────────────────────────────────
-k8/hermes/secret.yaml
-k8/postgres/secret.yaml
-k8/mongo/secret.yaml
-
-# ── ML models ─────────────────────────────────────────────────────────────────
-*.onnx
-*.bin
-
-# ── Logs & Test artifacts ─────────────────────────────────────────────────────
-*.log
-*.prof
-lcov.info
-coverage/
-
-# ── Prebuilt CLI binaries ─────────────────────────────────────────────────────
-library/bin/anza/anza-*
-
-# ── cargo-deny / audit ────────────────────────────────────────────────────────
+# cargo-deny
 advisory-db/

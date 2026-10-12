@@ -37,4 +37,3 @@ Content lives in `part="viewport"`.
 - [Elements overview](index.md)
 - [Layout](layout.md)
 - [Surface](surface.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

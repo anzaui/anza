@@ -36,4 +36,3 @@ _None — composition via slots._
 - [Elements overview](index.md)
 - [Layout](layout.md)
 - [App](app.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

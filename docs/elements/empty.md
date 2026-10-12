@@ -42,4 +42,3 @@ import '@anzaui/anza/elements/empty';
 - [Elements overview](index.md)
 - [Feedback](feedback.md)
 - [Alert](alert.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

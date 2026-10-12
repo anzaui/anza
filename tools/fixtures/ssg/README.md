@@ -11,8 +11,8 @@ Checked-in HTML produced by **Mode A** (`anza build` SSG). These are the canonic
 
 ```bash
 cd web && npm run build
-cp dist/index.html ../plans/fixtures/ssg/home.html
-cp dist/docs/intro/start/index.html ../plans/fixtures/ssg/docs-intro-start.html
+cp dist/index.html ../tools/fixtures/ssg/home.html
+cp dist/docs/intro/start/index.html ../tools/fixtures/ssg/docs-intro-start.html
 ```
 
 ## Contract check

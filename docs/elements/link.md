@@ -41,4 +41,3 @@ Same-origin clicks call `router.navigate(href)` unless modified keys, `#` hashes
 - [Elements overview](index.md)
 - [Primitives](primitives.md)
 - [Router](../router/index.md)
-- [Planning: ELEMENTS.md](../../plans/ELEMENTS.md)

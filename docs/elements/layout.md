@@ -23,4 +23,4 @@ Full docs in this category: [app](app.md), [header](header.md), [sidebar](sideba
 | [scroll](scroll.md) | `ui-scroll` | `@anzaui/anza/elements/scroll` | Full |
 | [surface](surface.md) | `ui-surface` | `@anzaui/anza/elements/surface` | Full |
 
-See the [full inventory](index.md) and [ELEMENTS.md](../../plans/ELEMENTS.md) for phase status.
+See the [full inventory](index.md).

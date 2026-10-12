@@ -65,4 +65,3 @@ Show/hide uses the host `AbortController` (`el.ctrl.signal`) for the escape cont
 - [Elements overview](index.md)
 - [Platform API](../platform/api.md) (`escapeOverflow` / `guard.escape`)
 - [Guards → escape](../platform/guards.md#escape)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

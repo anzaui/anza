@@ -43,4 +43,3 @@ import '@anzaui/anza/elements/card';
 - [Elements overview](index.md)
 - [Data](data.md)
 - [Surface](surface.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

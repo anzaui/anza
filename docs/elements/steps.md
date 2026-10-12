@@ -40,4 +40,3 @@ Slotted children get `role="step"` and a `state` of `completed`, `active`, or un
 - [Navigation](navigation.md)
 - [Tabs](tabs.md)
 - [Memory safety & framework globals](../ui/advanced.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

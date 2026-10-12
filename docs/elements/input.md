@@ -44,4 +44,3 @@ Named `error` slot for validation messaging. Form reset restores the attribute `
 
 - [Elements overview](index.md)
 - [Form association](../ui/forms.md) (when `form: true`)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

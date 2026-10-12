@@ -188,7 +188,7 @@ Strategies: `'popover'` when `showPopover` + `[popover]` exist; otherwise `'fixe
 
 Related feedback portal: [toast](toast.md) (`ui-toast`).
 
-See the [full inventory](index.md) and [ELEMENTS.md](../../plans/ELEMENTS.md) for phase status.
+See the [full inventory](index.md).
 
 ## Related
 
@@ -205,4 +205,3 @@ See the [full inventory](index.md) and [ELEMENTS.md](../../plans/ELEMENTS.md) fo
 - [Supports](../platform/supports.md) (`popoverAPI`, `anchorPositioning`)
 - [Memory safety & framework globals](../ui/advanced.md)
 - [Orphan listeners after soft-nav](../events/troubleshooting.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

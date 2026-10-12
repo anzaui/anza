@@ -63,4 +63,3 @@ Listeners stay on the popover surface inside the shadow. Soft-nav aborts the lea
 - [Elements overview](index.md)
 - [Platform API](../platform/api.md) (`guard.popover`)
 - [Guards](../platform/guards.md)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)

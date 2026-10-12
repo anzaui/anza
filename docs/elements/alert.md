@@ -38,4 +38,3 @@ Default slot is the alert body. Close button uses `part="close-button"`.
 
 - [Elements overview](index.md)
 - [Form association](../ui/forms.md) (when `form: true`)
-- Planning: [ELEMENTS.md](../../plans/ELEMENTS.md)
