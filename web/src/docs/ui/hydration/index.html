@@ -20,6 +20,7 @@ const shadowRoot = this.shadowRoot || this.attachShadow({ mode: 'open' });
 <li><strong>Light-DOM DSD polyfill</strong> — if native DSD did not attach, a lingering <code>&lt;template shadowrootmode="open"&gt;</code> is consumed into an attached shadow.</li>
 <li><strong>Styles</strong> — constructable sheets are assigned without removing DSD children; fallback <code>&lt;style&gt;</code> is skipped when DSD already shipped styles.</li>
 <li><strong>Mismatch</strong> — if the adopted tree fails hard sanity checks vs the client template (missing critical <code>ref</code>s / empty structure), one graceful re-render runs. No flash loop.</li>
+<li><strong>No refetch in built apps</strong> — after <code>anza build</code>, an adopted root does not request what its DSD already carries: stylesheets it links, and its template / tags descriptor unless they were inlined into the module. The mismatch check then uses the inlined template or tags descriptor; an empty adopted root still loads the template. The template is fetched on soft navigation or for a mismatch re-render.</li>
 </ul>
 <h2>Soft-nav vs full load</h2>
 <div class="table-wrap"><table><thead><tr><th>Path</th><th>Behavior</th></tr></thead><tbody>
