@@ -130,7 +130,7 @@ pub fn resolve(
   // Load build cache for incremental rebuilds.
   let mut cache = super::cache::load(&project);
   // Bump when emit transforms change (e.g. import-order rewrite) so caches rebuild.
-  let version = "1.0.2";
+  let version = "1.0.3";
 
   // Invalidate cache if version or mode mismatch.
   if let Some(ref c) = cache {
@@ -296,7 +296,7 @@ pub fn resolve(
           std::fs::read_to_string(file)
             .map_err(|e| format!("cannot read {}: {}", file.display(), e))
             .and_then(|content| {
-              let injected = super::html::inject_assets_with(&content, &importmap_tag, dev);
+              let injected = super::html::inject_assets_with(&content, &importmap_tag);
               crate::fs_atomic::write(&target, injected.as_bytes())
             })
         } else if is_js(file) {

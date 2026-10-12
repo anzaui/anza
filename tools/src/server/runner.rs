@@ -57,6 +57,41 @@ async fn strip_deploy_base(
   next.run(req).await
 }
 
+impl ServerState {
+  pub fn new(src_dir: &Path, tx: broadcast::Sender<HmrMessage>) -> Self {
+    ServerState {
+      tx,
+      src_dir: src_dir.to_path_buf(),
+      deploy_base: crate::build::base::load_deploy_base(src_dir),
+    }
+  }
+}
+
+/// The dev server app: SSE `/hmr`, static dist with SPA/SSG fallback, and
+/// the dev response layer (HMR client injection).
+pub fn router(state: Arc<ServerState>) -> Router {
+  let serve_dir = ServeDir::new(&state.src_dir)
+    .append_index_html_on_directories(false)
+    .fallback(handle_html_fallback.with_state(state.clone()));
+
+  Router::new()
+    .route("/hmr", get(hmr_handler))
+    .nest_service("/dist", serve_dir.clone())
+    .fallback_service(serve_dir)
+    .layer(middleware::from_fn(super::dev::layer))
+    .layer(CorsLayer::permissive())
+    .layer(middleware::from_fn_with_state(state.clone(), strip_deploy_base))
+    .with_state(state)
+}
+
+/// Serve `router` for `src_dir` on an already bound listener.
+pub async fn serve(listener: TcpListener, src_dir: &Path, tx: broadcast::Sender<HmrMessage>) {
+  let app = router(Arc::new(ServerState::new(src_dir, tx)));
+  if let Err(err) = axum::serve(listener, app).await {
+    anza_logs::error!("Dev server stopped: {}", err);
+  }
+}
+
 pub async fn run(port: u16, src_dir: &Path, tx: broadcast::Sender<HmrMessage>) {
   let deploy_base = crate::build::base::load_deploy_base(src_dir);
   if !deploy_base.is_empty() {
@@ -66,24 +101,6 @@ pub async fn run(port: u16, src_dir: &Path, tx: broadcast::Sender<HmrMessage>) {
       deploy_base.trim_start_matches('/')
     );
   }
-
-  let state = Arc::new(ServerState {
-    tx,
-    src_dir: src_dir.to_path_buf(),
-    deploy_base: deploy_base.clone(),
-  });
-
-  let serve_dir = ServeDir::new(src_dir)
-    .append_index_html_on_directories(false)
-    .fallback(handle_html_fallback.with_state(state.clone()));
-
-  let app = Router::new()
-    .route("/hmr", get(hmr_handler))
-    .nest_service("/dist", serve_dir.clone())
-    .fallback_service(serve_dir)
-    .layer(CorsLayer::permissive())
-    .layer(middleware::from_fn_with_state(state.clone(), strip_deploy_base))
-    .with_state(state);
 
   let (listener, bound_port) = match bind_port("0.0.0.0", port).await {
     Ok(pair) => pair,
@@ -97,10 +114,7 @@ pub async fn run(port: u16, src_dir: &Path, tx: broadcast::Sender<HmrMessage>) {
   };
 
   anza_logs::server!("Dev Server launched at http://localhost:{}", bound_port);
-
-  if let Err(err) = axum::serve(listener, app).await {
-    anza_logs::error!("Dev server stopped: {}", err);
-  }
+  serve(listener, src_dir, tx).await;
 }
 
 async fn bind_port(host: &str, start_port: u16) -> Result<(TcpListener, u16), String> {
@@ -268,7 +282,7 @@ async fn handle_html_fallback(
     false
   };
 
-  if !is_route {
+  if !is_route && clean != "/" {
     return Response::builder()
       .status(StatusCode::NOT_FOUND)
       .body(Body::from("404 Not Found"))

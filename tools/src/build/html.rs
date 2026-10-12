@@ -136,9 +136,18 @@ pub fn strip_importmap(html: &str) -> String {
   result
 }
 
-/// Inject importmap link and optional HMR script into an HTML string.
-pub fn inject_assets(html: &str, map: &BTreeMap<String, String>, dev: bool) -> String {
-  inject_assets_with(html, &importmap_tag(map), dev)
+/// True when `html` is a full document (`<!DOCTYPE` or `<html` before any
+/// other markup), not a component/page template fragment.
+pub fn is_document(html: &str) -> bool {
+  let head = html.trim_start_matches(|c: char| c.is_whitespace() || c == '\u{feff}');
+  let head = &head.as_bytes()[..head.len().min(15)];
+  let lower: Vec<u8> = head.iter().map(|b| b.to_ascii_lowercase()).collect();
+  lower.starts_with(b"<!doctype") || lower.starts_with(b"<html")
+}
+
+/// Inject the import map into an HTML document.
+pub fn inject_assets(html: &str, map: &BTreeMap<String, String>) -> String {
+  inject_assets_with(html, &importmap_tag(map))
 }
 
 /// The inline import map block injected into HTML (serialize once per build).
@@ -151,77 +160,14 @@ pub fn importmap_tag(map: &BTreeMap<String, String>) -> String {
   )
 }
 
-/// [`inject_assets`] with a pre-serialized [`importmap_tag`].
-pub fn inject_assets_with(html: &str, tag: &str, dev: bool) -> String {
-  let clean = strip_importmap(html);
-
-  let hmr = if dev {
-    r#"
-<!-- Native HMR Live-Reload Script -->
-<script type="module">
-  let sse;
-  let retry = 500;
-
-  function connect() {
-    sse = new EventSource('/hmr');
-
-    sse.addEventListener('message', async (e) => {
-      retry = 500; // reset back-off on successful message
-      try {
-        const msg = JSON.parse(e.data);
-
-        if (msg.kind === 'css') {
-          // Hot-swap: update all <link> tags that reference this file.
-          const links = document.querySelectorAll(`link[rel="stylesheet"]`);
-          for (const link of links) {
-            const url = new URL(link.href, location.origin);
-            if (url.pathname.includes(msg.path)) {
-              url.searchParams.set('t', Date.now());
-              link.href = url.href;
-            }
-          }
-          // Also notify any constructable-stylesheet consumers.
-          const res = await fetch(`/dist/${msg.path}?t=${Date.now()}`);
-          if (res.ok) {
-            const css = await res.text();
-            window.dispatchEvent(new CustomEvent('anza:hmr:css', {
-              detail: { path: msg.path, css }
-            }));
-          }
-        } else if (msg.kind === 'html') {
-          const res = await fetch(`/dist/${msg.path}?t=${Date.now()}`);
-          if (res.ok) {
-            const html = await res.text();
-            window.dispatchEvent(new CustomEvent('anza:hmr:html', {
-              detail: { path: msg.path, html }
-            }));
-          }
-        } else if (msg.kind === 'js' || msg.kind === 'reload') {
-          location.reload();
-        }
-      } catch (err) {
-        console.warn('[HMR] Failed to process event:', err);
-      }
-    });
-
-    sse.onerror = () => {
-      // Server restarted or connection dropped — reconnect with back-off.
-      sse.close();
-      setTimeout(() => {
-        retry = Math.min(retry * 2, 10_000);
-        connect();
-      }, retry);
-    };
+/// [`inject_assets`] with a pre-serialized [`importmap_tag`]. Fragments
+/// (component templates) are returned unchanged; the dev HMR client is
+/// added by the dev server at serve time, never written to dist.
+pub fn inject_assets_with(html: &str, tag: &str) -> String {
+  if !is_document(html) {
+    return html.to_string();
   }
-
-  connect();
-</script>
-"#
-  } else {
-    ""
-  };
-
-  let mut out = clean;
+  let mut out = strip_importmap(html);
   if let Some(pos) = out.find("<head>") {
     let insert = pos + 6;
     out.insert_str(insert, tag);
@@ -230,17 +176,8 @@ pub fn inject_assets_with(html: &str, tag: &str, dev: bool) -> String {
     let combined = format!("<head>{}</head>", tag);
     out.insert_str(insert, &combined);
   } else {
-    out.insert_str(0, &tag);
+    out.insert_str(0, tag);
   }
-
-  if dev {
-    if let Some(pos) = out.rfind("</body>") {
-      out.insert_str(pos, hmr);
-    } else {
-      out.push_str(hmr);
-    }
-  }
-
   out
 }
 
