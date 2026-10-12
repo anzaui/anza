@@ -10,6 +10,12 @@
 
 import { ui } from '../../../core/ui/index.js';
 
+const TEXT_TAGS = new Set([
+  'span', 'p', 'div', 'label', 'small', 'strong', 'em', 'b', 'i', 'u', 's', 'mark',
+  'code', 'kbd', 'samp', 'var', 'abbr', 'cite', 'q', 'blockquote', 'pre', 'time',
+  'sub', 'sup', 'del', 'ins', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'figcaption', 'legend'
+]);
+
 ui.element('ui-text', {
   style: './style.css',
   template: './index.html',
@@ -29,7 +35,10 @@ ui.element('ui-text', {
   },
   methods: {
     _update() {
-      const asAttr = this.as || 'span';
+      // Only text-level and heading tags; anything else (or an invalid name)
+      // renders as <span> instead of creating arbitrary elements.
+      const requested = String(this.as || 'span').toLowerCase();
+      const asAttr = TEXT_TAGS.has(requested) ? requested : 'span';
       const root = this.shadowRoot.querySelector('#root');
       const size = this.size;
       const weight = this.weight;
@@ -37,7 +46,7 @@ ui.element('ui-text', {
       const family = this.family;
 
       // Dynamic tag swapping
-      if (root.tagName.toLowerCase() !== asAttr.toLowerCase()) {
+      if (root.tagName.toLowerCase() !== asAttr) {
         const nextRoot = document.createElement(asAttr);
         nextRoot.id = 'root';
         nextRoot.part = 'text';

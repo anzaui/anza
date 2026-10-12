@@ -26,7 +26,7 @@ import '@anzaui/anza/elements/text';
 
 | Prop | Type | Reflect | Description |
 | ---- | ---- | ------- | ----------- |
-| `as` | String | Reflect, default `span` | Inner semantic tag (`span`, `p`, `h2`, …) |
+| `as` | String | Reflect, default `span` | Inner text tag: `span`, `p`, `div`, `label`, `small`, `strong`, `em`, `code`, `blockquote`, `pre`, `h1`–`h6` and other text-level tags. Anything else renders as `span` |
 | `size` | String | Reflect | Maps to `var(--font-size-{size})` |
 | `weight` | String | Reflect | Maps to `var(--font-weight-{weight})` |
 | `color` | String | Reflect | Maps to `var(--color-content-{color})` |
