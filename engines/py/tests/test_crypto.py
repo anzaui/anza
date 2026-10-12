@@ -40,7 +40,7 @@ class TestAnzaCrypto(unittest.TestCase):
             (root / "feed").mkdir(parents=True, exist_ok=True)
             (root / "feed" / "card.html").write_text("<div>{{title}}</div>", encoding="utf-8")
 
-            secret = "my-secure-hmac-key-123456789012"
+            secret = "my-secure-hmac-key-1234567890123"
             engine = Setup(
                 root=str(root),
                 signing=SignOptions(mode="hmac", secret=secret),

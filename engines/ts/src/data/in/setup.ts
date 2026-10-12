@@ -3,7 +3,8 @@ import { AnzaError } from '../../errors/index.js';
 import { all } from '../../engine/file/load.js';
 import { listen, type FileWatcher } from '../../engine/file/watch.js';
 import { CacheStore } from '../../engine/cache/store.js';
-import { Engine, type SignOptions } from '../../engine/cache/engine.js';
+import { Engine } from '../../engine/cache/engine.js';
+import { Signer, redact, type SignOptions } from '../../crypto/signer.js';
 
 export interface SetupOptions {
   root: string;
@@ -28,14 +29,24 @@ export class Setup {
     }
   }
 
+  toJSON(): Record<string, unknown> {
+    return { root: this.root, signing: redact(this.signing), watch: this.watch };
+  }
+
+  [Symbol.for('nodejs.util.inspect.custom')](): string {
+    return `Setup ${JSON.stringify(this.toJSON())}`;
+  }
+
   validate(): void {
     if (!this.root || !fs.existsSync(this.root)) {
       throw AnzaError.validation(`Template root directory does not exist: ${this.root}`);
     }
   }
 
+  /** Validate the root and the signing keys, load every template, and start the watcher when `watch` is set. */
   async run(): Promise<Engine> {
     this.validate();
+    const signer = Signer.from(this.signing);
     const templates = await all(this.root);
     const cache = new CacheStore(templates);
 
@@ -51,6 +62,6 @@ export class Setup {
       });
     }
 
-    return new Engine(this.root, cache, this.signing, watcher);
+    return new Engine(this.root, cache, signer, watcher);
   }
 }

@@ -4,6 +4,7 @@ from typing import Optional, Union
 from ...engine.cache.engine import Engine, SignOptions
 from ...engine.cache.store import CacheStore
 from ...engine.file.load import all as load_all
+from ...crypto.signer import Signer
 from ...errors import AnzaError
 
 
@@ -21,7 +22,9 @@ class Setup:
             raise AnzaError.validation(f"Templates root path '{self.root}' is not a directory")
 
     def run(self) -> Engine:
+        """Validate the root and the signing keys, then load every template."""
         self.validate()
+        signer = Signer.from_options(self.signing)
         templates = load_all(self.root)
         cache = CacheStore(templates)
-        return Engine(self.root, cache, self.signing)
+        return Engine(self.root, cache, signer)

@@ -77,7 +77,7 @@ test('engine/fragment - dynamic signed envelope generation', async () => {
   const cardHtml = '<ui-card><div class="title">{{title}}</div><ui-badge>{{status}}</ui-badge></ui-card>';
   await fs.writeFile(path.join(tempDir, 'feed', 'card.html'), cardHtml, 'utf8');
 
-  const secret = 'test-secret-key-32-bytes-long!!';
+  const secret = 'test-secret-key-32-bytes-long!!!';
   const engine = await new Setup({
     root: tempDir,
     signing: { mode: 'hmac', secret },

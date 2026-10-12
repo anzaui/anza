@@ -3,7 +3,7 @@ pub mod store;
 
 use {
   crate::{
-    crypto::{blake, ed25519, hmac},
+    crypto::{blake, signer::Signer},
     engine::file::{self, Template},
     errors::{Error, Result},
     models::{document::Document, envelope::Envelope, manifest::Manifest},
@@ -16,7 +16,9 @@ use {
   store::CacheStore,
 };
 
-#[derive(Debug, Clone)]
+/// How fragments are signed. Keys are validated by `Setup::run`; `Debug`
+/// never prints key material.
+#[derive(Clone)]
 pub enum SignMode {
   Ed25519 {
     private_key: Vec<u8>,
@@ -28,11 +30,33 @@ pub enum SignMode {
   None,
 }
 
+impl std::fmt::Debug for SignMode {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    match self {
+      Self::Ed25519 { private_key, public_key } => f
+        .debug_struct("Ed25519")
+        .field("private_key", &Redacted(private_key.len()))
+        .field("public_key", &crate::crypto::hex::encode(public_key))
+        .finish(),
+      Self::Hmac { secret } => f.debug_struct("Hmac").field("secret", &Redacted(secret.len())).finish(),
+      Self::None => f.write_str("None"),
+    }
+  }
+}
+
+struct Redacted(usize);
+
+impl std::fmt::Debug for Redacted {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "<redacted {} bytes>", self.0)
+  }
+}
+
 pub struct Engine {
   pub root: PathBuf,
   pub cache: Arc<CacheStore>,
-  pub signing: SignMode,
   pub watcher: Option<file::FileWatcher>,
+  pub(crate) signer: Signer,
 }
 
 impl Engine {
@@ -49,20 +73,14 @@ impl Engine {
     Ok(manifest)
   }
 
+  /// The validated signing key (`Debug` is redacted).
+  pub fn signer(&self) -> &Signer {
+    &self.signer
+  }
+
   pub fn sign_payload(&self, ts: u64, slot: &str, html: &str) -> Result<Option<String>> {
-    match &self.signing {
-      SignMode::Ed25519 { private_key, .. } => {
-        let msg = format!("{}:{}:{}", ts, slot, html);
-        let sig = ed25519::sign::payload(private_key, msg.as_bytes())?;
-        Ok(Some(sig))
-      }
-      SignMode::Hmac { secret } => {
-        let msg = format!("{}:{}:{}", ts, slot, html);
-        let sig = hmac::sign::payload(secret, msg.as_bytes())?;
-        Ok(Some(sig))
-      }
-      SignMode::None => Ok(None),
-    }
+    let msg = format!("{}:{}:{}", ts, slot, html);
+    Ok(self.signer.sign(msg.as_bytes()))
   }
 
   pub fn render_fragment(&self, template_name: &str, slot: &str, params: &HashMap<String, String>) -> Result<Envelope> {

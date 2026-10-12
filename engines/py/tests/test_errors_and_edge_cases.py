@@ -105,16 +105,13 @@ class TestErrorsAndEdgeCases(unittest.TestCase):
             root = Path(tmp_dir)
             (root / "card.html").write_text("<div>{{title}}</div>", encoding="utf-8")
 
-            # HMAC without secret
-            engine_hmac = Setup(root=str(root), signing=SignOptions(mode="hmac", secret=None)).run()
+            # Missing keys fail at setup, never at render time.
             with self.assertRaises(AnzaError) as ctx:
-                Fragment("card.html", "main", {"title": "Hello"}).run(engine_hmac)
+                Setup(root=str(root), signing=SignOptions(mode="hmac", secret=None)).run()
             self.assertEqual(ctx.exception.code, "CRYPTO")
 
-            # Ed25519 without private key
-            engine_ed = Setup(root=str(root), signing=SignOptions(mode="ed25519", private_key=None)).run()
             with self.assertRaises(AnzaError) as ctx:
-                Fragment("card.html", "main", {"title": "Hello"}).run(engine_ed)
+                Setup(root=str(root), signing=SignOptions(mode="ed25519", private_key=None)).run()
             self.assertEqual(ctx.exception.code, "CRYPTO")
 
     def test_dataclass_and_object_binding(self):

@@ -1,11 +1,15 @@
 use {
   crate::{
+    crypto::signer::Signer,
     engine::cache::{Engine, SignMode},
     engine::file,
     engine::cache::store::CacheStore,
     errors::{Error, Result},
   },
-  std::{path::PathBuf, sync::Arc},
+  std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+  },
 };
 
 #[derive(Debug, Clone)]
@@ -24,13 +28,17 @@ impl Setup {
     }
   }
 
-  pub fn ed25519<P: Into<PathBuf>>(priv_path: P, pub_path: P) -> SignMode {
-    let private_key = std::fs::read(priv_path.into()).unwrap_or_default();
-    let public_key = std::fs::read(pub_path.into()).unwrap_or_default();
-    SignMode::Ed25519 {
-      private_key,
-      public_key,
-    }
+  /// Ed25519 signing from raw key files: a 32-byte private seed and its
+  /// 32-byte public key. A missing or unreadable file is an error, and
+  /// `run()` checks that the public key matches the seed.
+  pub fn ed25519<P: AsRef<Path>>(priv_path: P, pub_path: P) -> Result<SignMode> {
+    let read = |path: &Path, what: &str| {
+      std::fs::read(path).map_err(|e| Error::crypto(format!("Cannot read Ed25519 {what} key file {}: {}", path.display(), e.kind())))
+    };
+    Ok(SignMode::Ed25519 {
+      private_key: read(priv_path.as_ref(), "private")?,
+      public_key: read(pub_path.as_ref(), "public")?,
+    })
   }
 
   pub fn hmac(secret: &[u8]) -> SignMode {
@@ -46,8 +54,11 @@ impl Setup {
     Ok(())
   }
 
+  /// Validate the root and the signing keys, load every template, and start
+  /// the watcher when `watch` is set.
   pub fn run(&self) -> Result<Engine> {
     self.validate()?;
+    let signer = Signer::new(&self.signing)?;
     let templates = file::load::all(&self.root)?;
     let cache = Arc::new(CacheStore::new(templates));
     // With the `watch` feature, template edits are reloaded into the cache.
@@ -60,8 +71,8 @@ impl Setup {
     Ok(Engine {
       root: self.root.clone(),
       cache,
-      signing: self.signing.clone(),
       watcher,
+      signer,
     })
   }
 }
