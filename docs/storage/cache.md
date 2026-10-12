@@ -10,9 +10,8 @@ import { storage } from '@anzaui/anza/storage';
 // Cache a JSON response
 await storage.set('config', { theme: 'dark' }, 'cache');
 
-// Retrieve
-const res = await storage.get('config', 'cache');
-const data = await res.json();
+// Retrieve (the cached body is parsed as JSON, or returned as text)
+const data = await storage.get('config', 'cache');
 ```
 
 ## TTL
@@ -24,24 +23,24 @@ await storage.set('feed', response, { tier: 'cache', ttl: 300000 });
 
 Expired entries are evicted on read. The `x-expires-at` header stores the expiry timestamp.
 
-## Direct CacheStorage
+## Cache Name
+
+The Cache API adapter itself is internal. Choose the cache pool name with
+`storage.configure()` before first use:
 
 ```javascript
-import { CacheStorage } from '@anzaui/anza/storage';
+import { storage } from '@anzaui/anza/storage';
 
-const cache = new CacheStorage('my-cache');
+storage.configure({ cache: { name: 'my-cache' } });
 
-// Store a Response
-await cache.set('/api/data', new Response(JSON.stringify(data)), 60000);
-
-// Retrieve
-const res = await cache.get('/api/data');
+await storage.set('/api/data', data, { tier: 'cache', ttl: 60000 });
+const cached = await storage.get('/api/data', 'cache');
 ```
 
 ## Clear
 
 ```javascript
-await cache.clear(); // deletes entire cache pool
+await storage.clear('cache'); // deletes every entry in the cache pool
 ```
 
 ## Use Cases

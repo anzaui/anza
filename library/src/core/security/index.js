@@ -14,6 +14,8 @@ import {
   deriveKey,
   encrypt,
   decrypt,
+  seal,
+  unseal,
   sign,
   verify
 } from './crypto.js';
@@ -27,6 +29,8 @@ export const security = {
   deriveKey,
   encrypt,
   decrypt,
+  seal,
+  unseal,
   sign,
   verify,
   sanitize,
@@ -41,6 +45,8 @@ export {
   deriveKey,
   encrypt,
   decrypt,
+  seal,
+  unseal,
   sign,
   verify,
   sanitize,

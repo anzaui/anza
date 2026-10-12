@@ -278,16 +278,15 @@ part('icon-star', {
 });
 ```
 
-## Internal Exports
+## Named Exports
 
-For middleware and test utilities:
+Every facade method is also a named export, for middleware and test utilities:
 
 ```javascript
 import { register, match, clear, getRoutes, load } from '@anzaui/anza/router';
 import { addGuard, setNotFound, on, setup, destroy } from '@anzaui/anza/router';
 import { navigate, replace, back, forward, go } from '@anzaui/anza/router';
-import { gate, boot, ready, reset } from '@anzaui/anza/router';
-import { isCallback, resolveTag, runCallback } from '@anzaui/anza/router';
+import { gate, ready, reset } from '@anzaui/anza/router';
 import { transitions } from '@anzaui/anza/router';
 ```
 

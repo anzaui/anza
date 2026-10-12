@@ -388,4 +388,4 @@ export const storage = {
 
 // Named class exports — lets consumers instantiate adapters directly:
 // import { Database, LRUCache } from '@anzaui/anza/storage';
-export { Database, LRUCache, WeakLRUCache };
+export { Database, LRUCache, WeakLRUCache, quota };

@@ -7,8 +7,8 @@ The quota manager wraps the browser StorageManager API, providing storage estima
 ```javascript
 import { quota } from '@anzaui/anza/storage';
 
-const { usage, quota } = await quota.estimate();
-console.log(`Using ${usage} of ${quota} bytes`);
+const { usage, quota: limit } = await quota.estimate();
+console.log(`Using ${usage} of ${limit} bytes`);
 ```
 
 Returns `{ usage: 0, quota: 0 }` if the API is unavailable.

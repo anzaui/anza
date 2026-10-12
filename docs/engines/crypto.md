@@ -86,15 +86,18 @@ All signed fragments conform to the standard wire envelope:
 
 ## Client-Side Verification
 
-When full-page SSR runs, the origin embeds its public key into the document head:
+The engines do not inject a key into pages. If you want browser-side checks, publish your public key in the document head yourself:
 
 ```html
 <meta name="anza-key" content="ed25519:e4d9b2c3a1f09876543210fedcba9876543210fedcba9876543210fedcba9876">
 ```
 
-When receiving envelopes via `listenStream()` or `api.stream()`, the client runtime automatically:
-
-1. Assembles `ts:slot:html` from the incoming envelope.
-2. Checks timestamp freshness ($\Delta t \le 60\text{s}$).
-3. Verifies `sig` against the key in `<meta name="anza-key">` via `globalThis.crypto.subtle`.
-4. Dispatches a `security:tamper` event and drops the fragment if verification fails.
+The browser library does **not** verify envelopes automatically: there is no
+built-in stream listener, and `api.stream()` only parses JSON. Verification is
+done with the engines' `verify` helpers (Rust `crypto::ed25519`, TS
+`crypto/ed25519.ts` / `crypto/hmac.ts`, Python `anza.crypto`), typically on the
+server or edge that relays fragments. To verify in the browser, rebuild the
+`ts:slot:html` message from the envelope, check that `ts` is fresh, and call
+`crypto.subtle.verify('Ed25519', key, sig, message)` with the public key from
+`<meta name="anza-key">`. `verify()` from `@anzaui/anza/security` covers HMAC and
+ECDSA keys only.

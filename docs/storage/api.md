@@ -127,19 +127,11 @@ Options: `{ index, range, direction, limit }`.
 
 Multi-store transactional callback.
 
-## CacheStorage
+## Cache tier
 
-```javascript
-import { CacheStorage } from '@anzaui/anza/storage';
-```
-
-### `new CacheStorage(name)`
-
-### `cache.get(request)` → `Promise<Response | null>`
-
-### `cache.set(request, response, ttlMs)`
-
-### `cache.delete(request)` / `cache.clear()`
+The Cache API adapter is internal (it is not exported, because its class name
+shadows the global `CacheStorage`). Use the `'cache'` tier of `storage`, and
+`storage.configure({ cache: { name } })` to pick the pool name.
 
 TTL is stored via an `x-expires-at` header on cached responses.
 

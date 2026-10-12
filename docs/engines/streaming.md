@@ -6,8 +6,8 @@ Anza Server-Templated UI provides first-class support for real-time component st
 
 - **Server-Sent Events (SSE)** — Standard HTTP transport with automatic reconnection and CDN pass-through
 - **WebSocket text frames** — High-frequency bidirectional streaming for real-time collaboration
-- **Declarative client listener** — `listenStream()` automatically verifies signatures and patches matching docks
-- **Async generator consumption** — Programmatic `for await` streams via `api.stream()`
+- **Plain browser client** — the standard `EventSource` / `WebSocket` APIs; no extra runtime
+- **Async generator consumption** — `for await` over newline-delimited JSON via `api.stream()`
 
 ## Protocol Overview
 
@@ -25,36 +25,40 @@ data: {"slot":"feed","ts":1724771234,"html":"<ui-card>...</ui-card>","sig":"3a8f
 
 ## Client Integration
 
-### 1. `listenStream()`
+The library has no built-in stream listener and does not verify envelope
+signatures in the browser. Use the platform APIs directly and decide how a
+`slot` name maps to an element in your page.
 
-Connect to an SSE stream and automatically patch matching docks in the DOM:
+### 1. `EventSource` (SSE)
 
 ```javascript
-import { listenStream } from '@anzaui/anza/ui';
+const source = new EventSource('/api/live/stream');
 
-const stream = listenStream('/api/live/stream', {
-  reconnect: true,
-  onUpdate(slot, envelope) {
-    console.log(`Updated slot ${slot}`);
-  },
-  onError(err) {
-    console.error('Stream error:', err);
-  },
+source.addEventListener('template', (event) => {
+  const envelope = JSON.parse(event.data);
+  const target = document.getElementById(envelope.slot);
+  if (target) target.innerHTML = envelope.html;
 });
 
 // To disconnect:
-// stream.close();
+// source.close();
 ```
 
-### 2. `api.stream()`
+`EventSource` reconnects on its own. Only inject HTML from a stream you
+trust: `sanitize()` from `@anzaui/anza/security` strips custom elements, so it
+is meant for user content, not for engine fragments. Verify `sig` with the
+engine's `verify` helper on any server or edge hop that relays the stream (see
+[crypto.md](crypto.md)).
 
-Programmatic stream consumption in custom components:
+### 2. `api.stream()` (NDJSON)
+
+`api.stream()` reads a newline-delimited JSON body (one envelope per line,
+`Content-Type: application/x-ndjson`) and yields each line already parsed:
 
 ```javascript
 import { api } from '@anzaui/anza/api';
 
-for await (const chunk of api.stream('/api/live/feed')) {
-  const envelope = JSON.parse(chunk);
+for await (const envelope of api.stream('/api/live/feed')) {
   console.log('Received live envelope:', envelope.slot, envelope.html);
 }
 ```

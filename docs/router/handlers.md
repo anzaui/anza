@@ -91,19 +91,13 @@ This separation prevents a callback from running twice.
 
 ## Handler Helpers
 
-For advanced use, the internal handler contract is exposed:
+The helpers that implement this contract (`isCallback`, `resolveTag`,
+`runCallback`) are internal and not exported. Use `match()` to see how a URL
+resolves:
 
 ```javascript
-import { isCallback, resolveTag, runCallback } from '@anzaui/anza/router';
+import { match } from '@anzaui/anza/router';
 
-const handler = { load: async () => 'page-home' };
-
-if (isCallback(handler)) {
-  // This is a callback — do not try to resolve a tag
-} else {
-  const tag = await resolveTag(handler);
-  // tag === 'page-home'
-}
+const result = await match('/users/42');
+console.log(result?.tag, result?.params);
 ```
-
-These are rarely needed in application code but are useful for middleware and test utilities.

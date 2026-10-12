@@ -161,11 +161,11 @@ on.input('.search', debounce((e, input) => {
 Check internal state:
 
 ```javascript
-import { specRegistry } from '@anzaui/anza/ui';
-
-// See the spec for an element
-console.log(specRegistry.get('user-card'));
-
-// Check if custom element is defined
+// Check if the custom element is defined
 console.log(customElements.get('user-card'));
+
+// Wait for the definition (resolves once element() / view() / part() ran)
+await customElements.whenDefined('user-card');
 ```
+
+The element spec registry is internal and not exported.

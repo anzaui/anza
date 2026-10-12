@@ -52,6 +52,7 @@ import {
 import { cache, prefetch } from './cache.js';
 import { transitions } from './transitions.js';
 import { loadingApi } from './loading.js';
+import { gate, ready, reset } from './boot.js';
 import { guard } from '../platform/index.js';
 
 export const router = {
@@ -204,5 +205,9 @@ export {
   cache,
   prefetch,
   // transitions
-  transitions
+  transitions,
+  // boot sub-module
+  gate,
+  ready,
+  reset
 };

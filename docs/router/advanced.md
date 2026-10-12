@@ -58,11 +58,11 @@ The trie stores three kinds of children per node:
 
 Walk order is static → param → wild, matching specificity order. The trie returns `{ route, params }` on hit. Params are decoded with `decodeURIComponent`.
 
-These matched `params` are raw key-value string mappings. During navigation, the router interceptor looks up the component's contract in the `specRegistry` to parse and cast these raw values into typed, ordered accessor arrays (`params` and `query`) passed to the component lifecycle.
+These matched `params` are raw key-value string mappings. During navigation, the router interceptor looks up the component's contract in an internal spec registry to parse and cast these raw values into typed, ordered accessor arrays (`params` and `query`) passed to the component lifecycle.
 
 ## Handler Contract
 
-The internal handler resolution contract separates tag resolution from callback execution:
+The internal handler resolution contract separates tag resolution from callback execution. These helpers are internal (not exported); the sketch shows what the router does:
 
 ```javascript
 // Match phase — safe to call repeatedly
@@ -142,11 +142,11 @@ router.register = (pattern, handler, meta) => {
 };
 ```
 
-For deeper extension, import internal modules directly:
+For deeper extension, use the named exports. Deep paths such as
+`@anzaui/anza/router/match` are not part of the public API:
 
 ```javascript
-import { register, match } from '@anzaui/anza/router/match';
-import { addGuard } from '@anzaui/anza/router/intercept';
+import { register, match, addGuard } from '@anzaui/anza/router';
 ```
 
 ## Non-browser / Mode A · Mode B

@@ -160,14 +160,14 @@ page('/', {
 Check the internal state:
 
 ```javascript
+import { getRoutes, ready, getContainer } from '@anzaui/anza/router';
+
 // See all routes
-console.log(router.getRoutes());
+console.log(getRoutes());
 
 // See if boot has fired
-import { ready } from '@anzaui/anza/router';
 console.log(ready());
 
-// See the container graph
-import { get } from '@anzaui/anza/router';
-console.log(get('main'));
+// See a registered container
+console.log(getContainer('main'));
 ```
