@@ -9,9 +9,39 @@ finishes. Call `handle(request, event)` the same way from your own code.
 Strategies never intercept event streams (`Accept: text/event-stream`) or the
 dev server's `/hmr` channel.
 
+## What is never cached
+
+A strategy stores a response only if the request is `GET` and the response is OK (2xx). It also skips:
+
+| Condition | Why |
+| --------- | --- |
+| Response `Cache-Control` contains `no-store` or `private` | The server says the response is not shareable |
+| Response `Vary: *` | The response cannot be matched safely |
+| Request has an `Authorization` header | Per-user data |
+| Request is cross-origin with `credentials: 'include'` | Per-user data (cookies) |
+
+The response is still returned to the page. It is just not written to the cache. Cache entries outlive a logout, so mark per-user API responses `Cache-Control: private` or `no-store`, even if they use cookies on your own origin.
+
+## Clear caches on logout
+
+Same-origin requests sent with cookies are cached unless the response forbids it. Delete the caches when the user logs out, from the page or the worker:
+
+```javascript
+import { offline } from '@anzaui/anza/offline';
+
+async function logout() {
+  await fetch('/api/logout', { method: 'POST' });
+  const keys = await caches.keys();
+  await Promise.all(keys.map((key) => caches.delete(key)));
+  await offline.queue.clear(); // queued requests keep their headers
+}
+```
+
+`caches` is the browser's Cache Storage API. `offline.queue.clear()` empties the [Sync](sync.md) queue, whose tasks store request headers in IndexedDB.
+
 ## CacheFirst
 
-Tries cache first. Falls back to network on miss. Stores the network response in cache.
+Tries cache first. Falls back to network on a miss or an expired entry, and stores the network response. If the network fails, an expired entry is still returned.
 
 ```javascript
 import { CacheFirst } from '@anzaui/anza/sw';
@@ -66,7 +96,7 @@ import { CacheThenNetwork } from '@anzaui/anza/sw';
 const strategy = new CacheThenNetwork('live-v1', { ttl: 60000 });
 ```
 
-After the background fetch completes, the SW sends a `cache-update` message to every controlled client with the new JSON payload. The main thread can listen for this and refresh the UI.
+After a successful background fetch, the SW posts `{ type: 'cache-update', url, payload }` to every client. `payload` is the parsed body for `application/json` responses, otherwise `null`. The main thread can listen for this and refresh the UI.
 
 ## NetworkOnly
 
@@ -102,11 +132,11 @@ import { OfflineFallback } from '@anzaui/anza/sw';
 const strategy = new OfflineFallback('/offline.html');
 ```
 
-Only applies to `mode === 'navigate'` requests. Non-navigation errors pass through unchanged.
+Only applies to `mode === 'navigate'` requests. For other requests, or when the page is not cached, `handle` throws.
 
 ## TTL and Expiry
 
-All strategies that cache responses accept a `ttl` option. The SW stores the response with a custom `x-expires-at` header. When the entry is older than the TTL, the strategy treats it as a cache miss.
+All strategies that cache responses accept a `ttl` option. The SW stores the response with a custom `x-expires-at` header. `CacheFirst` treats an expired entry as a miss. The other strategies do not check the header when they read from the cache.
 
 Expired entries are not deleted automatically. Use `pruneExpired` or `setupAutoPrune` to clean them up:
 

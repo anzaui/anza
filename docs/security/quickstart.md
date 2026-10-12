@@ -55,7 +55,7 @@ const safe = String(security.sanitize('<p><script>alert(1)</script>Hello</p>'));
 // '<p>Hello</p>'
 
 const link = String(security.sanitize('<a href="javascript:void(0)">click</a>'));
-// '<a>click</a>' — javascript: href stripped
+// '<a>click</a>': only http, https and mailto URLs are kept
 ```
 
 ## 6. Query Permission

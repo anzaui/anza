@@ -2,27 +2,46 @@
 
 Background Sync queues failed requests and replays them when the browser comes back online.
 
-## How It Works
+## How it works
 
-1. The main thread queues a task via `offline.queue.push()`
-2. The browser fires a `sync` event when connectivity returns
-3. The Service Worker replays all queued requests in order
-4. Successful tasks are removed; failed tasks are retried or moved to a dead-letter queue
+1. The main thread stores a task with `offline.queue.push()`.
+2. It asks for a `sync` event with `offline.sync.register()`.
+3. When connectivity returns, the browser fires `sync` in the Service Worker.
+4. `replayQueue()` replays the stored requests in order. Successful tasks are removed. Failed tasks are retried until they reach their retry limit, then marked as failed.
 
-## Queue a Task from the Main Thread
+## Queue a task from the main thread
 
 ```javascript
 import { offline } from '@anzaui/anza/offline';
 
-await offline.queue.push({
+const id = await offline.queue.push('create-post', {
   url: '/api/posts',
   method: 'POST',
-  body: JSON.stringify({ title: 'Hello' }),
-  headers: { 'content-type': 'application/json' }
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ title: 'Hello' })
 });
 ```
 
-`offline.queue.push()` serializes the request and stores it in IndexedDB. It returns a Promise that resolves when the store write completes.
+`push(taskName, payload, options)` stores the task in IndexedDB and resolves with its id. `replayQueue()` turns `payload` back into a `Request`, so it must have the shape `{ url, method, headers, body }` (the shape `serializeRequest` returns).
+
+| Option | Type | Default | Description |
+| ------ | ---- | ------- | ----------- |
+| `idempotencyKey` | string | random UUID | Task id. Pushing the same key again overwrites the task |
+| `maxRetries` | number | `5` | Failed attempts before the task is marked as failed |
+
+`push` throws a `QuotaExceededError` when storage use is above 80%.
+
+## Request the sync event
+
+The browser fires `sync` only for a registered tag:
+
+```javascript
+import { offline } from '@anzaui/anza/offline';
+
+await offline.sync.register('sync-tasks');
+```
+
+Without Background Sync support (Safari, Firefox), `register` waits for the window's `online` event and dispatches a `core:sync-fallback` event with `detail.tag`.
 
 ## Replay in the Service Worker
 
@@ -36,43 +55,25 @@ self.addEventListener('sync', (e) => {
 });
 ```
 
-`replayQueue()` reads all stored tasks, replays them as `fetch()` calls, and removes the ones that succeed. Failed tasks stay in the queue for the next sync event.
+`replayQueue()` reads the queue in order and `fetch`es each task:
 
-## Register the Sync Event
+- **OK response**: the task is removed and every client gets `{ type: 'sync-success', id, task }`.
+- **Non-OK response**: the retry count goes up and replay continues with the next task.
+- **Network error**: the retry count goes up and replay stops (the promise rejects), so later tasks keep their order. The browser retries the sync later.
 
-The browser does not fire `sync` events unless you request them. Use the main thread bridge:
+Tasks already marked as failed are skipped.
 
-```javascript
-import { offline } from '@anzaui/anza/offline';
+## Failed tasks
 
-async function registerSync() {
-  const reg = await navigator.serviceWorker.ready;
-  await reg.sync.register('sync-tasks');
-}
-```
+`requeueFailed(entry, error)` is what `replayQueue` calls after a failed attempt. It increments `entry.retries`. When `retries` reaches `entry.maxRetries` (default 5), it sets `entry.failed = true`, stores `error.message` in `entry.error`, and posts `{ type: 'sync-failed', id, task, error }` to every client. Failed tasks stay in IndexedDB until you remove them with `offline.queue.delete(id)`.
 
-Call `registerSync()` after any mutation that should survive going offline.
-
-## Dead Letter Queue
-
-After a configurable number of retries, failed tasks move to a dead-letter queue where they wait for manual inspection.
-
-```javascript
-import { requeueFailed } from '@anzaui/anza/sw';
-
-// After 3 failed attempts, move to dead letter
-await requeueFailed({ maxAttempts: 3 });
-```
-
-## Request Serialization
-
-The queue stores standard `Request` objects as plain objects. Two helpers handle the conversion:
+## Request serialization
 
 ```javascript
 import { serializeRequest, deserializeRequest } from '@anzaui/anza/sw';
 
 const payload = await serializeRequest(request);
-const restored = await deserializeRequest(payload);
+const restored = deserializeRequest(payload);
 ```
 
-`serializeRequest` reads the body as a blob and extracts headers. `deserializeRequest` rebuilds a standard `Request` from the stored payload.
+`serializeRequest` is async. It copies the URL, method and headers, and reads the body as an `ArrayBuffer` (`GET` and `HEAD` have no body). `deserializeRequest` is synchronous and returns a new `Request`.

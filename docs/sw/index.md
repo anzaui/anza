@@ -17,8 +17,9 @@ Browsers do not support import maps in Service Worker scope, so the build tool r
 ## What You Get
 
 - **Caching strategies** — CacheFirst, NetworkFirst, StaleRevalidate, CacheThenNetwork, NetworkOnly, CacheOnly, and OfflineFallback
-- **URLPattern routing** — match URLs with parameters and wildcards inside the SW
-- **TTL expiry** — responses carry custom headers; expired entries are pruned automatically
+- **URLPattern routing** — match URLs with parameters and wildcards inside the SW, on the worker's own origin unless a pattern names another
+- **Safe caching** — `no-store`, `private`, `Vary: *`, `Authorization` and credentialed cross-origin responses are never cached
+- **TTL expiry** — cached responses carry an `x-expires-at` header; `pruneExpired` and `setupAutoPrune` delete expired entries
 - **Install/activate helpers** — precache shell assets and clean up old caches on update
 - **Background sync** — queue failed requests and replay them when connectivity returns
 - **Push notifications** — VAPID subscription and notification display
@@ -48,14 +49,14 @@ import { offline } from '@anzaui/anza/offline';
 
 ```javascript
 // src/sw.js
-import { precache, router, CacheFirst, NetworkFirst } from '@anzaui/anza/sw';
+import { precache, router, StaleRevalidate, NetworkFirst } from '@anzaui/anza/sw';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(precache('shell-v1', ['/index.html', '/app.js']));
 });
 
 const r = router();
-r.register('*', new CacheFirst('shell-v1'));
+r.register('*', new StaleRevalidate('shell-v1'));
 r.register('/api/*', new NetworkFirst('api-v1', { timeout: 3000 }));
 
 self.addEventListener('fetch', (e) => {
@@ -69,7 +70,7 @@ self.addEventListener('fetch', (e) => {
 import '@anzaui/anza/ui';
 import { dock } from '@anzaui/anza/ui';
 
-navigator.serviceWorker.register('/sw.js');
+navigator.serviceWorker.register('/sw.js', { type: 'module' });
 
 dock('main');
 ```

@@ -24,14 +24,20 @@ if (typeof crypto === 'undefined') {
 
 ## Sanitize returns empty string
 
-**Cause:** Input contained no allowed tags.
+**Cause:** The input was wrapped in an element that is not on the allowlist. The sanitizer removes such elements together with their content, so `<my-card>Hello</my-card>` becomes `''`.
 
-**Fix:** Check the allowed tag list in [Sanitize](sanitize.md). Plain text is preserved. Only disallowed tags are stripped:
+**Fix:** Check the allowed tag list in [Sanitize](sanitize.md). Text outside disallowed elements is kept:
 
 ```javascript
 const safe = String(sanitize('<script>alert(1)</script>Hello'));
-// 'Hello' — script removed, text kept
+// 'Hello'
 ```
+
+## Links, ids or inline styles disappear
+
+**Cause:** The sanitizer drops `id` and `style`, and keeps `href` and `src` only for `http:`, `https:` and `mailto:` URLs. `data:` images and `tel:` links are removed.
+
+**Fix:** Style sanitized content with classes. Add ids and other URL schemes after sanitizing, from values you control.
 
 ## Trusted Types policy already registered
 

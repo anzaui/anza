@@ -67,7 +67,7 @@ Returns `Promise<boolean>`.
 
 ### `security.sanitize(html, config)`
 
-Returns `TrustedHTML | string`.
+Returns `TrustedHTML | string`. Drops tags and attributes outside the allowlist (including `id` and `style`), event handlers, and `href`/`src` values that are not `http:`, `https:` or `mailto:`. Sets `rel="noopener noreferrer"` on elements with `target`. `config` is only used by the native `Sanitizer`. See [Sanitize](sanitize.md).
 
 ### `security.permission(name)`
 

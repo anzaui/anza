@@ -4,10 +4,10 @@ Write a Service Worker that caches your shell and intercepts API calls.
 
 ## 1. Create `src/sw.js`
 
-The scaffold generates this file for you. Here is what it contains:
+The scaffold (`npm create @anzaui/anza`) writes a fuller `src/sw.js`. This is the minimal version:
 
 ```javascript
-import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@anzaui/anza/sw';
+import { precache, router, StaleRevalidate, NetworkFirst, pruneStale, claim } from '@anzaui/anza/sw';
 
 const SHELL = 'shell-v3';
 const API = 'api-v3';
@@ -26,7 +26,7 @@ self.addEventListener('activate', (e) => {
 });
 
 const r = router();
-r.register('*', new CacheFirst(SHELL));
+r.register('*', new StaleRevalidate(SHELL));
 r.register('/api/*', new NetworkFirst(API, { timeout: 3000 }));  // more specific: wins over '*'
 
 self.addEventListener('fetch', (e) => {
@@ -39,10 +39,12 @@ What it does:
 
 1. On `install`, precaches the app shell into a cache named `shell-v3`, then `skipWaiting()` so the new worker can activate without closing every tab
 2. On `activate`, deletes other cache names (e.g. an older `shell-v2`) and claims all tabs
-3. Registers two routes: API calls get `NetworkFirst` with a 3-second timeout (the most specific match wins, so `/api/*` beats `'*'`), everything else gets `CacheFirst`
+3. Registers two routes: API calls get `NetworkFirst` with a 3-second timeout (the most specific match wins, so `/api/*` beats `'*'`), everything else on the worker's origin gets `StaleRevalidate`
 4. On `fetch`, tries the router first; unmatched requests fall through to the network
 
-Bump `SHELL` / `API` cache names when you ship path-breaking asset URL changes — `CacheFirst` with no TTL otherwise pins stale JS forever. `pruneStale` only removes *other* cache names, not entries inside the current one.
+Use `CacheFirst` only for content-hashed files (the scaffold does this for `/assets/*-<hash>.*`). With unhashed URLs it serves old JS until the cache name changes. `pruneStale` only removes *other* cache names, not entries inside the current one. Note that it also deletes the `API` cache here, since it keeps only one name.
+
+Responses marked `Cache-Control: no-store` or `private`, requests with an `Authorization` header, and credentialed cross-origin requests are never cached. Clear the caches when the user logs out: see [Strategies](strategies.md#clear-caches-on-logout).
 
 Keep helpers in optional `src/sw/` and `import` them from `src/sw.js` — that folder is **modules only**, not extra registrations. Multi-scope workers (advanced) use `anza.json` `sw` arrays — see [Structure: Service workers](../intro/structure.md#service-workers).
 
@@ -112,7 +114,7 @@ dist/
     push.js          # Web Push helpers
 ```
 
-The build tool copied these from `library/src/sw/` and rewrote bare specifiers in `dist/sw.js` to relative paths like `./sw/index.js`.
+Service workers cannot use import maps, so the build rewrites bare specifiers in `dist/sw.js` to relative paths taken from the import map (for example `./sw/index.js`). The production bundle does not bundle `sw.js`: the modules it imports stay in `dist/`. Where they land depends on where your import map points `@anzaui/anza/sw`. The build also prepends `self.__ANZA_PRECACHE__ = [...]`, the list of files to precache (see [Build](../intro/build.md)).
 
 ## Next
 

@@ -6,6 +6,8 @@ Complete reference for the Service Worker toolkit.
 
 Every strategy has `handle(request, event?)`. It responds first; with an `event`, the cache write is passed to `event.waitUntil()`.
 
+Only OK responses to `GET` requests are cached. Never cached: responses with `Cache-Control: no-store` or `private`, or `Vary: *`; requests with an `Authorization` header; cross-origin requests with `credentials: 'include'`. See [Strategies](strategies.md#what-is-never-cached).
+
 ### `new CacheFirst(cacheName, options)`
 
 | Param | Type | Description |
@@ -36,7 +38,7 @@ Every strategy has `handle(request, event?)`. It responds first; with an `event`
 | `cacheName` | string | Cache storage bucket name |
 | `options.ttl` | number | Cache TTL in ms |
 
-Posts `cache-update` messages to all controlled clients after a successful background fetch.
+Posts `{ type: 'cache-update', url, payload }` to all clients after a successful background fetch. `payload` is the parsed JSON body, or `null` for other content types.
 
 ### `new NetworkOnly()`
 
@@ -56,7 +58,7 @@ Throws if the request is not in cache.
 | ------ | ---- | ----------- |
 | `fallbackUrl` | string | Precached fallback page URL |
 
-Only intercepts `request.mode === 'navigate'`.
+Only serves the fallback for `request.mode === 'navigate'`. Throws otherwise, or when the fallback is not cached.
 
 ## Router
 
@@ -68,12 +70,12 @@ Factory. Returns a new `Router` instance.
 
 | Param | Type | Description |
 | ------ | ---- | ----------- |
-| `pattern` | string \| URLPatternInit | URL to match |
+| `pattern` | string \| URLPatternInit \| URLPattern | URL to match. Only the worker's own origin, unless an object pattern sets `baseURL`, `protocol`, `hostname` or `port` |
 | `strategy` | object | Any object with a `handle(request, event)` method |
 
 ### `router.handle(event)`
 
-Responds with the most specific matching route (catch-alls lose to any literal path; ties keep registration order) and passes `event` to the strategy. Returns `true` if a route matched and `event.respondWith()` was called. Returns `false` otherwise. `GET`/`HEAD` only; event streams and `/hmr` are never intercepted.
+Responds with the most specific matching route (catch-alls lose to any literal path; ties keep registration order) and passes `event` to the strategy. If the strategy throws, it falls back to `fetch(request)`. Returns `true` if a route matched and `event.respondWith()` was called. Returns `false` otherwise. `GET`/`HEAD` only; event streams and `/hmr` are never intercepted.
 
 ## Lifecycle
 
@@ -132,15 +134,15 @@ clearInterval(timer);
 
 ### `serializeRequest(request)`
 
-Converts a `Request` into a structured-cloneable object for IndexedDB storage.
+Async. Converts a `Request` into `{ url, method, headers, body }` for IndexedDB storage. `body` is an `ArrayBuffer`, or `null` for `GET`/`HEAD`.
 
 ### `deserializeRequest(payload)`
 
-Rebuilds a `Request` from a serialized payload.
+Synchronous. Rebuilds a `Request` from a serialized payload.
 
 ### `replayQueue()`
 
-Replays all queued tasks in FIFO order. Removes successful tasks. Retries failures on next call.
+Replays queued tasks in FIFO order and skips tasks marked as failed. Removes successful tasks and posts `sync-success` to clients. A non-OK response counts as a failed attempt. A network error counts as a failed attempt and stops the replay (the promise rejects).
 
 ```javascript
 self.addEventListener('sync', (e) => {
@@ -150,13 +152,14 @@ self.addEventListener('sync', (e) => {
 });
 ```
 
-### `requeueFailed(options?)`
+### `requeueFailed(entry, error)`
 
-Moves tasks that exceeded `maxAttempts` to a dead-letter queue.
+Called by `replayQueue` after a failed attempt. Increments `entry.retries` and saves the entry. When `retries` reaches `entry.maxRetries` (default 5, set by `offline.queue.push`), it sets `entry.failed = true` and `entry.error`, and posts `{ type: 'sync-failed', id, task, error }` to clients.
 
-| Option | Type | Default | Description |
-| ------ | ---- | ------- | ----------- |
-| `maxAttempts` | number | `3` | Retry limit before dead-letter |
+| Param | Type | Description |
+| ------ | ---- | ----------- |
+| `entry` | object | A queue entry from `offline.queue.list()` |
+| `error` | Error | The failure; its `message` is stored on the entry |
 
 ## Push
 

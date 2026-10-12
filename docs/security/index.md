@@ -11,7 +11,7 @@ The Anza security layer provides browser-native cryptography, HTML sanitization,
 
 - **Cryptography** — AES-GCM encryption, PBKDF2 key derivation, HMAC/ECDSA signing and verification, SHA hashing, UUID generation
 - **String encryption** — `seal` and `unseal` for storing encrypted data as base64 in JSON or localStorage
-- **HTML sanitization** — XSS-safe HTML with Trusted Types policy when available
+- **HTML sanitization** — allowlist-based cleanup of untrusted HTML (no `id`, `style` or non-http(s)/mailto URLs), wrapped in a Trusted Types policy when available
 - **Permissions** — query and watch browser permission states (geolocation, camera, etc.)
 
 ## Package

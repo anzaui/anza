@@ -29,12 +29,19 @@ Only `GET` and `HEAD` requests are routed. Event streams
 (`Accept: text/event-stream`) and the dev server's `/hmr` channel are never
 intercepted.
 
+## Origins
+
+A pattern matches only requests to the worker's own origin, unless the pattern names an origin. A string pattern never names one, so `'/api/*'` does not match `https://other.example/api/x`. An object pattern names an origin when it has `baseURL`, or a `protocol`, `hostname` or `port` other than `'*'`.
+
 | Pattern | Matches |
 | ------ | ------- |
-| `'*'` | Every request |
-| `'/*'` | Any path under the site root |
-| `'/api/users/:id'` | `/api/users/42`, `/api/users/abc` |
-| `{ pathname: '/items/:id', search: '?tab=*' }` | Object patterns forwarded to `URLPattern` |
+| `'*'` | Every request to the worker's origin |
+| `'/*'` | Same as `'*'` |
+| `'/api/users/:id'` | `/api/users/42`, `/api/users/abc` on the worker's origin |
+| `{ pathname: '/items/:id', search: '?tab=*' }` | Forwarded to `URLPattern`, worker's origin only |
+| `{ hostname: 'cdn.example.com', pathname: '/assets/*' }` | `/assets/...` on `cdn.example.com` |
+
+Cross-origin requests that match no route fall through to your own `fetch` handler.
 
 ## Handle Fetch Events
 
@@ -49,16 +56,18 @@ self.addEventListener('fetch', (e) => {
 
 ## Advanced Patterns
 
-Use `URLPattern` objects directly for complex matching:
+Pass a `URLPatternInit` object for complex matching. This one caches a font CDN:
 
 ```javascript
 r.register(
-  { pathname: '/api/:version/*', baseURL: self.location.origin },
-  new NetworkFirst('api-v1', { timeout: 2000 })
+  { protocol: 'https', hostname: 'fonts.example.com', pathname: '/files/*' },
+  new CacheFirst('fonts-v1')
 );
 ```
 
-The `Router` class normalizes strings into `URLPattern` instances automatically.
+Strings become `URLPattern({ pathname })`. When `URLPattern` is missing or rejects a pattern, the router uses a small built-in matcher on the path instead, where `*` matches any characters. That matcher checks only the path, not the origin.
+
+Give an origin-naming pattern a path other than `'*'` or `'/*'`. A catch-all path always uses the path-only matcher, so `{ hostname: 'cdn.example.com', pathname: '/*' }` would match every request on every origin.
 
 ## Router API
 
@@ -68,7 +77,7 @@ Add a route. `pattern` can be a string or `URLPatternInit` object. `strategy` is
 
 ### `router.handle(event)`
 
-Picks the most specific route matching the request and calls `event.respondWith()`. Returns `true` if matched, `false` otherwise (including non-GET/HEAD requests and event streams).
+Picks the most specific route matching the request and calls `event.respondWith()`. If the strategy throws, the router falls back to `fetch(request)`. Returns `true` if matched, `false` otherwise (including non-GET/HEAD requests, event streams, and cross-origin requests no route names).
 
 ### `new Router()`
 
