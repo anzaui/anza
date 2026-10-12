@@ -1,9 +1,9 @@
-<h1>Python Engine</h1>
+<h1 id="python-engine">Python Engine</h1>
 <p>The Anza Python Engine (<code>anza</code> on PyPI) renders full HTML pages and signed JSON
 fragment envelopes from <code>.html</code> templates. It needs Python 3.10+ and only the
 standard library (Ed25519 uses <code>cryptography</code> when it is installed, and a pure
 Python fallback otherwise).</p>
-<h2>What You Get</h2>
+<h2 id="what-you-get">What You Get</h2>
 <ul>
 <li><strong>Parse once</strong> — <code>Setup(...).run()</code> loads every template under the root and splits it into static chunks and <code>{{slot}}</code> placeholders</li>
 <li><strong>Plain Python data</strong> — bind dicts, dataclasses, Pydantic models or any object with attributes</li>
@@ -11,10 +11,10 @@ Python fallback otherwise).</p>
 <li><strong>Streaming</strong> — <code>format_event</code> (SSE) and <code>format_packet</code> (WebSocket) encoders, and a <code>Stream</code> operation</li>
 <li><strong>Adapters</strong> — small response helpers for FastAPI/Starlette, Flask, raw ASGI and WSGI</li>
 </ul>
-<h2>Installation</h2>
+<h2 id="installation">Installation</h2>
 <view-code language="bash">pip install anza
 </view-code>
-<h2>Quickstart (FastAPI)</h2>
+<h2 id="quickstart-fastapi">Quickstart (FastAPI)</h2>
 <view-code language="python">from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, JSONResponse
 from anza import Setup, SignOptions, Page, Fragment
@@ -39,7 +39,7 @@ async def card():
     envelope = Fragment("feed/card.html", "feed", {"title": "Live Python Card"}).run(engine)
     return JSONResponse(envelope.to_dict())
 </view-code>
-<h2>Flask Integration (WSGI)</h2>
+<h2 id="flask-integration-wsgi">Flask Integration (WSGI)</h2>
 <view-code language="python">from flask import Flask, Response, jsonify
 from anza import Setup, Page, Fragment
 
@@ -59,7 +59,7 @@ def card():
 <p><code>anza.adapters.fastapi</code>, <code>anza.adapters.flask</code>, <code>anza.adapters.asgi</code> and
 <code>anza.adapters.wsgi</code> provide the same responses as helpers (<code>html_response</code> /
 <code>json_response</code>, or <code>send_html</code> / <code>send_json</code>).</p>
-<h2>Dataclass Binding</h2>
+<h2 id="dataclass-binding">Dataclass Binding</h2>
 <view-code language="python">from dataclasses import dataclass
 from anza import Page
 
@@ -75,7 +75,7 @@ doc = Page("/profile", profile).run(engine)
 <p><code>{{user_name}}</code> reads <code>profile.user_name</code>. Missing values render as empty.
 Values are inserted <strong>as is, without HTML escaping</strong>: escape user input before
 passing it in.</p>
-<h2>Signing</h2>
+<h2 id="signing">Signing</h2>
 <view-code language="python">from anza import Setup, SignOptions
 
 Setup(root="./templates", signing=SignOptions(mode="hmac", secret="..."))
@@ -83,13 +83,13 @@ Setup(root="./templates", signing=SignOptions(mode="ed25519", private_key="&lt;6
 Setup(root="./templates")  # mode="none": no signature
 </view-code>
 <p>HMAC and Ed25519 raise <code>AnzaError</code> when their key is missing. See <a href="/docs/engines/crypto">Cryptographic Verification</a>.</p>
-<h2>Page Rendering</h2>
+<h2 id="page-rendering">Page Rendering</h2>
 <p><code>Page(route, params)</code> maps the route to a template: <code>/</code> → <code>pages/home.html</code>,
 <code>/about</code> → <code>pages/about.html</code>. The page is wrapped in open declarative shadow
 DOM as <code>&lt;page-about&gt;&lt;template shadowrootmode="open"&gt;…&lt;/template&gt;&lt;/page-about&gt;</code>
 and inserted into <code>layout/shell.html</code> as <code>{{content}}</code> (also <code>{{main}}</code> and
 <code>{{body}}</code>; <code>{{route}}</code> holds the route). The shell is required.</p>
-<h2>Streaming (SSE)</h2>
+<h2 id="streaming-sse">Streaming (SSE)</h2>
 <view-code language="python">import asyncio
 from fastapi.responses import StreamingResponse
 from anza import Fragment, format_event
@@ -105,7 +105,7 @@ async def stream_feed():
 </view-code>
 <p><code>Stream(template, slot, params).run(engine)</code> returns the same SSE text in one
 call. See <a href="/docs/engines/streaming">Real-Time Streaming</a>.</p>
-<h2>Package Layout</h2>
+<h2 id="package-layout">Package Layout</h2>
 <div class="table-wrap"><table><thead><tr><th>Package</th><th>Contents</th></tr></thead><tbody>
 <tr><td><code>anza.data.input</code></td><td><code>Setup</code>, <code>Page</code>, <code>Fragment</code>, <code>Stream</code></td></tr>
 <tr><td><code>anza.engine.slot</code></td><td><code>{{slot}}</code> parser (<code>extract</code>) and binder (<code>string</code>)</td></tr>

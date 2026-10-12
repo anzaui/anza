@@ -1,7 +1,7 @@
-<h1>Platform</h1>
+<h1 id="platform">Platform</h1>
 <p>The Anza platform layer detects browser capabilities, lazily loads polyfills for missing features, and provides a unified interface to modern APIs regardless of native support.</p>
 <p>It answers two questions: what does this browser support, and how do I use the feature regardless?</p>
-<h2>What You Get</h2>
+<h2 id="what-you-get">What You Get</h2>
 <ul>
 <li><strong>Feature detection</strong> — 30+ lazy-evaluated boolean flags for routing, components, CSS, scheduling, storage, networking, and security</li>
 <li><strong>Lazy polyfills</strong> — automatic, on-demand loading for URLPattern, Navigation API, popover, shadow DOM, anchor positioning, scheduler, and sanitizer</li>
@@ -10,7 +10,7 @@
 <li><strong>Runtime guards</strong> — <code>typeGuard</code> for early-fail checks in critical paths</li>
 <li><strong>Reset for testing</strong> — <code>reset(flag)</code> to clear cached detection values</li>
 </ul>
-<h2>Package</h2>
+<h2 id="package">Package</h2>
 <view-code language="javascript">import {
   supports,
   guard,
@@ -20,7 +20,7 @@
   escapeOverflow
 } from '@anzaui/anza/platform';
 </view-code>
-<h2>File Map</h2>
+<h2 id="file-map">File Map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
 <tr><td><a href="/docs/platform/quickstart">Quick Start</a></td><td>Feature detection and polyfills in five minutes</td></tr>
 <tr><td><a href="/docs/platform/supports">Supports</a></td><td>Full supports registry and detection flags</td></tr>
@@ -29,7 +29,7 @@
 <tr><td><a href="/docs/platform/api">API Reference</a></td><td>Complete API reference</td></tr>
 <tr><td><a href="/docs/platform/troubleshooting">Troubleshooting</a></td><td>Common problems and how to fix them</td></tr>
 </tbody></table></div>
-<h2>One-File Example</h2>
+<h2 id="one-file-example">One-File Example</h2>
 <view-code language="javascript">import { supports, guard, typeGuard } from '@anzaui/anza/platform';
 
 // Detect
@@ -46,7 +46,7 @@ typeGuard('opfs', 'File storage requires Origin Private File System');
 const URLPattern = await guard.urlPattern();
 const pattern = new URLPattern({ pathname: '/user/:id' });
 </view-code>
-<h2>Next Steps</h2>
+<h2 id="next-steps">Next Steps</h2>
 <ul>
 <li>New to the platform layer? Start with <a href="/docs/platform/quickstart">Quick Start</a>.</li>
 <li>Want the full capability matrix? Read <a href="/docs/platform/supports">Supports</a>.</li>

@@ -1,7 +1,7 @@
-<h1>API</h1>
+<h1 id="api">API</h1>
 <p>The Anza API layer is a baseline-native HTTP client built on <code>fetch</code>. It wraps every request in a composable pipeline that handles prefix routing, TTL caching, exponential backoff retries, telemetry events, and graceful error normalization.</p>
 <p>It is designed for production: transient network failures self-heal, caches invalidate by glob pattern, uploads report real-time progress, and streams parse NDJSON while preserving backpressure.</p>
-<h2>What You Get</h2>
+<h2 id="what-you-get">What You Get</h2>
 <ul>
 <li><strong>HTTP methods</strong> — <code>get</code>, <code>post</code>, <code>put</code>, <code>patch</code>, <code>delete</code> with automatic JSON body serialization and response parsing</li>
 <li><strong>Prefix routing</strong> — register base URLs once, reference endpoints by short path</li>
@@ -13,10 +13,10 @@
 <li><strong>Retry with jitter</strong> — exponential backoff for transient errors (timeouts, 5xx), instant fail for 4xx</li>
 <li><strong>Error normalization</strong> — every failure is a <code>PlatformError</code> with <code>code</code>, <code>message</code>, <code>context</code>, and <code>recoverable</code></li>
 </ul>
-<h2>Package</h2>
+<h2 id="package">Package</h2>
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
 </view-code>
-<h2>File Map</h2>
+<h2 id="file-map">File Map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
 <tr><td><a href="/docs/api/quickstart">Quick Start</a></td><td>Your first request in five minutes</td></tr>
 <tr><td><a href="/docs/api/requests">Requests</a></td><td>HTTP methods, options, body serialization, signals</td></tr>
@@ -31,7 +31,7 @@
 <tr><td><a href="/docs/api/api">API Reference</a></td><td>Complete API reference</td></tr>
 <tr><td><a href="/docs/api/troubleshooting">Troubleshooting</a></td><td>Common problems and how to fix them</td></tr>
 </tbody></table></div>
-<h2>One-File Example</h2>
+<h2 id="one-file-example">One-File Example</h2>
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
 
 // Register a prefix once at bootstrap
@@ -51,7 +51,7 @@ for await (const chunk of api.stream('/logs')) {
   console.log(chunk);
 }
 </view-code>
-<h2>Next Steps</h2>
+<h2 id="next-steps">Next Steps</h2>
 <ul>
 <li>New to the API layer? Start with <a href="/docs/api/quickstart">Quick Start</a>.</li>
 <li>Want caching? Read <a href="/docs/api/caching">Caching</a> and <a href="/docs/api/prefixes">Prefixes</a>.</li>

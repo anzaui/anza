@@ -1,6 +1,6 @@
-<h1>Cryptographic Verification</h1>
+<h1 id="cryptographic-verification">Cryptographic Verification</h1>
 <p>The cryptographic verification module protects Server-Templated UI (STUI) fragments from tampering, replay attacks, and unauthorized origin injection across reverse proxies, CDNs, and microservices.</p>
-<h2>Overview</h2>
+<h2 id="overview">Overview</h2>
 <p>When dynamic component fragments or real-time streaming updates are sent over the wire, the backend signs the payload across a canonical string:</p>
 <view-code language="text">ts:slot:html
 </view-code>
@@ -10,15 +10,15 @@
 <li><strong><code>html</code></strong>: Rendered HTML markup of the fragment.</li>
 </ul>
 <p>The signature is hex-encoded in the envelope's <code>sig</code> field. Whoever receives the envelope (an edge worker, a proxy, another service, or your own browser code) verifies it with the matching <code>verify</code> helper and checks that <code>ts</code> is fresh. The browser library does not verify envelopes for you; see <a href="#client-side-verification">Client-Side Verification</a>.</p>
-<h2>Signing Modes</h2>
+<h2 id="signing-modes">Signing Modes</h2>
 <div class="table-wrap"><table><thead><tr><th>Mode</th><th>Algorithm</th><th>Best For</th><th>Proxy / CDN Support</th><th>Auth Dependency</th></tr></thead><tbody>
 <tr><td><strong><code>Ed25519</code></strong></td><td>Asymmetric Ed25519</td><td>Public pages, multi-tier CDNs, microfrontends</td><td>Yes (Bypasses CDN TLS termination)</td><td>None</td></tr>
 <tr><td><strong><code>Hmac</code></strong></td><td>HMAC-SHA256</td><td>Internal VPC microservices / single origin</td><td>Yes</td><td>Pre-shared secret</td></tr>
 <tr><td><strong><code>None</code></strong></td><td>No Signature</td><td>Local development and testing</td><td>Yes</td><td>None</td></tr>
 </tbody></table></div>
-<h2>Asymmetric Ed25519 (Recommended)</h2>
+<h2 id="asymmetric-ed25519-recommended">Asymmetric Ed25519 (Recommended)</h2>
 <p>Ed25519 uses public-key cryptography. The origin server holds the private key and signs envelopes; clients and edge proxies verify signatures using the public key without needing access to any secrets.</p>
-<h3>Backend Setup (Rust)</h3>
+<h3 id="backend-setup-rust">Backend Setup (Rust)</h3>
 <view-code language="rust">use anza::Setup;
 
 // Raw 32-byte private and public key files
@@ -26,7 +26,7 @@ let mut setup = Setup::new("./templates");
 setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub");
 let engine = setup.run()?;
 </view-code>
-<h3>Backend Setup (TypeScript)</h3>
+<h3 id="backend-setup-typescript">Backend Setup (TypeScript)</h3>
 <view-code language="typescript">import { Setup } from '@anzaui/engine';
 import { readFileSync } from 'node:fs';
 
@@ -38,7 +38,7 @@ const engine = await new Setup({
   },
 }).run();
 </view-code>
-<h2>Symmetric HMAC-SHA256</h2>
+<h2 id="symmetric-hmac-sha256">Symmetric HMAC-SHA256</h2>
 <p>For single-origin deployments or internal microservices sharing a secure environment secret:</p>
 <view-code language="typescript">import { Setup } from '@anzaui/engine';
 
@@ -50,7 +50,7 @@ const engine = await new Setup({
   },
 }).run();
 </view-code>
-<h2>Wire Envelope Format</h2>
+<h2 id="wire-envelope-format">Wire Envelope Format</h2>
 <p>All signed fragments conform to the standard wire envelope:</p>
 <view-code language="json">{
   "slot": "feed",
@@ -60,7 +60,7 @@ const engine = await new Setup({
   "css": null
 }
 </view-code>
-<h2>Client-Side Verification</h2>
+<h2 id="client-side-verification">Client-Side Verification</h2>
 <p>The engines do not inject a key into pages. If you want browser-side checks, publish your public key in the document head yourself:</p>
 <view-code language="html">&lt;meta name="anza-key" content="ed25519:e4d9b2c3a1f09876543210fedcba9876543210fedcba9876543210fedcba9876"&gt;
 </view-code>

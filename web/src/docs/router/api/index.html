@@ -1,7 +1,7 @@
-<h1>API Reference</h1>
+<h1 id="api-reference">API Reference</h1>
 <p>Complete reference for the router facade and definition layer.</p>
-<h2>Router Facade</h2>
-<h3><code>router.register(pattern, handler, meta)</code></h3>
+<h2 id="router-facade">Router Facade</h2>
+<h3 id="routerregisterpattern-handler-meta"><code>router.register(pattern, handler, meta)</code></h3>
 <p>Register a route. Returns nothing.</p>
 <div class="table-wrap"><table><thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>pattern</code></td><td>string</td><td>URL pattern or absolute URL</td></tr>
@@ -11,15 +11,15 @@
 <view-code language="javascript">router.register('/', 'page-home');
 router.register('/user/:id', 'page-user', { container: 'main' });
 </view-code>
-<h3><code>router.load(routes)</code></h3>
+<h3 id="routerloadroutes"><code>router.load(routes)</code></h3>
 <p>Bulk register from an array of <code>{ pattern, handler, meta }</code> objects.</p>
 <view-code language="javascript">router.load([
   { pattern: '/', handler: 'page-home', meta: { container: 'main' } }
 ]);
 </view-code>
-<h3><code>router.clear()</code></h3>
+<h3 id="routerclear"><code>router.clear()</code></h3>
 <p>Remove all registered routes.</p>
-<h3><code>router.match(url)</code></h3>
+<h3 id="routermatchurl"><code>router.match(url)</code></h3>
 <p>Match a URL against registered routes. Returns a promise resolving to:</p>
 <view-code language="javascript">{
   route,    // matched route entry
@@ -32,24 +32,24 @@ router.register('/user/:id', 'page-user', { container: 'main' });
 }
 </view-code>
 <p>Returns <code>null</code> on no match.</p>
-<h3><code>router.guard(fn)</code></h3>
+<h3 id="routerguardfn"><code>router.guard(fn)</code></h3>
 <p>Register a global navigation guard. Returns a disposer.</p>
 <view-code language="javascript">const dispose = router.guard((destination, controller) =&gt; {
   if (blocked) return '/login';
 });
 dispose(); // remove
 </view-code>
-<h3><code>router.guards.add(fn)</code></h3>
+<h3 id="routerguardsaddfn"><code>router.guards.add(fn)</code></h3>
 <p>Same as <code>router.guard(fn)</code>.</p>
-<h3><code>router.guards.clear()</code></h3>
+<h3 id="routerguardsclear"><code>router.guards.clear()</code></h3>
 <p>Remove all guards.</p>
-<h3><code>router.notFound(fn)</code></h3>
+<h3 id="routernotfoundfn"><code>router.notFound(fn)</code></h3>
 <p>Set a full escape-hatch handler for unmatched routes (skips automatic leaf mount). Returns a disposer.</p>
 <view-code language="javascript">router.notFound((event) =&gt; {
   // custom mount — or prefer router.pages.configure({ notfound: { tag } })
 });
 </view-code>
-<h3><code>router.pages</code></h3>
+<h3 id="routerpages"><code>router.pages</code></h3>
 <p>Optional app-level fallback tags / HTML for <code>notfound</code>, <code>error</code>, and <code>offline</code> when no dock in the chain defines the kind. Bare docks already use shared library built-ins — see <a href="/docs/router/fallbacks">Fallbacks (404 / 5xx / offline)</a>.</p>
 <view-code language="javascript">router.pages.configure({
   notfound: { tag: 'page-not-found' },
@@ -59,71 +59,71 @@ router.pages.show('offline');
 router.pages.onError(async (ctx) =&gt; { /* return false to fall through */ });
 </view-code>
 <p><code>configure()</code> returns a disposer that clears only the kinds you set in that call. <code>show(kind, ctx)</code> renders into the deepest live dock in the active <code>via</code> / <code>lastVia</code> chain and honors <code>ctx.signal</code> for aborted soft-nav work. <code>suppressDefault(true)</code> disables automatic error mounting while leaving manual <code>show('error', ...)</code> available.</p>
-<h3><code>router.miss.set(fn)</code></h3>
+<h3 id="routermisssetfn"><code>router.miss.set(fn)</code></h3>
 <p>Same as <code>router.notFound(fn)</code>.</p>
-<h3><code>router.miss.clear()</code></h3>
+<h3 id="routermissclear"><code>router.miss.clear()</code></h3>
 <p>Remove the not-found handler.</p>
-<h3><code>router.on(event, callback, signal)</code></h3>
+<h3 id="routeronevent-callback-signal"><code>router.on(event, callback, signal)</code></h3>
 <p>Subscribe to router events. Returns a disposer.</p>
 <p>Events: <code>'found'</code>, <code>'notfound'</code>, <code>'error'</code>.</p>
 <view-code language="javascript">const dispose = router.on('found', (detail) =&gt; { ... });
 dispose();
 </view-code>
-<h3><code>router.navigate(url, options)</code></h3>
+<h3 id="routernavigateurl-options"><code>router.navigate(url, options)</code></h3>
 <p>Push a new history entry. Returns <code>{ committed, finished }</code>.</p>
 <view-code language="javascript">router.navigate('/settings');
 router.navigate('/settings', { state: { tab: 'profile' } });
 </view-code>
-<h3><code>router.replace(url, options)</code></h3>
+<h3 id="routerreplaceurl-options"><code>router.replace(url, options)</code></h3>
 <p>Replace the current history entry.</p>
-<h3><code>router.back()</code></h3>
+<h3 id="routerback"><code>router.back()</code></h3>
 <p>Go back one history step.</p>
-<h3><code>router.forward()</code></h3>
+<h3 id="routerforward"><code>router.forward()</code></h3>
 <p>Go forward one history step.</p>
-<h3><code>router.go(delta)</code></h3>
+<h3 id="routergodelta"><code>router.go(delta)</code></h3>
 <p>Traverse by an arbitrary delta.</p>
-<h3><code>router.current()</code></h3>
+<h3 id="routercurrent"><code>router.current()</code></h3>
 <p>Returns the current <code>NavigationHistoryEntry</code>.</p>
-<h3><code>router.entries()</code></h3>
+<h3 id="routerentries"><code>router.entries()</code></h3>
 <p>Returns the full history entry list.</p>
-<h3><code>router.canBack()</code></h3>
+<h3 id="routercanback"><code>router.canBack()</code></h3>
 <p>Returns <code>true</code> if backward traversal is possible.</p>
-<h3><code>router.canForward()</code></h3>
+<h3 id="routercanforward"><code>router.canForward()</code></h3>
 <p>Returns <code>true</code> if forward traversal is possible.</p>
-<h3><code>router.nav.to(url)</code></h3>
+<h3 id="routernavtourl"><code>router.nav.to(url)</code></h3>
 <p>Chainable navigation promise.</p>
 <view-code language="javascript">router.nav.to('/settings').then(() =&gt; { ... });
 </view-code>
-<h3><code>router.getContainer(name)</code></h3>
+<h3 id="routergetcontainername"><code>router.getContainer(name)</code></h3>
 <p>Resolve a container by registry key or CSS selector.</p>
-<h3><code>router.registerContainer(name, element, parent)</code></h3>
+<h3 id="routerregistercontainername-element-parent"><code>router.registerContainer(name, element, parent)</code></h3>
 <p>Manually register a container in the graph.</p>
-<h3><code>router.unregisterContainer(name, element)</code></h3>
+<h3 id="routerunregistercontainername-element"><code>router.unregisterContainer(name, element)</code></h3>
 <p>Manually unregister a container.</p>
-<h3><code>router.clearContainers()</code></h3>
+<h3 id="routerclearcontainers"><code>router.clearContainers()</code></h3>
 <p>Clear the entire container registry.</p>
-<h3><code>router.cache.get(url)</code></h3>
+<h3 id="routercachegeturl"><code>router.cache.get(url)</code></h3>
 <p>Read a cached response.</p>
-<h3><code>router.cache.set(url, response, ttl)</code></h3>
+<h3 id="routercacheseturl-response-ttl"><code>router.cache.set(url, response, ttl)</code></h3>
 <p>Store a response in the cache.</p>
-<h3><code>router.cache.prefetch(url, options)</code></h3>
+<h3 id="routercacheprefetchurl-options"><code>router.cache.prefetch(url, options)</code></h3>
 <p>Prefetch a URL into the cache.</p>
-<h3><code>router.cache.purge(url?)</code></h3>
+<h3 id="routercachepurgeurl"><code>router.cache.purge(url?)</code></h3>
 <p>Purge one URL or the entire cache.</p>
-<h3><code>router.sync.start()</code></h3>
+<h3 id="routersyncstart"><code>router.sync.start()</code></h3>
 <p>Start cross-tab sync.</p>
-<h3><code>router.sync.stop()</code></h3>
+<h3 id="routersyncstop"><code>router.sync.stop()</code></h3>
 <p>Pause cross-tab sync.</p>
-<h3><code>router.sync.active()</code></h3>
+<h3 id="routersyncactive"><code>router.sync.active()</code></h3>
 <p>Returns <code>true</code> if sync is running.</p>
-<h3><code>router.sync.close()</code></h3>
+<h3 id="routersyncclose"><code>router.sync.close()</code></h3>
 <p>Stop sync and close the BroadcastChannel.</p>
-<h3><code>router.setup()</code></h3>
+<h3 id="routersetup"><code>router.setup()</code></h3>
 <p>Attach navigation listeners. Idempotent.</p>
-<h3><code>router.destroy()</code></h3>
+<h3 id="routerdestroy"><code>router.destroy()</code></h3>
 <p>Remove all listeners and reset internal state.</p>
-<h2>Definition Layer</h2>
-<h3><code>page(route, config, base)</code></h3>
+<h2 id="definition-layer">Definition Layer</h2>
+<h3 id="pageroute-config-base"><code>page(route, config, base)</code></h3>
 <p>Define a route-bound element.</p>
 <view-code language="javascript">page('/user/:id', {
   tag: 'page-user',
@@ -135,7 +135,7 @@ router.navigate('/settings', { state: { tab: 'profile' } });
 }, import.meta.url);
 </view-code>
 <p>Config fields: <code>tag</code>, <code>via</code>, <code>container</code>, <code>template</code>, <code>style</code>, <code>props</code>, <code>params</code>, <code>query</code>, <code>hash</code>, <code>on</code>, <code>guard</code>, <code>meta</code>.</p>
-<h3><code>dock(name, config, base)</code></h3>
+<h3 id="dockname-config-base"><code>dock(name, config, base)</code></h3>
 <p>Define a persistent container shell.</p>
 <view-code language="javascript">dock('main', {
   template: '&lt;slot&gt;&lt;/slot&gt;',
@@ -147,21 +147,21 @@ router.navigate('/settings', { state: { tab: 'profile' } });
 </view-code>
 <p>Config fields: <code>tag</code>, <code>parent</code>, <code>template</code>, <code>style</code>, <code>params</code>, <code>query</code>, <code>on</code>, <code>notfound</code>, <code>error</code>, <code>offline</code>.</p>
 <p>Default tag: <code>dock-&lt;name&gt;</code>. Default parent: <code>'body'</code>.</p>
-<h3><code>view(tag, config, base)</code></h3>
+<h3 id="viewtag-config-base"><code>view(tag, config, base)</code></h3>
 <p>Define a stateful component.</p>
 <view-code language="javascript">view('user-card', {
   props: { name: { type: String } },
   template: '&lt;span&gt;{{ name }}&lt;/span&gt;'
 });
 </view-code>
-<h3><code>part(tag, config, base)</code></h3>
+<h3 id="parttag-config-base"><code>part(tag, config, base)</code></h3>
 <p>Define a stateless primitive.</p>
 <view-code language="javascript">part('icon-star', {
   props: { color: { type: String } },
   template: '&lt;svg&gt;...&lt;/svg&gt;'
 });
 </view-code>
-<h2>Named Exports</h2>
+<h2 id="named-exports">Named Exports</h2>
 <p>Every facade method is also a named export, for middleware and test utilities:</p>
 <view-code language="javascript">import { register, match, clear, getRoutes, load } from '@anzaui/anza/router';
 import { addGuard, setNotFound, on, setup, destroy } from '@anzaui/anza/router';
@@ -169,7 +169,7 @@ import { navigate, replace, back, forward, go } from '@anzaui/anza/router';
 import { gate, ready, reset } from '@anzaui/anza/router';
 import { transitions } from '@anzaui/anza/router';
 </view-code>
-<h3><code>transitions</code></h3>
+<h3 id="transitions"><code>transitions</code></h3>
 <p>Router facade over the UI View Transitions core. Soft-nav docks use <strong>element-scoped</strong> VT via <code>dock.swap</code> / <code>runSwap</code> — never document VT. Use <code>run</code> only for explicit document morphs.</p>
 <view-code language="javascript">import { transitions } from '@anzaui/anza/router';
 

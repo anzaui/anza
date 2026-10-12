@@ -1,6 +1,6 @@
-<h1>Quick Start</h1>
+<h1 id="quick-start">Quick Start</h1>
 <p>Get animating in five minutes.</p>
-<h2>1. Animate an Element</h2>
+<h2 id="1-animate-an-element">1. Animate an Element</h2>
 <view-code language="javascript">import { animations } from '@anzaui/anza/animations';
 
 const el = document.querySelector('.box');
@@ -14,7 +14,7 @@ animations.animate(el, [
   { opacity: 1, transform: 'scale(1)' }
 ], { duration: 400, easing: 'ease-out' });
 </view-code>
-<h2>2. Stagger a List</h2>
+<h2 id="2-stagger-a-list">2. Stagger a List</h2>
 <view-code language="javascript">const items = document.querySelectorAll('.item');
 
 const group = animations.stagger(items, 'slide', {
@@ -28,7 +28,7 @@ await group.finished;
 // Or cancel mid-way
 group.cancel();
 </view-code>
-<h2>3. Chain a Sequence</h2>
+<h2 id="3-chain-a-sequence">3. Chain a Sequence</h2>
 <view-code language="javascript">const seq = animations.sequence([
   [el, 'fade', { duration: 200 }],
   [el, 'scale', { duration: 200 }],
@@ -38,7 +38,7 @@ group.cancel();
 await seq.finished;
 </view-code>
 <p>Each step starts when the previous finishes.</p>
-<h2>4. Register a Custom Template</h2>
+<h2 id="4-register-a-custom-template">4. Register a Custom Template</h2>
 <view-code language="javascript">animations.register('bounce', [
   { transform: 'translateY(0)' },
   { transform: 'translateY(-20px)', offset: 0.5 },
@@ -48,7 +48,7 @@ await seq.finished;
 // Use it anywhere
 animations.animate(el, 'bounce');
 </view-code>
-<h2>5. Respect Reduced Motion</h2>
+<h2 id="5-respect-reduced-motion">5. Respect Reduced Motion</h2>
 <view-code language="javascript">if (animations.reduced()) {
   // Skip animations for accessibility
   el.style.opacity = 1;
@@ -57,14 +57,14 @@ animations.animate(el, 'bounce');
 }
 </view-code>
 <p>This checks <code>prefers-reduced-motion: reduce</code> automatically.</p>
-<h2>6. Read CSS Tokens</h2>
+<h2 id="6-read-css-tokens">6. Read CSS Tokens</h2>
 <view-code language="javascript">const dur = animations.duration('slow');   // e.g. 300
 const easing = animations.ease('spring');    // e.g. cubic-bezier(...)
 
 animations.animate(el, 'fade', { duration: dur, easing });
 </view-code>
 <p><code>duration()</code> and <code>ease()</code> read CSS custom properties at runtime, falling back to defaults.</p>
-<h2>Complete Working Example</h2>
+<h2 id="complete-working-example">Complete Working Example</h2>
 <view-code language="javascript">import { animations } from '@anzaui/anza/animations';
 
 async function showMenu() {

@@ -1,14 +1,14 @@
-<h1>SSG &amp; SEO</h1>
+<h1 id="ssg--seo">SSG &amp; SEO</h1>
 <p>Anza ships <strong>contentful HTML</strong> for public routes so hard refresh and crawlers see unique meta, open Declarative Shadow DOM, and primary headings <strong>without executing JS</strong>. There is no Anza-owned production SSR runtime — Mode A emits HTML at build time; Mode B templates in any language emit the same shape at request time.</p>
 <p>Portable rule: treat <code>dist/</code> as the <strong>site root</strong>. Public URLs are <code>/app.js</code>, <code>/importmap.json</code>, <code>/docs/...</code> — never <code>/dist/...</code>.</p>
 <p>Client adopt: <a href="/docs/ui/hydration">Hydration (DSD adopt)</a>. Normative markup: <a href="/docs/ssg/contract">Page HTML contract (Mode A SSG · Mode B templates)</a>.</p>
-<h2>Modes</h2>
+<h2 id="modes">Modes</h2>
 <div class="table-wrap"><table><thead><tr><th>Mode</th><th>When</th><th>Who emits HTML</th><th>Assets</th></tr></thead><tbody>
 <tr><td><strong>A — Pure static</strong></td><td><code>anza build</code> / <code>anza dev</code></td><td>SSG emitter → <code>dist/&lt;route&gt;/index.html</code></td><td><code>dist/</code> as site root</td></tr>
 <tr><td><strong>B — Any-lang templates</strong></td><td>Request time</td><td>Jinja / EJS / HBS / Go / Node / …</td><td>Same <code>dist/</code> static files</td></tr>
 </tbody></table></div>
 <p>Both modes must satisfy the <a href="/docs/ssg/contract">page HTML contract</a> so hydration has one adoption path. Examples: <code>examples/mode-b-python/</code>, <code>examples/mode-b-go/</code>, <code>examples/mode-b-node/</code>. Goldens: <code>tools/fixtures/ssg/</code>.</p>
-<h2>What shipped (Phases 0–6)</h2>
+<h2 id="what-shipped-phases-06">What shipped (Phases 0–6)</h2>
 <div class="table-wrap"><table><thead><tr><th>Phase</th><th>Outcome</th></tr></thead><tbody>
 <tr><td><strong>0</strong></td><td>Portable site-root assets — import map and routes without <code>/dist</code> prefixes; serve with <code>cd dist &amp;&amp; python3 -m http.server</code></td></tr>
 <tr><td><strong>1</strong></td><td>Mode A SSG HTML per public route — title/meta, open DSD, modulepreload, deferred <code>/app.js</code></td></tr>
@@ -20,7 +20,7 @@
 </tbody></table></div>
 <p>There is <strong>no Phase 7</strong>. Residual host polish (Worker preferring SSG over SPA fallback) is optional and not product acceptance.</p>
 <p><strong>CSR fallbacks:</strong> unknown paths may get a host <code>404</code> body or SPA shell HTML. Once the client boots, <a href="/docs/router/fallbacks">Fallbacks (404 / 5xx / offline)</a> paints a not-found / error leaf inside the <strong>leaf</strong> dock (shared library built-in, or a dock/page override) — separate from Mode A SSG emission. Do not bake a <code>404.html</code> into every dock folder.</p>
-<h2>Simple: Mode A page SEO</h2>
+<h2 id="simple-mode-a-page-seo">Simple: Mode A page SEO</h2>
 <view-code language="javascript">page('/docs/intro/start', {
   tag: 'doc-intro-start',
   via: ['main', 'docs', 'content'],
@@ -32,8 +32,8 @@
 }, import.meta.url);
 </view-code>
 <p>After <code>anza build</code>, <code>dist/docs/intro/start/index.html</code> is curl-readable (unique <code>&lt;title&gt;</code>, open DSD, primary heading). Soft-nav between docs pages fetches the CSR fragment (<code>template.html</code> when needed), not that full document.</p>
-<h2>Advanced: expand, origin, sitemap</h2>
-<h3>Parametric expand (Phase 5)</h3>
+<h2 id="advanced-expand-origin-sitemap">Advanced: expand, origin, sitemap</h2>
+<h3 id="parametric-expand-phase-5">Parametric expand (Phase 5)</h3>
 <view-code language="javascript">page('/docs/ssg/expand/:slug', {
   params: [{ name: 'slug', type: String }],
   ssg: {
@@ -46,7 +46,7 @@
 }, import.meta.url);
 </view-code>
 <p>Or project-level <code>ssg.params.json</code>. Pattern stays <code>ssg: false</code>; each expansion emits a concrete <code>ssg: true</code> route. Live fixture: <a href="/docs/ssg/expand/foo"><code>/docs/ssg/expand/foo</code></a>. Details: <a href="/docs/ssg/contract">Page HTML contract (Mode A SSG · Mode B templates)</a>.</p>
-<h3>Site origin + SEO artifacts (Phase 6)</h3>
+<h3 id="site-origin--seo-artifacts-phase-6">Site origin + SEO artifacts (Phase 6)</h3>
 <p><code>ssg.json</code> next to (or inside) <code>src/</code>:</p>
 <view-code language="json">{
   "origin": "https://example.com",
@@ -62,10 +62,10 @@
 <tr><td><code>sitemap</code> / <code>robots</code></td><td>Write <code>dist/sitemap.xml</code> and <code>dist/robots.txt</code></td></tr>
 </tbody></table></div>
 <p>Without <code>origin</code>, path-relative URLs are fine for local preview; sitemap locs stay site-root paths.</p>
-<h2>Soft-nav coexistence (Phase 4)</h2>
+<h2 id="soft-nav-coexistence-phase-4">Soft-nav coexistence (Phase 4)</h2>
 <p>Hard refresh serves the SSG (or Mode B) document. Soft-nav must <strong>not</strong> use that document as a page template — nested docks would stack inside the leaf shadow. Mode A preserves the CSR fragment as <code>template.html</code> when paths collide, and the client <code>sanitizeTemplateHtml</code> refuses full HTML documents. Nested hosts must be light-DOM children <strong>after</strong> each parent’s <code>&lt;template shadowrootmode="open"&gt;</code>.</p>
 <p>Project layout (folders, <code>anza.json</code>, doctor/check) is a separate contract: <a href="/docs/intro/structure">Structure</a>. Fallbacks after CSR miss are leaf-scoped: <a href="/docs/router/fallbacks">Fallbacks (404 / 5xx / offline)</a>.</p>
-<h2>Verify</h2>
+<h2 id="verify">Verify</h2>
 <view-code language="bash">rm -rf dist &amp;&amp; npm run build   # or anza build from web/
 cd dist &amp;&amp; python3 -m http.server PORT
 curl -s http://127.0.0.1:PORT/docs/intro/start/ | grep -E '&lt;h1|&lt;title'
@@ -73,7 +73,7 @@ node tasks/ssg-contract-check.js          # goldens + nest + closed-DSD /dist ga
 node tasks/ssg-contract-check.js --rebuild
 </view-code>
 <p>Same contentful HTML for every User-Agent — no cloaking.</p>
-<h2>File map</h2>
+<h2 id="file-map">File map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What it covers</th></tr></thead><tbody>
 <tr><td><a href="/docs/ssg/contract">Page HTML contract (Mode A SSG · Mode B templates)</a></td><td>Normative head/body, Mode A/B, expand, origin/sitemap/JSON-LD, checklist</td></tr>
 <tr><td><a href="/docs/ui/hydration">Hydration (DSD adopt)</a></td><td>Client adopt / soft-nav vs hard refresh</td></tr>

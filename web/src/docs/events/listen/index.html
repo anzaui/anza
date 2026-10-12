@@ -1,6 +1,6 @@
-<h1>Listen</h1>
+<h1 id="listen">Listen</h1>
 <p><code>events.listen</code> attaches a memory-safe event listener with automatic passive defaults for scroll-critical events. It returns a disposer and supports AbortSignal cleanup.</p>
-<h2>Signature</h2>
+<h2 id="signature">Signature</h2>
 <view-code language="javascript">listen(target, type, handler, options);
 </view-code>
 <div class="table-wrap"><table><thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead><tbody>
@@ -10,7 +10,7 @@
 <tr><td><code>options</code></td><td>object</td><td><code>addEventListener</code> options plus <code>signal</code></td></tr>
 </tbody></table></div>
 <p>Returns a disposer function.</p>
-<h2>Basic Use</h2>
+<h2 id="basic-use">Basic Use</h2>
 <view-code language="javascript">import { events } from '@anzaui/anza/events';
 
 const dispose = events.listen(
@@ -21,7 +21,7 @@ const dispose = events.listen(
 
 dispose(); // remove listener
 </view-code>
-<h2>Automatic Passive Defaults</h2>
+<h2 id="automatic-passive-defaults">Automatic Passive Defaults</h2>
 <p>Touch and wheel events default to <code>passive: true</code> to prevent scroll blocking:</p>
 <div class="table-wrap"><table><thead><tr><th>Event</th><th>Default Passive</th></tr></thead><tbody>
 <tr><td><code>touchstart</code></td><td><code>true</code></td></tr>
@@ -34,7 +34,7 @@ dispose(); // remove listener
 </view-code>
 <p>This is the correct way to opt into blocking behavior when you genuinely need <code>preventDefault</code>.</p>
 <p>Component <code>on</code> uses the <strong>same</strong> passive defaults (touch/wheel only). Click / submit / key handlers are non-passive unless you pass <code>{ passive: true }</code>.</p>
-<h2>AbortSignal Cleanup</h2>
+<h2 id="abortsignal-cleanup">AbortSignal Cleanup</h2>
 <view-code language="javascript">const ctrl = new AbortController();
 
 events.listen(window, 'resize', handler, { signal: ctrl.signal });
@@ -43,14 +43,14 @@ events.listen(window, 'scroll', handler, { signal: ctrl.signal });
 // Remove both at once
 ctrl.abort();
 </view-code>
-<h2>Why Use listen Instead of addEventListener?</h2>
+<h2 id="why-use-listen-instead-of-addeventlistener">Why Use listen Instead of addEventListener?</h2>
 <ol>
 <li><strong>Automatic passive defaults</strong> — prevents accidental scroll jank</li>
 <li><strong>Disposer pattern</strong> — returns a function to remove the listener</li>
 <li><strong>AbortSignal support</strong> — native cleanup tied to component lifecycle</li>
 <li><strong>Abort guard</strong> — does not attach if the signal is already aborted</li>
 </ol>
-<h2>Window and Document Listeners</h2>
+<h2 id="window-and-document-listeners">Window and Document Listeners</h2>
 <view-code language="javascript">events.listen(window, 'online', () =&gt; {
   events.emit(events.names.connectivity.online);
 });
@@ -59,7 +59,7 @@ events.listen(document, 'visibilitychange', () =&gt; {
   console.log('Visible:', !document.hidden);
 });
 </view-code>
-<h2>Multiple Listeners, One Disposer</h2>
+<h2 id="multiple-listeners-one-disposer">Multiple Listeners, One Disposer</h2>
 <p>Group listeners under a single AbortController:</p>
 <view-code language="javascript">const ctrl = new AbortController();
 

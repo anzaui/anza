@@ -1,6 +1,6 @@
-<h1>Docks</h1>
+<h1 id="docks">Docks</h1>
 <p><code>dock(name, config, base)</code> defines a persistent container shell. Docks live across route changes, register themselves in the hierarchical container graph on connect, and expose a <code>swap</code> method for animated content replacement.</p>
-<h2>Signature</h2>
+<h2 id="signature">Signature</h2>
 <view-code language="javascript">dock(name, config, base);
 </view-code>
 <div class="table-wrap"><table><thead><tr><th>Argument</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody>
@@ -8,25 +8,25 @@
 <tr><td><code>config</code></td><td>object</td><td>no</td><td>Dock definition</td></tr>
 <tr><td><code>base</code></td><td>string</td><td>no</td><td><code>import.meta.url</code> of the caller</td></tr>
 </tbody></table></div>
-<h2>Config Fields</h2>
-<h3><code>tag</code></h3>
+<h2 id="config-fields">Config Fields</h2>
+<h3 id="tag"><code>tag</code></h3>
 <p>Custom element tag. Defaults to <code>dock-&lt;name&gt;</code>.</p>
 <view-code language="javascript">dock('main', { tag: 'app-shell' });
 // Defines &lt;app-shell&gt;
 </view-code>
-<h3><code>parent</code></h3>
+<h3 id="parent"><code>parent</code></h3>
 <p>Parent container key in the graph. Defaults to <code>'body'</code>.</p>
 <view-code language="javascript">dock('sidebar', { parent: 'main' });
 // sidebar is a child of main in the graph
 </view-code>
-<h3><code>template</code></h3>
+<h3 id="template"><code>template</code></h3>
 <p>Same as <code>page()</code>: inline string or file reference.</p>
 <view-code language="javascript">dock('main', {
   template: { html: './main.html', css: './main.css' }
 }, import.meta.url);
 </view-code>
 <p>If no template is provided, the default is <code>'&lt;slot&gt;&lt;/slot&gt;'</code> — a passthrough shell.</p>
-<h3><code>style</code></h3>
+<h3 id="style"><code>style</code></h3>
 <p>Inline CSS string, a file path, or an array containing CSS strings or stylesheet paths (both relative and root-relative starting with <code>/</code>). Automatically prepended with <code>contain: layout</code> styling for view transition isolation.</p>
 <view-code language="javascript">// Inline CSS
 style: ':host { background: #f5f5f5; }'
@@ -37,7 +37,7 @@ style: './main.css'
 // Multiple stylesheets from any folder
 style: ['/styles/shared.css', './main.css']
 </view-code>
-<h3><code>params</code> and <code>query</code></h3>
+<h3 id="params-and-query"><code>params</code> and <code>query</code></h3>
 <p>Typed parameter and query contract arrays. If the active route provides dynamic segments or mapped query parameters, the library automatically casts and sets these properties on the dock element reactively, triggering update cycles:</p>
 <view-code language="javascript">dock('detail', {
   params: [
@@ -48,7 +48,7 @@ style: ['/styles/shared.css', './main.css']
   ]
 });
 </view-code>
-<h3><code>notfound</code> / <code>error</code> / <code>offline</code></h3>
+<h3 id="notfound--error--offline"><code>notfound</code> / <code>error</code> / <code>offline</code></h3>
 <p><strong>Optional overrides.</strong> Bare <code>dock('name')</code> already gets miss / error / offline UI from the <strong>shared library built-ins</strong> (<code>pages.js</code>) — do <strong>not</strong> copy <code>404.html</code> into every dock folder. Scaffold correctly creates docks without error-page files. The <code>src/docks/</code> folder itself is an <strong>optional</strong> structure slot — <code>dock()</code> may live in <code>app.js</code> (<a href="/docs/intro/structure">Structure</a>).</p>
 <p>Soft-nav swaps the <strong>leaf</strong> dock only; parent chrome stays. Walk leaf → root: the deepest dock that defines the kind supplies the template (may paint into a deeper leaf host). Override only for branded UI:</p>
 <view-code language="javascript">dock('content', {
@@ -60,15 +60,15 @@ style: ['/styles/shared.css', './main.css']
 </view-code>
 <p>HTML strings and <code>{ html }</code> still work. Full ladder + bare-dock sample: <a href="/docs/router/fallbacks">Fallbacks (404 / 5xx / offline)</a>.</p>
 <p><code>anza generate dock &lt;name&gt;</code> creates a leaf under <code>src/docks/</code> <strong>without</strong> <code>404.html</code> — that is intentional.</p>
-<h2>Default Containment</h2>
+<h2 id="default-containment">Default Containment</h2>
 <p>Every dock automatically receives:</p>
 <view-code language="css">:host { contain: layout; display: block; }
 </view-code>
 <p>The <code>contain: layout</code> declaration is required for element-scoped view transitions. It is prepended to any user-supplied style.</p>
-<h2>Soft-nav persistence</h2>
+<h2 id="soft-nav-persistence">Soft-nav persistence</h2>
 <p>On soft navigation within the same <code>via</code> chain, parent docks stay mounted. Only the leaf page inside the innermost dock is swapped. That is what keeps docs chrome (sidebar, header) alive while page content changes.</p>
 <p>For Mode A SSG / Mode B HTML, nested docks and the page leaf must be <strong>light-DOM children</strong> after each host’s <code>&lt;template shadowrootmode="open"&gt;</code> — never baked inside the parent shadow template. Registry key <code>content</code> often maps to tag <code>dock-doccontent</code> (not <code>dock-content</code>). See <a href="/docs/ssg/contract">Page HTML contract (Mode A SSG · Mode B templates)</a> and <a href="/docs/ui/hydration">Hydration (DSD adopt)</a>.</p>
-<h2>Swap Method</h2>
+<h2 id="swap-method">Swap Method</h2>
 <p>Docks expose a <code>swap</code> method that replaces child content under a view transition:</p>
 <view-code language="javascript">await dockElement.swap(newElement, { direction: 'push' });
 </view-code>
@@ -83,7 +83,7 @@ style: ['/styles/shared.css', './main.css']
 <view-code language="css">:host([data-transition-direction="pop"]) { ... }
 </view-code>
 <p>See <a href="/docs/router/transitions">Transitions</a> and <a href="/docs/ui/transitions">Transitions</a>.</p>
-<h2>Lifecycle Hooks</h2>
+<h2 id="lifecycle-hooks">Lifecycle Hooks</h2>
 <p>Docks support the same <code>on</code> hooks as pages:</p>
 <view-code language="javascript">dock('main', {
   on: {
@@ -97,7 +97,7 @@ style: ['/styles/shared.css', './main.css']
 });
 </view-code>
 <p>User-supplied <code>connect</code> and <code>disconnect</code> hooks are wrapped so the dock still registers and unregisters itself in the graph.</p>
-<h2>Graph Registration</h2>
+<h2 id="graph-registration">Graph Registration</h2>
 <p>When a dock connects:</p>
 <view-code language="javascript">router.registerContainer(name, element, parent);
 </view-code>
@@ -105,7 +105,7 @@ style: ['/styles/shared.css', './main.css']
 <view-code language="javascript">router.unregisterContainer(name, element);
 </view-code>
 <p>This happens automatically. You do not need to call these manually for docks.</p>
-<h2>Example: Sidebar Layout</h2>
+<h2 id="example-sidebar-layout">Example: Sidebar Layout</h2>
 <view-code language="javascript">dock('main');
 dock('sidebar', { parent: 'main' });
 dock('content', { parent: 'main' });
@@ -121,7 +121,7 @@ page('/settings', {
 });
 </view-code>
 <p>Dashboard renders through <code>main → content</code>. Settings renders through <code>main → sidebar</code>. The router computes the LCA (<code>main</code>) and only swaps the divergent branch.</p>
-<h2>Example: Custom Swap Animation</h2>
+<h2 id="example-custom-swap-animation">Example: Custom Swap Animation</h2>
 <view-code language="javascript">dock('main', {
   on: {
     connect({ el }) {

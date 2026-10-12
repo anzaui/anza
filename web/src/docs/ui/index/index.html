@@ -1,4 +1,4 @@
-<h1>UI</h1>
+<h1 id="ui">UI</h1>
 <p>The Anza UI layer is a declarative custom element system built on Web Components. It provides reactive properties, lifecycle hooks, template and style loading, event delegation, mutation watching, and cooperative scheduling — all with automatic memory management via AbortController.</p>
 <p>The UI layer is organized into three levels:</p>
 <ol>
@@ -6,7 +6,7 @@
 <li><strong>Factory layer</strong> — <code>element()</code>, <code>define()</code> — the engine that compiles specs into custom elements</li>
 <li><strong>Utilities</strong> — <code>template()</code>, <code>transition()</code>, <code>schedule()</code>, <code>observe</code> — helpers for DOM, animation, and performance</li>
 </ol>
-<h2>What You Get</h2>
+<h2 id="what-you-get">What You Get</h2>
 <ul>
 <li><strong>Declarative element definition</strong> — define custom elements with a config object instead of a class</li>
 <li><strong>Reactive props</strong> — typed properties with automatic attribute reflection and batched update callbacks</li>
@@ -21,12 +21,12 @@
 <li><strong>Cooperative scheduling</strong> — <code>schedule()</code>, <code>scheduleFrame()</code>, <code>yield()</code> for main-thread-friendly work</li>
 <li><strong>View transitions</strong> — <code>transition()</code> wrapper with reduced-motion respect</li>
 </ul>
-<h2>Package</h2>
+<h2 id="package">Package</h2>
 <view-code language="javascript">import { ui } from '@anzaui/anza/ui';
 import { page, dock, view, part } from '@anzaui/anza/defs';
 import { BaseElement } from '@anzaui/anza/ui';
 </view-code>
-<h2>File Map</h2>
+<h2 id="file-map">File Map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
 <tr><td><a href="/docs/ui/quickstart">Quick Start</a></td><td>Your first component in five minutes</td></tr>
 <tr><td><a href="/docs/ui/elements">Elements</a></td><td>The <code>element()</code> factory and spec shape</td></tr>
@@ -44,7 +44,7 @@ import { BaseElement } from '@anzaui/anza/ui';
 <tr><td><a href="/docs/ui/api">API Reference</a></td><td>Complete API reference</td></tr>
 <tr><td><a href="/docs/ui/troubleshooting">Troubleshooting</a></td><td>Common problems and how to fix them</td></tr>
 </tbody></table></div>
-<h2>One-File Example</h2>
+<h2 id="one-file-example">One-File Example</h2>
 <view-code language="javascript">import { view } from '@anzaui/anza/defs';
 
 view('user-card', {
@@ -71,7 +71,7 @@ view('user-card', {
 <p>Use it in HTML:</p>
 <view-code language="html">&lt;user-card name="Alice" active&gt;&lt;/user-card&gt;
 </view-code>
-<h2>Next Steps</h2>
+<h2 id="next-steps">Next Steps</h2>
 <ul>
 <li>New to the UI layer? Start with <a href="/docs/ui/quickstart">Quick Start</a>.</li>
 <li>Want reactive properties? Read <a href="/docs/ui/props">Props</a> and <a href="/docs/ui/lifecycle">Lifecycle</a>.</li>

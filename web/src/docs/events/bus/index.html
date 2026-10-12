@@ -1,6 +1,6 @@
-<h1>Bus</h1>
+<h1 id="bus">Bus</h1>
 <p>The global event bus is a singleton <code>EventBus</code> instance built on the native <code>EventTarget</code>. It provides typed <code>emit</code> and <code>on</code> methods for application-wide publish/subscribe.</p>
-<h2>Global Bus</h2>
+<h2 id="global-bus">Global Bus</h2>
 <view-code language="javascript">import { events } from '@anzaui/anza/events';
 
 // Subscribe
@@ -14,7 +14,7 @@ events.emit('app:theme', { theme: 'dark' });
 // Unsubscribe
 off();
 </view-code>
-<h2>EventBus Class</h2>
+<h2 id="eventbus-class">EventBus Class</h2>
 <p>Create isolated buses for scoped communication:</p>
 <view-code language="javascript">import { EventBus } from '@anzaui/anza/events';
 
@@ -24,14 +24,14 @@ moduleBus.on('update', handler);
 moduleBus.emit('update', data);
 </view-code>
 <p>Each <code>EventBus</code> is an independent <code>EventTarget</code>. Events do not leak between instances.</p>
-<h2>Event Payload</h2>
+<h2 id="event-payload">Event Payload</h2>
 <p>Listeners receive a <code>CustomEvent</code> with <code>type</code> and <code>detail</code>:</p>
 <view-code language="javascript">events.on('user:action', (e) =&gt; {
   console.log(e.type);     // 'user:action'
   console.log(e.detail);   // { action: 'save' }
 });
 </view-code>
-<h2>AbortSignal Cleanup</h2>
+<h2 id="abortsignal-cleanup">AbortSignal Cleanup</h2>
 <view-code language="javascript">const ctrl = new AbortController();
 
 events.on('update', handler, ctrl.signal);
@@ -40,20 +40,20 @@ events.on('update', handler, ctrl.signal);
 ctrl.abort();
 </view-code>
 <p>This is the recommended pattern for component-scoped listeners. The bus uses the native <code>addEventListener({ signal })</code> API, so cleanup is handled by the browser.</p>
-<h2>Manual Disposal</h2>
+<h2 id="manual-disposal">Manual Disposal</h2>
 <p><code>events.on</code> returns a disposer function:</p>
 <view-code language="javascript">const off = events.on('update', handler);
 off(); // removes just this listener
 </view-code>
-<h2>Using Native EventTarget Methods</h2>
+<h2 id="using-native-eventtarget-methods">Using Native EventTarget Methods</h2>
 <p>The bus is a full <code>EventTarget</code>. Use native methods directly if needed:</p>
 <view-code language="javascript">bus.addEventListener('custom', handler);
 bus.dispatchEvent(new CustomEvent('custom', { detail: {} }));
 bus.removeEventListener('custom', handler);
 </view-code>
-<h2>Listener Order</h2>
+<h2 id="listener-order">Listener Order</h2>
 <p>Listeners fire in registration order. There is no priority system. If order matters, register in the correct sequence.</p>
-<h2>Error Handling</h2>
+<h2 id="error-handling">Error Handling</h2>
 <p>Listener errors are not caught by the bus. Wrap handlers to prevent one listener from breaking others:</p>
 <view-code language="javascript">events.on('update', (e) =&gt; {
   try {

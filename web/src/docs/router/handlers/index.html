@@ -1,6 +1,6 @@
-<h1>Handlers</h1>
+<h1 id="handlers">Handlers</h1>
 <p>A route handler tells the router what to render when a URL matches. There are exactly six supported shapes. The router never invokes a handler twice — it resolves the tag during matching and runs callbacks during interception.</p>
-<h2>The Six Shapes</h2>
+<h2 id="the-six-shapes">The Six Shapes</h2>
 <div class="table-wrap"><table><thead><tr><th>Shape</th><th>What It Means</th><th>Example</th></tr></thead><tbody>
 <tr><td>String</td><td>Static custom element tag</td><td><code>'page-home'</code></td></tr>
 <tr><td>Zero-arg function</td><td>Lazy tag factory</td><td><code>async () =&gt; 'page-home'</code></td></tr>
@@ -9,12 +9,12 @@
 <tr><td><code>{ load: fn }</code></td><td>Lazy tag factory (object form)</td><td><code>{ load: async () =&gt; 'page-home' }</code></td></tr>
 <tr><td><code>{ handler: fn }</code></td><td>Callback (object form)</td><td><code>{ handler: (params, event) =&gt; { ... } }</code></td></tr>
 </tbody></table></div>
-<h2>Static Tag</h2>
+<h2 id="static-tag">Static Tag</h2>
 <p>The simplest and most common handler.</p>
 <view-code language="javascript">router.register('/', 'page-home');
 </view-code>
 <p>When <code>/</code> matches, the router creates <code>&lt;page-home&gt;</code> and mounts it.</p>
-<h2>Lazy Tag Factory</h2>
+<h2 id="lazy-tag-factory">Lazy Tag Factory</h2>
 <p>Useful for code-splitting: the tag is resolved asynchronously when the route is first matched.</p>
 <view-code language="javascript">router.register('/reports', async () =&gt; {
   await import('./pages/reports.js');
@@ -30,7 +30,7 @@
   }
 });
 </view-code>
-<h2>Callback Handler</h2>
+<h2 id="callback-handler">Callback Handler</h2>
 <p>For routes that need full control over rendering. The callback receives the raw route parameters map (key-value strings) and the Navigation API event.</p>
 <view-code language="javascript">router.register('/external/:url', (params, event) =&gt; {
   // params is the raw params map object, e.g. { url: 'https%3A%2F%2Fgoogle.com' }
@@ -46,18 +46,18 @@
 });
 </view-code>
 <p><em>(Note: While callback handlers receive raw key-value string mappings, <code>page</code> and <code>dock</code> lifecycle hooks receive cast, ordered parameter and query accessor arrays per their declared contracts).</em></p>
-<h2>Choosing a Shape</h2>
+<h2 id="choosing-a-shape">Choosing a Shape</h2>
 <p>Use a <strong>string</strong> for routes whose element is already defined or will be defined before first match.</p>
 <p>Use a <strong>lazy factory</strong> for code-split routes. The router awaits the factory, so the element definition can happen inside the imported module.</p>
 <p>Use a <strong>callback</strong> when you need side effects, redirects, or custom rendering logic that does not produce a custom element.</p>
-<h2>Internal Resolution</h2>
+<h2 id="internal-resolution">Internal Resolution</h2>
 <p>The router resolves handlers in two phases:</p>
 <ol>
 <li><strong>Match phase</strong> (<code>match()</code>) — resolves tag strings and lazy factories. Callbacks return <code>null</code> for the tag since they do not produce an element.</li>
 <li><strong>Intercept phase</strong> (<code>handler()</code>) — runs callbacks. Tag-based handlers are rendered by the orchestrator.</li>
 </ol>
 <p>This separation prevents a callback from running twice.</p>
-<h2>Handler Helpers</h2>
+<h2 id="handler-helpers">Handler Helpers</h2>
 <p>The helpers that implement this contract (<code>isCallback</code>, <code>resolveTag</code>,
 <code>runCallback</code>) are internal and not exported. Use <code>match()</code> to see how a URL
 resolves:</p>

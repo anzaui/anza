@@ -1,7 +1,7 @@
-<h1>STUI Engines</h1>
+<h1 id="stui-engines">STUI Engines</h1>
 <p>Anza provides high-performance, multi-language <strong>Server-Templated UI (STUI)</strong> engines for <strong>Rust</strong>, <strong>TypeScript / Node.js / Bun / Deno</strong>, and <strong>Python</strong>.</p>
 <p>STUI bridges server-side rendering and client-side web components. It enables sub-millisecond initial page delivery using <strong>Open Declarative Shadow DOM (DSD)</strong> alongside cryptographically verified dynamic component updates for partial fetches, live navigation, and real-time streaming.</p>
-<h2>What You Get</h2>
+<h2 id="what-you-get">What You Get</h2>
 <ul>
 <li><strong>Open Declarative Shadow DOM (DSD)</strong> — Instant initial render without client-side hydration pauses</li>
 <li><strong>Zero-copy parameter injection</strong> — Templates are pre-parsed once at startup into memory offsets</li>
@@ -10,7 +10,7 @@
 <li><strong>Universal streaming</strong> — First-class Server-Sent Events (SSE) and WebSocket text frame support</li>
 <li><strong>Zero external runtime dependencies</strong> — Standard libraries and Web Standards across all engines</li>
 </ul>
-<h2>Package Map</h2>
+<h2 id="package-map">Package Map</h2>
 <div class="table-wrap"><table><thead><tr><th>Engine</th><th>Package / Crate</th><th>Ecosystem</th><th>Key Feature</th></tr></thead><tbody>
 <tr><td><a href="/docs/engines/rust">Rust Engine</a></td><td><code>anza</code> (Cargo)</td><td>Axum, Actix-web</td><td>Zero-copy byte slices, sub-millisecond latency</td></tr>
 <tr><td><a href="/docs/engines/ts">TypeScript Engine</a></td><td><code>@anzaui/engine</code> (npm)</td><td>Node.js, Bun, Deno, Hono, Express</td><td>Zero dependencies, JIT closure compilation</td></tr>
@@ -18,9 +18,9 @@
 <tr><td><a href="/docs/engines/crypto">Cryptographic Verification</a></td><td>Built-in</td><td>All engines</td><td>Ed25519, HMAC-SHA256, and HKDF session key derivation</td></tr>
 <tr><td><a href="/docs/engines/streaming">Real-Time Streaming</a></td><td>Built-in</td><td>All engines</td><td>Server-Sent Events (SSE) and WebSocket frame protocols</td></tr>
 </tbody></table></div>
-<h2>Dual-Mode Rendering</h2>
+<h2 id="dual-mode-rendering">Dual-Mode Rendering</h2>
 <p>Every template in the <code>templates/</code> directory supports two rendering modes:</p>
-<h3>Mode A: Full-Page SSR (Initial Paint &amp; SEO)</h3>
+<h3 id="mode-a-full-page-ssr-initial-paint--seo">Mode A: Full-Page SSR (Initial Paint &amp; SEO)</h3>
 <p>Generates complete HTML documents containing root layout shells and Declarative Shadow DOM components:</p>
 <view-code language="html">&lt;!-- templates/pages/profile.html --&gt;
 &lt;page-profile id="{{user_id}}"&gt;
@@ -34,7 +34,7 @@
   &lt;/template&gt;
 &lt;/page-profile&gt;
 </view-code>
-<h3>Mode B: Dynamic Fragment Envelopes (SSE &amp; Fetch)</h3>
+<h3 id="mode-b-dynamic-fragment-envelopes-sse--fetch">Mode B: Dynamic Fragment Envelopes (SSE &amp; Fetch)</h3>
 <p>Generates targeted JSON envelopes for real-time slot replacement and live streaming:</p>
 <view-code language="json">{
   "slot": "feed",
@@ -44,7 +44,7 @@
   "css": null
 }
 </view-code>
-<h2>Templates</h2>
+<h2 id="templates">Templates</h2>
 <p>All three engines read the same template tree:</p>
 <view-code language="text">templates/
 ├── layout/
@@ -67,7 +67,7 @@ across engines. Page rendering differs slightly: the Python engine wraps the pag
 in <code>&lt;page-&lt;route&gt;&gt;</code> with an open shadow root and requires <code>layout/shell.html</code>;
 the Rust and TypeScript engines insert the page markup as is and fall back to a
 minimal <code>&lt;dock-main&gt;</code> document when there is no shell. See each engine page.</p>
-<h2>File Map</h2>
+<h2 id="file-map">File Map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
 <tr><td><a href="/docs/engines/rust">Rust Engine</a></td><td>Rust engine setup, Axum/Actix adapters, and Serde data binding</td></tr>
 <tr><td><a href="/docs/engines/ts">TypeScript Engine</a></td><td>TypeScript engine setup, Web Standards, Hono, and Express</td></tr>

@@ -1,1 +1,1 @@
-{"version":1,"refs":[],"ids":[],"classes":[],"tags":["code","h1","h2","p","view-code"],"compound":[],"attrs":["language"],"refTypes":{}}
+{"version":1,"refs":[],"ids":["1-make-a-get-request","10-handle-errors","2-make-a-post-request","3-register-a-prefix","4-cache-a-response","5-listen-for-errors","6-per-request-events","7-stream-ndjson","8-upload-a-file","9-abort-a-request","complete-working-example","quick-start"],"classes":[],"tags":["code","h1","h2","p","view-code"],"compound":[],"attrs":["id","language"],"refTypes":{}}

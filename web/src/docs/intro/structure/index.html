@@ -1,9 +1,9 @@
-<h1>Structure</h1>
+<h1 id="structure">Structure</h1>
 <p>Normative <strong>folder contract</strong> for Anza apps: one spine humans learn once, optional slots, and an optional <code>anza.json</code> for remaps. Validate with <code>anza doctor</code> (soft) or <code>anza check</code> (strict CI). Sibling metaphor: <a href="/docs/ssg/contract">Page HTML contract (Mode A SSG · Mode B templates)</a> is the HTML contract; this page is the <strong>project layout</strong> contract.</p>
 <p>JSON Schema: <a href="../../library/schemas/anza.schema.json"><code>@anzaui/anza/schemas/anza.schema.json</code></a>.</p>
 <p>Tone: <strong>one spine, many leaves</strong> — same story as hierarchical docks.</p>
 <p><strong>This page is the single source of truth</strong> for “what must exist on disk?” — start at <a href="#what-must-exist">What must exist</a>, then optional slots and <a href="#troubleshooting">Troubleshooting</a>.</p>
-<h2>What must exist</h2>
+<h2 id="what-must-exist">What must exist</h2>
 <div class="table-wrap"><table><thead><tr><th>Must</th><th>Path</th><th>Notes</th></tr></thead><tbody>
 <tr><td>Package</td><td><code>package.json</code></td><td><code>"type": "module"</code>; scripts may call <code>anza</code></td></tr>
 <tr><td>Shell</td><td><code>src/index.html</code></td><td>Import map + tokens/styles links + module entry</td></tr>
@@ -19,7 +19,7 @@
 <li>Shell uses <strong>site-root</strong> asset URLs (<code>/app.js</code>, <code>/tokens/...</code>, <code>/styles/...</code>) — see <a href="/docs/ssg/contract">Page HTML contract (Mode A SSG · Mode B templates)</a>.</li>
 </ol>
 <p>Apps need <strong>no</strong> <code>anza.json</code>. <code>anza create</code> / <code>npm create @anzaui/anza</code> writes the default tree. Add <code>anza.json</code> only when remapping roots, declaring extra page trees, or listing additional service workers.</p>
-<h3>Recommended (scaffold creates; tooling may warn if missing)</h3>
+<h3 id="recommended-scaffold-creates-tooling-may-warn-if-missing">Recommended (scaffold creates; tooling may warn if missing)</h3>
 <div class="table-wrap"><table><thead><tr><th>Slot</th><th>Path</th><th>Notes</th></tr></thead><tbody>
 <tr><td>Pages barrel</td><td><code>src/pages/index.js</code></td><td>Imports page folders; not the only allowed page tree</td></tr>
 <tr><td>Landing page</td><td><code>src/pages/&lt;name&gt;/</code></td><td>Scaffold uses <code>entry/</code> with <code>index.js</code> (+ optional <code>.html</code> / <code>.css</code>)</td></tr>
@@ -28,7 +28,7 @@
 <tr><td>Service Worker</td><td><code>src/sw.js</code></td><td>Recommended for offline; not hard-required</td></tr>
 <tr><td>Import map stub</td><td><code>importmap.json</code></td><td>Empty <code>{}</code> ok; merged at build</td></tr>
 </tbody></table></div>
-<h3>Optional</h3>
+<h3 id="optional">Optional</h3>
 <div class="table-wrap"><table><thead><tr><th>Slot</th><th>Default path</th><th>Rules</th></tr></thead><tbody>
 <tr><td>Docks</td><td><code>src/docks/</code></td><td>May be empty or absent; <code>dock()</code> can live in <code>app.js</code>; barrel <code>index.js</code> when present</td></tr>
 <tr><td>Views</td><td><code>src/views/</code></td><td><strong>Global</strong> reusable stateful components (optional slot + remap) — not a per-dock CE registry</td></tr>
@@ -39,14 +39,14 @@
 <tr><td>SSG config</td><td><code>ssg.json</code> / <code>ssg.params.json</code></td><td>Existing contracts</td></tr>
 <tr><td>Fallbacks</td><td><em>by reference</em></td><td><code>dock</code> / <code>page</code> <code>{ notfound | error | offline }</code> or library built-ins — <strong>not</strong> folder slots (<a href="/docs/router/fallbacks">Fallbacks (404 / 5xx / offline)</a>)</td></tr>
 </tbody></table></div>
-<h3>Explicitly not required</h3>
+<h3 id="explicitly-not-required">Explicitly not required</h3>
 <ul>
 <li><code>src/core/</code> (library concern)</li>
 <li>Per-route folders named exactly like URLs</li>
 <li><code>src/index.js</code> (legacy discovery fallback only; scaffold uses <code>app.js</code>)</li>
 <li>Empty placeholder dirs (scaffold may still create empty <code>docks</code> / <code>views</code> / <code>parts</code> for discoverability)</li>
 </ul>
-<h2>Index-per-folder convention</h2>
+<h2 id="index-per-folder-convention">Index-per-folder convention</h2>
 <p>Each <strong>meaningful</strong> folder under views, docks, pages, and user trees should expose an <strong><code>index</code></strong> barrel (<code>index.js</code>, plus <code>index.html</code> / <code>index.css</code> when the leaf owns markup/styles). Scaffold and <code>anza check</code> / doctor expect this.</p>
 <div class="table-wrap"><table><thead><tr><th>Tree</th><th>Barrel</th><th>Leaf</th></tr></thead><tbody>
 <tr><td>Pages</td><td><code>src/pages/index.js</code></td><td><code>src/pages/&lt;name&gt;/index.js</code></td></tr>
@@ -56,7 +56,7 @@
 <tr><td>Extra page trees</td><td>e.g. <code>src/docs/index.js</code></td><td><code>src/docs/.../index.js</code></td></tr>
 </tbody></table></div>
 <p>Co-locating a view under a dock or user folder is <strong>organization only</strong> — custom element tags remain <strong>global</strong>. There is no dock-scoped CE registry.</p>
-<h2>Import order (tooling, not developer)</h2>
+<h2 id="import-order-tooling-not-developer">Import order (tooling, not developer)</h2>
 <p>Source may import modules in <strong>any</strong> order. <strong><code>anza build</code> / extract</strong> rewrites static <code>import</code> / <code>export … from</code> declarations in emitted <code>dist/</code> JS into <strong>usage order</strong>:</p>
 <ol>
 <li>Library / bare specifiers</li>
@@ -67,13 +67,13 @@
 <li>Other relative modules</li>
 </ol>
 <p>Mid-file static imports are hoisted into that ordered block. Semantics stay multi-file ESM (no bundling). Rely on the build — do not treat source import order as load order. Remapped slot names from <code>anza.json</code> (<code>docks</code>, <code>views</code>, <code>parts</code>, <code>pages</code>) feed the classifier.</p>
-<h2>Validate (<code>anza doctor</code> / <code>anza check</code>)</h2>
+<h2 id="validate-anza-doctor--anza-check">Validate (<code>anza doctor</code> / <code>anza check</code>)</h2>
 <view-code language="bash">anza doctor          # soft: errors fail; warnings print, exit 0
 anza doctor --strict # same severity as check
 anza check           # CI: errors or warnings → non-zero
 </view-code>
 <p>Findings point back here (<code>docs/intro/structure.md</code>). Checks the required spine, recommended tokens/styles/SW/importmap, optional slots + index barrels, <code>anza.json</code> <code>sw</code> string|array, legacy <code>elements/</code>+pages coexistence, undeclared page trees, and <strong>via → dock</strong> consistency. Docks may live in <code>app.js</code> — <code>src/docks/</code> is optional. See <a href="/docs/intro/build#diagnostics">Build: Diagnostics</a>.</p>
-<h3>CI snippet</h3>
+<h3 id="ci-snippet">CI snippet</h3>
 <view-code language="bash">anza check &amp;&amp; anza build
 </view-code>
 <p>Or in <code>package.json</code>:</p>
@@ -85,7 +85,7 @@ anza check           # CI: errors or warnings → non-zero
   }
 }
 </view-code>
-<h2>Generate (<code>anza generate</code>)</h2>
+<h2 id="generate-anza-generate">Generate (<code>anza generate</code>)</h2>
 <p>Thin filesystem helpers into declared slots (respects <code>anza.json</code> remaps). Updates the slot barrel (<code>index.js</code>). Not a Nest schematic platform.</p>
 <view-code language="bash">anza generate page about
 anza generate page home --tree docs --route /docs/home --via main,docs
@@ -100,9 +100,9 @@ anza generate part button
 <tr><td><code>part</code></td><td><code>src/parts/&lt;name&gt;/</code></td><td>Stateless primitives</td></tr>
 </tbody></table></div>
 <p>Each leaf gets <code>index.js</code> (+ <code>index.html</code> / <code>index.css</code>). Import the barrel from <code>app.js</code> if it is not already wired.</p>
-<h2>Views model</h2>
+<h2 id="views-model">Views model</h2>
 <p><strong>Recommended:</strong> one optional global <code>src/views/</code> slot (remappable via <code>anza.json</code> <code>views</code>). Rejected: a dock-scoped custom-element registry. Put shared views in <code>src/views/</code>; nest under docks only when it helps humans browse files — tags and registration stay app-global.</p>
-<h2>Root files</h2>
+<h2 id="root-files">Root files</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>Why it exists</th></tr></thead><tbody>
 <tr><td><code>package.json</code></td><td>Lists <code>@anzaui/anza</code>; exposes <code>npm run dev</code> / <code>npm run build</code></td></tr>
 <tr><td><code>importmap.json</code></td><td>Empty starter for user aliases; CLI merges library mappings at build</td></tr>
@@ -110,8 +110,8 @@ anza generate part button
 <tr><td><code>ssg.json</code></td><td>Optional SSG / SEO settings (sibling until optional merge into <code>anza.json</code>)</td></tr>
 <tr><td><code>.gitignore</code></td><td>Excludes <code>node_modules/</code>, <code>dist/</code>, <code>.anzacache.json</code></td></tr>
 </tbody></table></div>
-<h2>What the scaffold generates</h2>
-<h3><code>src/app.js</code></h3>
+<h2 id="what-the-scaffold-generates">What the scaffold generates</h2>
+<h3 id="srcappjs"><code>src/app.js</code></h3>
 <view-code language="javascript">import '@anzaui/anza/ui';
 import { dock } from '@anzaui/anza/ui';
 import '@anzaui/anza/theme';
@@ -126,14 +126,14 @@ navigator.serviceWorker.register('/sw.js', { type: 'module' });
 dock('main');
 </view-code>
 <p>Bootstraps the UI, loads barrels, registers the Service Worker, and creates a <code>main</code> dock. All pages render through this dock by default unless they set another <code>via</code>. Import order in source is free-form; build rewrites <code>dist/</code> into usage order.</p>
-<h3><code>src/index.html</code></h3>
+<h3 id="srcindexhtml"><code>src/index.html</code></h3>
 <view-code language="html">&lt;script type="importmap" src="/importmap.json"&gt;&lt;/script&gt;
 &lt;link rel="stylesheet" href="/tokens/index.css"&gt;
 &lt;link rel="stylesheet" href="/styles/index.css"&gt;
 &lt;script type="module" src="/app.js"&gt;&lt;/script&gt;
 </view-code>
 <p>The shell loads the import map, design tokens, global styles, and the app entry. The CLI injects the HMR script in dev mode.</p>
-<h3><code>src/sw.js</code></h3>
+<h3 id="srcswjs"><code>src/sw.js</code></h3>
 <view-code language="javascript">import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@anzaui/anza/sw';
 
 const SHELL = 'shell-v2';
@@ -162,7 +162,7 @@ self.addEventListener('fetch', (e) =&gt; {
 });
 </view-code>
 <p>Pre-caches the app shell. Static assets use <code>CacheFirst</code>; API calls use <code>NetworkFirst</code> with a 3-second timeout. Bump <code>SHELL</code> / <code>API</code> when shipping path-breaking asset URL changes. See <a href="/docs/sw/start">Start</a>.</p>
-<h3><code>src/pages/entry/index.js</code></h3>
+<h3 id="srcpagesentryindexjs"><code>src/pages/entry/index.js</code></h3>
 <view-code language="javascript">import { page } from '@anzaui/anza/ui';
 
 page('/', {
@@ -172,12 +172,12 @@ page('/', {
 }, import.meta.url);
 </view-code>
 <p>Defines <code>/</code>. <code>via: ['main']</code> mounts inside the <code>main</code> dock. <code>import.meta.url</code> resolves relative template paths from this file.</p>
-<h3><code>src/pages/index.js</code></h3>
+<h3 id="srcpagesindexjs"><code>src/pages/index.js</code></h3>
 <p>Barrel — <code>app.js</code> needs one import:</p>
 <view-code language="javascript">import './entry/index.js';
 </view-code>
 <p>Add a folder, import it here, and the route registers. The <code>entry/</code> name is a convention — rename or replace it; whatever defines <code>/</code> in this barrel is the landing page. Scaffold also writes empty <code>src/docks/index.js</code>, <code>src/views/index.js</code>, and <code>src/parts/index.js</code> barrels.</p>
-<h2>Extra page trees</h2>
+<h2 id="extra-page-trees">Extra page trees</h2>
 <p>Pages are <strong>not</strong> required to live only under <code>src/pages/</code>. The docs site uses <code>src/pages/</code> <strong>and</strong> <code>src/docs/</code> (~197 page folders) imported from barrels. That is a blessed escape hatch.</p>
 <p>Declare extra trees in <code>anza.json</code> so tooling can hint without guessing:</p>
 <view-code language="json">{
@@ -186,14 +186,14 @@ page('/', {
 }
 </view-code>
 <p>Undeclared trees that still call <code>page()</code> keep working at runtime; <code>anza check</code> <strong>warns</strong> (doctor soft-exit) so large apps are nudged to declare <code>pages[]</code> without blocking build unless <code>--strict</code> / <code>check</code>.</p>
-<h2>Service workers</h2>
+<h2 id="service-workers">Service workers</h2>
 <div class="table-wrap"><table><thead><tr><th>Slot</th><th>Path</th><th>Role</th></tr></thead><tbody>
 <tr><td>Primary entry (recommended)</td><td><code>src/sw.js</code></td><td>Single controlling SW; build entry when <code>anza.json</code> omits <code>sw</code></td></tr>
 <tr><td>Shared modules (optional)</td><td><code>src/sw/</code></td><td>Helpers imported by the entry — <strong>not</strong> separate registrations</td></tr>
 <tr><td>Do not standardize</td><td><code>src/workers/</code></td><td>Conflates Web Workers; Anza vocabulary is <code>sw</code></td></tr>
 </tbody></table></div>
 <p><strong>One registration per scope</strong> in the browser. Split cache strategies inside one worker with ESM imports + <code>router().register(...)</code>, not by inventing a second worker. Use multiple workers only for <strong>distinct URL scopes</strong> (e.g. <code>/</code> vs <code>/admin/</code>).</p>
-<h3><code>anza.json</code> <code>sw</code></h3>
+<h3 id="anzajson-sw"><code>anza.json</code> <code>sw</code></h3>
 <p>String (scaffold back-compat):</p>
 <view-code language="json">{ "sw": "sw.js" }
 </view-code>
@@ -206,7 +206,7 @@ page('/', {
 }
 </view-code>
 <p>Omit <code>sw</code> entirely → tooling looks for <code>src/sw.js</code>. Registration stays in app code (<code>navigator.serviceWorker.register</code>); <code>scope</code> in the manifest is advisory for humans and future generators.</p>
-<h2>Optional <code>anza.json</code></h2>
+<h2 id="optional-anzajson">Optional <code>anza.json</code></h2>
 <view-code language="json">{
   "$schema": "./node_modules/@anzaui/anza/schemas/anza.schema.json",
   "src": "src",
@@ -223,7 +223,7 @@ page('/', {
 }
 </view-code>
 <p>All path values are relative to <code>src</code> except project-root files (<code>importmap.json</code>, <code>ssg.json</code>). Omit keys to keep defaults. Schema: <a href="../../library/schemas/anza.schema.json"><code>library/schemas/anza.schema.json</code></a>.</p>
-<h3>Schema / IDE association</h3>
+<h3 id="schema--ide-association">Schema / IDE association</h3>
 <p>Package export: <code>@anzaui/anza/schemas/anza.schema.json</code>.</p>
 <p>Point the <code>$schema</code> key in <code>anza.json</code> (as above), or teach the editor via <code>.vscode/settings.json</code>:</p>
 <view-code language="json">{
@@ -236,8 +236,8 @@ page('/', {
 }
 </view-code>
 <p>A mergeable fragment ships as <code>@anzaui/anza/schemas/vscode-json-schemas.json</code>.</p>
-<h2>Troubleshooting</h2>
-<h3>Moved pages out of <code>src/pages/</code></h3>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="moved-pages-out-of-srcpages">Moved pages out of <code>src/pages/</code></h3>
 <p>Symptoms: <code>anza check</code> warns about <code>page()</code> under <code>src/&lt;tree&gt;/</code> not listed in <code>pages[]</code>; routes missing after build if the barrel is not imported.</p>
 <p>Fix (pick one or both):</p>
 <ol>
@@ -255,16 +255,16 @@ page('/', {
 import './docs/index.js';
 </view-code>
 <p>Runtime only needs the import graph. Declaring <code>pages[]</code> silences the check warn and helps future generators.</p>
-<h3><code>via</code> name has no matching <code>dock()</code></h3>
+<h3 id="via-name-has-no-matching-dock"><code>via</code> name has no matching <code>dock()</code></h3>
 <p>Register the dock anywhere under <code>src/</code> (often <code>app.js</code>):</p>
 <view-code language="javascript">dock('main');
 </view-code>
 <p>Or fix the page <code>via: ['…']</code> to match an existing registry key. Folder under <code>src/docks/</code> is optional.</p>
-<h3>Missing recommended tokens / styles / SW</h3>
+<h3 id="missing-recommended-tokens--styles--sw">Missing recommended tokens / styles / SW</h3>
 <p>Copy from a fresh <code>anza create</code>, or drop the slot if you intentionally skip offline / design tokens (warn-only unless <code>anza check</code>).</p>
-<h2>Fallbacks are not folders</h2>
+<h2 id="fallbacks-are-not-folders">Fallbacks are not folders</h2>
 <p>Miss / error / offline UI is <strong>by reference</strong> (dock/page options or library built-ins). Do <strong>not</strong> copy <code>404.html</code> into every dock folder. Scaffold correctly creates docks without error-page files. See <a href="/docs/router/fallbacks">Fallbacks (404 / 5xx / offline)</a> and <a href="/docs/router/docks">Docks</a>.</p>
-<h2>Tokens and styles</h2>
+<h2 id="tokens-and-styles">Tokens and styles</h2>
 <p><code>src/tokens/</code> and <code>src/styles/</code> are copied from the library during scaffolding. You own them — the CLI never overwrites them after creation.</p>
 <view-code language="text">src/tokens/
   index.css
@@ -278,7 +278,7 @@ src/styles/
   reset.css
   base.css
 </view-code>
-<h2>Build output</h2>
+<h2 id="build-output">Build output</h2>
 <p><code>npm run dev</code> and <code>npm run build</code> emit to <code>dist/</code>:</p>
 <view-code language="text">dist/
   index.html

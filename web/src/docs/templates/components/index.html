@@ -1,13 +1,13 @@
-<h1>Components &amp; Partials</h1>
+<h1 id="components--partials">Components &amp; Partials</h1>
 <p>Anza Server Partials are self-contained <code>.html</code> fragments designed for rendering list items, cards, modals, or real-time UI stream slices. Partials encapsulate their own markup, local <code>&lt;style&gt;</code> definitions, and interactive action endpoints.</p>
-<h2>What You Get</h2>
+<h2 id="what-you-get">What You Get</h2>
 <div class="table-wrap"><table><thead><tr><th>Feature</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Self-Contained Styling</strong></td><td>Component-level <code>&lt;style&gt;</code> block included directly in the template</td></tr>
 <tr><td><strong>Reusable Partial Rendering</strong></td><td>Loop over database records or collections and map to partial fragments</td></tr>
 <tr><td><strong>Direct Action Endpoints</strong></td><td>Integrated action triggers (<code>[delete]</code>, <code>[sig]</code>, forms) within component markup</td></tr>
 <tr><td><strong>Streamable Chunks</strong></td><td>Rendered partials can be dispatched directly across SSE or WebSocket streams</td></tr>
 </tbody></table></div>
-<h2>Card Component Anatomy (<code>feed/card.html</code>)</h2>
+<h2 id="card-component-anatomy-feedcardhtml">Card Component Anatomy (<code>feed/card.html</code>)</h2>
 <p>Below is the standard article card component template:</p>
 <view-code language="html">&lt;article class="post-card" id="article-{{id}}"&gt;
   &lt;style&gt;
@@ -110,9 +110,9 @@
   &lt;/div&gt;
 &lt;/article&gt;
 </view-code>
-<h2>Rendering Multiple Partials</h2>
+<h2 id="rendering-multiple-partials">Rendering Multiple Partials</h2>
 <p>In server route handlers, query records from your database and map each item to a rendered partial string:</p>
-<h3>In Rust (Axum)</h3>
+<h3 id="in-rust-axum">In Rust (Axum)</h3>
 <view-code language="rust">let articles: Vec&lt;Article&gt; = db::get_recent_articles(&amp;pool).await?;
 
 let card = engine.get("feed/card.html")?;
@@ -127,7 +127,7 @@ let doc = Page::new("/")
     .param("articles", feed_html)
     .run(&amp;engine)?;
 </view-code>
-<h3>In Python (FastAPI)</h3>
+<h3 id="in-python-fastapi">In Python (FastAPI)</h3>
 <view-code language="python">articles = await db.get_recent_articles()
 
 card = engine.get_template("feed/card.html")
@@ -136,7 +136,7 @@ feed_html = "\n".join(card.bind(article) for article in articles)
 doc = Page("/", {"count": len(articles), "articles": feed_html}).run(engine)
 return HTMLResponse(doc.html)
 </view-code>
-<h2>Live Stream Dispatch</h2>
+<h2 id="live-stream-dispatch">Live Stream Dispatch</h2>
 <p>When a new article is created, render its partial immediately and broadcast a signed STUI envelope to all connected stream clients:</p>
 <view-code language="rust">// Render the card as a signed envelope targeting the "feed" slot
 let mut params = HashMap::new();

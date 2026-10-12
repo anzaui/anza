@@ -1,10 +1,10 @@
-<h1>API Reference</h1>
+<h1 id="api-reference">API Reference</h1>
 <p>Complete reference for the storage facade and internal classes.</p>
 <p><strong>vs <code>state.storage</code>:</strong> this package is the tiered KV / OPFS / Cache facade. <code>state.storage</code> (<code>PlatformStorage</code>) persists reactive-store snapshots and supports a filter-function <code>query</code>. Give each a distinct IndexedDB database name (both default to <code>platform-db</code>) — see <a href="/docs/storage/troubleshooting">Troubleshooting</a>.</p>
-<h2>Facade</h2>
+<h2 id="facade">Facade</h2>
 <view-code language="javascript">import { storage } from '@anzaui/anza/storage';
 </view-code>
-<h3><code>storage.configure(options)</code></h3>
+<h3 id="storageconfigureoptions"><code>storage.configure(options)</code></h3>
 <p>Reconfigure pools before first use. Returns <code>storage</code> for chaining.</p>
 <view-code language="javascript">storage.configure({
   idb: { name: 'my-app', version: 2, migrations: [] },
@@ -19,23 +19,23 @@
 <tr><td><code>lru.maxSize</code></td><td><code>200</code></td><td>In-memory LRU capacity</td></tr>
 <tr><td><code>cache.name</code></td><td><code>'platform-cache'</code></td><td>Cache API bucket name</td></tr>
 </tbody></table></div>
-<h3><code>storage.get(key, tierOrOptions)</code></h3>
+<h3 id="storagegetkey-tieroroptions"><code>storage.get(key, tierOrOptions)</code></h3>
 <p>Read from a tier. Second arg: <code>'memory' \| 'idb' \| 'opfs' \| 'cache'</code> or <code>{ tier }</code>.</p>
 <view-code language="javascript">await storage.get('name');           // default idb (+ LRU fronting)
 await storage.get('name', 'memory');
 await storage.get('name', { tier: 'idb' });
 </view-code>
 <p>IDB reads populate the memory LRU. OPFS / cache honor TTL wrappers; expired keys delete and return <code>null</code>. Cache tier parses JSON when possible, else text.</p>
-<h3><code>storage.set(key, value, tierOrOptions)</code></h3>
+<h3 id="storagesetkey-value-tieroroptions"><code>storage.set(key, value, tierOrOptions)</code></h3>
 <p>Write to a tier. Options: <code>{ tier, ttl }</code> (TTL in ms, honored across tiers).</p>
 <view-code language="javascript">await storage.set('name', 'Alice');
 await storage.set('name', 'Alice', 'memory');
 await storage.set('name', 'Alice', { tier: 'idb', ttl: 60000 });
 </view-code>
 <p>IDB path: localStorage write journal (crash recovery), optional gzip when serialized size exceeds <code>storage.compressionThreshold</code> (64KB) and Compression Streams are available, then IDB + LRU. A quota check (<code>quota.check()</code>, which notifies <code>onQuotaWarning</code> listeners above 80%) runs before persistent writes, at most once a minute; the <code>memory</code> tier skips it.</p>
-<h3><code>storage.delete(key, tierOrOptions)</code></h3>
+<h3 id="storagedeletekey-tieroroptions"><code>storage.delete(key, tierOrOptions)</code></h3>
 <p>Remove from the requested tier. Always clears the memory LRU entry for that key.</p>
-<h3><code>storage.query(storeName, queryOpts)</code></h3>
+<h3 id="storagequerystorename-queryopts"><code>storage.query(storeName, queryOpts)</code></h3>
 <p>Advanced IndexedDB <strong>cursor</strong> query (not a filter callback — that is <code>state.storage.query</code>).</p>
 <view-code language="javascript">const rows = await storage.query('keyval', {
   index: 'by-status',   // optional
@@ -44,45 +44,45 @@ await storage.set('name', 'Alice', { tier: 'idb', ttl: 60000 });
   limit: 50
 });
 </view-code>
-<h3><code>storage.transaction(storeNames, mode, callback)</code></h3>
+<h3 id="storagetransactionstorenames-mode-callback"><code>storage.transaction(storeNames, mode, callback)</code></h3>
 <p>Multi-store IDB transaction.</p>
 <view-code language="javascript">await storage.transaction(['keyval'], 'readwrite', (store, tx) =&gt; {
   store('keyval').put({ id: 1 }, 'one');
 });
 </view-code>
-<h3><code>storage.list(tier)</code></h3>
+<h3 id="storagelisttier"><code>storage.list(tier)</code></h3>
 <p>List keys. Default <code>idb</code> → <code>keyval</code> keys. <code>opfs</code> → OPFS paths. <code>cache</code> → request URLs.</p>
-<h3><code>storage.clear(tier)</code></h3>
+<h3 id="storagecleartier"><code>storage.clear(tier)</code></h3>
 <p><code>tier</code>: <code>'all'</code> (default) | <code>'memory'</code> (via LRU clear on all clears) | <code>'idb'</code> | <code>'opfs'</code> | <code>'cache'</code>. Clearing always empties the LRU; then clears the named durable tier(s).</p>
-<h3><code>storage.estimate()</code> / <code>persist()</code> / <code>persisted()</code></h3>
+<h3 id="storageestimate--persist--persisted"><code>storage.estimate()</code> / <code>persist()</code> / <code>persisted()</code></h3>
 <view-code language="javascript">const { usage, quota, persisted } = await storage.estimate();
 await storage.persist();
 const ok = await storage.persisted();
 </view-code>
-<h3><code>storage.onQuotaWarning(handler)</code></h3>
+<h3 id="storageonquotawarninghandler"><code>storage.onQuotaWarning(handler)</code></h3>
 <p>Registers a quota warning listener; returns a disposer. Also see <a href="/docs/storage/quota">Quota</a>.</p>
-<h3><code>storage.compressionThreshold</code></h3>
+<h3 id="storagecompressionthreshold"><code>storage.compressionThreshold</code></h3>
 <p>Number (default <code>65536</code>). Values whose serialized length exceeds this may be gzip-compressed on IDB write when Compression Streams are available.</p>
-<h2>Database</h2>
+<h2 id="database">Database</h2>
 <view-code language="javascript">import { Database } from '@anzaui/anza/storage';
 </view-code>
-<h3><code>new Database(name, version, migrations)</code></h3>
-<h3><code>db.open()</code></h3>
+<h3 id="new-databasename-version-migrations"><code>new Database(name, version, migrations)</code></h3>
+<h3 id="dbopen"><code>db.open()</code></h3>
 <p>Returns <code>Promise&lt;IDBDatabase&gt;</code>.</p>
-<h3><code>db.get(storeName, key)</code> / <code>db.set</code> / <code>db.delete</code> / <code>db.clear</code> / <code>db.getAll</code> / <code>db.keys</code></h3>
-<h3><code>db.query(storeName, options)</code></h3>
+<h3 id="dbgetstorename-key--dbset--dbdelete--dbclear--dbgetall--dbkeys"><code>db.get(storeName, key)</code> / <code>db.set</code> / <code>db.delete</code> / <code>db.clear</code> / <code>db.getAll</code> / <code>db.keys</code></h3>
+<h3 id="dbquerystorename-options"><code>db.query(storeName, options)</code></h3>
 <p>Options: <code>{ index, range, direction, limit }</code>.</p>
-<h3><code>db.transaction(storeNames, mode, callback)</code></h3>
+<h3 id="dbtransactionstorenames-mode-callback"><code>db.transaction(storeNames, mode, callback)</code></h3>
 <p>Multi-store transactional callback.</p>
-<h2>Cache tier</h2>
+<h2 id="cache-tier">Cache tier</h2>
 <p>The Cache API adapter is internal (it is not exported, because its class name
 shadows the global <code>CacheStorage</code>). Use the <code>'cache'</code> tier of <code>storage</code>, and
 <code>storage.configure({ cache: { name } })</code> to pick the pool name.</p>
 <p>TTL is stored via an <code>x-expires-at</code> header on cached responses.</p>
-<h2>LRUCache / WeakLRUCache</h2>
-<h3><code>new LRUCache(maxSize)</code> — <code>get</code> / <code>set(key, value, ttlMs)</code> / <code>delete</code> / <code>clear</code></h3>
-<h3><code>new WeakLRUCache(maxSize)</code> — values must be objects or functions</h3>
-<h2>QuotaManager</h2>
+<h2 id="lrucache--weaklrucache">LRUCache / WeakLRUCache</h2>
+<h3 id="new-lrucachemaxsize--get--setkey-value-ttlms--delete--clear"><code>new LRUCache(maxSize)</code> — <code>get</code> / <code>set(key, value, ttlMs)</code> / <code>delete</code> / <code>clear</code></h3>
+<h3 id="new-weaklrucachemaxsize--values-must-be-objects-or-functions"><code>new WeakLRUCache(maxSize)</code> — values must be objects or functions</h3>
+<h2 id="quotamanager">QuotaManager</h2>
 <view-code language="javascript">import { quota } from '@anzaui/anza/storage';
 </view-code>
-<h3><code>quota.estimate()</code> / <code>quota.persist()</code> / <code>quota.check(onWarning)</code> / <code>quota.onQuotaWarning(handler)</code></h3>
+<h3 id="quotaestimate--quotapersist--quotacheckonwarning--quotaonquotawarninghandler"><code>quota.estimate()</code> / <code>quota.persist()</code> / <code>quota.check(onWarning)</code> / <code>quota.onQuotaWarning(handler)</code></h3>

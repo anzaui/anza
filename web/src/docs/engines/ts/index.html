@@ -1,10 +1,10 @@
-<h1>TypeScript Engine</h1>
+<h1 id="typescript-engine">TypeScript Engine</h1>
 <p>The Anza TypeScript Engine (<code>@anzaui/engine</code>) renders full HTML pages and
 signed JSON fragment envelopes from <code>.html</code> templates. It has no npm
 dependencies; it uses Node's <code>node:fs</code> and <code>node:crypto</code> modules, so it runs on
 Node.js 18+ and on runtimes with Node compatibility (Bun, Deno). Responses use
 the standard <code>Response</code> class.</p>
-<h2>What You Get</h2>
+<h2 id="what-you-get">What You Get</h2>
 <ul>
 <li><strong>Parse once</strong> — <code>new Setup(...).run()</code> loads every template under the root and compiles it into a render function</li>
 <li><strong>Framework adapters</strong> — <code>htmlResponse</code> / <code>jsonResponse</code> / <code>sseEvent</code> for Fetch-style handlers, plus helpers for Hono, Express and Fastify under <code>adapters</code></li>
@@ -12,12 +12,12 @@ the standard <code>Response</code> class.</p>
 <li><strong>Live SSE streaming</strong> — <code>sseEvent()</code> / <code>formatEvent()</code> turn an envelope into a <code>template</code> event</li>
 <li><strong>Live reload</strong> — <code>watch: true</code> reloads templates when files change</li>
 </ul>
-<h2>Installation</h2>
+<h2 id="installation">Installation</h2>
 <view-code language="bash">npm install @anzaui/engine
 # or: pnpm add @anzaui/engine
 # or: bun add @anzaui/engine
 </view-code>
-<h2>Quickstart (Web Standards / Fetch API)</h2>
+<h2 id="quickstart-web-standards--fetch-api">Quickstart (Web Standards / Fetch API)</h2>
 <view-code language="typescript">import { Setup, Page, Fragment, htmlResponse, jsonResponse } from '@anzaui/engine';
 
 // 1. Initialize engine once at application startup
@@ -50,8 +50,8 @@ export default {
   },
 };
 </view-code>
-<h2>Framework Integration</h2>
-<h3>Hono</h3>
+<h2 id="framework-integration">Framework Integration</h2>
+<h3 id="hono">Hono</h3>
 <view-code language="typescript">import { Hono } from 'hono';
 import { Setup, htmlResponse, jsonResponse } from '@anzaui/engine';
 
@@ -70,7 +70,7 @@ app.get('/card/:id', async (c) =&gt; {
 
 export default app;
 </view-code>
-<h3>Express.js</h3>
+<h3 id="expressjs">Express.js</h3>
 <view-code language="typescript">import express from 'express';
 import { Setup, Page, Fragment } from '@anzaui/engine';
 
@@ -90,7 +90,7 @@ app.get('/card', async (req, res) =&gt; {
 
 app.listen(3000);
 </view-code>
-<h3>Fastify</h3>
+<h3 id="fastify">Fastify</h3>
 <view-code language="typescript">import Fastify from 'fastify';
 import { Setup, Page, Fragment, adapters } from '@anzaui/engine';
 
@@ -109,17 +109,17 @@ app.get('/card', async (req, reply) =&gt; {
 
 await app.listen({ port: 3000 });
 </view-code>
-<h2>Parameters</h2>
+<h2 id="parameters">Parameters</h2>
 <p>Params can be a plain object, a <code>Map</code>, or an array of <code>[key, value]</code> pairs.
 Values are inserted <strong>as is, without HTML escaping</strong>: escape user input before
 passing it in.</p>
-<h2>Signing</h2>
+<h2 id="signing">Signing</h2>
 <view-code language="typescript">await new Setup({ root: './templates', signing: { mode: 'hmac', secret: process.env.STUI_SECRET! } }).run();
 await new Setup({ root: './templates', signing: { mode: 'ed25519', privateKey: seed32Bytes } }).run();
 </view-code>
 <p><code>privateKey</code> is a raw 32-byte seed, a PEM/DER key, or a <code>KeyObject</code>. When the
 key is missing, envelopes are sent without <code>sig</code>. See <a href="/docs/engines/crypto">Cryptographic Verification</a>.</p>
-<h2>Page Rendering</h2>
+<h2 id="page-rendering">Page Rendering</h2>
 <p><code>Page(route)</code> maps the route to a template: <code>/</code> → <code>pages/home.html</code>, <code>/about</code> →
 <code>pages/about.html</code>, then falls back to <code>about.html</code> and <code>pages/index.html</code>. The
 page is bound with the params and inserted into <code>layout/shell.html</code> as

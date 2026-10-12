@@ -1,4 +1,4 @@
-<h1>Elements</h1>
+<h1 id="elements">Elements</h1>
 <p>Shipped custom element kit under <code>library/src/elements/</code>. These are ready-made <code>ui-*</code> components — distinct from the <a href="/docs/ui/elements"><code>element()</code> factory docs</a>.</p>
 <p>Import one element (registers the custom element as a side effect) or the full barrel:</p>
 <view-code language="javascript">import '@anzaui/anza/elements/button';
@@ -6,7 +6,7 @@
 import '@anzaui/anza/elements';
 </view-code>
 <p>Paths resolve via the package import map (<code>library/importmap.json</code>): <code>@anzaui/anza/elements/&lt;name&gt;</code> → <code>/elements/&lt;category&gt;/&lt;name&gt;/index.js</code>.</p>
-<h2>Categories</h2>
+<h2 id="categories">Categories</h2>
 <div class="table-wrap"><table><thead><tr><th>Category</th><th>Overview</th></tr></thead><tbody>
 <tr><td><a href="/docs/elements/primitives">Primitives</a></td><td>Buttons, icons, text, badges, …</td></tr>
 <tr><td><a href="/docs/elements/forms">Forms</a></td><td>Input, select, checkbox, field, …</td></tr>
@@ -16,8 +16,8 @@ import '@anzaui/anza/elements';
 <tr><td><a href="/docs/elements/navigation">Navigation</a></td><td>Tabs, nav, breadcrumb, pagination, steps</td></tr>
 <tr><td><a href="/docs/elements/layout">Layout</a></td><td>App, header, sidebar, stack, grid, …</td></tr>
 </tbody></table></div>
-<h2>Full reference</h2>
-<h3>Phase 1</h3>
+<h2 id="full-reference">Full reference</h2>
+<h3 id="phase-1">Phase 1</h3>
 <div class="table-wrap"><table><thead><tr><th>Element</th><th>Route</th></tr></thead><tbody>
 <tr><td><a href="/docs/elements/button">Button</a></td><td><code>/docs/elements/button</code></td></tr>
 <tr><td><a href="/docs/elements/input">Input</a></td><td><code>/docs/elements/input</code></td></tr>
@@ -25,7 +25,7 @@ import '@anzaui/anza/elements';
 <tr><td><a href="/docs/elements/alert">Alert</a></td><td><code>/docs/elements/alert</code></td></tr>
 <tr><td><a href="/docs/elements/tabs">Tabs</a></td><td><code>/docs/elements/tabs</code></td></tr>
 </tbody></table></div>
-<h3>Phase 2 — Primitives + forms</h3>
+<h3 id="phase-2--primitives--forms">Phase 2 — Primitives + forms</h3>
 <div class="table-wrap"><table><thead><tr><th>Element</th><th>Route</th></tr></thead><tbody>
 <tr><td><a href="/docs/elements/icon">Icon</a></td><td><code>/docs/elements/icon</code></td></tr>
 <tr><td><a href="/docs/elements/badge">Badge</a></td><td><code>/docs/elements/badge</code></td></tr>
@@ -43,14 +43,14 @@ import '@anzaui/anza/elements';
 <tr><td><a href="/docs/elements/upload">Upload</a></td><td><code>/docs/elements/upload</code></td></tr>
 <tr><td><a href="/docs/elements/form">Form</a></td><td><code>/docs/elements/form</code></td></tr>
 </tbody></table></div>
-<h3>Phase 3 — Feedback</h3>
+<h3 id="phase-3--feedback">Phase 3 — Feedback</h3>
 <div class="table-wrap"><table><thead><tr><th>Element</th><th>Route</th></tr></thead><tbody>
 <tr><td><a href="/docs/elements/toast">Toast</a></td><td><code>/docs/elements/toast</code></td></tr>
 <tr><td><a href="/docs/elements/progress">Progress</a></td><td><code>/docs/elements/progress</code></td></tr>
 <tr><td><a href="/docs/elements/skeleton">Skeleton</a></td><td><code>/docs/elements/skeleton</code></td></tr>
 <tr><td><a href="/docs/elements/empty">Empty</a></td><td><code>/docs/elements/empty</code></td></tr>
 </tbody></table></div>
-<h3>Overlay kit (Full)</h3>
+<h3 id="overlay-kit-full">Overlay kit (Full)</h3>
 <div class="table-wrap"><table><thead><tr><th>Element</th><th>Route</th></tr></thead><tbody>
 <tr><td><a href="/docs/elements/popover">Popover</a></td><td><code>/docs/elements/popover</code></td></tr>
 <tr><td><a href="/docs/elements/tooltip">Tooltip</a></td><td><code>/docs/elements/tooltip</code></td></tr>
@@ -59,7 +59,7 @@ import '@anzaui/anza/elements';
 <tr><td><a href="/docs/elements/sheet">Sheet</a></td><td><code>/docs/elements/sheet</code></td></tr>
 </tbody></table></div>
 <p>Architecture: <a href="/docs/elements/overlay">Overlay patterns</a>. Tooltip escape uses <code>escapeOverflow</code> / <code>guard.escape</code>.</p>
-<h3>Phase 4 — Data + navigation + layout</h3>
+<h3 id="phase-4--data--navigation--layout">Phase 4 — Data + navigation + layout</h3>
 <div class="table-wrap"><table><thead><tr><th>Element</th><th>Route</th></tr></thead><tbody>
 <tr><td><a href="/docs/elements/table">Table</a></td><td><code>/docs/elements/table</code></td></tr>
 <tr><td><a href="/docs/elements/list">List</a></td><td><code>/docs/elements/list</code></td></tr>
@@ -79,7 +79,7 @@ import '@anzaui/anza/elements';
 <tr><td><a href="/docs/elements/scroll">Scroll</a></td><td><code>/docs/elements/scroll</code></td></tr>
 <tr><td><a href="/docs/elements/surface">Surface</a></td><td><code>/docs/elements/surface</code></td></tr>
 </tbody></table></div>
-<h2>Inventory</h2>
+<h2 id="inventory">Inventory</h2>
 <div class="table-wrap"><table><thead><tr><th>Category</th><th>Element</th><th>Tag</th><th>Import</th><th>Status</th></tr></thead><tbody>
 <tr><td>primitives</td><td><a href="/docs/elements/button">button</a></td><td><code>ui-button</code></td><td><code>@anzaui/anza/elements/button</code></td><td>Full</td></tr>
 <tr><td>primitives</td><td><a href="/docs/elements/icon">icon</a></td><td><code>ui-icon</code></td><td><code>@anzaui/anza/elements/icon</code></td><td>Full</td></tr>
@@ -128,10 +128,10 @@ import '@anzaui/anza/elements';
 <tr><td>layout</td><td><a href="/docs/elements/scroll">scroll</a></td><td><code>ui-scroll</code></td><td><code>@anzaui/anza/elements/scroll</code></td><td>Full</td></tr>
 <tr><td>layout</td><td><a href="/docs/elements/surface">surface</a></td><td><code>ui-surface</code></td><td><code>@anzaui/anza/elements/surface</code></td><td>Full</td></tr>
 </tbody></table></div>
-<h2>Lifecycle / memory</h2>
+<h2 id="lifecycle--memory">Lifecycle / memory</h2>
 <p>Kit elements bind listeners and observers with the component <code>AbortController</code> (<code>ctrl.signal</code>). Soft-nav swaps only the page leaf — disconnect aborts that leaf’s <code>ctrl</code> and tears down its <code>on</code> / <code>watch</code> / signal-owned work. Prefer shadow-scoped helpers (<code>on</code> with <code>attrs</code> / <code>not</code> / <code>key</code> / <code>scope: 'assigned'</code>, <code>watch.slot</code> for light-DOM boundaries); do not attach raw <code>document</code> / <code>body</code> listeners from a leaf without a signal. Overlay kit uses native top-layer APIs in-tree; <strong>toast</strong> is the deliberate <code>document.body</code> portal exception. Popover polyfill attachments use framework <code>globals</code>. See <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
 <p>See <a href="/docs/ui/context">Context — on / watch</a>, <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a>, and <a href="/docs/events/troubleshooting">Orphan listeners after soft-nav</a>.</p>
-<h2>Related</h2>
+<h2 id="related">Related</h2>
 <ul>
 <li><a href="/docs/ui/elements">UI <code>element()</code> factory</a></li>
 <li><a href="/docs/ui/forms">Form association</a></li>

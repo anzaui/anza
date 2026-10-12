@@ -1,9 +1,9 @@
-<h1>Page HTML contract (Mode A SSG · Mode B templates)</h1>
+<h1 id="page-html-contract-mode-a-ssg--mode-b-templates">Page HTML contract (Mode A SSG · Mode B templates)</h1>
 <p>Normative shape for every public, indexable HTML response. <strong>Mode A</strong> (<code>anza build</code> SSG) and <strong>Mode B</strong> (any-language request-time templates) must emit this same contract so client hydration has one adoption path.</p>
 <p>Sibling: the <strong>folder</strong> contract (required / recommended / optional project slots, optional <code>anza.json</code>) lives in <a href="/docs/intro/structure">Structure</a>.</p>
 <p>Overview of Phases 0–6: <a href="/docs/ssg/index">SSG &amp; SEO</a>. Client adopt details: <a href="/docs/ui/hydration">Hydration (DSD adopt)</a>.</p>
 <p>Golden samples: <a href="../../tools/fixtures/ssg/">tools/fixtures/ssg/</a>.</p>
-<h2>Site-root asset URLs</h2>
+<h2 id="site-root-asset-urls">Site-root asset URLs</h2>
 <p>Production treats <code>dist/</code> as the <strong>document root</strong>. Public asset URLs never include a <code>/dist</code> prefix.</p>
 <div class="table-wrap"><table><thead><tr><th>Correct</th><th>Incorrect</th></tr></thead><tbody>
 <tr><td><code>/app.js</code></td><td><code>/dist/app.js</code></td></tr>
@@ -13,7 +13,7 @@
 <tr><td><code>/docs/intro/start/index.js</code></td><td><code>/dist/docs/...</code></td></tr>
 </tbody></table></div>
 <p>Import map <code>imports</code> values follow the same rule (site-root paths only).</p>
-<h2>Required <code>&lt;head&gt;</code></h2>
+<h2 id="required-head">Required <code>&lt;head&gt;</code></h2>
 <p>Emit in this order (charset/viewport first; import map before any <code>type="module"</code> entry):</p>
 <ol>
 <li><strong>Charset + viewport</strong> — <code>&lt;meta charset="utf-8"&gt;</code>, viewport meta.</li>
@@ -33,8 +33,8 @@
 <li><strong>Route-scoped <code>modulepreload</code></strong> — the route's full static import closure: <code>/app.js</code>, the via-dock modules, layouts and the leaf page module, then everything they import statically, breadth-first and each module once. Dynamic <code>import()</code> targets are not preloaded. The browser fetches every module in parallel instead of one import level at a time. <code>dist/_headers</code> repeats the first of these (plus the two stylesheets) as <code>Link</code> headers so hosts that support 103 Early Hints can start them before the HTML arrives.</li>
 <li><strong>Deferred entry</strong> — <code>&lt;script type="module" src="/app.js"&gt;&lt;/script&gt;</code> (or the route entry). Not blocking first paint beyond parser work; DSD paints without waiting on the full ESM graph.</li>
 </ol>
-<h2>Required <code>&lt;body&gt;</code></h2>
-<h3>Via-chain nesting</h3>
+<h2 id="required-body">Required <code>&lt;body&gt;</code></h2>
+<h3 id="via-chain-nesting">Via-chain nesting</h3>
 <p>Walk the route’s <code>via</code> chain (outer → inner) and nest custom elements so the leaf page sits inside its docks. Example for <code>/docs/intro/start</code> with <code>via: ["main", "docs", "content"]</code> (registry key <code>content</code>, custom element tag <code>dock-doccontent</code>):</p>
 <view-code language="html">&lt;body&gt;
   &lt;dock-main id="main"&gt;
@@ -61,22 +61,22 @@
 <li><strong>Styles in DSD:</strong> a stylesheet that more than one page uses (or that is over 8 KB) is linked from inside the shadow template, <code>&lt;link rel="stylesheet" href="/docks/docs/index.css" /&gt;</code>, and preloaded in <code>&lt;head&gt;</code> with <code>&lt;link rel="preload" as="style"&gt;</code>. The browser downloads and parses it once, shares it between shadow roots and caches it across pages. CSS used by one page only, and CSS with <code>{{param}}</code> placeholders, stays inline in a <code>&lt;style&gt;</code>. Each dock shadow also starts with a tiny inline <code>:host { contain: layout; display: block; }</code>. Chromium does not paint content after an in-body stylesheet link until the sheet has loaded, so there is no flash of unstyled content; the head preload keeps that wait short.</li>
 <li><code>/</code> nests the page leaf under <code>dock-main</code> only (no docs chrome).</li>
 </ul>
-<h3>Open-only Declarative Shadow DOM</h3>
+<h3 id="open-only-declarative-shadow-dom">Open-only Declarative Shadow DOM</h3>
 <p>Public / indexable markup MUST use:</p>
 <view-code language="html">&lt;template shadowrootmode="open"&gt;
 </view-code>
 <p><code>shadowrootmode="closed"</code> is <strong>banned</strong> for public content. Closed shadow prevents adoption-based hydration and weakens observability for tooling and some crawlers.</p>
-<h3>Light-DOM critical text (recommendation)</h3>
+<h3 id="light-dom-critical-text-recommendation">Light-DOM critical text (recommendation)</h3>
 <p>Prefer also exposing the primary heading (and, where practical, a short lead) as <strong>light-DOM</strong> children of the leaf page element (outside the shadow template), e.g. <code>&lt;h1&gt;…&lt;/h1&gt;</code>. That keeps critical words visible in View Source / curl even for agents that mishandle shadow trees. Encapsulated copy inside open DSD remains the visual source of truth after paint.</p>
-<h2>Same HTML for all user agents</h2>
+<h2 id="same-html-for-all-user-agents">Same HTML for all user agents</h2>
 <p>No cloaking. The same URL returns the same contentful HTML for browsers, <code>curl</code>, and crawler UAs. Do <strong>not</strong> branch on <code>User-Agent</code> to serve SSR to bots and an empty SPA shell to humans.</p>
-<h2>Mode A vs Mode B</h2>
+<h2 id="mode-a-vs-mode-b">Mode A vs Mode B</h2>
 <div class="table-wrap"><table><thead><tr><th>Mode</th><th>When</th><th>Who emits</th><th>Must emit</th></tr></thead><tbody>
 <tr><td><strong>A — SSG</strong></td><td><code>anza build</code> and <code>anza dev</code></td><td>Anza SSG emitter</td><td>This contract into <code>dist/&lt;route&gt;/index.html</code></td></tr>
 <tr><td><strong>B — Templates</strong></td><td>Request time</td><td>Jinja / EJS / HBS / Go / …</td><td><strong>This same shape</strong>; static assets still served from <code>dist/</code> as site root</td></tr>
 </tbody></table></div>
 <p>Mode B servers MUST NOT require an Anza Node SSR runtime. Templates + static files are enough. Auth / personalized routes may stay CSR or Mode B with <code>noindex</code> as appropriate — never UA-branch for indexing.</p>
-<h3>Parametric routes (Mode A expansion)</h3>
+<h3 id="parametric-routes-mode-a-expansion">Parametric routes (Mode A expansion)</h3>
 <p>Public paths with <code>:param</code> (or <code>*</code>) are <strong>not</strong> SSG’d by default — <code>routes.json</code> keeps <code>ssg: false</code> so the client can still match them (Mode B or CSR). To emit Mode A HTML for concrete values, declare a build-time expansion:</p>
 <p><strong>In the page module</strong> (<code>page({ ssg: { expand: […] } })</code>):</p>
 <view-code language="javascript">page('/docs/ssg/expand/:slug', {
@@ -107,7 +107,7 @@
 <tr><td>Personalized / auth params</td><td>Prefer Mode B or CSR — do not force-guess expansions</td></tr>
 </tbody></table></div>
 <p>Live fixture: <a href="/docs/ssg/expand/foo"><code>/docs/ssg/expand/foo</code></a> (pattern <code>/docs/ssg/expand/:slug</code>).</p>
-<h3>Site origin, sitemap, robots, JSON-LD</h3>
+<h3 id="site-origin-sitemap-robots-json-ld">Site origin, sitemap, robots, JSON-LD</h3>
 <p>Optional project file <code>ssg.json</code> next to <code>src/</code> (or inside <code>src/</code>):</p>
 <view-code language="json">{
   "origin": "https://example.com",
@@ -123,9 +123,9 @@
 <tr><td><code>jsonLd</code></td><td>Emit light-DOM <code>&lt;script type="application/ld+json"&gt;</code> with <code>WebSite</code> + <code>WebPage</code> (default <code>true</code>) — does not touch DSD</td></tr>
 <tr><td><code>sitemap</code> / <code>robots</code></td><td>Write <code>dist/sitemap.xml</code> and <code>dist/robots.txt</code> for Mode A SSG routes (default <code>true</code>)</td></tr>
 </tbody></table></div>
-<h3>Soft-nav fragments vs SSG documents</h3>
+<h3 id="soft-nav-fragments-vs-ssg-documents">Soft-nav fragments vs SSG documents</h3>
 <p>Hard refresh / full load serves the SSG (or Mode B) document above. Soft-nav must <strong>not</strong> fetch that full document as a page template — it would nest docks inside the leaf shadow (stacked chrome). When the page fragment path collides with <code>dist/&lt;route&gt;/index.html</code>, Mode A preserves the CSR fragment as <code>template.html</code> and rewrites the dist page module + <code>routes.json</code> to point at it. The client also refuses full HTML documents as page templates (<code>sanitizeTemplateHtml</code>).</p>
-<h2>Minimal checklist (CI / review)</h2>
+<h2 id="minimal-checklist-ci--review">Minimal checklist (CI / review)</h2>
 <ul>
 <li><input disabled="" type="checkbox"/>
 <code>&lt;title&gt;</code> and meta description present and route-unique</li>

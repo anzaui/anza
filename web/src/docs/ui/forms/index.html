@@ -1,6 +1,6 @@
-<h1>Forms</h1>
+<h1 id="forms">Forms</h1>
 <p>Declarative elements can participate in HTML forms by declaring <code>form: true</code>. The element gains <code>ElementInternals</code>, form-associated callbacks, and the ability to expose custom state pseudo-classes.</p>
-<h2>Enabling Form Participation</h2>
+<h2 id="enabling-form-participation">Enabling Form Participation</h2>
 <view-code language="javascript">view('toggle-switch', {
   form: true,
   props: {
@@ -28,7 +28,7 @@
   &lt;button type="submit"&gt;Save&lt;/button&gt;
 &lt;/form&gt;
 </view-code>
-<h2>Form-Associated Callbacks</h2>
+<h2 id="form-associated-callbacks">Form-Associated Callbacks</h2>
 <p>When <code>form: true</code> is set, the element receives these callbacks:</p>
 <div class="table-wrap"><table><thead><tr><th>Callback</th><th>Trigger</th></tr></thead><tbody>
 <tr><td><code>associated</code></td><td>Element is associated with a form</td></tr>
@@ -44,7 +44,7 @@
   restore: (state, mode) =&gt; { this.value = state; }
 });
 </view-code>
-<h2>Custom State</h2>
+<h2 id="custom-state">Custom State</h2>
 <p>Expose props as CSS custom state pseudo-classes:</p>
 <view-code language="javascript">props: {
   checked: { type: Boolean, state: true },
@@ -56,7 +56,7 @@
 toggle-switch:state(invalid) { border-color: red; }
 </view-code>
 <p>Requires Chrome 132+ / Baseline 2026.</p>
-<h2>Validation</h2>
+<h2 id="validation">Validation</h2>
 <p>Use <code>ElementInternals</code> for custom validation:</p>
 <view-code language="javascript">view('email-field', {
   form: true,
@@ -79,7 +79,7 @@ toggle-switch:state(invalid) { border-color: red; }
   }
 });
 </view-code>
-<h2>Form Reset and Restore</h2>
+<h2 id="form-reset-and-restore">Form Reset and Restore</h2>
 <view-code language="javascript">view('rating-input', {
   form: true,
   props: {
@@ -90,7 +90,7 @@ toggle-switch:state(invalid) { border-color: red; }
 });
 </view-code>
 <p>The <code>restore</code> callback receives the saved state string when the browser restores form data (e.g., after back/forward).</p>
-<h2>Related</h2>
+<h2 id="related">Related</h2>
 <ul>
 <li>Kit form controls: <a href="/docs/elements/forms">Elements → Forms</a> (<code>ui-input</code>, <code>ui-select</code>, <code>ui-checkbox</code>, …)</li>
 <li><a href="/docs/ui/elements">UI <code>element()</code> factory</a></li>

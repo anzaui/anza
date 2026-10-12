@@ -1,1 +1,1 @@
-{"version":1,"refs":[],"ids":[],"classes":[],"tags":["code","h1","h2","li","p","ul","view-code"],"compound":[],"attrs":["language"],"refTypes":{}}
+{"version":1,"refs":[],"ids":["cache","cache-read-and-write","graceful-degradation","prefetch","ttl-convention","when-to-prefetch"],"classes":[],"tags":["code","h1","h2","li","p","ul","view-code"],"compound":[],"attrs":["id","language"],"refTypes":{}}

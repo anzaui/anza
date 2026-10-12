@@ -1,6 +1,6 @@
-<h1>Delegate</h1>
+<h1 id="delegate">Delegate</h1>
 <p>Event delegation registers one listener on an ancestor element to handle events from matching descendants. It traverses <code>composedPath()</code> so it works through shadow DOM boundaries. Component <code>on</code> uses the same matcher inside the shadow root (<a href="/docs/ui/context#on">context</a>).</p>
-<h2>Signature</h2>
+<h2 id="signature">Signature</h2>
 <view-code language="javascript">delegate(root, selector, type, handler, options);
 </view-code>
 <div class="table-wrap"><table><thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead><tbody>
@@ -11,7 +11,7 @@
 <tr><td><code>options</code></td><td>object</td><td><code>addEventListener</code> options plus <code>signal</code>, <code>attrs</code>, <code>not</code>, <code>key</code>, <code>scope</code></td></tr>
 </tbody></table></div>
 <p>Returns a disposer function.</p>
-<h2>Simple</h2>
+<h2 id="simple">Simple</h2>
 <view-code language="javascript">import { events } from '@anzaui/anza/events';
 
 const dispose = events.delegate(
@@ -26,7 +26,7 @@ const dispose = events.delegate(
 dispose();
 </view-code>
 <p>One listener on <code>document.body</code> handles all <code>.btn</code> clicks, including buttons added dynamically after registration.</p>
-<h3>Shadow DOM traversal</h3>
+<h3 id="shadow-dom-traversal">Shadow DOM traversal</h3>
 <view-code language="javascript">events.delegate(
   document.body,
   'my-component .action',
@@ -37,8 +37,8 @@ dispose();
 );
 </view-code>
 <p>The path stops at the <code>root</code> element. Selectors outside the root are not evaluated. Default scope for <code>events.delegate</code> is <code>'path'</code> (any node in <code>composedPath()</code> before <code>root</code>).</p>
-<h2>Advanced</h2>
-<h3>Precision options</h3>
+<h2 id="advanced">Advanced</h2>
+<h3 id="precision-options">Precision options</h3>
 <view-code language="javascript">events.delegate(root, '.btn', 'click', handler, {
   capture: true,
   signal: controller.signal,
@@ -58,7 +58,7 @@ dispose();
 <tr><td><code>scope</code></td><td><code>'path'</code></td><td><code>'path'</code> = any path node before root; <code>'assigned'</code> = also require assigned-slot relationship when used with containment-style matching</td></tr>
 </tbody></table></div>
 <p>Component <code>on</code> defaults <code>scope</code> to <code>'shadow'</code> (must be inside the shadow tree). Pass <code>scope: 'assigned'</code> on <code>on</code> when you need slotted light-DOM clicks. Prefer <code>events.delegate(document, …)</code> when the root must be the document — do not widen component <code>on</code> to <code>document</code>.</p>
-<h3>AbortSignal cleanup</h3>
+<h3 id="abortsignal-cleanup">AbortSignal cleanup</h3>
 <view-code language="javascript">const ctrl = new AbortController();
 
 events.delegate(document.body, '.btn', 'click', handler, {
@@ -67,7 +67,7 @@ events.delegate(document.body, '.btn', 'click', handler, {
 
 ctrl.abort(); // removes the delegated listener
 </view-code>
-<h3>Handler binding</h3>
+<h3 id="handler-binding">Handler binding</h3>
 <view-code language="javascript">events.delegate(container, '.item', 'click', function (event) {
   console.log(this.textContent); // matched .item
 });
@@ -76,7 +76,7 @@ events.delegate(container, '.item', 'click', (event, target) =&gt; {
   console.log(target.textContent);
 });
 </view-code>
-<h3>Selector matching cache</h3>
+<h3 id="selector-matching-cache">Selector matching cache</h3>
 <p><code>element.matches()</code> results are cached in a two-level <code>WeakMap</code> shared with component <code>on</code>, so repeated events on the same node + selector avoid redundant selector work.</p>
-<h2>Soft-nav</h2>
+<h2 id="soft-nav">Soft-nav</h2>
 <p>Always pass <code>{ signal: ctrl.signal }</code> (or call the disposer from <code>unmount</code>) when registering from a page leaf. Soft-nav aborts only the detached leaf — see <a href="/docs/events/troubleshooting#orphan-listeners-after-soft-nav">Orphan listeners after soft-nav</a>.</p>

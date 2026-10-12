@@ -2,7 +2,9 @@
 
 use std::path::{Component, Path, PathBuf};
 
-use pulldown_cmark::{html, Options, Parser};
+use std::collections::HashMap;
+
+use pulldown_cmark::{html, CowStr, Event, Options, Parser, Tag};
 
 pub fn md_to_html_body(
   md: &str,
@@ -16,7 +18,14 @@ pub fn md_to_html_body(
   options.insert(Options::ENABLE_TASKLISTS);
   options.insert(Options::ENABLE_FOOTNOTES);
 
-  let parser = Parser::new_ext(md, options);
+  let mut ids = HeadingIds::default();
+  let parser = Parser::new_ext(md, options).into_offset_iter().map(|(event, range)| match event {
+    Event::Start(Tag::Heading { level, id: None, classes, attrs }) => {
+      let id = ids.next(heading_source_text(&md[range])).map(CowStr::from);
+      Event::Start(Tag::Heading { level, id, classes, attrs })
+    }
+    other => other,
+  });
   let mut html_out = String::new();
   html::push_html(&mut html_out, parser);
 
@@ -24,6 +33,65 @@ pub fn md_to_html_body(
   let html_out = pre_to_view_code(&html_out);
   let html_out = wrap_tables(&html_out);
   Ok(html_out)
+}
+
+/// GitHub-style heading slug, exactly as `slug()` in
+/// tasks/doc-links-check.js computes it from the Markdown heading text:
+/// drop `` ` ``, `*`, `_`, trim, lowercase, keep only ASCII word characters,
+/// whitespace and `-`, then turn each whitespace character into `-`.
+pub fn heading_slug(text: &str) -> String {
+  let stripped: String = text.chars().filter(|c| !matches!(c, '`' | '*' | '_')).collect();
+  stripped
+    .trim()
+    .to_lowercase()
+    .chars()
+    .filter(|c| c.is_ascii_alphanumeric() || *c == '_' || *c == '-' || c.is_whitespace())
+    .map(|c| if c.is_whitespace() { '-' } else { c })
+    .collect()
+}
+
+/// Markdown source of a heading → its text: ATX `#` markers or the setext
+/// underline removed.
+fn heading_source_text(raw: &str) -> &str {
+  let raw = raw.trim_end_matches(['\n', '\r']);
+  let trimmed = raw.trim_start();
+  if trimmed.starts_with('#') {
+    trimmed.trim_start_matches('#').trim()
+  } else {
+    // Setext: text lines, then a `===` / `---` underline.
+    raw.rsplit_once('\n').map_or(raw, |(text, _)| text).trim()
+  }
+}
+
+/// Unique heading ids for one page: repeats get `-1`, `-2`, … (GitHub).
+#[derive(Default)]
+struct HeadingIds {
+  seen: HashMap<String, usize>,
+}
+
+impl HeadingIds {
+  fn next(&mut self, text: &str) -> Option<String> {
+    let base = heading_slug(text);
+    if base.is_empty() {
+      return None;
+    }
+    // Same scheme as github-slugger: `seen[base]` counts repeats, and every
+    // emitted id is reserved so `Setup-1` after two `Setup`s is `setup-1-1`.
+    let mut id = base.clone();
+    if let Some(&count) = self.seen.get(&base) {
+      let mut n = count;
+      loop {
+        n += 1;
+        id = format!("{base}-{n}");
+        if !self.seen.contains_key(&id) {
+          break;
+        }
+      }
+      self.seen.insert(base, n);
+    }
+    self.seen.insert(id.clone(), 0);
+    Some(id)
+  }
 }
 
 pub fn route_from_md(md_path: &Path, docs_root: &Path, base: &str) -> Result<String, String> {
@@ -260,4 +328,39 @@ fn wrap_tables(html: &str) -> String {
   }
   out.push_str(rest);
   out
+}
+
+#[cfg(test)]
+mod heading_tests {
+  use super::*;
+
+  #[test]
+  fn slugs_match_doc_links_check() {
+    // Expected values computed with slug() from tasks/doc-links-check.js.
+    let cases = [
+      ("Dev Server", "dev-server"),
+      ("`anza dev` — flags", "anza-dev--flags"),
+      ("Mode A SSG (Declarative Shadow DOM)", "mode-a-ssg-declarative-shadow-dom"),
+      ("**Bold** and _em_ snake_case", "bold-and-em-snakecase"),
+      ("What's new in 0.6.0?", "whats-new-in-060"),
+      ("  Spaced   out  ", "spaced---out"),
+      ("ui-button / ui-input", "ui-button--ui-input"),
+      ("Café crème", "caf-crme"),
+    ];
+    for (text, want) in cases {
+      assert_eq!(heading_slug(text), want, "{text}");
+    }
+  }
+
+  #[test]
+  fn headings_get_unique_ids() {
+    let md = "# Title\n\n## Setup\n\ntext\n\n## Setup\n\n### `api()` *call*\n\nSetup\n-----\n\n## Setup-1\n";
+    let html = md_to_html_body(md, Path::new("/d/a.md"), Path::new("/d"), "/docs").unwrap();
+    assert!(html.contains("<h1 id=\"title\">Title</h1>"), "{html}");
+    assert!(html.contains("<h2 id=\"setup\">Setup</h2>"), "{html}");
+    assert!(html.contains("<h2 id=\"setup-1\">Setup</h2>"), "{html}");
+    assert!(html.contains("<h3 id=\"api-call\">"), "{html}");
+    assert!(html.contains("<h2 id=\"setup-2\">Setup</h2>"), "{html}");
+    assert!(html.contains("<h2 id=\"setup-1-1\">Setup-1</h2>"), "{html}");
+  }
 }

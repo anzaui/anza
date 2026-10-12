@@ -1,1 +1,1 @@
-{"version":1,"refs":[],"ids":[],"classes":[],"tags":["code","h1","h2","h3","p","view-code"],"compound":[],"attrs":["language"],"refTypes":{}}
+{"version":1,"refs":[],"ids":["cache-first","cache-invalidation","cache-key","cache-limitations","cache-strategies","caching","clear-everything","delete-by-exact-url","delete-by-glob-pattern","direct-cache-access","network-first","stale-while-revalidate","ttl-caching"],"classes":[],"tags":["code","h1","h2","h3","p","view-code"],"compound":[],"attrs":["id","language"],"refTypes":{}}

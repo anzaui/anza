@@ -1,11 +1,11 @@
-<h1>Drawer</h1>
+<h1 id="drawer">Drawer</h1>
 <p>Side panel overlay backed by native <code>&lt;dialog&gt;</code> + <code>showModal()</code> (top-layer, focus trap).</p>
 <p><strong>Tag:</strong> <code>ui-drawer</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/drawer</code></p>
 <p>Architecture and when-to-use: <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
-<h2>Import</h2>
+<h2 id="import">Import</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/drawer';
 </view-code>
-<h2>Basic usage</h2>
+<h2 id="basic-usage">Basic usage</h2>
 <view-code language="html">&lt;ui-drawer id="nav-drawer" placement="left"&gt;
   &lt;h2&gt;Navigate&lt;/h2&gt;
   &lt;!-- side panel content --&gt;
@@ -16,25 +16,25 @@
   // hide() or open = false closes after the exit transition
 &lt;/script&gt;
 </view-code>
-<h2>Props</h2>
+<h2 id="props">Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>open</code></td><td>Boolean</td><td>Reflect</td><td>Mirrors open state; synced to <code>dialog.showModal()</code> / <code>close()</code></td></tr>
 <tr><td><code>placement</code></td><td>String</td><td>Reflect</td><td><code>left</code> or <code>right</code> (default <code>right</code>)</td></tr>
 </tbody></table></div>
-<h2>Methods</h2>
+<h2 id="methods">Methods</h2>
 <div class="table-wrap"><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>show()</code></td><td>Sets <code>open</code> → opens modal</td></tr>
 <tr><td><code>hide()</code></td><td>Clears <code>open</code> → closes after transition</td></tr>
 </tbody></table></div>
-<h2>Events</h2>
+<h2 id="events">Events</h2>
 <div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody>
 <tr><td><code>close</code></td><td>When the native dialog closes</td></tr>
 </tbody></table></div>
-<h2>Notes</h2>
+<h2 id="notes">Notes</h2>
 <p>Default slot is the drawer body. Native surface is <code>part="dialog"</code>. Same modal-dialog family as <a href="/docs/elements/dialog">dialog</a> and <a href="/docs/elements/sheet">sheet</a>.</p>
-<h3>Lifecycle / memory</h3>
+<h3 id="lifecycle--memory">Lifecycle / memory</h3>
 <p>Close handling stays on the dialog instance. Soft-nav aborts the leaf <code>ctrl</code>. See <a href="/docs/elements/overlay">Overlay patterns</a> and <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a>.</p>
-<h2>Related</h2>
+<h2 id="related">Related</h2>
 <ul>
 <li><a href="/docs/elements/overlay">Overlay patterns</a></li>
 <li><a href="/docs/elements/dialog">Dialog</a></li>

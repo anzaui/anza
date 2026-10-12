@@ -1,1 +1,1 @@
-{"version":1,"refs":[],"ids":[],"classes":[],"tags":["code","h1","h2","p","view-code"],"compound":[],"attrs":["language"],"refTypes":{}}
+{"version":1,"refs":[],"ids":["1-global-pubsub","2-per-request-scoped-listeners","3-memory-safe-dom-listener","4-promise-wrapped-single-event","5-event-delegation","6-use-system-event-names","complete-working-example","quick-start"],"classes":[],"tags":["code","h1","h2","p","view-code"],"compound":[],"attrs":["id","language"],"refTypes":{}}

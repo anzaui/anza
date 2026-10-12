@@ -1,32 +1,32 @@
-<h1>Quick Start</h1>
+<h1 id="quick-start">Quick Start</h1>
 <p>Get a working request in five minutes.</p>
-<h2>1. Make a GET Request</h2>
+<h2 id="1-make-a-get-request">1. Make a GET Request</h2>
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
 
 const user = await api.get('/user/profile');
 console.log(user.name);
 </view-code>
 <p>The client auto-parses JSON when the response <code>Content-Type</code> is <code>application/json</code>. Otherwise it returns text.</p>
-<h2>2. Make a POST Request</h2>
+<h2 id="2-make-a-post-request">2. Make a POST Request</h2>
 <view-code language="javascript">const result = await api.post('/posts', {
   title: 'Hello World',
   body: 'My first post'
 });
 </view-code>
 <p>Objects are auto-serialized to JSON. The <code>Content-Type: application/json</code> header is set automatically if not already present.</p>
-<h2>3. Register a Prefix</h2>
+<h2 id="3-register-a-prefix">3. Register a Prefix</h2>
 <p>Prefix routing keeps endpoints clean and isolates environment config:</p>
 <view-code language="javascript">api.prefix.add('default', 'https://api.example.com');
 
 // Now /user/profile resolves to https://api.example.com/user/profile
 const user = await api.get('/user/profile');
 </view-code>
-<h2>4. Cache a Response</h2>
+<h2 id="4-cache-a-response">4. Cache a Response</h2>
 <view-code language="javascript">// Cache for 60 seconds
 const products = await api.get('/products', { expiry: 60000 });
 </view-code>
 <p>On the next call within 60 seconds, the cached response is returned instantly. After expiry, the cache is stale and the network is hit again.</p>
-<h2>5. Listen for Errors</h2>
+<h2 id="5-listen-for-errors">5. Listen for Errors</h2>
 <view-code language="javascript">api.on('failed', (event) =&gt; {
   console.error('Request failed:', event.detail.error);
 });
@@ -39,7 +39,7 @@ api.on('status:401', () =&gt; {
 <view-code language="javascript">const off = api.on('error', handler);
 off(); // stop listening
 </view-code>
-<h2>6. Per-Request Events</h2>
+<h2 id="6-per-request-events">6. Per-Request Events</h2>
 <p>Scope listeners to a single request with the <code>on</code> option:</p>
 <view-code language="javascript">await api.get('/user/profile', {
   on: {
@@ -49,13 +49,13 @@ off(); // stop listening
 });
 </view-code>
 <p>These listeners auto-cleanup when the request completes. No manual disposer needed.</p>
-<h2>7. Stream NDJSON</h2>
+<h2 id="7-stream-ndjson">7. Stream NDJSON</h2>
 <view-code language="javascript">for await (const chunk of api.stream('/logs/stream')) {
   console.log(chunk.timestamp, chunk.message);
 }
 </view-code>
 <p>Each chunk is a parsed JSON object. Backpressure is preserved natively via the Streams API.</p>
-<h2>8. Upload a File</h2>
+<h2 id="8-upload-a-file">8. Upload a File</h2>
 <view-code language="javascript">const form = new FormData();
 form.append('file', fileBlob);
 
@@ -68,7 +68,7 @@ await api.upload('/upload', form, {
   }
 });
 </view-code>
-<h2>9. Abort a Request</h2>
+<h2 id="9-abort-a-request">9. Abort a Request</h2>
 <view-code language="javascript">const controller = new AbortController();
 
 api.get('/slow-endpoint', { signal: controller.signal });
@@ -76,7 +76,7 @@ api.get('/slow-endpoint', { signal: controller.signal });
 // Cancel after 5 seconds
 setTimeout(() =&gt; controller.abort(), 5000);
 </view-code>
-<h2>10. Handle Errors</h2>
+<h2 id="10-handle-errors">10. Handle Errors</h2>
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
 
 try {
@@ -94,7 +94,7 @@ try {
 }
 </view-code>
 <p>Every error is a <code>PlatformError</code> with <code>code</code>, <code>message</code>, <code>context</code>, and <code>recoverable</code>.</p>
-<h2>Complete Working Example</h2>
+<h2 id="complete-working-example">Complete Working Example</h2>
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
 
 // Bootstrap

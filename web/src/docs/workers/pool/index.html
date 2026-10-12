@@ -1,6 +1,6 @@
-<h1>Pool</h1>
+<h1 id="pool">Pool</h1>
 <p>The worker pool lazily creates dedicated workers and schedules tasks by priority. It auto-scales up to a max, reclaims idle workers, and handles crashes with optional requeue.</p>
-<h2>Run</h2>
+<h2 id="run">Run</h2>
 <view-code language="javascript">import { workers } from '@anzaui/anza/workers';
 
 const result = await workers.run('/workers/calc.js', 'fib', {
@@ -8,7 +8,7 @@ const result = await workers.run('/workers/calc.js', 'fib', {
 });
 </view-code>
 <p>One pool per script URL is created automatically and reused across calls.</p>
-<h2>Options</h2>
+<h2 id="options">Options</h2>
 <div class="table-wrap"><table><thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>payload</code></td><td>any</td><td><code>null</code></td><td>Data sent to the worker</td></tr>
 <tr><td><code>transferables</code></td><td>Transferable[]</td><td><code>[]</code></td><td>Objects to transfer</td></tr>
@@ -18,7 +18,7 @@ const result = await workers.run('/workers/calc.js', 'fib', {
 <tr><td><code>idempotent</code></td><td>boolean</td><td><code>false</code></td><td>Requeue on worker crash</td></tr>
 <tr><td><code>meta</code></td><td>object</td><td>—</td><td>Metadata for the worker</td></tr>
 </tbody></table></div>
-<h2>Pool Sizing</h2>
+<h2 id="pool-sizing">Pool Sizing</h2>
 <p>Default pool size is <code>hardwareConcurrency - 1</code> (minimum 2). Configure via pool options:</p>
 <view-code language="javascript">// The pool is created on first run with these options
 workers.run('/workers/calc.js', 'task', {
@@ -32,16 +32,16 @@ workers.run('/workers/calc.js', 'task', {
 <tr><td><code>size</code></td><td>number</td><td><code>cores - 1</code></td><td>Initial workers</td></tr>
 <tr><td><code>idle</code></td><td>number</td><td><code>30000</code></td><td>Idle timeout in ms (0 = never)</td></tr>
 </tbody></table></div>
-<h2>Priority Queue</h2>
+<h2 id="priority-queue">Priority Queue</h2>
 <p>Tasks are sorted by priority. Background tasks get promoted after 20 higher-priority tasks to prevent starvation.</p>
-<h2>Crash Recovery</h2>
+<h2 id="crash-recovery">Crash Recovery</h2>
 <p>If a worker crashes and <code>idempotent: true</code>, the task is requeued once:</p>
 <view-code language="javascript">workers.run('/workers/calc.js', 'risky', {
   payload: data,
   idempotent: true
 });
 </view-code>
-<h2>Lifecycle</h2>
+<h2 id="lifecycle">Lifecycle</h2>
 <view-code language="javascript">// Terminate one pool
 workers.close('/workers/calc.js');
 
@@ -49,7 +49,7 @@ workers.close('/workers/calc.js');
 workers.clear();
 </view-code>
 <p>Pools auto-terminate on <code>pagehide</code>.</p>
-<h2>Pool Stats</h2>
+<h2 id="pool-stats">Pool Stats</h2>
 <view-code language="javascript">import { Pool } from '@anzaui/anza/workers';
 
 const pool = new Pool('/workers/calc.js', { max: 4 });

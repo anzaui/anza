@@ -1,4 +1,4 @@
-<h1>SW</h1>
+<h1 id="sw">SW</h1>
 <p>The Anza Service Worker toolkit handles caching, request interception, background sync, and push notifications. It runs in a separate thread from your app and intercepts <code>fetch</code> events before they hit the network.</p>
 <p>The toolkit is split into two halves:</p>
 <ol>
@@ -6,7 +6,7 @@
 <li><strong>Service Worker thread</strong> (<code>@anzaui/anza/sw</code>) — caching strategies, route interception, lifecycle hooks, and sync replay</li>
 </ol>
 <p>Browsers do not support import maps in Service Worker scope, so the build tool rewrites bare specifiers to relative paths when emitting <code>dist/sw.js</code>.</p>
-<h2>What You Get</h2>
+<h2 id="what-you-get">What You Get</h2>
 <ul>
 <li><strong>Caching strategies</strong> — CacheFirst, NetworkFirst, StaleRevalidate, CacheThenNetwork, NetworkOnly, CacheOnly, and OfflineFallback</li>
 <li><strong>URLPattern routing</strong> — match URLs with parameters and wildcards inside the SW</li>
@@ -16,14 +16,14 @@
 <li><strong>Push notifications</strong> — VAPID subscription and notification display</li>
 <li><strong>Request serialization</strong> — store Request objects in IndexedDB for offline replay</li>
 </ul>
-<h2>Package</h2>
+<h2 id="package">Package</h2>
 <view-code language="javascript">// Service Worker thread
 import { CacheFirst, router, precache } from '@anzaui/anza/sw';
 
 // Main thread
 import { offline } from '@anzaui/anza/offline';
 </view-code>
-<h2>File Map</h2>
+<h2 id="file-map">File Map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
 <tr><td><a href="/docs/sw/start">Start</a></td><td>Writing your first <code>src/sw.js</code> and registering it from <code>app.js</code></td></tr>
 <tr><td><a href="/docs/sw/strategies">Strategies</a></td><td>The seven caching strategies and their behavior</td></tr>
@@ -31,7 +31,7 @@ import { offline } from '@anzaui/anza/offline';
 <tr><td><a href="/docs/sw/sync">Sync</a></td><td>Background sync queue and replay</td></tr>
 <tr><td><a href="/docs/sw/api">API Reference</a></td><td>Complete API reference</td></tr>
 </tbody></table></div>
-<h2>One-File Example</h2>
+<h2 id="one-file-example">One-File Example</h2>
 <view-code language="javascript">// src/sw.js
 import { precache, router, CacheFirst, NetworkFirst } from '@anzaui/anza/sw';
 
@@ -56,7 +56,7 @@ navigator.serviceWorker.register('/sw.js');
 
 dock('main');
 </view-code>
-<h2>Next Steps</h2>
+<h2 id="next-steps">Next Steps</h2>
 <ul>
 <li>New to SW? Start with <a href="/docs/sw/start">Start</a>.</li>
 <li>Want caching details? Read <a href="/docs/sw/strategies">Strategies</a>.</li>

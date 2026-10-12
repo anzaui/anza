@@ -1,1 +1,1 @@
-{"version":1,"refs":[],"ids":[],"classes":[],"tags":["code","h1","h2","p","view-code"],"compound":[],"attrs":["language"],"refTypes":{}}
+{"version":1,"refs":[],"ids":["abortsignal-cleanup","bus","error-handling","event-payload","eventbus-class","global-bus","listener-order","manual-disposal","using-native-eventtarget-methods"],"classes":[],"tags":["code","h1","h2","p","view-code"],"compound":[],"attrs":["id","language"],"refTypes":{}}

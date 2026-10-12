@@ -1,6 +1,6 @@
-<h1>Start</h1>
+<h1 id="start">Start</h1>
 <p>Create a new Anza app and run it.</p>
-<h2>Scaffold</h2>
+<h2 id="scaffold">Scaffold</h2>
 <view-code language="bash">npm create @anzaui/anza myapp
 cd myapp
 npm install
@@ -27,7 +27,7 @@ npm install
 <p>You own <code>src/tokens/</code> and <code>src/styles/</code>. The library copies them in as starter files; change them freely.</p>
 <p>Empty <code>src/docks/</code>, <code>src/views/</code>, and <code>src/parts/</code> folders (with <code>index.js</code> barrels) are teaching affordances — optional at runtime. You may rename the landing folder, add extra page trees (e.g. <code>src/docs/</code>), or skip <code>src/sw.js</code> for static sites. Full required / recommended / optional tables, index-per-folder convention, and optional <code>anza.json</code> remaps: <a href="/docs/intro/structure">Structure</a>.</p>
 <p>Apps need <strong>no</strong> <code>anza.json</code> at create time. Add one only when remapping roots, declaring extra page trees (<code>pages[]</code>), or listing additional service workers.</p>
-<h2>Run</h2>
+<h2 id="run">Run</h2>
 <view-code language="bash">npm run dev
 </view-code>
 <p>Opens a dev server on <code>http://localhost:3000</code> with:</p>
@@ -42,7 +42,7 @@ npm install
 <view-code language="bash">npx anza doctor   # soft: warnings print, exit 0
 npx anza check    # CI: warnings fail
 </view-code>
-<h2>Generate more files</h2>
+<h2 id="generate-more-files">Generate more files</h2>
 <p>Thin helpers into convention slots (updates the slot <code>index.js</code> barrel):</p>
 <view-code language="bash">npx anza generate page about
 npx anza generate dock sidebar --parent main
@@ -50,8 +50,8 @@ npx anza generate view card
 npx anza generate part button
 </view-code>
 <p>Flags: <code>--tree</code>, <code>--route</code>, <code>--via</code>, <code>--parent</code>, <code>-s/--src</code>. Docks are created <strong>without</strong> error-page HTML — fallbacks stay by reference (<a href="/docs/router/fallbacks">Fallbacks (404 / 5xx / offline)</a>). Details: <a href="/docs/intro/build#generate">Build: Generate</a> and <a href="/docs/intro/structure#generate-anza-generate">Structure: Generate (anza generate)</a>.</p>
-<h2>What Was Generated</h2>
-<h3><code>src/app.js</code></h3>
+<h2 id="what-was-generated">What Was Generated</h2>
+<h3 id="srcappjs"><code>src/app.js</code></h3>
 <view-code language="javascript">import '@anzaui/anza/ui';
 import '@anzaui/anza/theme';
 
@@ -64,7 +64,7 @@ import './pages/index.js';
 navigator.serviceWorker.register('/sw.js', { type: 'module' });
 </view-code>
 <p>This initializes the UI system and loads the barrels; <code>src/docks/main/index.js</code> creates the <code>main</code> dock with <code>dock('main')</code>. It also registers the Service Worker; to avoid stale files in dev, register it only on deployed hosts (see <a href="/docs/sw/start#2-register-from-appjs">Start: 2. Register from app.js</a>). Source import order is free-form — <code>anza build</code> rewrites <code>dist/</code> into usage order (library → docks → views → parts → pages).</p>
-<h3><code>src/pages/entry/index.js</code></h3>
+<h3 id="srcpagesentryindexjs"><code>src/pages/entry/index.js</code></h3>
 <view-code language="javascript">import { page } from '@anzaui/anza/ui';
 
 page('/', {
@@ -74,7 +74,7 @@ page('/', {
 }, import.meta.url);
 </view-code>
 <p>Defines a route at <code>/</code> that renders through the <code>main</code> dock, loading its markup and styles from sibling files.</p>
-<h3>Customizing the landing page</h3>
+<h3 id="customizing-the-landing-page">Customizing the landing page</h3>
 <p>The <code>src/pages/entry/</code> folder is the scaffold default. You can rename it, delete it, or replace it with any folder or files you want. The only requirement is that <code>src/pages/index.js</code> imports whatever defines your <code>/</code> route.</p>
 <view-code language="javascript">// src/pages/index.js
 import './entry/index.js';     // default — can rename
@@ -91,7 +91,7 @@ page('/', {
   template: '&lt;h1&gt;Home&lt;/h1&gt;'
 });
 </view-code>
-<h2>Next</h2>
+<h2 id="next">Next</h2>
 <p>Add a new page (hand-write or <code>anza generate page about</code>):</p>
 <view-code language="javascript">import { page } from '@anzaui/anza/ui';
 
@@ -103,7 +103,7 @@ page('/about', {
 </view-code>
 <p>Import it from <code>src/pages/index.js</code> if you did not use <code>generate</code> (generate updates the barrel for you).</p>
 <p>Clicking <code>&lt;a href="/about"&gt;</code> is intercepted, matched, and soft-nav swaps only the page leaf inside <code>main</code> — the dock stays mounted. Both <code>anza dev</code> and <code>anza build</code> emit contentful SSG HTML per public route for hard refresh; soft-nav loads page fragments (see <a href="/docs/ssg/contract">Page HTML contract (Mode A SSG · Mode B templates)</a>).</p>
-<h3>Suggested reading order</h3>
+<h3 id="suggested-reading-order">Suggested reading order</h3>
 <ol>
 <li><a href="/docs/intro/structure">Structure</a> — what must exist; <code>anza.json</code>; doctor/check</li>
 <li><a href="/docs/intro/build">Build</a> — flags, SSG, generate</li>

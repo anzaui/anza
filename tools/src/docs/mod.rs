@@ -300,7 +300,8 @@ mod glob_tests {
 
 fn first_h1_text(html: &str) -> Option<String> {
   let html = crate::build::html::opaque_view_code(html);
-  let start = html.find("<h1>")? + 4;
+  let open = html.find("<h1>").or_else(|| html.find("<h1 "))?;
+  let start = html.get(open..)?.find('>')? + open + 1;
   let end = html.get(start..)?.find("</h1>")? + start;
   let inner = html.get(start..end)?;
   let text = strip_tags(inner).trim().to_string();

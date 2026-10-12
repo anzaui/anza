@@ -1,6 +1,6 @@
-<h1>Quick Start</h1>
+<h1 id="quick-start">Quick Start</h1>
 <p>Get a worker running in five minutes.</p>
-<h2>1. Run a Task in a Pool</h2>
+<h2 id="1-run-a-task-in-a-pool">1. Run a Task in a Pool</h2>
 <view-code language="javascript">import { workers } from '@anzaui/anza/workers';
 
 const result = await workers.run('/workers/calc.js', 'fibonacci', {
@@ -11,7 +11,7 @@ const result = await workers.run('/workers/calc.js', 'fibonacci', {
 console.log(result); // 102334155
 </view-code>
 <p>The pool lazily creates workers (default: <code>hardwareConcurrency - 1</code>). Tasks are scheduled by priority.</p>
-<h2>2. Priority Scheduling</h2>
+<h2 id="2-priority-scheduling">2. Priority Scheduling</h2>
 <view-code language="javascript">// Critical path — runs first
 workers.run('/workers/calc.js', 'render', {
   payload: data,
@@ -30,7 +30,7 @@ workers.run('/workers/calc.js', 'sync', {
 <tr><td><code>background</code></td><td>0</td><td>Telemetry, logging, prefetch</td></tr>
 </tbody></table></div>
 <p>The pool promotes background tasks after 20 higher-priority tasks to prevent starvation.</p>
-<h2>3. Cancel a Task</h2>
+<h2 id="3-cancel-a-task">3. Cancel a Task</h2>
 <view-code language="javascript">const ctrl = new AbortController();
 
 workers.run('/workers/calc.js', 'heavy', {
@@ -42,7 +42,7 @@ workers.run('/workers/calc.js', 'heavy', {
 // Cancel after 3 seconds
 setTimeout(() =&gt; ctrl.abort(), 3000);
 </view-code>
-<h2>4. Cross-Tab Messaging</h2>
+<h2 id="4-cross-tab-messaging">4. Cross-Tab Messaging</h2>
 <view-code language="javascript">// Send
 workers.broadcast('app-event', { type: 'logout' });
 
@@ -53,13 +53,13 @@ const off = workers.subscribe('app-event', (data) =&gt; {
 
 off(); // unsubscribe
 </view-code>
-<h2>5. Web Lock</h2>
+<h2 id="5-web-lock">5. Web Lock</h2>
 <view-code language="javascript">await workers.lock('db:write', async () =&gt; {
   await db.put('key', value);
 }, { timeout: 3000 });
 </view-code>
 <p>Other tabs calling <code>lock('db:write')</code> will wait until this callback completes.</p>
-<h2>6. Feature Detection</h2>
+<h2 id="6-feature-detection">6. Feature Detection</h2>
 <view-code language="javascript">import { has } from '@anzaui/anza/workers';
 
 if (has.worker)   console.log('Web Workers supported');
@@ -68,7 +68,7 @@ if (has.channel)  console.log('BroadcastChannel supported');
 if (has.locks)    console.log('Web Locks API supported');
 if (has.offscreen) console.log('OffscreenCanvas supported');
 </view-code>
-<h2>Complete Working Example</h2>
+<h2 id="complete-working-example">Complete Working Example</h2>
 <view-code language="javascript">import { workers } from '@anzaui/anza/workers';
 
 // Process data in background

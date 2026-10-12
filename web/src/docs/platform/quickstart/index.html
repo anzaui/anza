@@ -1,6 +1,6 @@
-<h1>Quick Start</h1>
+<h1 id="quick-start">Quick Start</h1>
 <p>Get working with platform detection and polyfills in five minutes.</p>
-<h2>1. Check a Capability</h2>
+<h2 id="1-check-a-capability">1. Check a Capability</h2>
 <view-code language="javascript">import { supports } from '@anzaui/anza/platform';
 
 if (supports.viewTransitions) {
@@ -10,14 +10,14 @@ if (supports.viewTransitions) {
 }
 </view-code>
 <p>Flags are lazily evaluated on first access and cached. Subsequent reads are instant.</p>
-<h2>2. Assert a Requirement</h2>
+<h2 id="2-assert-a-requirement">2. Assert a Requirement</h2>
 <view-code language="javascript">import { typeGuard } from '@anzaui/anza/platform';
 
 // Throws if OPFS is not supported
 typeGuard('opfs', 'This feature requires file system access');
 </view-code>
 <p>Use <code>typeGuard</code> in critical paths where continuing without the feature would be meaningless.</p>
-<h2>3. Lazy-Load a Polyfill</h2>
+<h2 id="3-lazy-load-a-polyfill">3. Lazy-Load a Polyfill</h2>
 <view-code language="javascript">import { guard } from '@anzaui/anza/platform';
 
 // Returns native URLPattern or loads the polyfill
@@ -25,7 +25,7 @@ const URLPattern = await guard.urlPattern();
 const pattern = new URLPattern({ pathname: '/user/:id' });
 </view-code>
 <p>The guard checks native support first. Only if missing does it dynamically import the polyfill.</p>
-<h2>4. Use the Scheduler</h2>
+<h2 id="4-use-the-scheduler">4. Use the Scheduler</h2>
 <view-code language="javascript">import { guard } from '@anzaui/anza/platform';
 
 const scheduler = await guard.scheduler();
@@ -35,7 +35,7 @@ scheduler.postTask(() =&gt; {
 }, { priority: 'user-blocking' });
 </view-code>
 <p>If native <code>scheduler</code> is available, it is returned directly. Otherwise the polyfill is loaded.</p>
-<h2>5. Yield in a Loop</h2>
+<h2 id="5-yield-in-a-loop">5. Yield in a Loop</h2>
 <view-code language="javascript">import { guard } from '@anzaui/anza/platform';
 
 async function processLargeDataset(items) {
@@ -47,7 +47,7 @@ async function processLargeDataset(items) {
   }
 }
 </view-code>
-<h2>6. Escape Overflow (Floating UI)</h2>
+<h2 id="6-escape-overflow-floating-ui">6. Escape Overflow (Floating UI)</h2>
 <view-code language="javascript">import { guard } from '@anzaui/anza/platform';
 
 const tip = document.querySelector('#tip');       // [popover="manual"]
@@ -58,7 +58,7 @@ ctrl.show();  // Popover top-layer, or fixed fallback — stays in-tree
 ctrl.hide();
 </view-code>
 <p>Prefer <code>ui-tooltip</code> when you need a ready-made hint. Details: <a href="/docs/platform/guards#escape">Guards: escape</a>, <a href="/docs/platform/api#escapeoverflowfloating-anchor-options">API</a>, <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
-<h2>Complete Working Example</h2>
+<h2 id="complete-working-example">Complete Working Example</h2>
 <view-code language="javascript">import { supports, guard, typeGuard } from '@anzaui/anza/platform';
 
 // Feature-gated view transition

@@ -1,7 +1,7 @@
-<h1>Intro</h1>
+<h1 id="intro">Intro</h1>
 <p>Anza is a web platform library built on browser-native APIs. It gives you reactive state, client-side routing, custom elements, offline sync, and animations — all as plain ES modules the browser resolves directly. No bundler, no virtual DOM, no framework lock-in.</p>
 <p>A Rust CLI (<code>anza</code>) handles the development server, import-graph resolution, and build. It copies only the modules you actually import into <code>dist/</code>, generates type declarations, and serves everything with hot module replacement.</p>
-<h2>What You Get</h2>
+<h2 id="what-you-get">What You Get</h2>
 <ul>
 <li><strong>Pure ESM modules</strong> — authored as <code>.js</code> files, resolved by the browser natively</li>
 <li><strong>Reactive state</strong> — typed stores with batched updates and cross-tab sync</li>
@@ -14,12 +14,12 @@
 <li><strong>Animation helpers</strong> — WAAPI wrappers, stagger groups, and view transitions</li>
 <li><strong>Real-browser tests</strong> — <code>@web/test-runner</code> with Playwright, no jsdom</li>
 </ul>
-<h2>Package</h2>
+<h2 id="package">Package</h2>
 <view-code language="javascript">import { state } from '@anzaui/anza/state';
 import { router } from '@anzaui/anza/router';
 import { page, dock, view } from '@anzaui/anza/ui';
 </view-code>
-<h2>File Map</h2>
+<h2 id="file-map">File Map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
 <tr><td><a href="/docs/intro/install">Install</a></td><td>Install the library and prebuilt CLI</td></tr>
 <tr><td><a href="/docs/intro/start">Start</a></td><td>Scaffold your first app</td></tr>
@@ -27,7 +27,7 @@ import { page, dock, view } from '@anzaui/anza/ui';
 <tr><td><a href="/docs/intro/structure">Structure</a></td><td><strong>Project structure contract</strong> — required slots, <code>anza.json</code>, doctor/check, <code>anza generate</code></td></tr>
 <tr><td><code>docs/sw/</code></td><td>Service Worker caching, routing, sync, and push</td></tr>
 </tbody></table></div>
-<h2>One-File Example</h2>
+<h2 id="one-file-example">One-File Example</h2>
 <view-code language="html">&lt;!-- src/index.html --&gt;
 &lt;!DOCTYPE html&gt;
 &lt;html lang="en"&gt;
@@ -53,7 +53,7 @@ page('/', {
 });
 </view-code>
 <p>That is a complete app. Run <code>anza dev</code> and open <code>http://localhost:3000</code>.</p>
-<h2>Next Steps</h2>
+<h2 id="next-steps">Next Steps</h2>
 <ul>
 <li>New here? Read <a href="/docs/intro/install">Install</a> then <a href="/docs/intro/start">Start</a>.</li>
 <li>What must exist on disk? See <a href="/docs/intro/structure">Structure</a> — single source of truth (<code>anza doctor</code> / <code>anza check</code>).</li>

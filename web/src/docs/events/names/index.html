@@ -1,7 +1,7 @@
-<h1>Names</h1>
+<h1 id="names">Names</h1>
 <p>The <code>events.names</code> object provides typed constants for cross-cutting system events. Using these prevents typos and enables IDE autocomplete.</p>
-<h2>Available Namespaces</h2>
-<h3>Auth</h3>
+<h2 id="available-namespaces">Available Namespaces</h2>
+<h3 id="auth">Auth</h3>
 <div class="table-wrap"><table><thead><tr><th>Constant</th><th>Value</th></tr></thead><tbody>
 <tr><td><code>events.names.auth.signedin</code></td><td><code>'auth:signedin'</code></td></tr>
 <tr><td><code>events.names.auth.signedout</code></td><td><code>'auth:signedout'</code></td></tr>
@@ -11,7 +11,7 @@
   console.log('Token:', e.detail.token);
 });
 </view-code>
-<h2>Connectivity</h2>
+<h2 id="connectivity">Connectivity</h2>
 <div class="table-wrap"><table><thead><tr><th>Constant</th><th>Value</th></tr></thead><tbody>
 <tr><td><code>events.names.connectivity.online</code></td><td><code>'connectivity:online'</code></td></tr>
 <tr><td><code>events.names.connectivity.offline</code></td><td><code>'connectivity:offline'</code></td></tr>
@@ -20,7 +20,7 @@
   showToast('You are offline');
 });
 </view-code>
-<h2>Preference</h2>
+<h2 id="preference">Preference</h2>
 <div class="table-wrap"><table><thead><tr><th>Constant</th><th>Value</th></tr></thead><tbody>
 <tr><td><code>events.names.preference.changed</code></td><td><code>'preference:changed'</code></td></tr>
 </tbody></table></div>
@@ -28,7 +28,7 @@
   console.log('Preference changed:', e.detail.key, e.detail.value);
 });
 </view-code>
-<h2>Service Worker</h2>
+<h2 id="service-worker">Service Worker</h2>
 <div class="table-wrap"><table><thead><tr><th>Constant</th><th>Value</th></tr></thead><tbody>
 <tr><td><code>events.names.sw.updated</code></td><td><code>'sw:updated'</code></td></tr>
 <tr><td><code>events.names.sw.message</code></td><td><code>'sw:message'</code></td></tr>
@@ -37,7 +37,7 @@
   showToast('A new version is available. Refresh to update.');
 });
 </view-code>
-<h2>Extending</h2>
+<h2 id="extending">Extending</h2>
 <p>Add your own constants to the registry:</p>
 <view-code language="javascript">export const myNames = {
   cart: {

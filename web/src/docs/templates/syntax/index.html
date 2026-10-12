@@ -1,8 +1,8 @@
-<h1>Template Syntax &amp; Tokens</h1>
+<h1 id="template-syntax--tokens">Template Syntax &amp; Tokens</h1>
 <p>Anza Server Templates have one construct: the <code>{{token}}</code> placeholder. It is
 replaced with the value of the matching parameter. The same syntax works in the
 Rust, TypeScript and Python engines.</p>
-<h2>What You Get</h2>
+<h2 id="what-you-get">What You Get</h2>
 <div class="table-wrap"><table><thead><tr><th>Syntax</th><th>Purpose</th><th>Example</th></tr></thead><tbody>
 <tr><td><code>{{variable}}</code></td><td>Inserts the parameter's value as is</td><td><code>&lt;h1&gt;{{title}}&lt;/h1&gt;</code></td></tr>
 </tbody></table></div>
@@ -15,7 +15,7 @@ in your handler and pass the resulting HTML in as a parameter (see
 <li>An unclosed <code>{{</code> or an empty <code>{{}}</code> is an error when the templates load.</li>
 <li>A missing parameter renders as an empty string.</li>
 </ul>
-<h2>Variable Substitution</h2>
+<h2 id="variable-substitution">Variable Substitution</h2>
 <p>Simple values are substituted directly into template placeholders:</p>
 <view-code language="html">&lt;div class="user-profile"&gt;
   &lt;h2&gt;{{username}}&lt;/h2&gt;
@@ -37,7 +37,7 @@ in your handler and pass the resulting HTML in as a parameter (see
   &lt;time datetime="2026-01-15"&gt;Member since 2026-01-15&lt;/time&gt;
 &lt;/div&gt;
 </view-code>
-<h2>Escaping &amp; Security</h2>
+<h2 id="escaping--security">Escaping &amp; Security</h2>
 <p><strong>Values are not HTML-escaped.</strong> Whatever string you pass is written into the
 output unchanged, which is what lets a parameter carry pre-rendered HTML. Any
 value that comes from users must be escaped by your code before rendering:</p>
@@ -50,7 +50,7 @@ value that comes from users must be escaped by your code before rendering:</p>
 </ul>
 <p>For example, in Python use <code>html.escape(value, quote=True)</code>; in TypeScript or
 Rust, a small helper that replaces those five characters.</p>
-<h2>Slotted Child Content</h2>
+<h2 id="slotted-child-content">Slotted Child Content</h2>
 <p>When composing nested templates or docks, render the children first and pass
 the HTML in as a parameter:</p>
 <view-code language="html">&lt;dock-feed class="articles-feed"&gt;
@@ -73,7 +73,7 @@ params.insert("count".to_string(), articles.len().to_string());
 params.insert("articles".to_string(), articles_html);
 let html = engine.get("pages/home.html")?.bind(&amp;params)?;
 </view-code>
-<h2>Form Actions &amp; URL Interpolation</h2>
+<h2 id="form-actions--url-interpolation">Form Actions &amp; URL Interpolation</h2>
 <p>Variables can be interpolated into attribute values for links, form actions and
 data attributes. Escape them (and URL-encode path segments) when they come from
 users:</p>
@@ -84,7 +84,7 @@ users:</p>
   &lt;/form&gt;
 &lt;/div&gt;
 </view-code>
-<h2>Performance Best Practices</h2>
+<h2 id="performance-best-practices">Performance Best Practices</h2>
 <ol>
 <li><strong>Load templates at startup</strong>: <code>Setup(...).run()</code> reads and parses every template once; renders never touch the filesystem.</li>
 <li><strong>Keep logic out of markup</strong>: format, sort and filter data in your handler before rendering.</li>

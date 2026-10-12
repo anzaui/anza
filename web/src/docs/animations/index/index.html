@@ -1,6 +1,6 @@
-<h1>Animations</h1>
+<h1 id="animations">Animations</h1>
 <p>The Anza animations layer wraps the Web Animations API (WAAPI) with a declarative, memory-safe interface. It provides registered animation templates, staggered multi-element orchestration, scroll-driven and view-driven timelines, and CSS token synchronization so JavaScript animations and stylesheets share the same timing values.</p>
-<h2>What You Get</h2>
+<h2 id="what-you-get">What You Get</h2>
 <ul>
 <li><strong>Element animation</strong> — <code>animate(el, keyframes, options)</code> with AbortSignal cleanup</li>
 <li><strong>Stagger</strong> — animate a list of elements with cascading delays</li>
@@ -10,10 +10,10 @@
 <li><strong>CSS token sync</strong> — <code>duration()</code> and <code>ease()</code> read CSS custom properties at runtime</li>
 <li><strong>Reduced motion</strong> — <code>reduced()</code> respects <code>prefers-reduced-motion</code></li>
 </ul>
-<h2>Package</h2>
+<h2 id="package">Package</h2>
 <view-code language="javascript">import { animations } from '@anzaui/anza/animations';
 </view-code>
-<h2>File Map</h2>
+<h2 id="file-map">File Map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
 <tr><td><a href="/docs/animations/quickstart">Quick Start</a></td><td>Your first animation in five minutes</td></tr>
 <tr><td><a href="/docs/animations/animate">Animate</a></td><td>Single-element animation with WAAPI</td></tr>
@@ -25,7 +25,7 @@
 <tr><td><a href="/docs/animations/api">API Reference</a></td><td>Complete API reference</td></tr>
 <tr><td><a href="/docs/animations/troubleshooting">Troubleshooting</a></td><td>Common problems and how to fix them</td></tr>
 </tbody></table></div>
-<h2>One-File Example</h2>
+<h2 id="one-file-example">One-File Example</h2>
 <view-code language="javascript">import { animations } from '@anzaui/anza/animations';
 
 // Animate a single element
@@ -41,7 +41,7 @@ if (!animations.reduced()) {
   animations.animate(el, 'zoom', { duration: animations.duration('slow') });
 }
 </view-code>
-<h2>Next Steps</h2>
+<h2 id="next-steps">Next Steps</h2>
 <ul>
 <li>New to animations? Start with <a href="/docs/animations/quickstart">Quick Start</a>.</li>
 <li>Building UI transitions? Read <a href="/docs/animations/animate">Animate</a> and <a href="/docs/animations/stagger">Stagger</a>.</li>

@@ -1,12 +1,12 @@
-<h1>Routes</h1>
+<h1 id="routes">Routes</h1>
 <p>URLPattern-based routing inside the Service Worker. Matches incoming <code>fetch</code> events against registered patterns and dispatches them to the appropriate caching strategy.</p>
-<h2>Create a Router</h2>
+<h2 id="create-a-router">Create a Router</h2>
 <view-code language="javascript">import { router } from '@anzaui/anza/sw';
 
 const r = router();
 </view-code>
 <p><code>router()</code> is a factory that returns a new <code>Router</code> instance.</p>
-<h2>Register Patterns</h2>
+<h2 id="register-patterns">Register Patterns</h2>
 <view-code language="javascript">r.register('/api/users/:id', new NetworkFirst('api-v1'));
 r.register('/api/*', new NetworkFirst('api-v1', { timeout: 3000 }));
 r.register('*', new StaleRevalidate('shell-v1'));
@@ -24,14 +24,14 @@ intercepted.</p>
 <tr><td><code>'/api/users/:id'</code></td><td><code>/api/users/42</code>, <code>/api/users/abc</code></td></tr>
 <tr><td><code>{ pathname: '/items/:id', search: '?tab=*' }</code></td><td>Object patterns forwarded to <code>URLPattern</code></td></tr>
 </tbody></table></div>
-<h2>Handle Fetch Events</h2>
+<h2 id="handle-fetch-events">Handle Fetch Events</h2>
 <view-code language="javascript">self.addEventListener('fetch', (e) =&gt; {
   if (r.handle(e)) return;
   e.respondWith(fetch(e.request));
 });
 </view-code>
 <p><code>r.handle(e)</code> returns <code>true</code> if a route matched and <code>event.respondWith()</code> was called. Return early to avoid the fallback. Return <code>false</code> to let the event fall through to your own handler.</p>
-<h2>Advanced Patterns</h2>
+<h2 id="advanced-patterns">Advanced Patterns</h2>
 <p>Use <code>URLPattern</code> objects directly for complex matching:</p>
 <view-code language="javascript">r.register(
   { pathname: '/api/:version/*', baseURL: self.location.origin },
@@ -39,10 +39,10 @@ intercepted.</p>
 );
 </view-code>
 <p>The <code>Router</code> class normalizes strings into <code>URLPattern</code> instances automatically.</p>
-<h2>Router API</h2>
-<h3><code>router.register(pattern, strategy)</code></h3>
+<h2 id="router-api">Router API</h2>
+<h3 id="routerregisterpattern-strategy"><code>router.register(pattern, strategy)</code></h3>
 <p>Add a route. <code>pattern</code> can be a string or <code>URLPatternInit</code> object. <code>strategy</code> is any object with a <code>handle(request, event)</code> method that returns a <code>Response</code> or Promise; the router passes the <code>FetchEvent</code> so background cache writes can use <code>event.waitUntil()</code>.</p>
-<h3><code>router.handle(event)</code></h3>
+<h3 id="routerhandleevent"><code>router.handle(event)</code></h3>
 <p>Picks the most specific route matching the request and calls <code>event.respondWith()</code>. Returns <code>true</code> if matched, <code>false</code> otherwise (including non-GET/HEAD requests and event streams).</p>
-<h3><code>new Router()</code></h3>
+<h3 id="new-router"><code>new Router()</code></h3>
 <p>Construct a router instance directly if you need multiple routers for different scopes.</p>

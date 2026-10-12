@@ -1,6 +1,6 @@
-<h1>Server Templates</h1>
+<h1 id="server-templates">Server Templates</h1>
 <p>Anza Server Templates are zero-overhead <code>.html</code> files designed for high-performance Server-Templated UI (STUI). Templates combine Web Standards Declarative Shadow DOM (DSD), token-based data binding, and cryptographic origin signing into a lightweight architecture that renders instantly on the server and streams safely across proxies and CDNs.</p>
-<h2>What You Get</h2>
+<h2 id="what-you-get">What You Get</h2>
 <div class="table-wrap"><table><thead><tr><th>Feature</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>Zero JS Runtime</strong></td><td>Pure HTML/CSS templates requiring zero client JavaScript bundles to display initial or updated UI</td></tr>
 <tr><td><strong>Declarative Shadow DOM</strong></td><td>Native browser encapsulation via <code>&lt;template shadowrootmode="open"&gt;</code> without hydration delays</td></tr>
@@ -9,7 +9,7 @@
 <tr><td><strong>Dual Mode Output</strong></td><td>Output either full HTML documents for SEO crawlers or signed STUI stream envelopes for clients</td></tr>
 <tr><td><strong>Universal Engine Support</strong></td><td>The same template syntax in Rust, Python (FastAPI/ASGI/Flask) and TypeScript (Node/Hono)</td></tr>
 </tbody></table></div>
-<h2>Template Structure</h2>
+<h2 id="template-structure">Template Structure</h2>
 <p>In an Anza application, server templates reside in a structured <code>templates/</code> directory:</p>
 <view-code language="text">templates/
 ├── layout/
@@ -21,8 +21,8 @@
 └── feed/
     └── card.html        # Individual article card partial with scoped &lt;style&gt;
 </view-code>
-<h2>Quickstart</h2>
-<h3>1. Define a Shell Layout</h3>
+<h2 id="quickstart">Quickstart</h2>
+<h3 id="1-define-a-shell-layout">1. Define a Shell Layout</h3>
 <view-code language="html">&lt;!DOCTYPE html&gt;
 &lt;html lang="en"&gt;
 &lt;head&gt;
@@ -51,7 +51,7 @@
 &lt;/body&gt;
 &lt;/html&gt;
 </view-code>
-<h3>2. Define a Component Partial</h3>
+<h3 id="2-define-a-component-partial">2. Define a Component Partial</h3>
 <view-code language="html">&lt;article class="feed-card"&gt;
   &lt;style&gt;
     .feed-card {
@@ -68,7 +68,7 @@
   &lt;time datetime="{{created}}"&gt;{{created}}&lt;/time&gt;
 &lt;/article&gt;
 </view-code>
-<h3>3. Render via Server Engine</h3>
+<h3 id="3-render-via-server-engine">3. Render via Server Engine</h3>
 <p>In Rust:</p>
 <view-code language="rust">use anza::{Page, Setup};
 use serde_json::json;
@@ -89,7 +89,7 @@ let full_page = Page::new("/")
     .param("articles", card_html)
     .run(&amp;engine)?;
 </view-code>
-<h2>Dual Rendering Modes</h2>
+<h2 id="dual-rendering-modes">Dual Rendering Modes</h2>
 <p>Server templates support two output targets without code duplication:</p>
 <ol>
 <li><strong>Full Page SSR (Initial Navigation)</strong>:
@@ -105,7 +105,7 @@ Renders only the partial HTML, generates an Ed25519 cryptographic signature, and
 </view-code>
 </li>
 </ol>
-<h2>Next Steps</h2>
+<h2 id="next-steps">Next Steps</h2>
 <ul>
 <li><strong><a href="/docs/templates/syntax">Syntax &amp; Tokens</a></strong>: Placeholder rules and escaping (values are not escaped for you).</li>
 <li><strong><a href="/docs/templates/layouts">Layouts &amp; Shells</a></strong>: Build composable shells and nested Declarative Shadow DOM docks.</li>

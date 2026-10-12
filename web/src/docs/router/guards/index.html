@@ -1,10 +1,10 @@
-<h1>Guards</h1>
+<h1 id="guards">Guards</h1>
 <blockquote>
 <p><strong>Not platform feature-gates.</strong> Navigation guards (<code>router.guard</code>, <code>page({ guard })</code>) block or redirect navigations. For polyfills and capability checks, see <a href="/docs/platform/guards">Guards</a>.</p>
 </blockquote>
 <p>Guards block or redirect navigation before the DOM changes. They run at two points in the navigation lifecycle: pre-commit (before the URL updates) and post-commit (after, as a Safari fallback).</p>
 <p>When a guard <strong>throws</strong>, the router emits <code>error</code> with <code>phase: 'guard'</code> and renders the <strong>error</strong> fallback leaf (shared library built-in, or a dock / <code>configure</code> / route override). See <a href="/docs/router/fallbacks">Fallbacks (404 / 5xx / offline)</a>.</p>
-<h2>Global Guards</h2>
+<h2 id="global-guards">Global Guards</h2>
 <p>Register a guard that runs on every navigation:</p>
 <view-code language="javascript">import { router } from '@anzaui/anza/router';
 
@@ -21,17 +21,17 @@ const dispose = router.guard(async (destination, controller) =&gt; {
 <li><code>controller</code> — the intercept controller; on modern browsers you can call <code>controller.redirect(url)</code> for an atomic pre-commit redirect</li>
 </ul>
 <p>Guards are evaluated in registration order. The first guard to return a redirect wins; remaining guards are skipped.</p>
-<h2>Removing a Guard</h2>
+<h2 id="removing-a-guard">Removing a Guard</h2>
 <p><code>router.guard()</code> returns a disposer function:</p>
 <view-code language="javascript">const dispose = router.guard(checkAdmin);
 // later
 dispose(); // removes this guard
 </view-code>
-<h2>Clearing All Guards</h2>
+<h2 id="clearing-all-guards">Clearing All Guards</h2>
 <view-code language="javascript">router.guards.clear();
 </view-code>
 <p>Useful in tests and during teardown.</p>
-<h2>Route-Scoped Guards</h2>
+<h2 id="route-scoped-guards">Route-Scoped Guards</h2>
 <p>When using <code>page()</code>, you can declare a guard that only runs when its route matches:</p>
 <view-code language="javascript">page('/checkout', {
   tag: 'page-checkout',
@@ -44,15 +44,15 @@ dispose(); // removes this guard
 });
 </view-code>
 <p>Route-scoped guards are internally wrapped in a global guard that checks the destination URL against the route pattern first. If the URL does not match, the guard is silently skipped.</p>
-<h2>Pre-Commit vs Post-Commit</h2>
+<h2 id="pre-commit-vs-post-commit">Pre-Commit vs Post-Commit</h2>
 <p><strong>Pre-commit</strong> (<code>precommitHandler</code>) runs before the browser updates the URL. On Chrome and Firefox, a redirect here is atomic — the user never sees the blocked URL in the address bar.</p>
 <p><strong>Post-commit</strong> runs after the URL has already changed. This is the Safari fallback, since Safari currently ignores <code>precommitHandler</code>. If a guard triggers post-commit, the router performs a silent <code>history: 'replace'</code> to correct the URL without adding a broken history entry.</p>
 <p>Your guard function runs in both phases. You do not need to handle the difference yourself.</p>
-<h2>Guard Best Practices</h2>
+<h2 id="guard-best-practices">Guard Best Practices</h2>
 <p>Keep guards fast. They run on every navigation, including back/forward traversals.</p>
 <p>Do not perform side effects inside guards. A guard should only inspect state and decide whether to allow or redirect.</p>
 <p>Use <code>controller.redirect()</code> when available for atomic redirects. The router falls back automatically when it is not.</p>
-<h2>Guard API Reference</h2>
+<h2 id="guard-api-reference">Guard API Reference</h2>
 <view-code language="javascript">// Add a global guard
 const dispose = router.guard(fn);
 

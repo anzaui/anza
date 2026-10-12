@@ -1,1 +1,1 @@
-{"version":1,"refs":[],"ids":[],"classes":["table-wrap"],"tags":["code","div","h1","h2","p","table","tbody","td","th","thead","tr","view-code"],"compound":["div.table-wrap"],"attrs":["class","language"],"refTypes":{}}
+{"version":1,"refs":[],"ids":["aborting-uploads","basic-upload","legacy-onprogress","raw-binary-upload","upload-events","upload-options","upload-with-progress","uploads"],"classes":["table-wrap"],"tags":["code","div","h1","h2","p","table","tbody","td","th","thead","tr","view-code"],"compound":["div.table-wrap"],"attrs":["class","id","language"],"refTypes":{}}

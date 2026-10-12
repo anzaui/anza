@@ -1,6 +1,6 @@
-<h1>Start</h1>
+<h1 id="start">Start</h1>
 <p>Write a Service Worker that caches your shell and intercepts API calls.</p>
-<h2>1. Create <code>src/sw.js</code></h2>
+<h2 id="1-create-srcswjs">1. Create <code>src/sw.js</code></h2>
 <p>The scaffold generates this file for you. Here is what it contains:</p>
 <view-code language="javascript">import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@anzaui/anza/sw';
 
@@ -38,7 +38,7 @@ self.addEventListener('fetch', (e) =&gt; {
 </ol>
 <p>Bump <code>SHELL</code> / <code>API</code> cache names when you ship path-breaking asset URL changes — <code>CacheFirst</code> with no TTL otherwise pins stale JS forever. <code>pruneStale</code> only removes <em>other</em> cache names, not entries inside the current one.</p>
 <p>Keep helpers in optional <code>src/sw/</code> and <code>import</code> them from <code>src/sw.js</code> — that folder is <strong>modules only</strong>, not extra registrations. Multi-scope workers (advanced) use <code>anza.json</code> <code>sw</code> arrays — see <a href="/docs/intro/structure#service-workers">Structure: Service workers</a>.</p>
-<h2>2. Register from <code>app.js</code></h2>
+<h2 id="2-register-from-appjs">2. Register from <code>app.js</code></h2>
 <view-code language="javascript">import '@anzaui/anza/ui';
 import { dock } from '@anzaui/anza/ui';
 
@@ -68,14 +68,14 @@ on deployed hosts, and unregister any leftover worker locally, as above (this
 is what the Anza site does in <code>web/src/app.js</code>). To test the SW itself, run a
 production build (<code>npx anza build</code>) and serve <code>dist/</code> on a non-local hostname,
 or use DevTools &gt; Application &gt; Service workers &gt; "Update on reload".</p>
-<h2>3. Send Messages from the Main Thread</h2>
+<h2 id="3-send-messages-from-the-main-thread">3. Send Messages from the Main Thread</h2>
 <p>Use the offline bridge to send tasks to the active SW:</p>
 <view-code language="javascript">import { offline } from '@anzaui/anza/offline';
 
 offline.send('sync', { action: 'flush-queue' });
 </view-code>
 <p>The SW receives this via <code>message</code> events. The bridge handles the response as a Promise.</p>
-<h2>4. Build Output</h2>
+<h2 id="4-build-output">4. Build Output</h2>
 <p>After <code>npm run build</code>:</p>
 <view-code language="text">dist/
   sw.js              # Your entry — rewritten to use relative imports
@@ -91,7 +91,7 @@ offline.send('sync', { action: 'flush-queue' });
     push.js          # Web Push helpers
 </view-code>
 <p>The build tool copied these from <code>library/src/sw/</code> and rewrote bare specifiers in <code>dist/sw.js</code> to relative paths like <code>./sw/index.js</code>.</p>
-<h2>Next</h2>
+<h2 id="next">Next</h2>
 <p>Add background sync to replay failed mutations:</p>
 <view-code language="javascript">import { replayQueue } from '@anzaui/anza/sw';
 

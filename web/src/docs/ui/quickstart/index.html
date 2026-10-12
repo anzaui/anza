@@ -1,6 +1,6 @@
-<h1>Quick Start</h1>
+<h1 id="quick-start">Quick Start</h1>
 <p>Get a working component in five minutes.</p>
-<h2>1. Define a Component</h2>
+<h2 id="1-define-a-component">1. Define a Component</h2>
 <view-code language="javascript">import { view } from '@anzaui/anza/defs';
 
 view('hello-world', {
@@ -10,7 +10,7 @@ view('hello-world', {
 <p>Use it:</p>
 <view-code language="html">&lt;hello-world&gt;&lt;/hello-world&gt;
 </view-code>
-<h2>2. Add Reactive Properties</h2>
+<h2 id="2-add-reactive-properties">2. Add Reactive Properties</h2>
 <view-code language="javascript">view('user-greeting', {
   props: {
     name: { type: String, default: 'Guest' }
@@ -33,7 +33,7 @@ view('hello-world', {
 <view-code language="javascript">document.querySelector('user-greeting').name = 'Bob';
 </view-code>
 <p>The <code>change</code> hook fires automatically when <code>name</code> changes.</p>
-<h2>3. Use a File Template</h2>
+<h2 id="3-use-a-file-template">3. Use a File Template</h2>
 <view-code language="javascript">view('product-card', {
   props: {
     price: { type: Number, default: 0 }
@@ -42,7 +42,7 @@ view('hello-world', {
 }, import.meta.url);
 </view-code>
 <p>Paths resolve relative to <code>import.meta.url</code>. The native toolchain copies assets during build.</p>
-<h2>4. Event Delegation</h2>
+<h2 id="4-event-delegation">4. Event Delegation</h2>
 <view-code language="javascript">view('todo-item', {
   props: {
     done: { type: Boolean }
@@ -68,7 +68,7 @@ view('hello-world', {
 });
 </view-code>
 <p><code>on.click('.toggle', handler)</code> uses event delegation. One listener on the shadow root handles all <code>.toggle</code> clicks.</p>
-<h2>5. Mutation Watching</h2>
+<h2 id="5-mutation-watching">5. Mutation Watching</h2>
 <p>Watch for text changes in the DOM:</p>
 <view-code language="javascript">view('live-counter', {
   template: '&lt;span class="count"&gt;0&lt;/span&gt;',
@@ -85,7 +85,7 @@ view('hello-world', {
   }
 });
 </view-code>
-<h2>6. Observers</h2>
+<h2 id="6-observers">6. Observers</h2>
 <view-code language="javascript">import { observe } from '@anzaui/anza/ui';
 
 view('lazy-image', {
@@ -104,7 +104,7 @@ view('lazy-image', {
 });
 </view-code>
 <p><code>ctrl.signal</code> aborts the observer when the element disconnects. No manual cleanup needed.</p>
-<h2>7. Scheduling Heavy Work</h2>
+<h2 id="7-scheduling-heavy-work">7. Scheduling Heavy Work</h2>
 <view-code language="javascript">import { ui } from '@anzaui/anza/ui';
 
 view('data-table', {
@@ -120,7 +120,7 @@ view('data-table', {
 });
 </view-code>
 <p><code>ui.yield()</code> returns control to the browser so the UI stays responsive.</p>
-<h2>8. View Transition</h2>
+<h2 id="8-view-transition">8. View Transition</h2>
 <view-code language="javascript">import { ui } from '@anzaui/anza/ui';
 
 view('gallery', {
@@ -136,7 +136,7 @@ view('gallery', {
 });
 </view-code>
 <p><code>ui.transition()</code> wraps the DOM update in a CSS View Transition when supported, falling back to synchronous execution otherwise.</p>
-<h2>Complete Working Example</h2>
+<h2 id="complete-working-example">Complete Working Example</h2>
 <view-code language="javascript">import { view } from '@anzaui/anza/defs';
 
 view('counter-app', {

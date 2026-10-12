@@ -1,9 +1,9 @@
-<h1>Overlay</h1>
+<h1 id="overlay">Overlay</h1>
 <p>Layered UI in the kit: modals, menus, drawers, sheets, popovers, and tooltips. Full reference pages exist for every overlay tag (<a href="/docs/elements/dialog">dialog</a>, <a href="/docs/elements/popover">popover</a>, <a href="/docs/elements/tooltip">tooltip</a>, <a href="/docs/elements/menu">menu</a>, <a href="/docs/elements/drawer">drawer</a>, <a href="/docs/elements/sheet">sheet</a>) plus <a href="/docs/elements/toast">toast</a> under Feedback. This page is the architecture / patterns reference for the whole overlay kit.</p>
 <p>Import pattern:</p>
 <view-code language="javascript">import '@anzaui/anza/elements/&lt;name&gt;';
 </view-code>
-<h2>Architecture (actual kit model)</h2>
+<h2 id="architecture-actual-kit-model">Architecture (actual kit model)</h2>
 <p>The kit does <strong>not</strong> use a shared body portal for overlays. Rendering strategies in source:</p>
 <div class="table-wrap"><table><thead><tr><th>Strategy</th><th>Mechanism</th><th>Elements</th><th>Top-layer?</th></tr></thead><tbody>
 <tr><td>Native popover</td><td><code>[popover]</code> + <code>showPopover()</code> / <code>hidePopover()</code></td><td><code>ui-popover</code>, <code>ui-menu</code></td><td>Yes (native Popover API; polyfill when missing)</td></tr>
@@ -13,7 +13,7 @@
 </tbody></table></div>
 <p><strong>Toast</strong> is the deliberate portal exception — documented under <a href="/docs/elements/toast">Feedback → toast</a>. Overlay elements stay in-tree and rely on native top-layer APIs (tooltip uses the platform escape helper rather than absolute CSS that clips).</p>
 <p><code>ui-select</code> (forms) also uses the Popover API for its dropdown; see <a href="/docs/elements/select">select</a>.</p>
-<h2>When to use which</h2>
+<h2 id="when-to-use-which">When to use which</h2>
 <div class="table-wrap"><table><thead><tr><th>Need</th><th>Prefer</th><th>Why</th></tr></thead><tbody>
 <tr><td>Confirm / blocking modal</td><td><code>ui-dialog</code></td><td>Focus trap, backdrop, Escape → <code>cancel</code> / <code>close</code></td></tr>
 <tr><td>Side panel</td><td><code>ui-drawer</code></td><td><code>showModal()</code> + <code>placement</code> (<code>left</code> / <code>right</code>, default <code>right</code>)</td></tr>
@@ -23,8 +23,8 @@
 <tr><td>Hover / focus hint</td><td><code>ui-tooltip</code></td><td>Escape helper + popover/fixed; short non-interactive hints</td></tr>
 <tr><td>Transient status</td><td><code>ui-toast</code></td><td>Body portal + auto-dismiss — see <a href="/docs/elements/toast">toast</a></td></tr>
 </tbody></table></div>
-<h2>Simple samples</h2>
-<h3>Dialog (full docs)</h3>
+<h2 id="simple-samples">Simple samples</h2>
+<h3 id="dialog-full-docs">Dialog (full docs)</h3>
 <view-code language="html">&lt;ui-dialog id="confirm"&gt;
   &lt;h2&gt;Confirm&lt;/h2&gt;
   &lt;p&gt;Delete this item?&lt;/p&gt;
@@ -38,7 +38,7 @@
 &lt;/script&gt;
 </view-code>
 <p>Methods: <code>showModal()</code>, <code>close(returnValue?)</code>. See <a href="/docs/elements/dialog">dialog</a>.</p>
-<h3>Popover</h3>
+<h3 id="popover">Popover</h3>
 <view-code language="html">&lt;ui-button id="more" type="button"&gt;More&lt;/ui-button&gt;
 &lt;ui-popover id="panel"&gt;
   &lt;p&gt;Contextual content&lt;/p&gt;
@@ -54,15 +54,15 @@
 &lt;/script&gt;
 </view-code>
 <p>Methods: <code>show()</code>, <code>hide()</code>, <code>toggle()</code>. Default slot projects into <code>part="popover"</code>. Full page: <a href="/docs/elements/popover">popover</a>.</p>
-<h3>Tooltip</h3>
+<h3 id="tooltip">Tooltip</h3>
 <view-code language="html">&lt;ui-tooltip&gt;
   &lt;ui-button type="button"&gt;Save&lt;/ui-button&gt;
   &lt;span slot="content"&gt;Save changes&lt;/span&gt;
 &lt;/ui-tooltip&gt;
 </view-code>
 <p>Hover / focus shows the hint (<code>part="tooltip"</code>, <code>popover="manual"</code>). Positioning uses <code>escapeOverflow</code> so typical <code>overflow: hidden</code> ancestors do not clip the tip; fixed-position fallback when popover APIs are missing. Full page: <a href="/docs/elements/tooltip">tooltip</a>.</p>
-<h2>Advanced samples</h2>
-<h3>Menu with keyboard navigation</h3>
+<h2 id="advanced-samples">Advanced samples</h2>
+<h3 id="menu-with-keyboard-navigation">Menu with keyboard navigation</h3>
 <view-code language="html">&lt;ui-button id="actions" type="button"&gt;Actions&lt;/ui-button&gt;
 &lt;ui-menu id="menu"&gt;
   &lt;ui-button type="button"&gt;Edit&lt;/ui-button&gt;
@@ -77,7 +77,7 @@
 &lt;/script&gt;
 </view-code>
 <p>Slotted <code>ui-button</code> / <code>button</code> / <code>[role=menuitem]</code> get <code>role="menuitem"</code> and roving <code>tabindex</code>. Arrow keys, Home, End, and Escape are handled on the popover surface (<code>part="menu"</code>). Full page: <a href="/docs/elements/menu">menu</a>.</p>
-<h3>Drawer + sheet (modal dialog family)</h3>
+<h3 id="drawer--sheet-modal-dialog-family">Drawer + sheet (modal dialog family)</h3>
 <view-code language="html">&lt;ui-drawer id="nav-drawer" placement="left"&gt;
   &lt;h2&gt;Navigate&lt;/h2&gt;
   &lt;!-- side panel content --&gt;
@@ -98,7 +98,7 @@
 &lt;/script&gt;
 </view-code>
 <p>Both sync <code>open</code> (Boolean, reflect) to native <code>dialog.showModal()</code> / <code>close()</code>, with a short CSS transition before close. Sheet adds drag-to-dismiss on <code>part="handle"</code> (threshold ~120px). Full pages: <a href="/docs/elements/drawer">drawer</a>, <a href="/docs/elements/sheet">sheet</a>.</p>
-<h3>Custom float with <code>guard.escape</code> (same helper as tooltip)</h3>
+<h3 id="custom-float-with-guardescape-same-helper-as-tooltip">Custom float with <code>guard.escape</code> (same helper as tooltip)</h3>
 <p>Prefer <code>ui-tooltip</code> for hints. For a custom tip / chip that must escape <code>overflow</code> clipping without a body portal:</p>
 <view-code language="javascript">import { guard } from '@anzaui/anza/platform';
 
@@ -116,7 +116,7 @@ ctrl.update(); // after layout changes
 ctrl.hide();   // clears position + scroll/resize listeners
 </view-code>
 <p>Strategies: <code>'popover'</code> when <code>showPopover</code> + <code>[popover]</code> exist; otherwise <code>'fixed'</code> (<code>position: fixed</code> + <code>data-escape-open</code>). Sync form: <code>escapeOverflow</code> from <code>@anzaui/anza/platform</code> (call <code>await guard.popover()</code> first if you need the polyfill). Full API: <a href="/docs/platform/api">Platform API</a>, <a href="/docs/platform/guards#escape">Guards → escape</a>.</p>
-<h2>Lifecycle / memory / globals</h2>
+<h2 id="lifecycle--memory--globals">Lifecycle / memory / globals</h2>
 <ul>
 <li>Prefer component <code>on</code> / <code>watch</code> inside the overlay shadow. Soft-nav aborts the detached leaf’s <code>ctrl</code> and tears down signal-owned listeners.</li>
 <li>Do <strong>not</strong> attach raw <code>document</code> / <code>body</code> listeners from a leaf without <code>{ signal: ctrl.signal }</code>. Soft-nav will not clean those up.</li>
@@ -125,7 +125,7 @@ ctrl.hide();   // clears position + scroll/resize listeners
 <li><strong>Toast</strong> portals under <code>body</code> on purpose; dismiss timeouts clear on <code>el.ctrl.signal</code> abort. Own toast lifetime where it belongs — see <a href="/docs/elements/toast">toast</a>.</li>
 <li>Deeper notes: <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a>, <a href="/docs/events/troubleshooting">Orphan listeners after soft-nav</a>.</li>
 </ul>
-<h2>Parts (quick reference)</h2>
+<h2 id="parts-quick-reference">Parts (quick reference)</h2>
 <div class="table-wrap"><table><thead><tr><th>Element</th><th>Notable <code>::part</code> names</th></tr></thead><tbody>
 <tr><td><code>ui-dialog</code></td><td><code>dialog</code></td></tr>
 <tr><td><code>ui-popover</code></td><td><code>popover</code></td></tr>
@@ -134,7 +134,7 @@ ctrl.hide();   // clears position + scroll/resize listeners
 <tr><td><code>ui-sheet</code></td><td><code>dialog</code>, <code>handle</code>, <code>content</code></td></tr>
 <tr><td><code>ui-tooltip</code></td><td><code>wrapper</code>, <code>tooltip</code></td></tr>
 </tbody></table></div>
-<h2>Elements</h2>
+<h2 id="elements">Elements</h2>
 <div class="table-wrap"><table><thead><tr><th>Element</th><th>Tag</th><th>Import</th><th>Status</th></tr></thead><tbody>
 <tr><td><a href="/docs/elements/dialog">dialog</a></td><td><code>ui-dialog</code></td><td><code>@anzaui/anza/elements/dialog</code></td><td>Full</td></tr>
 <tr><td><a href="/docs/elements/popover">popover</a></td><td><code>ui-popover</code></td><td><code>@anzaui/anza/elements/popover</code></td><td>Full</td></tr>
@@ -145,7 +145,7 @@ ctrl.hide();   // clears position + scroll/resize listeners
 </tbody></table></div>
 <p>Related feedback portal: <a href="/docs/elements/toast">toast</a> (<code>ui-toast</code>).</p>
 <p>See the <a href="/docs/elements/index">full inventory</a>.</p>
-<h2>Related</h2>
+<h2 id="related">Related</h2>
 <ul>
 <li><a href="/docs/elements/dialog">Dialog</a></li>
 <li><a href="/docs/elements/popover">Popover</a></li>

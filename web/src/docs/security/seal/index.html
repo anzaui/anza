@@ -1,17 +1,17 @@
-<h1>Seal and Unseal</h1>
+<h1 id="seal-and-unseal">Seal and Unseal</h1>
 <p><code>seal</code> and <code>unseal</code> are string-friendly wrappers over <code>encrypt</code> and <code>decrypt</code>. They return and accept base64-encoded payloads, making them ideal for JSON storage, localStorage, and IndexedDB.</p>
-<h2>Seal</h2>
+<h2 id="seal">Seal</h2>
 <view-code language="javascript">import { security } from '@anzaui/anza/security';
 
 const key = await security.generateKey('AES-GCM');
 const sealed = await security.seal(key, 'Secret message');
 </view-code>
 <p>Returns a base64 string containing the IV + ciphertext.</p>
-<h2>Unseal</h2>
+<h2 id="unseal">Unseal</h2>
 <view-code language="javascript">const plain = await security.unseal(key, sealed);
 console.log(plain); // 'Secret message'
 </view-code>
-<h2>Storage Example</h2>
+<h2 id="storage-example">Storage Example</h2>
 <view-code language="javascript">async function storeSecure(key, id, data) {
   const sealed = await security.seal(key, JSON.stringify(data));
   localStorage.setItem(`secure:${id}`, sealed);
@@ -24,7 +24,7 @@ async function loadSecure(key, id) {
   return JSON.parse(plain);
 }
 </view-code>
-<h2>Password-Based Encryption</h2>
+<h2 id="password-based-encryption">Password-Based Encryption</h2>
 <view-code language="javascript">const key = await security.deriveKey('UserPassword!', 'unique-salt');
 const sealed = await security.seal(key, 'Sensitive data');
 

@@ -1,14 +1,14 @@
-<h1>Real-Time Streaming</h1>
+<h1 id="real-time-streaming">Real-Time Streaming</h1>
 <p>Anza Server-Templated UI provides first-class support for real-time component streaming. Backends push signed component envelopes over <strong>Server-Sent Events (SSE)</strong> or <strong>WebSockets</strong>, updating client UI slots without full page refreshes or virtual DOM diffing.</p>
-<h2>What You Get</h2>
+<h2 id="what-you-get">What You Get</h2>
 <ul>
 <li><strong>Server-Sent Events (SSE)</strong> — Standard HTTP transport with automatic reconnection and CDN pass-through</li>
 <li><strong>WebSocket text frames</strong> — High-frequency bidirectional streaming for real-time collaboration</li>
 <li><strong>Plain browser client</strong> — the standard <code>EventSource</code> / <code>WebSocket</code> APIs; no extra runtime</li>
 <li><strong>Async generator consumption</strong> — <code>for await</code> over newline-delimited JSON via <code>api.stream()</code></li>
 </ul>
-<h2>Protocol Overview</h2>
-<h3>Server-Sent Events (SSE)</h3>
+<h2 id="protocol-overview">Protocol Overview</h2>
+<h3 id="server-sent-events-sse">Server-Sent Events (SSE)</h3>
 <view-code language="http">HTTP/1.1 200 OK
 Content-Type: text/event-stream
 Cache-Control: no-cache
@@ -17,11 +17,11 @@ Connection: keep-alive
 event: template
 data: {"slot":"feed","ts":1724771234,"html":"&lt;ui-card&gt;...&lt;/ui-card&gt;","sig":"3a8f4c...","css":null}
 </view-code>
-<h2>Client Integration</h2>
+<h2 id="client-integration">Client Integration</h2>
 <p>The library has no built-in stream listener and does not verify envelope
 signatures in the browser. Use the platform APIs directly and decide how a
 <code>slot</code> name maps to an element in your page.</p>
-<h3>1. <code>EventSource</code> (SSE)</h3>
+<h3 id="1-eventsource-sse">1. <code>EventSource</code> (SSE)</h3>
 <view-code language="javascript">const source = new EventSource('/api/live/stream');
 
 source.addEventListener('template', (event) =&gt; {
@@ -38,7 +38,7 @@ trust: <code>sanitize()</code> from <code>@anzaui/anza/security</code> strips cu
 is meant for user content, not for engine fragments. Verify <code>sig</code> with the
 engine's <code>verify</code> helper on any server or edge hop that relays the stream (see
 <a href="/docs/engines/crypto">Cryptographic Verification</a>).</p>
-<h3>2. <code>api.stream()</code> (NDJSON)</h3>
+<h3 id="2-apistream-ndjson">2. <code>api.stream()</code> (NDJSON)</h3>
 <p><code>api.stream()</code> reads a newline-delimited JSON body (one envelope per line,
 <code>Content-Type: application/x-ndjson</code>) and yields each line already parsed:</p>
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
@@ -47,8 +47,8 @@ for await (const envelope of api.stream('/api/live/feed')) {
   console.log('Received live envelope:', envelope.slot, envelope.html);
 }
 </view-code>
-<h2>Server Implementation</h2>
-<h3>TypeScript / Hono SSE</h3>
+<h2 id="server-implementation">Server Implementation</h2>
+<h3 id="typescript--hono-sse">TypeScript / Hono SSE</h3>
 <view-code language="typescript">import { Hono } from 'hono';
 import { Setup, sseEvent } from '@anzaui/engine';
 

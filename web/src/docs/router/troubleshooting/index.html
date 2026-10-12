@@ -1,6 +1,6 @@
-<h1>Troubleshooting</h1>
+<h1 id="troubleshooting">Troubleshooting</h1>
 <p>Common problems and their solutions.</p>
-<h2>Hard refresh shows a blank page</h2>
+<h2 id="hard-refresh-shows-a-blank-page">Hard refresh shows a blank page</h2>
 <p><strong>Cause:</strong> The initial route match fired before custom elements were defined.</p>
 <p><strong>Fix:</strong> Use <code>page()</code> instead of manual <code>router.register()</code> + <code>ui.element()</code>. <code>page()</code> automatically gates the boot sequence on element definition.</p>
 <view-code language="javascript">// Correct
@@ -9,7 +9,7 @@ page('/', { tag: 'page-home', via: ['main'] });
 // Problematic (old pattern)
 ui.element('page-home', { url: '/' }); // may race
 </view-code>
-<h2>Container not found</h2>
+<h2 id="container-not-found">Container not found</h2>
 <p><strong>Error:</strong> <code>Target container "main" not found in DOM</code></p>
 <p><strong>Cause:</strong> The dock has not connected yet, or the name does not match.</p>
 <p><strong>Fix:</strong></p>
@@ -26,14 +26,14 @@ page('/', { tag: 'page-home', via: ['main'] });
 dock('main-content');
 page('/', { tag: 'page-home', via: ['main'] }); // mismatch
 </view-code>
-<h2>Singleton violation</h2>
+<h2 id="singleton-violation">Singleton violation</h2>
 <p><strong>Error:</strong> <code>ContainerError: Singleton violation — 'main' is already mounted</code></p>
 <p><strong>Cause:</strong> Two elements with the same container name are in the DOM at once.</p>
 <p><strong>Fix:</strong> Ensure only one instance of each dock exists. If using conditional rendering, unmount the old instance before mounting the new one.</p>
-<h2>Guard redirect not working in Safari</h2>
+<h2 id="guard-redirect-not-working-in-safari">Guard redirect not working in Safari</h2>
 <p><strong>Cause:</strong> Safari ignores <code>precommitHandler</code>.</p>
 <p><strong>Fix:</strong> The router already handles this. Your guard will run post-commit and the router performs a silent replace. No code change needed.</p>
-<h2>View transitions not running</h2>
+<h2 id="view-transitions-not-running">View transitions not running</h2>
 <p><strong>Cause:</strong> Missing VT API, reduced motion, or an explicit opt-out.</p>
 <p><strong>Fix:</strong> Soft-nav still swaps synchronously — no broken UX. Check:</p>
 <ol>
@@ -42,7 +42,7 @@ page('/', { tag: 'page-home', via: ['main'] }); // mismatch
 <li><code>prefers-reduced-motion: reduce</code>, <code>transition: false</code>, or <code>configureTransitions({ enabled: false })</code> force a direct swap</li>
 </ol>
 <p>See <a href="/docs/router/transitions">Transitions</a> and <a href="/docs/ui/transitions">Transitions</a>.</p>
-<h2>Cascade fails on deep link</h2>
+<h2 id="cascade-fails-on-deep-link">Cascade fails on deep link</h2>
 <p><strong>Error:</strong> <code>CascadeError: no path 'body' → 'sidebar'</code></p>
 <p><strong>Cause:</strong> The graph does not have a path from the current root to the target.</p>
 <p><strong>Fix:</strong> Ensure every intermediate dock declares its parent:</p>
@@ -50,7 +50,7 @@ page('/', { tag: 'page-home', via: ['main'] }); // mismatch
 dock('sidebar', { parent: 'main' });     // missing this causes the error
 dock('content', { parent: 'sidebar' });
 </view-code>
-<h2>Route not matching</h2>
+<h2 id="route-not-matching">Route not matching</h2>
 <p><strong>Cause:</strong> Registration order or pattern specificity.</p>
 <p><strong>Fix:</strong> Check that a more specific static route is not shadowing your parameterized route:</p>
 <view-code language="javascript">router.register('/members/new', 'page-new');   // static — higher specificity
@@ -61,7 +61,7 @@ router.register('/members/:id', 'page-member');  // param — lower specificity
 <view-code language="javascript">const result = await router.match('/members/new');
 console.log(result.route.patternStr);
 </view-code>
-<h2>Query params not mapped to properties</h2>
+<h2 id="query-params-not-mapped-to-properties">Query params not mapped to properties</h2>
 <p><strong>Cause:</strong> Missing or misconfigured <code>query</code> contract array in the page or dock config.</p>
 <p><strong>Fix:</strong></p>
 <view-code language="javascript">page('/search', {
@@ -73,10 +73,10 @@ console.log(result.route.patternStr);
 });
 </view-code>
 <p>Without the <code>query</code> contract array, the router does not map <code>?q=hello</code> onto the element. Make sure the type is defined (e.g. <code>String</code> or <code>Number</code> for casting).</p>
-<h2>Tabs not syncing</h2>
+<h2 id="tabs-not-syncing">Tabs not syncing</h2>
 <p><strong>Cause:</strong> <code>BroadcastChannel</code> or <code>window.navigation</code> is unavailable.</p>
 <p><strong>Fix:</strong> Check browser support. Both are required. The router falls back silently when either is missing.</p>
-<h2>Memory leaks in tests</h2>
+<h2 id="memory-leaks-in-tests">Memory leaks in tests</h2>
 <p><strong>Cause:</strong> Event listeners and containers persist between tests.</p>
 <p><strong>Fix:</strong> Tear down the router between tests:</p>
 <view-code language="javascript">afterEach(() =&gt; {
@@ -87,7 +87,7 @@ console.log(result.route.patternStr);
   router.miss.clear();
 });
 </view-code>
-<h2>File templates not loading</h2>
+<h2 id="file-templates-not-loading">File templates not loading</h2>
 <p><strong>Cause:</strong> Missing <code>import.meta.url</code> as the third argument.</p>
 <p><strong>Fix:</strong></p>
 <view-code language="javascript">// Correct
@@ -100,7 +100,7 @@ page('/', {
   template: { html: './home.html', css: './home.css' }
 }); // no base
 </view-code>
-<h2>Still stuck?</h2>
+<h2 id="still-stuck">Still stuck?</h2>
 <p>Check the internal state:</p>
 <view-code language="javascript">import { getRoutes, ready, getContainer } from '@anzaui/anza/router';
 

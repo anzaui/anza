@@ -1,16 +1,16 @@
-<h1>State</h1>
+<h1 id="state">State</h1>
 <p>The Anza state layer provides reactive in-memory stores, lazy computed values, cross-tab synchronization, and transactional IndexedDB persistence. It is built on JavaScript Proxies for fine-grained reactivity without virtual DOM overhead.</p>
-<h2>What You Get</h2>
+<h2 id="what-you-get">What You Get</h2>
 <ul>
 <li><strong>Reactive stores</strong> — Proxy-based state with automatic dependency tracking and microtask-batched updates</li>
 <li><strong>Derived values</strong> — Lazy, memoized computations that track their own dependencies</li>
 <li><strong>Cross-tab sync</strong> — BroadcastChannel replication of store mutations across browser tabs</li>
 <li><strong>Persistence</strong> — IndexedDB-backed storage with migrations, TTL, and quota-aware eviction</li>
 </ul>
-<h2>Package</h2>
+<h2 id="package">Package</h2>
 <view-code language="javascript">import { state } from '@anzaui/anza/state';
 </view-code>
-<h2>File Map</h2>
+<h2 id="file-map">File Map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
 <tr><td><a href="/docs/state/quickstart">Quick Start</a></td><td>Your first store in five minutes</td></tr>
 <tr><td><a href="/docs/state/store">Store</a></td><td>ReactiveStore — get, set, subscribe, batch, snapshot</td></tr>
@@ -20,7 +20,7 @@
 <tr><td><a href="/docs/state/api">API Reference</a></td><td>Complete API reference</td></tr>
 <tr><td><a href="/docs/state/troubleshooting">Troubleshooting</a></td><td>Common problems and how to fix them</td></tr>
 </tbody></table></div>
-<h2>One-File Example</h2>
+<h2 id="one-file-example">One-File Example</h2>
 <view-code language="javascript">import { state } from '@anzaui/anza/state';
 
 // Create a reactive store
@@ -51,7 +51,7 @@ store.broadcast('app-state', ['count', 'user']);
 // Persist to IndexedDB
 state.storage.set('keyval', 'count', store.get('count'));
 </view-code>
-<h2>Next Steps</h2>
+<h2 id="next-steps">Next Steps</h2>
 <ul>
 <li>New to the state layer? Start with <a href="/docs/state/quickstart">Quick Start</a>.</li>
 <li>Building reactive UI? Read <a href="/docs/state/store">Store</a> and <a href="/docs/state/derived">Derived</a>.</li>

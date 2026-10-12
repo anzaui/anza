@@ -1,6 +1,6 @@
-<h1>Errors</h1>
+<h1 id="errors">Errors</h1>
 <p>Every failure in the API client is normalized to a <code>PlatformError</code>. This gives you structured error handling with codes, context, and recovery guidance.</p>
-<h2>PlatformError</h2>
+<h2 id="platformerror">PlatformError</h2>
 <view-code language="javascript">class PlatformError extends Error {
   name: 'PlatformError',
   code: string,          // error category
@@ -10,13 +10,13 @@
   recoverable: boolean  // can retry help?
 }
 </view-code>
-<h2>Error Codes</h2>
+<h2 id="error-codes">Error Codes</h2>
 <div class="table-wrap"><table><thead><tr><th>Code</th><th>Meaning</th><th>Recoverable</th></tr></thead><tbody>
 <tr><td><code>HTTP_ERROR</code></td><td>Server returned non-2xx status</td><td>5xx yes, 4xx no</td></tr>
 <tr><td><code>NETWORK_ERROR</code></td><td>Fetch failed (offline, DNS, CORS)</td><td>yes</td></tr>
 <tr><td><code>NETWORK_TIMEOUT</code></td><td>Request exceeded timeout limit</td><td>yes</td></tr>
 </tbody></table></div>
-<h2>Handling Errors</h2>
+<h2 id="handling-errors">Handling Errors</h2>
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
 
 try {
@@ -36,8 +36,8 @@ try {
   }
 }
 </view-code>
-<h2>Recovery Patterns</h2>
-<h3>Retry on Transient Failures</h3>
+<h2 id="recovery-patterns">Recovery Patterns</h2>
+<h3 id="retry-on-transient-failures">Retry on Transient Failures</h3>
 <p>The client retries automatically for:</p>
 <ul>
 <li><code>NETWORK_TIMEOUT</code></li>
@@ -47,7 +47,7 @@ try {
 <p>Client errors (4xx) are not retried. Adjust <code>retries</code> per request:</p>
 <view-code language="javascript">await api.get('/critical', { retries: 5 });
 </view-code>
-<h3>Custom Retry Logic</h3>
+<h3 id="custom-retry-logic">Custom Retry Logic</h3>
 <p>For advanced cases, use the <code>retry</code> utility directly:</p>
 <view-code language="javascript">import { retry } from '@anzaui/anza/api';
 
@@ -56,7 +56,7 @@ const result = await retry(
   { attempts: 5, base: 200, maxDelay: 5000 }
 );
 </view-code>
-<h2>Error Events</h2>
+<h2 id="error-events">Error Events</h2>
 <p>Listen for errors via telemetry:</p>
 <view-code language="javascript">api.on('error', (event) =&gt; {
   console.error('Network error:', event.detail.error);
@@ -70,7 +70,7 @@ api.on('timeout', (event) =&gt; {
   console.error('Timed out:', event.detail.error);
 });
 </view-code>
-<h2>Non-Recoverable Errors</h2>
+<h2 id="non-recoverable-errors">Non-Recoverable Errors</h2>
 <p>Some errors are marked <code>recoverable: false</code>. These include:</p>
 <ul>
 <li>Aborted requests</li>

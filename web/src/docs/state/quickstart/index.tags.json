@@ -1,1 +1,1 @@
-{"version":1,"refs":[],"ids":[],"classes":[],"tags":["code","h1","h2","p","view-code"],"compound":[],"attrs":["language"],"refTypes":{}}
+{"version":1,"refs":[],"ids":["1-create-a-store","2-read-and-write","3-subscribe-to-changes","4-batch-updates","5-derived-values","6-snapshot-and-hydrate","7-cross-tab-sync","8-persist-to-indexeddb","complete-working-example","quick-start"],"classes":[],"tags":["code","h1","h2","p","view-code"],"compound":[],"attrs":["id","language"],"refTypes":{}}

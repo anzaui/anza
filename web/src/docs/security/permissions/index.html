@@ -1,13 +1,13 @@
-<h1>Permissions</h1>
+<h1 id="permissions">Permissions</h1>
 <p>Query and watch browser permission states for device capabilities like geolocation, camera, microphone, and notifications.</p>
-<h2>Query</h2>
+<h2 id="query">Query</h2>
 <view-code language="javascript">import { security } from '@anzaui/anza/security';
 
 const state = await security.permission('geolocation');
 // 'granted' | 'denied' | 'prompt'
 </view-code>
 <p>Returns <code>'denied'</code> if the Permissions API is unavailable or the permission name is unrecognized.</p>
-<h2>Watch</h2>
+<h2 id="watch">Watch</h2>
 <view-code language="javascript">const dispose = security.watchPermission('geolocation', (state) =&gt; {
   console.log('Geolocation permission:', state);
 });
@@ -15,7 +15,7 @@ const state = await security.permission('geolocation');
 // Stop watching
 dispose();
 </view-code>
-<h2>AbortSignal Cleanup</h2>
+<h2 id="abortsignal-cleanup">AbortSignal Cleanup</h2>
 <view-code language="javascript">const ctrl = new AbortController();
 
 security.watchPermission('camera', (state) =&gt; {
@@ -25,7 +25,7 @@ security.watchPermission('camera', (state) =&gt; {
 // Auto-cleanup on unmount
 ctrl.abort();
 </view-code>
-<h2>Common Permission Names</h2>
+<h2 id="common-permission-names">Common Permission Names</h2>
 <div class="table-wrap"><table><thead><tr><th>Name</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>geolocation</code></td><td>GPS location</td></tr>
 <tr><td><code>camera</code></td><td>Video camera</td></tr>
@@ -35,7 +35,7 @@ ctrl.abort();
 <tr><td><code>clipboard-write</code></td><td>Clipboard write</td></tr>
 </tbody></table></div>
 <p>Not all permissions are supported in all browsers. Unsupported names return <code>'denied'</code>.</p>
-<h2>Example: Camera Gated Component</h2>
+<h2 id="example-camera-gated-component">Example: Camera Gated Component</h2>
 <view-code language="javascript">async function initCamera() {
   const state = await security.permission('camera');
 

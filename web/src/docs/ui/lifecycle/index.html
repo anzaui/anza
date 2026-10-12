@@ -1,13 +1,13 @@
-<h1>Lifecycle</h1>
+<h1 id="lifecycle">Lifecycle</h1>
 <p>Declarative elements have six lifecycle hooks. Each receives a context object with <code>el</code>, <code>ctrl</code>, <code>tags</code>, <code>refs</code>, <code>on</code>, <code>watch</code>, and <code>internals</code>.</p>
-<h2>Hook Map</h2>
+<h2 id="hook-map">Hook Map</h2>
 <div class="table-wrap"><table><thead><tr><th>Definition Layer</th><th>Factory Layer</th><th>When It Fires</th><th>Async?</th></tr></thead><tbody>
 <tr><td><code>on.load</code></td><td><code>spec.mount</code></td><td>After resources load, before <code>connect</code></td><td>yes</td></tr>
 <tr><td><code>on.connect</code></td><td><code>spec.mount</code> (after load)</td><td>Element connected to DOM</td><td>yes</td></tr>
 <tr><td><code>on.disconnect</code></td><td><code>spec.unmount</code></td><td>Element disconnected from DOM</td><td>no</td></tr>
 <tr><td><code>on.change</code></td><td><code>spec.update</code></td><td>Prop value changes (batched)</td><td>no</td></tr>
 </tbody></table></div>
-<h2>load</h2>
+<h2 id="load">load</h2>
 <p>Runs once per mount, after template and style resources have resolved. Use it for initial data fetching:</p>
 <view-code language="javascript">on: {
   async load({ params, query, raw, ctrl }) {
@@ -30,7 +30,7 @@
 <li><code>ctrl.signal</code>: Aborts the fetch automatically if the element disconnects.</li>
 </ul>
 <p><code>load</code> is awaited before <code>connect</code> runs. If <code>load</code> throws, <code>connect</code> still runs — the error is logged but not propagated.</p>
-<h2>connect</h2>
+<h2 id="connect">connect</h2>
 <p>Runs after <code>load</code>, when the element is fully connected:</p>
 <view-code language="javascript">on: {
   connect({ el, refs, on, watch }) {
@@ -41,7 +41,7 @@
 }
 </view-code>
 <p>Attach event listeners, observers, and set up reactive bindings here.</p>
-<h2>disconnect</h2>
+<h2 id="disconnect">disconnect</h2>
 <p>Runs when the element is removed from the DOM:</p>
 <view-code language="javascript">on: {
   disconnect({ el }) {
@@ -50,7 +50,7 @@
 }
 </view-code>
 <p>The <code>AbortController</code> (<code>ctrl</code>) is aborted automatically, so any listeners or observers bound to <code>ctrl.signal</code> clean up without manual work.</p>
-<h3>Soft-nav contract</h3>
+<h3 id="soft-nav-contract">Soft-nav contract</h3>
 <p>Soft-nav swaps only the <strong>page leaf</strong> (<code>replaceChildren</code> / <code>swapView</code>). Parent docks stay mounted.</p>
 <view-code language="text">connect / mount
   ctrl = new AbortController()
@@ -73,7 +73,7 @@ hard refresh
 <li>Do not observe <code>document</code> / <code>body</code> for leaf concerns — lift to a parent dock or use events/store.</li>
 <li>Framework globals (<code>router.nav-click</code>, <code>router.container-mo</code>, <code>popover.*</code>) stay stable across soft-nav — see <a href="/docs/ui/advanced#framework-global-listeners--observers">Advanced Topics</a>.</li>
 </ol>
-<h2>change</h2>
+<h2 id="change">change</h2>
 <p>Runs when a declared prop changes. Multiple rapid changes are batched into one callback:</p>
 <view-code language="javascript">on: {
   change({ name, val, old, el, refs }) {
@@ -99,7 +99,7 @@ hard refresh
 <tr><td><code>refs</code></td><td>Named element refs</td></tr>
 <tr><td><code>watch</code></td><td>Mutation watcher</td></tr>
 </tbody></table></div>
-<h2>Batching</h2>
+<h2 id="batching">Batching</h2>
 <p>Property changes are collected and flushed in one callback. The flush strategy depends on the <code>visual</code> flag:</p>
 <ul>
 <li><code>visual: true</code> — flushes via <code>requestAnimationFrame</code> (smooth, layout-aware)</li>
@@ -113,7 +113,7 @@ hard refresh
 });
 </view-code>
 <p><code>part()</code> uses <code>visual: false</code> because stateless primitives do not need rAF batching.</p>
-<h2>Lifecycle Order</h2>
+<h2 id="lifecycle-order">Lifecycle Order</h2>
 <p>For a newly created element:</p>
 <ol>
 <li>Constructor runs — props initialize from attributes</li>

@@ -1,25 +1,25 @@
-<h1>Steps</h1>
+<h1 id="steps">Steps</h1>
 <p>Linear step indicator for multi-step workflows. Marks completed / active / upcoming from <code>active</code> index.</p>
 <p><strong>Tag:</strong> <code>ui-steps</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/steps</code></p>
-<h2>Import</h2>
+<h2 id="import">Import</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/steps';
 </view-code>
-<h2>Basic usage</h2>
+<h2 id="basic-usage">Basic usage</h2>
 <view-code language="html">&lt;ui-steps active="1"&gt;
   &lt;div&gt;Account&lt;/div&gt;
   &lt;div&gt;Details&lt;/div&gt;
   &lt;div&gt;Confirm&lt;/div&gt;
 &lt;/ui-steps&gt;
 </view-code>
-<h2>Props</h2>
+<h2 id="props">Props</h2>
 <div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>active</code></td><td>Number</td><td>Reflect</td><td>Zero-based index of the active step (default <code>0</code>)</td></tr>
 </tbody></table></div>
-<h2>Notes</h2>
+<h2 id="notes">Notes</h2>
 <p>Slotted children get <code>role="step"</code> and a <code>state</code> of <code>completed</code>, <code>active</code>, or unset. Connector fill uses <code>part="line"</code> / <code>part="line-fill"</code>. <code>slotchange</code> listener is bound with component <code>on</code> (signal-owned).</p>
-<h3>Lifecycle / memory</h3>
+<h3 id="lifecycle--memory">Lifecycle / memory</h3>
 <p><code>on.slotchange</code> is tied to <code>ctrl.signal</code> — soft-nav disconnect aborts it. Prefer prop-driven <code>active</code> updates over attaching long-lived document listeners.</p>
-<h2>Related</h2>
+<h2 id="related">Related</h2>
 <ul>
 <li><a href="/docs/elements/index">Elements overview</a></li>
 <li><a href="/docs/elements/navigation">Navigation</a></li>

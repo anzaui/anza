@@ -1,33 +1,33 @@
-<h1>Quota</h1>
+<h1 id="quota">Quota</h1>
 <p>The quota manager wraps the browser StorageManager API, providing storage estimates, persistence requests, and proactive eviction warnings.</p>
-<h2>Estimate</h2>
+<h2 id="estimate">Estimate</h2>
 <view-code language="javascript">import { quota } from '@anzaui/anza/storage';
 
 const { usage, quota: limit } = await quota.estimate();
 console.log(`Using ${usage} of ${limit} bytes`);
 </view-code>
 <p>Returns <code>{ usage: 0, quota: 0 }</code> if the API is unavailable.</p>
-<h2>Persist</h2>
+<h2 id="persist">Persist</h2>
 <view-code language="javascript">const granted = await quota.persist();
 console.log('Persistent storage:', granted);
 </view-code>
 <p>Requests the browser to exempt this origin from automatic storage eviction. Returns <code>false</code> if unsupported or denied.</p>
-<h2>Check</h2>
+<h2 id="check">Check</h2>
 <view-code language="javascript">const warning = await quota.check((data) =&gt; {
   console.warn('Storage 80% full:', data);
 });
 </view-code>
 <p>Returns <code>true</code> if usage exceeds 80% of quota. Triggers the callback and dispatches <code>quota</code> events to registered listeners.</p>
-<h2>Event Listeners</h2>
+<h2 id="event-listeners">Event Listeners</h2>
 <view-code language="javascript">const off = quota.onQuotaWarning((data) =&gt; {
   showToast('Storage running low');
 });
 
 off(); // remove listener
 </view-code>
-<h2>Storage Facade Integration</h2>
+<h2 id="storage-facade-integration">Storage Facade Integration</h2>
 <p><code>storage.set()</code> calls <code>quota.check()</code> before persistent writes (<code>idb</code>, <code>opfs</code>, <code>cache</code>), at most once a minute; the <code>memory</code> tier never checks. If usage is over 80%, the check notifies <code>onQuotaWarning</code> listeners. Nothing is evicted automatically: free space yourself in the listener (for example <code>storage.clear('cache')</code>).</p>
-<h2>Platform Detection</h2>
+<h2 id="platform-detection">Platform Detection</h2>
 <p>Check support before calling:</p>
 <view-code language="javascript">import { supports } from '@anzaui/anza/platform';
 

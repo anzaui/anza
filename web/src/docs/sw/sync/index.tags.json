@@ -1,1 +1,1 @@
-{"version":1,"refs":[],"ids":[],"classes":[],"tags":["code","h1","h2","li","ol","p","view-code"],"compound":[],"attrs":["language"],"refTypes":{}}
+{"version":1,"refs":[],"ids":["dead-letter-queue","how-it-works","queue-a-task-from-the-main-thread","register-the-sync-event","replay-in-the-service-worker","request-serialization","sync"],"classes":[],"tags":["code","h1","h2","li","ol","p","view-code"],"compound":[],"attrs":["id","language"],"refTypes":{}}

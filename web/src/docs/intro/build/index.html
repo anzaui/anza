@@ -1,6 +1,6 @@
-<h1>Build</h1>
+<h1 id="build">Build</h1>
 <p>The <code>anza</code> CLI resolves your ESM import graph, copies reachable files into <code>dist/</code>, generates type declarations, and serves the result. You call it through npm scripts.</p>
-<h2>Dev Server</h2>
+<h2 id="dev-server">Dev Server</h2>
 <view-code language="bash">npm run dev
 </view-code>
 <p>This runs <code>anza dev</code> under the hood. It starts a server on <code>http://localhost:3000</code> and:</p>
@@ -21,19 +21,19 @@
 <view-code language="bash">npx anza dev --host 0.0.0.0
 </view-code>
 <p>With <code>0.0.0.0</code> (or <code>::</code>), requests by IP address (<code>http://192.168.1.20:3000</code>) are accepted, but host names other than <code>localhost</code> are still refused.</p>
-<h2>Compile-Time Route Validation</h2>
+<h2 id="compile-time-route-validation">Compile-Time Route Validation</h2>
 <p>During both <code>dev</code> and <code>build</code> phases, the Rust compiler performs design-by-contract checks on all page and dock definitions. It scans route pattern strings (e.g. <code>'/blog/:slug'</code>) and cross-references them with the declared <code>params</code> and <code>query</code> contract arrays.</p>
 <p>If a route parameter (like <code>:slug</code>) is present in the route but missing from the component's <code>params</code> array, the CLI prints a descriptive warning:</p>
 <view-code language="text">[WARN] Page tag 'page-blog-post' defines route '/blog/:slug' but has no parameter contract declared for ':slug'.
 </view-code>
 <p>These warnings are non-blocking: compilation still succeeds and the router will fallback to string matching, but developers get early visibility into contract mismatches.</p>
-<h2>Production Build</h2>
+<h2 id="production-build">Production Build</h2>
 <view-code language="bash">npm run build
 </view-code>
 <p>This runs <code>anza build</code>. Same graph resolution, but starts from a clean <code>dist/</code> and fails on unresolved imports or syntax errors.</p>
 <p>Production builds also optimize CSS with <a href="https://lightningcss.dev/">Lightning CSS</a>: every stylesheet in <code>dist/</code> has its local <code>@import</code> chain inlined (<code>/tokens/index.css</code> becomes one request instead of eleven) and is minified for current browsers (Chrome/Edge 120+, Firefox 121+, Safari/iOS 16.4+). External <code>@import url(https://…)</code> rules are kept. A stylesheet that Lightning CSS can't process is left as written, with a warning. <code>anza dev</code> serves CSS exactly as written.</p>
 <p>Production builds also put each element's resources into its module: when an <code>element()</code>, <code>view()</code>, <code>part()</code>, <code>dock()</code> or <code>page()</code> spec names a relative stylesheet, template or <code>.tags.json</code> descriptor, the built module carries their contents and the runtime uses them instead of fetching (one constructable stylesheet per element type, adopted by every instance). <code>page()</code> HTML templates stay files, since they're route-sized and the SSG HTML already contains them, and so do stylesheets with <code>@import</code> or relative <code>url()</code>. <code>anza dev</code> and apps without a build fetch the files as before.</p>
-<h3>Bundling (production)</h3>
+<h3 id="bundling-production">Bundling (production)</h3>
 <p><code>anza build</code> bundles the module graph into a few minified, content-hashed ES module chunks under <code>dist/assets/</code>, using <a href="https://rolldown.rs">Rolldown</a> 1.x through its JS API. Rolldown is a devDependency of <strong>your project</strong> (projects made by <code>npm create @anzaui/anza</code> already list it):</p>
 <view-code language="bash">npm install -D rolldown
 </view-code>
@@ -48,7 +48,7 @@
 <p>If Node, the bundle script or <code>rolldown</code> can't be found, or an HTML page has an inline <code>&lt;script type="module"&gt;</code> that needs the import map, the build warns and ships the unbundled modules with full <code>modulepreload</code> lists. <code>anza build --no-bundle</code> always does that. <code>anza dev</code> never bundles.</p>
 <p>Public routes get <strong>Mode A SSG</strong> (also during <code>anza dev</code>): contentful HTML with open Declarative Shadow DOM under <code>dist/&lt;route&gt;/index.html</code>, so hard refresh works on a plain static server. Publish <code>dist/</code> as the <strong>document root</strong>. Asset URLs are site-root paths (<code>/app.js</code>, <code>/tokens/...</code>) — never <code>/dist/...</code>. SSG pages also preload the fonts that the app shell (<code>src/index.html</code>) preloads with <code>&lt;link rel="preload" as="font"&gt;</code>.</p>
 <p>When the page’s CSR fragment path would collide with that SSG <code>index.html</code>, the emitter keeps the fragment as <code>template.html</code> and rewrites the built page module plus <code>routes.json</code> so soft-nav fetches the fragment — not the full document. Overview: <a href="/docs/ssg/index">SSG &amp; SEO</a>. Contract: <a href="/docs/ssg/contract">Page HTML contract (Mode A SSG · Mode B templates)</a>. Hydration: <a href="/docs/ui/hydration">Hydration (DSD adopt)</a>.</p>
-<h3>SEO extras (<code>ssg.json</code>)</h3>
+<h3 id="seo-extras-ssgjson">SEO extras (<code>ssg.json</code>)</h3>
 <p>Optional <code>ssg.json</code> next to (or inside) <code>src/</code> configures site origin and build-time SEO files:</p>
 <view-code language="json">{
   "origin": "https://example.com",
@@ -60,7 +60,7 @@
 <li>Always emits <code>dist/sitemap.xml</code> + <code>dist/robots.txt</code> for Mode A routes (unless disabled in <code>ssg.json</code>)</li>
 <li>Emits JSON-LD <code>WebSite</code> / <code>WebPage</code> in the SSG document <code>&lt;head&gt;</code> (light DOM; does not affect DSD hydration)</li>
 </ul>
-<h2>Diagnostics</h2>
+<h2 id="diagnostics">Diagnostics</h2>
 <view-code language="bash">npx anza doctor
 npx anza check
 </view-code>
@@ -70,7 +70,7 @@ npx anza check
 <tr><td><code>anza check</code></td><td>Strict structure check for CI (<code>anza check &amp;&amp; anza build</code>)</td></tr>
 </tbody></table></div>
 <p>Validates required spine (<code>package.json</code>, <code>src/index.html</code>, <code>src/app.js</code>), recommended tokens/styles/SW/importmap, optional slots + index-per-folder barrels, optional <code>anza.json</code> (incl. <code>sw</code> string|array), legacy <code>elements/</code> coexistence, undeclared page trees, and <strong>via → dock</strong> consistency (<code>rootDock</code> warn; unknown <code>via</code> error). Contract: <a href="/docs/intro/structure">Structure</a> (single source of truth + Troubleshooting).</p>
-<h3>CI</h3>
+<h3 id="ci">CI</h3>
 <view-code language="bash">anza check &amp;&amp; anza build
 </view-code>
 <view-code language="json">{
@@ -80,9 +80,9 @@ npx anza check
 }
 </view-code>
 <p>Doctor/check findings append <code>docs/intro/structure.md</code> so CI logs link back to the contract.</p>
-<h3>Deploy</h3>
+<h3 id="deploy">Deploy</h3>
 <p>After <code>npm run build</code>, publish <code>dist/</code> as the <strong>document root</strong> of any static host (nginx, Netlify, Cloudflare Pages, S3, …). Asset URLs are site-root paths (<code>/app.js</code>, <code>/tokens/...</code>) — never <code>/dist/...</code>.</p>
-<h4>Headers and caching (<code>_headers</code>)</h4>
+<h4 id="headers-and-caching-headers">Headers and caching (<code>_headers</code>)</h4>
 <p><code>anza build</code> writes <code>dist/_headers</code> in the format Cloudflare (Workers static assets and Pages) and Netlify read:</p>
 <ul>
 <li><code>/*</code> gets <code>Cache-Control: no-cache</code>, so browsers revalidate every file (a cheap <code>304</code> with <code>ETag</code>) and a deploy shows up on the next normal reload. HTML, <code>sw.js</code>, <code>importmap.json</code>, <code>routes.json</code> and page templates always stay <code>no-cache</code>.</li>
@@ -91,7 +91,7 @@ npx anza check
 <li>Each SSG route gets a <code>Link</code> header with its stylesheets (<code>rel=preload; as=style</code>) and its first modules (<code>rel=modulepreload</code>), most important first. Cloudflare can send these as <strong>103 Early Hints</strong>, so the browser starts fetching before the HTML arrives. Cloudflare allows at most 100 rules and 2,000 characters per line, so the list is cut to one line, and sites with more than about 50 routes get one rule per first path segment (<code>/docs</code> and <code>/docs/*</code>) with the preloads every route in it shares.</li>
 </ul>
 <p>On Cloudflare, <code>_headers</code> applies only to responses the static assets layer serves. A Worker that builds its own responses must set the same headers itself (see <code>web/worker.js</code>). Other hosts ignore the file: copy its rules into your server config.</p>
-<h4>Precompressed files (<code>.br</code>, <code>.gz</code>)</h4>
+<h4 id="precompressed-files-br-gz">Precompressed files (<code>.br</code>, <code>.gz</code>)</h4>
 <p>Production builds write <code>file.br</code> (brotli, quality 11) and <code>file.gz</code> (gzip, level 9) next to every <code>.html</code>, <code>.js</code>, <code>.css</code>, <code>.json</code> and <code>.svg</code> file of 1 KB or more. They're compressed once at build time at the highest level, which a CDN compressing on the fly usually doesn't use. The output is deterministic. To serve them, turn on precompressed lookup in your server:</p>
 <div class="table-wrap"><table><thead><tr><th>Server</th><th>Setting</th></tr></thead><tbody>
 <tr><td>nginx</td><td><code>gzip_static on;</code> and, with the <a href="https://github.com/google/ngx_brotli">brotli module</a>, <code>brotli_static on;</code></td></tr>
@@ -101,13 +101,13 @@ npx anza check
 </tbody></table></div>
 <p>The server must send <code>Vary: Accept-Encoding</code> and the original file's <code>Content-Type</code>, not <code>application/x-brotli</code>.</p>
 <p>Cloudflare and most CDNs compress responses themselves and don't look for <code>.br</code> siblings, so there the files are just unused extra uploads. Remove them before deploying if they matter (<code>find dist -name '*.br' -o -name '*.gz' | xargs rm</code>). <code>anza dev</code> never writes them.</p>
-<h4>GitHub Pages</h4>
+<h4 id="github-pages">GitHub Pages</h4>
 <p>A <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages#types-of-github-pages-sites">GitHub Pages project site</a> is served under <code>/&lt;repository&gt;/</code> (user/org sites use <code>owner.github.io</code> at <code>/</code>). Root-absolute browser URLs like <code>/styles/shared.css</code> resolve against the <strong>domain</strong> root (<a href="https://developer.mozilla.org/en-US/docs/Web/API/URL_API/Resolving_relative_references">URL standard</a>), so they 404 on project Pages unless rewritten.</p>
 <p><strong><code>*.github.io/&lt;repo&gt;</code> (no custom domain):</strong> set <code>"base": "/your-repo"</code> in <code>ssg.json</code> (next to or inside <code>src/</code>) or env <code>ANZA_BASE_PATH</code> so the build injects <code>globalThis.__ANZA_BASE__</code>, rewrites asset URLs in SSG HTML, and soft-nav style/template fetches hit <code>/your-repo/styles/...</code>. Publish <code>dist/</code> as the artifact <strong>document root</strong> — do not nest files under a <code>your-repo/</code> folder; Pages adds the repo prefix.</p>
 <p><strong>Custom domain on the project:</strong> Pages serves the site at the <strong>domain root</strong> (e.g. <code>https://anza.aduki.org/</code>), not under <code>/your-repo/</code> — see <a href="https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages">About custom domains and GitHub Pages</a>. Clear <code>base</code> / <code>ANZA_BASE_PATH</code> (omit or <code>""</code>) so assets resolve at <code>/styles/...</code>, <code>/app.js</code>, <code>/docs/...</code>. Include a <code>CNAME</code> in the published artifact when deploying via Actions.</p>
 <p><strong>One-time repo setup:</strong> Settings → Pages → Source: <strong>GitHub Actions</strong> (or your preferred Pages source).</p>
 <p>Set canonical / sitemap origin in <code>ssg.json</code> (<code>origin</code>) or env <code>ANZA_SITE_ORIGIN</code> at build time.</p>
-<h2>Generate</h2>
+<h2 id="generate">Generate</h2>
 <p>Thin helpers (not a Nest schematic platform). Writes into convention slots or <code>anza.json</code> remaps and updates the slot <code>index.js</code> barrel:</p>
 <view-code language="bash">anza generate page about
 anza generate page docs-home --tree docs --route /docs --via main,docs,content
@@ -122,7 +122,7 @@ anza generate part button
 <tr><td><code>part</code></td><td><code>parts/</code></td><td>same</td></tr>
 </tbody></table></div>
 <p>Flags: <code>--tree</code>, <code>--route</code>, <code>--via</code> (comma-separated), <code>--parent</code>, <code>-s/--src</code>.</p>
-<h2>Flags</h2>
+<h2 id="flags">Flags</h2>
 <div class="table-wrap"><table><thead><tr><th>Flag</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>-s, --src</code></td><td><code>src</code></td><td>Source directory</td></tr>
 <tr><td><code>-p, --port</code></td><td><code>3000</code></td><td>Dev server port</td></tr>
@@ -137,7 +137,7 @@ anza generate part button
 <tr><td><code>--via</code></td><td><code>rootDock</code></td><td>With <code>generate page</code> — comma-separated via chain</td></tr>
 <tr><td><code>--parent</code></td><td><code>rootDock</code></td><td>With <code>generate dock</code> — parent registry key</td></tr>
 </tbody></table></div>
-<h2>Output</h2>
+<h2 id="output">Output</h2>
 <p>After <code>npm run build</code>:</p>
 <view-code language="text">dist/
   index.html              # HTML with injected importmap link

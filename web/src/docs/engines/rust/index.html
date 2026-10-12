@@ -1,8 +1,8 @@
-<h1>Rust Engine</h1>
+<h1 id="rust-engine">Rust Engine</h1>
 <p>The Anza Rust Engine (crate <code>anza</code>) renders full HTML pages and signed JSON
 fragment envelopes from <code>.html</code> templates. Templates are loaded and parsed once
 at startup; a render walks the pre-split chunks and copies parameter values in.</p>
-<h2>What You Get</h2>
+<h2 id="what-you-get">What You Get</h2>
 <ul>
 <li><strong>Parse once</strong> — every template under the root is read and split into static chunks and <code>{{slot}}</code> placeholders by <code>Setup::run()</code></li>
 <li><strong>Framework adapters</strong> — <code>IntoResponse</code> (Axum) and <code>Responder</code> (Actix-web) for <code>Document</code> and <code>Envelope</code>, plus SSE helpers</li>
@@ -10,12 +10,12 @@ at startup; a render walks the pre-split chunks and copies parameter values in.<
 <li><strong>Signing</strong> — HMAC-SHA256 or Ed25519 signatures over <code>ts:slot:html</code></li>
 <li><strong>Watch</strong> — with the <code>watch</code> feature and <code>Setup { watch: true, .. }</code>, edited, added and removed <code>.html</code> templates are reloaded into the cache</li>
 </ul>
-<h2>Installation</h2>
+<h2 id="installation">Installation</h2>
 <view-code language="toml">[dependencies]
 anza = { version = "0.5", features = ["axum"] }
 tokio = { version = "1", features = ["full"] }
 </view-code>
-<h3>Feature Flags</h3>
+<h3 id="feature-flags">Feature Flags</h3>
 <div class="table-wrap"><table><thead><tr><th>Feature</th><th>Description</th></tr></thead><tbody>
 <tr><td><em>(default)</em></td><td>No web framework and no async runtime</td></tr>
 <tr><td><code>axum</code></td><td><code>IntoResponse</code> for <code>Document</code> (HTML) and <code>Envelope</code> (JSON); <code>adapters::axum::stream::event</code> builds an SSE <code>Event</code></td></tr>
@@ -23,7 +23,7 @@ tokio = { version = "1", features = ["full"] }
 <tr><td><code>watch</code></td><td>Watches the root with <code>notify</code> and reloads changed templates into the cache</td></tr>
 <tr><td><code>full</code></td><td>All of the above</td></tr>
 </tbody></table></div>
-<h2>Quickstart (Axum)</h2>
+<h2 id="quickstart-axum">Quickstart (Axum)</h2>
 <view-code language="rust">use std::sync::Arc;
 use anza::{Fragment, Page, Setup};
 use axum::{routing::get, Router};
@@ -60,7 +60,7 @@ async fn main() {
 </view-code>
 <p><code>Document</code> and <code>Envelope</code> implement <code>IntoResponse</code> with the <code>axum</code> feature, so
 handlers can return them directly.</p>
-<h2>Parameters</h2>
+<h2 id="parameters">Parameters</h2>
 <p><code>Page::param</code> and <code>Fragment::param</code> take string pairs. For structured data,
 bind a template yourself:</p>
 <view-code language="rust">use serde::Serialize;
@@ -79,7 +79,7 @@ arrays of <code>(&amp;str, &amp;str)</code> pairs, <code>serde_json::Value</code
 <code>Serialize</code> type.</p>
 <p>Values are inserted <strong>as is, without HTML escaping</strong>. Escape user input before
 passing it in.</p>
-<h2>Signing Configuration</h2>
+<h2 id="signing-configuration">Signing Configuration</h2>
 <p><code>Setup</code> has public fields (<code>root</code>, <code>signing</code>, <code>watch</code>). Two helpers build the
 signing mode:</p>
 <view-code language="rust">use anza::{Setup, SignMode};
@@ -95,18 +95,18 @@ setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub");
 setup.signing = SignMode::None;
 </view-code>
 <p>The signature is hex-encoded; see <a href="/docs/engines/crypto">Cryptographic Verification</a>.</p>
-<h2>Page Rendering</h2>
+<h2 id="page-rendering">Page Rendering</h2>
 <p><code>Page::new(route)</code> maps the route to a template: <code>/</code> → <code>pages/home.html</code>,
 <code>/about</code> → <code>pages/about.html</code>, then falls back to <code>about.html</code> and
 <code>pages/index.html</code>. The page is bound with the params, then inserted into
 <code>layout/shell.html</code> as <code>{{content}}</code> (also <code>{{slot_main}}</code>). Without a shell,
 a minimal document with a <code>&lt;dock-main&gt;</code> is emitted.</p>
-<h2>Streaming</h2>
+<h2 id="streaming">Streaming</h2>
 <p><code>Stream</code> renders an envelope like <code>Fragment</code>; <code>stream::sse::frame::encode(&amp;envelope)</code>
 formats it as an SSE <code>template</code> event and <code>stream::ws::packet::encode</code> as a
 WebSocket text frame. With the <code>axum</code> feature, <code>adapters::axum::stream::event</code>
 returns an <code>axum::response::sse::Event</code>. See <a href="/docs/engines/streaming">Real-Time Streaming</a>.</p>
-<h2>Crate Layout</h2>
+<h2 id="crate-layout">Crate Layout</h2>
 <div class="table-wrap"><table><thead><tr><th>Module</th><th>Contents</th></tr></thead><tbody>
 <tr><td><code>data::r#in</code></td><td><code>Setup</code> (config) and the <code>Page</code>, <code>Fragment</code>, <code>Stream</code> operations</td></tr>
 <tr><td><code>engine::slot</code></td><td><code>{{slot}}</code> parser (<code>extract</code>) and binder (<code>Params</code>, <code>Data</code>)</td></tr>

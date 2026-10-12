@@ -1,13 +1,13 @@
-<h1>Layouts &amp; Shells</h1>
+<h1 id="layouts--shells">Layouts &amp; Shells</h1>
 <p>Anza Server Layouts wrap individual page templates in a persistent HTML document shell. By combining document-level <code>&lt;head&gt;</code> metadata, CSS token definitions, and Web Standards <strong>Declarative Shadow DOM (DSD)</strong>, shells ensure instant initial rendering and zero-layout-shift navigation.</p>
-<h2>What You Get</h2>
+<h2 id="what-you-get">What You Get</h2>
 <div class="table-wrap"><table><thead><tr><th>Feature</th><th>Description</th></tr></thead><tbody>
 <tr><td><strong>SEO &amp; OpenGraph Tags</strong></td><td>Server-rendered <code>&lt;meta&gt;</code> tags for search engine bots and social previews</td></tr>
 <tr><td><strong>Origin Verification</strong></td><td><code>&lt;meta name="anza-key"&gt;</code> exposing the origin's Ed25519 public key for proxy validation</td></tr>
 <tr><td><strong>Declarative Shadow DOM</strong></td><td>Native <code>&lt;template shadowrootmode="open"&gt;</code> container for root <code>&lt;dock-main&gt;</code></td></tr>
 <tr><td><strong>Shared Design Tokens</strong></td><td>Root CSS variables for colors, typography, and layout spacing</td></tr>
 </tbody></table></div>
-<h2>Shell Architecture (<code>layout/shell.html</code>)</h2>
+<h2 id="shell-architecture-layoutshellhtml">Shell Architecture (<code>layout/shell.html</code>)</h2>
 <p>Below is the standard shell layout pattern used across Anza applications:</p>
 <view-code language="html">&lt;!DOCTYPE html&gt;
 &lt;html lang="en"&gt;
@@ -77,7 +77,7 @@
 &lt;/body&gt;
 &lt;/html&gt;
 </view-code>
-<h2>Nested Declarative Shadow DOM Docks</h2>
+<h2 id="nested-declarative-shadow-dom-docks">Nested Declarative Shadow DOM Docks</h2>
 <p>Anza supports nesting custom element docks directly in server templates. Each dock encapsulates its internal styles while projecting light-DOM children into its <code>&lt;slot&gt;</code>:</p>
 <view-code language="html">&lt;dock-main&gt;
   &lt;template shadowrootmode="open"&gt;
@@ -97,13 +97,13 @@
   &lt;/div&gt;
 &lt;/dock-main&gt;
 </view-code>
-<h3>Why Declarative Shadow DOM?</h3>
+<h3 id="why-declarative-shadow-dom">Why Declarative Shadow DOM?</h3>
 <ol>
 <li><strong>Instant Hydration</strong>: The browser parses and renders the shadow tree during initial HTML streaming before scripts run.</li>
 <li><strong>Style Isolation</strong>: Styles defined inside a component's <code>&lt;style&gt;</code> tag do not bleed outward or affect siblings.</li>
 <li><strong>Seamless Swaps</strong>: Client routers swap only the slotted light-DOM children (<code>{{content}}</code> or <code>{{articles}}</code>) without remounting parent chrome.</li>
 </ol>
-<h2>Origin Key Distribution (<code>&lt;meta name="anza-key"&gt;</code>)</h2>
+<h2 id="origin-key-distribution-meta-nameanza-key">Origin Key Distribution (<code>&lt;meta name="anza-key"&gt;</code>)</h2>
 <p>The shell layout embeds the server's Ed25519 public key in hexadecimal format:</p>
 <view-code language="html">&lt;meta name="anza-key" content="a7b48c90f23d4e68..."&gt;
 </view-code>

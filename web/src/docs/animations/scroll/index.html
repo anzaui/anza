@@ -1,6 +1,6 @@
-<h1>Scroll</h1>
+<h1 id="scroll">Scroll</h1>
 <p>Scroll-driven animations link element playback to scroll position or viewport intersection. The module wraps <code>ScrollTimeline</code> and <code>ViewTimeline</code> with graceful fallbacks for unsupported browsers.</p>
-<h2>Scroll Timeline</h2>
+<h2 id="scroll-timeline">Scroll Timeline</h2>
 <view-code language="javascript">import { animations } from '@anzaui/anza/animations';
 
 const timeline = animations.scroll({
@@ -14,7 +14,7 @@ el.animate(
 );
 </view-code>
 <p>The animation progress is tied to the scroll position of the source element.</p>
-<h2>View Timeline</h2>
+<h2 id="view-timeline">View Timeline</h2>
 <view-code language="javascript">const timeline = animations.view({
   subject: el,
   axis: 'block',
@@ -27,14 +27,14 @@ el.animate(
 );
 </view-code>
 <p>The animation plays as the element enters and exits the viewport.</p>
-<h2>Fallback</h2>
+<h2 id="fallback">Fallback</h2>
 <p>If <code>ScrollTimeline</code> or <code>ViewTimeline</code> is not available, a descriptor object is returned with <code>unsupported: true</code>:</p>
 <view-code language="javascript">const timeline = animations.scroll();
 if (timeline.unsupported) {
   // Fallback: use scroll listener + manual animation
 }
 </view-code>
-<h2>Platform Check</h2>
+<h2 id="platform-check">Platform Check</h2>
 <view-code language="javascript">import { supports } from '@anzaui/anza/platform';
 
 if (supports.scrollTimeline) {

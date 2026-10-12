@@ -1,6 +1,6 @@
-<h1>Events</h1>
+<h1 id="events">Events</h1>
 <p>The router emits three events: <code>found</code>, <code>notfound</code>, and <code>error</code>. Subscribe with <code>router.on()</code>. After <code>notfound</code> / <code>error</code>, the <a href="/docs/router/fallbacks">fallback resolver</a> mounts a leaf into the deepest live dock unless an escape hatch handled it.</p>
-<h2>Found</h2>
+<h2 id="found">Found</h2>
 <p>Emitted when a route matches successfully:</p>
 <view-code language="javascript">const dispose = router.on('found', (detail) =&gt; {
   console.log(detail.tag);        // element tag, e.g. 'page-home'
@@ -14,7 +14,7 @@
 });
 </view-code>
 <p>The orchestrator listens to this event and mounts the matched element into its container. You can also listen for analytics, logging, or side effects.</p>
-<h2>Not Found</h2>
+<h2 id="not-found">Not Found</h2>
 <p>Emitted when no route matches:</p>
 <view-code language="javascript">router.on('notfound', ({ url }) =&gt; {
   console.warn('No route for', url);
@@ -26,7 +26,7 @@
   // full manual control — or return false
 });
 </view-code>
-<h2>Error</h2>
+<h2 id="error">Error</h2>
 <p>Emitted when something goes wrong during navigation:</p>
 <view-code language="javascript">router.on('error', ({ error, url, route, phase }) =&gt; {
   console.error(`Navigation failed in phase ${phase}:`, error);
@@ -50,7 +50,7 @@ router.pages.configure({
   error: { tag: 'page-server-error' }
 });
 </view-code>
-<h2>Subscription and Cleanup</h2>
+<h2 id="subscription-and-cleanup">Subscription and Cleanup</h2>
 <p><code>router.on()</code> returns a disposer:</p>
 <view-code language="javascript">const dispose = router.on('found', handler);
 // later
@@ -62,7 +62,7 @@ router.on('found', handler, controller.signal);
 controller.abort(); // removes the listener
 </view-code>
 <p>Inside a page leaf, prefer <code>ctrl.signal</code> from lifecycle context so soft-nav tears the subscription down with the element.</p>
-<h2>Clearing Listeners</h2>
+<h2 id="clearing-listeners">Clearing Listeners</h2>
 <p>There is no bulk clear for event listeners. Each subscription is independent. Use <code>AbortController</code> for grouped cleanup:</p>
 <view-code language="javascript">const ctrl = new AbortController();
 router.on('found', handlerA, ctrl.signal);
@@ -71,7 +71,7 @@ router.on('error', handlerB, ctrl.signal);
 // Remove both at once
 ctrl.abort();
 </view-code>
-<h2>Event Order</h2>
+<h2 id="event-order">Event Order</h2>
 <p>During a successful navigation:</p>
 <ol>
 <li>Navigation API <code>navigate</code> event fires</li>
@@ -95,7 +95,7 @@ ctrl.abort();
 <li><code>error</code> event emits with the appropriate <code>phase</code></li>
 <li>Fallback resolver mounts error leaf (unless suppressed / handled)</li>
 </ol>
-<h2>Listening Inside Components</h2>
+<h2 id="listening-inside-components">Listening Inside Components</h2>
 <p>Components can subscribe to router events for coordination:</p>
 <view-code language="javascript">page('/dashboard', {
   tag: 'page-dashboard',
@@ -112,7 +112,7 @@ ctrl.abort();
 });
 </view-code>
 <p>Prefer <code>ctrl.signal</code> over a manual disposer in <code>disconnect</code> — soft-nav aborts the leaf controller automatically.</p>
-<h2>Related</h2>
+<h2 id="related">Related</h2>
 <ul>
 <li><a href="/docs/router/fallbacks">Fallbacks (404 / 5xx / offline)</a> — leaf mount after miss / error</li>
 <li><a href="/docs/router/guards">Guards</a> — throws → <code>error</code> with <code>phase: 'guard'</code></li>
