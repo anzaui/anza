@@ -1,64 +1,75 @@
 ---
 seo_title: "Toast — Anza"
-description: "ui-toast — transient status notification with body portal and auto-dismiss."
+description: "ui-toast: temporary status message that removes itself after a delay. showToast() stacks toasts in a fixed corner container."
 ---
 
 # Toast
 
-Transient status notification. Auto-dismisses after a duration; the `show` helper portals instances into a shared fixed container under `document.body`.
+Temporary status message that removes itself after `duration` milliseconds.
 
 **Tag:** `ui-toast` · **Import:** `@anzaui/anza/elements/toast`
 
-## Import
+## Usage
+
+Call `showToast()`:
 
 ```javascript
-import '@anzaui/anza/elements/toast';
-import { show as showToast } from '@anzaui/anza/elements/toast';
-// or from the kit barrel:
-// import { showToast } from '@anzaui/anza/elements';
+import { showToast } from '@anzaui/anza/elements';
+
+showToast('Settings saved', { duration: 5000 });
 ```
 
-## Basic usage
+`@anzaui/anza/elements` registers every element. To load only the toast, import the same helper as `show`:
 
 ```javascript
-import '@anzaui/anza/elements/toast';
-import { show as showToast } from '@anzaui/anza/elements/toast';
+import { show } from '@anzaui/anza/elements/toast';
 
-showToast('Saved successfully.');
-showToast('Still working…', { duration: 5000 });
+show('Settings saved');
 ```
 
-Or mount a toast element yourself (same body container if you append via `show`):
+You can also place the tag yourself. It dismisses itself the same way, but stays where you put it:
 
 ```html
-<ui-toast duration="4000">Copied to clipboard</ui-toast>
+<ui-toast duration="4000">Upload complete</ui-toast>
 ```
 
-## Props
+## `showToast(message, options)`
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `duration` | Number | Reflect | Auto-dismiss delay in ms (default `3000`) |
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `message` | string | Toast text. Set as `textContent`, so HTML is not parsed. |
+| `options.duration` | number | Milliseconds before the toast dismisses. Omitted or `0` means 3000. |
 
-## Helpers
+Returns the new `ui-toast` element, or `undefined` when there is no `window`. The first call appends one shared container to `document.body`: fixed, bottom-right, `z-index: 9999`, stacked in a column. Later toasts go into the same container. It is not a dialog or popover.
 
-| Helper | Description |
-| ------ | ----------- |
-| `show(message, options?)` | Creates a `ui-toast`, sets optional `duration`, appends to the shared body container. Re-exported from the kit barrel as `showToast`. |
+## Attributes
 
-## Notes
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `duration` | Number | `3000` | Milliseconds from mount until dismiss. Read once at mount; later changes have no effect. |
 
-Default slot is the toast body (`role="status"`, `part="toast"`). After `duration`, the toast fades out and removes itself.
+On dismiss the toast fades out and is removed from the DOM 250ms later. It fires no events. If it disconnects first, the timer is cleared.
 
-### Lifecycle / memory
+## Slots
 
-`show` appends a shared fixed container under `document.body` and places toasts there — ownership stays with each toast instance, not a long-lived document listener. Auto-dismiss uses `setTimeout` cleared on the element `AbortController` (`el.ctrl.signal` abort). Soft-nav aborts only the detached leaf’s `ctrl`; toasts that outlive a leaf should be created/owned where their lifetime belongs (or removed explicitly). Prefer signal-owned work over raw `document` / `body` listeners. See [Memory safety & framework globals](../ui/advanced.md) and [Orphan listeners after soft-nav](../events/troubleshooting.md).
+| Slot | Content |
+| ---- | ------- |
+| (default) | Message content |
+
+## Keyboard and accessibility
+
+The surface has `role="status"`, a polite live region. The toast takes no focus and has no close button, so do not put actions in it that the user must reach before it disappears.
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `toast` | The toast surface (`role="status"`) |
 
 ## Related
 
-- [Elements overview](index.md)
-- [Feedback](index.md#feedback)
 - [Alert](alert.md)
-- [Overlay patterns](overlay.md) (native top-layer vs this body-portal exception)
-- [Memory safety & framework globals](../ui/advanced.md)
-- [Orphan listeners after soft-nav](../events/troubleshooting.md)
+- [Overlay patterns](overlay.md)
+- [Elements](index.md#feedback)

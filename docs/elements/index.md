@@ -124,7 +124,7 @@ ui-checkbox:state(checked)::part(box) {
 
 ## Cleanup
 
-Elements bind their listeners and observers to the component `AbortController` (`ctrl.signal`). When a soft navigation swaps a page, the old page's elements disconnect and their listeners are removed. Overlays use the native top layer in place. The toast is the one exception: it moves itself under `document.body` so it survives page swaps.
+Elements bind their listeners and observers to the component `AbortController` (`ctrl.signal`). When a soft navigation swaps a page, the old page's elements disconnect and their listeners are removed. Overlays use the native top layer in place. `showToast()` is the one exception: it puts its toasts in a container under `document.body`, so they survive page swaps.
 
 If you add listeners to `document` or `window` from an element, pass `{ signal: ctrl.signal }`. See [Context](../ui/context.md) and [Orphan listeners after soft-nav](../events/troubleshooting.md).
 

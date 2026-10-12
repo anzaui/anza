@@ -1,23 +1,15 @@
 ---
 seo_title: "Menu — Anza"
-description: "ui-menu — keyboard menu built on the Popover API."
+description: "ui-menu: role=menu panel on the Popover API with arrow-key navigation, roving tabindex, and show(), hide(), toggle()."
 ---
 
 # Menu
 
-Keyboard-accessible menu built on the Popover API with roving tabindex (arrows, Home, End, Escape).
+Action menu on the Popover API (`popover="auto"`, `role="menu"`), with arrow-key navigation and a roving `tabindex`.
 
 **Tag:** `ui-menu` · **Import:** `@anzaui/anza/elements/menu`
 
-Architecture and when-to-use: [Overlay patterns](overlay.md).
-
-## Import
-
-```javascript
-import '@anzaui/anza/elements/menu';
-```
-
-## Basic usage
+## Usage
 
 ```html
 <ui-button id="actions" type="button">Actions</ui-button>
@@ -26,37 +18,63 @@ import '@anzaui/anza/elements/menu';
   <ui-button type="button">Duplicate</ui-button>
   <ui-button type="button">Delete</ui-button>
 </ui-menu>
-
-<script type="module">
-  const menu = document.querySelector('#menu');
-  document.querySelector('#actions').addEventListener('click', () => menu.toggle());
-</script>
 ```
 
-## Props
+```javascript
+import '@anzaui/anza/elements/menu';
 
-None. Open state is driven by methods.
+const menu = document.querySelector('#menu');
+document.querySelector('#actions').addEventListener('click', () => menu.toggle());
+```
+
+The menu does not close when an item is clicked; call `hide()` in your item handler. It also does not position the panel next to the trigger; place it with CSS on `ui-menu::part(menu)`.
+
+Where the browser lacks the Popover API, the element loads the platform polyfill. See [Overlay patterns](overlay.md#popover-polyfill).
+
+## Slots
+
+| Slot | Content |
+| ---- | ------- |
+| (default) | Menu items. Direct children that are `ui-button`, `button` or `[role="menuitem"]` count as items. |
+
+When the slot content changes, each item without a `role` gets `role="menuitem"`. The first item gets `tabindex="0"` and the others `tabindex="-1"`.
 
 ## Methods
 
-| Method | Description |
-| ------ | ----------- |
-| `show()` | Opens the menu and focuses the first item |
-| `hide()` | Closes the menu |
-| `toggle()` | Toggles open / closed |
+| Method | Returns | Description |
+| ------ | ------- | ----------- |
+| `show()` | `undefined` | Opens the panel if it is closed and focuses the first item. |
+| `hide()` | `undefined` | Closes the panel if it is open. |
+| `toggle()` | `undefined` | Calls `show()` or `hide()`. |
 
-## Notes
+The menu fires no events of its own.
 
-Slotted `ui-button` / `button` / `[role=menuitem]` get `role="menuitem"` and roving `tabindex`. Surface is `part="menu"` with `[popover="auto"]`.
+## Keyboard and accessibility
 
-### Lifecycle / memory
+Keys are handled on the panel:
 
-Key handlers bind on the popover surface via component `on`. Soft-nav aborts the leaf `ctrl`. See [Overlay patterns](overlay.md) and [Memory safety & framework globals](../ui/advanced.md).
+| Key | Action |
+| --- | ------ |
+| ArrowDown | Focus the next item (wraps to the first) |
+| ArrowUp | Focus the previous item (wraps to the last) |
+| Home | Focus the first item |
+| End | Focus the last item |
+| Escape | Close the menu |
+
+The focused item gets `tabindex="0"`. The element stores its index in `data-focused-index` on the host. With the native API, a click outside also closes the menu (light dismiss); the polyfill closes it on a pointer press outside.
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `menu` | The `[popover]` panel (`role="menu"`) |
+
+Slotted `ui-button`, `button` and `div[role="menuitem"]` children get full-width row styling from the element.
 
 ## Related
 
 - [Overlay patterns](overlay.md)
 - [Popover](popover.md)
-- [Elements overview](index.md)
-- [Platform API](../platform/api.md) (`guard.popover`)
-- [Guards](../platform/guards.md)
+- [Button](button.md)

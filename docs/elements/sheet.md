@@ -1,67 +1,75 @@
 ---
 seo_title: "Sheet — Anza"
-description: "ui-sheet — bottom sheet overlay with drag-to-dismiss."
+description: "ui-sheet: modal bottom sheet on the native dialog with a drag handle to dismiss. Open with the open attribute or show()."
 ---
 
 # Sheet
 
-Bottom sheet overlay backed by native `<dialog>` + `showModal()`, with drag-to-dismiss on the handle.
+Modal bottom sheet on a native `<dialog>`. Drag the handle down to dismiss it.
 
 **Tag:** `ui-sheet` · **Import:** `@anzaui/anza/elements/sheet`
 
-Architecture and when-to-use: [Overlay patterns](overlay.md).
+## Usage
 
-## Import
+```html
+<ui-button id="open-filters" type="button">Filters</ui-button>
+
+<ui-sheet id="filters">
+  <h2>Filters</h2>
+  <p>Sheet content</p>
+</ui-sheet>
+```
 
 ```javascript
 import '@anzaui/anza/elements/sheet';
+
+const sheet = document.querySelector('#filters');
+document.querySelector('#open-filters').addEventListener('click', () => sheet.show());
 ```
 
-## Basic usage
+## Attributes
 
-```html
-<ui-sheet id="filters">
-  <h2>Filters</h2>
-  <!-- drag the handle to dismiss -->
-</ui-sheet>
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `open` | Boolean | `false` | Opens the sheet (`showModal()`) when set and closes it when removed. Closing waits 300ms for the slide-down before the native dialog closes. |
 
-<script type="module">
-  document.querySelector('#filters').show();
-  // hide() or open = false closes after the exit transition
-</script>
-```
+## Slots
 
-## Props
-
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `open` | Boolean | Reflect | Mirrors open state; synced to `dialog.showModal()` / `close()` |
-
-## Methods
-
-| Method | Description |
-| ------ | ----------- |
-| `show()` | Sets `open` → opens modal |
-| `hide()` | Clears `open` → closes after transition |
+| Slot | Content |
+| ---- | ------- |
+| (default) | Sheet content, in a scrollable area below the handle |
 
 ## Events
 
-| Event | When |
-| ----- | ---- |
-| `close` | When the native dialog closes |
+| Event | Detail | When |
+| ----- | ------ | ---- |
+| `close` | none | The native dialog closed (after `hide()`, `open` removed, a drag dismiss, or Escape). Bubbles and is composed. |
 
-## Notes
+## Methods
 
-Default slot projects into `part="content"`. Drag handle is `part="handle"` (dismiss threshold ~120px). Dialog surface is `part="dialog"`. Same modal-dialog family as [dialog](dialog.md) and [drawer](drawer.md).
+| Method | Returns | Description |
+| ------ | ------- | ----------- |
+| `show()` | `undefined` | Sets `open` to `true`. |
+| `hide()` | `undefined` | Sets `open` to `false`. |
 
-### Lifecycle / memory
+## Keyboard and accessibility
 
-Pointer drag and close handling stay on the sheet instance / `el.ctrl`. Soft-nav aborts teardown. See [Overlay patterns](overlay.md) and [Memory safety & framework globals](../ui/advanced.md).
+The native modal dialog traps focus and makes the page inert. Escape closes it at once and clears `open`.
+
+Drag: press on the handle and move down; the sheet follows the pointer (upward moves are ignored). Releasing after more than 120px closes the sheet; a shorter drag snaps it back. The drag has no keyboard equivalent, so keep a close button in the content.
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `dialog` | The native `<dialog>` panel |
+| `handle` | The drag handle bar |
+| `content` | Scrollable wrapper around the default slot |
 
 ## Related
 
 - [Overlay patterns](overlay.md)
 - [Dialog](dialog.md)
 - [Drawer](drawer.md)
-- [Elements overview](index.md)
-- [Platform API](../platform/api.md)

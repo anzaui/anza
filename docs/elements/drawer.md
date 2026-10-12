@@ -1,68 +1,75 @@
 ---
 seo_title: "Drawer — Anza"
-description: "ui-drawer — side panel overlay using native dialog showModal."
+description: "ui-drawer: modal side panel on the native dialog that slides in from the left or right. Open with the open attribute or show()."
 ---
 
 # Drawer
 
-Side panel overlay backed by native `<dialog>` + `showModal()` (top-layer, focus trap).
+Modal side panel on a native `<dialog>` that slides in from the left or right edge.
 
 **Tag:** `ui-drawer` · **Import:** `@anzaui/anza/elements/drawer`
 
-Architecture and when-to-use: [Overlay patterns](overlay.md).
+## Usage
 
-## Import
+```html
+<ui-button id="open-nav" type="button">Menu</ui-button>
+
+<ui-drawer id="nav" placement="left">
+  <h2>Navigate</h2>
+  <a href="/docs">Docs</a>
+</ui-drawer>
+```
 
 ```javascript
 import '@anzaui/anza/elements/drawer';
+
+const drawer = document.querySelector('#nav');
+document.querySelector('#open-nav').addEventListener('click', () => drawer.show());
+drawer.addEventListener('close', () => console.log('closed'));
 ```
 
-## Basic usage
+## Attributes
 
-```html
-<ui-drawer id="nav-drawer" placement="left">
-  <h2>Navigate</h2>
-  <!-- side panel content -->
-</ui-drawer>
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `open` | Boolean | `false` | Opens the drawer (`showModal()`) when set and closes it when removed. Closing waits 300ms for the slide-out before the native dialog closes. |
+| `placement` | String | `right` | Edge to slide from: `left` or `right`. |
 
-<script type="module">
-  document.querySelector('#nav-drawer').show();
-  // hide() or open = false closes after the exit transition
-</script>
-```
+Set `placement` as an attribute. The slide styles match `[placement="left"]` and `[placement="right"]` on the host, and the `right` default is not written back to the attribute.
 
-## Props
+## Slots
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `open` | Boolean | Reflect | Mirrors open state; synced to `dialog.showModal()` / `close()` |
-| `placement` | String | Reflect | `left` or `right` (default `right`) |
-
-## Methods
-
-| Method | Description |
-| ------ | ----------- |
-| `show()` | Sets `open` → opens modal |
-| `hide()` | Clears `open` → closes after transition |
+| Slot | Content |
+| ---- | ------- |
+| (default) | Drawer body (column flex layout) |
 
 ## Events
 
-| Event | When |
-| ----- | ---- |
-| `close` | When the native dialog closes |
+| Event | Detail | When |
+| ----- | ------ | ---- |
+| `close` | none | The native dialog closed (after `hide()`, `open` removed, or Escape). Bubbles and is composed. |
 
-## Notes
+## Methods
 
-Default slot is the drawer body. Native surface is `part="dialog"`. Same modal-dialog family as [dialog](dialog.md) and [sheet](sheet.md).
+| Method | Returns | Description |
+| ------ | ------- | ----------- |
+| `show()` | `undefined` | Sets `open` to `true`. |
+| `hide()` | `undefined` | Sets `open` to `false`. |
 
-### Lifecycle / memory
+## Keyboard and accessibility
 
-Close handling stays on the dialog instance. Soft-nav aborts the leaf `ctrl`. See [Overlay patterns](overlay.md) and [Memory safety & framework globals](../ui/advanced.md).
+The native modal dialog traps focus and makes the page inert. Escape closes it at once (no slide-out) and clears `open`.
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `dialog` | The native `<dialog>` panel |
 
 ## Related
 
 - [Overlay patterns](overlay.md)
 - [Dialog](dialog.md)
 - [Sheet](sheet.md)
-- [Elements overview](index.md)
-- [Platform API](../platform/api.md)

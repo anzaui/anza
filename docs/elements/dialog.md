@@ -1,66 +1,84 @@
 ---
 seo_title: "Dialog — Anza"
-description: "ui-dialog — modal overlay wrapping the native dialog element."
+description: "ui-dialog: modal overlay around the native dialog element. Open it with showModal(), close it with close(returnValue)."
 ---
 
 # Dialog
 
-Modal overlay wrapping the native `<dialog>` element for focus trap, backdrop, and Escape handling.
+Modal overlay that wraps a native `<dialog>`, so the browser provides the top layer, backdrop, focus trap and Escape handling.
 
 **Tag:** `ui-dialog` · **Import:** `@anzaui/anza/elements/dialog`
 
-## Import
+## Usage
+
+```html
+<ui-button id="delete" type="button">Delete</ui-button>
+
+<ui-dialog id="confirm">
+  <h2>Delete this item?</h2>
+  <ui-button id="cancel" type="button">Cancel</ui-button>
+  <ui-button id="ok" type="button">Delete</ui-button>
+</ui-dialog>
+```
 
 ```javascript
 import '@anzaui/anza/elements/dialog';
+
+const dialog = document.querySelector('#confirm');
+document.querySelector('#delete').addEventListener('click', () => dialog.showModal());
+document.querySelector('#cancel').addEventListener('click', () => dialog.close('cancel'));
+document.querySelector('#ok').addEventListener('click', () => dialog.close('ok'));
+dialog.addEventListener('close', (e) => console.log(e.detail.returnValue));
 ```
 
-## Basic usage
+The methods query the shadow root, so call them after the element has mounted (for example from a user action, or after `anza:ready`; see [Lifecycle](../ui/lifecycle.md)).
 
-```html
-<ui-dialog id="confirm">
-  <h2>Confirm</h2>
-  <p>Delete this item?</p>
-  <ui-button type="button">Cancel</ui-button>
-  <ui-button type="button">Delete</ui-button>
-</ui-dialog>
+## Attributes
 
-<script type="module">
-  const dlg = document.querySelector('#confirm');
-  dlg.showModal();
-  // dlg.close('ok');
-</script>
-```
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `open` | Boolean | `false` | Reflects the open state. `showModal()` sets it and `close()` or a native close clears it. Setting it yourself does **not** open or close the dialog; call `showModal()`. |
 
-## Props
+## Slots
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `open` | Boolean | Reflect | Mirrors open state; set via `showModal()` / `close()` |
+| Slot | Content |
+| ---- | ------- |
+| (default) | Dialog body. It sits in a column flex wrapper with a `--space-4` gap. |
 
 ## Events
 
-| Event | When |
-| ----- | ---- |
-| `show` | After `showModal()` |
-| `close` | When the native dialog closes; `detail.returnValue` |
-| `cancel` | Cancelable; mirrors native `cancel` (Escape) |
+| Event | Detail | When |
+| ----- | ------ | ---- |
+| `show` | none | `showModal()` ran. |
+| `close` | `{ returnValue: string }` | The native dialog closed: `close()` or Escape. |
+| `cancel` | none | The user pressed Escape. Cancelable: `preventDefault()` keeps the dialog open. |
 
-## Notes
+All three bubble and are composed.
 
-Methods: `showModal()`, `close(returnValue?)`. Default slot is the dialog body. Native surface is `part="dialog"`.
+## Methods
 
-This element is the modal-dialog branch of the overlay kit (alongside [drawer](drawer.md) / [sheet](sheet.md)). Architecture: [Overlay patterns](overlay.md).
+| Method | Returns | Description |
+| ------ | ------- | ----------- |
+| `showModal()` | `undefined` | Opens the native dialog as a modal (if not already open), sets `open`, fires `show`. |
+| `close(returnValue = '')` | `undefined` | Closes the native dialog with `returnValue` (if open) and clears `open`. `close` fires when the native dialog closes. |
 
-### Lifecycle / memory
+## Keyboard and accessibility
 
-Open/close and Escape handling stay on the dialog instance. Soft-nav aborts the hosting leaf’s `ctrl` so shadow-scoped listeners tear down with disconnect. Do not add raw `document` listeners from a leaf without `{ signal: ctrl.signal }`. See [Memory safety & framework globals](../ui/advanced.md) and [Orphan listeners after soft-nav](../events/troubleshooting.md).
+The native `<dialog>` handles focus: `showModal()` moves focus into the dialog, traps it there and makes the rest of the page inert. Escape fires `cancel`, then closes the dialog unless you prevented `cancel`. Give the dialog a heading so it has a visible title.
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `dialog` | The native `<dialog>` surface |
+
+The backdrop is the native `dialog::backdrop`, styled inside the shadow root.
 
 ## Related
 
-- [Elements overview](index.md)
 - [Overlay patterns](overlay.md)
-- [Drawer](drawer.md) / [Sheet](sheet.md)
-- [Platform API](../platform/api.md)
-- [Form association](../ui/form-associated.md) (when `form: true`)
-- [Memory safety & framework globals](../ui/advanced.md)
+- [Drawer](drawer.md)
+- [Sheet](sheet.md)
+- [Elements](index.md)

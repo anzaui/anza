@@ -1,70 +1,70 @@
 ---
 seo_title: "Popover — Anza"
-description: "ui-popover — contextual overlay using the native Popover API."
+description: "ui-popover: light-dismiss panel on the native Popover API, with show(), hide(), toggle() and a toggle event. Polyfilled where missing."
 ---
 
 # Popover
 
-Lightweight contextual overlay using the native Popover API for top-layer rendering and light dismiss.
+Light-dismiss panel built on the native Popover API (`popover="auto"`), rendered in the top layer.
 
 **Tag:** `ui-popover` · **Import:** `@anzaui/anza/elements/popover`
 
-Architecture and when-to-use: [Overlay patterns](overlay.md).
-
-## Import
-
-```javascript
-import '@anzaui/anza/elements/popover';
-```
-
-## Basic usage
+## Usage
 
 ```html
 <ui-button id="more" type="button">More</ui-button>
 <ui-popover id="panel">
   <p>Contextual content</p>
 </ui-popover>
-
-<script type="module">
-  const panel = document.querySelector('#panel');
-  document.querySelector('#more').addEventListener('click', () => panel.toggle());
-  panel.addEventListener('toggle', (e) => {
-    console.log(e.detail.newState); // 'open' | 'closed'
-  });
-</script>
 ```
 
-## Props
+```javascript
+import '@anzaui/anza/elements/popover';
 
-None. Open state is driven by methods / the native popover.
+const panel = document.querySelector('#panel');
+document.querySelector('#more').addEventListener('click', () => panel.toggle());
+panel.addEventListener('toggle', (e) => console.log(e.detail.newState));
+```
 
-## Methods
+The element does not position the panel next to a trigger. Place it with CSS on `ui-popover::part(popover)`.
 
-| Method | Description |
-| ------ | ----------- |
-| `show()` | Opens via `showPopover()` |
-| `hide()` | Closes via `hidePopover()` |
-| `toggle()` | Toggles open / closed |
+Where the browser lacks the Popover API, the element loads the platform polyfill. See [Overlay patterns](overlay.md#popover-polyfill).
+
+## Slots
+
+| Slot | Content |
+| ---- | ------- |
+| (default) | Panel content |
 
 ## Events
 
-| Event | When |
-| ----- | ---- |
-| `toggle` | After open/close; `detail.newState` is `'open'` \| `'closed'` |
+| Event | Detail | When |
+| ----- | ------ | ---- |
+| `toggle` | `{ newState: 'open' \| 'closed' }` | The panel opened or closed, by a method call or by light dismiss. Bubbles and is composed. |
 
-## Notes
+## Methods
 
-Default slot projects into `part="popover"`. Uses `[popover="auto"]` (top-layer; polyfill when the Popover API is missing).
+| Method | Returns | Description |
+| ------ | ------- | ----------- |
+| `show()` | `undefined` | Opens the panel if it is closed. |
+| `hide()` | `undefined` | Closes the panel if it is open. |
+| `toggle()` | `undefined` | Opens or closes the panel. |
 
-### Lifecycle / memory
+## Keyboard and accessibility
 
-Listeners stay on the popover surface inside the shadow. Soft-nav aborts the leaf `ctrl`. Prefer `on` / signal-owned work over raw `document` listeners. See [Overlay patterns](overlay.md) and [Memory safety & framework globals](../ui/advanced.md).
+With the native API, the `auto` popover closes on Escape and on a click outside it, and opening another `auto` popover closes it. The polyfill only closes it on a pointer press outside the panel. The element adds no ARIA role; give the content its own semantics.
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `popover` | The `[popover]` panel |
 
 ## Related
 
 - [Overlay patterns](overlay.md)
 - [Menu](menu.md)
-- [Dialog](dialog.md)
-- [Elements overview](index.md)
-- [Platform API](../platform/api.md) (`guard.popover`)
-- [Guards](../platform/guards.md)
+- [Tooltip](tooltip.md)
+- [Guards](../platform/guards.md#popover)

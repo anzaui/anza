@@ -1,47 +1,59 @@
 ---
 seo_title: "Skeleton — Anza"
-description: "ui-skeleton — loading placeholder with reduced-motion-aware shimmer."
+description: "ui-skeleton: loading placeholder with block, text and circle shapes and a pulse that pauses under reduced motion."
 ---
 
 # Skeleton
 
-Loading placeholder with a WAAPI shimmer; pauses when `prefers-reduced-motion: reduce`.
+Loading placeholder with a pulsing opacity animation.
 
 **Tag:** `ui-skeleton` · **Import:** `@anzaui/anza/elements/skeleton`
 
-## Import
+## Usage
+
+```html
+<ui-skeleton variant="circle"></ui-skeleton>
+<ui-skeleton variant="text"></ui-skeleton>
+<ui-skeleton width="200px" height="8"></ui-skeleton>
+```
 
 ```javascript
 import '@anzaui/anza/elements/skeleton';
 ```
 
-## Basic usage
+## Attributes
 
-```html
-<ui-skeleton></ui-skeleton>
-<ui-skeleton width="12rem" height="1.25rem"></ui-skeleton>
-<ui-skeleton variant="circle" width="48px" height="48px"></ui-skeleton>
-```
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `variant` | String | none | `circle` (round, `--space-12` square, inline-block) or `text` (75% wide, `--space-3` high). Without it: a full-width block, `--space-4` high. |
+| `width` | String | none | Sets `--skeleton-width`. A value containing `px`, `%` or `rem` is used as-is; any other value `n` becomes `var(--space-n)`. |
+| `height` | String | none | Sets `--skeleton-height`, with the same rule as `width`. |
 
-## Props
+`width` and `height` are written as inline custom properties on the host, so they override the variant sizes.
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `variant` | String | Reflect | Visual shape hint (theme / CSS; e.g. circle) |
-| `width` | String | Reflect | Sets `--skeleton-width` (CSS length, `%`, or space token name) |
-| `height` | String | Reflect | Sets `--skeleton-height` (same resolution as `width`) |
+## Keyboard and accessibility
 
-## Notes
+The host gets `aria-hidden="true"` unless you set `aria-hidden`. Mark the loading region with `aria-busy="true"` yourself. The pulse uses the Web Animations API and pauses while `prefers-reduced-motion: reduce` matches.
 
-Defaults `aria-hidden="true"`. Shimmer uses `part="shimmer"`. `matchMedia` change listener and animation cleanup use `el.ctrl.signal`.
+## Styling
 
-### Lifecycle / memory
+### Parts
 
-The reduced-motion listener is signal-owned. Soft-nav disconnect aborts the leaf `ctrl` and tears down the listener; pause the WAAPI animation via the same abort path rather than leaving orphan `matchMedia` handlers.
+| Part | Element |
+| ---- | ------- |
+| `shimmer` | The animated placeholder block |
+
+### Custom properties
+
+| Property | Default |
+| -------- | ------- |
+| `--skeleton-bg` | `var(--color-interactive-disabled)` |
+| `--skeleton-radius` | `var(--radius-md)` |
+| `--skeleton-width` | `100%` |
+| `--skeleton-height` | `var(--space-4)` |
 
 ## Related
 
-- [Elements overview](index.md)
-- [Feedback](index.md#feedback)
 - [Spinner](spinner.md)
-- [Memory safety & framework globals](../ui/advanced.md)
+- [Progress](progress.md)
+- [Elements](index.md#feedback)

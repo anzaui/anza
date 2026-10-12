@@ -1,72 +1,61 @@
 ---
 seo_title: "Tooltip — Anza"
-description: "ui-tooltip — hover/focus hint with overflow-escape positioning."
+description: "ui-tooltip: hover and focus hint that escapes overflow clipping through the top layer, with 12 placements."
 ---
 
 # Tooltip
 
-Hover / focus hint. The tip stays in-tree (not a body portal) and uses the platform **escape / position** helper so it can leave `overflow` clipping via Popover top-layer, with a fixed-position fallback when APIs are missing.
+Short hint shown on hover or focus. The tip stays in the shadow tree and uses `guard.escape` to leave `overflow: hidden` ancestors.
 
 **Tag:** `ui-tooltip` · **Import:** `@anzaui/anza/elements/tooltip`
 
-Architecture and when-to-use: [Overlay patterns](overlay.md).
-
-## Import
-
-```javascript
-import '@anzaui/anza/elements/tooltip';
-```
-
-## Basic usage
+## Usage
 
 ```html
-<ui-tooltip>
+<ui-tooltip placement="bottom">
   <ui-button type="button">Save</ui-button>
   <span slot="content">Save changes</span>
 </ui-tooltip>
 ```
 
-Optional placement (default `top`):
-
-```html
-<ui-tooltip placement="bottom">
-  <ui-button type="button">Info</ui-button>
-  <span slot="content">More detail</span>
-</ui-tooltip>
+```javascript
+import '@anzaui/anza/elements/tooltip';
 ```
 
-## Props
+## Attributes
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `placement` | String | Reflect | Anchor side: `top` (default), `bottom`, `left`, `right`, plus `-start` / `-end` variants |
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `placement` | String | `top` | Side and alignment: `top`, `top-start`, `top-end`, `bottom`, `bottom-start`, `bottom-end`, `left`, `left-start`, `left-end`, `right`, `right-start`, `right-end`. An unknown value places the tip below the trigger, aligned to its start. |
 
-## Slots / parts
+The tip is offset 8px from the trigger and clamped to the viewport. It does not flip to the other side. A changed `placement` applies the next time the tip opens.
 
-| Name | Kind | Description |
-| ---- | ---- | ----------- |
-| (default) | slot | Trigger content |
-| `content` | slot | Hint text / markup |
-| `wrapper` | `::part` | Hover / focus target |
-| `tooltip` | `::part` | Hint surface (`role="tooltip"`, `popover="manual"`) |
+## Slots
 
-## Positioning / escape
+| Slot | Content |
+| ---- | ------- |
+| (default) | The trigger |
+| `content` | The hint text |
 
-- On pointer enter / focus-within, the tip opens via `showPopover()` when the Popover API (or polyfill) is available — top-layer, so typical `overflow: hidden` ancestors do not clip it.
-- Placement is computed by `@anzaui/anza/platform` (`escapeOverflow` / `guard.escape`) with `position: fixed` coordinates; scroll/resize keep it aligned.
-- If popover methods are unavailable, the helper falls back to fixed positioning and a `data-escape-open` marker (still not a `document.body` portal).
-- Prefer [popover](popover.md) / [menu](menu.md) for interactive panels; tooltip is for short non-interactive hints.
+## Keyboard and accessibility
 
-Platform API: `import { escapeOverflow, guard } from '@anzaui/anza/platform'`.
+The tip opens when the pointer enters the trigger area or focus moves into it. It closes when the pointer leaves, or when focus leaves both the trigger and the tip. The tip has `role="tooltip"`. The element does not set `aria-describedby` on the trigger; add an accessible name or description to the trigger yourself if the hint carries meaning.
 
-### Lifecycle / memory
+## How it escapes clipping
 
-Show/hide uses the host `AbortController` (`el.ctrl.signal`) for the escape controller and pointer listeners. Soft-nav aborts teardown. See [Overlay patterns](overlay.md) and [Memory safety & framework globals](../ui/advanced.md).
+The tip is a `popover="manual"` element. On first show the element calls `guard.escape(tip, wrapper, { placement, offset: 8, signal })`, which loads the Popover polyfill if needed, then shows the tip in the top layer and positions it with fixed coordinates. If `showPopover()` fails, it falls back to `position: fixed` and sets `data-escape-open`. Scroll and resize listeners exist only while the tip is open. The controller is released when the element disconnects. See [Overlay patterns](overlay.md#custom-floats).
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `wrapper` | Wrapper around the trigger and the tip; the hover and focus target |
+| `tooltip` | The tip surface (`role="tooltip"`, `popover="manual"`) |
 
 ## Related
 
 - [Overlay patterns](overlay.md)
 - [Popover](popover.md)
-- [Elements overview](index.md)
-- [Platform API](../platform/api.md) (`escapeOverflow` / `guard.escape`)
-- [Guards → escape](../platform/guards.md#escape)
+- [Guards](../platform/guards.md#escape)
