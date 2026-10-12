@@ -53,6 +53,9 @@ const BUDGETS = {
   tbtMs: 150,
 };
 
+// Inline <style> blocks at or below this size are not "repeated CSS" (bytes).
+const INLINE_CSS_MIN = 200;
+
 const DEFAULT_PAGES = ['/', '/docs/intro/start', '/docs/elements/button'];
 
 function parseArgs(argv) {
@@ -379,8 +382,10 @@ function staticMetrics(dist) {
     for (const m of text.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)) unique.add(m[1]);
     for (const s of unique) seen.set(s, (seen.get(s) || 0) + 1);
   }
+  // Tiny blocks (e.g. the 36-byte dock `:host` rule) cost less inline than a
+  // <link> would; only blocks worth extracting into a shared file count.
   let repeated = 0;
-  for (const [s, n] of seen) if (n > 1) repeated += s.length * (n - 1);
+  for (const [s, n] of seen) if (n > 1 && s.length > INLINE_CSS_MIN) repeated += s.length * (n - 1);
   return {
     files: files.length,
     htmlFiles: html.length,

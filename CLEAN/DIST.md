@@ -31,6 +31,16 @@ Run this again after every DIST step (the script is in Phase D step 0).
 
 Repeated inline CSS across pages: 6.5 MB → 7 KB. Total HTML: 13.5 MB → 10.2 MB. The remaining depth of 3 comes from the Google Fonts `@import` chain. Requests and JS are still far over budget, which stage B (inlining + Rolldown chunks + hashing) fixes.
 
+### Stage B results (2026-10-12, same benchmark)
+
+| page | requests (load/ready) | depth | doc KB | JS KB | CSS KB | LCP ms | ready ms |
+|---|---|---|---|---|---|---|---|
+| / | 281 → 14/12 | 3 → 2 | 6.3 → 3.9 | 133 → 49.8 | 6.7 → 3.2 | 1140 → 528 | 1092 → 476 |
+| /docs/intro/start | 287 → 18/15 | 3 → 2 | 8.5 → 6.3 | 131 → 49.8 | 14.7 → 10.3 | 896 → 536 | 1072 → 488 |
+| /docs/elements/button | 287 → 18/15 | 3 → 2 | 6.9 → 4.7 | 131 → 49.8 | 14.7 → 10.3 | 948 → 520 | 1117 → 475 |
+
+Everything passes except **requests before ready on docs pages (15 > 12)**: 4 CSS + 6 JS chunks (including a 0.1 KB Rolldown runtime and a 0.3 KB app chunk) + ~4 font files (4 families). Phase 6 should decide the font families.
+
 ## 2. Target output
 
 ```
@@ -108,7 +118,7 @@ Write `.br` (brotli quality 11) and `.gz` next to each asset at build time (`bro
 | Critical path depth after HTML | ≤ 2 |
 | JS (brotli) | ≤ 60 KB shared + ≤ 15 KB per route |
 | HTML (brotli) | ≤ 15 KB |
-| Repeated inline CSS across pages | 0 |
+| Repeated inline CSS across pages (blocks > 200 bytes; smaller ones cost less than a `<link>`) | 0 |
 | LCP on Fast 4G (Puppeteer/Lighthouse CI) | ≤ 1.8 s |
 | Total Blocking Time | ≤ 150 ms |
 

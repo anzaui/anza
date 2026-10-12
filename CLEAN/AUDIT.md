@@ -3,7 +3,7 @@
 Severity: **C** critical · **H** high · **M** medium · **L** low.
 Status: `[ ]` open · `[~]` partly done · `[x]` closed.
 
-Partly done: H3 (`anza docs` is the only generator, and web/src/docs gets untracked after the next release ships `--pages` in the binary that cf-build.sh downloads), E4 (decided: `#[deprecated]` now, remove in 0.6.0; Rust work queued after DIST stage A), R5 (interim headers, final once names are hashed), P1 (lazy loading at runtime, build-time inlining is left), P4 (SSG preloads CSS; element CSS still uses fetch until stage B inlining).
+Partly done: H3 (`anza docs` is the only generator, and web/src/docs gets untracked after the next release ships `--pages` in the binary that cf-build.sh downloads), E4 (decided: `#[deprecated]` now, remove in 0.6.0; Rust work queued after DIST stage A), P4 done (element resources inlined at build time).
 
 ## R — Reload / "needs a hard refresh"
 
@@ -16,7 +16,7 @@ CacheFirst, and production sends `immutable` for files whose names never change.
 | [x] R2 | C | Pages served in dev have **no HMR client**. `ssg::emit` overwrites the HTML that `inject_assets` injected into, and `build_head` never adds the client. Checked: `curl /` returns 0 `EventSource`. | `tools/src/build/html.rs:140-234`, `tools/src/extract/runner.rs:62`, `tools/src/build/ssg.rs:424-550`, `tools/src/server/runner.rs:282-298` | Inject the HMR script **at serve time** for every HTML response in dev. Remove it from build output. |
 | [x] R3 | H | Dev responses have no `Cache-Control` and no ETag, so the browser serves modules from heuristic cache. | `tools/src/server/runner.rs:76-86, 415` | Add a dev-wide layer that sets `Cache-Control: no-cache` (and ETag/304). |
 | [x] R4 | H | `/hmr` (SSE) is not bypassed in the SW. CacheFirst awaits `cache.put` on a response body that never ends, so HMR hangs. | `web/src/sw.js:29-46`, `strategies.js:55-56` | Bypass `/hmr` and anything with `Accept: text/event-stream`. |
-| [~] R5 | H | Prod sends `max-age=31536000, immutable` for **every** path with a dot, including unhashed `app.js`, modules, `importmap.json`, `routes.json` and `sw/*.js`. After a deploy, users need a hard reload. | `web/worker.js:6-15` | `no-cache` for unhashed files, sw.js and HTML. `immutable` only once assets have content hashes (P-phase). |
+| [x] R5 | H | Prod sends `max-age=31536000, immutable` for **every** path with a dot, including unhashed `app.js`, modules, `importmap.json`, `routes.json` and `sw/*.js`. After a deploy, users need a hard reload. | `web/worker.js:6-15` | `no-cache` for unhashed files, sw.js and HTML. `immutable` only once assets have content hashes (P-phase). |
 | [x] R6 | M | `/api/*` NetworkFirst is never reached because `'*'` is registered first and the first match wins. | `web/src/sw.js:25-26`, `library/src/sw/routes.js:100-112` | Register specific routes first, or make the router pick the most specific match. |
 | [x] R7 | L | Every copied `.html` fragment (component templates) gets the import map and HMR script injected. | `tools/src/build/graph.rs:342-344` | Inject only into real documents (`<!DOCTYPE`/`<html>`). |
 | [x] R8 | M? | HTML hot-swap skips `sanitizeTemplateHtml`, drops the tags descriptor and leaves the old template in `assetCache`. *(suspected)* | `library/src/core/ui/define/element.js:176` | Run the same pipeline as a cold load, and evict the cache entry. |
@@ -29,10 +29,10 @@ The bottleneck is the **network waterfall**, not CPU.
 
 | ID | Sev | Finding | Where | Fix |
 |----|-----|---------|-------|-----|
-| [~] P1 | H | `import '@anzaui/anza/elements'` defines all 46 elements at once, and each one fetches style + template + tags: **~138 requests** even for unused elements. | `library/src/elements/index.js`, `core/ui/define/element.js:133-136` | Fetch on first connect (default `lazy`), then build-time inlining (P-phase). |
+| [x] P1 | H | `import '@anzaui/anza/elements'` defines all 46 elements at once, and each one fetches style + template + tags: **~138 requests** even for unused elements. | `library/src/elements/index.js`, `core/ui/define/element.js:133-136` | Fetch on first connect (default `lazy`), then build-time inlining (P-phase). |
 | [x] P2 | H | Each element's 3 fetches run **one after another** (CSS → HTML → tags.json). | `core/ui/define/utils.js:47-69, 96, 112` | `Promise.all`, and cache the in-flight promise rather than the result (also fixes S1). |
 | [x] P3 | H | Pre-rendered (SSG/DSD) elements still await `getResources()` before `mount()`. The router polls rAF up to 50× for it. | `element.js:259-263`, `core/router/cascade.js:96-99` | When the shadow root is adopted, wire refs/on/mount right away. Fetch lazily only for a mismatch check. |
-| [~] P4 | M | CSS preloaded with `as="style"` but loaded via `fetch()`, so the preload doesn't match and the file downloads twice. SSG head never preloads templates/CSS. | `tools/src/server/runner.rs:239-247`, `tools/src/build/ssg.rs:496-540` | Match the destination, or drop the fetch by inlining (P-phase). |
+| [x] P4 | M | CSS preloaded with `as="style"` but loaded via `fetch()`, so the preload doesn't match and the file downloads twice. SSG head never preloads templates/CSS. | `tools/src/server/runner.rs:239-247`, `tools/src/build/ssg.rs:496-540` | Match the destination, or drop the fetch by inlining (P-phase). |
 | [x] P5 | M | Render-blocking `@import` chains (10 + 4). | `library/src/tokens/index.css:10-23`, `styles/index.css:8-11` | Concatenate in the build. |
 | [x] P6 | H (dev) | **Any** save (even CSS) runs a full `extract::compile`: walks all of src, rebuilds the graph, re-emits SSG for all ~194 routes. Hash cache re-reads every file. | `tools/src/watcher/runner.rs:87-104`, `tools/src/extract/runner.rs:25-62`, `tools/src/build/cache.rs:23-30` | CSS/HTML: copy + HMR immediately. JS: rebuild only the affected part of the graph. SSG only for affected routes. mtime/size check before hashing. |
 | [x] P7 | M | Blocking `std::fs` in an async handler, and `routes.json` parsed twice per fallback request. | `tools/src/server/runner.rs:261, 300, 312, 383` | Keep the manifest in `ServerState` and refresh it on watch events. Use `tokio::fs`. |
