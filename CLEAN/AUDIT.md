@@ -103,11 +103,11 @@ Build performance (scaling and dev latency; not urgent at 0.1 s):
 
 | ID | Sev | Finding | Where | Fix |
 |----|-----|---------|-------|-----|
-| [ ] E1 | H | Page fallback interpolates the route into HTML **unescaped** (reflected XSS). | `engines/rust` page fallback | Escape. Add a test with `<script>` in the path. Check the TS/Py fallbacks too. |
+| [~] E1 | H | Page fallback interpolates the route into HTML **unescaped** (reflected XSS). | `engines/rust/src/render/page/compile.rs` | **TS and Py fixed** (d9f98eb). Py also had **path traversal** (`../` in the URL read `.html` outside the root) and tag-name injection, both fixed. **Rust left:** escape the fallback, and check `pages/<route>.html` lookup containment. |
 | [ ] E2 | M | `watch` feature never reloads: the event receiver is dropped. | `engines/rust` engine/file watch | Keep the receiver alive and reload templates on change. Test. |
 | [ ] E3 | M | `Engine::manifest()` hashes the BLAKE3 digest again instead of hex-encoding it. | `engines/rust` manifest | Hex-encode. Fixture test against a known digest. This is a breaking change to the manifest hash value, so note it in the changelog. |
 | [ ] E4 | M | `SignMode::SessionBound` and `publish_meta` are no-ops. `adapters::tower` is empty. | `engines/rust` | Implement or remove from the public API (needs a FREEZE §4 entry if removed). |
-| [ ] E5 | L | `engines/ts/package-lock.json` still has the name `"anza"`. | `engines/ts` | Regenerate the lock name to `@anzaui/engine`. |
+| [x] E5 | L | `engines/ts/package-lock.json` still has the name `"anza"`. | `engines/ts` | Regenerate the lock name to `@anzaui/engine`. |
 
 ## H — Repo hygiene and tooling
 
