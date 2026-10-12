@@ -8,9 +8,12 @@
 //
 //   core-<hash>.js        library modules needed by two or more routes
 //   route-<group>-<hash>  page modules of one route group (`/`, `/docs`, …)
+//                         that not every page loads (the others ride in
+//                         the entry chunk)
 //   elements-<hash>.js    definitions every route needs (docks, views, …)
 //   el-<name>-<hash>.js   one chunk per element the other routes don't need
-//   app-<hash>.js         the entry (and modules only it imports)
+//   app-<hash>.js         the entry, modules only it imports and the routes
+//                         every page loads
 //
 // Then the HTML module scripts point at the entry chunks, each page
 // preloads the chunks its entry imports (instead of the whole module
@@ -256,16 +259,23 @@ fn plan_groups(
   }
   let route_count = input.hints.len();
 
+  // Needed by every SSG route before it runs (always loaded with the entry).
+  let everywhere = |url: &str| route_count > 1 && uses.get(url).map_or(false, |u| u.0 == route_count);
+
   let mut groups: BTreeMap<String, String> = BTreeMap::new();
   for (url, kinds) in input.definitions {
     if inputs.contains(url) {
       continue;
     }
     if let Some(path) = routes.get(url) {
-      groups.insert(url.clone(), route_group(path));
+      // A route every page loads anyway (statically imported by the entry)
+      // gains nothing from its own chunk: it rides in the entry chunk,
+      // which saves a request per route group on every page.
+      if !everywhere(url) {
+        groups.insert(url.clone(), route_group(path));
+      }
     } else if kinds.iter().any(|k| k != "page") {
-      let everywhere = route_count > 1 && uses.get(url.as_str()).map_or(false, |u| u.0 == route_count);
-      let name = if everywhere {
+      let name = if everywhere(url) {
         "elements".to_string()
       } else {
         element_name(url, input.library.contains(url))
@@ -632,7 +642,8 @@ mod tests {
   fn groups_pages_elements_and_core() {
     let mut graph: ModuleGraph = BTreeMap::new();
     let edges = |v: &[&str]| v.iter().map(|s| s.to_string()).collect::<Vec<_>>();
-    graph.insert("/app.js".into(), edges(&["/core/ui/index.js", "/docs/a/index.js", "/views/x/index.js", "/elements/p/btn/index.js"]));
+    graph.insert("/app.js".into(), edges(&["/core/ui/index.js", "/docs/a/index.js", "/home/index.js", "/views/x/index.js", "/elements/p/btn/index.js"]));
+    graph.insert("/home/index.js".into(), edges(&["/core/ui/index.js"]));
     graph.insert("/docs/a/index.js".into(), edges(&["/core/ui/index.js", "/docs/a/helper.js"]));
     graph.insert("/docs/a/helper.js".into(), vec![]);
     graph.insert("/views/x/index.js".into(), edges(&["/core/ui/index.js"]));
@@ -640,6 +651,7 @@ mod tests {
     graph.insert("/core/ui/index.js".into(), vec![]);
     let definitions: BTreeMap<String, Vec<String>> = [
       ("/docs/a/index.js".to_string(), vec!["page".to_string()]),
+      ("/home/index.js".to_string(), vec!["page".to_string()]),
       ("/views/x/index.js".to_string(), vec!["view".to_string()]),
       ("/elements/p/btn/index.js".to_string(), vec!["element".to_string()]),
     ]
@@ -647,7 +659,12 @@ mod tests {
     .collect();
     let library: BTreeSet<String> = ["/core/ui/index.js", "/elements/p/btn/index.js"].iter().map(|s| s.to_string()).collect();
     let all = super::super::graph::static_closure(&graph, ["/app.js"]);
-    let only_app = vec!["/app.js".to_string(), "/core/ui/index.js".to_string(), "/elements/p/btn/index.js".to_string()];
+    let only_app = vec![
+      "/app.js".to_string(),
+      "/core/ui/index.js".to_string(),
+      "/home/index.js".to_string(),
+      "/elements/p/btn/index.js".to_string(),
+    ];
     let hints = vec![
       Hints { path: "/docs/a".into(), styles: vec![], modules: all },
       Hints { path: "/".into(), styles: vec![], modules: only_app },
@@ -665,7 +682,12 @@ mod tests {
       base: "",
     };
     let inputs: BTreeSet<String> = ["/app.js".to_string()].into_iter().collect();
-    let routes: BTreeMap<String, String> = [("/docs/a/index.js".to_string(), "/docs/a".to_string())].into_iter().collect();
+    let routes: BTreeMap<String, String> = [
+      ("/docs/a/index.js".to_string(), "/docs/a".to_string()),
+      ("/home/index.js".to_string(), "/".to_string()),
+    ]
+    .into_iter()
+    .collect();
     let groups = plan_groups(&input, &inputs, &routes);
     assert_eq!(groups["/docs/a/index.js"], "route-docs");
     assert_eq!(groups["/docs/a/helper.js"], "route-docs");
@@ -673,5 +695,7 @@ mod tests {
     assert_eq!(groups["/elements/p/btn/index.js"], "elements");
     assert_eq!(groups["/core/ui/index.js"], "core");
     assert!(!groups.contains_key("/app.js"));
+    // Every route loads the home page module: it stays in the entry chunk.
+    assert!(!groups.contains_key("/home/index.js"));
   }
 }
