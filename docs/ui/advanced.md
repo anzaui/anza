@@ -148,7 +148,7 @@ The UI layer checks `typeof customElements !== 'undefined'` before defining elem
 - `observe` factories return no-op disposers
 - `transition()` returns a resolved promise
 
-Public SEO HTML comes from Mode A SSG or Mode B templates ([contract](../ssg/contract.md)). The client **adopts** open DSD — see [hydration.md](hydration.md). The factory is safe to import in any environment.
+Public SEO HTML comes from Mode A SSG or Mode B templates ([contract](../ssg/contract.md)). The client **adopts** open DSD — see [Hydration (DSD adopt)](hydration.md). The factory is safe to import in any environment.
 
 ## Extending BaseElement
 

@@ -61,7 +61,7 @@ const est = await storage.estimate();
 console.log(est.usage, est.quota, est.persisted);
 ```
 
-Advanced IndexedDB cursor queries use options (not a filter callback) — see [api.md](api.md#storagequerystorename-queryopts). For reactive-store snapshots with a filter function, use `state.storage.query` ([state/persist.md](../state/persist.md)).
+Advanced IndexedDB cursor queries use options (not a filter callback) — see [API Reference: storage.query(storeName, queryOpts)](api.md#storagequerystorename-queryopts). For reactive-store snapshots with a filter function, use `state.storage.query` ([Persist](../state/persist.md)).
 
 ## 6. Configure
 

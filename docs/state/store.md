@@ -99,7 +99,7 @@ store.broadcast('channel-name', ['count', 'user']);
 store.sync(['count', 'user'], 'channel-name'); // alias
 ```
 
-Replicates specified keys across browser tabs. See [sync.md](sync.md).
+Replicates specified keys across browser tabs. See [Sync](sync.md).
 
 ## onMutation
 

@@ -81,7 +81,7 @@ ctrl.show();  // Popover top-layer, or fixed fallback — stays in-tree
 ctrl.hide();
 ```
 
-Prefer `ui-tooltip` when you need a ready-made hint. Details: [guards.md#escape](guards.md#escape), [API](api.md#escapeoverflowfloating-anchor-options), [Overlay patterns](../elements/overlay.md).
+Prefer `ui-tooltip` when you need a ready-made hint. Details: [Guards: escape](guards.md#escape), [API](api.md#escapeoverflowfloating-anchor-options), [Overlay patterns](../elements/overlay.md).
 
 ## Complete Working Example
 

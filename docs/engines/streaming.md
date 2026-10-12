@@ -53,7 +53,7 @@ source.addEventListener('template', (event) => {
 trust: `sanitize()` from `@anzaui/anza/security` strips custom elements, so it
 is meant for user content, not for engine fragments. Verify `sig` with the
 engine's `verify` helper on any server or edge hop that relays the stream (see
-[crypto.md](crypto.md)).
+[Cryptographic Verification](crypto.md)).
 
 ### 2. `api.stream()` (NDJSON)
 

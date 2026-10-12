@@ -24,11 +24,11 @@ STUI bridges server-side rendering and client-side web components. It enables su
 
 | Engine | Package / Crate | Ecosystem | Key Feature |
 |--------|-----------------|-----------|-------------|
-| [rust.md](rust.md) | `anza` (Cargo) | Axum, Actix-web | Zero-copy byte slices, sub-millisecond latency |
-| [ts.md](ts.md) | `@anzaui/engine` (npm) | Node.js, Bun, Deno, Hono, Express | Zero dependencies, JIT closure compilation |
-| [py.md](py.md) | `anza` (PyPI) | FastAPI, Starlette, Flask, Django | Pure standard library, async streaming generator |
-| [crypto.md](crypto.md) | Built-in | All engines | Ed25519, HMAC-SHA256, and HKDF session key derivation |
-| [streaming.md](streaming.md) | Built-in | All engines | Server-Sent Events (SSE) and WebSocket frame protocols |
+| [Rust Engine](rust.md) | `anza` (Cargo) | Axum, Actix-web | Zero-copy byte slices, sub-millisecond latency |
+| [TypeScript Engine](ts.md) | `@anzaui/engine` (npm) | Node.js, Bun, Deno, Hono, Express | Zero dependencies, JIT closure compilation |
+| [Python Engine](py.md) | `anza` (PyPI) | FastAPI, Starlette, Flask, Django | Pure standard library, async streaming generator |
+| [Cryptographic Verification](crypto.md) | Built-in | All engines | Ed25519, HMAC-SHA256, and HKDF session key derivation |
+| [Real-Time Streaming](streaming.md) | Built-in | All engines | Server-Sent Events (SSE) and WebSocket frame protocols |
 
 ## Dual-Mode Rendering
 
@@ -97,8 +97,8 @@ minimal `<dock-main>` document when there is no shell. See each engine page.
 
 | File | What It Covers |
 |------|----------------|
-| [rust.md](rust.md) | Rust engine setup, Axum/Actix adapters, and Serde data binding |
-| [ts.md](ts.md) | TypeScript engine setup, Web Standards, Hono, and Express |
-| [py.md](py.md) | Python engine setup, FastAPI, Flask, and dataclass binding |
-| [crypto.md](crypto.md) | Cryptographic signing, Ed25519, and tamper verification |
-| [streaming.md](streaming.md) | Real-time SSE streaming, WebSockets, and client adoption |
+| [Rust Engine](rust.md) | Rust engine setup, Axum/Actix adapters, and Serde data binding |
+| [TypeScript Engine](ts.md) | TypeScript engine setup, Web Standards, Hono, and Express |
+| [Python Engine](py.md) | Python engine setup, FastAPI, Flask, and dataclass binding |
+| [Cryptographic Verification](crypto.md) | Cryptographic signing, Ed25519, and tamper verification |
+| [Real-Time Streaming](streaming.md) | Real-time SSE streaming, WebSockets, and client adoption |

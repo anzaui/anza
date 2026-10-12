@@ -44,7 +44,7 @@ What it does:
 
 Bump `SHELL` / `API` cache names when you ship path-breaking asset URL changes — `CacheFirst` with no TTL otherwise pins stale JS forever. `pruneStale` only removes *other* cache names, not entries inside the current one.
 
-Keep helpers in optional `src/sw/` and `import` them from `src/sw.js` — that folder is **modules only**, not extra registrations. Multi-scope workers (advanced) use `anza.json` `sw` arrays — see [intro/structure.md](../intro/structure.md#service-workers).
+Keep helpers in optional `src/sw/` and `import` them from `src/sw.js` — that folder is **modules only**, not extra registrations. Multi-scope workers (advanced) use `anza.json` `sw` arrays — see [Structure: Service workers](../intro/structure.md#service-workers).
 
 ## 2. Register from `app.js`
 
@@ -128,4 +128,4 @@ self.addEventListener('sync', (e) => {
 });
 ```
 
-Read [sync.md](sync.md) for the full queue API.
+Read [Sync](sync.md) for the full queue API.

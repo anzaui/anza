@@ -38,11 +38,11 @@ import { offline } from '@anzaui/anza/offline';
 
 | File | What It Covers |
 | ------ | -------------- |
-| [start.md](start.md) | Writing your first `src/sw.js` and registering it from `app.js` |
-| [strategies.md](strategies.md) | The seven caching strategies and their behavior |
-| [routes.md](routes.md) | URLPattern routing inside the Service Worker |
-| [sync.md](sync.md) | Background sync queue and replay |
-| [api.md](api.md) | Complete API reference |
+| [Start](start.md) | Writing your first `src/sw.js` and registering it from `app.js` |
+| [Strategies](strategies.md) | The seven caching strategies and their behavior |
+| [Routes](routes.md) | URLPattern routing inside the Service Worker |
+| [Sync](sync.md) | Background sync queue and replay |
+| [API Reference](api.md) | Complete API reference |
 
 ## One-File Example
 
@@ -76,8 +76,8 @@ dock('main');
 
 ## Next Steps
 
-- New to SW? Start with [start.md](start.md).
-- Want caching details? Read [strategies.md](strategies.md).
-- Need URL routing in the SW? See [routes.md](routes.md).
-- Building offline queue replay? [sync.md](sync.md).
-- Prefer a single reference page? [api.md](api.md).
+- New to SW? Start with [Start](start.md).
+- Want caching details? Read [Strategies](strategies.md).
+- Need URL routing in the SW? See [Routes](routes.md).
+- Building offline queue replay? [Sync](sync.md).
+- Prefer a single reference page? [API Reference](api.md).

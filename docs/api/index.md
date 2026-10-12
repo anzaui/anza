@@ -31,18 +31,18 @@ import { api } from '@anzaui/anza/api';
 
 | File | What It Covers |
 | ----- | --------------- |
-| [quickstart.md](quickstart.md) | Your first request in five minutes |
-| [requests.md](requests.md) | HTTP methods, options, body serialization, signals |
-| [prefixes.md](prefixes.md) | Base URL routing and path resolution |
-| [caching.md](caching.md) | TTL caching, strategies, invalidation |
-| [events.md](events.md) | Telemetry events, global and request-scoped listeners |
-| [streaming.md](streaming.md) | NDJSON streams and chunk parsing |
-| [uploads.md](uploads.md) | File uploads with progress tracking |
-| [pipeline.md](pipeline.md) | Outbound and inbound interceptors |
-| [errors.md](errors.md) | PlatformError, codes, recovery patterns |
-| [advanced.md](advanced.md) | Retry internals, AbortSignal composition, scheduler integration |
-| [api.md](api.md) | Complete API reference |
-| [troubleshooting.md](troubleshooting.md) | Common problems and how to fix them |
+| [Quick Start](quickstart.md) | Your first request in five minutes |
+| [Requests](requests.md) | HTTP methods, options, body serialization, signals |
+| [Prefixes](prefixes.md) | Base URL routing and path resolution |
+| [Caching](caching.md) | TTL caching, strategies, invalidation |
+| [Events](events.md) | Telemetry events, global and request-scoped listeners |
+| [Streaming](streaming.md) | NDJSON streams and chunk parsing |
+| [Uploads](uploads.md) | File uploads with progress tracking |
+| [Pipeline](pipeline.md) | Outbound and inbound interceptors |
+| [Errors](errors.md) | PlatformError, codes, recovery patterns |
+| [Advanced Topics](advanced.md) | Retry internals, AbortSignal composition, scheduler integration |
+| [API Reference](api.md) | Complete API reference |
+| [Troubleshooting](troubleshooting.md) | Common problems and how to fix them |
 
 ## One-File Example
 
@@ -69,8 +69,8 @@ for await (const chunk of api.stream('/logs')) {
 
 ## Next Steps
 
-- New to the API layer? Start with [quickstart.md](quickstart.md).
-- Want caching? Read [caching.md](caching.md) and [prefixes.md](prefixes.md).
-- Need real-time data? [streaming.md](streaming.md) and [uploads.md](uploads.md).
-- Building middleware? [pipeline.md](pipeline.md) and [events.md](events.md).
-- Prefer a single reference page? [api.md](api.md).
+- New to the API layer? Start with [Quick Start](quickstart.md).
+- Want caching? Read [Caching](caching.md) and [Prefixes](prefixes.md).
+- Need real-time data? [Streaming](streaming.md) and [Uploads](uploads.md).
+- Building middleware? [Pipeline](pipeline.md) and [Events](events.md).
+- Prefer a single reference page? [API Reference](api.md).

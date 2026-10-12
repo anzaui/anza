@@ -29,7 +29,7 @@ import {
 
 ### `supports`
 
-Lazy-evaluated feature detection object. See [supports.md](supports.md) for the full flag list. Overlay-related flags: `popoverAPI`, `anchorPositioning`.
+Lazy-evaluated feature detection object. See [Supports](supports.md) for the full flag list. Overlay-related flags: `popoverAPI`, `anchorPositioning`.
 
 ### `globals`
 
@@ -75,7 +75,7 @@ Returns `Promise<void>`. When CSS Anchor Positioning is unavailable (or `options
 
 Returns `Promise<EscapeController>`. Ensures Popover polyfill when `floating` has `[popover]`, then builds an overflow-escape controller (same as `escapeOverflow`). Used by `ui-tooltip`.
 
-See [escapeOverflow](#escapeoverflowfloating-anchor-options) below for options, controller shape, strategies, and samples. Narrative usage: [guards.md](guards.md#escape). Overlay kit context: [Overlay patterns](../elements/overlay.md), [tooltip](../elements/tooltip.md).
+See [escapeOverflow](#escapeoverflowfloating-anchor-options) below for options, controller shape, strategies, and samples. Narrative usage: [Guards: escape](guards.md#escape). Overlay kit context: [Overlay patterns](../elements/overlay.md), [tooltip](../elements/tooltip.md).
 
 ### `escapeOverflow(floating, anchor, options)`
 

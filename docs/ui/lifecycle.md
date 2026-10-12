@@ -93,7 +93,7 @@ Author rules:
 1. Never `document.addEventListener` / `new MutationObserver` in `mount` without `{ signal: ctrl.signal }` or a disposer from `unmount`.
 2. Prefer `on` / `watch` inside components; prefer `events.*` + signal outside.
 3. Do not observe `document` / `body` for leaf concerns — lift to a parent dock or use events/store.
-4. Framework globals (`router.nav-click`, `router.container-mo`, `popover.*`) stay stable across soft-nav — see [advanced.md](advanced.md#framework-global-listeners--observers).
+4. Framework globals (`router.nav-click`, `router.container-mo`, `popover.*`) stay stable across soft-nav — see [Advanced Topics](advanced.md#framework-global-listeners--observers).
 
 ## change
 

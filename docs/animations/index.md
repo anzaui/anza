@@ -27,15 +27,15 @@ import { animations } from '@anzaui/anza/animations';
 
 | File | What It Covers |
 | ----- | --------------- |
-| [quickstart.md](quickstart.md) | Your first animation in five minutes |
-| [animate.md](animate.md) | Single-element animation with WAAPI |
-| [stagger.md](stagger.md) | Multi-element staggered orchestration |
-| [sequence.md](sequence.md) | Chained step-by-step animations |
-| [registry.md](registry.md) | Named animation templates and presets |
-| [scroll.md](scroll.md) | ScrollTimeline and ViewTimeline wrappers |
-| [tokens.md](tokens.md) | CSS motion token synchronization |
-| [api.md](api.md) | Complete API reference |
-| [troubleshooting.md](troubleshooting.md) | Common problems and how to fix them |
+| [Quick Start](quickstart.md) | Your first animation in five minutes |
+| [Animate](animate.md) | Single-element animation with WAAPI |
+| [Stagger](stagger.md) | Multi-element staggered orchestration |
+| [Sequence](sequence.md) | Chained step-by-step animations |
+| [Registry](registry.md) | Named animation templates and presets |
+| [Scroll](scroll.md) | ScrollTimeline and ViewTimeline wrappers |
+| [Tokens](tokens.md) | CSS motion token synchronization |
+| [API Reference](api.md) | Complete API reference |
+| [Troubleshooting](troubleshooting.md) | Common problems and how to fix them |
 
 ## One-File Example
 
@@ -58,8 +58,8 @@ if (!animations.reduced()) {
 
 ## Next Steps
 
-- New to animations? Start with [quickstart.md](quickstart.md).
-- Building UI transitions? Read [animate.md](animate.md) and [stagger.md](stagger.md).
-- Need scroll effects? [scroll.md](scroll.md).
-- Want reusable presets? [registry.md](registry.md).
-- Prefer a single reference page? [api.md](api.md).
+- New to animations? Start with [Quick Start](quickstart.md).
+- Building UI transitions? Read [Animate](animate.md) and [Stagger](stagger.md).
+- Need scroll effects? [Scroll](scroll.md).
+- Want reusable presets? [Registry](registry.md).
+- Prefer a single reference page? [API Reference](api.md).

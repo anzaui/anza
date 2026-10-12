@@ -7,9 +7,9 @@ description: "Normative Mode A SSG and Mode B template HTML shape for SEO and DS
 
 Normative shape for every public, indexable HTML response. **Mode A** (`anza build` SSG) and **Mode B** (any-language request-time templates) must emit this same contract so client hydration has one adoption path.
 
-Sibling: the **folder** contract (required / recommended / optional project slots, optional `anza.json`) lives in [intro/structure.md](../intro/structure.md).
+Sibling: the **folder** contract (required / recommended / optional project slots, optional `anza.json`) lives in [Structure](../intro/structure.md).
 
-Overview of Phases 0–6: [index.md](index.md). Client adopt details: [ui/hydration.md](../ui/hydration.md).
+Overview of Phases 0–6: [SSG & SEO](index.md). Client adopt details: [Hydration (DSD adopt)](../ui/hydration.md).
 
 Golden samples: [tools/fixtures/ssg/](../../tools/fixtures/ssg/).
 

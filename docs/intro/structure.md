@@ -1,6 +1,6 @@
 # Structure
 
-Normative **folder contract** for Anza apps: one spine humans learn once, optional slots, and an optional `anza.json` for remaps. Validate with `anza doctor` (soft) or `anza check` (strict CI). Sibling metaphor: [ssg/contract.md](../ssg/contract.md) is the HTML contract; this page is the **project layout** contract.
+Normative **folder contract** for Anza apps: one spine humans learn once, optional slots, and an optional `anza.json` for remaps. Validate with `anza doctor` (soft) or `anza check` (strict CI). Sibling metaphor: [Page HTML contract (Mode A SSG · Mode B templates)](../ssg/contract.md) is the HTML contract; this page is the **project layout** contract.
 
 JSON Schema: [`@anzaui/anza/schemas/anza.schema.json`](../../library/schemas/anza.schema.json).
 
@@ -23,7 +23,7 @@ Semantic required (not only path existence):
 1. Entry reachable from the shell’s `<script type="module">`.
 2. At least one `page(...)` in the reachable graph.
 3. Root dock (default name `main`) registered via `dock(...)` before pages that `via` it — `anza check` **warns** if missing; **errors** if a `via` name has no `dock()`.
-4. Shell uses **site-root** asset URLs (`/app.js`, `/tokens/...`, `/styles/...`) — see [ssg/contract.md](../ssg/contract.md).
+4. Shell uses **site-root** asset URLs (`/app.js`, `/tokens/...`, `/styles/...`) — see [Page HTML contract (Mode A SSG · Mode B templates)](../ssg/contract.md).
 
 Apps need **no** `anza.json`. `anza create` / `npm create @anzaui/anza` writes the default tree. Add `anza.json` only when remapping roots, declaring extra page trees, or listing additional service workers.
 
@@ -49,7 +49,7 @@ Apps need **no** `anza.json`. `anza create` / `npm create @anzaui/anza` writes t
 | SW modules | `src/sw/` | Shared helpers imported by `sw.js` — **not** auto-registered workers |
 | Legacy elements | `src/elements/` | Warn if coexist with `pages` — migrate to view/part/page |
 | SSG config | `ssg.json` / `ssg.params.json` | Existing contracts |
-| Fallbacks | *by reference* | `dock` / `page` `{ notfound \| error \| offline }` or library built-ins — **not** folder slots ([fallbacks.md](../router/fallbacks.md)) |
+| Fallbacks | *by reference* | `dock` / `page` `{ notfound \| error \| offline }` or library built-ins — **not** folder slots ([Fallbacks (404 / 5xx / offline)](../router/fallbacks.md)) |
 
 ### Explicitly not required
 
@@ -93,7 +93,7 @@ anza doctor --strict # same severity as check
 anza check           # CI: errors or warnings → non-zero
 ```
 
-Findings point back here (`docs/intro/structure.md`). Checks the required spine, recommended tokens/styles/SW/importmap, optional slots + index barrels, `anza.json` `sw` string|array, legacy `elements/`+pages coexistence, undeclared page trees, and **via → dock** consistency. Docks may live in `app.js` — `src/docks/` is optional. See [build.md](build.md#diagnostics).
+Findings point back here (`docs/intro/structure.md`). Checks the required spine, recommended tokens/styles/SW/importmap, optional slots + index barrels, `anza.json` `sw` string|array, legacy `elements/`+pages coexistence, undeclared page trees, and **via → dock** consistency. Docks may live in `app.js` — `src/docks/` is optional. See [Build: Diagnostics](build.md#diagnostics).
 
 ### CI snippet
 
@@ -211,7 +211,7 @@ self.addEventListener('fetch', (e) => {
 });
 ```
 
-Pre-caches the app shell. Static assets use `CacheFirst`; API calls use `NetworkFirst` with a 3-second timeout. Bump `SHELL` / `API` when shipping path-breaking asset URL changes. See [sw/start.md](../sw/start.md).
+Pre-caches the app shell. Static assets use `CacheFirst`; API calls use `NetworkFirst` with a 3-second timeout. Bump `SHELL` / `API` when shipping path-breaking asset URL changes. See [Start](../sw/start.md).
 
 ### `src/pages/entry/index.js`
 
@@ -365,7 +365,7 @@ Copy from a fresh `anza create`, or drop the slot if you intentionally skip offl
 
 ## Fallbacks are not folders
 
-Miss / error / offline UI is **by reference** (dock/page options or library built-ins). Do **not** copy `404.html` into every dock folder. Scaffold correctly creates docks without error-page files. See [router/fallbacks.md](../router/fallbacks.md) and [router/docks.md](../router/docks.md).
+Miss / error / offline UI is **by reference** (dock/page options or library built-ins). Do **not** copy `404.html` into every dock folder. Scaffold correctly creates docks without error-page files. See [Fallbacks (404 / 5xx / offline)](../router/fallbacks.md) and [Docks](../router/docks.md).
 
 ## Tokens and styles
 

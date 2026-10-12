@@ -24,13 +24,13 @@ import { state } from '@anzaui/anza/state';
 
 | File | What It Covers |
 | ----- | --------------- |
-| [quickstart.md](quickstart.md) | Your first store in five minutes |
-| [store.md](store.md) | ReactiveStore — get, set, subscribe, batch, snapshot |
-| [derived.md](derived.md) | Lazy computed values and dependency tracking |
-| [sync.md](sync.md) | Cross-tab state replication |
-| [persist.md](persist.md) | IndexedDB persistence, migrations, TTL |
-| [api.md](api.md) | Complete API reference |
-| [troubleshooting.md](troubleshooting.md) | Common problems and how to fix them |
+| [Quick Start](quickstart.md) | Your first store in five minutes |
+| [Store](store.md) | ReactiveStore — get, set, subscribe, batch, snapshot |
+| [Derived](derived.md) | Lazy computed values and dependency tracking |
+| [Sync](sync.md) | Cross-tab state replication |
+| [Persist](persist.md) | IndexedDB persistence, migrations, TTL |
+| [API Reference](api.md) | Complete API reference |
+| [Troubleshooting](troubleshooting.md) | Common problems and how to fix them |
 
 ## One-File Example
 
@@ -68,8 +68,8 @@ state.storage.set('keyval', 'count', store.get('count'));
 
 ## Next Steps
 
-- New to the state layer? Start with [quickstart.md](quickstart.md).
-- Building reactive UI? Read [store.md](store.md) and [derived.md](derived.md).
-- Multi-tab app? [sync.md](sync.md).
-- Need persistence? [persist.md](persist.md).
-- Prefer a single reference page? [api.md](api.md).
+- New to the state layer? Start with [Quick Start](quickstart.md).
+- Building reactive UI? Read [Store](store.md) and [Derived](derived.md).
+- Multi-tab app? [Sync](sync.md).
+- Need persistence? [Persist](persist.md).
+- Prefer a single reference page? [API Reference](api.md).

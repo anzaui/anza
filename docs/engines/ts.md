@@ -146,7 +146,7 @@ await new Setup({ root: './templates', signing: { mode: 'ed25519', privateKey: s
 ```
 
 `privateKey` is a raw 32-byte seed, a PEM/DER key, or a `KeyObject`. When the
-key is missing, envelopes are sent without `sig`. See [crypto.md](crypto.md).
+key is missing, envelopes are sent without `sig`. See [Cryptographic Verification](crypto.md).
 
 ## Page Rendering
 

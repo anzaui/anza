@@ -106,7 +106,7 @@ Setup(root="./templates", signing=SignOptions(mode="ed25519", private_key="<64 h
 Setup(root="./templates")  # mode="none": no signature
 ```
 
-HMAC and Ed25519 raise `AnzaError` when their key is missing. See [crypto.md](crypto.md).
+HMAC and Ed25519 raise `AnzaError` when their key is missing. See [Cryptographic Verification](crypto.md).
 
 ## Page Rendering
 
@@ -134,7 +134,7 @@ async def stream_feed():
 ```
 
 `Stream(template, slot, params).run(engine)` returns the same SSE text in one
-call. See [streaming.md](streaming.md).
+call. See [Real-Time Streaming](streaming.md).
 
 ## Package Layout
 

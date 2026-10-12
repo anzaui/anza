@@ -30,13 +30,13 @@ import { uuid, hash, encrypt, decrypt, seal, unseal, sanitize, permission } from
 
 | File | What It Covers |
 | ----- | --------------- |
-| [quickstart.md](quickstart.md) | Your first encrypt and sanitize in five minutes |
-| [crypto.md](crypto.md) | AES-GCM, PBKDF2, HMAC, ECDSA, hash, UUID |
-| [seal.md](seal.md) | String encryption with base64 storage |
-| [sanitize.md](sanitize.md) | HTML sanitization and Trusted Types |
-| [permissions.md](permissions.md) | Query and watch browser permissions |
-| [api.md](api.md) | Complete API reference |
-| [troubleshooting.md](troubleshooting.md) | Common problems and how to fix them |
+| [Quick Start](quickstart.md) | Your first encrypt and sanitize in five minutes |
+| [Crypto](crypto.md) | AES-GCM, PBKDF2, HMAC, ECDSA, hash, UUID |
+| [Seal and Unseal](seal.md) | String encryption with base64 storage |
+| [Sanitize](sanitize.md) | HTML sanitization and Trusted Types |
+| [Permissions](permissions.md) | Query and watch browser permissions |
+| [API Reference](api.md) | Complete API reference |
+| [Troubleshooting](troubleshooting.md) | Common problems and how to fix them |
 
 ## One-File Example
 
@@ -63,8 +63,8 @@ const state = await security.permission('geolocation');
 
 ## Next Steps
 
-- New to security? Start with [quickstart.md](quickstart.md).
-- Building encryption? Read [crypto.md](crypto.md) and [seal.md](seal.md).
-- Rendering user HTML? [sanitize.md](sanitize.md).
-- Need device permissions? [permissions.md](permissions.md).
-- Prefer a single reference page? [api.md](api.md).
+- New to security? Start with [Quick Start](quickstart.md).
+- Building encryption? Read [Crypto](crypto.md) and [Seal and Unseal](seal.md).
+- Rendering user HTML? [Sanitize](sanitize.md).
+- Need device permissions? [Permissions](permissions.md).
+- Prefer a single reference page? [API Reference](api.md).

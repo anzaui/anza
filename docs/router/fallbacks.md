@@ -172,16 +172,16 @@ Prefer dock / `configure` tags for normal apps. Handlers are for full manual con
 | ------- | -------- |
 | Soft-nav miss / error | Leaf swap inside deepest `via` dock; parents stay; VT + `signal` honored |
 | Hard refresh miss | Same resolver after boot gates |
-| Guard throws | `error` event with `phase: 'guard'` → error leaf ([guards.md](guards.md)) |
+| Guard throws | `error` event with `phase: 'guard'` → error leaf ([Guards](guards.md)) |
 | SSG / static host | Unknown URL may be host `404` or SPA shell; CSR paints the dock-scoped leaf after boot |
 | Scaffold | Bare `dock('main')` — no error-page files in `src/docks/` |
 
-Host HTML 404 and Mode A SSG emission are separate from this CSR leaf resolver. See [ssg/index.md](../ssg/index.md).
+Host HTML 404 and Mode A SSG emission are separate from this CSR leaf resolver. See [SSG & SEO](../ssg/index.md).
 
 ## Related
 
-- [docks.md](docks.md) — `notfound` / `error` / `offline` on docks
-- [pages.md](pages.md) — `page()` and route `error`
-- [events.md](events.md) — `notfound` / `error` events
-- [guards.md](guards.md) — nav guards (throws → error leaf)
-- [intro/structure.md](../intro/structure.md) — fallbacks are not folder slots
+- [Docks](docks.md) — `notfound` / `error` / `offline` on docks
+- [Pages](pages.md) — `page()` and route `error`
+- [Events](events.md) — `notfound` / `error` events
+- [Guards](guards.md) — nav guards (throws → error leaf)
+- [Structure](../intro/structure.md) — fallbacks are not folder slots

@@ -2,7 +2,7 @@
 
 Complete reference for the storage facade and internal classes.
 
-**vs `state.storage`:** this package is the tiered KV / OPFS / Cache facade. `state.storage` (`PlatformStorage`) persists reactive-store snapshots and supports a filter-function `query`. Give each a distinct IndexedDB database name (both default to `platform-db`) — see [troubleshooting.md](troubleshooting.md).
+**vs `state.storage`:** this package is the tiered KV / OPFS / Cache facade. `state.storage` (`PlatformStorage`) persists reactive-store snapshots and supports a filter-function `query`. Give each a distinct IndexedDB database name (both default to `platform-db`) — see [Troubleshooting](troubleshooting.md).
 
 ## Facade
 
@@ -99,7 +99,7 @@ const ok = await storage.persisted();
 
 ### `storage.onQuotaWarning(handler)`
 
-Registers a quota warning listener; returns a disposer. Also see [quota.md](quota.md).
+Registers a quota warning listener; returns a disposer. Also see [Quota](quota.md).
 
 ### `storage.compressionThreshold`
 

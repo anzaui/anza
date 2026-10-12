@@ -38,7 +38,7 @@ This generates:
 
 You own `src/tokens/` and `src/styles/`. The library copies them in as starter files; change them freely.
 
-Empty `src/docks/`, `src/views/`, and `src/parts/` folders (with `index.js` barrels) are teaching affordances — optional at runtime. You may rename the landing folder, add extra page trees (e.g. `src/docs/`), or skip `src/sw.js` for static sites. Full required / recommended / optional tables, index-per-folder convention, and optional `anza.json` remaps: [structure.md](structure.md).
+Empty `src/docks/`, `src/views/`, and `src/parts/` folders (with `index.js` barrels) are teaching affordances — optional at runtime. You may rename the landing folder, add extra page trees (e.g. `src/docs/`), or skip `src/sw.js` for static sites. Full required / recommended / optional tables, index-per-folder convention, and optional `anza.json` remaps: [Structure](structure.md).
 
 Apps need **no** `anza.json` at create time. Add one only when remapping roots, declaring extra page trees (`pages[]`), or listing additional service workers.
 
@@ -74,7 +74,7 @@ npx anza generate view card
 npx anza generate part button
 ```
 
-Flags: `--tree`, `--route`, `--via`, `--parent`, `-s/--src`. Docks are created **without** error-page HTML — fallbacks stay by reference ([fallbacks.md](../router/fallbacks.md)). Details: [build.md](build.md#generate) and [structure.md](structure.md#generate-anza-generate).
+Flags: `--tree`, `--route`, `--via`, `--parent`, `-s/--src`. Docks are created **without** error-page HTML — fallbacks stay by reference ([Fallbacks (404 / 5xx / offline)](../router/fallbacks.md)). Details: [Build: Generate](build.md#generate) and [Structure: Generate (anza generate)](structure.md#generate-anza-generate).
 
 ## What Was Generated
 
@@ -93,7 +93,7 @@ import './pages/index.js';
 navigator.serviceWorker.register('/sw.js', { type: 'module' });
 ```
 
-This initializes the UI system and loads the barrels; `src/docks/main/index.js` creates the `main` dock with `dock('main')`. It also registers the Service Worker; to avoid stale files in dev, register it only on deployed hosts (see [sw/start.md](../sw/start.md#2-register-from-appjs)). Source import order is free-form — `anza build` rewrites `dist/` into usage order (library → docks → views → parts → pages).
+This initializes the UI system and loads the barrels; `src/docks/main/index.js` creates the `main` dock with `dock('main')`. It also registers the Service Worker; to avoid stale files in dev, register it only on deployed hosts (see [Start: 2. Register from app.js](../sw/start.md#2-register-from-appjs)). Source import order is free-form — `anza build` rewrites `dist/` into usage order (library → docks → views → parts → pages).
 
 ### `src/pages/entry/index.js`
 
@@ -149,11 +149,11 @@ page('/about', {
 
 Import it from `src/pages/index.js` if you did not use `generate` (generate updates the barrel for you).
 
-Clicking `<a href="/about">` is intercepted, matched, and soft-nav swaps only the page leaf inside `main` — the dock stays mounted. Both `anza dev` and `anza build` emit contentful SSG HTML per public route for hard refresh; soft-nav loads page fragments (see [ssg/contract.md](../ssg/contract.md)).
+Clicking `<a href="/about">` is intercepted, matched, and soft-nav swaps only the page leaf inside `main` — the dock stays mounted. Both `anza dev` and `anza build` emit contentful SSG HTML per public route for hard refresh; soft-nav loads page fragments (see [Page HTML contract (Mode A SSG · Mode B templates)](../ssg/contract.md)).
 
 ### Suggested reading order
 
-1. [structure.md](structure.md) — what must exist; `anza.json`; doctor/check
-2. [build.md](build.md) — flags, SSG, generate
-3. [router/pages.md](../router/pages.md) / [router/docks.md](../router/docks.md) — `page` / `dock`
-4. [router/fallbacks.md](../router/fallbacks.md) — 404 / error / offline without folder copies
+1. [Structure](structure.md) — what must exist; `anza.json`; doctor/check
+2. [Build](build.md) — flags, SSG, generate
+3. [Pages](../router/pages.md) / [Docks](../router/docks.md) — `page` / `dock`
+4. [Fallbacks (404 / 5xx / offline)](../router/fallbacks.md) — 404 / error / offline without folder copies

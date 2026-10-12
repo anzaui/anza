@@ -120,7 +120,7 @@ setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub");
 setup.signing = SignMode::None;
 ```
 
-The signature is hex-encoded; see [crypto.md](crypto.md).
+The signature is hex-encoded; see [Cryptographic Verification](crypto.md).
 
 ## Page Rendering
 
@@ -135,7 +135,7 @@ a minimal document with a `<dock-main>` is emitted.
 `Stream` renders an envelope like `Fragment`; `stream::sse::frame::encode(&envelope)`
 formats it as an SSE `template` event and `stream::ws::packet::encode` as a
 WebSocket text frame. With the `axum` feature, `adapters::axum::stream::event`
-returns an `axum::response::sse::Event`. See [streaming.md](streaming.md).
+returns an `axum::response::sse::Event`. See [Real-Time Streaming](streaming.md).
 
 ## Crate Layout
 

@@ -40,21 +40,21 @@ import { BaseElement } from '@anzaui/anza/ui';
 
 | File | What It Covers |
 | ----- | ---------------- |
-| [quickstart.md](quickstart.md) | Your first component in five minutes |
-| [elements.md](elements.md) | The `element()` factory and spec shape |
-| [props.md](props.md) | Reactive properties, types, reflection, state |
-| [templates.md](templates.md) | Inline, file-based, and tagged template literals |
-| [styles/index.md](../styles/index.md) | CSS loading, constructable stylesheets, HMR |
-| [lifecycle.md](lifecycle.md) | Mount, unmount, connect, disconnect, load, change; soft-nav abort |
-| [context.md](context.md) | `el`, `ctrl`, `tags`, `refs`, `on`, `watch` (precision + buckets) |
-| [scheduling.md](scheduling.md) | Cooperative task scheduling |
-| [observers.md](observers.md) | Safe observer factories; `mutation.scoped` |
-| [transitions.md](transitions.md) | View transitions wrapper |
-| [forms.md](forms.md) | Form-associated custom elements |
-| [hydration.md](hydration.md) | Adopt open DSD from SSG / Mode B HTML |
-| [advanced.md](advanced.md) | Internals, globals, `getAttachmentStats` |
-| [api.md](api.md) | Complete API reference |
-| [troubleshooting.md](troubleshooting.md) | Common problems and how to fix them |
+| [Quick Start](quickstart.md) | Your first component in five minutes |
+| [Elements](elements.md) | The `element()` factory and spec shape |
+| [Props](props.md) | Reactive properties, types, reflection, state |
+| [Templates](templates.md) | Inline, file-based, and tagged template literals |
+| [Styles](../styles/index.md) | CSS loading, constructable stylesheets, HMR |
+| [Lifecycle](lifecycle.md) | Mount, unmount, connect, disconnect, load, change; soft-nav abort |
+| [Context](context.md) | `el`, `ctrl`, `tags`, `refs`, `on`, `watch` (precision + buckets) |
+| [Scheduling](scheduling.md) | Cooperative task scheduling |
+| [Observers](observers.md) | Safe observer factories; `mutation.scoped` |
+| [Transitions](transitions.md) | View transitions wrapper |
+| [Forms](forms.md) | Form-associated custom elements |
+| [Hydration (DSD adopt)](hydration.md) | Adopt open DSD from SSG / Mode B HTML |
+| [Advanced Topics](advanced.md) | Internals, globals, `getAttachmentStats` |
+| [API Reference](api.md) | Complete API reference |
+| [Troubleshooting](troubleshooting.md) | Common problems and how to fix them |
 
 ## One-File Example
 
@@ -91,9 +91,9 @@ Use it in HTML:
 
 ## Next Steps
 
-- New to the UI layer? Start with [quickstart.md](quickstart.md).
-- Want reactive properties? Read [props.md](props.md) and [lifecycle.md](lifecycle.md).
-- Building complex layouts? See [context.md](context.md) for `tags`, `refs`, `on`, and `watch`.
-- Need performance? [scheduling.md](scheduling.md) and [observers.md](observers.md).
-- Prefer a single reference page? [api.md](api.md).
+- New to the UI layer? Start with [Quick Start](quickstart.md).
+- Want reactive properties? Read [Props](props.md) and [Lifecycle](lifecycle.md).
+- Building complex layouts? See [Context](context.md) for `tags`, `refs`, `on`, and `watch`.
+- Need performance? [Scheduling](scheduling.md) and [Observers](observers.md).
+- Prefer a single reference page? [API Reference](api.md).
 - Looking for shipped `ui-*` components? [Elements kit](../elements/index.md) (overlays: [patterns](../elements/overlay.md)).

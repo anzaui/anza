@@ -219,7 +219,7 @@ page('/checkout', {
 });
 ```
 
-See [guards.md](guards.md) for full guard documentation.
+See [Guards](guards.md) for full guard documentation.
 
 ### `error`
 
@@ -233,7 +233,7 @@ page('/admin/:id', {
 });
 ```
 
-See [fallbacks.md](fallbacks.md) for defaults and the full ladder.
+See [Fallbacks (404 / 5xx / offline)](fallbacks.md) for defaults and the full ladder.
 
 ### `ssg`
 
@@ -254,7 +254,7 @@ Use `ssg.expand` only for routes whose concrete param values are known at build 
 
 ### Scaffold / generate
 
-`anza generate page <name>` writes `index.js` + HTML/CSS into a page tree and updates the barrel — it does **not** create error-page files. Fallbacks stay by reference on docks/pages. Layout contract: [intro/structure.md](../intro/structure.md).
+`anza generate page <name>` writes `index.js` + HTML/CSS into a page tree and updates the barrel — it does **not** create error-page files. Fallbacks stay by reference on docks/pages. Layout contract: [Structure](../intro/structure.md).
 
 ### `meta`
 
@@ -280,7 +280,7 @@ Available in match results as `result.route.meta`.
 ## Soft-nav vs hard refresh
 
 - **Soft-nav** — the router keeps parent docks; only the page leaf inside the leaf dock is swapped (CSR mount when the tag changes). Soft-nav loads the page **fragment** (often `template.html` after Mode A preserves it), never the full SSG document.
-- **Hard refresh / full load** — the browser fetches contentful SSG or Mode B HTML (`anza build` and `anza dev`); the client adopts open DSD and must not wipe SEO content. See [ui/hydration.md](../ui/hydration.md).
+- **Hard refresh / full load** — the browser fetches contentful SSG or Mode B HTML (`anza build` and `anza dev`); the client adopts open DSD and must not wipe SEO content. See [Hydration (DSD adopt)](../ui/hydration.md).
 
 ## Boot Gate
 

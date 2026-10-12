@@ -34,10 +34,10 @@ import { page, dock, view } from '@anzaui/anza/ui';
 
 | File | What It Covers |
 | ------ | -------------- |
-| [install.md](install.md) | Install the library and prebuilt CLI |
-| [start.md](start.md) | Scaffold your first app |
-| [build.md](build.md) | Dev server, production build, `doctor` / `check` / `generate` |
-| [structure.md](structure.md) | **Project structure contract** — required slots, `anza.json`, doctor/check, `anza generate` |
+| [Install](install.md) | Install the library and prebuilt CLI |
+| [Start](start.md) | Scaffold your first app |
+| [Build](build.md) | Dev server, production build, `doctor` / `check` / `generate` |
+| [Structure](structure.md) | **Project structure contract** — required slots, `anza.json`, doctor/check, `anza generate` |
 | `docs/sw/` | Service Worker caching, routing, sync, and push |
 
 ## One-File Example
@@ -74,10 +74,10 @@ That is a complete app. Run `anza dev` and open `http://localhost:3000`.
 
 ## Next Steps
 
-- New here? Read [install.md](install.md) then [start.md](start.md).
-- What must exist on disk? See [structure.md](structure.md) — single source of truth (`anza doctor` / `anza check`).
+- New here? Read [Install](install.md) then [Start](start.md).
+- What must exist on disk? See [Structure](structure.md) — single source of truth (`anza doctor` / `anza check`).
 - Want the router? See `docs/router/`.
 - Want the UI layer? See `docs/ui/`.
-- Shipping public pages? See [ssg/contract.md](../ssg/contract.md) (site-root URLs, open DSD) and [ui/hydration.md](../ui/hydration.md).
+- Shipping public pages? See [Page HTML contract (Mode A SSG · Mode B templates)](../ssg/contract.md) (site-root URLs, open DSD) and [Hydration (DSD adopt)](../ui/hydration.md).
 - Need offline and caching? See `docs/sw/`.
 - Need the API surface? Check the per-module docs in `docs/`.

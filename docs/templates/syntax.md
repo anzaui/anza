@@ -113,4 +113,4 @@ users:
 
 1. **Load templates at startup**: `Setup(...).run()` reads and parses every template once; renders never touch the filesystem.
 2. **Keep logic out of markup**: format, sort and filter data in your handler before rendering.
-3. **Render fragments for streaming**: use `Fragment` (or `engine.render_fragment` / `renderFragment`) to get a signed envelope, then encode it as an SSE event. See [engines/streaming.md](../engines/streaming.md).
+3. **Render fragments for streaming**: use `Fragment` (or `engine.render_fragment` / `renderFragment`) to get a signed envelope, then encode it as an SSE event. See [Real-Time Streaming](../engines/streaming.md).

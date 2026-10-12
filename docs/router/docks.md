@@ -78,7 +78,7 @@ dock('detail', {
 
 ### `notfound` / `error` / `offline`
 
-**Optional overrides.** Bare `dock('name')` already gets miss / error / offline UI from the **shared library built-ins** (`pages.js`) — do **not** copy `404.html` into every dock folder. Scaffold correctly creates docks without error-page files. The `src/docks/` folder itself is an **optional** structure slot — `dock()` may live in `app.js` ([structure.md](../intro/structure.md)).
+**Optional overrides.** Bare `dock('name')` already gets miss / error / offline UI from the **shared library built-ins** (`pages.js`) — do **not** copy `404.html` into every dock folder. Scaffold correctly creates docks without error-page files. The `src/docks/` folder itself is an **optional** structure slot — `dock()` may live in `app.js` ([Structure](../intro/structure.md)).
 
 Soft-nav swaps the **leaf** dock only; parent chrome stays. Walk leaf → root: the deepest dock that defines the kind supplies the template (may paint into a deeper leaf host). Override only for branded UI:
 
@@ -91,7 +91,7 @@ dock('content', {
 });
 ```
 
-HTML strings and `{ html }` still work. Full ladder + bare-dock sample: [fallbacks.md](fallbacks.md).
+HTML strings and `{ html }` still work. Full ladder + bare-dock sample: [Fallbacks (404 / 5xx / offline)](fallbacks.md).
 
 `anza generate dock <name>` creates a leaf under `src/docks/` **without** `404.html` — that is intentional.
 
@@ -109,7 +109,7 @@ The `contain: layout` declaration is required for element-scoped view transition
 
 On soft navigation within the same `via` chain, parent docks stay mounted. Only the leaf page inside the innermost dock is swapped. That is what keeps docs chrome (sidebar, header) alive while page content changes.
 
-For Mode A SSG / Mode B HTML, nested docks and the page leaf must be **light-DOM children** after each host’s `<template shadowrootmode="open">` — never baked inside the parent shadow template. Registry key `content` often maps to tag `dock-doccontent` (not `dock-content`). See [ssg/contract.md](../ssg/contract.md) and [ui/hydration.md](../ui/hydration.md).
+For Mode A SSG / Mode B HTML, nested docks and the page leaf must be **light-DOM children** after each host’s `<template shadowrootmode="open">` — never baked inside the parent shadow template. Registry key `content` often maps to tag `dock-doccontent` (not `dock-content`). See [Page HTML contract (Mode A SSG · Mode B templates)](../ssg/contract.md) and [Hydration (DSD adopt)](../ui/hydration.md).
 
 ## Swap Method
 
@@ -133,7 +133,7 @@ The `direction` option (`'push'`, `'pop'`, `'replace'`; `'back'` is treated like
 :host([data-transition-direction="pop"]) { ... }
 ```
 
-See [router/transitions.md](transitions.md) and [ui/transitions.md](../ui/transitions.md).
+See [Transitions](transitions.md) and [Transitions](../ui/transitions.md).
 
 ## Lifecycle Hooks
 

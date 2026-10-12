@@ -11,7 +11,7 @@ Register a route. Returns nothing.
 | Param | Type | Description |
 | ----- | ---- | ----------- |
 | `pattern` | string | URL pattern or absolute URL |
-| `handler` | string \| function \| object | See [handlers.md](handlers.md) |
+| `handler` | string \| function \| object | See [Handlers](handlers.md) |
 | `meta` | object | Optional metadata (`container`, `parent`, `via`) |
 
 ```javascript
@@ -82,7 +82,7 @@ router.notFound((event) => {
 
 ### `router.pages`
 
-Optional app-level fallback tags / HTML for `notfound`, `error`, and `offline` when no dock in the chain defines the kind. Bare docks already use shared library built-ins — see [fallbacks.md](fallbacks.md).
+Optional app-level fallback tags / HTML for `notfound`, `error`, and `offline` when no dock in the chain defines the kind. Bare docks already use shared library built-ins — see [Fallbacks (404 / 5xx / offline)](fallbacks.md).
 
 ```javascript
 router.pages.configure({
@@ -319,4 +319,4 @@ await transitions.run(() => panel.replaceChildren(next), {
 | `dockName` | Default `dock-<registryKey>` |
 | `prefersReducedMotion` | Motion preference helper |
 
-Full behaviour: [transitions.md](transitions.md), [ui/transitions.md](../ui/transitions.md).
+Full behaviour: [Transitions](transitions.md), [Transitions](../ui/transitions.md).

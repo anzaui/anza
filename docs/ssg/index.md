@@ -11,7 +11,7 @@ Anza ships **contentful HTML** for public routes so hard refresh and crawlers se
 
 Portable rule: treat `dist/` as the **site root**. Public URLs are `/app.js`, `/importmap.json`, `/docs/...` — never `/dist/...`.
 
-Client adopt: [ui/hydration.md](../ui/hydration.md). Normative markup: [contract.md](contract.md).
+Client adopt: [Hydration (DSD adopt)](../ui/hydration.md). Normative markup: [Page HTML contract (Mode A SSG · Mode B templates)](contract.md).
 
 ## Modes
 
@@ -36,7 +36,7 @@ Both modes must satisfy the [page HTML contract](contract.md) so hydration has o
 
 There is **no Phase 7**. Residual host polish (Worker preferring SSG over SPA fallback) is optional and not product acceptance.
 
-**CSR fallbacks:** unknown paths may get a host `404` body or SPA shell HTML. Once the client boots, [router/fallbacks.md](../router/fallbacks.md) paints a not-found / error leaf inside the **leaf** dock (shared library built-in, or a dock/page override) — separate from Mode A SSG emission. Do not bake a `404.html` into every dock folder.
+**CSR fallbacks:** unknown paths may get a host `404` body or SPA shell HTML. Once the client boots, [Fallbacks (404 / 5xx / offline)](../router/fallbacks.md) paints a not-found / error leaf inside the **leaf** dock (shared library built-in, or a dock/page override) — separate from Mode A SSG emission. Do not bake a `404.html` into every dock folder.
 
 ## Simple: Mode A page SEO
 
@@ -71,7 +71,7 @@ page('/docs/ssg/expand/:slug', {
 }, import.meta.url);
 ```
 
-Or project-level `ssg.params.json`. Pattern stays `ssg: false`; each expansion emits a concrete `ssg: true` route. Live fixture: [`/docs/ssg/expand/foo`](/docs/ssg/expand/foo). Details: [contract.md](contract.md).
+Or project-level `ssg.params.json`. Pattern stays `ssg: false`; each expansion emits a concrete `ssg: true` route. Live fixture: [`/docs/ssg/expand/foo`](/docs/ssg/expand/foo). Details: [Page HTML contract (Mode A SSG · Mode B templates)](contract.md).
 
 ### Site origin + SEO artifacts (Phase 6)
 
@@ -99,7 +99,7 @@ Without `origin`, path-relative URLs are fine for local preview; sitemap locs st
 
 Hard refresh serves the SSG (or Mode B) document. Soft-nav must **not** use that document as a page template — nested docks would stack inside the leaf shadow. Mode A preserves the CSR fragment as `template.html` when paths collide, and the client `sanitizeTemplateHtml` refuses full HTML documents. Nested hosts must be light-DOM children **after** each parent’s `<template shadowrootmode="open">`.
 
-Project layout (folders, `anza.json`, doctor/check) is a separate contract: [intro/structure.md](../intro/structure.md). Fallbacks after CSR miss are leaf-scoped: [router/fallbacks.md](../router/fallbacks.md).
+Project layout (folders, `anza.json`, doctor/check) is a separate contract: [Structure](../intro/structure.md). Fallbacks after CSR miss are leaf-scoped: [Fallbacks (404 / 5xx / offline)](../router/fallbacks.md).
 
 ## Verify
 
@@ -117,6 +117,6 @@ Same contentful HTML for every User-Agent — no cloaking.
 
 | File | What it covers |
 | ---- | -------------- |
-| [contract.md](contract.md) | Normative head/body, Mode A/B, expand, origin/sitemap/JSON-LD, checklist |
-| [ui/hydration.md](../ui/hydration.md) | Client adopt / soft-nav vs hard refresh |
+| [Page HTML contract (Mode A SSG · Mode B templates)](contract.md) | Normative head/body, Mode A/B, expand, origin/sitemap/JSON-LD, checklist |
+| [Hydration (DSD adopt)](../ui/hydration.md) | Client adopt / soft-nav vs hard refresh |
 | Fixture expand page | [`/docs/ssg/expand/foo`](/docs/ssg/expand/foo) |

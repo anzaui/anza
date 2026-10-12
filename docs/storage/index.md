@@ -7,7 +7,7 @@ order: 11
 
 The Anza storage layer provides a unified, tiered storage surface. It integrates LRU memory caching, IndexedDB, Origin Private File System (OPFS), and the Cache API under a single facade with automatic tier fallback, TTL support, and transparent gzip compression.
 
-**vs `state.storage`:** use `@anzaui/anza/storage` for general key/value, files, and HTTP cache tiers. Use `state.storage` (`PlatformStorage`) for reactive-store snapshots keyed by object-store name — including filter-function `query`. If you use both, give them **different IndexedDB database names** (both default to `platform-db` — see [troubleshooting.md](troubleshooting.md)).
+**vs `state.storage`:** use `@anzaui/anza/storage` for general key/value, files, and HTTP cache tiers. Use `state.storage` (`PlatformStorage`) for reactive-store snapshots keyed by object-store name — including filter-function `query`. If you use both, give them **different IndexedDB database names** (both default to `platform-db` — see [Troubleshooting](troubleshooting.md)).
 
 ## What You Get
 
@@ -31,15 +31,15 @@ Call `storage.configure({ idb: { name: 'app-kv' } })` before first use when shar
 
 | File | What It Covers |
 | ----- | --------------- |
-| [quickstart.md](quickstart.md) | Your first get/set in five minutes |
-| [tiers.md](tiers.md) | Storage tiers and when to use each |
-| [idb.md](idb.md) | IndexedDB adapter, migrations, transactions |
-| [opfs.md](opfs.md) | Origin Private File System via Web Worker |
-| [cache.md](cache.md) | Cache API wrapper with TTL |
-| [lru.md](lru.md) | In-memory LRU and WeakLRU caches |
-| [quota.md](quota.md) | Quota estimation, persistence, warnings |
-| [api.md](api.md) | Complete API reference |
-| [troubleshooting.md](troubleshooting.md) | Common problems and how to fix them |
+| [Quick Start](quickstart.md) | Your first get/set in five minutes |
+| [Tiers](tiers.md) | Storage tiers and when to use each |
+| [IndexedDB](idb.md) | IndexedDB adapter, migrations, transactions |
+| [OPFS](opfs.md) | Origin Private File System via Web Worker |
+| [Cache](cache.md) | Cache API wrapper with TTL |
+| [LRU](lru.md) | In-memory LRU and WeakLRU caches |
+| [Quota](quota.md) | Quota estimation, persistence, warnings |
+| [API Reference](api.md) | Complete API reference |
+| [Troubleshooting](troubleshooting.md) | Common problems and how to fix them |
 
 ## One-File Example
 
@@ -69,9 +69,9 @@ const keys = await storage.list();
 
 ## Next Steps
 
-- New to storage? Start with [quickstart.md](quickstart.md).
-- Choosing a tier? Read [tiers.md](tiers.md).
-- Need migrations? [idb.md](idb.md).
-- Large files? [opfs.md](opfs.md).
-- Prefer a single reference page? [api.md](api.md).
-- Persisting reactive stores? [state/persist.md](../state/persist.md).
+- New to storage? Start with [Quick Start](quickstart.md).
+- Choosing a tier? Read [Tiers](tiers.md).
+- Need migrations? [IndexedDB](idb.md).
+- Large files? [OPFS](opfs.md).
+- Prefer a single reference page? [API Reference](api.md).
+- Persisting reactive stores? [Persist](../state/persist.md).

@@ -18,7 +18,7 @@ ui.define('my-element', MyClass);
 
 ### `ui.element(tag, spec, base)`
 
-Declarative element factory. See [elements.md](elements.md).
+Declarative element factory. See [Elements](elements.md).
 
 ### `ui.container(tag, spec, base)`
 
@@ -34,11 +34,11 @@ Container shell. See router docks.md.
 
 ### `ui.view(tag, config, base)`
 
-Stateful component. See [router/components.md](../router/components.md).
+Stateful component. See [Components](../router/components.md).
 
 ### `ui.part(tag, config, base)`
 
-Stateless primitive. See [router/components.md](../router/components.md).
+Stateless primitive. See [Components](../router/components.md).
 
 ### `ui.schedule(fn, priorityOrOptions)`
 
@@ -60,7 +60,7 @@ Yield control to the browser. Options: `{ signal }`. Returns a promise.
 
 ### `ui.transition(fn, options?)`
 
-View transitions wrapper (document or element scope). Returns a promise resolving to a transition object. See [transitions.md](transitions.md).
+View transitions wrapper (document or element scope). Returns a promise resolving to a transition object. See [Transitions](transitions.md).
 
 ### `ui.runSwapTransition(host, fn, options?)`
 
@@ -135,7 +135,7 @@ Define a route-bound element.
 - **`config` fields**: `tag`, `via`, `container`, `template`, `style`, `props`, `params`, `query`, `hash`, `on`, `guard`, `error`, `loading`, `seo`, `meta`.
   - `params`: `Array<{ name: string, type: Function }>` - path parameter contract (e.g., `[{ name: 'slug', type: String }]`).
   - `query`: `Array<{ name: string, type: Function }>` - query parameter contract (e.g., `[{ name: 'tab', type: String }]`).
-  - `error` (optional): route-scoped error leaf override — see [router/fallbacks.md](../router/fallbacks.md).
+  - `error` (optional): route-scoped error leaf override — see [Fallbacks (404 / 5xx / offline)](../router/fallbacks.md).
   - `loading` (optional): soft-nav loading override for this page (`false` disables it).
 
 Page resources always load when the page first connects.
@@ -145,7 +145,7 @@ Page resources always load when the page first connects.
 Define a container shell.
 
 - **`config` fields**: `tag`, `parent`, `template`, `style`, `props`, `on`, `notfound`, `error`, `offline`, `loading`, `transition`, `eager`.
-  - `notfound` / `error` / `offline` (optional): branded overrides only — bare docks use shared library built-ins; see [router/fallbacks.md](../router/fallbacks.md).
+  - `notfound` / `error` / `offline` (optional): branded overrides only — bare docks use shared library built-ins; see [Fallbacks (404 / 5xx / offline)](../router/fallbacks.md).
   - `loading` (optional): soft-nav loading UI for this subtree; `false` disables it.
   - `transition` (optional): `false` disables the dock's View Transition; `{ name }` overrides the default `dock-<name>`.
   - `eager` (optional): fetch file resources at define time instead of on first connect.
@@ -244,7 +244,7 @@ Matching walks `composedPath()` within the shadow root (same matcher as `events.
 | `key` | string\|number | Dedupe — same key replaces prior registration |
 | `scope` | `'shadow'` \| `'assigned'` | Default shadow-only; `assigned` includes slotted light DOM |
 
-Empty registry for a `(type, capture)` key removes the shadow-root listener immediately. See [context.md](context.md#on).
+Empty registry for a `(type, capture)` key removes the shadow-root listener immediately. See [Context: on](context.md#on).
 
 Returns a disposer function.
 
@@ -261,6 +261,6 @@ watch.slot(slotOrSelector, handler, options) // ({ assigned, assignedElements },
 watch.attr.once(...) / kids.once / text.once / tree.once / slot.once
 ```
 
-`target` is a shadow-scoped selector or Element. Options: `{ signal, once, requirePresent }` (or a bare `AbortSignal`). Observers are bucketed by option fingerprint so a `tree` / `attr *` registration cannot widen another watch’s `attributeFilter`. `watch.slot` uses `slotchange` (not a MutationObserver). See [context.md](context.md#watch).
+`target` is a shadow-scoped selector or Element. Options: `{ signal, once, requirePresent }` (or a bare `AbortSignal`). Observers are bucketed by option fingerprint so a `tree` / `attr *` registration cannot widen another watch’s `attributeFilter`. `watch.slot` uses `slotchange` (not a MutationObserver). See [Context: watch](context.md#watch).
 
 Returns a disposer function.

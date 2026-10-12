@@ -33,22 +33,22 @@ The router also exposes itself as `window.router` (non-enumerable, non-configura
 
 | File | What It Covers |
 |------|----------------|
-| [quickstart.md](quickstart.md) | Your first route in five minutes |
-| [routes.md](routes.md) | Defining routes: patterns, params, specificity, parent chains |
-| [handlers.md](handlers.md) | The six shapes a route handler can take |
-| [guards.md](guards.md) | Blocking and redirecting navigation |
-| [navigation.md](navigation.md) | Programmatic navigation and history |
-| [containers.md](containers.md) | The container graph, via chains, cascade mounting, LCA |
-| [pages.md](pages.md) | `page()` — route-bound element definitions |
-| [docks.md](docks.md) | `dock()` — container shells with swap transitions |
-| [components.md](components.md) | `view()` and `part()` — stateful and stateless components |
-| [events.md](events.md) | `found`, `notfound`, `error`, and `on()` subscriptions |
-| [transitions.md](transitions.md) | CSS View Transitions wrapper |
-| [cache.md](cache.md) | Prefetch and route caching |
-| [sync.md](sync.md) | Cross-tab navigation synchronization |
-| [advanced.md](advanced.md) | Boot gate, trie matcher, handler contract, internals |
-| [api.md](api.md) | Complete API reference |
-| [troubleshooting.md](troubleshooting.md) | Common problems and how to fix them |
+| [Quick Start](quickstart.md) | Your first route in five minutes |
+| [Routes](routes.md) | Defining routes: patterns, params, specificity, parent chains |
+| [Handlers](handlers.md) | The six shapes a route handler can take |
+| [Guards](guards.md) | Blocking and redirecting navigation |
+| [Navigation](navigation.md) | Programmatic navigation and history |
+| [Containers](containers.md) | The container graph, via chains, cascade mounting, LCA |
+| [Pages](pages.md) | `page()` — route-bound element definitions |
+| [Docks](docks.md) | `dock()` — container shells with swap transitions |
+| [Components](components.md) | `view()` and `part()` — stateful and stateless components |
+| [Events](events.md) | `found`, `notfound`, `error`, and `on()` subscriptions |
+| [Transitions](transitions.md) | CSS View Transitions wrapper |
+| [Cache](cache.md) | Prefetch and route caching |
+| [Sync](sync.md) | Cross-tab navigation synchronization |
+| [Advanced Topics](advanced.md) | Boot gate, trie matcher, handler contract, internals |
+| [API Reference](api.md) | Complete API reference |
+| [Troubleshooting](troubleshooting.md) | Common problems and how to fix them |
 
 ## The Three-Layer Model
 
@@ -96,9 +96,9 @@ That is a complete working route. The router auto-bootstraps, intercepts link cl
 
 ## Next Steps
 
-- New to the router? Start with [quickstart.md](quickstart.md).
-- Want the full route API? Read [routes.md](routes.md) and [handlers.md](handlers.md).
-- Building layouts with sidebars and panels? See [containers.md](containers.md) and [docks.md](docks.md).
-- Need to block certain routes? [guards.md](guards.md).
-- Want animated page swaps? [transitions.md](transitions.md).
-- Prefer a single reference page? [api.md](api.md).
+- New to the router? Start with [Quick Start](quickstart.md).
+- Want the full route API? Read [Routes](routes.md) and [Handlers](handlers.md).
+- Building layouts with sidebars and panels? See [Containers](containers.md) and [Docks](docks.md).
+- Need to block certain routes? [Guards](guards.md).
+- Want animated page swaps? [Transitions](transitions.md).
+- Prefer a single reference page? [API Reference](api.md).

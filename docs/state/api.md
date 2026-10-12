@@ -26,11 +26,11 @@ const doubled = state.derived(() => store.get('count') * 2);
 
 ### `state.sync(store, keys, channelName)`
 
-Returns disposer. See [sync.md](sync.md).
+Returns disposer. See [Sync](sync.md).
 
 ### `state.storage`
 
-`PlatformStorage` instance. See [persist.md](persist.md).
+`PlatformStorage` instance. See [Persist](persist.md).
 
 ## ReactiveStore
 

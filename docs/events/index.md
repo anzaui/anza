@@ -28,14 +28,14 @@ import { events } from '@anzaui/anza/events';
 
 | File | What It Covers |
 | ----- | --------------- |
-| [quickstart.md](quickstart.md) | Your first event in five minutes |
-| [bus.md](bus.md) | Global event bus — emit, on, and the EventBus class |
-| [delegate.md](delegate.md) | High-performance event delegation through shadow DOM |
-| [listen.md](listen.md) | Memory-safe listeners with passive defaults |
-| [once.md](once.md) | Promise-wrapped single-event awaits |
-| [names.md](names.md) | System event name constants |
-| [api.md](api.md) | Complete API reference (incl. `matchInComposedPath` / passive helpers) |
-| [troubleshooting.md](troubleshooting.md) | Common problems and how to fix them |
+| [Quick Start](quickstart.md) | Your first event in five minutes |
+| [Bus](bus.md) | Global event bus — emit, on, and the EventBus class |
+| [Delegate](delegate.md) | High-performance event delegation through shadow DOM |
+| [Listen](listen.md) | Memory-safe listeners with passive defaults |
+| [Once](once.md) | Promise-wrapped single-event awaits |
+| [Names](names.md) | System event name constants |
+| [API Reference](api.md) | Complete API reference (incl. `matchInComposedPath` / passive helpers) |
+| [Troubleshooting](troubleshooting.md) | Common problems and how to fix them |
 
 ## One-File Example
 
@@ -59,8 +59,8 @@ console.log('Clicked at', click.clientX, click.clientY);
 
 ## Next Steps
 
-- New to the events layer? Start with [quickstart.md](quickstart.md).
-- Building global pub/sub? Read [bus.md](bus.md).
-- Working with shadow DOM? [delegate.md](delegate.md) and component [on](../ui/context.md#on) / [watch](../ui/context.md#watch).
-- Need memory-safe cleanup? [listen.md](listen.md), [once.md](once.md), and [soft-nav orphans](troubleshooting.md#orphan-listeners-after-soft-nav).
-- Prefer a single reference page? [api.md](api.md).
+- New to the events layer? Start with [Quick Start](quickstart.md).
+- Building global pub/sub? Read [Bus](bus.md).
+- Working with shadow DOM? [Delegate](delegate.md) and component [on](../ui/context.md#on) / [watch](../ui/context.md#watch).
+- Need memory-safe cleanup? [Listen](listen.md), [Once](once.md), and [soft-nav orphans](troubleshooting.md#orphan-listeners-after-soft-nav).
+- Prefer a single reference page? [API Reference](api.md).

@@ -31,6 +31,9 @@ jobs:
       - name: Doc imports
         run: npm run doc:imports
 
+      - name: Doc links
+        run: npm run doc:links
+
       - name: Types cover runtime exports
         run: npm run types:check
 

@@ -31,7 +31,7 @@ router.on('notfound', ({ url }) => {
 });
 ```
 
-After the event, the resolver mounts the **notfound** leaf into the deepest live dock (shared library built-in, or a dock / `configure` override). Soft-nav does not wipe the shell. Prefer `dock({ notfound })` / `router.pages.configure` over a full handler; see [fallbacks.md](fallbacks.md).
+After the event, the resolver mounts the **notfound** leaf into the deepest live dock (shared library built-in, or a dock / `configure` override). Soft-nav does not wipe the shell. Prefer `dock({ notfound })` / `router.pages.configure` over a full handler; see [Fallbacks (404 / 5xx / offline)](fallbacks.md).
 
 Optional escape hatch (`return false` falls through to auto-mount):
 
@@ -61,7 +61,7 @@ Phase values:
 | `'handler'` | A callback handler threw an exception |
 | `'navigation'` | The Navigation API emitted `navigateerror` |
 
-After the event, the router renders the **error** fallback leaf unless `router.pages.suppressDefault(true)` or an `onError` handler handled it. Explicit offline UI: `router.pages.show('offline')`. See [fallbacks.md](fallbacks.md).
+After the event, the router renders the **error** fallback leaf unless `router.pages.suppressDefault(true)` or an `onError` handler handled it. Explicit offline UI: `router.pages.show('offline')`. See [Fallbacks (404 / 5xx / offline)](fallbacks.md).
 
 Simple analytics + branded leaf:
 
@@ -157,7 +157,7 @@ Prefer `ctrl.signal` over a manual disposer in `disconnect` — soft-nav aborts 
 
 ## Related
 
-- [fallbacks.md](fallbacks.md) — leaf mount after miss / error
-- [guards.md](guards.md) — throws → `error` with `phase: 'guard'`
-- [api.md](api.md) — `router.on` / `router.pages`
-- [events/troubleshooting.md](../events/troubleshooting.md) — soft-nav orphans (app event bus)
+- [Fallbacks (404 / 5xx / offline)](fallbacks.md) — leaf mount after miss / error
+- [Guards](guards.md) — throws → `error` with `phase: 'guard'`
+- [API Reference](api.md) — `router.on` / `router.pages`
+- [Troubleshooting](../events/troubleshooting.md) — soft-nav orphans (app event bus)

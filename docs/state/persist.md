@@ -2,7 +2,7 @@
 
 `PlatformStorage` provides transactional IndexedDB persistence for reactive state. It supports schema migrations, TTL-based expiry, and automatic eviction when storage quota exceeds 80%.
 
-This is **not** the tiered `@anzaui/anza/storage` facade. Prefer `state.storage` for hydrating `state.create` stores; use the storage package for general KV, OPFS, and Cache API. Give each a distinct DB name if both are open (see [storage/troubleshooting.md](../storage/troubleshooting.md)).
+This is **not** the tiered `@anzaui/anza/storage` facade. Prefer `state.storage` for hydrating `state.create` stores; use the storage package for general KV, OPFS, and Cache API. Give each a distinct DB name if both are open (see [Troubleshooting](../storage/troubleshooting.md)).
 
 ## Bridge pattern
 
@@ -163,7 +163,7 @@ Because the name is captured before the first `indexedDB.open(...)`, set it duri
 
 ## Related
 
-- [store.md](store.md) — `state.create` / hydrate / subscribe
-- [storage/index.md](../storage/index.md) — tiered facade
-- [storage/troubleshooting.md](../storage/troubleshooting.md) — `platform-db` clash
-- [api.md](api.md) — full state API
+- [Store](store.md) — `state.create` / hydrate / subscribe
+- [Storage](../storage/index.md) — tiered facade
+- [Troubleshooting](../storage/troubleshooting.md) — `platform-db` clash
+- [API Reference](api.md) — full state API

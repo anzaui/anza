@@ -76,4 +76,4 @@ const files = await storage.list('opfs');
 await storage.clear('cache');                // or 'idb' | 'opfs' | 'memory' via LRU | 'all'
 ```
 
-Configure distinct DB names before first use when also opening `state.storage` — see [troubleshooting.md](troubleshooting.md).
+Configure distinct DB names before first use when also opening `state.storage` — see [Troubleshooting](troubleshooting.md).

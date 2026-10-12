@@ -27,15 +27,15 @@ import { workers } from '@anzaui/anza/workers';
 
 | File | What It Covers |
 | ----- | --------------- |
-| [quickstart.md](quickstart.md) | Your first worker task in five minutes |
-| [pool.md](pool.md) | Dedicated worker pools with priority scheduling |
-| [dedicated.md](dedicated.md) | Raw dedicated workers with MessageChannel isolation |
-| [shared.md](shared.md) | SharedWorker connections with fallback |
-| [broadcast.md](broadcast.md) | Cross-tab BroadcastChannel messaging |
-| [locks.md](locks.md) | Web Locks API with fallback |
-| [offscreen.md](offscreen.md) | OffscreenCanvas transfer to workers |
-| [api.md](api.md) | Complete API reference |
-| [troubleshooting.md](troubleshooting.md) | Common problems and how to fix them |
+| [Quick Start](quickstart.md) | Your first worker task in five minutes |
+| [Pool](pool.md) | Dedicated worker pools with priority scheduling |
+| [Dedicated](dedicated.md) | Raw dedicated workers with MessageChannel isolation |
+| [Shared](shared.md) | SharedWorker connections with fallback |
+| [Broadcast](broadcast.md) | Cross-tab BroadcastChannel messaging |
+| [Locks](locks.md) | Web Locks API with fallback |
+| [Offscreen](offscreen.md) | OffscreenCanvas transfer to workers |
+| [API Reference](api.md) | Complete API reference |
+| [Troubleshooting](troubleshooting.md) | Common problems and how to fix them |
 
 ## One-File Example
 
@@ -59,9 +59,9 @@ await workers.lock('db:write', async () => {
 
 ## Next Steps
 
-- New to workers? Start with [quickstart.md](quickstart.md).
-- CPU-bound tasks? Read [pool.md](pool.md).
-- Cross-tab state? [shared.md](shared.md) and [broadcast.md](broadcast.md).
-- Need synchronization? [locks.md](locks.md).
-- Canvas rendering? [offscreen.md](offscreen.md).
-- Prefer a single reference page? [api.md](api.md).
+- New to workers? Start with [Quick Start](quickstart.md).
+- CPU-bound tasks? Read [Pool](pool.md).
+- Cross-tab state? [Shared](shared.md) and [Broadcast](broadcast.md).
+- Need synchronization? [Locks](locks.md).
+- Canvas rendering? [Offscreen](offscreen.md).
+- Prefer a single reference page? [API Reference](api.md).

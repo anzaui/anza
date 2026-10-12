@@ -2,7 +2,7 @@
 
 Cooperative task scheduling for main-thread-friendly work. Prevents long tasks that hurt Interaction to Next Paint (INP). Soft-nav aborts the leaf’s `ctrl` — pass that signal into schedule helpers so pending work does not run on a detached tree.
 
-Related: [transitions.md](transitions.md) (VT + `AbortSignal`), [lifecycle.md](lifecycle.md) (soft-nav abort contract), platform [`guard.scheduler` / `guard.yield`](../platform/guards.md).
+Related: [Transitions](transitions.md) (VT + `AbortSignal`), [Lifecycle](lifecycle.md) (soft-nav abort contract), platform [`guard.scheduler` / `guard.yield`](../platform/guards.md).
 
 ## schedule
 

@@ -62,7 +62,7 @@ page('/', { tag: 'page-home', via: ['main'] }); // mismatch
 2. Chrome 111+ for document morphs (`ui.transition` / `transitions.run` / `supports.viewTransitions`)
 3. `prefers-reduced-motion: reduce`, `transition: false`, or `configureTransitions({ enabled: false })` force a direct swap
 
-See [router/transitions.md](transitions.md) and [ui/transitions.md](../ui/transitions.md).
+See [Transitions](transitions.md) and [Transitions](../ui/transitions.md).
 
 ## Cascade fails on deep link
 

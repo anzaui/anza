@@ -72,7 +72,7 @@ If Node, the bundle script or `rolldown` can't be found, or an HTML page has an 
 
 Public routes get **Mode A SSG** (also during `anza dev`): contentful HTML with open Declarative Shadow DOM under `dist/<route>/index.html`, so hard refresh works on a plain static server. Publish `dist/` as the **document root**. Asset URLs are site-root paths (`/app.js`, `/tokens/...`) — never `/dist/...`. SSG pages also preload the fonts that the app shell (`src/index.html`) preloads with `<link rel="preload" as="font">`.
 
-When the page’s CSR fragment path would collide with that SSG `index.html`, the emitter keeps the fragment as `template.html` and rewrites the built page module plus `routes.json` so soft-nav fetches the fragment — not the full document. Overview: [ssg/index.md](../ssg/index.md). Contract: [ssg/contract.md](../ssg/contract.md). Hydration: [ui/hydration.md](../ui/hydration.md).
+When the page’s CSR fragment path would collide with that SSG `index.html`, the emitter keeps the fragment as `template.html` and rewrites the built page module plus `routes.json` so soft-nav fetches the fragment — not the full document. Overview: [SSG & SEO](../ssg/index.md). Contract: [Page HTML contract (Mode A SSG · Mode B templates)](../ssg/contract.md). Hydration: [Hydration (DSD adopt)](../ui/hydration.md).
 
 ### SEO extras (`ssg.json`)
 
@@ -102,7 +102,7 @@ npx anza check
 | `anza doctor --strict` | Same findings as check — warnings fail |
 | `anza check` | Strict structure check for CI (`anza check && anza build`) |
 
-Validates required spine (`package.json`, `src/index.html`, `src/app.js`), recommended tokens/styles/SW/importmap, optional slots + index-per-folder barrels, optional `anza.json` (incl. `sw` string\|array), legacy `elements/` coexistence, undeclared page trees, and **via → dock** consistency (`rootDock` warn; unknown `via` error). Contract: [structure.md](structure.md) (single source of truth + Troubleshooting).
+Validates required spine (`package.json`, `src/index.html`, `src/app.js`), recommended tokens/styles/SW/importmap, optional slots + index-per-folder barrels, optional `anza.json` (incl. `sw` string\|array), legacy `elements/` coexistence, undeclared page trees, and **via → dock** consistency (`rootDock` warn; unknown `via` error). Contract: [Structure](structure.md) (single source of truth + Troubleshooting).
 
 ### CI
 

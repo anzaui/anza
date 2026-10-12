@@ -176,9 +176,9 @@ events.delegate(root, '.btn', 'click', handler, {
 });
 ```
 
-Matching walks `composedPath()` and stops at `root`. See [delegate.md](delegate.md).
+Matching walks `composedPath()` and stops at `root`. See [Delegate](delegate.md).
 
-Component shadow delegation lives on context `on` — [ui/context.md](../ui/context.md#on) — with the same `attrs` / `not` / `key` options and empty-registry teardown.
+Component shadow delegation lives on context `on` — [Context: on](../ui/context.md#on) — with the same `attrs` / `not` / `key` options and empty-registry teardown.
 
 ## Event Payload
 

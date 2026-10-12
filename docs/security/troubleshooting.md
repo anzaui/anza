@@ -26,7 +26,7 @@ if (typeof crypto === 'undefined') {
 
 **Cause:** Input contained no allowed tags.
 
-**Fix:** Check the allowed tag list in [sanitize.md](sanitize.md). Plain text is preserved. Only disallowed tags are stripped:
+**Fix:** Check the allowed tag list in [Sanitize](sanitize.md). Plain text is preserved. Only disallowed tags are stripped:
 
 ```javascript
 const safe = String(sanitize('<script>alert(1)</script>Hello'));

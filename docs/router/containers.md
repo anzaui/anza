@@ -62,7 +62,7 @@ Cascade:
 
 This is what makes a hard refresh on a deep route work without error.
 
-When public HTML already shipped the via chain (Mode A SSG or Mode B), the client **adopts** those docks instead of recreating an empty shell. Soft-nav then only swaps the page leaf inside the leaf dock; intermediate docks persist. Nested hosts in SSG HTML must be light-DOM children after each open DSD template — see [ssg/contract.md](../ssg/contract.md).
+When public HTML already shipped the via chain (Mode A SSG or Mode B), the client **adopts** those docks instead of recreating an empty shell. Soft-nav then only swaps the page leaf inside the leaf dock; intermediate docks persist. Nested hosts in SSG HTML must be light-DOM children after each open DSD template — see [Page HTML contract (Mode A SSG · Mode B templates)](../ssg/contract.md).
 
 ## Lowest Common Ancestor (LCA)
 

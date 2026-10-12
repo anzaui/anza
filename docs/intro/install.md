@@ -15,7 +15,7 @@ This installs:
 
 The package is on [npm](https://www.npmjs.com/package/@anzaui/anza). Each version bundles platform binaries under `node_modules/@anzaui/anza/bin/anza/` (linux, macOS, and Windows — x64 and arm64).
 
-In a project with `@anzaui/anza` as a dependency, run the CLI via `npx anza` or an npm script (see [start.md](start.md)).
+In a project with `@anzaui/anza` as a dependency, run the CLI via `npx anza` or an npm script (see [Start](start.md)).
 
 ## New projects
 
@@ -27,7 +27,7 @@ cd myapp
 npm install
 ```
 
-See [start.md](start.md) for what gets generated and how to run `npm run dev`.
+See [Start](start.md) for what gets generated and how to run `npm run dev`.
 
 ## GitHub releases (standalone binary)
 

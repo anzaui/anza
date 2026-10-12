@@ -18,7 +18,7 @@ storage.configure({ idb: { name: 'app-kv' } });
 state.storage.setDatabaseName('app-state');
 ```
 
-Use `storage` for tiered KV/blobs; use `state.storage` for store persistence. See [state/persist.md](../state/persist.md).
+Use `storage` for tiered KV/blobs; use `state.storage` for store persistence. See [Persist](../state/persist.md).
 
 If one package creates object stores and the other later opens the same DB name with a different migration plan, you can end up debugging the wrong abstraction. Separate names early and keep them stable.
 

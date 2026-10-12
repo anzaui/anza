@@ -35,12 +35,12 @@ import {
 
 | File | What It Covers |
 | ----- | --------------- |
-| [quickstart.md](quickstart.md) | Feature detection and polyfills in five minutes |
-| [supports.md](supports.md) | Full supports registry and detection flags |
-| [guards.md](guards.md) | Lazy polyfill loaders and usage patterns |
-| [scheduler.md](scheduler.md) | Prioritized task scheduling and yielding |
-| [api.md](api.md) | Complete API reference |
-| [troubleshooting.md](troubleshooting.md) | Common problems and how to fix them |
+| [Quick Start](quickstart.md) | Feature detection and polyfills in five minutes |
+| [Supports](supports.md) | Full supports registry and detection flags |
+| [Guards](guards.md) | Lazy polyfill loaders and usage patterns |
+| [Scheduler](scheduler.md) | Prioritized task scheduling and yielding |
+| [API Reference](api.md) | Complete API reference |
+| [Troubleshooting](troubleshooting.md) | Common problems and how to fix them |
 
 ## One-File Example
 
@@ -64,9 +64,9 @@ const pattern = new URLPattern({ pathname: '/user/:id' });
 
 ## Next Steps
 
-- New to the platform layer? Start with [quickstart.md](quickstart.md).
-- Want the full capability matrix? Read [supports.md](supports.md).
-- Need polyfills? [guards.md](guards.md).
-- Working with scheduler? [scheduler.md](scheduler.md).
-- Prefer a single reference page? [api.md](api.md).
-- Building floating UI / tooltips? [guards.md#escape](guards.md#escape) and [Overlay patterns](../elements/overlay.md).
+- New to the platform layer? Start with [Quick Start](quickstart.md).
+- Want the full capability matrix? Read [Supports](supports.md).
+- Need polyfills? [Guards](guards.md).
+- Working with scheduler? [Scheduler](scheduler.md).
+- Prefer a single reference page? [API Reference](api.md).
+- Building floating UI / tooltips? [Guards: escape](guards.md#escape) and [Overlay patterns](../elements/overlay.md).
