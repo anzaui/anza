@@ -57,8 +57,24 @@ import './views/index.js';
 import './parts/index.js';
 import './pages/index.js';
 
-// Service Worker
-navigator.serviceWorker.register('/sw.js', { type: 'module' });
+// Service Worker: real hosts only. On local hosts, remove workers and caches
+// left over from earlier builds so the dev server never serves stale files.
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
+if ('serviceWorker' in navigator) {
+  if (LOCAL_HOSTS.has(location.hostname)) {
+    navigator.serviceWorker
+      .getRegistrations()
+      .then(async (regs) => {
+        if (!regs.length) return;
+        await Promise.all(regs.map((reg) => reg.unregister()));
+        const keys = await caches.keys();
+        await Promise.all(keys.map((key) => caches.delete(key)));
+      })
+      .catch(() => {});
+  } else {
+    navigator.serviceWorker.register('/sw.js', { type: 'module' });
+  }
+}
 `;
 
 const SW = `/**
@@ -66,10 +82,13 @@ const SW = `/**
  *
  * Optional helpers live under src/sw/ (modules only — not extra registrations).
  */
-import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@anzaui/anza/sw';
+import { precache, router, CacheFirst, NetworkFirst, StaleRevalidate, claim } from '@anzaui/anza/sw';
 
-const SHELL = 'shell-v2';
-const API = 'api-v2';
+// Bump these names when shipping path-breaking asset changes; activate drops
+// every other cache.
+const SHELL = 'shell-v1';
+const API = 'api-v1';
+const KEEP = new Set([SHELL, API]);
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -80,19 +99,41 @@ self.addEventListener('install', (e) => {
   );
 });
 
+async function pruneOld() {
+  for (const key of await caches.keys()) {
+    if (!KEEP.has(key)) await caches.delete(key);
+  }
+}
+
 self.addEventListener('activate', (e) => {
-  e.waitUntil(Promise.all([pruneStale(SHELL), claim()]));
+  e.waitUntil(Promise.all([pruneOld(), claim()]));
 });
 
-const r = router();
-r.register('*', new CacheFirst(SHELL));
-r.register('/api/*', new NetworkFirst(API, { timeout: 3000 }));
+// Content-hashed (app.3f9a1c2e.js) or versioned (?v=...) URLs never change and
+// may be served CacheFirst. Everything else is revalidated in the background.
+const HASHED = /[.-][0-9a-f]{8,}\\.[a-z0-9]+$/i;
+const immutable = new CacheFirst(SHELL);
+const revalidate = new StaleRevalidate(SHELL);
+const assets = {
+  handle(request, event) {
+    const url = new URL(request.url);
+    const versioned = HASHED.test(url.pathname) || url.searchParams.has('v');
+    return (versioned ? immutable : revalidate).handle(request, event);
+  }
+};
 
-/** CSR fragments + navigations bypass SW — avoids body-lock races in CacheFirst. */
+const r = router();
+r.register('/api/*', new NetworkFirst(API, { timeout: 3000 }));
+r.register('*', assets);
+
+/** CSR fragments, navigations and event streams (dev reload) bypass the SW. */
 function shouldBypass(request) {
   if (request.mode === 'navigate') return true;
+  if (request.method !== 'GET' && request.method !== 'HEAD') return true;
+  if ((request.headers.get('accept') || '').includes('text/event-stream')) return true;
   const path = new URL(request.url).pathname;
   return (
+    path === '/hmr' ||
     path.endsWith('/template.html') ||
     path.endsWith('.tags.json') ||
     path === '/favicon.ico'
