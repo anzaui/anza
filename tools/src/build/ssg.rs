@@ -194,6 +194,7 @@ pub fn emit_with(
     production,
     base: site.base.as_deref(),
     font_preloads: shell_font_preloads(src_dir),
+    icons: shell_icon_links(src_dir),
   };
 
   // Routes are emitted in parallel; each worker touches only its own files.
@@ -262,8 +263,16 @@ pub fn emit_with(
     Err(err) => errors.push(format!("SSG: cannot write 404.html: {}", err)),
   }
 
-  // Site-root files the SSG heads point at but no module imports.
-  for file in site.image.iter() {
+  // Site-root files the SSG heads point at but no module imports: the
+  // social image, the shell's icons and manifest, and the manifest's icons.
+  let mut site_files: Vec<String> = site.image.iter().cloned().collect();
+  for link in &styler.icons {
+    site_files.push(link.href.clone());
+    if link.rel == "manifest" {
+      site_files.extend(manifest_icons(src_dir, &link.href));
+    }
+  }
+  for file in &site_files {
     match copy_site_file(src_dir, dist_dir, file) {
       Ok(Some(rel)) => outputs.push(rel),
       Ok(None) => {}
@@ -576,6 +585,8 @@ struct Styler<'a> {
   base: Option<&'a str>,
   /// Site-root URLs of fonts the app shell (`src/index.html`) preloads.
   font_preloads: Vec<String>,
+  /// Icon and manifest links of the app shell, copied into every head.
+  icons: Vec<ShellLink>,
 }
 
 impl Styler<'_> {
@@ -676,6 +687,7 @@ fn emit_route(
     meta,
     site,
     &styler.font_preloads,
+    &styler.icons,
   );
 
   let html = format!(
@@ -852,6 +864,7 @@ fn build_head(
   meta: &PageMeta,
   site: &SsgSiteConfig,
   fonts: &[String],
+  icons: &[ShellLink],
 ) -> String {
   let mut head = String::new();
   head.push_str("  <meta charset=\"utf-8\" />\n");
@@ -904,11 +917,26 @@ fn build_head(
     head.push_str(&json_ld_script(site, title, description, canonical, meta, image.as_deref()));
   }
 
-  // Favicon under deploy base so browsers do not request origin-root /favicon.ico.
-  head.push_str(&format!(
-    "  <link rel=\"icon\" href=\"{}\" type=\"image/x-icon\" />\n",
-    escape_attr(&asset_href(site.base.as_deref(), "/favicon.ico"))
-  ));
+  // The shell's icons and manifest (under the deploy base); without any,
+  // `/favicon.ico` so browsers don't request the origin-root one.
+  if icons.is_empty() {
+    head.push_str(&format!(
+      "  <link rel=\"icon\" href=\"{}\" type=\"image/x-icon\" />\n",
+      escape_attr(&asset_href(site.base.as_deref(), "/favicon.ico"))
+    ));
+  }
+  for icon in icons {
+    let href = if icon.href.starts_with('/') && !icon.href.starts_with("//") {
+      asset_href(site.base.as_deref(), &icon.href)
+    } else {
+      icon.href.clone()
+    };
+    head.push_str(&format!("  <link rel=\"{}\" href=\"{}\"", escape_attr(&icon.rel), escape_attr(&href)));
+    for (name, value) in &icon.attrs {
+      head.push_str(&format!(" {}=\"{}\"", name, escape_attr(value)));
+    }
+    head.push_str(" />\n");
+  }
 
   // Import map before any module scripts (inline — same as production graph inject).
   if !importmap.is_empty() {
@@ -1612,6 +1640,97 @@ fn shell_font_preloads(src_dir: &Path) -> Vec<String> {
   out
 }
 
+/// A `<link>` of the app shell copied into SSG heads.
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct ShellLink {
+  rel: String,
+  href: String,
+  /// `type`, `sizes`, `color`, `crossorigin` when present, in that order.
+  attrs: Vec<(&'static str, String)>,
+}
+
+/// Link `rel`s copied from the shell into every SSG head.
+const SHELL_LINK_RELS: [&str; 5] = ["icon", "alternate icon", "shortcut icon", "apple-touch-icon", "manifest"];
+
+/// Attribute value of `name` in one start tag (double or single quotes).
+fn tag_attr(tag: &str, name: &str) -> Option<String> {
+  let lower = tag.to_ascii_lowercase();
+  let mut from = 0;
+  while let Some(at) = lower[from..].find(name) {
+    let start = from + at;
+    from = start + name.len();
+    let before = lower[..start].chars().last();
+    if !matches!(before, Some(c) if c.is_whitespace()) {
+      continue;
+    }
+    let rest = lower[from..].trim_start();
+    let Some(rest) = rest.strip_prefix('=') else { continue };
+    let rest = rest.trim_start();
+    let offset = tag.len() - rest.len();
+    let quote = rest.chars().next()?;
+    if quote != '"' && quote != '\'' {
+      continue;
+    }
+    let value = &tag[offset + 1..];
+    return value.find(quote).map(|end| value[..end].to_string());
+  }
+  None
+}
+
+/// `<link rel="icon" | "alternate icon" | "apple-touch-icon" | "manifest">`
+/// tags of the app shell `src/index.html`, in document order.
+fn shell_icon_links(src_dir: &Path) -> Vec<ShellLink> {
+  let Ok(html) = std::fs::read_to_string(src_dir.join("index.html")) else {
+    return Vec::new();
+  };
+  let head_end = html.to_ascii_lowercase().find("</head>").unwrap_or(html.len());
+  let mut out: Vec<ShellLink> = Vec::new();
+  let mut rest = &html[..head_end];
+  while let Some(at) = rest.find("<link") {
+    rest = &rest[at..];
+    let end = rest.find('>').unwrap_or(rest.len());
+    let tag = &rest[..end];
+    let rel = tag_attr(tag, "rel").map(|r| r.split_whitespace().collect::<Vec<_>>().join(" ").to_ascii_lowercase());
+    if let (Some(rel), Some(href)) = (rel, tag_attr(tag, "href")) {
+      if SHELL_LINK_RELS.contains(&rel.as_str()) && !href.is_empty() && !out.iter().any(|l| l.rel == rel && l.href == href) {
+        let attrs = ["type", "sizes", "color", "crossorigin"]
+          .into_iter()
+          .filter_map(|name| tag_attr(tag, name).map(|v| (name, v)))
+          .collect();
+        out.push(ShellLink { rel, href, attrs });
+      }
+    }
+    rest = &rest[end..];
+  }
+  out
+}
+
+/// Site-root URLs of the `icons[].src` in a web app manifest under src.
+fn manifest_icons(src_dir: &Path, manifest_href: &str) -> Vec<String> {
+  let rel = manifest_href.split(['?', '#']).next().unwrap_or("").trim_start_matches('/');
+  if !manifest_href.starts_with('/') || rel.split('/').any(|s| s == ".." || s == ".") {
+    return Vec::new();
+  }
+  let Ok(text) = std::fs::read_to_string(src_dir.join(rel)) else {
+    return Vec::new();
+  };
+  let Ok(value) = serde_json::from_str::<serde_json::Value>(&text) else {
+    return Vec::new();
+  };
+  let dir = match rel.rfind('/') {
+    Some(at) => format!("/{}/", &rel[..at]),
+    None => "/".to_string(),
+  };
+  value["icons"]
+    .as_array()
+    .into_iter()
+    .flatten()
+    .filter_map(|icon| icon["src"].as_str())
+    .filter(|src| !src.contains("://") && !src.starts_with("//") && !src.starts_with("data:"))
+    .map(|src| if src.starts_with('/') { src.to_string() } else { format!("{dir}{}", src.trim_start_matches("./")) })
+    .collect()
+}
+
 /// Load `ssg.json` from `src_dir` or its parent; env vars override fields.
 fn load_site_config(src_dir: &Path) -> SsgSiteConfig {
   let mut cfg = SsgSiteConfig {
@@ -2035,6 +2154,38 @@ fn escape_xml(s: &str) -> String {
 #[cfg(test)]
 mod tests {
   use super::*;
+
+  #[test]
+  fn shell_icon_links_are_collected() {
+    let dir = std::env::temp_dir().join(format!("anza-ssg-icons-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).unwrap();
+    std::fs::write(
+      dir.join("index.html"),
+      r#"<head><link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="alternate  icon" href="/favicon.ico" type="image/x-icon">
+<link rel='apple-touch-icon' sizes='180x180' href='/apple-touch-icon.png' />
+<link rel="manifest" href="/app.webmanifest" /><link rel="stylesheet" href="/x.css" />
+<link data-rel="icon" href="/no.png" /></head><body><link rel="icon" href="/body.png"></body>"#,
+    )
+    .unwrap();
+    std::fs::write(dir.join("app.webmanifest"), r#"{"icons":[{"src":"icons/192.png"},{"src":"/icons/512.png"},{"src":"https://cdn/x.png"}]}"#).unwrap();
+    let links = shell_icon_links(&dir);
+    let summary: Vec<(&str, &str)> = links.iter().map(|l| (l.rel.as_str(), l.href.as_str())).collect();
+    assert_eq!(
+      summary,
+      [
+        ("icon", "/favicon.svg"),
+        ("alternate icon", "/favicon.ico"),
+        ("apple-touch-icon", "/apple-touch-icon.png"),
+        ("manifest", "/app.webmanifest"),
+      ]
+    );
+    assert_eq!(links[0].attrs, vec![("type", "image/svg+xml".to_string())]);
+    assert_eq!(links[2].attrs, vec![("sizes", "180x180".to_string())]);
+    assert_eq!(manifest_icons(&dir, "/app.webmanifest"), ["/icons/192.png", "/icons/512.png"]);
+    let _ = std::fs::remove_dir_all(&dir);
+  }
 
   #[test]
   fn shell_font_preloads_are_collected() {

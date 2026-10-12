@@ -49,7 +49,12 @@ fn heads_carry_titles_descriptions_social_tags_and_structured_data() {
   let root = std::env::temp_dir().join(format!("anza-ssg-seo-{}", std::process::id()));
   let _ = std::fs::remove_dir_all(&root);
   let fx = Fixture { root: root.clone() };
-  write(&root, "src/index.html", "<!DOCTYPE html>\n<html><head><title>t</title></head><body></body></html>\n");
+  write(
+    &root,
+    "src/index.html",
+    "<!DOCTYPE html>\n<html><head><title>t</title><link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\" /></head><body></body></html>\n",
+  );
+  write(&root, "src/apple-touch-icon.png", "png");
   write(&root, "ssg.json", r#"{ "origin": "https://example.com", "siteName": "Site", "image": "/og.png" }"#);
   write(&root, "src/og.png", "png");
   let long = "Word ".repeat(60);
@@ -97,6 +102,10 @@ fn heads_carry_titles_descriptions_social_tags_and_structured_data() {
   assert_eq!(meta(&c, "og:image"), Some("https://cdn.example/c.png"));
   assert_eq!(meta(&read("index.html"), "og:type"), Some("website"));
   assert!(dist.join("og.png").is_file(), "site image copied to dist");
+  // The shell's icon links are copied into every head, and their files into dist.
+  assert!(head(&a).contains("<link rel=\"apple-touch-icon\" href=\"/assets/apple-touch-icon-"), "{}", head(&a));
+  assert!(!head(&a).contains("favicon.ico"), "{}", head(&a));
+  assert!(dist.join("apple-touch-icon.png").is_file(), "shell icon copied to dist");
 
   // JSON-LD graph.
   let ld_at = a.find("application/ld+json\">").unwrap() + 21;
