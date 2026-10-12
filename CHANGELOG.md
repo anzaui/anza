@@ -14,25 +14,47 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- **Production bundling.** `anza build` bundles with Rolldown into minified, content-hashed chunks (`core`, `elements`, per route group, on-demand) under `dist/assets/`, and bakes element CSS, templates and tags into their modules. Needs `rolldown` as a devDependency (scaffolded apps get it); without it, or with `--no-bundle`, the unbundled output is shipped with a warning.
+- Build output for fast first loads: global CSS bundled and minified with Lightning CSS and merged into one file per page, shared DSD stylesheets linked instead of inlined in every page, full `modulepreload` lists, a generated `dist/_headers` (cache rules + `Link` preloads for 103 Early Hints), `/assets/*` cached immutably, and `.br`/`.gz` siblings. Docs pages on Fast 4G: about 290 requests and 1.1 s to ready → 12 requests and 0.46 s.
+- `anza build --types <dir>`: type declarations are written beside `dist/` (default `types/`), never into it.
+- `anza docs --pages` is the single docs generator, with the sidebar built from the docs tree.
+- Dev server: live reload injected into every HTML response at serve time, a self-unregistering `/sw.js`, `no-cache` + ETag/304 on every response, and a forced reload when the reload stream falls behind. CSS and template edits hot-swap in about 30 ms (was about 200 ms).
+- `npm run bench:load` (cold page-load benchmark with budgets, enforced in CI), `npm run doc:imports`, `npm run types:check`, `npm run versions:check`.
+
 ### Changed
 
 - **Element resources load on first connect** (lazy by default). Pass `eager: true` to `element()`, `view()`, `part()` or `dock()` to fetch them at define time, as before.
 - **`anza build` fails on errors.** Any SSG, extract, copy or write error, a missing or invalid `routes.json`, a duplicate route or two routes writing the same file now fails the build (exit 1) and lists every error. `anza dev` logs them and keeps serving.
-- **The CLI crate is renamed `anza-cli`** (the command is still `anza`; the engine crate keeps the name `anza`). `anza create` now points to `npm create @anzaui/anza`.
+- **The CLI crate is renamed `anza-cli`** (the command is still `anza`; the engine crate keeps the name `anza`). `anza create` now points to `npm create @anzaui/anza`. `anza --version` comes from `Cargo.toml`.
 - `anza build` and `anza dev` lock the project, so they never write the same `dist/` at once.
-- Faster runtime and builds: element style, template and tags are fetched in parallel and pre-rendered elements mount before their files arrive; service worker strategies respond first and cache through `event.waitUntil`; quota checks are throttled and store flushes coalesced; `anza build` walks the import graph and copies files in parallel (`web/` release build: 124 ms to 71 ms).
-- Releases: one version for every package, bumped by release-please and checked in CI (`npm run versions:check`).
+- Faster runtime: element style, template and tags are fetched in parallel and pre-rendered elements mount before their files arrive; service worker strategies respond first and cache through `event.waitUntil`; quota checks are throttled and store flushes coalesced.
+- Faster builds: parallel import-graph walk and copy, single-pass base-path rewriting (`web/` release build: 124 ms → 71 ms before compression).
+- **Rust engine (breaking):** `Engine::manifest()` values are now the hex BLAKE3 digest of each template (every stored value changes); `engine::file::watch::listen` takes the engine's `CacheStore`.
+- Python engine: the page tag for nested routes is `page-a-b` (was the invalid `page-a/b`).
+- Releases: one version for every package, bumped by release-please and checked in CI.
+
+### Removed
+
+- **Engines (breaking):** signing options that never did anything: `SignMode::SessionBound` and the `publish_meta` field (Rust; `Setup::ed25519` now takes two arguments), the empty `adapters::tower` module and `tower` feature (Rust), and `mode: 'session'` / `publishMeta` (TypeScript) / `mode="session"` (Python).
 
 ### Fixed
 
-- **Stale files after an edit ("needs a hard refresh").** The service worker is not registered on local hosts, and old workers and caches are removed there. Event streams and `/hmr` are never intercepted. The most specific SW route wins, so `/api/*` is no longer shadowed by `'*'`. Unhashed files are served `no-cache` in production.
+- **Stale files after an edit ("needs a hard refresh").** The service worker is not registered on local hosts, and old workers and caches are removed there. Event streams and `/hmr` are never intercepted. The most specific SW route wins, so `/api/*` is no longer shadowed by `'*'`. Unhashed files are served `no-cache` in production; extensionless URLs serve the pre-rendered page first.
 - Scaffolded apps (`npm create @anzaui/anza`) register the service worker on real hosts only and cache safely.
 - HTML hot-swap runs the same pipeline as a cold load; the dev cache is invalidated when the import map, structure or base path change, and outputs of deleted files are removed.
 - Build output is deterministic, written atomically, and SSG reads templates and CSS from `src`.
 - Root exports: `state`, `sync`, `storage`, `events`, `view`, `cache` and `reset` were silently dropped from `@anzaui/anza` (name clashes between modules); each is now re-exported from one module.
 - Missing exports added: `gate`, `ready`, `reset` (`./router`), `seal`, `unseal` (`./security`), `quota` (`./storage`).
 - Types match the runtime: the root `index.d.ts` is a flat re-export, and `./defs`, `./sw`, `./elements/*` and `./bin/create` have types.
+- Rust engine: the `watch` feature now reloads changed templates.
 - Docs: every documented `@anzaui/anza` import resolves (checked in CI); engine and template docs no longer claim auto-escaping, `each`/`if` blocks or browser-side signature checks.
+
+### Security
+
+- **Engines: reflected XSS in the page fallback.** The Rust and TypeScript engines wrote the request path into the "unknown route" HTML unescaped; it is now escaped.
+- **Python engine: path traversal.** `../` in a request path could read `.html` files outside the template root; template reads must now resolve inside the root. The route is also sanitized in the page tag name and escaped in the shell `route` value.
 
 ---
 
