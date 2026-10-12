@@ -18,9 +18,34 @@ const ALLOWED_TAGS = new Set([
   'th', 'thead', 'time', 'tr', 'u', 'ul', 'var', 'wbr'
 ]);
 
+// `style` and `id` are deliberately absent: `style` enables CSS-based
+// exfiltration and UI redress, `id` enables DOM clobbering of globals.
 const ALLOWED_ATTRS = new Set([
-  'href', 'title', 'src', 'alt', 'width', 'height', 'class', 'id', 'target', 'rel', 'style'
+  'href', 'title', 'src', 'alt', 'width', 'height', 'class', 'target', 'rel'
 ]);
+
+// Attributes whose value is a URL. Any of these that survive the allowlist
+// must parse to an allowed protocol; the rest are dropped regardless.
+const URL_ATTRS = new Set(['href', 'src', 'xlink:href', 'action', 'formaction', 'poster', 'cite']);
+
+const SAFE_PROTOCOLS = new Set(['http:', 'https:', 'mailto:']);
+
+/**
+ * True when `value` resolves (against the document base) to an http:, https:
+ * or mailto: URL. Uses the URL parser so the browser's own normalisation
+ * (stripped tabs/newlines, leading C0 controls, case folding, entity-decoded
+ * attribute values) is what gets checked, not the raw string.
+ */
+export function isSafeUrl(value) {
+  if (typeof value !== 'string') return false;
+  try {
+    const base = typeof document !== 'undefined' ? document.baseURI : undefined;
+    const url = base ? new URL(value, base) : new URL(value);
+    return SAFE_PROTOCOLS.has(url.protocol);
+  } catch {
+    return false;
+  }
+}
 
 let policy = null;
 if (typeof window !== 'undefined' && window.trustedTypes) {
@@ -70,19 +95,20 @@ export function sanitize(html, config = {}) {
         // Purge dynamic or script attributes
         for (const attr of [...node.attributes]) {
           const name = attr.name.toLowerCase();
-          const value = attr.value.trim().toLowerCase();
 
-          // Evict unapproved attributes or dangerous URL scheme injection vectors
+          // Evict unapproved attributes and unsafe URL schemes
           if (
             !ALLOWED_ATTRS.has(name) ||
             name.startsWith('on') ||
-            (name === 'href' &&
-              (value.startsWith('javascript:') ||
-                value.startsWith('data:') ||
-                value.startsWith('vbscript:')))
+            (URL_ATTRS.has(name) && !isSafeUrl(attr.value))
           ) {
             node.removeAttribute(attr.name);
           }
+        }
+
+        // A kept target opens a new browsing context: cut the opener link.
+        if (node.hasAttribute('target')) {
+          node.setAttribute('rel', 'noopener noreferrer');
         }
 
         // Recursively filter descendants
