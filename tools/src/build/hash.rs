@@ -313,7 +313,8 @@ fn normalize(path: &Path) -> PathBuf {
 }
 
 /// Generate the service worker precache list: the app shell, the module
-/// scripts it loads and every hashed script, stylesheet and font. Written as
+/// scripts it loads and every hashed script and stylesheet (fonts are cached
+/// when first used). Written as
 /// `self.__ANZA_PRECACHE__ = [...]` at the top of `dist/sw.js`; the worker
 /// falls back to its own list when it runs unbuilt.
 pub fn precache(dist: &Path, base: &str) -> Result<usize, String> {
@@ -343,7 +344,7 @@ pub fn precache(dist: &Path, base: &str) -> Result<usize, String> {
     .map(|it| {
       it.flatten()
         .filter_map(|e| e.file_name().to_str().map(str::to_string))
-        .filter(|n| matches!(n.rsplit('.').next(), Some("js" | "css" | "woff2")))
+        .filter(|n| matches!(n.rsplit('.').next(), Some("js" | "css")))
         .collect()
     })
     .unwrap_or_default();

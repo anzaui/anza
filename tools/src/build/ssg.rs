@@ -185,6 +185,7 @@ pub fn emit_with(
     usage: css_usage(src_dir, &plans),
     production,
     base: site.base.as_deref(),
+    font_preloads: shell_font_preloads(src_dir),
   };
 
   // Routes are emitted in parallel; each worker touches only its own files.
@@ -543,6 +544,8 @@ struct Styler<'a> {
   usage: HashMap<PathBuf, usize>,
   production: bool,
   base: Option<&'a str>,
+  /// Site-root URLs of fonts the app shell (`src/index.html`) preloads.
+  font_preloads: Vec<String>,
 }
 
 impl Styler<'_> {
@@ -652,6 +655,7 @@ fn emit_route(
     &canonical,
     &seo,
     site,
+    &styler.font_preloads,
   );
 
   let html = format!(
@@ -805,6 +809,7 @@ fn build_head(
   canonical: &str,
   seo: &SeoMeta,
   site: &SsgSiteConfig,
+  fonts: &[String],
 ) -> String {
   let mut head = String::new();
   head.push_str("  <meta charset=\"utf-8\" />\n");
@@ -872,6 +877,15 @@ fn build_head(
     head.push_str(&format!(
       "  <link rel=\"preload\" href=\"{}\" as=\"style\" />\n",
       escape_attr(&asset_href(base, sheet))
+    ));
+  }
+
+  // Fonts the app shell preloads (the primary face), so text does not wait
+  // for the stylesheet that declares them.
+  for font in fonts {
+    head.push_str(&format!(
+      "  <link rel=\"preload\" href=\"{}\" as=\"font\" type=\"font/woff2\" crossorigin />\n",
+      escape_attr(&asset_href(base, font))
     ));
   }
 
@@ -1344,6 +1358,38 @@ fn interpolate_params(input: &str, values: &BTreeMap<String, String>) -> String 
   let mut out = input.to_string();
   for (k, v) in values {
     out = out.replace(&format!("{{{{{}}}}}", k), v);
+  }
+  out
+}
+
+/// Site-root URLs of `<link rel="preload" as="font" href="/…">` tags in the
+/// app shell `src/index.html`: SSG pages preload the same fonts.
+fn shell_font_preloads(src_dir: &Path) -> Vec<String> {
+  let Ok(html) = std::fs::read_to_string(src_dir.join("index.html")) else {
+    return Vec::new();
+  };
+  let mut out = Vec::new();
+  let mut rest = html.as_str();
+  while let Some(at) = rest.find("<link") {
+    rest = &rest[at..];
+    let end = rest.find('>').unwrap_or(rest.len());
+    let tag = &rest[..end];
+    if tag.contains("rel=\"preload\"") && tag.contains("as=\"font\"") {
+      if let Some(i) = tag.find("href=\"") {
+        let value = &tag[i + 6..];
+        if let Some(j) = value.find('"') {
+          let href = &value[..j];
+          if href.starts_with('/') && !href.starts_with("//") && !out.iter().any(|h| h == href) {
+            out.push(href.to_string());
+          }
+        }
+      }
+    }
+    rest = &rest[end..];
+    if rest.len() <= 1 {
+      break;
+    }
+    rest = &rest[1..];
   }
   out
 }
