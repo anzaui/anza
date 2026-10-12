@@ -65,7 +65,11 @@ pub fn listen(root: &Path, cache: Arc<CacheStore>, options: super::LoadOptions) 
 #[cfg(feature = "watch")]
 fn key(root: &Path, path: &Path) -> Option<(PathBuf, String)> {
   let rel = path.strip_prefix(root).ok()?.to_path_buf();
-  let name = rel.to_string_lossy().trim_start_matches('/').to_string();
+  let name = rel
+    .components()
+    .map(|c| c.as_os_str().to_string_lossy())
+    .collect::<Vec<_>>()
+    .join("/");
   Some((rel, name))
 }
 
@@ -76,6 +80,10 @@ fn apply(root: &Path, cache: &CacheStore, path: &Path, options: &super::LoadOpti
     return;
   };
   if path.is_dir() {
+    // A folder (or a symlink to one) outside the root is never loaded.
+    if !super::load::inside(root, path) {
+      return;
+    }
     // A folder moved in: load every template under it.
     if let Ok(templates) = super::load::all_with(path, options) {
       for (sub, tpl) in templates {
@@ -88,7 +96,8 @@ fn apply(root: &Path, cache: &CacheStore, path: &Path, options: &super::LoadOpti
   let is_html = path.extension().map_or(false, |ext| ext == "html");
   if path.is_file() {
     if is_html {
-      // A half-written file fails to parse; the next event reloads it.
+      // A half-written file fails to parse, an oversized or out-of-root one
+      // is refused; the next event reloads it.
       if let Ok(tpl) = super::load::one_with(root, &rel, options) {
         cache.insert(name, tpl);
       }

@@ -24,6 +24,8 @@ pub struct Setup {
   /// HTML-escape `{{slot}}` values; `{{{slot}}}` stays raw. Off by default
   /// (values are inserted as-is), see `docs/engines/contract.md`.
   pub escape: bool,
+  /// Refuse template files larger than this (default 1 MiB).
+  pub max_template_bytes: usize,
 }
 
 impl Setup {
@@ -34,6 +36,7 @@ impl Setup {
       watch: false,
       fragments: Vec::new(),
       escape: false,
+      max_template_bytes: file::load::DEFAULT_MAX_TEMPLATE_BYTES,
     }
   }
 
@@ -64,7 +67,10 @@ impl Setup {
   }
 
   fn load_options(&self) -> file::LoadOptions {
-    file::LoadOptions { escape: self.escape }
+    file::LoadOptions {
+      escape: self.escape,
+      max_bytes: self.max_template_bytes,
+    }
   }
 
   /// Validate the root and the signing keys, load every template, and start

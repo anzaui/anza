@@ -53,6 +53,14 @@ class Engine:
         self.signer = signing if isinstance(signing, Signer) else Signer.from_options(signing or SignOptions())
         #: Fragment allowlist (see ``Setup.fragments``).
         self.fragments: tuple[str, ...] = tuple(fragments or ())
+        #: The template watcher when ``Setup.watch`` is on.
+        self.watcher: Any = None
+
+    def close(self) -> None:
+        """Stop the template watcher, if any."""
+        if self.watcher is not None:
+            self.watcher.close()
+            self.watcher = None
 
     def __repr__(self) -> str:
         return f"Engine(root={str(self.root)!r}, templates={len(self.cache.templates)}, signer={self.signer!r})"
