@@ -1,3 +1,10 @@
+---
+title: "Elements"
+order: 4
+seo_title: "Elements — Anza"
+description: "Inventory and import map for the Anza ui-* custom element kit."
+---
+
 # Elements
 
 Shipped custom element kit under `library/src/elements/`. These are ready-made `ui-*` components — distinct from the [`element()` factory docs](../ui/elements.md).

@@ -1,3 +1,8 @@
+---
+title: "UI"
+order: 3
+---
+
 # UI
 
 The Anza UI layer is a declarative custom element system built on Web Components. It provides reactive properties, lifecycle hooks, template and style loading, event delegation, mutation watching, and cooperative scheduling — all with automatic memory management via AbortController.

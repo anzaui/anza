@@ -1,0 +1,12 @@
+ul.install > li {
+  display: flex;
+  flex-flow: column;
+  gap: 0;
+}
+
+ul.install > li > span.text {
+  display: inline-block;
+  width: 100%;
+  padding: 0 0 0 1rem;
+  font-size: 0.9rem;
+}

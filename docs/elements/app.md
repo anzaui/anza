@@ -1,3 +1,8 @@
+---
+seo_title: "App — Anza"
+description: "ui-app — application shell with header, sidebar, and main slots."
+---
+
 # App
 
 Application shell with header, optional sidebar, and main content slots.

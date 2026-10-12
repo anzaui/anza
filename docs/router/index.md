@@ -1,3 +1,8 @@
+---
+title: "Router"
+order: 6
+---
+
 # Router
 
 The Anza router is a client-side routing engine built on the Navigation API and URLPattern. It intercepts every navigation — link clicks, form submissions, history traversals, and programmatic calls — at a single junction, matches URLs against registered routes, and renders the corresponding view into the right container.

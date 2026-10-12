@@ -1,3 +1,8 @@
+---
+seo_title: "Getting Started — Anza"
+description: "Create a project, run the dev server, and ship your first Anza page."
+---
+
 # Start
 
 Create a new Anza app and run it.

@@ -1,3 +1,8 @@
+---
+seo_title: "Radio — Anza"
+description: "ui-radio — form-participating radio with name-group coordination."
+---
+
 # Radio
 
 Form-participating radio that coordinates selection with siblings sharing the same `name`.

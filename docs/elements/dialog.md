@@ -1,3 +1,8 @@
+---
+seo_title: "Dialog — Anza"
+description: "ui-dialog — modal overlay wrapping the native dialog element."
+---
+
 # Dialog
 
 Modal overlay wrapping the native `<dialog>` element for focus trap, backdrop, and Escape handling.

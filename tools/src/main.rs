@@ -113,7 +113,8 @@ enum Command {
     #[arg(long)]
     parent: Option<String>,
   },
-  /// Generate docs site from markdown + docs/config.toml → dist-first tree.
+  /// Generate docs from markdown + docs/config.toml: a standalone site, or
+  /// with --pages the app's page folders (web/src/docs).
   Docs {
     /// Path to docs/config.toml or docs/ directory.
     #[arg(long, default_value = "docs/config.toml")]
@@ -124,6 +125,10 @@ enum Command {
     /// Emit every markdown under docs/ (default: sidebar + entry only).
     #[arg(long)]
     all: bool,
+    /// Generate Anza page folders for an app (config `[pages]`, default
+    /// ../web/src/docs) instead of a standalone site.
+    #[arg(long)]
+    pages: bool,
   },
 }
 
@@ -247,11 +252,12 @@ async fn main() {
           }
         }
       }
-      Command::Docs { config, out, all } => {
+      Command::Docs { config, out, all, pages } => {
         let op = Docs {
           config: PathBuf::from(config),
           out: out.map(PathBuf::from),
           all,
+          pages,
         };
         if let Err(e) = op.run() {
           anza_logs::error!("{}", e);

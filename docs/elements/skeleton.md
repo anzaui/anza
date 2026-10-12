@@ -1,3 +1,8 @@
+---
+seo_title: "Skeleton — Anza"
+description: "ui-skeleton — loading placeholder with reduced-motion-aware shimmer."
+---
+
 # Skeleton
 
 Loading placeholder with a WAAPI shimmer; pauses when `prefers-reduced-motion: reduce`.

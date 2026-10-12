@@ -1,3 +1,8 @@
+---
+title: "Storage"
+order: 11
+---
+
 # Storage
 
 The Anza storage layer provides a unified, tiered storage surface. It integrates LRU memory caching, IndexedDB, Origin Private File System (OPFS), and the Cache API under a single facade with automatic tier fallback, TTL support, and transparent gzip compression.

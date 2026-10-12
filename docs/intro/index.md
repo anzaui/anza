@@ -1,3 +1,8 @@
+---
+title: "Getting Started"
+order: 1
+---
+
 # Intro
 
 Anza is a web platform library built on browser-native APIs. It gives you reactive state, client-side routing, custom elements, offline sync, and animations — all as plain ES modules the browser resolves directly. No bundler, no virtual DOM, no framework lock-in.

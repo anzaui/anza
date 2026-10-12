@@ -1,3 +1,8 @@
+---
+seo_title: "Text — Anza"
+description: "ui-text — typography primitive bound to design tokens."
+---
+
 # Text
 
 Typography primitive that maps size, weight, color, and family to design tokens, with optional semantic tag swapping.

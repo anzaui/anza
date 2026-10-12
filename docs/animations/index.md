@@ -1,3 +1,8 @@
+---
+title: "Animations"
+order: 12
+---
+
 # Animations
 
 The Anza animations layer wraps the Web Animations API (WAAPI) with a declarative, memory-safe interface. It provides registered animation templates, staggered multi-element orchestration, scroll-driven and view-driven timelines, and CSS token synchronization so JavaScript animations and stylesheets share the same timing values.

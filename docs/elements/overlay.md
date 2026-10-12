@@ -1,3 +1,8 @@
+---
+seo_title: "Overlay — Anza"
+description: "Overlay kit patterns: native popover/menu and dialog/drawer/sheet top-layer, tooltip escapeOverflow, toast body portal."
+---
+
 # Overlay
 
 Layered UI in the kit: modals, menus, drawers, sheets, popovers, and tooltips. Full reference pages exist for every overlay tag ([dialog](dialog.md), [popover](popover.md), [tooltip](tooltip.md), [menu](menu.md), [drawer](drawer.md), [sheet](sheet.md)) plus [toast](toast.md) under Feedback. This page is the architecture / patterns reference for the whole overlay kit.

@@ -1,3 +1,8 @@
+---
+seo_title: "Guards — Platform — Anza"
+description: "Lazy polyfill guards: urlPattern, navigation, popover, escapeOverflow / guard.escape, sanitizer, scheduler."
+---
+
 # Guards
 
 > **Not navigation guards.** Platform `guard` / `typeGuard` / `supports` load polyfills and assert capabilities. For route protection and redirects, see [router/guards.md](../router/guards.md).

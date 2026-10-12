@@ -1,3 +1,8 @@
+---
+seo_title: "List — Anza"
+description: "ui-list — list panel with optional bordered surface."
+---
+
 # List
 
 List panel with optional bordered surface. Children should use `role="listitem"` when they are list items.

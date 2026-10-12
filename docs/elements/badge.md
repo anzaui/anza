@@ -1,3 +1,8 @@
+---
+seo_title: "Badge — Anza"
+description: "ui-badge — compact label indicator with semantic variants and size scaling."
+---
+
 # Badge
 
 Compact label indicator with variant mapping (info, success, warning, error) and size scaling.

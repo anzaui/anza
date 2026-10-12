@@ -1,3 +1,8 @@
+---
+seo_title: "Progress — Anza"
+description: "ui-progress — determinate progress bar with ARIA progressbar semantics."
+---
+
 # Progress
 
 Determinate progress bar with percentage label and ARIA progressbar semantics.

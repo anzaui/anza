@@ -1,3 +1,8 @@
+---
+seo_title: "Sidebar — Anza"
+description: "ui-sidebar — collapsible side panel."
+---
+
 # Sidebar
 
 Collapsible side panel for navigation or secondary chrome.

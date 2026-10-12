@@ -1,3 +1,8 @@
+---
+seo_title: "Primitives — Anza"
+description: "Building blocks: buttons, icons, text, and other atomic UI pieces."
+---
+
 # Primitives
 
 Building blocks: buttons, icons, text, and other atomic UI pieces.

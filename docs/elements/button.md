@@ -1,3 +1,8 @@
+---
+seo_title: "Button — Anza"
+description: "ui-button — form-associated button with loading and disabled states."
+---
+
 # Button
 
 Form-associated button with loading and disabled states, semantic token styling, and an `activate` event.

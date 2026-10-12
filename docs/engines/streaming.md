@@ -1,3 +1,8 @@
+---
+seo_title: "Real-Time STUI Streaming — Anza"
+description: "Server-Sent Events and WebSocket protocols pushing signed template updates to client shadow roots."
+---
+
 # Real-Time Streaming
 
 Anza Server-Templated UI provides first-class support for real-time component streaming. Backends push signed component envelopes over **Server-Sent Events (SSE)** or **WebSockets**, updating client UI slots without full page refreshes or virtual DOM diffing.

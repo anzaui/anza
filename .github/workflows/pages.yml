@@ -37,6 +37,10 @@ jobs:
       - name: Build anza CLI
         run: cd tools && cargo build --release
 
+      # web/src/docs is generated from docs/*.md (and docs/_app overlays).
+      - name: Generate docs pages
+        run: ./target/release/anza docs --pages
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22

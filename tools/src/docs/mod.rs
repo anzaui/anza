@@ -1,6 +1,14 @@
-//! Docs site generator (`anza docs`) — markdown + config.toml → dist-first tree.
+//! Docs generator (`anza docs`), the single generator for docs/*.md:
+//! - default: a standalone docs site (markdown + config.toml → dist-first tree);
+//! - `--pages`: Anza page folders inside an app (`web/src/docs`), see [`pages`].
+//!
+//! The sidebar is generated from the docs folder tree (see [`sidebar`]) unless
+//! config.toml lists `[[sidebar.section]]` explicitly.
 
 mod config;
+mod front;
+pub mod pages;
+mod sidebar;
 mod transform;
 
 use std::collections::BTreeSet;
@@ -33,11 +41,17 @@ struct Page {
 
 pub fn run(opts: &DocsOptions) -> Result<(), String> {
   let config_path = resolve_config(&opts.config)?;
-  let cfg = load_config(&config_path)?;
+  let mut cfg = load_config(&config_path)?;
   let docs_root = config_path
     .parent()
     .ok_or_else(|| "config.toml has no parent directory".to_string())?
     .to_path_buf();
+  if cfg.sidebar.is_empty() {
+    let mut all = BTreeSet::new();
+    collect_file_globs(&docs_root, &cfg.files, &mut all)?;
+    let all: Vec<PathBuf> = all.into_iter().collect();
+    cfg.sidebar = sidebar::generate(&docs_root, &all, &docs_root.join(&cfg.entry.home));
+  }
 
   let out = opts
     .out
@@ -165,7 +179,8 @@ fn collect_pages(
       continue;
     }
     let raw = fs::read_to_string(&md_path).map_err(|e| format!("read {}: {e}", md_path.display()))?;
-    let (fm_title, body_md) = strip_frontmatter(&raw);
+    let (fm, body_md) = front::parse(&raw);
+    let fm_title = fm.title;
     let route = if md_path == docs_root.join(&cfg.entry.home) {
       cfg.entry.route.clone()
     } else {
@@ -208,6 +223,10 @@ fn collect_file_globs(
       if !path.is_file() { continue; }
       if path.extension().and_then(|e| e.to_str()) != Some("md") { continue; }
       let rel = path.strip_prefix(docs_root).unwrap_or(path).to_string_lossy();
+      if rel.split(['/', '\\']).next().map_or(false, |first| first.starts_with('_')) {
+        // `_app/` (pages overlay) and other `_`-prefixed folders are not docs.
+        continue;
+      }
       if !files.include.is_empty() && !files.include.iter().any(|g| path_matches_glob(&rel, g)) { continue; }
       if files.exclude.iter().any(|g| path_matches_glob(&rel, g)) { continue; }
       paths.insert(path.to_path_buf());
@@ -216,38 +235,67 @@ fn collect_file_globs(
   Ok(())
 }
 
+/// Glob match on `/`-separated paths: `*` (within a segment), `**/` (any
+/// number of folders), `**` (anything). A pattern without a folder also
+/// matches the file name in any folder.
 fn path_matches_glob(path: &str, pattern: &str) -> bool {
   let pattern = pattern.replace('\\', "/");
   let path = path.replace('\\', "/");
-  if let Some(inner) = pattern.strip_prefix("**/") {
-    return path.ends_with(inner) || path.contains(&format!("/{inner}"));
+  if glob(pattern.as_bytes(), path.as_bytes()) {
+    return true;
   }
-  if pattern.contains('*') {
-    let parts: Vec<&str> = pattern.split('*').collect();
-    if parts.len() == 2 { return path.starts_with(parts[0]) && path.ends_with(parts[1]); }
-  }
-  path == pattern || path.ends_with(&format!("/{pattern}"))
+  !pattern.contains('/') && glob(pattern.as_bytes(), path.rsplit('/').next().unwrap_or("").as_bytes())
 }
 
-fn strip_frontmatter(raw: &str) -> (Option<String>, String) {
-  let trimmed = raw.trim_start();
-  if !trimmed.starts_with("---") {
-    return (None, raw.to_string());
+fn glob(p: &[u8], s: &[u8]) -> bool {
+  if p.is_empty() {
+    return s.is_empty();
   }
-  let rest = &trimmed[3..];
-  let Some(end) = rest.find("\n---") else {
-    return (None, raw.to_string());
-  };
-  let yaml = &rest[..end];
-  let body = rest[end + 4..].trim_start_matches('\n').to_string();
-  let mut title = None;
-  for line in yaml.lines() {
-    let line = line.trim();
-    if let Some(v) = line.strip_prefix("title:") {
-      title = Some(v.trim().trim_matches('"').trim_matches('\'').to_string());
+  if p.starts_with(b"**/") {
+    // Zero folders, or skip one segment and retry.
+    if glob(&p[3..], s) {
+      return true;
+    }
+    return match s.iter().position(|&c| c == b'/') {
+      Some(i) => glob(p, &s[i + 1..]),
+      None => false,
+    };
+  }
+  if p.starts_with(b"**") {
+    return (0..=s.len()).any(|i| glob(&p[2..], &s[i..]));
+  }
+  if p[0] == b'*' {
+    let mut i = 0;
+    loop {
+      if glob(&p[1..], &s[i..]) {
+        return true;
+      }
+      if i == s.len() || s[i] == b'/' {
+        return false;
+      }
+      i += 1;
     }
   }
-  (title, body)
+  !s.is_empty() && p[0] == s[0] && glob(&p[1..], &s[1..])
+}
+
+#[cfg(test)]
+mod glob_tests {
+  use super::path_matches_glob as m;
+
+  #[test]
+  fn globs() {
+    assert!(m("index.md", "**/*.md"));
+    assert!(m("intro/start.md", "**/*.md"));
+    assert!(m("a/b/c.md", "**/*.md"));
+    assert!(!m("a/b/c.txt", "**/*.md"));
+    assert!(m("intro/start.md", "intro/*.md"));
+    assert!(!m("intro/x/start.md", "intro/*.md"));
+    assert!(m("intro/x/start.md", "intro/**"));
+    assert!(m("intro/start.md", "start.md"));
+    assert!(m("intro/start.md", "intro/start.md"));
+    assert!(!m("intro/start.md", "other.md"));
+  }
 }
 
 fn first_h1_text(html: &str) -> Option<String> {

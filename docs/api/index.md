@@ -1,3 +1,8 @@
+---
+title: "API"
+order: 9
+---
+
 # API
 
 The Anza API layer is a baseline-native HTTP client built on `fetch`. It wraps every request in a composable pipeline that handles prefix routing, TTL caching, exponential backoff retries, telemetry events, and graceful error normalization.

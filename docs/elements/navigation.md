@@ -1,3 +1,8 @@
+---
+seo_title: "Navigation — Anza"
+description: "Tabs, nav, breadcrumbs, pagination, and multi-step flows."
+---
+
 # Navigation
 
 Tabs, nav, breadcrumbs, pagination, and multi-step flows.

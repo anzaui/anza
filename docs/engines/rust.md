@@ -1,3 +1,8 @@
+---
+seo_title: "Rust STUI Engine — Anza"
+description: "Zero-copy, cryptographically verified Server-Templated UI engine for Rust web frameworks."
+---
+
 # Rust Engine
 
 The Anza Rust Engine (crate `anza`) renders full HTML pages and signed JSON

@@ -56,7 +56,7 @@ Components are defined with `element()`, `view()`, `part()`, `dock()` and `page(
 | `npx anza doctor` | Same checks as `check`, but warnings only print |
 | `npx anza scan` | Extract element metadata and type declarations |
 | `npx anza generate <page\|dock\|view\|part> <name>` | Create a file in the right folder and update its barrel |
-| `npx anza docs` | Build a docs site from Markdown (`--out`, `--all`) |
+| `npx anza docs` | Build a docs site from Markdown (`--out`, `--all`), or with `--pages` the app's docs page folders |
 
 `anza create` only prints a hint: new projects are created with `npm create @anzaui/anza <name>`.
 

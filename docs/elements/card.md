@@ -1,3 +1,8 @@
+---
+seo_title: "Card — Anza"
+description: "ui-card — content card with header, body, and footer slots."
+---
+
 # Card
 
 Content card with header, body, and footer slots. Optional interactive hover lift.

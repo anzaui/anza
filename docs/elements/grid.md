@@ -1,3 +1,8 @@
+---
+seo_title: "Grid — Anza"
+description: "ui-grid — responsive CSS grid with columns and gap."
+---
+
 # Grid
 
 Responsive CSS grid with column template and gap.

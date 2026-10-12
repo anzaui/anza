@@ -1,3 +1,8 @@
+---
+seo_title: "Empty — Anza"
+description: "ui-empty — empty-state panel with illustration, title, and actions."
+---
+
 # Empty
 
 Empty-state panel with illustration, title, description, and optional CTA slot.

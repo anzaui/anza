@@ -1,3 +1,8 @@
+---
+title: "Security"
+order: 14
+---
+
 # Security
 
 The Anza security layer provides browser-native cryptography, HTML sanitization, Trusted Types integration, and Permissions API querying. Everything delegates to the browser's `SubtleCrypto` and `crypto` thread pools — no third-party libraries required.

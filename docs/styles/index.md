@@ -1,3 +1,8 @@
+---
+title: "Styles"
+order: 16
+---
+
 # Styles
 
 Styles are applied per element to its shadow root. The factory leverages constructable stylesheets when supported by the browser, falling back to inline `<style>` injection.

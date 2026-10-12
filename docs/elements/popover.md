@@ -1,3 +1,8 @@
+---
+seo_title: "Popover — Anza"
+description: "ui-popover — contextual overlay using the native Popover API."
+---
+
 # Popover
 
 Lightweight contextual overlay using the native Popover API for top-layer rendering and light dismiss.

@@ -1,3 +1,8 @@
+---
+seo_title: "Sheet — Anza"
+description: "ui-sheet — bottom sheet overlay with drag-to-dismiss."
+---
+
 # Sheet
 
 Bottom sheet overlay backed by native `<dialog>` + `showModal()`, with drag-to-dismiss on the handle.

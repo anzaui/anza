@@ -1,3 +1,8 @@
+---
+seo_title: "Avatar — Anza"
+description: "ui-avatar — profile picture with image or initials fallback."
+---
+
 # Avatar
 
 Profile picture with image or initials fallback, sized via tokens and labeled for accessibility.

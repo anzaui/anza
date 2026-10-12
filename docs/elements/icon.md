@@ -1,3 +1,8 @@
+---
+seo_title: "Icon — Anza"
+description: "ui-icon — accessible SVG sprite icon with size tokens and ARIA decoration."
+---
+
 # Icon
 
 Accessible SVG sprite icon with size tokens, name/href targets, and ARIA decoration.

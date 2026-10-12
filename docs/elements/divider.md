@@ -1,3 +1,8 @@
+---
+seo_title: "Divider — Anza"
+description: "ui-divider — separating line with orientation and spacing tokens."
+---
+
 # Divider
 
 Separating line with orientation and spacing token integration.

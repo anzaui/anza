@@ -1,3 +1,8 @@
+---
+seo_title: "Input — Anza"
+description: "ui-input — form-participating text control with ElementInternals validation."
+---
+
 # Input
 
 Form-participating text control wrapping a native `<input>` with ElementInternals validation and form value sync.

@@ -1,3 +1,8 @@
+---
+seo_title: "Layout — Anza"
+description: "App shells and composition primitives: stack, grid, split, scroll, surface."
+---
+
 # Layout
 
 App shells and composition primitives: stack, grid, split, scroll, surface.

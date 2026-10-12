@@ -1,3 +1,8 @@
+---
+seo_title: "Toggle — Anza"
+description: "ui-toggle — form-participating switch with role=switch."
+---
+
 # Toggle
 
 Form-participating switch with `role="switch"` and `:state(on)` custom state.

@@ -1,3 +1,8 @@
+---
+seo_title: "Tabs — Anza"
+description: "ui-tabs — accessible tablist with keyboard navigation."
+---
+
 # Tabs
 
 Accessible tablist with roving tabindex, arrow / Home / End keys, and optional URL-synced `active` value.

@@ -1,3 +1,8 @@
+---
+title: "Templates"
+order: 2
+---
+
 # Server Templates
 
 Anza Server Templates are zero-overhead `.html` files designed for high-performance Server-Templated UI (STUI). Templates combine Web Standards Declarative Shadow DOM (DSD), token-based data binding, and cryptographic origin signing into a lightweight architecture that renders instantly on the server and streams safely across proxies and CDNs.

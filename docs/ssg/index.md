@@ -1,3 +1,10 @@
+---
+title: "SSG & SEO"
+order: 5
+seo_title: "SSG & SEO — Anza"
+description: "Mode A/B SSG overview: portable site-root, open DSD, expand, sitemap, and hydration."
+---
+
 # SSG & SEO
 
 Anza ships **contentful HTML** for public routes so hard refresh and crawlers see unique meta, open Declarative Shadow DOM, and primary headings **without executing JS**. There is no Anza-owned production SSR runtime — Mode A emits HTML at build time; Mode B templates in any language emit the same shape at request time.

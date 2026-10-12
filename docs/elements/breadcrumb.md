@@ -1,3 +1,8 @@
+---
+seo_title: "Breadcrumb — Anza"
+description: "ui-breadcrumb — accessible breadcrumb trail."
+---
+
 # Breadcrumb
 
 Accessible breadcrumb trail (`nav` + ordered list). Dividers between items come from CSS.

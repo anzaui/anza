@@ -1,3 +1,8 @@
+---
+seo_title: "Upload — Anza"
+description: "ui-upload — drag-and-drop file picker with optional upload progress."
+---
+
 # Upload
 
 Drag-and-drop file picker with optional progress-tracked upload via the core upload API.

@@ -1,3 +1,8 @@
+---
+seo_title: "Feedback — Anza"
+description: "Alerts, toasts, progress, and empty / loading states."
+---
+
 # Feedback
 
 Alerts, toasts, progress, and empty / loading states.

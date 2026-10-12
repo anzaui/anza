@@ -1,3 +1,8 @@
+---
+title: "Service Worker"
+order: 8
+---
+
 # SW
 
 The Anza Service Worker toolkit handles caching, request interception, background sync, and push notifications. It runs in a separate thread from your app and intercepts `fetch` events before they hit the network.

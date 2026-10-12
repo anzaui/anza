@@ -1,3 +1,8 @@
+---
+seo_title: "Link — Anza"
+description: "ui-link — router-aware hyperlink with soft navigation and aria-current."
+---
+
 # Link
 
 Router-aware hyperlink that intercepts same-origin clicks for soft navigation and tracks `aria-current`.

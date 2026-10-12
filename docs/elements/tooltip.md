@@ -1,3 +1,8 @@
+---
+seo_title: "Tooltip — Anza"
+description: "ui-tooltip — hover/focus hint with overflow-escape positioning."
+---
+
 # Tooltip
 
 Hover / focus hint. The tip stays in-tree (not a body portal) and uses the platform **escape / position** helper so it can leave `overflow` clipping via Popover top-layer, with a fixed-position fallback when APIs are missing.

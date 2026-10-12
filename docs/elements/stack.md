@@ -1,3 +1,8 @@
+---
+seo_title: "Stack — Anza"
+description: "ui-stack — vertical flex stack with configurable gap."
+---
+
 # Stack
 
 Vertical flex stack with configurable gap.

@@ -1,3 +1,8 @@
+---
+seo_title: "TypeScript & JS STUI Engine — Anza"
+description: "Zero-dependency JIT template and STUI streaming engine for Node, Bun, Deno, and Edge runtimes."
+---
+
 # TypeScript Engine
 
 The Anza TypeScript Engine (`@anzaui/engine`) renders full HTML pages and

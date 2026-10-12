@@ -1,3 +1,8 @@
+---
+seo_title: "Python STUI Engine — Anza"
+description: "Zero-dependency Python standard library STUI engine for FastAPI, Flask, ASGI, and WSGI."
+---
+
 # Python Engine
 
 The Anza Python Engine (`anza` on PyPI) renders full HTML pages and signed JSON

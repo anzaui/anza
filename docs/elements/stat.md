@@ -1,3 +1,8 @@
+---
+seo_title: "Stat — Anza"
+description: "ui-stat — KPI statistic with label, value, and trend."
+---
+
 # Stat
 
 KPI statistic with label, value, and optional trend/change slot.

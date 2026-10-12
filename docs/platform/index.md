@@ -1,3 +1,8 @@
+---
+title: "Platform"
+order: 15
+---
+
 # Platform
 
 The Anza platform layer detects browser capabilities, lazily loads polyfills for missing features, and provides a unified interface to modern APIs regardless of native support.

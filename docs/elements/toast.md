@@ -1,3 +1,8 @@
+---
+seo_title: "Toast — Anza"
+description: "ui-toast — transient status notification with body portal and auto-dismiss."
+---
+
 # Toast
 
 Transient status notification. Auto-dismisses after a duration; the `show` helper portals instances into a shared fixed container under `document.body`.

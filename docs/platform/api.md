@@ -1,3 +1,8 @@
+---
+seo_title: "API Reference — Platform — Anza"
+description: "Platform API: supports, guard, globals, escapeOverflow / guard.escape, reset, typeGuard, scheduler."
+---
+
 # API Reference
 
 Complete reference for the platform module.

@@ -1,3 +1,8 @@
+---
+seo_title: "Header — Anza"
+description: "ui-header — top bar with brand and actions slots."
+---
+
 # Header
 
 Top bar with brand and actions slots.

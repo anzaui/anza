@@ -1,3 +1,8 @@
+---
+seo_title: "Steps — Anza"
+description: "ui-steps — linear step indicator for multi-step workflows."
+---
+
 # Steps
 
 Linear step indicator for multi-step workflows. Marks completed / active / upcoming from `active` index.

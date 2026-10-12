@@ -1,3 +1,8 @@
+---
+seo_title: "Spinner — Anza"
+description: "ui-spinner — indeterminate loading spinner with reduced-motion support."
+---
+
 # Spinner
 
 Indeterminate loading spinner using the Web Animations API, with prefers-reduced-motion respect.

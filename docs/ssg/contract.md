@@ -1,3 +1,8 @@
+---
+seo_title: "Page HTML contract — Anza"
+description: "Normative Mode A SSG and Mode B template HTML shape for SEO and DSD hydration."
+---
+
 # Page HTML contract (Mode A SSG · Mode B templates)
 
 Normative shape for every public, indexable HTML response. **Mode A** (`anza build` SSG) and **Mode B** (any-language request-time templates) must emit this same contract so client hydration has one adoption path.

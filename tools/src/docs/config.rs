@@ -16,6 +16,51 @@ pub struct DocsConfig {
   pub sidebar: Vec<SidebarSection>,
   #[serde(default, rename = "redirect")]
   pub redirect: Vec<Redirect>,
+  #[serde(default)]
+  pub pages: Pages,
+}
+
+/// `anza docs --pages`: markdown → Anza page folders inside an app
+/// (fragment `index.html` + `page()` module per file, plus section barrels).
+#[derive(Debug, Deserialize)]
+pub struct Pages {
+  /// Output folder, relative to the docs root (default `../web/src/docs`).
+  #[serde(default = "default_pages_out")]
+  pub out: String,
+  /// Hand-written files copied over the generated tree (relative to the docs
+  /// root; skipped when missing). Never read as markdown.
+  #[serde(default = "default_pages_overlay")]
+  pub overlay: String,
+  /// Folder name of the docs home page (`entry.home`).
+  #[serde(default = "default_pages_home")]
+  pub home: String,
+  /// Stylesheets every generated page declares.
+  #[serde(default = "default_pages_style")]
+  pub style: Vec<String>,
+}
+
+impl Default for Pages {
+  fn default() -> Self {
+    Pages {
+      out: default_pages_out(),
+      overlay: default_pages_overlay(),
+      home: default_pages_home(),
+      style: default_pages_style(),
+    }
+  }
+}
+
+fn default_pages_out() -> String {
+  "../web/src/docs".into()
+}
+fn default_pages_overlay() -> String {
+  "_app".into()
+}
+fn default_pages_home() -> String {
+  "entry".into()
+}
+fn default_pages_style() -> Vec<String> {
+  vec!["/styles/shared.css".into()]
 }
 
 #[derive(Debug, Deserialize)]
@@ -183,6 +228,8 @@ struct DocsConfigToml {
   sidebar: SidebarToml,
   #[serde(default)]
   redirect: Vec<Redirect>,
+  #[serde(default)]
+  pages: Pages,
 }
 
 #[derive(Debug, Deserialize, Default)]
@@ -218,6 +265,7 @@ impl From<DocsConfigToml> for DocsConfig {
         })
         .collect(),
       redirect: t.redirect,
+      pages: t.pages,
     }
   }
 }

@@ -1,3 +1,8 @@
+---
+seo_title: "Cryptographic Verification — Anza"
+description: "Asymmetric Ed25519 origin signing, HMAC-SHA256, and HKDF session stream keys for STUI security."
+---
+
 # Cryptographic Verification
 
 The cryptographic verification module protects Server-Templated UI (STUI) fragments from tampering, replay attacks, and unauthorized origin injection across reverse proxies, CDNs, and microservices.

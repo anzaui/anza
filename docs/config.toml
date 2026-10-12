@@ -1,9 +1,13 @@
-# docs/config.toml — docs site manifest for `anza docs`
-# App structure remains anza.json; this file is docs-site build only.
+# docs/config.toml — manifest for `anza docs`, the docs generator.
+# App structure remains anza.json.
 #
-# Expand the sidebar: copy more [[sidebar.section]] / [[sidebar.section.items]]
-# blocks from web/src/docks/docs/index.html.
-# MVP ships a Getting Started subset so generate stays fast to try.
+#   anza docs --pages   docs/*.md → web/src/docs (the site's page folders, [pages])
+#   anza docs           docs/*.md → standalone docs site (site.out)
+#
+# The sidebar is generated from the folder tree: one section per folder, titled
+# and ordered by the folder's index.md front matter (`title`, `order`); pages
+# by front-matter `order`, then file name. Page front matter: `title`, `order`,
+# `seo_title`, `description`.
 
 [site]
 title = "Anza Documentation"
@@ -41,43 +45,14 @@ sitemap = false
 robots = false
 json_ld = false
 
-# ── Sidebar (MVP subset — expand by adding sections/items) ──────────────
-
-[[sidebar.section]]
-id = "getting-started"
-title = "Getting Started"
-
-[[sidebar.section.items]]
-path = "intro/index.md"
-label = "Introduction"
-
-[[sidebar.section.items]]
-path = "intro/install.md"
-label = "Installation"
-
-[[sidebar.section.items]]
-path = "intro/start.md"
-label = "Quick Start"
-
-[[sidebar.section.items]]
-path = "intro/build.md"
-label = "Build"
-
-[[sidebar.section.items]]
-path = "intro/structure.md"
-label = "Folder Structure"
-
-[[sidebar.section]]
-id = "ssg"
-title = "SSG & SEO"
-
-[[sidebar.section.items]]
-path = "ssg/index.md"
-label = "Overview"
-
-[[sidebar.section.items]]
-path = "ssg/contract.md"
-label = "HTML contract"
+[pages]
+# Regenerate with `npm run docs`; the deploys run `anza docs --pages` before `anza build`.
+out = "../web/src/docs"
+# Hand-written page files copied over the generated tree (redirect stubs,
+# the ssg.expand fixture, page CSS).
+overlay = "_app"
+home = "entry"
+style = ["/styles/shared.css"]
 
 [[redirect]]
 from = "/docs/index"

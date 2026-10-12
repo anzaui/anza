@@ -1,3 +1,8 @@
+---
+seo_title: "Table — Anza"
+description: "ui-table — styled wrapper for native HTML tables."
+---
+
 # Table
 
 Styled wrapper for a native HTML table (slot content). Use a light-DOM `<table>` inside for semantics.

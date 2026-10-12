@@ -18,6 +18,13 @@ export PATH="$(pwd):$PATH"
 
 echo "Binary: $(./anza --version 2>/dev/null || echo 'ok')"
 
+# Regenerate web/src/docs from docs/*.md. Release binaries older than the
+# `docs --pages` flag keep the committed tree.
+if anza docs --help 2>/dev/null | grep -q -- '--pages'; then
+  echo "Generating docs pages..."
+  anza docs --pages
+fi
+
 # Build web assets
 echo "Building web assets..."
 cd web

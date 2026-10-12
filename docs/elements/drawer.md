@@ -1,3 +1,8 @@
+---
+seo_title: "Drawer — Anza"
+description: "ui-drawer — side panel overlay using native dialog showModal."
+---
+
 # Drawer
 
 Side panel overlay backed by native `<dialog>` + `showModal()` (top-layer, focus trap).

@@ -1,3 +1,8 @@
+---
+seo_title: "Split — Anza"
+description: "ui-split — two-pane split layout."
+---
+
 # Split
 
 Two-pane split layout controlled by a ratio token.

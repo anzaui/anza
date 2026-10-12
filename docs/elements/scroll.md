@@ -1,3 +1,8 @@
+---
+seo_title: "Scroll — Anza"
+description: "ui-scroll — scroll viewport with optional snap."
+---
+
 # Scroll
 
 Scroll viewport with optional scroll-snap.

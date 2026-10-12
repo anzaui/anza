@@ -1,3 +1,8 @@
+---
+seo_title: "Form — Anza"
+description: "ui-form — validates controls, submits JSON, optional offline queue."
+---
+
 # Form
 
 Form orchestrator that validates form-associated children, submits JSON via the API pipeline, and can queue offline.

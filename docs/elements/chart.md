@@ -1,3 +1,8 @@
+---
+seo_title: "Chart — Anza"
+description: "ui-chart — lightweight canvas bar/line chart with resize redraw."
+---
+
 # Chart
 
 Lightweight canvas chart (`bar` or `line`) with high-DPI scaling and resize redraw.

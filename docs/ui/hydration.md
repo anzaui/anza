@@ -1,3 +1,8 @@
+---
+seo_title: "Hydration (DSD adopt) — Anza"
+description: "How Anza adopts open Declarative Shadow DOM from SSG or Mode B HTML without wiping first paint."
+---
+
 # Hydration (DSD adopt)
 
 When a public route ships contentful HTML with open Declarative Shadow DOM (DSD), Anza **adopts** that tree on upgrade instead of clearing and re-cloning. That is the Phase 2 client path for [SSG / Mode B HTML](../ssg/contract.md).

@@ -1,3 +1,8 @@
+---
+seo_title: "Select — Anza"
+description: "ui-select — form-participating dropdown using Popover API."
+---
+
 # Select
 
 Form-participating dropdown built on the Popover API and anchor positioning.

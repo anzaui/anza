@@ -1,3 +1,8 @@
+---
+seo_title: "Checkbox — Anza"
+description: "ui-checkbox — form-participating tri-state checkbox."
+---
+
 # Checkbox
 
 Form-participating checkbox with checked / indeterminate states and ElementInternals custom states.

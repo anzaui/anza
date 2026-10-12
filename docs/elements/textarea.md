@@ -1,3 +1,8 @@
+---
+seo_title: "Textarea — Anza"
+description: "ui-textarea — form-participating multi-line text with validation and auto-resize."
+---
+
 # Textarea
 
 Form-participating multi-line text control with ElementInternals validation and optional auto-resize.

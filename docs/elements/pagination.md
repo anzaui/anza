@@ -1,3 +1,8 @@
+---
+seo_title: "Pagination — Anza"
+description: "ui-pagination — prev/next pagination with URL or prop control."
+---
+
 # Pagination
 
 Prev / next pagination. Uses `page` when set; otherwise syncs with the URL `?page=` query via the router.

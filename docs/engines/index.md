@@ -1,3 +1,10 @@
+---
+title: "Engines"
+order: 17
+seo_title: "Server-Templated UI (STUI) Engines — Anza"
+description: "High-performance STUI template and streaming engines for Rust, TypeScript, and Python."
+---
+
 # STUI Engines
 
 Anza provides high-performance, multi-language **Server-Templated UI (STUI)** engines for **Rust**, **TypeScript / Node.js / Bun / Deno**, and **Python**.

@@ -1,3 +1,8 @@
+---
+seo_title: "Alert — Anza"
+description: "ui-alert — inline severity notification with optional dismiss."
+---
+
 # Alert
 
 Inline severity notification with `role="alert"` and optional dismiss control.

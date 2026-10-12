@@ -1,3 +1,8 @@
+---
+seo_title: "Data — Anza"
+description: "Tables, lists, cards, charts, and stats for displaying structured content."
+---
+
 # Data
 
 Tables, lists, cards, charts, and stats for displaying structured content.
