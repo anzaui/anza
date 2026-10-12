@@ -25,8 +25,7 @@ async def send_html(send: Callable[[dict[str, Any]], Awaitable[None]], doc: Docu
 
 
 async def send_json(send: Callable[[dict[str, Any]], Awaitable[None]], envelope: Envelope, status: int = 200) -> None:
-    import json
-    body = json.dumps(envelope.to_dict()).encode("utf-8")
+    body = envelope.to_json().encode("utf-8")
     await send(
         {
             "type": "http.response.start",

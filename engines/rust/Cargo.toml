@@ -15,7 +15,6 @@ categories = ["web-programming", "template-engine"]
 # Minimal Core Dependencies
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-blake3 = "1.5"
 hmac = "0.12"
 sha2 = "0.10"
 ed25519-dalek = { version = "2.1", default-features = false, features = ["rand_core"] }

@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass
 from typing import Any, Optional
 
@@ -32,3 +33,7 @@ class Envelope:
         if self.css is not None:
             data["css"] = self.css
         return data
+
+    def to_json(self) -> str:
+        """Compact JSON, byte-identical to the Rust and TS engines."""
+        return json.dumps(self.to_dict(), separators=(",", ":"), ensure_ascii=False)

@@ -14,8 +14,7 @@ def send_html(start_response: Callable[..., Any], doc: Document, status: str = "
 
 
 def send_json(start_response: Callable[..., Any], envelope: Envelope, status: str = "200 OK") -> list[bytes]:
-    import json
-    body = json.dumps(envelope.to_dict()).encode("utf-8")
+    body = envelope.to_json().encode("utf-8")
     headers = [
         ("Content-Type", "application/json; charset=utf-8"),
         ("Content-Length", str(len(body))),

@@ -64,17 +64,28 @@ impl Params for HashMap<String, String> {
   }
 }
 
+/// A value as slot text (see `docs/engines/contract.md`): strings as-is,
+/// `true`/`false`, integers in decimal, integral floats without `.0`, other
+/// numbers in their shortest form, `null` as nothing, arrays and objects as
+/// compact JSON.
+pub fn stringify(value: &Value) -> Option<Cow<'_, str>> {
+  match value {
+    Value::String(s) => Some(Cow::Borrowed(s.as_str())),
+    Value::Number(n) => Some(Cow::Owned(match n.as_f64() {
+      Some(f) if n.is_f64() && f.fract() == 0.0 && f.abs() < 9_007_199_254_740_992.0 => (f as i64).to_string(),
+      _ => n.to_string(),
+    })),
+    Value::Bool(b) => Some(Cow::Borrowed(if *b { "true" } else { "false" })),
+    Value::Null => None,
+    other => Some(Cow::Owned(other.to_string())),
+  }
+}
+
 // 6. Implementation for serde_json::Value
 impl Params for Value {
   fn resolve(&self, key: &str) -> Option<Cow<'_, str>> {
     match self {
-      Value::Object(map) => map.get(key).and_then(|v| match v {
-        Value::String(s) => Some(Cow::Borrowed(s.as_str())),
-        Value::Number(n) => Some(Cow::Owned(n.to_string())),
-        Value::Bool(b) => Some(Cow::Owned(b.to_string())),
-        Value::Null => None,
-        other => Some(Cow::Owned(other.to_string())),
-      }),
+      Value::Object(map) => map.get(key).and_then(stringify),
       _ => None,
     }
   }

@@ -96,6 +96,100 @@ out = {
     "verify": verify,
 }
 
-path = Path(__file__).with_name("signature.json")
-path.write_text(json.dumps(out, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-print(f"wrote {path}")
+HERE = Path(__file__).parent
+
+
+def write_json(name: str, data: dict) -> None:
+    path = HERE / name
+    path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(f"wrote {path}")
+
+
+write_json("signature.json", out)
+
+# ---------------------------------------------------------------- rendering
+# Template roots under render/<root>/ and the expected output of each engine.
+
+ROOTS = {
+    "basic": {
+        "values.html": (
+            "s={{s}} i={{i}} f={{f}} g={{g}} neg={{neg}} t={{t}} b={{b}} n={{n}} "
+            "missing={{missing}} arr={{arr}} obj={{obj}} u={{u}} raw={{{s}}}"
+        ),
+        "feed/card.html": '<ui-card title="{{ title }}">{{body}}</ui-card>',
+    },
+    "shell": {
+        "layout/shell.html": "<html><title>{{title}}</title><main>{{{content}}}</main></html>",
+        "pages/home.html": "<h1>{{title}}</h1>",
+        "pages/docs/intro.html": "<article>{{title}}: intro</article>",
+        "pages/index.html": "<p>catch-all {{title}}</p>",
+    },
+    "plain": {
+        "pages/home.html": "<h1>{{title}}</h1>",
+    },
+}
+
+DEFAULT_SHELL = (
+    '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="utf-8">\n'
+    '  <meta name="viewport" content="width=device-width, initial-scale=1">\n'
+    "  <title>Anza App</title>\n</head>\n<body>\n  <dock-main>\n"
+    '    <template shadowrootmode="open">\n      <slot></slot>\n    </template>\n    ',
+    "\n  </dock-main>\n</body>\n</html>",
+)
+
+for root_name, root_files in ROOTS.items():
+    for rel, text in root_files.items():
+        target = HERE / "render" / root_name / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(text, encoding="utf-8")
+
+S = "<b>&'\""
+VALUES = {
+    "s": S,
+    "i": 42,
+    "f": 1.5,
+    "g": 3.0,
+    "neg": -7,
+    "t": True,
+    "b": False,
+    "n": None,
+    "arr": [1, "a", True, None],
+    "obj": {"a": 1, "b": "x"},
+    "u": "café",
+}
+REST = ' i=42 f=1.5 g=3 neg=-7 t=true b=false n= missing= {arr} {obj} u=café raw=' + S
+VALUES_TEXT = "s=" + S + REST.format(arr='arr=[1,"a",true,null]', obj='obj={"a":1,"b":"x"}')
+VALUES_ESCAPED = "s=&lt;b&gt;&amp;&#39;&quot;" + REST.format(
+    arr="arr=[1,&quot;a&quot;,true,null]",
+    obj="obj={&quot;a&quot;:1,&quot;b&quot;:&quot;x&quot;}",
+)
+
+SSE_ENV = {"v": 2, "slot": "feed", "ts": 1724771234, "html": '<p class="x">café "q"\t\n</p>', "sig": "ab" * 32}
+SSE_JSON = json.dumps(SSE_ENV, separators=(",", ":"), ensure_ascii=False)
+
+render = {
+    "contract": "docs/engines/contract.md",
+    "roots": "render/<root>/",
+    "fragments": [
+        {"name": "values", "root": "basic", "template": "values.html", "params": VALUES, "html": VALUES_TEXT},
+        {"name": "values escaped", "root": "basic", "template": "values.html", "params": VALUES, "escape": True, "html": VALUES_ESCAPED},
+        {"name": "trimmed slot names", "root": "basic", "template": "feed/card.html", "params": {"title": "T", "body": "B"}, "html": '<ui-card title="T">B</ui-card>'},
+        {"name": "no params", "root": "basic", "template": "feed/card.html", "params": None, "html": '<ui-card title=""></ui-card>'},
+    ],
+    "pages": [
+        {"name": "home in shell", "root": "shell", "route": "/", "params": {"title": "Home"}, "html": "<html><title>Home</title><main><h1>Home</h1></main></html>"},
+        {"name": "nested page", "root": "shell", "route": "/docs/intro/", "params": {"title": "Docs"}, "html": "<html><title>Docs</title><main><article>Docs: intro</article></main></html>"},
+        {"name": "catch-all", "root": "shell", "route": "/no/such/page", "params": {"title": "X"}, "html": "<html><title>X</title><main><p>catch-all X</p></main></html>"},
+        {"name": "engine owns content", "root": "shell", "route": "/", "params": {"title": "T", "content": "EVIL"}, "html": "<html><title>T</title><main><h1>T</h1></main></html>"},
+        {"name": "traversal", "root": "shell", "route": "/../secret", "params": {}, "error": "NOT_FOUND"},
+        {"name": "default shell", "root": "plain", "route": "/", "params": {"title": "Plain"}, "html": DEFAULT_SHELL[0] + "<h1>Plain</h1>" + DEFAULT_SHELL[1]},
+        {"name": "unknown route", "root": "plain", "route": "/missing", "params": {}, "error": "NOT_FOUND"},
+    ],
+    "sse": [{"envelope": SSE_ENV, "packet": SSE_JSON, "frame": "event: template\ndata: " + SSE_JSON + "\n\n"}],
+    "manifest": {
+        "root": "basic",
+        "templates": {rel: hashlib.sha256(text.encode("utf-8")).hexdigest() for rel, text in ROOTS["basic"].items()},
+    },
+}
+
+write_json("render.json", render)

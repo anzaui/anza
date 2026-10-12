@@ -29,17 +29,31 @@ impl Error {
   pub fn internal<S: Into<String>>(msg: S) -> Self {
     Self::Internal(msg.into())
   }
+
+  /// The error code shared by all three engines: `VALIDATION`, `NOT_FOUND`,
+  /// `TEMPLATE`, `CRYPTO` or `INTERNAL`.
+  pub fn code(&self) -> &'static str {
+    match self {
+      Self::Validation(_) => "VALIDATION",
+      Self::NotFound(_) => "NOT_FOUND",
+      Self::Template(_) => "TEMPLATE",
+      Self::Crypto(_) => "CRYPTO",
+      Self::Internal(_) => "INTERNAL",
+    }
+  }
+
+  /// The message without the code prefix.
+  pub fn message(&self) -> &str {
+    match self {
+      Self::Validation(m) | Self::NotFound(m) | Self::Template(m) | Self::Crypto(m) | Self::Internal(m) => m,
+    }
+  }
 }
 
 impl fmt::Display for Error {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    match self {
-      Self::Validation(msg) => write!(f, "Validation error: {}", msg),
-      Self::NotFound(msg) => write!(f, "Not found: {}", msg),
-      Self::Template(msg) => write!(f, "Template error: {}", msg),
-      Self::Crypto(msg) => write!(f, "Cryptographic error: {}", msg),
-      Self::Internal(msg) => write!(f, "Internal error: {}", msg),
-    }
+    // Same shape as the TS and Python engines: `[Anza:CODE] message`.
+    write!(f, "[Anza:{}] {}", self.code(), self.message())
   }
 }
 

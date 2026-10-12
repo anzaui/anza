@@ -30,6 +30,22 @@ function lookup(params: Params, name: string): unknown {
   return hasOwn(params, name) ? (params as Record<string, unknown>)[name] : undefined;
 }
 
+/**
+ * A value as slot text (see `docs/engines/contract.md`): strings as-is,
+ * `true`/`false`, numbers via `String()` (integral floats have no `.0`),
+ * `null`/`undefined` as nothing, plain objects and arrays as compact JSON,
+ * anything else via `String()`.
+ */
+export function stringify(val: unknown): string | undefined {
+  if (val === undefined || val === null) return undefined;
+  if (typeof val === 'string') return val;
+  if (typeof val === 'object') {
+    const proto = Object.getPrototypeOf(val);
+    if (Array.isArray(val) || proto === Object.prototype || proto === null) return JSON.stringify(val);
+  }
+  return String(val);
+}
+
 /** Compile chunks into a renderer. */
 export function compile(chunks: Chunk[], options: CompileOptions = {}): CompiledRenderer {
   const escape = Boolean(options.escape);
@@ -43,9 +59,8 @@ export function compile(chunks: Chunk[], options: CompileOptions = {}): Compiled
         out += p.value;
         continue;
       }
-      const val = lookup(params, p.name);
-      if (val === undefined || val === null) continue;
-      const text = String(val);
+      const text = stringify(lookup(params, p.name));
+      if (text === undefined) continue;
       out += escape && p.type === 'slot' ? escapeHtml(text) : text;
     }
     return out;

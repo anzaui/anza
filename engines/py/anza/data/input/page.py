@@ -13,7 +13,7 @@ class Page:
 
     def validate(self) -> None:
         if not self.route:
-            raise AnzaError.validation("Page route must not be empty")
+            raise AnzaError.validation("Route cannot be empty")
 
     def run(self, engine: Engine) -> Document:
         self.validate()

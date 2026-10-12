@@ -1,6 +1,6 @@
 use {
   crate::{
-    crypto::blake,
+    crypto::digest,
     engine::slot::{bind::{self, Data, Params}, extract, Chunk},
     errors::{Error, Result},
   },
@@ -98,7 +98,7 @@ pub fn one_with(root: &Path, rel_path: &Path, options: &LoadOptions) -> Result<T
     return Err(Error::template(format!("Template '{}' is larger than {} bytes", name, options.max_bytes)));
   }
   let raw = String::from_utf8(bytes).map_err(|_| Error::template(format!("Template '{}' is not valid UTF-8", name)))?;
-  let digest = blake::digest::content(raw.as_bytes());
+  let digest = digest::content(raw.as_bytes());
   let chunks = extract(&raw)?;
 
   Ok(Template {

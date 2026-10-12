@@ -14,9 +14,9 @@ class Stream:
 
     def validate(self) -> None:
         if not self.template:
-            raise AnzaError.validation("Stream template path must not be empty")
+            raise AnzaError.validation("Template cannot be empty")
         if not self.slot:
-            raise AnzaError.validation("Stream target slot must not be empty")
+            raise AnzaError.validation("Slot cannot be empty")
 
     def run(self, engine: Engine) -> str:
         self.validate()
