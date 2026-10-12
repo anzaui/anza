@@ -43,18 +43,67 @@ let doc = Page::new("/article")
 // doc.html holds the full document; doc.as_str() and doc.into_bytes() also work.
 ```
 
-`Engine::render_page` (`src/render/page/compile.rs`) does this:
+## 3. Page pipeline
 
-1. Map the route to a template: `/` → `pages/home.html`, `/article` →
-   `pages/article.html`. If that is missing, try `article.html`, then
-   `pages/index.html`.
-2. Bind the page template with the params. If no page template exists, the
-   content is `<div class="content">Route: <route></div>` (the route is inserted
-   unescaped).
-3. If `layout/shell.html` exists, bind it with the same params plus `content` and
-   `slot_main` set to the page HTML.
-4. Otherwise emit a minimal `<!DOCTYPE html>` document whose `<body>` holds a
-   `<dock-main>` with an open shadow root and the page content.
+`Engine::render_page` (`src/render/page/compile.rs`) runs the same pipeline
+as the TypeScript and Python engines:
 
-The route is used as is: there is no route-parameter matching (`/article/my-slug`
-looks for `pages/article/my-slug.html`).
+1. Map the route to a template under `pages/`: `/` (or an empty route) →
+   `pages/home.html`, `/article` and `/article/` → `pages/article.html`,
+   `/a/b` → `pages/a/b.html`.
+2. If that template doesn't exist, use `pages/index.html` as the catch-all.
+3. Otherwise, or when the route is malformed (`..`, `\`, NUL), return
+   `Error::NotFound("Page not found")`. The route is never echoed into the
+   output or the error. Routes only resolve under `pages/`, so a route can't
+   render a fragment, a layout or any other template.
+4. Bind the page template with the params. If `layout/shell.html` exists,
+   bind it with the same params plus `content` set to the page HTML (the
+   engine's `content` wins over a param of that name). Otherwise emit the
+   default document below.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Anza App</title>
+</head>
+<body>
+  <dock-main>
+    <template shadowrootmode="open">
+      <slot></slot>
+    </template>
+    <!-- page -->
+  </dock-main>
+</body>
+</html>
+```
+
+A minimal shell:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head><title>{{title}}</title></head>
+<body>
+  <dock-main>{{{content}}}</dock-main>
+</body>
+</html>
+```
+
+`{{{content}}}` is always raw. With `setup.escape = true`, `{{content}}` would
+escape the page HTML, so use the triple-brace form in shells.
+
+To answer unknown routes with a 404, match the error:
+
+```rust
+match Page::new(path).run(&engine) {
+  Ok(doc) => Ok(doc),
+  Err(anza::Error::NotFound(_)) => Err(StatusCode::NOT_FOUND),
+  Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+}
+```
+
+There is no route-parameter matching: `/article/my-slug` looks for
+`pages/article/my-slug.html`, then falls back to `pages/index.html`.

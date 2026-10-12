@@ -26,8 +26,8 @@ Returning `None` renders the placeholder as an empty string.
 | `()` | No values |
 | `[(&str, &str); N]` and `[(&str, &str)]` | Linear search; no allocation |
 | `HashMap<String, String>` | Borrowed values |
-| `serde_json::Value` | Object keys; numbers and booleans are formatted, `null` is empty, arrays/objects are rendered as JSON text |
-| `Data<T: Serialize>` | Serializes `T` to a `serde_json::Value` **on every lookup** |
+| `serde_json::Value` | Object keys; booleans as `true`/`false`, integral floats without `.0` (`3.0` → `3`), `null` is empty, arrays/objects as compact JSON |
+| `Data<T: Serialize>` | Serializes `T` to a `serde_json::Value` once per bind |
 | `&T` where `T: Params` | Forwards |
 
 ```rust
@@ -52,4 +52,6 @@ let html = tpl.bind(&Data(&profile))?;
 `HashMap<&str, &str>` does **not** implement `Params`; use an array of pairs or
 `HashMap<String, String>`.
 
-All values are inserted **without HTML escaping**. Escape untrusted input first.
+By default all values are inserted **without HTML escaping**: escape untrusted
+input with `anza::escape_html` first. With `Setup::escape` on, `{{name}}`
+values are escaped for you and `{{{name}}}` values stay raw.

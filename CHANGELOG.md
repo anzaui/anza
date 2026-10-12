@@ -24,6 +24,9 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - `anza docs --pages` is the single docs generator, with the sidebar built from the docs tree.
 - Dev server: live reload injected into every HTML response at serve time, a self-unregistering `/sw.js`, `no-cache` + ETag/304 on every response, and a forced reload when the reload stream falls behind. CSS and template edits hot-swap in about 30 ms (was about 200 ms).
 - `npm run bench:load` (cold page-load benchmark with budgets, enforced in CI), `npm run doc:imports`, `npm run types:check`, `npm run versions:check`.
+- **Engines: one written contract** ([Engine Contract](docs/engines/contract.md)) with golden fixtures (`engines/fixtures/`) run by the Rust, TypeScript and Python suites: same HTML, envelopes, signatures, SSE frames and verification decisions from all three.
+- Engines: `verify_envelope` (Rust `anza::verify_envelope`, TS `verifyEnvelope`, Python `verify_envelope`, plus `Engine.verify_envelope`) checks version, freshness (max age, 5 s future skew), the expected slot, then the signature in constant time.
+- Engines: shared `escape_html` export, and an opt-in `escape` setup option (`{{x}}` escaped, new `{{{x}}}` raw; default off), a `fragments` allowlist for fragment templates, and a template size cap (`max_template_bytes`, default 1 MiB). Python gains `watch=True`.
 
 #### Changed
 
@@ -33,12 +36,18 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - `anza build` and `anza dev` lock the project, so they never write the same `dist/` at once.
 - Faster runtime: element style, template and tags are fetched in parallel and pre-rendered elements mount before their files arrive; service worker strategies respond first and cache through `event.waitUntil`; quota checks are throttled and store flushes coalesced.
 - Faster builds: parallel import-graph walk and copy, single-pass base-path rewriting (`web/` release build: 124 ms → 71 ms before compression).
-- **Rust engine (breaking):** `Engine::manifest()` values are now the hex BLAKE3 digest of each template (every stored value changes); `engine::file::watch::listen` takes the engine's `CacheStore`.
-- Python engine: the page tag for nested routes is `page-a-b` (was the invalid `page-a/b`).
+- **Engines (breaking): signature v2.** The signed message is `anza-sig-v2\n` followed by length-prefixed `ts`, `slot`, `html` and `css` (was the ambiguous `ts:slot:html`, without `css`), and envelopes carry `"v": 2`. v1 signatures no longer verify.
+- **Engines (breaking): one page pipeline.** `/a/b` renders `pages/a/b.html`, then the `pages/index.html` catch-all, else a `NOT_FOUND` error (was a "Route: …" placeholder page); the shell gets `{{content}}` only (`slot_main`, and Python's `main`, `body` and `route`, are gone). Python no longer wraps pages in `<page-*>` or requires a shell.
+- **Engines (breaking):** manifest digests are SHA-256 in all three engines (Rust used BLAKE3; `crypto::blake` is now `crypto::digest`). Values stringify the same everywhere: `true`/`false`, `3.0` → `3`, `null` → empty, arrays and objects → compact JSON.
+- **Rust engine (breaking):** `Setup::ed25519` returns `Result<SignMode>`; `Engine.signing` is replaced by `Engine::signer()`; `Engine::get` returns `Arc<Template>`; errors display as `[Anza:CODE] message`; `engine::file::watch::listen` takes the engine's `CacheStore` and load options.
+- **Python engine (breaking):** `cryptography>=42` is a required dependency (the `crypto` extra is gone).
+- Engines are faster: Rust shares cached templates (`Arc`) instead of cloning one per render and serializes `Data<T>` once per render instead of once per slot; all three compile templates once, decode signing keys once at setup, and skip the signature message for unsigned envelopes (100-slot fragment, unsigned: Rust 8.3 → 1.8 µs, Python 11.4 → 8.2 µs).
 - Releases: one version for every package, bumped by release-please and checked in CI.
 
 #### Removed
 
+- **Engines (breaking):** the bare `<route>.html` page fallback: routes only resolve under `pages/`.
+- **Python engine:** the pure-Python Ed25519 fallback, and loading templates from disk on a cache miss.
 - **Engines (breaking):** signing options that never did anything: `SignMode::SessionBound` and the `publish_meta` field (Rust; `Setup::ed25519` now takes two arguments), the empty `adapters::tower` module and `tower` feature (Rust), and `mode: 'session'` / `publishMeta` (TypeScript) / `mode="session"` (Python).
 
 #### Fixed
@@ -57,8 +66,13 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 #### Security
 
-- **Engines: reflected XSS in the page fallback.** The Rust and TypeScript engines wrote the request path into the "unknown route" HTML unescaped; it is now escaped.
-- **Python engine: path traversal.** `../` in a request path could read `.html` files outside the template root; template reads must now resolve inside the root. The route is also sanitized in the page tag name and escaped in the shell `route` value.
+- **Engines: reflected XSS in the page fallback.** The Rust and TypeScript engines wrote the request path into the "unknown route" HTML unescaped. The fallback page is gone: unknown routes are a `NOT_FOUND` error and the route is never echoed.
+- **Python engine: path traversal.** `../` in a request path could read `.html` files outside the template root. Templates are now only looked up in the cache, never loaded from disk for a request.
+- **Engines: signing fails closed.** Keys are validated in `Setup.run()`: an HMAC secret under 32 bytes, an Ed25519 key that is not a 32-byte seed, or a public key that does not match is a `CRYPTO` error. TypeScript used to send unsigned envelopes when the key was missing, Rust signed with an empty HMAC key, and Rust `Setup::ed25519` turned a missing key file into an empty key.
+- **Python engine: Ed25519 uses `cryptography` only.** The pure-Python fallback was not constant-time and signed with keys of any length.
+- **Engines: strict hex.** The Rust verifier panicked on a non-ASCII signature, and the TypeScript verifier accepted trailing garbage (`sig + "zz"`). Signatures are now lowercase, even-length hex only, in all three engines.
+- **Engines: replay and ambiguity.** v1 messages could collide (`a:b` + `c` vs `a` + `b:c`) and nothing checked freshness or the target slot; see signature v2 and `verify_envelope`.
+- **Engines: template names and routes.** Names with `..`, `\`, NUL, empty segments or a leading `/` are rejected; any cached template was renderable from a route; errors no longer contain absolute paths; key material is redacted from `Debug`/`repr`/`inspect`; TS lookups read own properties only (`{{toString}}` read the prototype); symlinks that resolve outside the template root are not followed.
 
 ### All changes
 

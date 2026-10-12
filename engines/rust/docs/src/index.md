@@ -2,15 +2,16 @@
 
 The Rust engine (crate **`anza`**) renders server-templated UI (STUI) from plain
 `.html` files: full HTML pages for the first load, and JSON **envelopes**
-(`{ slot, ts, html, sig?, css? }`) for fragments, fetches and SSE/WebSocket
-pushes. Envelopes can be signed with HMAC-SHA256 or Ed25519 over `ts:slot:html`.
+(`{ v: 2, slot, ts, html, sig?, css? }`) for fragments, fetches and SSE/WebSocket
+pushes. Envelopes can be signed with HMAC-SHA256 or Ed25519 over the v2
+signature message, and checked with `anza::verify_envelope`.
 
 ```
 ┌─────────────────┐   Full page (HTML, open DSD)            ┌─────────────────┐
 │   Rust server   ├────────────────────────────────────────►│     Browser     │
 │  (crate `anza`) │   Envelopes over fetch / SSE / WS       │ (custom elements│
 │                 ├────────────────────────────────────────►│  + your code)   │
-└─────────────────┘   { slot, ts, html, sig? }              └─────────────────┘
+└─────────────────┘   { v, slot, ts, html, sig? }           └─────────────────┘
 ```
 
 > The CLI is a different crate: **`anza-cli`** (its binary is `anza`). This book
@@ -23,21 +24,27 @@ pushes. Envelopes can be signed with HMAC-SHA256 or Ed25519 over `ts:slot:html`.
 2. **Parse once.** `Setup::run()` reads every `.html` file under the root and
    splits it into static byte chunks and `{{name}}` placeholders. Rendering only
    copies chunks and parameter values into one pre-sized buffer.
-3. **Placeholders only.** The syntax is `{{name}}`. There are no loops,
-   conditionals, filters or includes. Values are inserted **without HTML
-   escaping**: escape anything that comes from users before you bind it.
+3. **Placeholders only.** The syntax is `{{name}}` (value) and `{{{name}}}`
+   (raw). There are no loops, conditionals, filters or includes. By default
+   values are inserted **without HTML escaping**: escape anything that comes
+   from users with `anza::escape_html`, or set `setup.escape = true` so that
+   `{{name}}` is escaped (see [Rendering Pipeline](rendering/index.md)).
 4. **Two outputs.** `Page` returns a `Document` (full HTML). `Fragment` and
    `Stream` return an `Envelope`.
 5. **Signing.** `SignMode::Hmac` and `SignMode::Ed25519` add a hex `sig` to every
-   envelope. The browser
-   library does not verify signatures for you (see
+   envelope. Keys are validated in `Setup::run()`. `anza::verify_envelope`
+   checks received envelopes on a server or edge. The browser library does
+   not verify signatures for you (see
    [Cryptographic Verification](crypto/index.md)).
+6. **Errors.** `anza::Error` has the variants `Validation`, `NotFound`,
+   `Template`, `Crypto` and `Internal`. They display as `[Anza:CODE] message`,
+   and `Error::code()` returns the code (`NOT_FOUND`, ...).
 
 ## Quick example
 
 ```toml
 [dependencies]
-anza = "0.5"
+anza = "0.6"
 serde_json = "1"
 ```
 
@@ -67,7 +74,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Root exports
 
-`anza::{Setup, Page, Fragment, Stream, Engine, SignMode, Params, Data, Document,
-Envelope, Manifest, Error, Result}`. Everything else is reached through its module
+`anza::{Setup, Page, Fragment, Stream, Engine, SignMode, Params, Data,
+escape_html, verify_envelope, VerifyKey, VerifyOptions, Document, Envelope,
+Manifest, Error, Result}`. Everything else is reached through its module
 path (`anza::crypto::…`, `anza::stream::…`, `anza::render::…`,
 `anza::engine::…`, `anza::adapters::…`).

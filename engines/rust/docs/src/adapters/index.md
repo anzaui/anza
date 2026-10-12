@@ -7,13 +7,13 @@ Adapters are behind Cargo features, so the default build has no web framework.
 ```toml
 [dependencies]
 # Axum 0.8
-anza = { version = "0.5", features = ["axum"] }
+anza = { version = "0.6", features = ["axum"] }
 
 # Actix-web 4
-anza = { version = "0.5", features = ["actix"] }
+anza = { version = "0.6", features = ["actix"] }
 
 # Everything
-anza = { version = "0.5", features = ["full"] }
+anza = { version = "0.6", features = ["full"] }
 ```
 
 | Feature | Provides |

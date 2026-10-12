@@ -11,7 +11,7 @@ import { Envelope, formatPacket } from '@anzaui/engine';
 
 const envelope = new Envelope('notifications', 1724771200, '<ui-toast>Order Shipped</ui-toast>');
 
-const text = formatPacket(envelope); // JSON.stringify(envelope)
+const text = formatPacket(envelope); // '{"v":2,"slot":"notifications",…}'
 // socket.send(text) with your WebSocket library
 ```
 
@@ -19,14 +19,14 @@ const text = formatPacket(envelope); // JSON.stringify(envelope)
 
 The Anza browser library has no WebSocket envelope handler, so this is your code.
 If the envelopes are signed and you want to check them in the browser, see
-[Ed25519](../crypto/ed25519.md#3-verifying-in-the-browser-your-code). Remember
-that `html` is not escaped by the engine.
+[Ed25519 Signing](../crypto/ed25519.md#4-verifying-in-the-browser-your-code).
+Remember that `html` is only escaped where the engine runs with `escape: true`.
 
 ```javascript
 ws.onmessage = async (event) => {
   const envelope = JSON.parse(event.data);
 
-  if (!(await verifyEnvelope(envelope, publicKeyBytes))) {
+  if (!(await verifyEnvelope(envelope, publicKeyBytes, 'notifications'))) {
     console.error('Rejected envelope');
     return;
   }

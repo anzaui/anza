@@ -1,20 +1,21 @@
 ---
 seo_title: "Python STUI Engine — Anza"
-description: "Zero-dependency Python standard library STUI engine for FastAPI, Flask, ASGI, and WSGI."
+description: "Python STUI engine for FastAPI, Flask, ASGI, and WSGI, built on the standard library and cryptography."
 ---
 
 # Python Engine
 
 The Anza Python Engine (`anza` on PyPI) renders full HTML pages and signed JSON
-fragment envelopes from `.html` templates. It needs Python 3.10+ and only the
-standard library (Ed25519 uses `cryptography` when it is installed, and a pure
-Python fallback otherwise).
+fragment envelopes from `.html` templates. It needs Python 3.10+ and
+`cryptography>=42`, which `pip install anza` installs. The rest is the
+standard library. It follows the shared [Engine Contract](contract.md).
 
 ## What You Get
 
 - **Parse once** — `Setup(...).run()` loads every template under the root and splits it into static chunks and `{{slot}}` placeholders
 - **Plain Python data** — bind dicts, dataclasses, Pydantic models or any object with attributes
-- **Signing** — HMAC-SHA256 or Ed25519 signatures over `ts:slot:html`
+- **Signing** — HMAC-SHA256 or Ed25519 signatures (signature v2), with keys validated at setup
+- **Verification** — `verify_envelope` checks version, age, slot and signature
 - **Streaming** — `format_event` (SSE) and `format_packet` (WebSocket) encoders, and a `Stream` operation
 - **Adapters** — small response helpers for FastAPI/Starlette, Flask, raw ASGI and WSGI
 
@@ -31,7 +32,7 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, JSONResponse
 from anza import Setup, SignOptions, Page, Fragment
 
-# 1. Load and parse every template once at startup
+# 1. Load and parse every template once at startup (the secret needs 32+ bytes)
 engine = Setup(
     root="./templates",
     signing=SignOptions(mode="hmac", secret="super-secret-key-32-bytes-long!!"),
@@ -40,6 +41,7 @@ engine = Setup(
 app = FastAPI()
 
 # Full page: templates/pages/home.html inside templates/layout/shell.html
+# (or inside the default document when there is no shell)
 @app.get("/", response_class=HTMLResponse)
 async def home():
     doc = Page("/", {"title": "Anza Python"}).run(engine)
@@ -92,29 +94,108 @@ profile = UserProfile(user_id="usr_102", user_name="Alice", role="Admin")
 doc = Page("/profile", profile).run(engine)
 ```
 
-`{{user_name}}` reads `profile.user_name`. Missing values render as empty.
-Values are inserted **as is, without HTML escaping**: escape user input before
-passing it in.
+`{{user_name}}` reads `profile.user_name`. Only public, non-callable attributes
+are read: names starting with `_` and methods render as empty. Missing values
+and `None` render as empty, booleans as `true` / `false`, integral floats
+without `.0`, and dicts, lists and tuples as compact JSON (`{"a":1}`).
+
+## Escaping
+
+By default values are inserted **as is, without HTML escaping**. Escape user
+input with `escape_html` before passing it in, or turn on the `escape` option:
+
+```python
+from anza import Setup, escape_html
+
+escape_html('<a href="x">Tom & Jerry\'s</a>')
+# '&lt;a href=&quot;x&quot;&gt;Tom &amp; Jerry&#39;s&lt;/a&gt;'
+
+engine = Setup(root="./templates", escape=True).run()
+```
+
+With `escape=True`, `{{name}}` is HTML-escaped and `{{{name}}}` stays raw. Use
+`{{{content}}}` in `layout/shell.html` so the rendered page is not escaped
+twice.
 
 ## Signing
 
 ```python
 from anza import Setup, SignOptions
 
-Setup(root="./templates", signing=SignOptions(mode="hmac", secret="..."))
-Setup(root="./templates", signing=SignOptions(mode="ed25519", private_key="<64 hex chars>"))
+Setup(root="./templates", signing=SignOptions(mode="hmac", secret="<at least 32 bytes>"))
+Setup(root="./templates", signing=SignOptions(mode="ed25519", private_key="<64 lowercase hex chars>"))
 Setup(root="./templates")  # mode="none": no signature
 ```
 
-HMAC and Ed25519 raise `AnzaError` when their key is missing. See [Cryptographic Verification](crypto.md).
+`SignOptions(mode, secret, private_key, public_key)` is checked once, in
+`Setup.run()`. A bad key raises `AnzaError` with code `CRYPTO`:
+
+- `hmac` needs a `secret` (str or bytes) of at least 32 bytes.
+- `ed25519` needs a `private_key` as a 32-byte seed (`bytes`), 64-char
+  lowercase hex, or a `cryptography` `Ed25519PrivateKey`. An optional
+  `public_key` must match it.
+
+The validated key is `engine.signer`. `repr` of `SignOptions`, `Signer` and
+`Engine` never prints key material.
+
+The signature covers the v2 message built by `signature_message(ts, slot,
+html, css)` (also `envelope.message()`). Check a received envelope with
+`verify_envelope`:
+
+```python
+import json
+from anza import VerifyKey, verify_envelope
+
+envelope = json.loads(body)
+verify_envelope(VerifyKey.hmac(secret), envelope, max_age_secs=60, slot="feed")
+verify_envelope(VerifyKey.ed25519(public_key), envelope, max_age_secs=60, slot="feed")
+engine.verify_envelope(envelope, max_age_secs=60, slot="feed")  # the engine's own key
+```
+
+Each call returns `None` or raises `AnzaError` with code `CRYPTO` (for example
+`envelope expired` or `slot mismatch`). See
+[Cryptographic Verification](crypto.md).
 
 ## Page Rendering
 
 `Page(route, params)` maps the route to a template: `/` → `pages/home.html`,
-`/about` → `pages/about.html`. The page is wrapped in open declarative shadow
-DOM as `<page-about><template shadowrootmode="open">…</template></page-about>`
-and inserted into `layout/shell.html` as `{{content}}` (also `{{main}}` and
-`{{body}}`; `{{route}}` holds the route). The shell is required.
+`/about` and `/about/` → `pages/about.html`. Routes only resolve under
+`pages/`. When the page doesn't exist, `pages/index.html` is the catch-all.
+Otherwise, or for a malformed route (`..`, `\`, NUL), `Page.run` raises
+`AnzaError` with code `NOT_FOUND` and the message `Page not found`.
+
+The page markup is inserted as is (no wrapper element) into
+`layout/shell.html` as `{{content}}`. The shell is bound with `params` plus
+`content`. When there is no shell, the page goes into a minimal default
+document with a `<dock-main>` open shadow root.
+
+## Setup Options
+
+```python
+engine = Setup(
+    root="./templates",
+    signing=SignOptions(mode="hmac", secret=secret),
+    fragments=["feed/", "partials/menu.html"],  # fragment allowlist
+    escape=True,                                # escape {{x}}, keep {{{x}}} raw
+    max_template_bytes=512 * 1024,              # default 1 MiB
+    watch=True,                                 # reload on change
+).run()
+
+engine.close()  # stops the watcher
+```
+
+- `fragments` limits which templates `Fragment` can render. An entry ending in
+  `/` allows that prefix and any other entry allows that exact name. Anything
+  else is reported as `Template '<name>' not found`. Empty (the default)
+  allows every template.
+- `max_template_bytes` makes a larger file a `TEMPLATE` error at load.
+- `watch=True` starts a polling thread that reloads the templates when files
+  are added, changed or removed. Stop it with `engine.close()`.
+
+Template names are relative `/`-separated paths (no leading `/`, `\`, NUL,
+or empty, `.` or `..` segments). A malformed name is a `VALIDATION` error.
+Lookups only use the templates loaded at setup: a cache miss is `NOT_FOUND`
+and never reads from disk.
 
 ## Streaming (SSE)
 
@@ -128,24 +209,26 @@ async def stream_feed():
     async def events():
         while True:
             envelope = Fragment("feed/card.html", "feed", {"title": "Push"}).run(engine)
-            yield format_event(envelope)   # "event: template\ndata: {...}\n\n"
+            yield format_event(envelope)   # 'event: template\ndata: {"v":2,...}\n\n'
             await asyncio.sleep(2)
     return StreamingResponse(events(), media_type="text/event-stream")
 ```
 
-`Stream(template, slot, params).run(engine)` returns the same SSE text in one
-call. See [Real-Time Streaming](streaming.md).
+The JSON is `envelope.to_json()`: compact, UTF-8, `v` first, byte-identical to
+the Rust and TypeScript engines. `format_packet(envelope)` returns the same
+JSON for WebSocket messages. `Stream(template, slot, params).run(engine)`
+returns the SSE text in one call. See [Real-Time Streaming](streaming.md).
 
 ## Package Layout
 
 | Package | Contents |
 |---------|----------|
 | `anza.data.input` | `Setup`, `Page`, `Fragment`, `Stream` |
-| `anza.engine.slot` | `{{slot}}` parser (`extract`) and binder (`string`) |
+| `anza.engine.slot` | `{{slot}}` parser (`extract`), binder (`string`), `escape_html` |
 | `anza.engine.file` | Template loading, reading and watching |
 | `anza.engine.cache` | `Engine`, `SignOptions`, the template store |
 | `anza.render` | `render_page`, `render_fragment` |
-| `anza.crypto` | `hmac`, `ed25519`, `hkdf`, `digest` |
+| `anza.crypto` | `hmac`, `ed25519`, `hkdf`, `digest` (SHA-256), `hex`, `signer` (`Signer`), `envelope` (`verify_envelope`, `VerifyKey`, `signature_message`) |
 | `anza.stream` | `format_event` (SSE), `format_packet` (WebSocket) |
 | `anza.adapters` | FastAPI, Flask, ASGI, WSGI helpers |
 | `anza.models` | `Document`, `Envelope`, `Manifest` |

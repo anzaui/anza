@@ -5,7 +5,7 @@
 ```typescript
 import { Hono } from 'hono';
 import { stream } from 'hono/streaming';
-import { Fragment, Page, Setup } from '@anzaui/engine';
+import { Fragment, Page, Setup, escapeHtml } from '@anzaui/engine';
 import { html, json, sseEvent } from '@anzaui/engine/adapters/hono';
 
 const engine = await new Setup({ root: './templates' }).run();
@@ -20,7 +20,7 @@ app.get('/', async (c) => {
 // Signed fragment
 app.get('/card/:id', async (c) => {
   const envelope = await new Fragment('feed/card.html', 'feed', {
-    id: c.req.param('id'), // not escaped: validate or escape user input
+    id: escapeHtml(c.req.param('id')), // values are not escaped unless `escape: true`
     title: 'Live Stream Update',
   }).run(engine);
   return json(c, envelope);

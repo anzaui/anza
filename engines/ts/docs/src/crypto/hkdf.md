@@ -4,7 +4,7 @@ The package includes an HKDF-SHA256 helper (RFC 5869) for deriving per-session
 keys, for example a per-user HMAC secret from a session token.
 
 > No signing mode uses it automatically. To sign per session, derive a key and
-> pass it to `crypto.hmac.sign` yourself.
+> pass it to `crypto.hmac.sign` (or `Setup`'s `secret`) yourself.
 
 ## 1. TypeScript API
 
@@ -20,13 +20,19 @@ deriveKey(
 ```
 
 ```typescript
-import { crypto as anzaCrypto } from '@anzaui/engine';
+import { crypto as anzaCrypto, signatureMessage, verifyEnvelope } from '@anzaui/engine';
 
 const sessionToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
 const userKey = await anzaCrypto.hkdf.deriveKey(sessionToken, 'anza-cluster-salt-2026', 'user-live-feed', 32);
 
-const sig = anzaCrypto.hmac.sign(userKey, '1724771200:feed:<ui-card>Hi</ui-card>');
+const sig = anzaCrypto.hmac.sign(userKey, signatureMessage(1724771200, 'feed', '<ui-card>Hi</ui-card>'));
+
+// A derived key also works as an HMAC verification key.
+verifyEnvelope({ mode: 'hmac', secret: userKey }, envelope, { maxAgeSecs: 60, slot: 'feed' });
 ```
+
+Keep `keylen` at 32 or more: signing setup and `verifyEnvelope` reject HMAC
+secrets shorter than 32 bytes.
 
 ## 2. Properties
 

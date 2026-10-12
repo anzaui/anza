@@ -35,7 +35,7 @@ async fn card(
   Path(id): Path<String>,
 ) -> Result<Envelope, StatusCode> {
   Fragment::new("feed/card.html", "feed")
-    .param("id", id) // not escaped: validate or escape user input
+    .param("id", anza::escape_html(&id)) // values are inserted as is unless `escape` is on
     .param("title", "Updated Card")
     .run(&engine)
     .map_err(|_| StatusCode::NOT_FOUND)

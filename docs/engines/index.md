@@ -16,9 +16,9 @@ STUI bridges server-side rendering and client-side web components. It enables su
 - **Open Declarative Shadow DOM (DSD)** — Instant initial render without client-side hydration pauses
 - **Zero-copy parameter injection** — Templates are pre-parsed once at startup into memory offsets
 - **Cryptographic tamper-proofing** — Signed JSON envelopes protect dynamic fragments across CDNs and proxies
-- **Multi-language wire compatibility** — Identical envelope format across Rust, TypeScript, and Python
+- **Multi-language wire compatibility** — Byte-identical envelopes, signatures and SSE frames across Rust, TypeScript, and Python, pinned by one [Engine Contract](contract.md)
 - **Universal streaming** — First-class Server-Sent Events (SSE) and WebSocket text frame support
-- **Zero external runtime dependencies** — Standard libraries and Web Standards across all engines
+- **Small dependency footprint** — The TypeScript engine has no runtime dependencies, the Python engine needs only `cryptography`, and the Rust crate uses a few audited crates (`serde`, `sha2`, `hmac`, `ed25519-dalek`)
 
 ## Package Map
 
@@ -26,7 +26,8 @@ STUI bridges server-side rendering and client-side web components. It enables su
 |--------|-----------------|-----------|-------------|
 | [Rust Engine](rust.md) | `anza` (Cargo) | Axum, Actix-web | Zero-copy byte slices, sub-millisecond latency |
 | [TypeScript Engine](ts.md) | `@anzaui/engine` (npm) | Node.js, Bun, Deno, Hono, Express | Zero dependencies, JIT closure compilation |
-| [Python Engine](py.md) | `anza` (PyPI) | FastAPI, Starlette, Flask, Django | Pure standard library, async streaming generator |
+| [Python Engine](py.md) | `anza` (PyPI) | FastAPI, Starlette, Flask, Django | Standard library plus `cryptography`, async streaming generator |
+| [Engine Contract](contract.md) | Specification | All engines | Wire format v2, signatures, pages, values, escaping and errors |
 | [Cryptographic Verification](crypto.md) | Built-in | All engines | Ed25519, HMAC-SHA256, and HKDF session key derivation |
 | [Real-Time Streaming](streaming.md) | Built-in | All engines | Server-Sent Events (SSE) and WebSocket frame protocols |
 
@@ -58,13 +59,16 @@ Generates targeted JSON envelopes for real-time slot replacement and live stream
 
 ```json
 {
+  "v": 2,
   "slot": "feed",
   "ts": 1724771234,
   "html": "<ui-card class=\"stream-card\"><div slot=\"header\">Live Card</div></ui-card>",
-  "sig": "3a8f4c2e1b...",
-  "css": null
+  "sig": "3a8f4c2e1b..."
 }
 ```
+
+On the wire the envelope is compact JSON (no spaces) with `v` first. `sig` and
+`css` are left out when absent.
 
 ## Templates
 
@@ -81,17 +85,20 @@ templates/
     └── card.html       # any other file can be rendered as a fragment
 ```
 
-- Placeholders are `{{name}}` (whitespace inside the braces is trimmed). An unclosed or empty placeholder is a load error.
+- Placeholders are `{{name}}` and `{{{name}}}` (raw). Whitespace inside the braces is trimmed. An unclosed or empty placeholder is a load error.
 - Every template is loaded and parsed once, when `Setup` runs. Rendering only joins the parsed chunks with the parameter values.
-- A missing parameter renders as an empty string.
-- Values are **not HTML-escaped**. Escape anything that comes from users before binding it.
-- Fragments are addressed by their path under the root (`feed/card.html`) and a target `slot` name.
+- A missing parameter renders as an empty string. Booleans render as `true` / `false`, and lists, arrays, dicts and objects render as compact JSON.
+- By default values are **not HTML-escaped**. Escape anything that comes from users with `escape_html` (TS `escapeHtml`) before binding it, or turn on the `escape` setup option so `{{name}}` is escaped and only `{{{name}}}` is raw.
+- Fragments are addressed by their path under the root (`feed/card.html`) and a target `slot` name. The optional `fragments` setup option limits which templates can be rendered as fragments.
+- Template names are relative `/`-separated paths. Lookups only use the in-memory cache, so request input never reaches the filesystem.
 
-The envelope (`slot`, `ts`, `html`, `sig`, `css`) and its signature are identical
-across engines. Page rendering differs slightly: the Python engine wraps the page
-in `<page-<route>>` with an open shadow root and requires `layout/shell.html`;
-the Rust and TypeScript engines insert the page markup as is and fall back to a
-minimal `<dock-main>` document when there is no shell. See each engine page.
+The envelope (`v`, `slot`, `ts`, `html`, `sig`, `css`), its signature and page
+rendering are identical across engines. A route resolves only under `pages/`
+(`/` is `pages/home.html`, `/about` is `pages/about.html`), falls back to
+`pages/index.html` when it exists, and is otherwise a `NOT_FOUND` error. The
+page markup goes into `layout/shell.html` as `{{content}}`, or into a minimal
+`<dock-main>` document when there is no shell. See the
+[Engine Contract](contract.md).
 
 ## File Map
 
@@ -102,3 +109,4 @@ minimal `<dock-main>` document when there is no shell. See each engine page.
 | [Python Engine](py.md) | Python engine setup, FastAPI, Flask, and dataclass binding |
 | [Cryptographic Verification](crypto.md) | Cryptographic signing, Ed25519, and tamper verification |
 | [Real-Time Streaming](streaming.md) | Real-time SSE streaming, WebSockets, and client adoption |
+| [Engine Contract](contract.md) | The behaviour all three engines share: wire format v2, signatures, pages, values and errors |

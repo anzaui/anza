@@ -26,5 +26,5 @@ server.listen(3000, () => {
 ## 2. What it uses
 
 - **Crypto**: `node:crypto` for SHA-256 digests, HMAC, Ed25519 and HKDF.
-- **Filesystem**: `node:fs/promises` reads templates at startup; `fs.watch` when `watch: true`.
+- **Filesystem**: `node:fs/promises` reads templates at startup; `fs.watch` when `watch: true` (50 ms debounce, serialized reloads).
 - No npm runtime dependencies.

@@ -42,18 +42,39 @@ const doc = await new Page('/article', {
 const response = htmlResponse(doc);
 ```
 
-`engine.renderPage` (`src/render/page.ts`) does this:
+`engine.renderPage` (`src/render/page.ts`) runs one pipeline, the same in the
+Rust and Python engines:
 
-1. Map the route to a template: `/` → `pages/home.html`, `/article` →
-   `pages/article.html`. If that is missing, try `article.html`, then
-   `pages/index.html`.
-2. Bind the page template with the params. If no page template exists, the
-   content is `<div class="content">Route: <route></div>` (the route is inserted
-   unescaped).
-3. If `layout/shell.html` exists, bind it with the params plus `content` and
-   `slot_main` set to the page HTML.
-4. Otherwise emit a minimal `<!DOCTYPE html>` document whose `<body>` holds a
-   `<dock-main>` with an open shadow root and the page content.
+1. Map the route to a template with `pageTemplate(route)`: `/` →
+   `pages/home.html`, `/article` and `/article/` → `pages/article.html`.
+2. If that template is not loaded, use `pages/index.html` as the catch-all
+   when it exists.
+3. Otherwise, or when the route is not a valid name (`..`, `\`, NUL), reject
+   with an `AnzaError` of code `NOT_FOUND` and the message `Page not found`.
+   The route is never echoed into the error or the HTML.
+4. Bind the page template with the params. If `layout/shell.html` exists, bind
+   it with the params plus `content` set to the page HTML (the engine's
+   `content` wins over a `content` param). Otherwise emit a minimal
+   `<!DOCTYPE html>` document whose `<body>` holds a `<dock-main>` with an
+   open shadow root and the page content.
 
-The route is used as is: there is no route-parameter matching (`/article/my-slug`
-looks for `pages/article/my-slug.html`).
+Routes only resolve under `pages/`: a route can't render a fragment, a layout
+or any other template. There is no route-parameter matching
+(`/article/my-slug` looks for `pages/article/my-slug.html`). Map an unknown
+route to a 404 yourself:
+
+```typescript
+import { AnzaError, Page, htmlResponse } from '@anzaui/engine';
+
+try {
+  return htmlResponse(await new Page(url.pathname).run(engine));
+} catch (err) {
+  if (err instanceof AnzaError && err.code === 'NOT_FOUND') {
+    return new Response('Not Found', { status: 404 });
+  }
+  throw err;
+}
+```
+
+With `escape: true`, write `{{{content}}}` in the shell so the page HTML is
+not escaped a second time.

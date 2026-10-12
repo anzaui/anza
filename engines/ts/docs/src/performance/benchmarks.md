@@ -20,6 +20,7 @@ const ms = performance.now() - start;
 console.log(`${((ms * 1e6) / runs).toFixed(0)} ns per render`);
 ```
 
-Compare plain objects, `Map`s and `[key, value]` arrays with your real templates;
-object parameters are expected to be the fastest because they are a direct
-property lookup.
+Compare plain objects, `Map`s and `[key, value]` arrays with your real templates,
+and `compile(chunks, { escape: true })` if you enable escaping; object
+parameters are expected to be the fastest because they are a direct property
+lookup.

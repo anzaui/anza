@@ -9,7 +9,7 @@ that pushes updates) is your web framework's.
             │  1. GET /feed/stream (SSE)                │
             ├──────────────────────────────────────────►│
             │  2. event: template                       │
-            │     data: {"slot":"feed","ts":…,"html":…} │
+            │     data: {"v":2,"slot":"feed","ts":…}    │
             │◄──────────────────────────────────────────┤
             │  3. event: template …                     │
             │◄──────────────────────────────────────────┤
@@ -20,7 +20,7 @@ that pushes updates) is your web framework's.
 Each SSE message is:
 
 1. **`event: template`**
-2. **`data: <Envelope JSON>`** with `slot`, `ts`, `html` and, when signed, `sig`
+2. **`data: <Envelope JSON>`**: compact JSON with `v` (always `2`), `slot`, `ts`, `html` and, when signed, `sig`
 3. a blank line (`\n\n`)
 
 A WebSocket message is the envelope JSON as a text frame.

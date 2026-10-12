@@ -17,7 +17,11 @@ import { compile, extract } from '@anzaui/engine';
 
 const render = compile(extract('<ui-card>{{title}}</ui-card>'));
 const html = render({ title: 'Rendered at the edge' }); // not escaped
+
+const safe = compile(extract('<ui-card>{{title}}</ui-card>'), { escape: true });
 ```
 
 Wrapping the result in an envelope and signing it then needs your own code
-(for example `crypto.subtle` HMAC over `${ts}:${slot}:${html}`).
+(for example `crypto.subtle` HMAC over the v2 message, built the same way as
+`signatureMessage`; see [Cryptographic Verification](../crypto/index.md)).
+`escapeHtml` and `stringify` are plain JavaScript too.

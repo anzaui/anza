@@ -43,8 +43,9 @@ let article = Article {
 let html = engine.get("feed/article.html")?.bind(&article)?;
 ```
 
-`Engine::get` clones the template out of the cache, and `bind` allocates the
-output buffer once (plus any growth if values are longer than the estimate).
+`Engine::get` returns an `Arc<Template>` (no copy of the template), and
+`bind` resolves each distinct placeholder name once and allocates the output
+buffer once.
 
 ## 3. Compared with the alternatives
 
@@ -53,8 +54,9 @@ output buffer once (plus any growth if values are longer than the estimate).
 | `impl Params for Struct` | None for borrowed fields |
 | `HashMap<String, String>` | Building the map (one `String` per key and value) |
 | `serde_json::Value` | Building the value tree |
-| `Data(&value)` / `Template::render` | Serializing the whole value once **per placeholder** |
+| `Data(&value)` / `Template::render` | Serializing the whole value to a `serde_json::Value` once per render |
 
 No benchmark numbers are published for these; measure in your own setup.
 
-Values are inserted without HTML escaping, whichever technique you use.
+Whichever technique you use, values are inserted without HTML escaping unless
+`Setup::escape` is on (then `{{name}}` is escaped and `{{{name}}}` is raw).

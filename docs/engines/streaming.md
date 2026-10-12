@@ -25,8 +25,17 @@ Cache-Control: no-cache
 Connection: keep-alive
 
 event: template
-data: {"slot":"feed","ts":1724771234,"html":"<ui-card>...</ui-card>","sig":"3a8f4c...","css":null}
+data: {"v":2,"slot":"feed","ts":1724771234,"html":"<ui-card>...</ui-card>","sig":"3a8f4c..."}
+
 ```
+
+Each frame is `event: template\ndata: <json>\n\n`, where `<json>` is the v2
+envelope as compact JSON: no spaces, keys in the order `v`, `slot`, `ts`,
+`html`, `sig`, `css`, non-ASCII characters left as UTF-8, and `sig` and `css`
+left out when absent. All three engines produce byte-identical frames (Rust
+`stream::sse::frame::encode`, TS `formatEvent` or `sseEvent`, Python
+`format_event`). A WebSocket packet is the same JSON alone. See the
+[Engine Contract](contract.md).
 
 ## Client Integration
 
@@ -51,8 +60,9 @@ source.addEventListener('template', (event) => {
 
 `EventSource` reconnects on its own. Only inject HTML from a stream you
 trust: `sanitize()` from `@anzaui/anza/security` strips custom elements, so it
-is meant for user content, not for engine fragments. Verify `sig` with the
-engine's `verify` helper on any server or edge hop that relays the stream (see
+is meant for user content, not for engine fragments. Verify each envelope
+with `verify_envelope` on any server or edge hop that relays the stream. It
+checks the version (`v: 2`), the age, the slot and the signature (see
 [Cryptographic Verification](crypto.md)).
 
 ### 2. `api.stream()` (NDJSON)

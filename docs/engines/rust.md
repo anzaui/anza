@@ -14,14 +14,14 @@ at startup; a render walks the pre-split chunks and copies parameter values in.
 - **Parse once** — every template under the root is read and split into static chunks and `{{slot}}` placeholders by `Setup::run()`
 - **Framework adapters** — `IntoResponse` (Axum) and `Responder` (Actix-web) for `Document` and `Envelope`, plus SSE helpers
 - **Serde binding** — render any `Serialize` value with `Template::render`, or wrap it in `Data(...)`
-- **Signing** — HMAC-SHA256 or Ed25519 signatures over `ts:slot:html`
-- **Watch** — with the `watch` feature and `Setup { watch: true, .. }`, edited, added and removed `.html` templates are reloaded into the cache
+- **Signing** — HMAC-SHA256 or Ed25519 signatures over the v2 message (see [Engine Contract](contract.md)), and `verify_envelope` to check received envelopes
+- **Watch** — with the `watch` feature and `setup.watch = true`, edited, added and removed `.html` templates are reloaded into the cache
 
 ## Installation
 
 ```toml
 [dependencies]
-anza = { version = "0.5", features = ["axum"] }
+anza = { version = "0.6", features = ["axum"] }
 tokio = { version = "1", features = ["full"] }
 ```
 
@@ -94,17 +94,39 @@ let profile = UserProfile { user_id: "usr_9482".into(), user_name: "Alice".into(
 let html = engine.get("partials/profile.html")?.render(&profile)?;
 ```
 
+`engine.get(name)` returns `Result<Arc<Template>>`, a shared handle to the
+cached template. Lookups only use the cache: a malformed name (leading `/`,
+`\`, NUL, or an empty, `.` or `..` segment) is a `Validation` error, and an
+unknown one is `NotFound`. `Template::render` converts the value to JSON once
+per render.
+
 `Template::bind` accepts anything that implements `Params`: `HashMap<String, String>`,
 arrays of `(&str, &str)` pairs, `serde_json::Value`, or `Data(value)` for any
 `Serialize` type.
 
-Values are inserted **as is, without HTML escaping**. Escape user input before
-passing it in.
+By default, `{{name}}` and `{{{name}}}` both insert values **as is, without
+HTML escaping**. Escape user input with `anza::escape_html` before passing it
+in, or set `setup.escape = true`: then `{{name}}` is HTML-escaped (`&` `<` `>`
+`"` `'`) and `{{{name}}}` stays raw. With escaping on, the shell must use
+`{{{content}}}` so the page HTML isn't escaped.
+
+Values are stringified the same way in every engine: booleans as
+`true`/`false`, integral floats without `.0`, `null` as nothing, arrays and
+objects as compact JSON.
 
 ## Signing Configuration
 
-`Setup` has public fields (`root`, `signing`, `watch`). Two helpers build the
-signing mode:
+`Setup::new(root)` returns the defaults; set its public fields before `run()`:
+
+| Field | Meaning | Default |
+|-------|---------|---------|
+| `signing` | `SignMode::Hmac`, `SignMode::Ed25519` or `SignMode::None` | `None` |
+| `watch` | Reload templates on change (feature `watch`) | `false` |
+| `fragments` | Allowlist for fragments: exact names, or prefixes ending in `/` (`"fragments/"`). Other templates are reported as not found | empty (all templates) |
+| `escape` | HTML-escape `{{name}}` values | `false` |
+| `max_template_bytes` | Larger template files are a `Template` error | 1 MiB |
+
+Two helpers build the signing mode:
 
 ```rust
 use anza::{Setup, SignMode};
@@ -113,22 +135,68 @@ use anza::{Setup, SignMode};
 let mut setup = Setup::new("./templates");
 setup.signing = Setup::hmac(b"pre-shared-secret-key-32-bytes!!");
 
-// Ed25519: the files hold the raw 32-byte private key and public key
-setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub");
+// Ed25519: the files hold the raw 32-byte private seed and public key.
+// A missing or unreadable file is an error.
+setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub")?;
 
 // No signature (development)
 setup.signing = SignMode::None;
+
+let engine = setup.run()?;
 ```
 
-The signature is hex-encoded; see [Cryptographic Verification](crypto.md).
+Keys are validated once, in `run()`. An HMAC secret shorter than 32 bytes, an
+Ed25519 private key that is not a 32-byte seed, or a public key that doesn't
+match the seed is a `Crypto` error at setup, never an unsigned envelope.
+`engine.signer()` returns the validated key; its `Debug` output never shows
+key material.
+
+The signature is lowercase hex over the v2 message
+(`anza::crypto::envelope::message(ts, slot, html, css)`, also
+`envelope.message()`); see [Cryptographic Verification](crypto.md).
+
+### Verifying Envelopes
+
+`anza::verify_envelope` checks a received envelope: version, signature format,
+freshness, slot, then the signature (constant time). Every failure is a
+`Crypto` error naming the check (`envelope expired`, `slot mismatch`,
+`bad signature`, ...).
+
+```rust
+use anza::{verify_envelope, Envelope, VerifyKey, VerifyOptions};
+
+let envelope: Envelope = serde_json::from_str(&body)?;
+// Accept envelopes for slot "feed" that are at most 60 seconds old.
+let options = VerifyOptions::new("feed", 60);
+verify_envelope(VerifyKey::Hmac(&secret), &envelope, &options)?;
+// or with an Ed25519 public key: VerifyKey::Ed25519(&public_key)
+
+// With the engine's own key:
+engine.verify_envelope(&envelope, &options)?;
+```
+
+`VerifyOptions` also has `skew_secs` (future timestamps allowed, default 5)
+and `now` (`Option<u64>`, defaults to the system clock).
 
 ## Page Rendering
 
-`Page::new(route)` maps the route to a template: `/` → `pages/home.html`,
-`/about` → `pages/about.html`, then falls back to `about.html` and
-`pages/index.html`. The page is bound with the params, then inserted into
-`layout/shell.html` as `{{content}}` (also `{{slot_main}}`). Without a shell,
-a minimal document with a `<dock-main>` is emitted.
+`Page::new(route)` maps the route to a template under `pages/`: `/` →
+`pages/home.html`, `/about` → `pages/about.html`, `/a/b` → `pages/a/b.html`.
+When that template is missing, `pages/index.html` is the catch-all. Otherwise,
+or when the route is malformed (`..`, `\`, NUL), the result is a `NotFound`
+error, `Page not found`; the route is never echoed. Routes never resolve
+outside `pages/`.
+
+The page is bound with the params, then inserted into `layout/shell.html` as
+`{{content}}`. Without a shell, a minimal document with a `<dock-main>` is
+emitted.
+
+## Errors
+
+`anza::Error` has five variants, with the same codes as the other engines:
+`Validation`, `NotFound`, `Template`, `Crypto`, `Internal`. `Error::code()`
+returns `VALIDATION`, `NOT_FOUND`, and so on, and errors display as
+`[Anza:CODE] message`.
 
 ## Streaming
 
@@ -144,9 +212,9 @@ returns an `axum::response::sse::Event`. See [Real-Time Streaming](streaming.md)
 | `data::r#in` | `Setup` (config) and the `Page`, `Fragment`, `Stream` operations |
 | `engine::slot` | `{{slot}}` parser (`extract`) and binder (`Params`, `Data`) |
 | `engine::file` | Template loading (`load::all`, `Template`), reading, watching |
-| `engine::cache` | `Engine`, `SignMode`, the template store |
+| `engine::cache` | `Engine`, `SignMode`, the template store (`Arc<Template>` entries) |
 | `render` | Page and fragment rendering |
-| `crypto` | `hmac`, `ed25519` (sign / verify), `hkdf`, `blake` digests |
+| `crypto` | `envelope` (v2 message, `verify`), `signer`, `hmac`, `ed25519`, `hkdf`, `hex`, `digest` (SHA-256 manifest digests) |
 | `stream` | SSE and WebSocket encoders |
 | `adapters` | Axum and Actix-web integration (feature-gated) |
 | `models` | `Document`, `Envelope`, `Manifest` |

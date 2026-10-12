@@ -16,8 +16,9 @@ export class Template {
     public raw: string,    // file contents
     public digest: string, // hex SHA-256 of the contents
     public chunks: Chunk[],
+    options: LoadOptions = {}, // { escape?, maxBytes? }
   ) {
-    this.renderer = compile(chunks);
+    this.renderer = compile(chunks, { escape: options.escape });
   }
 
   bind(params?: Params): string;
@@ -32,18 +33,22 @@ export class Template {
 ```typescript
 class CacheStore {
   constructor(public templates: Map<string, Template> = new Map()) {}
-  get(name: string): Template; // throws AnzaError NOT_FOUND
+  get(name: string): Template; // VALIDATION for a malformed name, NOT_FOUND if missing
   insert(name: string, template: Template): void;
   remove(name: string): boolean;
   has(name: string): boolean;
 }
 
 class Engine {
+  readonly signer: Signer;               // validated key, never printed
+  readonly fragments: readonly string[]; // fragment allowlist
+
   constructor(
     public root: string,
     public cache: CacheStore,
-    public signing: SignOptions = { mode: 'none' },
+    signing: SignOptions | Signer = { mode: 'none' },
     public watcher?: FileWatcher,
+    options: EngineOptions = {},          // { fragments? }
   ) {}
 }
 ```
@@ -53,8 +58,9 @@ class Engine {
 
 ### Lookup
 
-`engine.get(name)` is a `Map.get`; it throws an `AnzaError` with code
-`NOT_FOUND` if the template does not exist:
+`engine.get(name)` is a `Map.get`; it never reads the filesystem. It throws an
+`AnzaError` with code `VALIDATION` for a malformed name and `NOT_FOUND` if the
+template does not exist:
 
 ```typescript
 const tpl = engine.get('feed/card.html');
@@ -73,4 +79,5 @@ for (const [name, digest] of Object.entries(manifest.templates)) {
 }
 ```
 
-The Rust engine uses BLAKE3 for its manifest, so digests differ between engines.
+The Rust and Python engines also use SHA-256 in lowercase hex, so manifests
+match across engines for the same files.

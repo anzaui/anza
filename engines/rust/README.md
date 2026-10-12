@@ -10,7 +10,7 @@ A server-side template and dynamic fragment rendering library for Rust web appli
 
 1. **Full-Page Rendering**: Renders complete HTML documents configured with `<template shadowrootmode="open">` Declarative Shadow DOM shells.
 2. **Dynamic Fragment Envelopes**: Renders targeted HTML partials inside JSON `Envelope` payloads for partial UI updates.
-3. **Payload Verification**: Signs dynamic payloads using HMAC-SHA256 or Ed25519 so clients can verify partial updates.
+3. **Payload Verification**: Signs dynamic payloads using HMAC-SHA256 or Ed25519, and checks received envelopes with `anza::verify_envelope` (version, freshness, slot, signature).
 4. **Streaming**: Helpers for Server-Sent Events (SSE) and WebSocket message formats.
 
 ## Installation
@@ -46,8 +46,15 @@ setup.signing = Setup::hmac(b"your-secret-key-at-least-32-bytes");
 let engine = Arc::new(setup.run().expect("Failed to load templates"));
 ```
 
-`Setup::ed25519(private_key_file, public_key_file, false)` signs with Ed25519
-(raw 32-byte key files) instead; the default is no signature.
+`setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub")?;` signs
+with Ed25519 instead (raw 32-byte key files; a missing file is an error). The
+default is no signature. Keys are checked in `run()`: an HMAC secret shorter
+than 32 bytes, a private key that is not a 32-byte seed, or a public key that
+doesn't match is a `CRYPTO` error at setup.
+
+Other `Setup` fields: `watch` (reload on change, feature `watch`), `fragments`
+(allowlist of template names and `dir/` prefixes for fragments), `escape`
+(HTML-escape `{{x}}` values) and `max_template_bytes` (default 1 MiB).
 
 ### 2. Render Full Pages
 
@@ -73,7 +80,7 @@ let envelope = Fragment::new("card.html", "feed")
     .run(&engine)
     .expect("Failed to render fragment");
 
-// {"slot":"feed","ts":...,"html":"...","sig":"..."}
+// {"v":2,"slot":"feed","ts":...,"html":"...","sig":"..."}
 let json = serde_json::to_string(&envelope).unwrap();
 ```
 
@@ -110,8 +117,11 @@ async fn main() {
 
 ## Templates
 
-Templates use `{{name}}` placeholders and are parsed once at startup. Values
-are inserted without HTML escaping, so escape user input first. Template layout,
+Templates use `{{name}}` and `{{{name}}}` placeholders and are parsed once at
+startup. By default both insert values as-is, so escape user input first with
+`anza::escape_html`. With `setup.escape = true`, `{{name}}` is HTML-escaped and
+`{{{name}}}` stays raw (use `{{{content}}}` in the shell). Errors display as
+`[Anza:CODE] message`; `Error::code()` returns the code. Template layout,
 rendering rules and signing: [docs/engines](https://github.com/anzaui/anza/tree/main/docs/engines)
 ([Rust guide](https://github.com/anzaui/anza/blob/main/docs/engines/rust.md)).
 

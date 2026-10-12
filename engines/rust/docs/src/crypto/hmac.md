@@ -16,32 +16,45 @@ pub fn check(secret: &[u8], data: &[u8], signature_hex: &str) -> bool;
 ```
 
 ```rust
-use anza::crypto::hmac::{sign, verify};
+use anza::crypto::{envelope, hmac::{sign, verify}};
 
 let secret = b"my-secure-cluster-shared-secret-32b";
-let message = b"1724771200:feed:<ui-alert>OK</ui-alert>";
+let message = envelope::message(1_724_771_200, "feed", "<ui-alert>OK</ui-alert>", None);
 
-let sig = sign::payload(secret, message)?;
-assert!(verify::check(secret, message, &sig));
+let sig = sign::payload(secret, &message)?;
+assert!(verify::check(secret, &message, &sig));
 ```
+
+When signing through the engine, `Setup::run()` rejects a secret shorter than
+32 bytes with an `Error::Crypto`.
 
 ## 2. Constant-time comparison
 
 `check` recomputes the MAC and compares it with `Mac::verify_slice` from the
 `hmac` crate, which compares in constant time. It returns `false` for invalid
-hex or a wrong signature.
+hex (including uppercase or odd-length hex) or a wrong signature.
 
 ## 3. Tampering
 
 Any change to the timestamp, slot or HTML makes verification fail:
 
 ```rust
-let tampered = b"1724771200:feed:<ui-alert>Corrupted</ui-alert>";
-assert!(!verify::check(secret, tampered, &sig));
+let tampered = envelope::message(1_724_771_200, "feed", "<ui-alert>Corrupted</ui-alert>", None);
+assert!(!verify::check(secret, &tampered, &sig));
 
-let other_time = b"1724779999:feed:<ui-alert>OK</ui-alert>";
-assert!(!verify::check(secret, other_time, &sig));
+let other_time = envelope::message(1_724_779_999, "feed", "<ui-alert>OK</ui-alert>", None);
+assert!(!verify::check(secret, &other_time, &sig));
 ```
 
-Replaying an old, unchanged envelope still verifies; reject old `ts` values
-yourself.
+`check` alone accepts a replayed old envelope, or one replayed into another
+slot. `anza::verify_envelope` also checks the version, the age and the slot:
+
+```rust
+use anza::{verify_envelope, VerifyKey, VerifyOptions};
+
+verify_envelope(VerifyKey::Hmac(secret), &received, &VerifyOptions::new("feed", 60))?;
+```
+
+It fails with `Error::Crypto` (`envelope expired`, `slot mismatch`,
+`bad signature`, ...); a secret shorter than 32 bytes is
+`invalid verification key`.

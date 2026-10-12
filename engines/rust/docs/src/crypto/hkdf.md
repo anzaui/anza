@@ -24,8 +24,8 @@ let salt = b"anza-cluster-salt-2026";
 
 let user_key: [u8; 32] = derive::key(session_token, Some(salt), b"user-live-feed")?;
 
-let envelope_message = b"1724771200:feed:<ui-card>Hi</ui-card>";
-let sig = sign::payload(&user_key, envelope_message)?;
+let envelope_message = anza::crypto::envelope::message(1_724_771_200, "feed", "<ui-card>Hi</ui-card>", None);
+let sig = sign::payload(&user_key, &envelope_message)?;
 ```
 
 ## 2. Properties

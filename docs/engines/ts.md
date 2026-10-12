@@ -15,9 +15,9 @@ the standard `Response` class.
 
 - **Parse once** — `new Setup(...).run()` loads every template under the root and compiles it into a render function
 - **Framework adapters** — `htmlResponse` / `jsonResponse` / `sseEvent` for Fetch-style handlers, plus helpers for Hono, Express and Fastify under `adapters`
-- **Signing** — HMAC-SHA256 or Ed25519 signatures over `ts:slot:html`
+- **Signing** — HMAC-SHA256 or Ed25519 signatures over the length-prefixed v2 message, checked with `verifyEnvelope`
 - **Live SSE streaming** — `sseEvent()` / `formatEvent()` turn an envelope into a `template` event
-- **Live reload** — `watch: true` reloads templates when files change
+- **Live reload** — `watch: true` reloads templates when files change (50 ms debounce, serialized reloads)
 
 ## Installation
 
@@ -37,7 +37,7 @@ const engine = await new Setup({
   root: './templates',
   signing: {
     mode: 'hmac',
-    secret: 'super-secret-key-32-chars-long!!',
+    secret: process.env.ANZA_SECRET!, // at least 32 bytes
   },
 }).run();
 
@@ -135,23 +135,54 @@ await app.listen({ port: 3000 });
 ## Parameters
 
 Params can be a plain object, a `Map`, or an array of `[key, value]` pairs.
-Values are inserted **as is, without HTML escaping**: escape user input before
-passing it in.
+Only own properties of an object are read (`Object.hasOwn`), so `{{toString}}`
+renders nothing. Strings are inserted as-is, booleans as `true`/`false`,
+`null`/`undefined` as nothing, and plain objects and arrays as compact JSON.
+
+`{{name}}` inserts a value and `{{{name}}}` inserts it raw. By default both
+insert the value **without HTML escaping**: escape user input with
+`escapeHtml` before passing it in. With `escape: true` in `Setup`, `{{name}}`
+is HTML-escaped and `{{{name}}}` stays raw (use `{{{content}}}` in the shell).
+
+Other setup options: `fragments` (an allowlist of exact names and `dir/`
+prefixes that `renderFragment` may use; others are `NOT_FOUND`) and
+`maxTemplateBytes` (default 1 MiB; a larger file is a `TEMPLATE` error).
 
 ## Signing
 
 ```typescript
-await new Setup({ root: './templates', signing: { mode: 'hmac', secret: process.env.STUI_SECRET! } }).run();
+await new Setup({ root: './templates', signing: { mode: 'hmac', secret: process.env.ANZA_SECRET! } }).run();
 await new Setup({ root: './templates', signing: { mode: 'ed25519', privateKey: seed32Bytes } }).run();
 ```
 
-`privateKey` is a raw 32-byte seed, a PEM/DER key, or a `KeyObject`. When the
-key is missing, envelopes are sent without `sig`. See [Cryptographic Verification](crypto.md).
+The HMAC `secret` must be at least 32 bytes. `privateKey` is a 32-byte seed,
+a 64-char lowercase hex seed, a PEM string or a `KeyObject`; an optional
+`publicKey` must match it. A missing or bad key throws an `AnzaError` with
+code `CRYPTO` from `Setup.run()`; the engine never sends unsigned envelopes
+by accident. The validated key is `engine.signer` (it never prints key
+material).
+
+Envelopes are `{"v":2,"slot","ts","html","sig"?,"css"?}`. The signature covers
+the v2 message from `signatureMessage(ts, slot, html, css)` (also
+`envelope.message()`). To check a received envelope:
+
+```typescript
+import { verifyEnvelope } from '@anzaui/engine';
+
+verifyEnvelope({ mode: 'ed25519', publicKey }, envelope, { maxAgeSecs: 60, slot: 'feed' });
+engine.verifyEnvelope(envelope, { maxAgeSecs: 60, slot: 'feed' }); // with the engine's own key
+```
+
+Both throw an `AnzaError` with code `CRYPTO` naming the failed check (version,
+signature format, freshness, slot, signature). See
+[Cryptographic Verification](crypto.md) and the [Engine Contract](contract.md).
 
 ## Page Rendering
 
 `Page(route)` maps the route to a template: `/` → `pages/home.html`, `/about` →
-`pages/about.html`, then falls back to `about.html` and `pages/index.html`. The
-page is bound with the params and inserted into `layout/shell.html` as
-`{{content}}` (also `{{slot_main}}`). Without a shell, a minimal document with
-a `<dock-main>` is emitted.
+`pages/about.html`. When that template is missing, `pages/index.html` is the
+catch-all. Otherwise, or for a malformed route (`..`, `\`, NUL), it rejects
+with an `AnzaError` of code `NOT_FOUND` and the message `Page not found`.
+Routes only resolve under `pages/`. The page is bound with the params and
+inserted into `layout/shell.html` as `{{content}}`. Without a shell, a minimal
+document with a `<dock-main>` is emitted.

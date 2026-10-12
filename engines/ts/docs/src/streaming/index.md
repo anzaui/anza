@@ -9,7 +9,7 @@ that pushes updates) is your server's.
             │  1. GET /feed/stream (SSE)                │
             ├──────────────────────────────────────────►│
             │  2. event: template                       │
-            │     data: {"slot":"feed","ts":…,"html":…} │
+            │     data: {"v":2,"slot":"feed","ts":…}    │
             │◄──────────────────────────────────────────┤
             │  3. event: template …                     │
             │◄──────────────────────────────────────────┤
@@ -20,7 +20,7 @@ that pushes updates) is your server's.
 Each SSE message is:
 
 1. **`event: template`**
-2. **`data: <Envelope JSON>`** with `slot`, `ts`, `html` and, when signed, `sig`
+2. **`data: <Envelope JSON>`**: compact JSON with `v` (always `2`) first, then `slot`, `ts`, `html` and, when signed, `sig`
 3. a blank line (`\n\n`)
 
 A WebSocket message is the envelope JSON as a text frame.
@@ -33,3 +33,5 @@ A WebSocket message is the envelope JSON as a text frame.
 
 The browser library has no built-in listener for these events. Use
 `EventSource` / `WebSocket` and apply `envelope.html` to the target yourself.
+A server or edge that relays envelopes can check them with `verifyEnvelope`
+(see [Cryptographic Verification](../crypto/index.md)).

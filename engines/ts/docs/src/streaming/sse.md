@@ -11,7 +11,7 @@ import { Envelope, sseEvent } from '@anzaui/engine';
 const envelope = new Envelope('feed', 1724771200, '<article>Live Post</article>');
 
 const frame = sseEvent(envelope);
-// 'event: template\ndata: {"slot":"feed","ts":1724771200,"html":"<article>Live Post</article>"}\n\n'
+// 'event: template\ndata: {"v":2,"slot":"feed","ts":1724771200,"html":"<article>Live Post</article>"}\n\n'
 ```
 
 ## 2. Node.js HTTP streaming
