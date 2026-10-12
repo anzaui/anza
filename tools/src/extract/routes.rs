@@ -25,7 +25,10 @@ struct CastEntry {
 /// SEO metadata written into each route record for SSG HTML head composition.
 #[derive(serde::Serialize, Clone)]
 struct SeoRecord {
-  title: String,
+  /// Declared title only (`seo.title` / `meta.title`). SSG derives the rest
+  /// from the page H1, so a URL-derived name never shadows it.
+  #[serde(skip_serializing_if = "Option::is_none")]
+  title: Option<String>,
   description: String,
   #[serde(skip_serializing_if = "Option::is_none")]
   canonical: Option<String>,
@@ -115,47 +118,12 @@ fn is_ssg_route(path: &str, params: &[String]) -> bool {
   true
 }
 
-fn humanize_segment(raw: &str) -> String {
-  let trimmed = raw
-    .trim_start_matches("page-")
-    .trim_start_matches("doc-");
-  trimmed
-    .split(|c| c == '-' || c == '_')
-    .filter(|p| !p.is_empty())
-    .map(|p| {
-      let mut chars = p.chars();
-      match chars.next() {
-        None => String::new(),
-        Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
-      }
-    })
-    .collect::<Vec<_>>()
-    .join(" ")
-}
-
-fn derive_title(tag: &str, path: &str) -> String {
-  let segment = path.trim_matches('/').rsplit('/').next().unwrap_or("");
-  if !segment.is_empty() {
-    let title = humanize_segment(segment);
-    if !title.is_empty() {
-      return title;
-    }
-  }
-  let from_tag = humanize_segment(tag);
-  if from_tag.is_empty() {
-    path.to_string()
-  } else {
-    from_tag
-  }
-}
-
-fn resolve_seo(spec: &ExtractedSpec, path: &str) -> SeoRecord {
+fn resolve_seo(spec: &ExtractedSpec) -> SeoRecord {
   let title = spec
     .seo
     .as_ref()
     .and_then(|s| s.title.clone())
-    .or_else(|| spec.meta.get("title").cloned())
-    .unwrap_or_else(|| derive_title(&spec.tag, path));
+    .or_else(|| spec.meta.get("title").cloned());
 
   let description = spec
     .seo
@@ -176,7 +144,7 @@ fn resolve_seo(spec: &ExtractedSpec, path: &str) -> SeoRecord {
 
 fn interpolate_seo(seo: SeoRecord, values: &BTreeMap<String, String>) -> SeoRecord {
   SeoRecord {
-    title: interpolate_str(&seo.title, values),
+    title: seo.title.map(|t| interpolate_str(&t, values)),
     description: interpolate_str(&seo.description, values),
     canonical: seo.canonical.map(|c| interpolate_str(&c, values)),
     image: seo.image.map(|i| interpolate_str(&i, values)),
@@ -523,7 +491,7 @@ pub fn emit(
       let params = extract_params(url);
       let public = is_public_route(url);
       let ssg = is_ssg_route(url, &params);
-      let seo = resolve_seo(spec, url);
+      let seo = resolve_seo(spec);
 
       let mut layouts = Vec::new();
       let mut templates = Vec::new();
@@ -638,7 +606,7 @@ pub fn emit(
           errors.push(err);
           continue;
         }
-        let expanded_seo = interpolate_seo(resolve_seo(spec, &concrete), &values);
+        let expanded_seo = interpolate_seo(resolve_seo(spec), &values);
         let expanded_seo = SeoRecord {
           canonical: expanded_seo.canonical.or_else(|| Some(concrete.clone())),
           ..expanded_seo
@@ -955,13 +923,13 @@ mod tests {
     let mut values = BTreeMap::new();
     values.insert("slug".into(), "foo".into());
     let seo = SeoRecord {
-      title: "T {{slug}}".into(),
+      title: Some("T {{slug}}".into()),
       description: "D {{slug}}".into(),
       canonical: Some("/p/{{slug}}".into()),
       image: None,
     };
     let out = interpolate_seo(seo, &values);
-    assert_eq!(out.title, "T foo");
+    assert_eq!(out.title.as_deref(), Some("T foo"));
     assert_eq!(out.description, "D foo");
     assert_eq!(out.canonical.as_deref(), Some("/p/foo"));
   }

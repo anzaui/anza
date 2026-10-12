@@ -32,11 +32,11 @@ Import map `imports` values follow the same rule (site-root paths only).
 Emit in this order (charset/viewport first; import map before any `type="module"` entry):
 
 1. **Charset + viewport** — `<meta charset="utf-8">`, viewport meta.
-2. **`<title>`** — unique per route (SEO title, else H1 text, else path-derived).
-3. **Meta description** — unique per route.
+2. **`<title>`** — unique per route: `seo.title`, else `"{H1} — {Section} — {siteName}"` (path-derived name when there is no H1).
+3. **Meta description** — unique per route: `seo.description`, else the first paragraph cut at a word boundary (155 characters), with the section name added to short or repeated ones.
 4. **Canonical** — `link rel="canonical"` (path or absolute URL when origin is set).
-5. **Optional social** — `og:title`, `og:description`, `og:url`, `twitter:card`.
-6. **JSON-LD** (Mode A default) — light-DOM `WebSite` + `WebPage` via `ssg.json` `jsonLd` (does not touch DSD).
+5. **Social** — `og:type` (`article` under `/docs/`, else `website`), `og:site_name`, `og:title`, `og:description`, `og:url`, `og:image` (+ `og:image:alt`) when an image is set, `twitter:card` (`summary_large_image` with an image), `twitter:title`, `twitter:description`, `twitter:image`.
+6. **JSON-LD** (Mode A default) — light-DOM `@graph` linked by `@id`: `WebSite`, `WebPage`, `BreadcrumbList` and, for `/docs/*`, `TechArticle` (`headline`, `dateModified`), via `ssg.json` `jsonLd` (does not touch DSD).
 7. **Import map** — inline `<script type="importmap">…</script>` preferred; else `src="/importmap.json"`. Must appear **before** module scripts.
 8. **Critical CSS** — at least:
    - `<link rel="stylesheet" href="/tokens/index.css" />`
@@ -156,16 +156,18 @@ Optional project file `ssg.json` next to `src/` (or inside `src/`):
   "siteName": "Anza",
   "jsonLd": true,
   "sitemap": true,
-  "robots": true
+  "robots": true,
+  "image": "/og.png"
 }
 ```
 
 | Field | Effect |
 | ------ | -------- |
 | `origin` | Absolute site origin (no trailing slash). When set, canonical / `og:url` / sitemap `<loc>` / robots `Sitemap:` become absolute. Override with env `ANZA_SITE_ORIGIN`. Without origin, path-relative URLs are used (fine for local/static preview). |
-| `siteName` | JSON-LD `WebSite.name` (default `Anza`) |
-| `jsonLd` | Emit light-DOM `<script type="application/ld+json">` with `WebSite` + `WebPage` (default `true`) — does not touch DSD |
-| `sitemap` / `robots` | Write `dist/sitemap.xml` and `dist/robots.txt` for Mode A SSG routes (default `true`) |
+| `siteName` | `og:site_name`, title suffix and JSON-LD `WebSite.name` (default `Anza`) |
+| `jsonLd` | Emit light-DOM `<script type="application/ld+json">` with the `@graph` above (default `true`) — does not touch DSD |
+| `sitemap` / `robots` | Write `dist/sitemap.xml` (each `<url>` with `<lastmod>`: last git commit of the page sources, else file mtime) and `dist/robots.txt` for Mode A SSG routes (default `true`) |
+| `image` | Default social image for pages without `seo.image` (site-root path or absolute URL). A site-root file under `src/` is copied into `dist/` |
 
 ### Soft-nav fragments vs SSG documents
 

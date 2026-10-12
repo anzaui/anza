@@ -17,11 +17,11 @@
 <p>Emit in this order (charset/viewport first; import map before any <code>type="module"</code> entry):</p>
 <ol>
 <li><strong>Charset + viewport</strong> — <code>&lt;meta charset="utf-8"&gt;</code>, viewport meta.</li>
-<li><strong><code>&lt;title&gt;</code></strong> — unique per route (SEO title, else H1 text, else path-derived).</li>
-<li><strong>Meta description</strong> — unique per route.</li>
+<li><strong><code>&lt;title&gt;</code></strong> — unique per route: <code>seo.title</code>, else <code>"{H1} — {Section} — {siteName}"</code> (path-derived name when there is no H1).</li>
+<li><strong>Meta description</strong> — unique per route: <code>seo.description</code>, else the first paragraph cut at a word boundary (155 characters), with the section name added to short or repeated ones.</li>
 <li><strong>Canonical</strong> — <code>link rel="canonical"</code> (path or absolute URL when origin is set).</li>
-<li><strong>Optional social</strong> — <code>og:title</code>, <code>og:description</code>, <code>og:url</code>, <code>twitter:card</code>.</li>
-<li><strong>JSON-LD</strong> (Mode A default) — light-DOM <code>WebSite</code> + <code>WebPage</code> via <code>ssg.json</code> <code>jsonLd</code> (does not touch DSD).</li>
+<li><strong>Social</strong> — <code>og:type</code> (<code>article</code> under <code>/docs/</code>, else <code>website</code>), <code>og:site_name</code>, <code>og:title</code>, <code>og:description</code>, <code>og:url</code>, <code>og:image</code> (+ <code>og:image:alt</code>) when an image is set, <code>twitter:card</code> (<code>summary_large_image</code> with an image), <code>twitter:title</code>, <code>twitter:description</code>, <code>twitter:image</code>.</li>
+<li><strong>JSON-LD</strong> (Mode A default) — light-DOM <code>@graph</code> linked by <code>@id</code>: <code>WebSite</code>, <code>WebPage</code>, <code>BreadcrumbList</code> and, for <code>/docs/*</code>, <code>TechArticle</code> (<code>headline</code>, <code>dateModified</code>), via <code>ssg.json</code> <code>jsonLd</code> (does not touch DSD).</li>
 <li><strong>Import map</strong> — inline <code>&lt;script type="importmap"&gt;…&lt;/script&gt;</code> preferred; else <code>src="/importmap.json"</code>. Must appear <strong>before</strong> module scripts.</li>
 <li><strong>Critical CSS</strong> — at least:
 <ul>
@@ -114,14 +114,16 @@
   "siteName": "Anza",
   "jsonLd": true,
   "sitemap": true,
-  "robots": true
+  "robots": true,
+  "image": "/og.png"
 }
 </view-code>
 <div class="table-wrap"><table><thead><tr><th>Field</th><th>Effect</th></tr></thead><tbody>
 <tr><td><code>origin</code></td><td>Absolute site origin (no trailing slash). When set, canonical / <code>og:url</code> / sitemap <code>&lt;loc&gt;</code> / robots <code>Sitemap:</code> become absolute. Override with env <code>ANZA_SITE_ORIGIN</code>. Without origin, path-relative URLs are used (fine for local/static preview).</td></tr>
-<tr><td><code>siteName</code></td><td>JSON-LD <code>WebSite.name</code> (default <code>Anza</code>)</td></tr>
-<tr><td><code>jsonLd</code></td><td>Emit light-DOM <code>&lt;script type="application/ld+json"&gt;</code> with <code>WebSite</code> + <code>WebPage</code> (default <code>true</code>) — does not touch DSD</td></tr>
-<tr><td><code>sitemap</code> / <code>robots</code></td><td>Write <code>dist/sitemap.xml</code> and <code>dist/robots.txt</code> for Mode A SSG routes (default <code>true</code>)</td></tr>
+<tr><td><code>siteName</code></td><td><code>og:site_name</code>, title suffix and JSON-LD <code>WebSite.name</code> (default <code>Anza</code>)</td></tr>
+<tr><td><code>jsonLd</code></td><td>Emit light-DOM <code>&lt;script type="application/ld+json"&gt;</code> with the <code>@graph</code> above (default <code>true</code>) — does not touch DSD</td></tr>
+<tr><td><code>sitemap</code> / <code>robots</code></td><td>Write <code>dist/sitemap.xml</code> (each <code>&lt;url&gt;</code> with <code>&lt;lastmod&gt;</code>: last git commit of the page sources, else file mtime) and <code>dist/robots.txt</code> for Mode A SSG routes (default <code>true</code>)</td></tr>
+<tr><td><code>image</code></td><td>Default social image for pages without <code>seo.image</code> (site-root path or absolute URL). A site-root file under <code>src/</code> is copied into <code>dist/</code></td></tr>
 </tbody></table></div>
 <h3 id="soft-nav-fragments-vs-ssg-documents">Soft-nav fragments vs SSG documents</h3>
 <p>Hard refresh / full load serves the SSG (or Mode B) document above. Soft-nav must <strong>not</strong> fetch that full document as a page template — it would nest docks inside the leaf shadow (stacked chrome). When the page fragment path collides with <code>dist/&lt;route&gt;/index.html</code>, Mode A preserves the CSR fragment as <code>template.html</code> and rewrites the dist page module + <code>routes.json</code> to point at it. The client also refuses full HTML documents as page templates (<code>sanitizeTemplateHtml</code>).</p>

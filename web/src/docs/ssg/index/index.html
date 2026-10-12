@@ -53,14 +53,18 @@
   "siteName": "Anza",
   "jsonLd": true,
   "sitemap": true,
-  "robots": true
+  "robots": true,
+  "image": "/og.png"
 }
 </view-code>
 <div class="table-wrap"><table><thead><tr><th>Field</th><th>Effect</th></tr></thead><tbody>
 <tr><td><code>origin</code></td><td>Absolute canonical / <code>og:url</code> / sitemap <code>&lt;loc&gt;</code> (override: <code>ANZA_SITE_ORIGIN</code>)</td></tr>
-<tr><td><code>jsonLd</code></td><td>Light-DOM <code>WebSite</code> + <code>WebPage</code> JSON-LD (default on)</td></tr>
-<tr><td><code>sitemap</code> / <code>robots</code></td><td>Write <code>dist/sitemap.xml</code> and <code>dist/robots.txt</code></td></tr>
+<tr><td><code>siteName</code></td><td><code>og:site_name</code>, the title suffix and JSON-LD <code>WebSite.name</code> (default <code>Anza</code>)</td></tr>
+<tr><td><code>jsonLd</code></td><td>Light-DOM JSON-LD <code>@graph</code>: <code>WebSite</code>, <code>WebPage</code>, <code>BreadcrumbList</code>, and <code>TechArticle</code> for <code>/docs/*</code> pages (default on)</td></tr>
+<tr><td><code>sitemap</code> / <code>robots</code></td><td>Write <code>dist/sitemap.xml</code> (with <code>&lt;lastmod&gt;</code>) and <code>dist/robots.txt</code></td></tr>
+<tr><td><code>image</code></td><td>Default <code>og:image</code> / <code>twitter:image</code> for pages without <code>seo.image</code> (site-root path or URL, 1200×630). A site-root file in <code>src/</code> is copied to <code>dist/</code></td></tr>
 </tbody></table></div>
+<p>Each page's <code>&lt;title&gt;</code> is <code>seo.title</code> when the page declares one, else <code>"{H1} — {Section} — {siteName}"</code>, where the section is the H1 of the parent page (for pages two levels deep or more). The description is <code>seo.description</code>, else the first paragraph cut at a word boundary (155 characters); short or repeated ones get the section name in front, and the build warns about any description still shared by several pages. Sitemap <code>&lt;lastmod&gt;</code> is the last git commit date of the page's HTML, module and CSS, or the file modification time outside git.</p>
 <p>Without <code>origin</code>, path-relative URLs are fine for local preview; sitemap locs stay site-root paths.</p>
 <h2 id="soft-nav-coexistence-phase-4">Soft-nav coexistence (Phase 4)</h2>
 <p>Hard refresh serves the SSG (or Mode B) document. Soft-nav must <strong>not</strong> use that document as a page template — nested docks would stack inside the leaf shadow. Mode A preserves the CSR fragment as <code>template.html</code> when paths collide, and the client <code>sanitizeTemplateHtml</code> refuses full HTML documents. Nested hosts must be light-DOM children <strong>after</strong> each parent’s <code>&lt;template shadowrootmode="open"&gt;</code>.</p>

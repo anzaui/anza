@@ -24,6 +24,9 @@ struct SeoMeta {
   #[serde(default)]
   #[serde(rename = "og:description")]
   og_description: Option<String>,
+  /// Social preview image (site-root path or absolute URL).
+  #[serde(default)]
+  image: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize, Default)]
@@ -88,6 +91,10 @@ struct SsgSiteConfig {
   /// Emit `robots.txt` (default true).
   #[serde(default = "default_true")]
   robots: bool,
+  /// Default social preview image for pages without `seo.image`
+  /// (site-root path or absolute URL, ideally 1200×630).
+  #[serde(default)]
+  image: Option<String>,
 }
 
 fn default_true() -> bool {
@@ -179,6 +186,7 @@ pub fn emit_with(
   // step: workers only read this cache (never dist, never the disk), so shared
   // docks/CSS are read once instead of once per route.
   let (plans, sources) = plan_routes(src_dir, dist_dir, &eligible_routes, &docks);
+  let metas = page_metas(src_dir, &plans, &sources, &site);
   let styler = Styler {
     src_dir,
     sources: &sources,
@@ -191,15 +199,16 @@ pub fn emit_with(
   // Routes are emitted in parallel; each worker touches only its own files.
   // Shared routes.json edits are collected and applied once afterwards —
   // concurrent read-modify-write of that file corrupted it and failed routes.
-  type Emitted = (String, Option<String>, Vec<PathBuf>, super::headers::Hints);
+  type Emitted = (SitemapEntry, Option<String>, Vec<PathBuf>, super::headers::Hints);
   let results: Vec<Result<Emitted, (String, String)>> = plans
     .par_iter()
-    .map(|plan| {
+    .zip(metas.par_iter())
+    .map(|(plan, meta)| {
       let route = plan.route;
       let preload = route_modules(route, &plan.docks, graph);
-      match emit_route(src_dir, plan, &sources, &styler, &importmap, &site, &preload) {
+      match emit_route(src_dir, plan, meta, &sources, &styler, &importmap, &site, &preload) {
         Ok((preserved, written, sheets)) => Ok((
-          normalize_route_path(&route.path),
+          SitemapEntry { path: normalize_route_path(&route.path), lastmod: meta.lastmod.clone() },
           preserved.then(|| route.path.clone()),
           written,
           super::headers::Hints {
@@ -215,7 +224,7 @@ pub fn emit_with(
 
   let mut emitted = 0usize;
   let mut outputs: Vec<PathBuf> = Vec::new();
-  let mut ssg_paths: Vec<String> = Vec::with_capacity(results.len());
+  let mut ssg_paths: Vec<SitemapEntry> = Vec::with_capacity(results.len());
   let mut preserved_paths: Vec<String> = Vec::new();
   let mut route_hints: Vec<super::headers::Hints> = Vec::new();
   for res in results {
@@ -245,6 +254,15 @@ pub fn emit_with(
     anza_logs::success!("SSG emitted {} HTML page(s) into {}", emitted, dist_dir.display());
   } else {
     anza_logs::info!("SSG: no eligible routes to emit");
+  }
+
+  // Site-root files the SSG heads point at but no module imports.
+  for file in site.image.iter() {
+    match copy_site_file(src_dir, dist_dir, file) {
+      Ok(Some(rel)) => outputs.push(rel),
+      Ok(None) => {}
+      Err(err) => errors.push(format!("SSG: {}", err)),
+    }
   }
 
   if let Err(err) = emit_seo_extras(dist_dir, &site, &ssg_paths) {
@@ -611,6 +629,7 @@ impl Styler<'_> {
 fn emit_route(
   src_dir: &Path,
   plan: &RoutePlan,
+  meta: &PageMeta,
   sources: &Sources,
   styler: &Styler,
   importmap: &str,
@@ -624,22 +643,11 @@ fn emit_route(
   let raw_html = read_page_html(src_dir, sources, route)?;
   let page_html = interpolate_params(&raw_html, &route.ssg_params);
 
-  let h1_text = extract_h1_text(&page_html);
   let h1_inner = extract_h1_inner_html(&page_html);
-  let first_p = extract_first_p_text(&page_html);
 
   let seo = route.seo.clone().unwrap_or_default();
-  let title = non_empty(seo.title.clone().map(|t| interpolate_raw(&t, &route.ssg_params)))
-    .or_else(|| non_empty(h1_text.clone()))
-    .unwrap_or_else(|| title_from_path(&route.path));
-  let description = non_empty(
-    seo
-      .description
-      .clone()
-      .map(|d| interpolate_raw(&d, &route.ssg_params)),
-  )
-  .or_else(|| non_empty(first_p))
-  .unwrap_or_else(|| format!("{} — Anza documentation", title));
+  let title = meta.title.clone();
+  let description = meta.description.clone();
   let path_canonical = non_empty(
     seo
       .canonical
@@ -652,7 +660,6 @@ fn emit_route(
   let mut sheets: Vec<String> = Vec::new();
   let body = build_dsd_tree(src_dir, sources, styler, plan, &page_html, h1_inner.as_deref(), &mut sheets)?;
   let head_extra = build_head(
-    route,
     &sheets,
     preload,
     importmap,
@@ -660,6 +667,7 @@ fn emit_route(
     &description,
     &canonical,
     &seo,
+    meta,
     site,
     &styler.font_preloads,
   );
@@ -828,7 +836,6 @@ fn output_path(dist_dir: &Path, path: &str) -> PathBuf {
 }
 
 fn build_head(
-  route: &RouteInfo,
   shadow_sheets: &[String],
   preload: &[String],
   importmap: &str,
@@ -836,6 +843,7 @@ fn build_head(
   description: &str,
   canonical: &str,
   seo: &SeoMeta,
+  meta: &PageMeta,
   site: &SsgSiteConfig,
   fonts: &[String],
 ) -> String {
@@ -854,22 +862,40 @@ fn build_head(
 
   let og_title = seo.og_title.as_deref().unwrap_or(title);
   let og_desc = seo.og_description.as_deref().unwrap_or(description);
-  head.push_str(&format!(
-    "  <meta property=\"og:title\" content=\"{}\" />\n",
-    escape_attr(og_title)
-  ));
-  head.push_str(&format!(
-    "  <meta property=\"og:description\" content=\"{}\" />\n",
-    escape_attr(og_desc)
-  ));
-  head.push_str(&format!(
-    "  <meta property=\"og:url\" content=\"{}\" />\n",
-    escape_attr(canonical)
-  ));
-  head.push_str("  <meta name=\"twitter:card\" content=\"summary\" />\n");
+  let site_name = site_name(site);
+  let image = seo
+    .image
+    .as_deref()
+    .or(site.image.as_deref())
+    .filter(|i| !i.trim().is_empty())
+    .map(|i| absolutize(site.origin.as_deref(), &with_base_unless_absolute(site.base.as_deref(), i)));
+  let og_type = if meta.article { "article" } else { "website" };
+  let mut meta_tag = |attr: &str, key: &str, value: &str| {
+    head.push_str(&format!("  <meta {attr}=\"{key}\" content=\"{}\" />\n", escape_attr(value)));
+  };
+  meta_tag("property", "og:type", og_type);
+  meta_tag("property", "og:site_name", site_name);
+  meta_tag("property", "og:title", og_title);
+  meta_tag("property", "og:description", og_desc);
+  meta_tag("property", "og:url", canonical);
+  if let Some(ref image) = image {
+    meta_tag("property", "og:image", image);
+    meta_tag("property", "og:image:alt", og_title);
+  }
+  if meta.article {
+    if let Some(ref date) = meta.lastmod {
+      meta_tag("property", "article:modified_time", date);
+    }
+  }
+  meta_tag("name", "twitter:card", if image.is_some() { "summary_large_image" } else { "summary" });
+  meta_tag("name", "twitter:title", og_title);
+  meta_tag("name", "twitter:description", og_desc);
+  if let Some(ref image) = image {
+    meta_tag("name", "twitter:image", image);
+  }
 
   if site.json_ld {
-    head.push_str(&json_ld_script(site, title, description, canonical, &route.path));
+    head.push_str(&json_ld_script(site, title, description, canonical, meta, image.as_deref()));
   }
 
   // Favicon under deploy base so browsers do not request origin-root /favicon.ico.
@@ -934,6 +960,27 @@ fn build_head(
     escape_attr(&asset_href(base, ENTRY_MODULE))
   ));
   head
+}
+
+/// Copy a site-root file (`/og.png`) from src into dist unless the build
+/// already put it there. URLs, missing files and paths leaving src are
+/// skipped. Returns the dist-relative path when copied.
+fn copy_site_file(src_dir: &Path, dist_dir: &Path, url: &str) -> Result<Option<PathBuf>, String> {
+  let path = url.split(['?', '#']).next().unwrap_or("");
+  if !path.starts_with('/') || path.starts_with("//") {
+    return Ok(None);
+  }
+  let rel = PathBuf::from(path.trim_start_matches('/'));
+  if rel.as_os_str().is_empty() || rel.components().any(|c| !matches!(c, std::path::Component::Normal(_))) {
+    return Ok(None);
+  }
+  let (from, to) = (src_dir.join(&rel), dist_dir.join(&rel));
+  if !from.is_file() || to.is_file() {
+    return Ok(None);
+  }
+  let bytes = std::fs::read(&from).map_err(|e| format!("cannot read {}: {}", from.display(), e))?;
+  crate::fs_atomic::write(&to, bytes)?;
+  Ok(Some(rel))
 }
 
 fn asset_href(base: Option<&str>, path: &str) -> String {
@@ -1271,20 +1318,15 @@ fn extract_h1_inner_html(html: &str) -> Option<String> {
   extract_tag_inner(html, "h1").map(|s| s.trim().to_string())
 }
 
+/// Text of the first `<p>` (tags stripped, references decoded), uncut.
+fn first_p_text(html: &str) -> Option<String> {
+  extract_tag_inner(html, "p").and_then(|inner| non_empty(Some(strip_tags(&inner))))
+}
+
+/// [`first_p_text`] cut at a word boundary for a meta description.
+#[cfg(test)]
 fn extract_first_p_text(html: &str) -> Option<String> {
-  extract_first_p_text_with_limit(html, 160)
-}
-
-fn truncate_chars(text: &str, max_chars: usize) -> String {
-  if text.chars().count() <= max_chars {
-    return text.to_string();
-  }
-  let truncated: String = text.chars().take(max_chars).collect();
-  format!("{}…", truncated)
-}
-
-fn extract_first_p_text_with_limit(html: &str, max_chars: usize) -> Option<String> {
-  extract_tag_inner(html, "p").map(|inner| truncate_chars(strip_tags(&inner).trim(), max_chars))
+  first_p_text(html).map(|p| super::seo::cut_at_word(&p, super::seo::DESCRIPTION_MAX))
 }
 
 fn extract_tag_inner(html: &str, tag: &str) -> Option<String> {
@@ -1521,6 +1563,7 @@ fn load_site_config(src_dir: &Path) -> SsgSiteConfig {
     json_ld: true,
     sitemap: true,
     robots: true,
+    image: None,
   };
   let candidates = [
     src_dir.join("ssg.json"),
@@ -1602,37 +1645,99 @@ fn absolutize(origin: Option<&str>, path_or_url: &str) -> String {
   }
 }
 
+fn site_name(site: &SsgSiteConfig) -> &str {
+  site.site_name.as_deref().filter(|s| !s.is_empty()).unwrap_or("Anza")
+}
+
+/// Site-root path under the deploy base; absolute URLs unchanged.
+fn with_base_unless_absolute(base: Option<&str>, path: &str) -> String {
+  if path.contains("://") {
+    path.to_string()
+  } else {
+    asset_href(base, path)
+  }
+}
+
+/// JSON-LD `@graph`: WebSite, WebPage, a BreadcrumbList and, for docs pages,
+/// a TechArticle, all linked by `@id`.
 fn json_ld_script(
   site: &SsgSiteConfig,
   title: &str,
   description: &str,
   canonical: &str,
-  route_path: &str,
+  meta: &PageMeta,
+  image: Option<&str>,
 ) -> String {
-  let site_name = site
-    .site_name
-    .as_deref()
-    .filter(|s| !s.is_empty())
-    .unwrap_or("Anza");
+  let site_name = site_name(site);
   let site_url = absolutize(site.origin.as_deref(), "/");
-  let page_url = canonical.to_string();
+  let website_id = format!("{site_url}#website");
+  let page_id = format!("{canonical}#webpage");
+  let crumbs_id = format!("{canonical}#breadcrumb");
 
-  let mut graph = Vec::new();
-  // WebSite on every public page (small, crawler-friendly).
-  graph.push(serde_json::json!({
-    "@type": "WebSite",
-    "name": site_name,
-    "url": site_url,
-  }));
-  graph.push(serde_json::json!({
+  let mut graph = vec![
+    serde_json::json!({
+      "@type": "WebSite",
+      "@id": website_id,
+      "name": site_name,
+      "url": site_url,
+    }),
+  ];
+  let mut page = serde_json::json!({
     "@type": "WebPage",
+    "@id": page_id,
     "name": title,
     "description": description,
-    "url": page_url,
-    "isPartOf": { "@type": "WebSite", "name": site_name, "url": site_url },
-  }));
-  // Silence unused in case we branch later.
-  let _ = route_path;
+    "url": canonical,
+    "isPartOf": { "@id": website_id },
+    "inLanguage": "en",
+  });
+  if meta.crumbs.len() > 1 {
+    page["breadcrumb"] = serde_json::json!({ "@id": crumbs_id });
+  }
+  if let Some(ref date) = meta.lastmod {
+    page["dateModified"] = serde_json::json!(date);
+  }
+  graph.push(page);
+  if meta.crumbs.len() > 1 {
+    let items: Vec<serde_json::Value> = meta
+      .crumbs
+      .iter()
+      .enumerate()
+      .map(|(i, (name, path))| {
+        serde_json::json!({
+          "@type": "ListItem",
+          "position": i + 1,
+          "name": name,
+          "item": absolutize(site.origin.as_deref(), path),
+        })
+      })
+      .collect();
+    graph.push(serde_json::json!({
+      "@type": "BreadcrumbList",
+      "@id": crumbs_id,
+      "itemListElement": items,
+    }));
+  }
+  if meta.article {
+    let headline: String = meta.name.chars().take(110).collect();
+    let mut article = serde_json::json!({
+      "@type": "TechArticle",
+      "@id": format!("{canonical}#article"),
+      "headline": headline,
+      "description": description,
+      "mainEntityOfPage": { "@id": page_id },
+      "isPartOf": { "@id": website_id },
+      "publisher": { "@id": website_id },
+      "inLanguage": "en",
+    });
+    if let Some(ref date) = meta.lastmod {
+      article["dateModified"] = serde_json::json!(date);
+    }
+    if let Some(image) = image {
+      article["image"] = serde_json::json!(image);
+    }
+    graph.push(article);
+  }
 
   let doc = serde_json::json!({
     "@context": "https://schema.org",
@@ -1645,14 +1750,173 @@ fn json_ld_script(
   )
 }
 
+/// One `<url>` of the sitemap.
+struct SitemapEntry {
+  path: String,
+  lastmod: Option<String>,
+}
+
+/// Title, description and structured-data inputs of one SSG page, computed
+/// for all pages before emission (sections and duplicates need the others).
+#[derive(Debug, Clone, Default)]
+struct PageMeta {
+  title: String,
+  description: String,
+  /// Short page name: the H1, else from the path.
+  name: String,
+  /// Breadcrumb trail `(name, route path)`, home first, this page last.
+  crumbs: Vec<(String, String)>,
+  /// Docs article (TechArticle, `og:type` article).
+  article: bool,
+  /// Last change of the page sources (W3C datetime).
+  lastmod: Option<String>,
+}
+
+/// Route path without a trailing `/index` (`/docs/router/index` is the
+/// `/docs/router` section page).
+fn logical_path(path: &str) -> String {
+  let path = normalize_route_path(path);
+  match path.strip_suffix("/index") {
+    Some("") => "/".to_string(),
+    Some(rest) => rest.to_string(),
+    None => path,
+  }
+}
+
+fn page_metas(src_dir: &Path, plans: &[RoutePlan], sources: &Sources, site: &SsgSiteConfig) -> Vec<PageMeta> {
+  use super::seo::{cut_at_word, humanize, DESCRIPTION_MAX, DESCRIPTION_MIN};
+  let site_name = site_name(site);
+  let git = super::seo::git_dates(src_dir);
+
+  struct Raw {
+    logical: String,
+    path: String,
+    name: String,
+    first_p: Option<String>,
+    title: Option<String>,
+    description: Option<String>,
+  }
+  let raws: Vec<Raw> = plans
+    .iter()
+    .map(|plan| {
+      let route = plan.route;
+      let html = read_page_html(src_dir, sources, route)
+        .map(|raw| interpolate_params(&raw, &route.ssg_params))
+        .unwrap_or_default();
+      let seo = route.seo.clone().unwrap_or_default();
+      let logical = logical_path(&route.path);
+      let name = non_empty(extract_h1_text(&html)).unwrap_or_else(|| title_from_path(&logical));
+      Raw {
+        path: normalize_route_path(&route.path),
+        name,
+        first_p: first_p_text(&html),
+        title: non_empty(seo.title.map(|t| interpolate_raw(&t, &route.ssg_params))),
+        description: non_empty(seo.description.map(|d| interpolate_raw(&d, &route.ssg_params))),
+        logical,
+      }
+    })
+    .collect();
+  let by_logical: HashMap<&str, usize> = raws.iter().enumerate().map(|(i, r)| (r.logical.as_str(), i)).collect();
+
+  let mut metas: Vec<PageMeta> = Vec::with_capacity(raws.len());
+  let mut sections: Vec<Option<String>> = Vec::with_capacity(raws.len());
+  for (raw, plan) in raws.iter().zip(plans) {
+    let segs: Vec<&str> = raw.logical.split('/').filter(|s| !s.is_empty()).collect();
+    let prefix = |k: usize| format!("/{}", segs[..k].join("/"));
+    // Section: the parent page's name, for pages two levels down or more.
+    let section = (segs.len() >= 3).then(|| {
+      let parent = prefix(segs.len() - 1);
+      by_logical
+        .get(parent.as_str())
+        .map(|&i| raws[i].name.clone())
+        .unwrap_or_else(|| humanize(segs[segs.len() - 2]))
+    });
+
+    let title = raw.title.clone().unwrap_or_else(|| {
+      let mut parts: Vec<&str> = vec![raw.name.as_str()];
+      if let Some(ref s) = section {
+        parts.push(s);
+      }
+      parts.push(site_name);
+      parts.dedup_by(|a, b| a.eq_ignore_ascii_case(b));
+      parts.join(" — ")
+    });
+
+    let description = raw
+      .description
+      .clone()
+      .or_else(|| raw.first_p.as_deref().map(|p| cut_at_word(p, DESCRIPTION_MAX)))
+      .unwrap_or_else(|| title.clone());
+
+    let mut crumbs = Vec::new();
+    if raw.logical != "/" {
+      if let Some(&home) = by_logical.get("/") {
+        crumbs.push((site_name.to_string(), raws[home].path.clone()));
+      }
+      for k in 1..segs.len() {
+        let at = prefix(k);
+        if let Some(&i) = by_logical.get(at.as_str()) {
+          let name = if k == 1 { humanize(segs[0]) } else { raws[i].name.clone() };
+          crumbs.push((name, raws[i].path.clone()));
+        }
+      }
+      crumbs.push((raw.name.clone(), raw.path.clone()));
+    }
+
+    let route = plan.route;
+    let mut files: Vec<PathBuf> = page_html_path(src_dir, route).into_iter().collect();
+    files.extend(route.file.as_deref().map(|f| src_dir.join(f.trim_start_matches('/'))));
+    files.extend(page_css_paths(src_dir, route));
+    let lastmod = super::seo::lastmod(&files, &git);
+
+    metas.push(PageMeta {
+      title,
+      description,
+      name: raw.name.clone(),
+      crumbs,
+      article: segs.len() >= 2 && segs[0] == "docs",
+      lastmod,
+    });
+    sections.push(section);
+  }
+
+  // Short or repeated descriptions (not declared ones) get the section name.
+  let mut counts: HashMap<String, usize> = HashMap::new();
+  for meta in &metas {
+    *counts.entry(meta.description.clone()).or_default() += 1;
+  }
+  for ((meta, raw), section) in metas.iter_mut().zip(&raws).zip(&sections) {
+    if raw.description.is_some() {
+      continue;
+    }
+    let repeated = counts.get(&meta.description).copied().unwrap_or(0) > 1;
+    if repeated || meta.description.chars().count() < DESCRIPTION_MIN {
+      let context = section.clone().unwrap_or_else(|| site_name.to_string());
+      if !meta.description.starts_with(&context) {
+        meta.description = cut_at_word(&format!("{context}: {}", meta.description), DESCRIPTION_MAX);
+      }
+    }
+  }
+  let mut seen: HashMap<&str, Vec<&str>> = HashMap::new();
+  for (meta, raw) in metas.iter().zip(&raws) {
+    seen.entry(meta.description.as_str()).or_default().push(raw.path.as_str());
+  }
+  let mut dupes: Vec<_> = seen.into_iter().filter(|(_, paths)| paths.len() > 1).collect();
+  dupes.sort();
+  for (desc, paths) in dupes {
+    anza_logs::warn!("SSG: {} pages share the description {:?}: {}", paths.len(), desc, paths.join(", "));
+  }
+  metas
+}
+
 fn emit_seo_extras(
   dist_dir: &Path,
   site: &SsgSiteConfig,
-  ssg_paths: &[String],
+  ssg_paths: &[SitemapEntry],
 ) -> Result<(), String> {
-  let mut paths = ssg_paths.to_vec();
-  paths.sort();
-  paths.dedup();
+  let mut paths: Vec<&SitemapEntry> = ssg_paths.iter().collect();
+  paths.sort_by(|a, b| a.path.cmp(&b.path));
+  paths.dedup_by(|a, b| a.path == b.path);
 
   if site.sitemap {
     emit_sitemap(dist_dir, site.origin.as_deref(), &paths)?;
@@ -1663,7 +1927,7 @@ fn emit_seo_extras(
   Ok(())
 }
 
-fn emit_sitemap(dist_dir: &Path, origin: Option<&str>, paths: &[String]) -> Result<(), String> {
+fn emit_sitemap(dist_dir: &Path, origin: Option<&str>, paths: &[&SitemapEntry]) -> Result<(), String> {
   if origin.is_none() {
     anza_logs::info!(
       "SSG sitemap: no site origin configured — <loc> uses site-root paths. Set ssg.json \"origin\" or ANZA_SITE_ORIGIN for absolute URLs."
@@ -1674,10 +1938,13 @@ fn emit_sitemap(dist_dir: &Path, origin: Option<&str>, paths: &[String]) -> Resu
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 "#,
   );
-  for path in paths {
-    let loc = absolutize(origin, path);
+  for entry in paths {
+    let loc = absolutize(origin, &entry.path);
     xml.push_str("  <url>\n");
     xml.push_str(&format!("    <loc>{}</loc>\n", escape_xml(&loc)));
+    if let Some(ref date) = entry.lastmod {
+      xml.push_str(&format!("    <lastmod>{}</lastmod>\n", escape_xml(date)));
+    }
     xml.push_str("  </url>\n");
   }
   xml.push_str("</urlset>\n");
@@ -1921,12 +2188,38 @@ mod tests {
       json_ld: true,
       sitemap: true,
       robots: true,
+      image: None,
     };
-    let script = json_ld_script(&site, "Start", "Desc", "https://example.com/docs/x", "/docs/x");
+    let meta = PageMeta {
+      title: "Start — Intro — Anza".into(),
+      description: "Desc".into(),
+      name: "Start".into(),
+      crumbs: vec![
+        ("Anza".into(), "/".into()),
+        ("Docs".into(), "/docs".into()),
+        ("Start".into(), "/docs/x".into()),
+      ],
+      article: true,
+      lastmod: Some("2026-10-13T00:46:00Z".into()),
+    };
+    let script = json_ld_script(&site, "Start", "Desc", "https://example.com/docs/x", &meta, Some("https://example.com/og.png"));
     assert!(script.contains("application/ld+json"));
-    assert!(script.contains("WebSite"));
-    assert!(script.contains("WebPage"));
-    assert!(script.contains("https://example.com/docs/x"));
+    let json = script
+      .trim()
+      .trim_start_matches("<script type=\"application/ld+json\">")
+      .trim_end_matches("</script>");
+    let value: serde_json::Value = serde_json::from_str(json).expect("valid JSON-LD");
+    let graph = value["@graph"].as_array().unwrap();
+    let kinds: Vec<&str> = graph.iter().map(|n| n["@type"].as_str().unwrap()).collect();
+    assert_eq!(kinds, ["WebSite", "WebPage", "BreadcrumbList", "TechArticle"]);
+    assert_eq!(graph[0]["@id"], "https://example.com/#website");
+    assert_eq!(graph[1]["isPartOf"]["@id"], "https://example.com/#website");
+    assert_eq!(graph[1]["breadcrumb"]["@id"], "https://example.com/docs/x#breadcrumb");
+    assert_eq!(graph[2]["itemListElement"][1]["item"], "https://example.com/docs");
+    assert_eq!(graph[2]["itemListElement"][2]["position"], 3);
+    assert_eq!(graph[3]["headline"], "Start");
+    assert_eq!(graph[3]["dateModified"], "2026-10-13T00:46:00Z");
+    assert_eq!(graph[3]["mainEntityOfPage"]["@id"], "https://example.com/docs/x#webpage");
   }
 
   #[test]
@@ -1935,7 +2228,7 @@ mod tests {
     let html = format!("<p>{}</p>", "a".repeat(157) + em_dash + "tail");
     let text = extract_first_p_text(&html).expect("paragraph");
     assert!(text.ends_with('…'));
-    assert!(text.chars().count() <= 161);
+    assert!(text.chars().count() <= super::super::seo::DESCRIPTION_MAX);
   }
 
   #[test]

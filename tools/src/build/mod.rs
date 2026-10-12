@@ -21,6 +21,7 @@ pub mod merge;
 pub mod order;
 pub mod parse;
 pub mod resolve;
+pub mod seo;
 pub mod ssg;
 pub mod sw;
 pub mod transform;

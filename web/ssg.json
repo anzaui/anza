@@ -3,5 +3,6 @@
   "siteName": "Anza",
   "jsonLd": true,
   "sitemap": true,
-  "robots": true
+  "robots": true,
+  "image": "/og.png"
 }

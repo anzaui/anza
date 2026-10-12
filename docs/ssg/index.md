@@ -83,15 +83,20 @@ Or project-level `ssg.params.json`. Pattern stays `ssg: false`; each expansion e
   "siteName": "Anza",
   "jsonLd": true,
   "sitemap": true,
-  "robots": true
+  "robots": true,
+  "image": "/og.png"
 }
 ```
 
 | Field | Effect |
 | ----- | ------ |
 | `origin` | Absolute canonical / `og:url` / sitemap `<loc>` (override: `ANZA_SITE_ORIGIN`) |
-| `jsonLd` | Light-DOM `WebSite` + `WebPage` JSON-LD (default on) |
-| `sitemap` / `robots` | Write `dist/sitemap.xml` and `dist/robots.txt` |
+| `siteName` | `og:site_name`, the title suffix and JSON-LD `WebSite.name` (default `Anza`) |
+| `jsonLd` | Light-DOM JSON-LD `@graph`: `WebSite`, `WebPage`, `BreadcrumbList`, and `TechArticle` for `/docs/*` pages (default on) |
+| `sitemap` / `robots` | Write `dist/sitemap.xml` (with `<lastmod>`) and `dist/robots.txt` |
+| `image` | Default `og:image` / `twitter:image` for pages without `seo.image` (site-root path or URL, 1200×630). A site-root file in `src/` is copied to `dist/` |
+
+Each page's `<title>` is `seo.title` when the page declares one, else `"{H1} — {Section} — {siteName}"`, where the section is the H1 of the parent page (for pages two levels deep or more). The description is `seo.description`, else the first paragraph cut at a word boundary (155 characters); short or repeated ones get the section name in front, and the build warns about any description still shared by several pages. Sitemap `<lastmod>` is the last git commit date of the page's HTML, module and CSS, or the file modification time outside git.
 
 Without `origin`, path-relative URLs are fine for local preview; sitemap locs stay site-root paths.
 
