@@ -1,51 +1,100 @@
 ---
 seo_title: "Textarea — Anza"
-description: "ui-textarea — form-participating multi-line text with validation and auto-resize."
+description: "ui-textarea: a form-associated multi-line text control with native validation, optional auto-resize and form reset."
 ---
 
 # Textarea
 
-Form-participating multi-line text control with ElementInternals validation and optional auto-resize.
+A form-associated multi-line text control that wraps a native `<textarea>` and can grow with its content.
 
 **Tag:** `ui-textarea` · **Import:** `@anzaui/anza/elements/textarea`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/textarea';
 ```
 
-## Basic usage
-
 ```html
-<ui-textarea name="bio" placeholder="Tell us about yourself" rows="4"></ui-textarea>
-<ui-textarea autoresize maxlength="500" required></ui-textarea>
+<form>
+  <ui-textarea name="bio" rows="4" maxlength="500" autoresize></ui-textarea>
+</form>
 ```
 
-## Props
+## Attributes
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `value` | String | Reflect | Current value; synced on `input` |
-| `placeholder` | String | Reflect | Placeholder text |
-| `disabled` | Boolean | Reflect + custom state | Disables the control |
-| `required` | Boolean | Reflect | HTML required |
-| `minlength / maxlength` | Number | Reflect | Length constraints |
-| `autoresize` | Boolean | Reflect | Grow height to fit content |
-| `rows` | Number | Reflect | Initial row count on the inner textarea |
+All attributes reflect to properties of the same name. `placeholder`, `required`, `minlength`, `maxlength` and `rows` are copied to the inner `<textarea>`.
+
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `name` | String | none | Plain attribute (not a property). The form field name. |
+| `value` | String | none | Current value. Typing updates the property and the attribute. |
+| `placeholder` | String | none | Placeholder text. |
+| `required` | Boolean | `false` | The value must not be empty. |
+| `minlength` | Number | none | Minimum length. |
+| `maxlength` | Number | none | Maximum length. |
+| `rows` | Number | none | Visible rows. |
+| `autoresize` | Boolean | `false` | Sets the height to fit the content on input and on resize, and turns off the manual resize handle. |
+| `disabled` | Boolean | `false` | Disables the inner textarea. |
+
+## Slots
+
+| Slot | Content |
+| ---- | ------- |
+| `error` | Error text shown under the textarea. It is always shown; add or remove it yourself. |
 
 ## Events
 
-| Event | When |
+| Event | Detail | When |
+| ----- | ------ | ---- |
+| `input` | none | Native `input` from the inner textarea, retargeted to the host. The `value` property and form value are already updated. |
+| `change` | none | The inner textarea fires `change` (on commit, for example blur). Re-dispatched from the host. Bubbles and is composed. |
+
+## Form behaviour
+
+- The form value is the inner textarea's value, an empty string when empty.
+- Validity is copied from the inner textarea, with the browser's own messages (`valueMissing`, `tooShort`, `tooLong`).
+- Form reset restores the `value` attribute as it was at first mount (empty if there was none).
+- Inside a disabled `<fieldset>` the inner textarea is disabled too.
+- On browser state restore, a string state becomes the `value`.
+
+## Keyboard and accessibility
+
+Focus and keys go to the native `<textarea>` in the shadow root. Add `aria-label` when there is no visible label.
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `textarea` | The inner `<textarea>` |
+| `error-box` | The wrapper around the `error` slot |
+
+### Custom properties
+
+The stylesheet reads these properties but declares no defaults, so set them yourself (on `ui-textarea` or an ancestor):
+
+| Property | Default |
+| -------- | ------- |
+| `--textarea-bg` | none |
+| `--textarea-border` | none |
+| `--textarea-border-focus` | none |
+| `--textarea-radius` | none |
+| `--textarea-font-size` | none |
+| `--textarea-padding-y` | none |
+| `--textarea-padding-x` | none |
+| `--textarea-text-color` | none |
+
+### States
+
+| State | When |
 | ----- | ---- |
-| `change` | Bubbles when the inner textarea fires `change` |
-
-## Notes
-
-Uses `form: true`. Form reset restores the attribute `value` (or empty).
+| `disabled` | The `disabled` property changes to true. A `disabled` attribute already in the markup when the element upgrades does not add the state. |
 
 ## Related
 
-- [Elements overview](index.md)
-- [Forms](index.md#forms)
-- [Form association](../ui/form-associated.md)
+- [Elements](index.md#forms)
+- [Form-associated elements](../ui/form-associated.md)
+- [Input](input.md)
+- [Field](field.md)

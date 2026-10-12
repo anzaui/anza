@@ -1,45 +1,42 @@
 ---
 seo_title: "Chart — Anza"
-description: "ui-chart — lightweight canvas bar/line chart with resize redraw."
+description: "ui-chart — canvas bar or line chart drawn from a JSON array, redrawn on resize and on attribute changes."
 ---
 
 # Chart
 
-Lightweight canvas chart (`bar` or `line`) with high-DPI scaling and resize redraw.
+A small canvas chart that draws a bar or line series from a JSON array of numbers.
 
 **Tag:** `ui-chart` · **Import:** `@anzaui/anza/elements/chart`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/chart';
 ```
 
-## Basic usage
-
 ```html
-<ui-chart type="bar" data="[10, 30, 20, 50, 40, 60]"></ui-chart>
-<ui-chart type="line" data="[5, 12, 9, 18, 14]"></ui-chart>
+<ui-chart type="line" data="[12, 30, 24, 48, 40]"></ui-chart>
 ```
 
-## Props
+## Attributes
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `type` | String | Reflect | Chart kind: `bar` (default) or `line` |
-| `data` | String | Reflect | JSON array of numbers (invalid / missing → sample series) |
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `type` | String | `bar` | `bar` or `line`. Any other value draws bars. |
+| `data` | String | — | JSON array of numbers. When it is missing or not valid JSON, the chart draws the sample series `[10, 30, 20, 50, 40, 60]`. |
 
-## Notes
+The chart draws for the device pixel ratio and redraws when the canvas resizes (a `ResizeObserver`, disconnected on unmount) and when `type` or `data` changes. It draws four grid lines with value labels from 0 to 110% of the largest value.
 
-Draws with CSS tokens `--color-interactive`, `--color-border-default`, `--color-content-secondary` when present. A `ResizeObserver` on the canvas redraws on size changes and disconnects on `el.ctrl.signal` abort.
+Colours are read from the host's computed `--color-interactive` (series), `--color-border-default` (grid) and `--color-content-secondary` (labels). The line fill appends a hex alpha to `--color-interactive`, so it needs that token to be a 6-digit hex colour.
 
-### Lifecycle / memory
+The host is `calc(var(--space-24) * 3)` tall. Set `height` on `ui-chart` to change it.
 
-`ResizeObserver` is tied to the component abort signal — soft-nav disconnect cleans it up. Prefer prop updates (`data` / `type`) over attaching your own observers from a leaf without a signal.
+## Styling
+
+The chart has no parts, custom properties or custom states.
 
 ## Related
 
-- [Elements overview](index.md)
-- [Data](index.md#data)
+- [Elements](index.md#data)
 - [Stat](stat.md)
-- [Memory safety & framework globals](../ui/advanced.md)

@@ -1,46 +1,56 @@
 ---
 seo_title: "Nav — Anza"
-description: "ui-nav — accessible navigation wrapper with orientation."
+description: "ui-nav — navigation landmark that lays out ui-link children in a row or a column."
 ---
 
 # Nav
 
-Accessible navigation wrapper with horizontal or vertical orientation.
+A navigation landmark that lays out links in a row or a column.
 
 **Tag:** `ui-nav` · **Import:** `@anzaui/anza/elements/nav`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/nav';
+import '@anzaui/anza/elements/link';
 ```
-
-## Basic usage
 
 ```html
-<ui-nav>
-  <a href="/docs">Docs</a>
-  <a href="/docs/elements">Elements</a>
-</ui-nav>
 <ui-nav orientation="vertical">
-  <a href="/a">Section A</a>
-  <a href="/b">Section B</a>
+  <ui-link href="/">Home</ui-link>
+  <ui-link href="/settings">Settings</ui-link>
 </ui-nav>
 ```
 
-## Props
+## Attributes
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `orientation` | String | Reflect | `horizontal` (default) or `vertical` |
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `orientation` | String | — | `horizontal` (row, centred, `--space-4` gap) or `vertical` (column, `--space-1` gap). Without the attribute the links sit in a row with no gap: the property defaults to `horizontal` but the default is not reflected to the attribute. |
 
-## Notes
+## Slots
 
-Defaults `role="navigation"`. Inner markup uses `part="nav"`; put links / list items in the default slot.
+| Slot | Content |
+| ---- | ------- |
+| default | Links. Direct `ui-link` children get padding, a radius and a hover background. |
+
+A `ui-link` child with `aria-current="page"` on the host element is highlighted. `ui-link` sets `aria-current` on its inner `<a>`, not on itself, so set the attribute yourself if you want the highlight.
+
+## Keyboard and accessibility
+
+The host gets `role="navigation"` unless it has a `role`. The template also wraps the slot in a `<nav>`.
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `nav` | The inner `<nav>` |
 
 ## Related
 
-- [Elements overview](index.md)
-- [Navigation](index.md#navigation)
-- [Breadcrumb](breadcrumb.md)
+- [Elements](index.md#navigation)
 - [Link](link.md)
+- [Sidebar](sidebar.md)

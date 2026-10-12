@@ -1,44 +1,53 @@
 ---
 seo_title: "List — Anza"
-description: "ui-list — list panel with optional bordered surface."
+description: "ui-list — vertical list with divided rows and an optional bordered panel."
 ---
 
 # List
 
-List panel with optional bordered surface. Children should use `role="listitem"` when they are list items.
+A vertical list whose rows are padded and divided by borders.
 
 **Tag:** `ui-list` · **Import:** `@anzaui/anza/elements/list`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/list';
 ```
 
-## Basic usage
-
 ```html
-<ui-list>
-  <div role="listitem">First</div>
-  <div role="listitem">Second</div>
-</ui-list>
 <ui-list bordered>
-  <div role="listitem">Bordered item</div>
+  <div role="listitem">Inbox <ui-badge>4</ui-badge></div>
+  <div role="listitem">Archive</div>
 </ui-list>
 ```
 
-## Props
+## Attributes
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `bordered` | Boolean | Reflect | Adds a bordered panel treatment |
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `bordered` | Boolean | `false` | Draws a border, radius and elevated background around the list. |
 
-## Notes
+## Slots
 
-Inner container uses `role="list"` and `part="list"`.
+| Slot | Content |
+| ---- | ------- |
+| default | The rows. Direct children that are `div[role="listitem"]` or `ui-list-item` get row padding, a bottom border (except the last) and a hover background. |
+
+## Keyboard and accessibility
+
+The inner wrapper has `role="list"`. Give each row `role="listitem"`.
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `list` | The `role="list"` wrapper |
 
 ## Related
 
-- [Elements overview](index.md)
-- [Data](index.md#data)
+- [Elements](index.md#data)
 - [Table](table.md)
+- [Card](card.md)

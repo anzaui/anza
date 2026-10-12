@@ -1,49 +1,99 @@
 ---
 seo_title: "Button — Anza"
-description: "ui-button — form-associated button with loading and disabled states."
+description: "ui-button: a form-associated button with disabled and loading states, submit and reset types, and an activate event."
 ---
 
 # Button
 
-Form-associated button with loading and disabled states, semantic token styling, and an `activate` event.
+A form-associated button that can submit or reset its form and fires `activate` when clicked.
 
 **Tag:** `ui-button` · **Import:** `@anzaui/anza/elements/button`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/button';
 ```
 
-## Basic usage
-
 ```html
-<ui-button type="button">Save</ui-button>
-<ui-button type="submit">Submit</ui-button>
-<ui-button disabled>Unavailable</ui-button>
-<ui-button loading>Working…</ui-button>
+<form action="/posts" method="post">
+  <ui-button type="submit" name="action" value="publish">Publish</ui-button>
+  <ui-button type="reset">Clear</ui-button>
+</form>
 ```
 
-## Props
+## Attributes
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `disabled` | Boolean | Reflect + custom state | Disables the inner button and blocks activation |
-| `loading` | Boolean | Reflect + custom state | Loading state; blocks activation while true |
-| `type` | String | Reflect, default `button` | `button` | `submit` | `reset` — submit/reset use `ElementInternals.form` |
-| `value` | String | Reflect | Optional form value |
+All attributes reflect to properties of the same name.
+
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `type` | String | `button` | `button`, `submit` or `reset`. Copied to the inner `<button>`. |
+| `value` | String | none | Sent as `name=value` when this button submits the form. |
+| `disabled` | Boolean | `false` | Disables the inner `<button>`. Clicks do nothing. |
+| `loading` | Boolean | `false` | Clicks do nothing. Dims the button and shows a wait cursor. |
+| `name` | String | none | Plain attribute (not a property). When present, the button adds `name=value` to the submission. |
+
+## Slots
+
+| Slot | Content |
+| ---- | ------- |
+| (default) | The button label. |
 
 ## Events
 
-| Event | When |
+| Event | Detail | When |
+| ----- | ------ | ---- |
+| `activate` | none | The inner button is clicked while not `disabled` or `loading`, after any submit or reset. Bubbles and is composed. |
+
+Clicks on the inner button while `disabled` or `loading` are stopped (`preventDefault()` and `stopPropagation()`).
+
+## Form behaviour
+
+- `type="submit"` calls `form.requestSubmit()` on the button's form. If the button has a `name` attribute, `name=value` (empty string when `value` is unset) is in the submitted `FormData`, and is removed again right after.
+- `type="reset"` calls `form.reset()`.
+- `type="button"`, or a button outside a form, only fires `activate`.
+- A custom element cannot be the `submitter` of `requestSubmit()`, so `event.submitter` on the `submit` event is `null`.
+
+## Keyboard and accessibility
+
+The focusable control is the native `<button>` in the shadow root, so Tab, Enter and Space work as on a native button.
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `button` | The inner `<button>` |
+
+### Custom properties
+
+| Property | Default |
+| -------- | ------- |
+| `--btn-bg` | `var(--color-interactive)` |
+| `--btn-bg-hover` | `var(--color-interactive-hover)` |
+| `--btn-bg-active` | `var(--color-interactive-active)` |
+| `--btn-bg-disabled` | `var(--color-interactive-disabled)` |
+| `--btn-color` | `var(--color-content-inverse)` |
+| `--btn-radius` | `var(--radius-md)` |
+| `--btn-font` | `var(--font-sans)` |
+| `--btn-size` | `var(--font-size-sm)` |
+| `--btn-weight` | `var(--font-weight-medium)` |
+| `--btn-padding-y` | `var(--space-2)` |
+| `--btn-padding-x` | `var(--space-4)` |
+
+### States
+
+| State | When |
 | ----- | ---- |
-| `activate` | Fired on click when not disabled/loading |
+| `disabled` | The `disabled` property is true |
+| `loading` | The `loading` property is true |
 
-## Notes
-
-Default slot content becomes the button label. Uses `form: true` so it participates in native forms.
+Both states are set when the property changes. A `disabled` or `loading` attribute that is already in the markup when the element upgrades does not add the state until the value changes.
 
 ## Related
 
-- [Elements overview](index.md)
-- [Form association](../ui/form-associated.md) (when `form: true`)
+- [Elements](index.md#primitives)
+- [Form-associated elements](../ui/form-associated.md)
+- [Form](form.md)

@@ -1,43 +1,63 @@
 ---
 seo_title: "Field — Anza"
-description: "ui-field — field wrapper for label, hint, error, and controls."
+description: "ui-field: a layout wrapper that places a label, hint, form control and error message in one column."
 ---
 
 # Field
 
-Field wrapper that coordinates label, required marker, hint, error, and a control slot.
+A layout wrapper that stacks a label, a hint, a form control and an error message.
 
 **Tag:** `ui-field` · **Import:** `@anzaui/anza/elements/field`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/field';
 ```
 
-## Basic usage
-
 ```html
 <ui-field label="Email" required>
+  <span slot="hint">We never share your address.</span>
   <ui-input name="email" type="email" required></ui-input>
-  <span slot="hint">We'll never share this.</span>
-  <span slot="error">Enter a valid email.</span>
+  <span slot="error">Enter a valid email address.</span>
 </ui-field>
 ```
 
-## Props
+`ui-field` is not form-associated and does not read the control's validity. It does not set `required` on the control, and its `<label>` is not linked to the control for assistive technology.
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `label` | String | Reflect | Label text when the `label` slot is empty |
-| `required` | Boolean | Reflect | Shows the required marker |
+## Attributes
 
-## Notes
+All attributes reflect to properties of the same name.
 
-Slots: `label`, `hint`, default (control), `error`. Not form-associated itself — wrap form controls inside.
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `label` | String | none | Label text. Used only when the `label` slot is empty. |
+| `required` | Boolean | `false` | Shows a `*` after the label. |
+
+## Slots
+
+| Slot | Content |
+| ---- | ------- |
+| `label` | Label content. Takes the place of the `label` attribute. |
+| `hint` | Help text under the label. |
+| (default) | The form control. |
+| `error` | Error text under the control. It is always shown; add or remove it yourself. |
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `label` | The `<label>` with the label text and the required marker |
+| `hint` | The wrapper around the `hint` slot |
+| `control` | The wrapper around the default slot |
+| `error` | The wrapper around the `error` slot |
+
+`ui-field` declares no custom properties and no custom states.
 
 ## Related
 
-- [Elements overview](index.md)
-- [Forms](index.md#forms)
+- [Elements](index.md#forms)
 - [Input](input.md)
+- [Form](form.md)

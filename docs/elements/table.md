@@ -1,46 +1,48 @@
 ---
 seo_title: "Table — Anza"
-description: "ui-table — styled wrapper for native HTML tables."
+description: "ui-table — bordered, horizontally scrolling wrapper for a native HTML table."
 ---
 
 # Table
 
-Styled wrapper for a native HTML table (slot content). Use a light-DOM `<table>` inside for semantics.
+A bordered wrapper that scrolls a native `<table>` horizontally when it is too wide.
 
 **Tag:** `ui-table` · **Import:** `@anzaui/anza/elements/table`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/table';
 ```
 
-## Basic usage
-
 ```html
 <ui-table>
   <table>
     <thead>
-      <tr><th>Name</th><th>Status</th></tr>
+      <tr><th>Name</th><th>Role</th></tr>
     </thead>
     <tbody>
-      <tr><td>Alpha</td><td>Active</td></tr>
-      <tr><td>Beta</td><td>Paused</td></tr>
+      <tr><td>Ada</td><td>Admin</td></tr>
     </tbody>
   </table>
 </ui-table>
 ```
 
-## Props
+The table has no attributes. The host draws the border, radius and elevated background and sets `overflow-x: auto`. The slotted `<table>` gets full width, collapsed borders, the sans font and the primary content colour.
 
-_None — presentational wrapper; style via CSS / slotted table markup._
+`::slotted()` only reaches direct children, so rows and cells are not styled by the element. Style `th`, `td` and `tr` from your own stylesheet.
 
-## Notes
+## Slots
 
-Default slot receives the table (or table wrap). Pair with a host/page `.table-wrap` if you need horizontal scroll outside the element.
+| Slot | Content |
+| ---- | ------- |
+| default | A `<table>` |
+
+## Styling
+
+The table has no parts, custom properties or custom states.
 
 ## Related
 
-- [Elements overview](index.md)
-- [Data](index.md#data)
+- [Elements](index.md#data)
 - [List](list.md)

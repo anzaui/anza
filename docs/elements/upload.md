@@ -1,54 +1,82 @@
 ---
 seo_title: "Upload — Anza"
-description: "ui-upload — drag-and-drop file picker with optional upload progress."
+description: "ui-upload: a click or drag-and-drop file picker that either reports the chosen files or POSTs them with progress events."
 ---
 
 # Upload
 
-Drag-and-drop file picker with optional progress-tracked upload via the core upload API.
+A file picker with a click and drag-and-drop zone. With `url` set it uploads the files and shows a progress bar.
 
 **Tag:** `ui-upload` · **Import:** `@anzaui/anza/elements/upload`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/upload';
 ```
 
-## Basic usage
-
 ```html
-<ui-upload accept="image/*" multiple></ui-upload>
-<ui-upload url="/api/upload" accept=".pdf"></ui-upload>
+<ui-upload url="/api/files" accept="image/*" multiple></ui-upload>
 ```
 
-## Props
+## Attributes
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `url` | String | Reflect | Upload endpoint; when unset, only `selected` fires |
-| `multiple` | Boolean | Reflect | Allow multiple files |
-| `accept` | String | Reflect | Forwarded to the hidden file input |
+All attributes reflect to properties of the same name.
+
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `url` | String | none | Upload endpoint. Without it, the element only fires `selected`. |
+| `multiple` | Boolean | `false` | Allow more than one file. Copied to the hidden file input. |
+| `accept` | String | none | Accepted file types, as for `<input type="file">`. Copied to the hidden file input. Dropped files are not filtered. |
 
 ## Events
 
-| Event | When |
-| ----- | ---- |
-| `selected` | Files chosen with no `url` — `detail.files` |
-| `progress` | Upload progress from the core upload helper |
-| `success` | Upload completed — `detail.files` |
-| `error` | Upload failed — `detail` is the error |
+All events bubble and are composed.
 
-## Notes
+| Event | Detail | When |
+| ----- | ------ | ---- |
+| `selected` | `{ files }` (a `FileList`) | Files are picked or dropped and `url` is not set. |
+| `progress` | `{ loaded, total, percentage }` | During the upload, when the size is known. `percentage` is a whole number from 0 to 100. |
+| `success` | `{ files }` (a `FileList`) | The server answers with a 2xx status. The response body is not passed on. |
+| `error` | The `PlatformError` | The upload fails: `code` is `HTTP_ERROR` (non-2xx), `NETWORK_ERROR` (network failure, or aborted because the element disconnected) or `NETWORK_TIMEOUT`. |
 
-Click or drop onto the dropzone. With `url`, files are posted as `FormData` (`files` field) with progress UI.
+## Upload request
 
-### Lifecycle / memory
+With `url`, the files are sent as `multipart/form-data` in one `POST`, each under the field name `files`. The request uses the core `upload()` helper (XMLHttpRequest, for progress) and is aborted when the element disconnects. The progress bar hides one second after the upload ends.
 
-Dropzone and upload work use the element `ctrl.signal` so disconnect / soft-nav aborts in-flight requests and removes listeners. Prefer that pattern over raw `document` drag listeners. See [Memory safety & framework globals](../ui/advanced.md) and [Orphan listeners after soft-nav](../events/troubleshooting.md).
+## Form behaviour
+
+`ui-upload` is not form-associated. Its files are not part of a surrounding form's `FormData`.
+
+## Keyboard and accessibility
+
+The drop zone is a `<div>` that is not focusable, so the picker cannot be opened from the keyboard. The prompt text ("Click to upload or drag and drop") is fixed in the template.
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `dropzone` | The click and drop area |
+| `progress` | The progress bar track (hidden when idle) |
+| `progress-fill` | The progress bar fill |
+
+### Custom properties
+
+| Property | Default |
+| -------- | ------- |
+| `--upload-bg` | `var(--color-surface-page)` |
+| `--upload-border` | `var(--color-border-default)` |
+| `--upload-border-focus` | `var(--color-border-focus)` |
+| `--upload-radius` | `var(--radius-lg)` |
+| `--upload-padding` | `var(--space-8)` |
+| `--upload-color` | `var(--color-content-secondary)` |
+
+`--upload-border-focus` colours the drop zone border while a file is dragged over it. There are no custom states.
 
 ## Related
 
-- [Elements overview](index.md)
-- [Forms](index.md#forms)
-- [Memory safety & framework globals](../ui/advanced.md)
+- [Elements](index.md#forms)
+- [Uploads](../api/uploads.md)
+- [Lifecycle](../ui/lifecycle.md#memory-safety)

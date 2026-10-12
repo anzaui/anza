@@ -1,43 +1,47 @@
 ---
 seo_title: "Header — Anza"
-description: "ui-header — top bar with brand and actions slots."
+description: "ui-header — top bar with a brand slot on the left and actions on the right."
 ---
 
 # Header
 
-Top bar with brand and actions slots.
+A top bar with a brand area on the left and actions on the right.
 
 **Tag:** `ui-header` · **Import:** `@anzaui/anza/elements/header`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/header';
 ```
 
-## Basic usage
-
 ```html
 <ui-header>
-  <span slot="brand">Anza</span>
+  <strong slot="brand">Acme</strong>
   <ui-button>Sign in</ui-button>
 </ui-header>
 ```
 
-## Props
+The header has no attributes. It is `var(--space-16)` tall with a bottom border.
 
-_None — composition via slots._
+## Slots
 
-## Slots / parts
+| Slot | Content |
+| ---- | ------- |
+| `brand` | Logo or product name |
+| default | Actions |
 
-| Name | Kind | Description |
-| ---- | ---- | ----------- |
-| `brand` | slot | Logo / product name |
-| _(default)_ | slot | Actions |
-| `header` / `brand` / `actions` | parts | Region wrappers |
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `header` | The `<header>` |
+| `brand` | The brand area |
+| `actions` | The actions area |
 
 ## Related
 
-- [Elements overview](index.md)
-- [Layout](index.md#layout)
+- [Elements](index.md#layout)
 - [App](app.md)

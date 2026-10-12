@@ -1,48 +1,65 @@
 ---
 seo_title: "Tabs — Anza"
-description: "ui-tabs — accessible tablist with keyboard navigation."
+description: "ui-tabs — tablist with roving tabindex, arrow, Home and End keys, and panels shown by the active value."
 ---
 
 # Tabs
 
-Accessible tablist with roving tabindex, arrow / Home / End keys, and optional URL-synced `active` value.
+A tab list that shows one panel at a time.
 
 **Tag:** `ui-tabs` · **Import:** `@anzaui/anza/elements/tabs`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/tabs';
 ```
 
-## Basic usage
-
 ```html
-<ui-tabs active="one">
-  <button slot="tab" value="one">One</button>
-  <button slot="tab" value="two">Two</button>
-  <div role="tabpanel">Panel one</div>
-  <div role="tabpanel">Panel two</div>
+<ui-tabs active="billing">
+  <button slot="tab" value="profile">Profile</button>
+  <button slot="tab" value="billing">Billing</button>
+  <section role="tabpanel">Profile settings</section>
+  <section role="tabpanel">Billing settings</section>
 </ui-tabs>
 ```
 
-## Props
+## Attributes
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `active` | String | Reflect | Selected tab value (falls back to first tab) |
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `active` | String | — | Value of the selected tab. A tab's value is its `value` attribute, or its trimmed text. Without it the first tab is selected. |
 
-## Notes
+Clicking a tab or moving to it with the keyboard sets `active`.
 
-Named `tab` slot for tab triggers; default slot for panels (`role="tabpanel"` or `ui-tab-panel`). Clicking a tab sets `active` from `value` or text content.
+## Slots
 
-### Lifecycle / memory
+| Slot | Content |
+| ---- | ------- |
+| `tab` | The tabs. Each gets `role="tab"`. |
+| default | The panels, in tab order. Only direct children with `role="tabpanel"` or the tag `ui-tab-panel` count as panels. |
 
-Keyboard and click handlers are shadow-scoped and abort with the component `ctrl` on disconnect (including soft-nav leaf swap). See [Memory safety & framework globals](../ui/advanced.md).
+Panels are matched to tabs by position. The panel at the selected tab's index gets the class `active` and `aria-hidden="false"`; the others get `aria-hidden="true"`. Only `role="tabpanel"` panels are hidden by the element's CSS.
+
+## Keyboard and accessibility
+
+| Key | Action |
+| --- | ------ |
+| Arrow Right / Arrow Left | Focus and select the next / previous tab, wrapping around |
+| Home / End | Focus and select the first / last tab |
+
+The tab list has `role="tablist"`. The selected tab has `aria-selected="true"` and `tabindex="0"`; the others have `aria-selected="false"` and `tabindex="-1"`.
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `tablist` | The `role="tablist"` wrapper |
+| `panels` | The panel wrapper |
 
 ## Related
 
-- [Elements overview](index.md)
-- [Navigation](index.md#navigation)
-- [Form association](../ui/form-associated.md) (when `form: true`)
-- [Memory safety & framework globals](../ui/advanced.md)
+- [Elements](index.md#navigation)
+- [Steps](steps.md)

@@ -1,47 +1,57 @@
 ---
 seo_title: "Steps — Anza"
-description: "ui-steps — linear step indicator for multi-step workflows."
+description: "ui-steps — linear step indicator: steps before active are completed, a progress line fills to the active step."
 ---
 
 # Steps
 
-Linear step indicator for multi-step workflows. Marks completed / active / upcoming from `active` index.
+A horizontal step indicator with a progress line.
 
 **Tag:** `ui-steps` · **Import:** `@anzaui/anza/elements/steps`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/steps';
 ```
 
-## Basic usage
-
 ```html
 <ui-steps active="1">
   <div>Account</div>
-  <div>Details</div>
+  <div>Billing</div>
   <div>Confirm</div>
 </ui-steps>
 ```
 
-## Props
+## Attributes
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `active` | Number | Reflect | Zero-based index of the active step (default `0`) |
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `active` | Number | `0` | Index of the current step, 0-based. |
 
-## Notes
+## Slots
 
-Slotted children get `role="step"` and a `state` of `completed`, `active`, or unset. Connector fill uses `part="line"` / `part="line-fill"`. `slotchange` listener is bound with component `on` (signal-owned).
+| Slot | Content |
+| ---- | ------- |
+| default | The steps, one direct child each |
 
-### Lifecycle / memory
+Each step gets `role="step"` and a `state` attribute: `completed` for steps before `active`, `active` for the current step, none for later steps. Every step shows a circle before its content; completed steps show a check mark and the active step a focus ring. The progress line fills to `active / (steps - 1)`.
 
-`on.slotchange` is tied to `ctrl.signal` — soft-nav disconnect aborts it. Prefer prop-driven `active` updates over attaching long-lived document listeners.
+Steps are not interactive. Change `active` to move between them.
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `line` | The background line |
+| `line-fill` | The filled part of the line |
+| `container` | The step wrapper |
+
+Style a step's state from outside with an attribute selector, for example `ui-steps > [state="completed"]`.
 
 ## Related
 
-- [Elements overview](index.md)
-- [Navigation](index.md#navigation)
+- [Elements](index.md#navigation)
 - [Tabs](tabs.md)
-- [Memory safety & framework globals](../ui/advanced.md)

@@ -38,7 +38,7 @@ import { showToast } from '@anzaui/anza/elements';
 
 ## Forms
 
-These controls are form-associated: they submit with a native `<form>`, take part in validation, and restore their first-mount value on form reset. See [Form-associated elements](../ui/form-associated.md).
+Input, textarea, select, checkbox, radio and toggle are form-associated (as is `ui-button`): they submit with a native `<form>`, take part in validation, and restore their first-mount value on form reset. Field, upload and form are plain wrappers. See [Form-associated elements](../ui/form-associated.md).
 
 | Element | Tag | What it is |
 | ------- | --- | ---------- |

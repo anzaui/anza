@@ -1,40 +1,54 @@
 ---
 seo_title: "Surface — Anza"
-description: "ui-surface — styled surface for flat, elevated, or bordered panels."
+description: "ui-surface — padded panel with flat, elevated or bordered variants built from surface tokens."
 ---
 
 # Surface
 
-Styled surface for flat, elevated, or bordered panels.
+A padded panel with a background, border and radius from the design tokens.
 
 **Tag:** `ui-surface` · **Import:** `@anzaui/anza/elements/surface`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/surface';
 ```
 
-## Basic usage
-
 ```html
-<ui-surface>Flat content</ui-surface>
-<ui-surface variant="elevated">Elevated panel</ui-surface>
-<ui-surface variant="bordered">Bordered panel</ui-surface>
+<ui-surface variant="elevated">Content</ui-surface>
 ```
 
-## Props
+## Attributes
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `variant` | String | Reflect | Surface treatment (default `flat`; theme may define `elevated`, `bordered`, …) |
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `variant` | String | — | `flat` (page surface, medium radius), `elevated` (elevated surface, `--shadow-md`, large radius) or `bordered` (page surface, no shadow, large radius). All three draw a 1px default border. Without the attribute no variant styles apply: the property defaults to `flat` but the default is not reflected to the attribute. |
 
-## Notes
+## Slots
 
-Default slot / `part="surface"`.
+| Slot | Content |
+| ---- | ------- |
+| default | Panel content |
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `surface` | The panel |
+
+### Custom properties
+
+| Property | Default |
+| -------- | ------- |
+| `--surface-bg` | Set by `variant` |
+| `--surface-border` | Set by `variant` |
+| `--surface-shadow` | Set by `variant` (`flat` sets none) |
+| `--surface-radius` | Set by `variant` |
 
 ## Related
 
-- [Elements overview](index.md)
-- [Layout](index.md#layout)
+- [Elements](index.md#layout)
 - [Card](card.md)

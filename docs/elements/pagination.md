@@ -1,61 +1,54 @@
 ---
 seo_title: "Pagination — Anza"
-description: "ui-pagination — prev/next pagination with URL or prop control."
+description: "ui-pagination — Previous and Next buttons with a page indicator, driven by the page attribute or the ?page= query."
 ---
 
 # Pagination
 
-Prev / next pagination. Uses `page` when set; otherwise syncs with the URL `?page=` query via the router.
+Previous and Next buttons with a "Page N of M" indicator.
 
 **Tag:** `ui-pagination` · **Import:** `@anzaui/anza/elements/pagination`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/pagination';
 ```
 
-## Basic usage
-
 ```html
-<!-- Controlled via props -->
-<ui-pagination page="2" total="100" limit="10"></ui-pagination>
-
-<!-- URL query mode (omit page — reads/writes ?page=) -->
-<ui-pagination total="48" limit="12"></ui-pagination>
+<ui-pagination total="240" limit="20"></ui-pagination>
 ```
 
-```javascript
-document.querySelector('ui-pagination').addEventListener('page-change', (e) => {
-  console.log(e.detail.page);
-});
-```
+## Attributes
 
-## Props
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `page` | Number | — | Current page, 1-based. When set, the buttons change this attribute. When unset (or `0`), the page comes from the URL's `?page=` query and the buttons navigate. |
+| `total` | Number | `0` | Total number of items. |
+| `limit` | Number | `10` | Items per page. Values below 1 count as 1. |
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `page` | Number | Reflect | Current page (when set, controls locally instead of URL) |
-| `total` | Number | Reflect | Total item count |
-| `limit` | Number | Reflect | Items per page (default `10`) |
+The page count is `ceil(total / limit)`, at least 1. The current page is clamped to that range. Previous is disabled on page 1 and Next on the last page.
+
+In URL mode, a click sets `?page=` on the current URL and calls the router's `navigate()` with the path and query. The indicator resyncs on every Navigation API `navigate` event, where the browser supports it.
 
 ## Events
 
-| Event | When |
-| ----- | ---- |
-| `page-change` | After prev/next; `detail.page` is the new page |
+| Event | Detail | When |
+| ----- | ------ | ---- |
+| `page-change` | `{ page }` (the new page number) | After Previous or Next is clicked. Bubbles and composed. |
 
-## Notes
+## Styling
 
-Parts: `button`, `prev`, `next`, `indicator`. Click handlers use shadow-scoped `on` (signal-owned). Navigation API `navigate` listener uses `{ signal: el.ctrl.signal }` when URL-synced.
+### Parts
 
-### Lifecycle / memory
-
-Prev/next `on.click` and the Navigation API listener abort with the component `ctrl`. Soft-nav disconnect clears them. Prefer this over raw `document` listeners for page changes.
+| Part | Element |
+| ---- | ------- |
+| `button` | Both buttons |
+| `prev` | The Previous button |
+| `next` | The Next button |
+| `indicator` | The "Page N of M" text |
 
 ## Related
 
-- [Elements overview](index.md)
-- [Navigation](index.md#navigation)
-- [Tabs](tabs.md)
-- [Memory safety & framework globals](../ui/advanced.md)
+- [Elements](index.md#navigation)
+- [Navigation](../router/navigation.md)

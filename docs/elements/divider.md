@@ -1,39 +1,51 @@
 ---
 seo_title: "Divider — Anza"
-description: "ui-divider — separating line with orientation and spacing tokens."
+description: "ui-divider — horizontal or vertical separator line with a spacing attribute and role separator."
 ---
 
 # Divider
 
-Separating line with orientation and spacing token integration.
+A thin separator line between blocks or inline items.
 
 **Tag:** `ui-divider` · **Import:** `@anzaui/anza/elements/divider`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/divider';
 ```
 
-## Basic usage
-
 ```html
-<ui-divider></ui-divider>
-<ui-divider orientation="vertical" spacing="4"></ui-divider>
+<ui-divider orientation="horizontal" spacing="4"></ui-divider>
 ```
 
-## Props
+## Attributes
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `orientation` | String | Reflect, default `horizontal` | `horizontal` | `vertical` |
-| `spacing` | String | Reflect | CSS length or space token key applied as `--divider-space` |
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `orientation` | String | — | `horizontal` or `vertical`. The line is only drawn when the attribute is present: the property defaults to `horizontal` but the default is not reflected to the attribute. |
+| `spacing` | String | — | Space on both sides of the line. A spacing step (`4` → `var(--space-4)`) or a length containing `px` or `rem`. Sets `--divider-space`. |
 
-## Notes
+## Keyboard and accessibility
 
-Defaults `role="separator"` when unset.
+The divider sets `role="separator"` on the host unless it already has a `role`.
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `line` | The `<hr>` |
+
+### Custom properties
+
+| Property | Default |
+| -------- | ------- |
+| `--divider-color` | `var(--color-border-default)` |
+| `--divider-space` | `var(--space-2)` |
 
 ## Related
 
-- [Elements overview](index.md)
-- [Primitives](index.md#primitives)
+- [Elements](index.md#primitives)
+- [Stack](stack.md)

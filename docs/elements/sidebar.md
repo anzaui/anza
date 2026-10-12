@@ -1,53 +1,61 @@
 ---
 seo_title: "Sidebar — Anza"
-description: "ui-sidebar — collapsible side panel."
+description: "ui-sidebar — sticky side panel that collapses to a narrow rail with the collapsed attribute or toggle()."
 ---
 
 # Sidebar
 
-Collapsible side panel for navigation or secondary chrome.
+A sticky side panel that can collapse to a narrow rail.
 
 **Tag:** `ui-sidebar` · **Import:** `@anzaui/anza/elements/sidebar`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/sidebar';
 ```
 
-## Basic usage
-
 ```html
 <ui-sidebar>
-  <a href="/docs">Docs</a>
-  <a href="/docs/elements">Elements</a>
+  <ui-link href="/">Home</ui-link>
+  <ui-link href="/settings">Settings</ui-link>
 </ui-sidebar>
-<ui-sidebar collapsed></ui-sidebar>
 ```
 
-```javascript
-document.querySelector('ui-sidebar').toggle();
-```
+## Attributes
 
-## Props
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `collapsed` | Boolean | `false` | Narrows the sidebar to `var(--space-16)` and hides its slotted children. |
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `collapsed` | Boolean | Reflect | Collapsed layout when set |
+The sidebar is `calc(var(--space-16) * 4)` wide and sticks below a `var(--space-16)` header. The width change is animated.
+
+## Slots
+
+| Slot | Content |
+| ---- | ------- |
+| default | Sidebar content |
 
 ## Methods
 
 | Method | Description |
 | ------ | ----------- |
-| `toggle()` | Flips `collapsed` |
+| `toggle()` | Flips `collapsed`. |
 
-## Notes
+```javascript
+document.querySelector('ui-sidebar').toggle();
+```
 
-Default slot content sits in `part="wrapper"`.
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `wrapper` | The scrolling content column |
 
 ## Related
 
-- [Elements overview](index.md)
-- [Layout](index.md#layout)
+- [Elements](index.md#layout)
 - [App](app.md)
 - [Nav](nav.md)

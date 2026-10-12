@@ -1,40 +1,51 @@
 ---
 seo_title: "Breadcrumb — Anza"
-description: "ui-breadcrumb — accessible breadcrumb trail."
+description: "ui-breadcrumb — breadcrumb trail in a labelled nav, with slash separators and the last item shown as current."
 ---
 
 # Breadcrumb
 
-Accessible breadcrumb trail (`nav` + ordered list). Dividers between items come from CSS.
+A breadcrumb trail with a separator between items.
 
 **Tag:** `ui-breadcrumb` · **Import:** `@anzaui/anza/elements/breadcrumb`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/breadcrumb';
+import '@anzaui/anza/elements/link';
 ```
-
-## Basic usage
 
 ```html
 <ui-breadcrumb>
-  <li><a href="/docs">Docs</a></li>
-  <li><a href="/docs/elements">Elements</a></li>
-  <li aria-current="page">Breadcrumb</li>
+  <ui-link href="/">Home</ui-link>
+  <ui-link href="/docs">Docs</ui-link>
+  <span>Breadcrumb</span>
 </ui-breadcrumb>
 ```
 
-## Props
+The breadcrumb has no attributes. Every item except the last gets a `/` after it. The last item is shown in the primary content colour and does not take clicks (`pointer-events: none`).
 
-_None — slot list items; style via CSS / parts._
+## Slots
 
-## Notes
+| Slot | Content |
+| ---- | ------- |
+| default | The items: `ui-link`, `a` or `span` elements |
 
-Uses `aria-label="Breadcrumb"`. Parts: `nav`, `list`. Slot children into the ordered list (typically `<li>`).
+## Keyboard and accessibility
+
+The items sit inside `<nav aria-label="Breadcrumb">` and an `<ol>`. The breadcrumb does not set `aria-current`; set it on the last item yourself.
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `nav` | The `<nav>` |
+| `list` | The `<ol>` |
 
 ## Related
 
-- [Elements overview](index.md)
-- [Navigation](index.md#navigation)
-- [Nav](nav.md)
+- [Elements](index.md#navigation)
+- [Link](link.md)

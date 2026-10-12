@@ -1,46 +1,54 @@
 ---
 seo_title: "Grid — Anza"
-description: "ui-grid — responsive CSS grid with columns and gap."
+description: "ui-grid — CSS grid with a cols attribute (a count or a template) and a gap attribute."
 ---
 
 # Grid
 
-Responsive CSS grid with column template and gap.
+A CSS grid with a column count or template and a gap.
 
 **Tag:** `ui-grid` · **Import:** `@anzaui/anza/elements/grid`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/grid';
 ```
 
-## Basic usage
-
 ```html
 <ui-grid cols="3" gap="4">
-  <div>A</div><div>B</div><div>C</div>
-</ui-grid>
-<ui-grid cols="1fr 2fr" gap="1rem">
-  <div>Narrow</div>
-  <div>Wide</div>
+  <ui-card>One</ui-card>
+  <ui-card>Two</ui-card>
+  <ui-card>Three</ui-card>
 </ui-grid>
 ```
 
-## Props
+## Attributes
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `cols` | String | Reflect | Numeric → `repeat(N, minmax(0, 1fr))`; otherwise raw CSS track list |
-| `gap` | String | Reflect | Sets `--grid-gap` (length/`rem`, or space token name) |
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `cols` | String | — | A number gives `repeat(n, minmax(0, 1fr))`. Anything else is used as `grid-template-columns`, for example `cols="200px 1fr"`. Without it the grid has one column. |
+| `gap` | String | — | A spacing step (`4` → `var(--space-4)`) or a length containing `px` or `rem`. Without it there is no gap. |
 
-## Notes
+The grid does not change columns by viewport width. Use a template such as `repeat(auto-fit, minmax(16rem, 1fr))` for a responsive grid.
 
-Default slot / `part="grid"`.
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `grid` | The grid container |
+
+### Custom properties
+
+| Property | Default |
+| -------- | ------- |
+| `--grid-cols` | none (one column) |
+| `--grid-gap` | none (no gap) |
 
 ## Related
 
-- [Elements overview](index.md)
-- [Layout](index.md#layout)
+- [Elements](index.md#layout)
 - [Stack](stack.md)
 - [Split](split.md)

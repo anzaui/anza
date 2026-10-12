@@ -1,44 +1,44 @@
 ---
 seo_title: "Scroll — Anza"
-description: "ui-scroll — scroll viewport with optional snap."
+description: "ui-scroll — vertical scroll viewport that fills its parent, with optional mandatory scroll snapping."
 ---
 
 # Scroll
 
-Scroll viewport with optional scroll-snap.
+A vertical scroll viewport that fills its parent.
 
 **Tag:** `ui-scroll` · **Import:** `@anzaui/anza/elements/scroll`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/scroll';
 ```
 
-## Basic usage
-
 ```html
-<ui-scroll style="height: 12rem">
-  <p>Long content…</p>
-</ui-scroll>
-<ui-scroll snap style="height: 12rem">
-  <section>Snap 1</section>
-  <section>Snap 2</section>
+<ui-scroll snap style="height: 20rem">
+  <section>One</section>
+  <section>Two</section>
 </ui-scroll>
 ```
 
-## Props
+## Attributes
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `snap` | Boolean | Reflect | Enables scroll-snap behavior when set |
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `snap` | Boolean | `false` | Sets `scroll-snap-type: y mandatory`. Slotted children always have `scroll-snap-align: start`. |
 
-## Notes
+The host is `100%` of its parent's height. The viewport scrolls vertically and hides horizontal overflow.
 
-Content lives in `part="viewport"`.
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `viewport` | The scrolling element |
 
 ## Related
 
-- [Elements overview](index.md)
-- [Layout](index.md#layout)
-- [Surface](surface.md)
+- [Elements](index.md#layout)
+- [Stack](stack.md)

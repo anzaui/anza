@@ -1,52 +1,54 @@
 ---
 seo_title: "Stat — Anza"
-description: "ui-stat — KPI statistic with label, value, and trend."
+description: "ui-stat — KPI panel with a label, a large value and a change line coloured by trend up, down or neutral."
 ---
 
 # Stat
 
-KPI statistic with label, value, and optional trend/change slot.
+A panel showing one metric: a label, a large value and a change line.
 
 **Tag:** `ui-stat` · **Import:** `@anzaui/anza/elements/stat`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/stat';
 ```
 
-## Basic usage
-
 ```html
 <ui-stat trend="up">
   <span slot="label">Revenue</span>
-  $42k
-  <span slot="change">+12%</span>
-</ui-stat>
-<ui-stat trend="down">
-  <span slot="label">Churn</span>
-  2.1%
-  <span slot="change">−0.4%</span>
+  $48,200
+  <span slot="change">+12% vs last month</span>
 </ui-stat>
 ```
 
-## Props
+## Attributes
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `trend` | String | Reflect | Trend styling: `neutral` (default), `up`, or `down` (theme-dependent) |
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `trend` | String | — | Colour of the change line: `up` or `positive` (success), `down` or `negative` (error), `neutral` (secondary content). Without the attribute the change line inherits its colour. |
 
-## Slots / parts
+## Slots
 
-| Name | Kind | Description |
-| ---- | ---- | ----------- |
-| `label` | slot | Metric label |
-| _(default)_ | slot | Primary value |
-| `change` | slot | Trend / delta text |
-| `label` / `value` / `trend` | parts | Section wrappers |
+| Slot | Content |
+| ---- | ------- |
+| `label` | Small uppercase label |
+| default | The value |
+| `change` | The change line |
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `label` | The label area |
+| `value` | The value area |
+| `trend` | The change line area |
 
 ## Related
 
-- [Elements overview](index.md)
-- [Data](index.md#data)
+- [Elements](index.md#data)
+- [Card](card.md)
 - [Chart](chart.md)

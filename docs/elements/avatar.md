@@ -1,40 +1,54 @@
 ---
 seo_title: "Avatar — Anza"
-description: "ui-avatar — profile picture with image or initials fallback."
+description: "ui-avatar — profile image that falls back to initials from the name, with a size attribute and an automatic aria-label."
 ---
 
 # Avatar
 
-Profile picture with image or initials fallback, sized via tokens and labeled for accessibility.
+A round profile image that shows initials when there is no image or it fails to load.
 
 **Tag:** `ui-avatar` · **Import:** `@anzaui/anza/elements/avatar`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/avatar';
 ```
 
-## Basic usage
-
 ```html
-<ui-avatar name="Ada Lovelace" src="/avatars/ada.jpg"></ui-avatar>
-<ui-avatar name="Grace Hopper" size="10"></ui-avatar>
+<ui-avatar src="/img/ada.jpg" name="Ada Lovelace" size="10"></ui-avatar>
 ```
 
-## Props
+## Attributes
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `src` | String | Reflect | Image URL; falls back to initials on error or when unset |
-| `name` | String | Reflect | Display name used for initials and default `aria-label` |
-| `size` | String | Reflect | CSS length or space token key |
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `src` | String | — | Image URL. The image shows on `load`; on `error` the initials show instead. |
+| `name` | String | — | Full name. The initials are the first letters of the first and last words, uppercased. |
+| `size` | String | — | A spacing step (`10` → `var(--space-10)`) or a length containing `px` or `rem`. Without it the avatar is `--avatar-size`. |
 
-## Notes
+## Keyboard and accessibility
 
-Sets `aria-label="Avatar of {name}"` when `name` is present and no label is set. Initials come from the first and last word of `name`.
+When the host has no `aria-label` and `name` is set, the avatar sets `aria-label="Avatar of <name>"`. It also adds `role="img"` when the host has no `role`.
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `image` | The `<img>` |
+| `initials` | The `<span>` with the initials |
+
+### Custom properties
+
+| Property | Default |
+| -------- | ------- |
+| `--avatar-size` | `var(--space-8)` |
+
+The font size is 40% of the avatar size.
 
 ## Related
 
-- [Elements overview](index.md)
-- [Primitives](index.md#primitives)
+- [Elements](index.md#primitives)
+- [Badge](badge.md)

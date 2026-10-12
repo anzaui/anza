@@ -1,46 +1,50 @@
 ---
 seo_title: "Split — Anza"
-description: "ui-split — two-pane split layout."
+description: "ui-split — two-pane row with a 1-1, 1-2 or 2-1 ratio that stacks below 768px."
 ---
 
 # Split
 
-Two-pane split layout controlled by a ratio token.
+Two panes side by side that stack on narrow screens.
 
 **Tag:** `ui-split` · **Import:** `@anzaui/anza/elements/split`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/split';
 ```
 
-## Basic usage
-
 ```html
-<ui-split>
-  <div>Left</div>
-  <div>Right</div>
-</ui-split>
-<ui-split ratio="1-2">
-  <aside>Narrow</aside>
-  <main>Wide</main>
+<ui-split ratio="2-1">
+  <section>Main</section>
+  <aside>Details</aside>
 </ui-split>
 ```
 
-## Props
+## Attributes
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `ratio` | String | Reflect | Pane ratio token (default `1-1`; e.g. `1-2`) |
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `ratio` | String | — | Flex ratio of the first to the last child: `1-1`, `1-2` or `2-1`. Without the attribute the panes keep their natural width: the property defaults to `1-1` but the default is not reflected to the attribute. |
 
-## Notes
+The panes are `var(--space-6)` apart. At 768px viewport width or less they stack in a column `var(--space-4)` apart.
 
-Two children in the default slot; `part="split"` wraps them.
+## Slots
+
+| Slot | Content |
+| ---- | ------- |
+| default | Two panes |
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `split` | The flex row |
 
 ## Related
 
-- [Elements overview](index.md)
-- [Layout](index.md#layout)
+- [Elements](index.md#layout)
 - [Grid](grid.md)
-- [Sidebar](sidebar.md)

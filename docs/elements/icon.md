@@ -1,41 +1,58 @@
 ---
 seo_title: "Icon — Anza"
-description: "ui-icon — accessible SVG sprite icon with size tokens and ARIA decoration."
+description: "ui-icon — SVG sprite icon with name or href, size and stroke attributes, hidden from assistive tech unless labelled."
 ---
 
 # Icon
 
-Accessible SVG sprite icon with size tokens, name/href targets, and ARIA decoration.
+Renders one symbol from an SVG sprite through `<use>`.
 
 **Tag:** `ui-icon` · **Import:** `@anzaui/anza/elements/icon`
 
-## Import
+## Usage
 
 ```javascript
 import '@anzaui/anza/elements/icon';
 ```
 
-## Basic usage
-
 ```html
-<ui-icon name="check" size="4"></ui-icon>
-<ui-icon href="/assets/icons.svg#icon-search" aria-label="Search"></ui-icon>
+<ui-icon name="search" size="5"></ui-icon>
+<ui-icon href="/assets/brand.svg#logo" aria-label="Anza"></ui-icon>
 ```
 
-## Props
+## Attributes
 
-| Prop | Type | Reflect | Description |
-| ---- | ---- | ------- | ----------- |
-| `name` | String | Reflect | Sprite id; resolves to `/assets/icons.svg#icon-{name}` when `href` is unset |
-| `href` | String | Reflect | Full `<use href>` target (overrides `name`) |
-| `size` | String | Reflect | CSS length or space token key (e.g. `4` → `var(--space-4)`) |
-| `stroke` | String | Reflect | Stroke color via `--icon-stroke` |
+| Attribute | Type | Default | Description |
+| --------- | ---- | ------- | ----------- |
+| `name` | String | — | Sprite symbol. Resolves to `/assets/icons.svg#icon-<name>`. |
+| `href` | String | — | Full sprite reference. Takes precedence over `name`. |
+| `size` | String | — | A spacing step (`5` → `var(--space-5)`) or a length containing `px` or `rem`. Sets `--icon-size`. |
+| `stroke` | String | — | Stroke width. Sets `--icon-stroke`. |
 
-## Notes
+## Keyboard and accessibility
 
-Without `aria-label` / `aria-labelledby`, the SVG is `aria-hidden`. Provide a label when the icon is meaningful.
+The inner `<svg>` has `aria-hidden="true"` unless the host has `aria-label` or `aria-labelledby`.
+
+## Styling
+
+### Parts
+
+| Part | Element |
+| ---- | ------- |
+| `svg` | The `<svg>` |
+
+### Custom properties
+
+| Property | Default |
+| -------- | ------- |
+| `--icon-size` | `var(--space-4)` |
+| `--icon-color` | `currentColor` |
+| `--icon-stroke` | `2` |
+
+The `size` and `stroke` attributes set `--icon-size` and `--icon-stroke` inline on the host, so they win over stylesheet values.
 
 ## Related
 
-- [Elements overview](index.md)
-- [Primitives](index.md#primitives)
+- [Elements](index.md#primitives)
+- [Button](button.md)
+- [Design Tokens](../styles/tokens.md)
