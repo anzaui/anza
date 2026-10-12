@@ -8,7 +8,7 @@ at startup; a render walks the pre-split chunks and copies parameter values in.<
 <li><strong>Framework adapters</strong> — <code>IntoResponse</code> (Axum) and <code>Responder</code> (Actix-web) for <code>Document</code> and <code>Envelope</code>, plus SSE helpers</li>
 <li><strong>Serde binding</strong> — render any <code>Serialize</code> value with <code>Template::render</code>, or wrap it in <code>Data(...)</code></li>
 <li><strong>Signing</strong> — HMAC-SHA256 or Ed25519 signatures over <code>ts:slot:html</code></li>
-<li><strong>Live reload</strong> — optional <code>watch</code> feature reloads templates when files change</li>
+<li><strong>Watch (incomplete)</strong> — the <code>watch</code> feature starts a file watcher, but changes are not reloaded yet; restart to pick up template edits</li>
 </ul>
 <h2>Installation</h2>
 <view-code language="toml">[dependencies]
@@ -20,8 +20,8 @@ tokio = { version = "1", features = ["full"] }
 <tr><td><em>(default)</em></td><td>No web framework and no async runtime</td></tr>
 <tr><td><code>axum</code></td><td><code>IntoResponse</code> for <code>Document</code> (HTML) and <code>Envelope</code> (JSON); <code>adapters::axum::stream::event</code> builds an SSE <code>Event</code></td></tr>
 <tr><td><code>actix</code></td><td><code>Responder</code> for <code>Document</code> and <code>Envelope</code>; <code>adapters::actix::stream::bytes</code> for SSE bodies</td></tr>
-<tr><td><code>tower</code></td><td>A Tower <code>Service</code> wrapper (<code>adapters::tower</code>)</td></tr>
-<tr><td><code>watch</code></td><td>Filesystem watcher (<code>notify</code>) for reloading templates in development</td></tr>
+<tr><td><code>tower</code></td><td>Placeholder: pulls in <code>tower</code>, but <code>adapters::tower</code> has no <code>Service</code> yet</td></tr>
+<tr><td><code>watch</code></td><td>Starts a <code>notify</code> watcher on the root; events are not applied to the cache yet</td></tr>
 <tr><td><code>full</code></td><td>All of the above</td></tr>
 </tbody></table></div>
 <h2>Quickstart (Axum)</h2>
@@ -117,6 +117,6 @@ returns an <code>axum::response::sse::Event</code>. See <a href="/docs/engines/s
 <tr><td><code>render</code></td><td>Page and fragment rendering</td></tr>
 <tr><td><code>crypto</code></td><td><code>hmac</code>, <code>ed25519</code> (sign / verify), <code>hkdf</code>, <code>blake</code> digests</td></tr>
 <tr><td><code>stream</code></td><td>SSE and WebSocket encoders</td></tr>
-<tr><td><code>adapters</code></td><td>Axum, Actix-web and Tower integration (feature-gated)</td></tr>
+<tr><td><code>adapters</code></td><td>Axum and Actix-web integration (feature-gated); <code>tower</code> is an empty placeholder</td></tr>
 <tr><td><code>models</code></td><td><code>Document</code>, <code>Envelope</code>, <code>Manifest</code></td></tr>
 </tbody></table></div>
