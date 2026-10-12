@@ -731,7 +731,12 @@ fn preserve_csr_template(
   }
 
   if let Some((ref js_path, ref src)) = preserve.module {
-    let rewritten = rewrite_template_html_path(src, &preserve.html_rel, "./template.html");
+    let mut rewritten = rewrite_template_html_path(src, &preserve.html_rel, "./template.html");
+    // The build-time registry key of the page's tags descriptor follows the
+    // template (the runtime looks up `./template.tags.json`).
+    if let Some(stem) = preserve.html_rel.strip_suffix(".html") {
+      rewritten = super::inline::rename_key(&rewritten, &format!("{}.tags.json", stem), "./template.tags.json");
+    }
     if &rewritten != src {
       outputs.push((js_path.clone(), rewritten.into_bytes()));
     }

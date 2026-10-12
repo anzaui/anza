@@ -31,7 +31,7 @@ Also handled:
 - **Light-DOM DSD polyfill** — if native DSD did not attach, a lingering `<template shadowrootmode="open">` is consumed into an attached shadow.
 - **Styles** — constructable sheets are assigned without removing DSD children; fallback `<style>` is skipped when DSD already shipped styles.
 - **Mismatch** — if the adopted tree fails hard sanity checks vs the client template (missing critical `ref`s / empty structure), one graceful re-render runs. No flash loop.
-- **No refetch in built apps** — after `anza build`, an adopted root does not request what its DSD already carries: stylesheets it links, and its template / tags descriptor unless they were inlined into the module. The mismatch check then uses the inlined template or tags descriptor; an empty adopted root still loads the template. The template is fetched on soft navigation or for a mismatch re-render.
+- **No refetch in built apps** — after `anza build`, an adopted root does not request what its DSD already carries: stylesheets it links, and its template / tags descriptor unless they were inlined into the module. The mismatch check then uses the inlined template or tags descriptor (a page module carries its tags descriptor, not its HTML, so a page root missing a `ref` still re-renders); an empty adopted root still loads the template. The template is fetched on soft navigation or for a mismatch re-render.
 
 ## Soft-nav vs full load
 

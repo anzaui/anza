@@ -28,6 +28,11 @@ pub struct Parsed {
   /// build inlines into the module: every style, and every template except
   /// `page()` HTML (route-sized content the SSG already ships in HTML).
   pub inline: Vec<String>,
+  /// Relative `page()` template HTML specs. Their HTML is not inlined, but a
+  /// production build registers the tags descriptor beside each one, so an
+  /// adopted (pre-rendered) page can run the hydration mismatch check without
+  /// a request.
+  pub page_html: Vec<String>,
   /// Definition calls in this module, by kind (`element`, `container`,
   /// `page`, `dock`, `view`, `part`), in source order.
   pub defs: Vec<String>,
@@ -73,6 +78,7 @@ pub fn parse(file: &Path, cm: &Arc<SourceMap>) -> Result<Parsed, Diagnostic> {
     dynamic: visitor.dynamic,
     assets: visitor.assets,
     inline: visitor.inline,
+    page_html: visitor.page_html,
     defs: visitor.defs,
     prop_errors: visitor.prop_errors,
   })
@@ -84,6 +90,7 @@ struct Collector {
   dynamic: Vec<(String, Span)>,
   assets: Vec<(String, Span)>,
   inline: Vec<String>,
+  page_html: Vec<String>,
   defs: Vec<String>,
   prop_errors: Vec<(String, Span)>,
 }
@@ -166,7 +173,8 @@ impl Visit for Collector {
 
 impl Collector {
   /// Records a relative asset path (template/style) for copying into dist.
-  /// `inline`: the asset may be inlined into the module by a production build.
+  /// `inline`: the asset may be inlined into the module by a production build
+  /// (false only for `page()` template HTML, recorded in `page_html`).
   fn push_asset(&mut self, s: &swc_ecma_ast::Str, inline: bool) {
     if let Some(v) = str_value(s) {
       if (v.starts_with("./") || v.starts_with("../") || v.starts_with('/'))
@@ -174,8 +182,11 @@ impl Collector {
           && !v.starts_with("<!--")
           && !v.contains('{')
           && !v.contains('<') {
-        if inline && !v.starts_with('/') && !self.inline.contains(&v) {
-          self.inline.push(v.clone());
+        if !v.starts_with('/') {
+          let list = if inline { &mut self.inline } else { &mut self.page_html };
+          if !list.contains(&v) {
+            list.push(v.clone());
+          }
         }
         self.assets.push((v, s.span));
       }

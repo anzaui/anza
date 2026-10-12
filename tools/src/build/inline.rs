@@ -17,7 +17,8 @@ use std::path::{Path, PathBuf};
 /// order. CSS is minified; CSS with `@import` or relative `url()` stays a
 /// file (a constructed sheet would resolve them against the document).
 /// A template `x.html` also registers `x.tags.json` (`null` when absent, so
-/// the runtime does not request it).
+/// the runtime does not request it). A `x.tags.json` asset (a `page()`
+/// template, whose HTML is not inlined) registers only the descriptor.
 pub fn prelude(assets: &[(String, PathBuf)]) -> Result<String, String> {
   let mut entries: Vec<(String, String)> = Vec::new();
   for (spec, file) in assets {
@@ -35,16 +36,11 @@ pub fn prelude(assets: &[(String, PathBuf)]) -> Result<String, String> {
         let html = read(file)?;
         entries.push((spec.clone(), json_string(&html)));
         if let Some(stem) = spec.strip_suffix(".html") {
-          let tags_file = file.with_extension("tags.json");
-          let tags = match std::fs::read_to_string(&tags_file) {
-            Ok(text) => serde_json::from_str::<serde_json::Value>(&text)
-              .map_err(|e| format!("invalid {}: {}", tags_file.display(), e))?
-              .to_string(),
-            Err(_) => "null".to_string(),
-          };
-          entries.push((format!("{}.tags.json", stem), tags));
+          entries.push((format!("{}.tags.json", stem), tags(&file.with_extension("tags.json"))?));
         }
       }
+      // A page template's descriptor alone (its HTML stays a file).
+      "json" if spec.ends_with(".tags.json") => entries.push((spec.clone(), tags(file)?)),
       _ => {}
     }
   }
@@ -56,9 +52,38 @@ pub fn prelude(assets: &[(String, PathBuf)]) -> Result<String, String> {
     .map(|(spec, value)| format!("[{},{}]", json_string(spec), value))
     .collect();
   Ok(format!(
-    "((m,b)=>{{for(const[k,v]of[{}])m.set(new URL(k,b).href,v)}})(globalThis.__anzaInline??=new Map(),import.meta.url);\n",
+    "{}for(const[k,v]of[{}])m.set(new URL(k,b).href,v)}})(globalThis.__anzaInline??=new Map(),import.meta.url);\n",
+    PRELUDE_START,
     list.join(",")
   ))
+}
+
+const PRELUDE_START: &str = "((m,b)=>{";
+
+/// Renames one registry key in a module's prelude (its first line, when it
+/// has one). SSG moves a page fragment from `./index.html` to
+/// `./template.html`, so the descriptor key must follow
+/// (`./index.tags.json` -> `./template.tags.json`): the runtime derives the
+/// tags URL from the template URL.
+pub fn rename_key(module: &str, from: &str, to: &str) -> String {
+  if !module.starts_with(PRELUDE_START) {
+    return module.to_string();
+  }
+  let split = module.find('\n').map_or(module.len(), |i| i + 1);
+  let (first, rest) = module.split_at(split);
+  let from = format!("[{},", json_string(from));
+  let to = format!("[{},", json_string(to));
+  format!("{}{}", first.replacen(&from, &to, 1), rest)
+}
+
+/// A tags descriptor as compact JSON, or `null` when the file is absent.
+fn tags(file: &Path) -> Result<String, String> {
+  match std::fs::read_to_string(file) {
+    Ok(text) => serde_json::from_str::<serde_json::Value>(&text)
+      .map(|value| value.to_string())
+      .map_err(|e| format!("invalid {}: {}", file.display(), e)),
+    Err(_) => Ok("null".to_string()),
+  }
 }
 
 fn read(file: &Path) -> Result<String, String> {
@@ -138,6 +163,31 @@ mod tests {
     assert!(!out.contains("./a.css"), "{}", out);
     assert!(out.contains(r#"["./t.tags.json",null]"#), "{}", out);
     assert_eq!(prelude(&[("./a.css".into(), dir.join("a.css"))]).unwrap(), "");
+    let _ = std::fs::remove_dir_all(&dir);
+  }
+
+  #[test]
+  fn page_tags_register_alone_and_follow_the_template_rename() {
+    let dir = tmp("page");
+    std::fs::write(dir.join("index.tags.json"), "{\"version\":1,\"refs\":[\"msg\"]}").unwrap();
+    let out = prelude(&[
+      ("./index.tags.json".into(), dir.join("index.tags.json")),
+      ("./gone.tags.json".into(), dir.join("gone.tags.json")),
+    ])
+    .unwrap();
+    assert!(out.contains(r#"["./index.tags.json",{"refs":["msg"],"version":1}]"#), "{}", out);
+    assert!(out.contains(r#"["./gone.tags.json",null]"#), "{}", out);
+    assert!(!out.contains(".html"), "{}", out);
+
+    let module = format!("{}page('/a', {{ template: {{ html: './index.html' }} }}); // \"./index.tags.json\"\n", out);
+    let renamed = rename_key(&module, "./index.tags.json", "./template.tags.json");
+    assert!(renamed.contains(r#"["./template.tags.json",{"refs""#), "{}", renamed);
+    assert!(!renamed.lines().next().unwrap().contains("./index.tags.json"), "{}", renamed);
+    // Only the prelude line changes.
+    assert!(renamed.ends_with("// \"./index.tags.json\"\n"), "{}", renamed);
+    // Modules without a prelude are left alone.
+    let plain = "const k = [\"./index.tags.json\",1];\n";
+    assert_eq!(rename_key(plain, "./index.tags.json", "./template.tags.json"), plain);
     let _ = std::fs::remove_dir_all(&dir);
   }
 

@@ -623,6 +623,15 @@ fn visit_module(module: &Path, ctx: &WalkCtx) -> Visit {
       out.inline.push((spec.clone(), normalize(&path)));
     }
   }
+  // Page templates: only the tags descriptor beside the HTML (`x.html` ->
+  // `x.tags.json`, registered as null when absent).
+  for spec in &parsed.page_html {
+    if let (Some(stem), Resolution::File(path, _)) = (spec.strip_suffix(".html"), resolve(spec)) {
+      let mut tags = normalize(&path);
+      tags.set_extension("tags.json");
+      out.inline.push((format!("{}.tags.json", stem), tags));
+    }
+  }
 
   // 3. Prop-type diagnostics from ui.element specs.
   for (bad, span) in &parsed.prop_errors {
