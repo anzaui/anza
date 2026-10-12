@@ -35,19 +35,17 @@ The source of truth is `.release-please-manifest.json` (`{ ".": "<version>" }`).
    which checks the tag against the manifest, runs `versions:check`, builds the
    CLI for every platform and attaches the binaries to the release.
 6. **Publish to registries (manual for now).** No registry tokens are stored in
-   the repository. From a clean checkout of the tag:
+   the repository. npm: follow [NPM.md](../NPM.md) (`node tasks/publish.js`
+   downloads the release binaries, verifies every tarball, then publishes
+   `@anzaui/anza`, `@anzaui/create-anza` and `@anzaui/engine` in order).
+   The others, from a clean checkout of the tag:
 
    ```bash
    git checkout v<version>
-   npm run publish:npm                       # builds the CLI, publishes @anzaui/anza
-   (cd create && npm publish)                # @anzaui/create-anza
-   (cd engines/ts && npm ci && npm run build && npm publish)   # @anzaui/engine
    cargo publish --manifest-path engines/rust/Cargo.toml       # anza (crate)
    cargo publish --manifest-path tools/Cargo.toml              # anza-cli
    (cd engines/py && python -m build && twine upload dist/*)   # anza (PyPI)
    ```
-
-   Publish `@anzaui/anza` before `@anzaui/create-anza`, which depends on it.
 
 ### Forcing a version
 
@@ -93,5 +91,5 @@ notes.
 ## Local build (fallback)
 
 ```bash
-node tasks/publish.js --dry   # build the host binary and npm pack library/
+node tasks/publish.js --dry   # download the release binaries, pack and verify every npm package
 ```

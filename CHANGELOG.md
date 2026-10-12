@@ -51,6 +51,8 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Rust engine: the `watch` feature now reloads changed templates.
 - Docs: every documented `@anzaui/anza` import resolves (checked in CI); engine and template docs no longer claim auto-escaping, `each`/`if` blocks or browser-side signature checks.
 
+- **npm packages were published broken in 0.5.0:** `@anzaui/anza` had no `anza` CLI binary (`npx anza` failed) and `@anzaui/engine` had no compiled `dist/` (imports failed). The engine package now lists its `files`, and `tasks/publish.js` downloads the release binaries and refuses to publish any tarball that is missing a required file (see `NPM.md`).
+
 ### Security
 
 - **Engines: reflected XSS in the page fallback.** The Rust and TypeScript engines wrote the request path into the "unknown route" HTML unescaped; it is now escaped.
