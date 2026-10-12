@@ -66,10 +66,12 @@ function checkPage(html, label, { requireTitle = true, requireJsonLd = false, re
   assertContains(html, 'shadowrootmode="open"', label);
   assertAbsent(html, 'shadowrootmode="closed"', label);
   assertNoDistAssetUrls(html, label);
-  // Production builds link content-hashed copies (/assets/tokens-<hash>.css).
+  // Production builds link content-hashed copies (/assets/tokens-<hash>.css),
+  // with adjacent head sheets merged into one (/assets/tokens-styles-<hash>.css).
   const assetsDir = requireBase ? assetPath('/assets/') : '/assets/';
   for (const [plain, name] of [[tokensCss, 'tokens'], [stylesCss, 'styles']]) {
-    if (new RegExp(`href="${assetsDir}${name}-[0-9a-f]{8}\\.css"`).test(html)) ok(`${label}: links hashed ${name} CSS`);
+    const hashed = new RegExp(`href="${assetsDir}(?:[\\w]+-)*${name}(?:-[\\w]+)*-[0-9a-f]{8}\\.css"`);
+    if (hashed.test(html)) ok(`${label}: links hashed ${name} CSS`);
     else assertContains(html, `href="${plain}"`, label);
   }
   assertContains(html, 'rel="modulepreload"', label);

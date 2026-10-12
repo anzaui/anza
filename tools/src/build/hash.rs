@@ -42,7 +42,7 @@ fn fnv1a(bytes: &[u8]) -> u64 {
 }
 
 /// `<stem>-<hash>.<ext>`; `index.*` files take their folder's name.
-fn hashed_name(rel: &Path, bytes: &[u8]) -> String {
+pub(crate) fn hashed_name(rel: &Path, bytes: &[u8]) -> String {
   let ext = rel.extension().and_then(|e| e.to_str()).unwrap_or("");
   let mut stem = rel.file_stem().and_then(|s| s.to_str()).unwrap_or("asset").to_string();
   if stem == "index" {

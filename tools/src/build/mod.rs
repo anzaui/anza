@@ -17,6 +17,7 @@ pub mod hash;
 pub mod headers;
 pub mod html;
 pub mod inline;
+pub mod merge;
 pub mod order;
 pub mod parse;
 pub mod resolve;

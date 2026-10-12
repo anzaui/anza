@@ -136,6 +136,12 @@ pub fn compile_with(
                 if !map.is_empty() {
                   anza_logs::success!("Hashed {} asset(s) into {}/assets", map.len(), dist_dir.display());
                 }
+                // One render-blocking stylesheet per page head.
+                match crate::build::merge::run(dist_dir, &stats.base, &mut hints) {
+                  Ok(0) => {}
+                  Ok(n) => anza_logs::success!("Merged head stylesheets into {} file(s)", n),
+                  Err(errs) => errors.extend(errs),
+                }
                 if let Err(err) = crate::build::headers::emit(dist_dir, &stats.base, &hints) {
                   errors.push(format!("cannot write _headers: {}", err));
                 }
