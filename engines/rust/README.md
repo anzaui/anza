@@ -15,6 +15,8 @@ A server-side template and dynamic fragment rendering library for Rust web appli
 
 ## Installation
 
+<!-- x-release-please-start-version -->
+
 Add `anza` to your `Cargo.toml`:
 
 ```toml
@@ -28,6 +30,8 @@ To enable Axum framework response helpers:
 [dependencies]
 anza = { version = "0.5.1", features = ["axum"] }
 ```
+
+<!-- x-release-please-end -->
 
 ## Usage
 

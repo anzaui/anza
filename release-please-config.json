@@ -1,0 +1,33 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "d90f250ddbaa9358a2adc130ef75cb42bb9b59e3",
+  "include-component-in-tag": false,
+  "include-v-in-tag": true,
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": true,
+  "pull-request-title-pattern": "chore: release ${version}",
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "package-name": "anza",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        { "type": "json", "path": "library/package.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "library/package-lock.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "library/package-lock.json", "jsonpath": "$.packages[''].version" },
+        { "type": "json", "path": "create/package.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "create/package.json", "jsonpath": "$.dependencies['@anzaui/anza']" },
+        { "type": "toml", "path": "tools/Cargo.toml", "jsonpath": "$.package.version" },
+        { "type": "toml", "path": "tools/Cargo.lock", "jsonpath": "$.package[?(@.name.value == 'anza-cli')].version" },
+        { "type": "toml", "path": "engines/rust/Cargo.toml", "jsonpath": "$.package.version" },
+        { "type": "json", "path": "engines/ts/package.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "engines/ts/package-lock.json", "jsonpath": "$.version" },
+        { "type": "json", "path": "engines/ts/package-lock.json", "jsonpath": "$.packages[''].version" },
+        { "type": "toml", "path": "engines/py/pyproject.toml", "jsonpath": "$.project.version" },
+        "engines/rust/README.md",
+        "web/src/pages/entry/index.html",
+        "web/src/docks/docs/index.html"
+      ]
+    }
+  }
+}

@@ -1,12 +1,24 @@
 name: Release
 
+# Builds the CLI binaries for a `v<version>` tag and attaches them to the
+# GitHub release. Normally called by release-please.yml after a release PR is
+# merged; a tag pushed by hand still triggers it directly.
 on:
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
+  workflow_call:
+    inputs:
+      tag:
+        description: Release tag, e.g. v0.6.0
+        required: true
+        type: string
 
 permissions:
   contents: write
+
+env:
+  RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
 
 jobs:
   verify:
@@ -14,17 +26,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
       - name: Extract tag version
-        run: echo "TAG=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
-      - name: Read package version
-        run: echo "VERSION=$(jq -r .version library/package.json)" >> "$GITHUB_ENV"
+        run: echo "TAG=${RELEASE_TAG#v}" >> "$GITHUB_ENV"
+      - name: Read shared version
+        run: echo "VERSION=$(jq -r '.["."]' .release-please-manifest.json)" >> "$GITHUB_ENV"
       - name: Assert match
         run: |
           if [ "$TAG" != "$VERSION" ]; then
-            echo "Tag version ($TAG) does not match library/package.json ($VERSION)"
+            echo "Tag version ($TAG) does not match .release-please-manifest.json ($VERSION)"
             exit 1
           fi
           echo "Releasing version $VERSION"
+      - name: All package versions agree
+        run: node tasks/versions-check.js
 
   build:
     name: Build ${{ matrix.binary }}
@@ -57,6 +73,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -104,6 +122,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
 
       - name: Download all binaries
         uses: actions/download-artifact@v4
@@ -117,11 +137,16 @@ jobs:
       - name: List staged binaries
         run: ls -la staged-binaries/
 
-      - name: Create GitHub release with binaries
+      - name: Create or update GitHub release with binaries
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          VERSION=${GITHUB_REF_NAME#v}
+          VERSION=${RELEASE_TAG#v}
+          # release-please already created the release: just attach the binaries.
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" staged-binaries/anza-* --clobber
+            exit 0
+          fi
           NOTES=""
           if [ -f CHANGELOG.md ]; then
             SECTION=$(awk -v ver="## [$VERSION]" '$0 ~ ver {flag=1; next} /^## \[/ {flag=0} flag' CHANGELOG.md)
@@ -129,7 +154,7 @@ jobs:
               NOTES="$SECTION"
             fi
           fi
-          ARGS=(gh release create "$GITHUB_REF_NAME" staged-binaries/anza-* --title "anza v$VERSION")
+          ARGS=(gh release create "$RELEASE_TAG" staged-binaries/anza-* --title "anza v$VERSION")
           if [ -n "$NOTES" ]; then
             ARGS+=(--notes "$NOTES")
           else

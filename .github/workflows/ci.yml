@@ -34,6 +34,9 @@ jobs:
       - name: Types cover runtime exports
         run: npm run types:check
 
+      - name: Package versions agree
+        run: npm run versions:check
+
   rust:
     name: Rust (CLI + engine)
     runs-on: ubuntu-latest
