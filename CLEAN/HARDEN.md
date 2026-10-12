@@ -48,7 +48,18 @@ Severity: **H** high · **M** medium · **L** low. Owner lanes run in parallel. 
 | GP1 | perf | Rust clones the whole `Template` per render (`lookup.rs:13`). `Data<T>` serializes per slot (300×). Signing key rebuilt per call (all engines). Linear slot scans. Py dataclass/getattr per call | `Arc<Template>`. One-shot `Value`. Cache key objects. Index-resolved slots. Precompiled Py renderer. Target: unsigned render ≤ 1.5× plain concatenation |
 | GC1 | M | The three engines disagree: digest (BLAKE3 vs SHA-256), page pipeline, bool/object stringification, missing-key behaviour, watch, symlinks | Written contract in `docs/engines/contract.md` + shared golden fixtures run by all three suites |
 
-## Lane C — browser library (`library/`)
+## Lane C — browser library (`library/`) — DONE 2026-10-13
+
+Merged b4defa3…5956f53 + ac2ff8a (ui-text `as` allowlist). 531 browser + 6 scaffolder tests. Notes for lane D:
+- Sanitizer output drops `id` and `style`. Only http/https/mailto URLs survive.
+- `methods` and form hooks (`reset()`, `disabled(v)`, `restore(state)`) run with `this` = element. The `update` context has `internals`.
+- Checkbox, toggle, select and radio fire `change` (bubbles, composed, no detail) after the form value updates. Form reset restores the first-mount value. `ui-button type=submit` adds `name=value`.
+- Non-bubbling `on()` events (close, cancel, toggle, focus) now fire. `ui-dialog` emits `close`.
+- SW: never caches no-store/private/Vary:*/Authorization/credentialed cross-origin. Routes match the worker's origin unless the pattern names one. Advise clearing caches on logout.
+- Scaffolder: `npm create @anzaui/anza <name> -- --force` to overwrite. `.` works.
+- New attribute values: stat `trend=up|down`, surface `variant=bordered`, text `color=muted`, tooltip `right-end/left-end`. Popover, menu and select load the popover polyfill.
+- Open: `ui-dialog`'s `open` attribute does not open the dialog by itself. Either implement it or document `showModal()`.
+
 
 | ID | Sev | Problem | Fix |
 |----|-----|---------|-----|
