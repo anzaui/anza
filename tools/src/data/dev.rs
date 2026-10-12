@@ -7,6 +7,8 @@ pub struct Dev {
   pub src: PathBuf,
   pub dist: PathBuf,
   pub port: u16,
+  /// Bind address (`--host`, default `127.0.0.1`).
+  pub host: String,
   pub entries: Vec<PathBuf>,
 }
 
@@ -14,6 +16,9 @@ impl Dev {
   pub fn validate(&self) -> Result<(), String> {
     if self.port == 0 {
       return Err("port must be non-zero".into());
+    }
+    if self.host.trim().is_empty() {
+      return Err("--host must not be empty".into());
     }
     Ok(())
   }
@@ -32,9 +37,10 @@ impl Dev {
     let dist = self.dist.clone();
     let server_tx = tx.clone();
     let port = self.port;
+    let host = self.host.clone();
 
     tokio::spawn(async move {
-      server::run(port, &dist, server_tx, rebuilt_rx).await;
+      server::run(&host, port, &dist, server_tx, rebuilt_rx).await;
     });
 
     watcher::start(self.src.clone(), self.dist.clone(), self.entries.clone(), tx, rebuilt_tx);

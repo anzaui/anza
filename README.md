@@ -50,7 +50,7 @@ Components are defined with `element()`, `view()`, `part()`, `dock()` and `page(
 
 | Command | What it does |
 | ------- | ------------ |
-| `npx anza dev` | Dev server with live reload (`npm run dev` in a scaffolded app) |
+| `npx anza dev` | Dev server with live reload on `127.0.0.1:3000` (`--port`, `--host 0.0.0.0` for the LAN; `npm run dev` in a scaffolded app) |
 | `npx anza build` | Production build and static HTML into `dist/` (`npm run build`) |
 | `npx anza check` | Strict project structure check for CI; warnings fail |
 | `npx anza doctor` | Same checks as `check`, but warnings only print |

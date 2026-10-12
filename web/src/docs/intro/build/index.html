@@ -17,6 +17,10 @@
 <p>Override the port:</p>
 <view-code language="bash">npx anza dev --port 8080
 </view-code>
+<p>The dev server listens on <code>127.0.0.1</code> only, so other machines can't reach it. It also answers only requests addressed to <code>localhost</code>, <code>127.0.0.1</code>, <code>[::1]</code> or the <code>--host</code> value (anything else gets <code>403</code>, which blocks DNS-rebinding pages), and sends no CORS headers, so other sites can't read its responses. To test from a phone or another machine, bind every interface:</p>
+<view-code language="bash">npx anza dev --host 0.0.0.0
+</view-code>
+<p>With <code>0.0.0.0</code> (or <code>::</code>), requests by IP address (<code>http://192.168.1.20:3000</code>) are accepted, but host names other than <code>localhost</code> are still refused.</p>
 <h2>Compile-Time Route Validation</h2>
 <p>During both <code>dev</code> and <code>build</code> phases, the Rust compiler performs design-by-contract checks on all page and dock definitions. It scans route pattern strings (e.g. <code>'/blog/:slug'</code>) and cross-references them with the declared <code>params</code> and <code>query</code> contract arrays.</p>
 <p>If a route parameter (like <code>:slug</code>) is present in the route but missing from the component's <code>params</code> array, the CLI prints a descriptive warning:</p>
@@ -122,6 +126,7 @@ anza generate part button
 <div class="table-wrap"><table><thead><tr><th>Flag</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>-s, --src</code></td><td><code>src</code></td><td>Source directory</td></tr>
 <tr><td><code>-p, --port</code></td><td><code>3000</code></td><td>Dev server port</td></tr>
+<tr><td><code>--host</code></td><td><code>127.0.0.1</code></td><td>Dev server bind address (<code>0.0.0.0</code> to serve the LAN)</td></tr>
 <tr><td><code>--dist</code></td><td><code>dist</code></td><td>Output directory</td></tr>
 <tr><td><code>--types</code></td><td><code>types</code> beside <code>--dist</code></td><td>With <code>build</code> — where the generated <code>.d.ts</code> files go</td></tr>
 <tr><td><code>--no-bundle</code></td><td>off</td><td>With <code>build</code> — ship unbundled modules instead of Rolldown chunks</td></tr>

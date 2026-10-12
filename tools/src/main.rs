@@ -26,6 +26,10 @@ struct Args {
   #[arg(short, long, default_value = "3000")]
   port: u16,
 
+  /// Dev server bind address (default loopback only).
+  #[arg(long, default_value = "127.0.0.1")]
+  host: String,
+
   #[arg(long, default_value = "dist")]
   dist: String,
 
@@ -79,6 +83,11 @@ enum Command {
 
     #[arg(short, long, default_value = "3000")]
     port: u16,
+
+    /// Bind address. Default `127.0.0.1` (this machine only); use
+    /// `0.0.0.0` to serve the LAN.
+    #[arg(long, default_value = "127.0.0.1")]
+    host: String,
 
     #[arg(long, default_value = "dist")]
     dist: String,
@@ -187,6 +196,7 @@ async fn main() {
       Command::Dev {
         src,
         port,
+        host,
         dist,
         entry,
       } => {
@@ -195,6 +205,7 @@ async fn main() {
           src: PathBuf::from(src),
           dist: PathBuf::from(dist),
           port,
+          host,
           entries,
         };
         if let Err(e) = op.run().await {
@@ -302,6 +313,7 @@ async fn main() {
     src,
     dist,
     port: args.port,
+    host: args.host,
     entries: Vec::new(),
   };
   if let Err(e) = op.run().await {

@@ -26,6 +26,14 @@ Override the port:
 npx anza dev --port 8080
 ```
 
+The dev server listens on `127.0.0.1` only, so other machines can't reach it. It also answers only requests addressed to `localhost`, `127.0.0.1`, `[::1]` or the `--host` value (anything else gets `403`, which blocks DNS-rebinding pages), and sends no CORS headers, so other sites can't read its responses. To test from a phone or another machine, bind every interface:
+
+```bash
+npx anza dev --host 0.0.0.0
+```
+
+With `0.0.0.0` (or `::`), requests by IP address (`http://192.168.1.20:3000`) are accepted, but host names other than `localhost` are still refused.
+
 ## Compile-Time Route Validation
 
 During both `dev` and `build` phases, the Rust compiler performs design-by-contract checks on all page and dock definitions. It scans route pattern strings (e.g. `'/blog/:slug'`) and cross-references them with the declared `params` and `query` contract arrays.
@@ -189,6 +197,7 @@ Flags: `--tree`, `--route`, `--via` (comma-separated), `--parent`, `-s/--src`.
 | ------ | ------- | ----------- |
 | `-s, --src` | `src` | Source directory |
 | `-p, --port` | `3000` | Dev server port |
+| `--host` | `127.0.0.1` | Dev server bind address (`0.0.0.0` to serve the LAN) |
 | `--dist` | `dist` | Output directory |
 | `--types` | `types` beside `--dist` | With `build` — where the generated `.d.ts` files go |
 | `--no-bundle` | off | With `build` — ship unbundled modules instead of Rolldown chunks |

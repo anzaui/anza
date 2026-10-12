@@ -16,7 +16,7 @@ path = "src/main.rs"
 [dependencies]
 tokio = { version = "1.52.3", features = ["full"] }
 axum = { version = "0.8.9", features = ["macros"] }
-tower-http = { version = "0.6.11", features = ["fs", "cors", "set-status"] }
+tower-http = { version = "0.6.11", features = ["fs", "set-status"] }
 notify = "8.2.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.150"

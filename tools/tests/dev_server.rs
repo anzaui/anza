@@ -219,3 +219,62 @@ async fn route_manifest_is_held_in_memory_and_reloaded_after_rebuilds() {
   }
   assert_eq!(status, 200);
 }
+
+async fn raw(port: u16, request: &str) -> Reply {
+  let mut stream = tokio::net::TcpStream::connect(("127.0.0.1", port)).await.unwrap();
+  stream.write_all(request.as_bytes()).await.unwrap();
+  let mut raw = Vec::new();
+  stream.read_to_end(&mut raw).await.unwrap();
+  let text = String::from_utf8_lossy(&raw).into_owned();
+  let (head, body) = text.split_once("\r\n\r\n").unwrap_or((&text, ""));
+  let status = head.split(' ').nth(1).and_then(|s| s.parse().ok()).unwrap_or(0);
+  Reply { status, head: head.to_string(), body: body.to_string() }
+}
+
+/// X2: a page on `evil.example` that DNS-rebinds its name to 127.0.0.1 sends
+/// `Host: evil.example`. The server must refuse it (dist, mocks, `/hmr`).
+#[tokio::test]
+async fn dns_rebinding_hosts_are_refused() {
+  let fx = fixture("rebind");
+  let (port, _tx) = start(&fx.root.join("dist")).await;
+
+  let attacker = format!("attacker.test:{port}");
+  for host in ["evil.example", "evil.example:80", attacker.as_str(), "localhost.evil.example", "127.0.0.1.nip.io", "192.168.1.5"] {
+    for path in ["/", "/docs/a", "/pages/a/index.css", "/routes.json", "/hmr"] {
+      let reply = raw(port, &format!("GET {path} HTTP/1.1\r\nHost: {host}\r\nConnection: close\r\n\r\n")).await;
+      assert_eq!(reply.status, 403, "{host}{path}: {}", reply.head);
+      assert!(!reply.body.contains("<h1>a</h1>") && !reply.body.contains("color"), "{}", reply.body);
+    }
+  }
+  // No Host header at all (HTTP/1.0 style) is refused too.
+  let reply = raw(port, "GET / HTTP/1.0\r\n\r\n").await;
+  assert_eq!(reply.status, 403, "{}", reply.head);
+
+  let ok = [
+    "localhost".to_string(),
+    format!("localhost:{port}"),
+    format!("127.0.0.1:{port}"),
+    format!("[::1]:{port}"),
+    "LOCALHOST".to_string(),
+  ];
+  for host in &ok {
+    let reply = raw(port, &format!("GET /docs/a HTTP/1.1\r\nHost: {host}\r\nConnection: close\r\n\r\n")).await;
+    assert_eq!(reply.status, 200, "{host}: {}", reply.head);
+  }
+}
+
+/// X2: no CORS headers, so another origin's script can't read responses.
+#[tokio::test]
+async fn cross_origin_reads_are_not_allowed() {
+  let fx = fixture("cors");
+  let (port, _tx) = start(&fx.root.join("dist")).await;
+  let reply = get(port, "/pages/a/index.css", &[("Origin", "https://evil.example")]).await;
+  assert_eq!(reply.status, 200);
+  assert!(reply.header("access-control-allow-origin").is_none(), "{}", reply.head);
+  let preflight = raw(
+    port,
+    "OPTIONS /routes.json HTTP/1.1\r\nHost: localhost\r\nOrigin: https://evil.example\r\nAccess-Control-Request-Method: GET\r\nConnection: close\r\n\r\n",
+  )
+  .await;
+  assert!(preflight.header("access-control-allow-origin").is_none(), "{}", preflight.head);
+}

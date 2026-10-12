@@ -19,7 +19,6 @@ use futures_util::stream::{self, Stream, StreamExt};
 use tokio::net::TcpListener;
 use std::sync::RwLock;
 use tokio::sync::{broadcast, watch};
-use tower_http::cors::CorsLayer;
 use tower_http::services::ServeDir;
 
 use crate::types::HmrMessage;
@@ -32,6 +31,78 @@ pub struct ServerState {
   /// Parsed `routes.json` of the served dist, reloaded after every rebuild
   /// (never parsed per request).
   routes: RwLock<Arc<Vec<RouteInfo>>>,
+  /// Address given to `--host` (default `127.0.0.1`). Requests must name a
+  /// loopback host or this one, so a DNS-rebound name can't read dist.
+  pub host: String,
+}
+
+/// Default bind address for `anza dev`: loopback only.
+pub const DEFAULT_HOST: &str = "127.0.0.1";
+
+/// Host name part of a `Host` header value (`[::1]:3000` → `[::1]`,
+/// `localhost:3000` → `localhost`), lowercased.
+fn host_name(value: &str) -> String {
+  let value = value.trim();
+  let name = if value.starts_with('[') {
+    match value.find(']') {
+      Some(end) => &value[..=end],
+      None => value,
+    }
+  } else {
+    value.rsplit_once(':').map_or(value, |(name, port)| {
+      if port.chars().all(|c| c.is_ascii_digit()) { name } else { value }
+    })
+  };
+  name.to_ascii_lowercase()
+}
+
+/// Whether a request's `Host` may be served. Loopback names always, plus the
+/// `--host` address. When bound to every interface (`0.0.0.0` / `::`), any
+/// IP literal is accepted (LAN use), but never a DNS name other than
+/// `localhost`, which is what a DNS-rebinding page would send.
+pub fn host_allowed(header: &str, bind: &str) -> bool {
+  let name = host_name(header);
+  if name.is_empty() {
+    return false;
+  }
+  if matches!(name.as_str(), "localhost" | "127.0.0.1" | "[::1]") {
+    return true;
+  }
+  let bind = bind.trim().to_ascii_lowercase();
+  let bind_name = if bind.contains(':') && !bind.starts_with('[') { format!("[{bind}]") } else { bind.clone() };
+  if name == bind_name {
+    return true;
+  }
+  let wildcard = matches!(bind.as_str(), "0.0.0.0" | "::" | "[::]");
+  if wildcard {
+    let literal = name.trim_start_matches('[').trim_end_matches(']');
+    return literal.parse::<std::net::IpAddr>().is_ok();
+  }
+  false
+}
+
+/// 403 for requests whose `Host` isn't the dev server's (DNS rebinding).
+async fn check_host(
+  State(state): State<Arc<ServerState>>,
+  req: Request<Body>,
+  next: Next,
+) -> Response<Body> {
+  let host = req
+    .headers()
+    .get(header::HOST)
+    .and_then(|v| v.to_str().ok())
+    .map(str::to_string)
+    .or_else(|| req.uri().authority().map(|a| a.to_string()))
+    .unwrap_or_default();
+  if !host_allowed(&host, &state.host) {
+    anza_logs::warn!("Dev server refused a request for host {:?}", host);
+    return Response::builder()
+      .status(StatusCode::FORBIDDEN)
+      .header(header::CONTENT_TYPE, "text/plain; charset=utf-8")
+      .body(Body::from("403 Forbidden: unknown Host (use --host to serve another address)"))
+      .unwrap();
+  }
+  next.run(req).await
 }
 
 /// Mirror GitHub Pages subpath hosting: `/anza/styles/...` → `/styles/...`.
@@ -68,6 +139,7 @@ impl ServerState {
       src_dir: src_dir.to_path_buf(),
       deploy_base: crate::build::base::load_deploy_base(src_dir),
       routes: RwLock::new(Arc::new(Vec::new())),
+      host: DEFAULT_HOST.to_string(),
     }
   }
 
@@ -108,8 +180,8 @@ pub fn router(state: Arc<ServerState>) -> Router {
     .nest_service("/dist", serve_dir.clone())
     .fallback_service(serve_dir)
     .layer(middleware::from_fn(super::dev::layer))
-    .layer(CorsLayer::permissive())
     .layer(middleware::from_fn_with_state(state.clone(), strip_deploy_base))
+    .layer(middleware::from_fn_with_state(state.clone(), check_host))
     .with_state(state)
 }
 
@@ -121,7 +193,20 @@ pub async fn serve(
   tx: broadcast::Sender<HmrMessage>,
   rebuilt: Option<watch::Receiver<u64>>,
 ) {
-  let state = Arc::new(ServerState::new(src_dir, tx));
+  serve_host(listener, src_dir, tx, rebuilt, DEFAULT_HOST).await
+}
+
+/// [`serve`] for a server bound to `host` (accepted as a `Host` header too).
+pub async fn serve_host(
+  listener: TcpListener,
+  src_dir: &Path,
+  tx: broadcast::Sender<HmrMessage>,
+  rebuilt: Option<watch::Receiver<u64>>,
+  host: &str,
+) {
+  let mut state = ServerState::new(src_dir, tx);
+  state.host = host.to_string();
+  let state = Arc::new(state);
   state.reload_routes().await;
   if let Some(mut rebuilt) = rebuilt {
     let state = state.clone();
@@ -138,6 +223,7 @@ pub async fn serve(
 }
 
 pub async fn run(
+  host: &str,
   port: u16,
   src_dir: &Path,
   tx: broadcast::Sender<HmrMessage>,
@@ -152,7 +238,7 @@ pub async fn run(
     );
   }
 
-  let (listener, bound_port) = match bind_port("0.0.0.0", port).await {
+  let (listener, bound_port) = match bind_port(host, port).await {
     Ok(pair) => pair,
     Err(err) => {
       anza_logs::error!("{}", err);
@@ -163,15 +249,21 @@ pub async fn run(
     }
   };
 
-  anza_logs::server!("Dev Server launched at http://localhost:{}", bound_port);
-  serve(listener, src_dir, tx, Some(rebuilt)).await;
+  let shown = match host {
+    "127.0.0.1" | "::1" | "localhost" => "localhost".to_string(),
+    h if h.contains(':') => format!("[{h}]"),
+    h => h.to_string(),
+  };
+  anza_logs::server!("Dev Server launched at http://{}:{}", shown, bound_port);
+  serve_host(listener, src_dir, tx, Some(rebuilt), host).await;
 }
 
 async fn bind_port(host: &str, start_port: u16) -> Result<(TcpListener, u16), String> {
   let mut last_err = None;
 
   for port in anza_logs::port_attempts(start_port, anza_logs::DEFAULT_MAX_PORT_ATTEMPTS) {
-    match TcpListener::bind(format!("{host}:{port}")).await {
+    let addr = if host.contains(':') && !host.starts_with('[') { format!("[{host}]:{port}") } else { format!("{host}:{port}") };
+    match TcpListener::bind(addr).await {
       Ok(listener) => {
         if port != start_port {
           anza_logs::warn!(
@@ -506,5 +598,27 @@ mod tests {
     assert_eq!(got[0].kind, ChangeKind::Reload);
     assert_eq!(got[1].path, "3.css");
     assert_eq!(got[2].path, "4.css");
+  }
+}
+
+#[cfg(test)]
+mod host_tests {
+  use super::host_allowed;
+
+  #[test]
+  fn loopback_and_bind_hosts_only() {
+    for ok in ["localhost", "localhost:3000", "127.0.0.1:3000", "[::1]:3000", "[::1]"] {
+      assert!(host_allowed(ok, "127.0.0.1"), "{ok}");
+    }
+    for bad in ["", "evil.example", "evil.example:3000", "127.0.0.1.evil.example", "10.0.0.2:3000", "[::2]:3000", "localhost.evil"] {
+      assert!(!host_allowed(bad, "127.0.0.1"), "{bad}");
+    }
+    assert!(host_allowed("10.0.0.2:3000", "10.0.0.2"));
+    assert!(!host_allowed("10.0.0.3:3000", "10.0.0.2"));
+    assert!(host_allowed("[fe80::1]:3000", "fe80::1"));
+    // Every interface: IP literals yes, DNS names (rebinding) no.
+    assert!(host_allowed("192.168.1.9:3000", "0.0.0.0"));
+    assert!(host_allowed("[fe80::1]:3000", "::"));
+    assert!(!host_allowed("evil.example:3000", "0.0.0.0"));
   }
 }
