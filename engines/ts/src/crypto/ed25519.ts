@@ -1,5 +1,6 @@
 import * as crypto from 'node:crypto';
 import { AnzaError } from '../errors/index.js';
+import { decodeLength } from './hex.js';
 
 export function sign(privateKey: string | Uint8Array | crypto.KeyObject, data: string | Uint8Array): string {
   try {
@@ -33,9 +34,10 @@ export function sign(privateKey: string | Uint8Array | crypto.KeyObject, data: s
 }
 
 export function verify(publicKey: string | Uint8Array | crypto.KeyObject, data: string | Uint8Array, signatureHex: string): boolean {
+  const sigBuf = decodeLength(signatureHex, 64);
+  if (!sigBuf) return false;
   try {
     const dataBuf = typeof data === 'string' ? Buffer.from(data, 'utf8') : Buffer.from(data);
-    const sigBuf = Buffer.from(signatureHex, 'hex');
     let key: crypto.KeyObject;
 
     if (typeof publicKey === 'string' || publicKey instanceof Uint8Array) {

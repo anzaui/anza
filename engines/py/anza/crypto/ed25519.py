@@ -2,6 +2,7 @@ import hashlib
 import secrets
 from typing import Union, Tuple
 from ..errors import AnzaError
+from .hex import decode_length
 
 # Try importing cryptography library for hardware-accelerated Ed25519
 try:
@@ -183,7 +184,9 @@ def verify(public_key: Union[str, bytes], data: Union[str, bytes], signature_hex
     try:
         data_bytes = data.encode("utf-8") if isinstance(data, str) else data
         key_bytes = _normalize_key(public_key)
-        sig_bytes = bytes.fromhex(signature_hex)
+        sig_bytes = decode_length(signature_hex, 64)
+        if sig_bytes is None:
+            return False
 
         if _HAS_CRYPTOGRAPHY and len(key_bytes) == 32:
             try:

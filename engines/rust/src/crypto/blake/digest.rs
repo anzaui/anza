@@ -10,5 +10,5 @@ pub fn hex(bytes: &[u8]) -> String {
 
 /// Lowercase hex of a digest from [`content`] (no re-hashing).
 pub fn encode(digest: &[u8; 32]) -> String {
-  blake3::Hash::from(*digest).to_hex().to_string()
+  crate::crypto::hex::encode(digest)
 }
