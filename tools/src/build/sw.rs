@@ -66,7 +66,7 @@ pub fn rewrite_imports(dist: &Path, map: &HashMap<String, String>) -> Result<(),
     }
   }
 
-  std::fs::write(&sw, result).map_err(|e| format!("cannot write {}: {}", sw.display(), e))
+  crate::fs_atomic::write(&sw, result)
 }
 
 struct Collector<'a> {

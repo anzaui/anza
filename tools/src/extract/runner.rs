@@ -185,7 +185,7 @@ pub fn run(src_dir: &Path, dist_types_dir: &Path) -> Result<(), Vec<String>> {
     type_path.set_extension("d.ts");
     // Write the custom element interface declaration
     let dts_content = generate_dts_content(spec);
-    if let Err(err) = write_file(&type_path, dts_content.as_bytes()) {
+    if let Err(err) = crate::fs_atomic::write(&type_path, dts_content.as_bytes()) {
       errors.push(err);
     }
 
@@ -209,7 +209,7 @@ pub fn run(src_dir: &Path, dist_types_dir: &Path) -> Result<(), Vec<String>> {
   }
 
   global_typings.push_str("  }\n}\n\nexport {};\n");
-  match write_file(&dist_types_dir.join("index.d.ts"), global_typings.as_bytes()) {
+  match crate::fs_atomic::write(&dist_types_dir.join("index.d.ts"), global_typings.as_bytes()) {
     Ok(()) => {
       anza_logs::success!("Type augmentation registry updated inside dist/types/index.d.ts")
     }
@@ -227,15 +227,6 @@ pub fn run(src_dir: &Path, dist_types_dir: &Path) -> Result<(), Vec<String>> {
   } else {
     Err(errors)
   }
-}
-
-/// Write a generated file, creating parent directories; errors name the path.
-fn write_file(path: &Path, bytes: &[u8]) -> Result<(), String> {
-  if let Some(parent) = path.parent() {
-    std::fs::create_dir_all(parent)
-      .map_err(|e| format!("cannot create {}: {}", parent.display(), e))?;
-  }
-  std::fs::write(path, bytes).map_err(|e| format!("cannot write {}: {}", path.display(), e))
 }
 
 /// Parse one JS file for definition calls. Unreadable or unparsable files are

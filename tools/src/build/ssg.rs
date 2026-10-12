@@ -312,12 +312,10 @@ fn emit_route(
   site: &SsgSiteConfig,
 ) -> Result<bool, String> {
   let out_path = output_path(dist_dir, &route.path);
-  if let Some(parent) = out_path.parent() {
-    std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
-  }
 
-  let page_html = read_page_html(src_dir, dist_dir, route)?;
-  let page_html = interpolate_params(&page_html, &route.ssg_params);
+  // Raw fragment (no `{{param}}` interpolation): the shared CSR template.
+  let raw_html = read_page_html(src_dir, dist_dir, route)?;
+  let page_html = interpolate_params(&raw_html, &route.ssg_params);
   let page_css = read_page_css(src_dir, dist_dir, route);
   let page_css = interpolate_params(&page_css, &route.ssg_params);
 
@@ -377,9 +375,16 @@ fn emit_route(
   // path is `./index.html`, it collides with this SSG document — the leaf then
   // mounts a full nested dock tree in its shadow (stacked docs chrome). Preserve
   // the fragment beside the SSG page and rewrite the dist module + routes.json.
-  let preserved = preserve_csr_template(dist_dir, route, &out_path, &page_html)?;
-
-  std::fs::write(&out_path, html).map_err(|e| e.to_string())?;
+  //
+  // Every output of this route is built in memory first, then committed with
+  // atomic writes; the SSG document goes last so a failure never leaves the
+  // module pointing at a template that was not written.
+  let mut outputs: Vec<(PathBuf, Vec<u8>)> = Vec::new();
+  let preserved = preserve_csr_template(dist_dir, route, &out_path, &raw_html, &mut outputs)?;
+  outputs.push((out_path.clone(), html.into_bytes()));
+  for (path, bytes) in &outputs {
+    crate::fs_atomic::write(path, bytes)?;
+  }
   anza_logs::compiler!("SSG {}", out_path.display());
   Ok(preserved)
 }
@@ -387,12 +392,14 @@ fn emit_route(
 /// When the page fragment path equals the SSG `index.html` output, keep the
 /// fragment as `template.html` and point the built page module at it.
 /// Returns true when the caller must point the route's routes.json `html` at
-/// `template.html` (done once, after all routes are emitted).
+/// `template.html` (done once, after all routes are emitted). Files to write
+/// are pushed onto `outputs`; nothing is written here.
 fn preserve_csr_template(
   dist_dir: &Path,
   route: &RouteInfo,
   ssg_out: &Path,
   page_html: &str,
+  outputs: &mut Vec<(PathBuf, Vec<u8>)>,
 ) -> Result<bool, String> {
   let Some(file) = route.file.as_deref() else {
     return Ok(false);
@@ -416,23 +423,25 @@ fn preserve_csr_template(
 
   let parent = ssg_out.parent().unwrap_or_else(|| Path::new(""));
   let preserve_path = parent.join("template.html");
-  std::fs::write(&preserve_path, page_html).map_err(|e| e.to_string())?;
+  outputs.push((preserve_path.clone(), page_html.as_bytes().to_vec()));
 
   // Soft-nav derives tags URL as template.html → template.tags.json.
   // CSR extract emits index.tags.json beside the fragment; copy it over.
   let mut tags_src = fragment_dist.clone();
   tags_src.set_extension("tags.json");
   if tags_src.exists() {
-    let tags_dst = parent.join("template.tags.json");
-    std::fs::copy(&tags_src, &tags_dst).map_err(|e| e.to_string())?;
+    let tags = std::fs::read(&tags_src)
+      .map_err(|e| format!("cannot read {}: {}", tags_src.display(), e))?;
+    outputs.push((parent.join("template.tags.json"), tags));
   }
 
   let js_path = dist_dir.join(file);
   if js_path.exists() {
-    let src = std::fs::read_to_string(&js_path).map_err(|e| e.to_string())?;
+    let src = std::fs::read_to_string(&js_path)
+      .map_err(|e| format!("cannot read {}: {}", js_path.display(), e))?;
     let rewritten = rewrite_template_html_path(&src, html_rel, "./template.html");
     if rewritten != src {
-      std::fs::write(&js_path, rewritten).map_err(|e| e.to_string())?;
+      outputs.push((js_path, rewritten.into_bytes()));
     }
   }
 
@@ -485,7 +494,7 @@ fn rewrite_routes_html_field(dist_dir: &Path, route_paths: &[String], new_html: 
     }
   }
   let pretty = serde_json::to_string_pretty(&value).map_err(|e| e.to_string())?;
-  std::fs::write(&routes_path, pretty + "\n").map_err(|e| e.to_string())?;
+  crate::fs_atomic::write(&routes_path, pretty + "\n")?;
   Ok(())
 }
 
@@ -1263,7 +1272,7 @@ fn emit_sitemap(dist_dir: &Path, origin: Option<&str>, paths: &[String]) -> Resu
   }
   xml.push_str("</urlset>\n");
   let dest = dist_dir.join("sitemap.xml");
-  std::fs::write(&dest, xml).map_err(|e| e.to_string())?;
+  crate::fs_atomic::write(&dest, xml)?;
   anza_logs::success!("SSG wrote {}", dest.display());
   Ok(())
 }
@@ -1275,7 +1284,7 @@ fn emit_robots(dist_dir: &Path, origin: Option<&str>) -> Result<(), String> {
     sitemap_href
   );
   let dest = dist_dir.join("robots.txt");
-  std::fs::write(&dest, body).map_err(|e| e.to_string())?;
+  crate::fs_atomic::write(&dest, body)?;
   anza_logs::success!("SSG wrote {}", dest.display());
   Ok(())
 }
@@ -1633,5 +1642,30 @@ mod tests {
 
     let ok = vec![route("/", "home"), route("/docs/a", "doc-a")];
     assert_eq!(unique_outputs(dist, &ok).unwrap().len(), 2);
+  }
+
+  #[test]
+  fn preserved_template_is_the_raw_fragment() {
+    let (root, src, dist) = temp_project("raw-template");
+    std::fs::create_dir_all(src.join("docs/a")).unwrap();
+    std::fs::write(src.join("docs/a/index.html"), "<h1>Hi {{name}}</h1>").unwrap();
+    std::fs::create_dir_all(dist.join("docs/a")).unwrap();
+    std::fs::write(
+      dist.join("docs/a/index.js"),
+      "page('/docs/a', { template: { html: './index.html' } });",
+    )
+    .unwrap();
+    let manifest = serde_json::json!({ "routes": [{
+      "tag": "doc-a", "path": "/docs/a", "file": "docs/a/index.js",
+      "ssg": true, "ssgParams": { "name": "Ann" },
+    }]});
+    std::fs::write(dist.join("routes.json"), manifest.to_string()).unwrap();
+
+    emit(&src, &dist).expect("emit succeeds");
+    let doc = std::fs::read_to_string(dist.join("docs/a/index.html")).unwrap();
+    assert!(doc.contains("<h1>Hi Ann</h1>"), "{doc}");
+    let template = std::fs::read_to_string(dist.join("docs/a/template.html")).unwrap();
+    assert_eq!(template, "<h1>Hi {{name}}</h1>");
+    let _ = std::fs::remove_dir_all(&root);
   }
 }

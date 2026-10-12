@@ -714,9 +714,9 @@ pub fn emit(
   let dest_json = dist_dir.join("routes.json");
 
   match serde_json::to_string_pretty(&output) {
-    Ok(json) => match std::fs::write(&dest_json, json) {
+    Ok(json) => match crate::fs_atomic::write(&dest_json, json) {
       Ok(()) => anza_logs::success!("Route manifest written to {}", dest_json.display()),
-      Err(err) => errors.push(format!("cannot write {}: {}", dest_json.display(), err)),
+      Err(err) => errors.push(err),
     },
     Err(err) => errors.push(format!("cannot serialize routes.json: {}", err)),
   }
@@ -753,9 +753,9 @@ declare global {{
   );
 
   let dest_dts = dist_dir.join("routes.d.ts");
-  match std::fs::write(&dest_dts, dts_content) {
+  match crate::fs_atomic::write(&dest_dts, dts_content) {
     Ok(()) => anza_logs::success!("Route type declarations written to {}", dest_dts.display()),
-    Err(err) => errors.push(format!("cannot write {}: {}", dest_dts.display(), err)),
+    Err(err) => errors.push(err),
   }
 
   if errors.is_empty() {

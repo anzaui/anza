@@ -380,7 +380,7 @@ fn rewrite_file(path: &Path, f: impl Fn(&str) -> String) -> Result<(), String> {
     .map_err(|e| format!("cannot read {}: {}", path.display(), e))?;
   let next = f(&content);
   if next != content {
-    std::fs::write(path, next).map_err(|e| format!("cannot write {}: {}", path.display(), e))?;
+    crate::fs_atomic::write(path, next)?;
   }
   Ok(())
 }

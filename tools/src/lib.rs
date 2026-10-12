@@ -3,6 +3,7 @@ pub mod create;
 pub mod data;
 pub mod docs;
 pub mod extract;
+pub mod fs_atomic;
 pub mod generate;
 pub mod server;
 pub mod structure;

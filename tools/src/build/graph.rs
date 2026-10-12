@@ -335,7 +335,7 @@ pub fn resolve(
     let imports_json = serde_json::json!({ "imports": importmap });
     let written = serde_json::to_string_pretty(&imports_json)
       .map_err(|e| e.to_string())
-      .and_then(|json| write_file(&path, json.as_bytes()));
+      .and_then(|json| crate::fs_atomic::write(&path, json.as_bytes()));
     if let Err(err) = written {
       errors.push(Diagnostic::io(&path, format!("cannot write: {}", err)));
     }
@@ -374,7 +374,7 @@ pub fn resolve(
           .map_err(|e| format!("cannot read {}: {}", file.display(), e))
           .and_then(|content| {
             let injected = super::html::inject_assets(&content, &importmap, dev);
-            write_file(&target, injected.as_bytes())
+            crate::fs_atomic::write(&target, injected.as_bytes())
           })
       } else if is_js(file) {
         // Rewrite static imports into usage order (library → docks → views →
@@ -383,12 +383,10 @@ pub fn resolve(
           .map_err(|e| format!("cannot read {}: {}", file.display(), e))
           .and_then(|content| {
             let ordered = super::order::rewrite_with(&content, file, src, &order_slots);
-            write_file(&target, ordered.as_bytes())
+            crate::fs_atomic::write(&target, ordered.as_bytes())
           })
       } else {
-        std::fs::read(file)
-          .map_err(|e| format!("cannot read {}: {}", file.display(), e))
-          .and_then(|bytes| write_file(&target, &bytes))
+        crate::fs_atomic::copy(file, &target)
       };
       match result {
         Ok(()) => copied += 1,
@@ -415,10 +413,7 @@ pub fn resolve(
   let favicon = src.join("favicon.ico");
   if favicon.is_file() {
     let target = dist.join("favicon.ico");
-    let result = std::fs::read(&favicon)
-      .map_err(|e| format!("cannot read {}: {}", favicon.display(), e))
-      .and_then(|bytes| write_file(&target, &bytes));
-    if let Err(err) = result {
+    if let Err(err) = crate::fs_atomic::copy(&favicon, &target) {
       errors.push(Diagnostic::io(&target, err));
     }
   }
@@ -458,15 +453,6 @@ fn save_cache(project: &Path, version: &str, dev: bool, hashes: HashMap<PathBuf,
   super::cache::save(project, &cache);
 }
 
-/// Write a dist file, creating parent directories; errors name the path.
-fn write_file(path: &Path, bytes: &[u8]) -> Result<(), String> {
-  if let Some(parent) = path.parent() {
-    std::fs::create_dir_all(parent)
-      .map_err(|e| format!("cannot create {}: {}", parent.display(), e))?;
-  }
-  std::fs::write(path, bytes).map_err(|e| format!("cannot write {}: {}", path.display(), e))
-}
-
 /// Recursively copy a directory tree.
 fn copy_dir(from: &Path, to: &Path) -> Result<(), String> {
   let entries =
@@ -482,9 +468,7 @@ fn copy_dir(from: &Path, to: &Path) -> Result<(), String> {
     if is_dir {
       copy_dir(&src, &dst)?;
     } else {
-      let bytes =
-        std::fs::read(&src).map_err(|e| format!("cannot read {}: {}", src.display(), e))?;
-      write_file(&dst, &bytes)?;
+      crate::fs_atomic::copy(&src, &dst)?;
     }
   }
   Ok(())

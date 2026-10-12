@@ -41,6 +41,8 @@ pub fn load(project: &Path) -> Option<Cache> {
 pub fn save(project: &Path, cache: &Cache) {
   let path = project.join(FILE);
   if let Ok(json) = serde_json::to_string_pretty(cache) {
-    std::fs::write(path, json).ok();
+    if let Err(err) = crate::fs_atomic::write(&path, json) {
+      anza_logs::warn!("{}", err);
+    }
   }
 }

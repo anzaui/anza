@@ -96,7 +96,7 @@ pub fn emit_descriptor(html_path: &Path, descriptor: &TagsDescriptor) -> Extract
   json_path.set_extension("tags.json");
 
   let json = serde_json::to_string(descriptor)?;
-  std::fs::write(&json_path, json)?;
+  crate::fs_atomic::write(&json_path, json)?;
   Ok(json_path)
 }
 
