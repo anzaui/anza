@@ -48,18 +48,29 @@ Lower-confidence leads (verify while in Phase 3): one task yield per element dur
 
 | ID | Sev | Finding | Where | Truth |
 |----|-----|---------|-------|-------|
-| [ ] D1 | H | Root README uses `<anza-dock>` / `<anza-page>`, which don't exist. | `README.md:68-71` | `dock('main')` / `page(...)` in JS; tag `dock-<name>`. See `library/README.md:96-105`. |
-| [ ] D2 | H | `anza generate element` is not a valid kind. | `README.md:57` | `page \| dock \| view \| part` (`tools/src/generate/mod.rs:21-30`). |
-| [ ] D3 | H | Root README example is a hand-written `class extends HTMLElement` in `src/elements/` (a legacy slot that `anza check` warns about). | `README.md:76-98` | `element()` / `view()` / `part()`, no classes. |
-| [ ] D4 | M | `anza dev` shown as a global command. `anza check` described wrongly. `scan`, `doctor`, `create`, `docs` not mentioned. | `README.md:25, 48-54` | `npm run dev` / `npx anza dev`. `check` = strict structure contract (`tools/src/main.rs:41-128`). |
-| [ ] D5 | H | Docs import symbols that aren't exported: router `gate/ready/reset/boot`, `isCallback/resolveTag/runCallback`, `get`; subpaths `router/match`, `router/intercept`; security `seal/unseal`; storage `CacheStorage/quota`; ui `listenStream`, `specRegistry`. | `docs/router/{advanced,api,handlers,troubleshooting}.md`, `docs/security/{api,index}.md`, `docs/storage/*.md`, `docs/engines/streaming.md:33`, `docs/ui/troubleshooting.md:164` | Decide per symbol in FREEZE.md §API: export it or remove it from the docs. |
-| [ ] D6 | H | `types/index.d.ts` declares namespaces (`export * as api`) but `src/index.js` does flat `export *`. `theme`/`elements`/`sw` not re-exported. Header still says "antigravity". | `library/types/index.d.ts`, `library/src/index.js` | Pick flat (recommended, matches runtime) and generate types to match. |
-| [ ] D7 | H | ~45 runtime exports have no types (ui `view`, `part`, transitions…; router `prefetch`, `load`…; storage classes; animations; platform). `dock()` options missing `notfound/error/offline/loading/transition`. `./defs`, `./sw`, `./elements/*` have no types. | `library/types/**` | Generate types from JSDoc (`tsc --declaration --allowJs`) instead of hand-writing them. |
-| [ ] D8 | M | `create/README.md` lists `src/pages/index/`, but the scaffold writes `src/pages/entry/` + `docks/ views/ parts/`. | `create/README.md:17-20` | Match `library/bin/create/run.js`. |
-| [ ] D9 | M | Root `CHANGELOG.md`: `[0.4.2]` twice, 0.4.1/0.4.3/0.3.4/0.3.8/0.4.11 missing, `[Unreleased]` empty despite 16 commits. `library/CHANGELOG.md` is a second, contradicting history. | `CHANGELOG.md:174,189`, `library/CHANGELOG.md` | One changelog per published package, generated (see RESEARCH.md). |
+| [x] D1 | H | Root README uses `<anza-dock>` / `<anza-page>`, which don't exist. | `README.md:68-71` | `dock('main')` / `page(...)` in JS; tag `dock-<name>`. See `library/README.md:96-105`. |
+| [x] D2 | H | `anza generate element` is not a valid kind. | `README.md:57` | `page \| dock \| view \| part` (`tools/src/generate/mod.rs:21-30`). |
+| [x] D3 | H | Root README example is a hand-written `class extends HTMLElement` in `src/elements/` (a legacy slot that `anza check` warns about). | `README.md:76-98` | `element()` / `view()` / `part()`, no classes. |
+| [x] D4 | M | `anza dev` shown as a global command. `anza check` described wrongly. `scan`, `doctor`, `create`, `docs` not mentioned. | `README.md:25, 48-54` | `npm run dev` / `npx anza dev`. `check` = strict structure contract (`tools/src/main.rs:41-128`). |
+| [x] D5 | H | Docs import symbols that aren't exported: router `gate/ready/reset/boot`, `isCallback/resolveTag/runCallback`, `get`; subpaths `router/match`, `router/intercept`; security `seal/unseal`; storage `CacheStorage/quota`; ui `listenStream`, `specRegistry`. | `docs/router/{advanced,api,handlers,troubleshooting}.md`, `docs/security/{api,index}.md`, `docs/storage/*.md`, `docs/engines/streaming.md:33`, `docs/ui/troubleshooting.md:164` | Decide per symbol in FREEZE.md §API: export it or remove it from the docs. |
+| [x] D6 | H | `types/index.d.ts` declares namespaces (`export * as api`) but `src/index.js` does flat `export *`. `theme`/`elements`/`sw` not re-exported. Header still says "antigravity". | `library/types/index.d.ts`, `library/src/index.js` | Pick flat (recommended, matches runtime) and generate types to match. |
+| [x] D7 | H | ~45 runtime exports have no types (ui `view`, `part`, transitions…; router `prefetch`, `load`…; storage classes; animations; platform). `dock()` options missing `notfound/error/offline/loading/transition`. `./defs`, `./sw`, `./elements/*` have no types. | `library/types/**` | Generate types from JSDoc (`tsc --declaration --allowJs`) instead of hand-writing them. |
+| [x] D8 | M | `create/README.md` lists `src/pages/index/`, but the scaffold writes `src/pages/entry/` + `docks/ views/ parts/`. | `create/README.md:17-20` | Match `library/bin/create/run.js`. |
+| [~] D9 | M | Root `CHANGELOG.md`: `[0.4.2]` twice, 0.4.1/0.4.3/0.3.4/0.3.8/0.4.11 missing, `[Unreleased]` empty despite 16 commits. `library/CHANGELOG.md` is a second, contradicting history. | `CHANGELOG.md:174,189`, `library/CHANGELOG.md` | One changelog per published package, generated (see RESEARCH.md). |
 | [ ] D10 | M | `docs/config.toml` sidebar lists 7 of ~150 pages. | `docs/config.toml` | Generate the sidebar from the folder tree. |
 | [ ] D11 | M | Crate name collision: `tools` and `engines/rust` are both `anza`. README says the engine is "`anza` on crates.io". Old notes say `anza-engine`. | `tools/Cargo.toml`, `engines/rust/Cargo.toml`, `README.md:103` | Decided D-7: CLI crate → `anza-cli` (binary stays `anza`), engine keeps `anza`. |
-| [ ] D12 | L | `plans/*` claim "Complete" for things that aren't (e.g. dock types). `CHANGELOG.md:295` mentions "anza-page". | `plans/STORAGE-STATE-GUARDS-PAGES.md:7`, `CHANGELOG.md:295` | `plans/` is archived by the sweep. |
+| [x] D12 | L | `plans/*` claim "Complete" for things that aren't (e.g. dock types). `CHANGELOG.md:295` mentions "anza-page". | `plans/STORAGE-STATE-GUARDS-PAGES.md:7`, `CHANGELOG.md:295` | `plans/` is archived by the sweep. |
+
+### Found while fixing docs (2026-10-12)
+
+| ID | Sev | Finding | Where | Fix |
+|----|-----|---------|-------|-----|
+| [ ] D13 | H | **Root module name clashes.** `state`, `storage`, `sync`, `events`, `cache`, `view` and `reset` are each exported by two core modules. Per the ES spec, `export *` silently **drops** ambiguous names, so `import { state } from '@anzaui/anza'` is `undefined`. Types now match this behaviour. | `library/src/index.js` | Decision: explicit re-exports picking one winner per name, or keep them dropped and document "import from the subpath". |
+| [x] D14 | C | Template/engine docs claimed auto-escaping and `each`/`if` blocks, which no engine has (an **XSS trap**). Rust/Python docs described APIs that don't exist. Docs claimed the browser verifies envelope signatures. | `docs/engines`, `docs/templates`, engine READMEs | Fixed in the docs. |
+| [ ] D15 | M | mdBook engine docs (`engines/rust/docs`, `engines/ts/docs`) probably repeat the wrong API from D14. | `engines/*/docs` | Audit them against code, the same way as D14. |
+| [ ] D16 | M | `web/src/docs` is stale for about 30 changed docs pages. | `web/src/docs` | Regenerate. Then S3/S4 (one generator, generated in CI, untracked). |
+| [x] D17 | H | Scaffolded apps registered the SW on localhost with `'*'` CacheFirst (same stale-reload trap as R1). | `library/bin/create/run.js` | Fixed. |
+| [ ] D18 | L | Changelog still lacks 0.3.4 and 0.3.8 entries. | `CHANGELOG.md` | Write them from `git log`. |
 
 ## B — Rust build pipeline correctness (`tools/`)
 
@@ -102,6 +113,6 @@ Build performance (scaling and dev latency; not urgent at 0.1 s):
 | [x] H8 | M | `library/package.json` has no devDependencies (tsc only works because it's installed globally) and ships without the LICENSE it lists in `files`. | `library/package.json` | Add `typescript`, `@web/test-runner`. Copy the LICENSE. |
 | [ ] H9 | M | Release check only compares the tag to `library/package.json`. `create` pins `@anzaui/anza@0.5.0` by hand. | `.github/workflows/release.yml`, `create/package.json` | Have one version source, checked in CI. |
 | [x] H10 | L | `.gitignore` has rules copied from other projects (`k8/hermes`, `config/prod.toml`, `*.onnx`, `book/`) and a broad `*.bin`. | `.gitignore` | Rewrite it minimally. |
-| [ ] H11 | L | Local-only clutter: `report.md`, `reserch.md`, `DESIGN.md`, `SKILL.md`, `engines/*/{DESIGN,DOC,STRUCTURE,SKILL}.md`, `test/`, `tmp/`, `examples/` (891 MB with Rust `target/`). | root, `engines/*` | Fold useful content into docs, delete the rest locally. |
+| [x] H11 | L | Local-only clutter: `report.md`, `reserch.md`, `DESIGN.md`, `SKILL.md`, `engines/*/{DESIGN,DOC,STRUCTURE,SKILL}.md`, `test/`, `tmp/`, `examples/` (891 MB with Rust `target/`). | root, `engines/*` | Fold useful content into docs, delete the rest locally. |
 | [x] H12 | L | Test log noise: `[Router] <dock-main id="main"> is required but was not found` thrown outside a test. | `library/src/core/router/boot.js:50` | Find the test that isn't awaited and add cleanup. |
 | [x] H13 | L | `create/index.js:20-22` local fallback points at the repo root, which has no `bin/create`. | `create/index.js` | Point at `library/bin/create`. |
