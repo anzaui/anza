@@ -7,7 +7,7 @@
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
-use anza::extract::compile;
+use anza_cli::extract::compile;
 
 fn write(root: &Path, rel: &str, content: &str) {
   let path = root.join(rel);

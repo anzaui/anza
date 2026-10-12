@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use clap::{Parser, Subcommand};
 use tokio::sync::broadcast;
 
-use anza::{
+use anza_cli::{
   data::{Build, Check, Create, Dev, Docs, Generate},
   extract,
   types::HmrMessage,
