@@ -8,8 +8,8 @@ import {
 } from './state.js';
 import {
   preloadResources, createTemplateFragment,
-  findDsdTemplate, hasHydrationMismatch, replaceShadowTemplate, hasStructuralElements,
-  sanitizeTemplateHtml, evictAsset
+  findDsdTemplate, hasHydrationMismatch, hasMissingRefs, replaceShadowTemplate,
+  hasStructuralElements, sanitizeTemplateHtml, evictAsset, adoptedResources, isBuiltApp
 } from './utils.js';
 import { createComponentContext } from './proxy.js';
 
@@ -378,8 +378,11 @@ export function element(tag, spec, base) {
      * DSD fast path: the adopted shadow root already holds the rendered
      * markup, so refs/on/mount are wired before any resource is fetched.
      * Resources then load in the background to adopt stylesheets and to run
-     * the one-shot hydration mismatch check. The first wiring uses a scoped
-     * controller so a mismatch re-render can drop its listeners.
+     * the one-shot hydration mismatch check. In a built app that skips
+     * everything the DSD already carries (linked styles; template and tags
+     * unless inlined), so a pre-rendered page costs no extra request (P13).
+     * The first wiring uses a scoped controller so a mismatch re-render can
+     * drop its listeners.
      */
     async #hydrateAdopted() {
       if (typeof document !== 'undefined' && document.readyState === 'loading') {
@@ -392,24 +395,36 @@ export function element(tag, spec, base) {
       let scope = linkedController(ctrl);
       this.#wire(root, null, true, scope, true);
 
-      const { templateNode, stylesheets, cssText, tagsDescriptor } = await getResources();
+      // A built app's DSD comes from the same build as the client resources:
+      // use only what needs no request (styles the DSD does not link, inlined
+      // template/tags). Unbuilt apps (dev) load everything for the check.
+      const built = isBuiltApp();
+      const res = built
+        ? await adoptedResources(tag, root, styleUrls, templateUrl, spec.style)
+        : await getResources();
       if (ctrl.signal.aborted || this.ctrl !== ctrl || !this.isConnected) return;
 
-      applyStyles(root, stylesheets, cssText, true);
+      applyStyles(root, res.stylesheets, res.cssText, true);
+      if (hydrationFallbackMap.get(this)) return;
 
-      if (
-        templateNode &&
-        !hydrationFallbackMap.get(this) &&
-        hasHydrationMismatch(root, templateNode, tagsDescriptor)
-      ) {
-        // Hard mismatch vs client template: one re-render, then re-wire.
-        hydrationFallbackMap.set(this, true);
-        runUnmount(this);
-        scope.abort();
-        replaceShadowTemplate(root, templateNode);
-        scope = linkedController(ctrl);
-        this.#wire(root, tagsDescriptor, true, scope, false);
-      }
+      const mismatch = res.templateNode
+        ? hasHydrationMismatch(root, res.templateNode, res.tagsDescriptor)
+        : hasMissingRefs(root, res.tagsDescriptor?.refs);
+      if (!mismatch) return;
+
+      // Hard mismatch: load the full client resources (template, tags and
+      // every style, since the re-render drops the DSD links), re-render once
+      // and re-wire.
+      const full = built ? await getResources() : res;
+      if (ctrl.signal.aborted || this.ctrl !== ctrl || !this.isConnected) return;
+      if (!full.templateNode || hydrationFallbackMap.get(this)) return;
+      hydrationFallbackMap.set(this, true);
+      runUnmount(this);
+      scope.abort();
+      replaceShadowTemplate(root, full.templateNode);
+      applyStyles(root, full.stylesheets, full.cssText, false);
+      scope = linkedController(ctrl);
+      this.#wire(root, full.tagsDescriptor, true, scope, false);
     }
 
     disconnectedCallback() {

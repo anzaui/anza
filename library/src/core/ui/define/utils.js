@@ -137,50 +137,18 @@ export function tagsUrlFor(templateUrl) {
  * cssText carries the concatenated raw CSS for <style> injection.
  */
 export async function preloadResources(tag, styleUrls, templateUrl, inlineTemplate, inlineStyle) {
-  let templateNode = null;
-  let stylesheets = [];
-  let cssTextAcc = '';
-  let tagsDescriptor = null;
-
   // Resolve under __ANZA_BASE__ before cache/fetch.
-  const rawUrls = Array.isArray(styleUrls) ? styleUrls : (styleUrls ? [styleUrls] : []);
-  const urls = rawUrls.map((u) => resolveAssetUrl(u));
+  const urls = resolveStyleUrls(styleUrls);
   const resolvedTemplate = templateUrl ? resolveAssetUrl(templateUrl) : null;
 
   const [styles, fetchedTemplate, fetchedTags] = await Promise.all([
-    Promise.all(urls.map((url) => loadAsset(url, 'style', tag))),
+    loadStyles(tag, urls, inlineStyle),
     resolvedTemplate ? loadAsset(resolvedTemplate, 'template', tag) : null,
     resolvedTemplate ? loadAsset(tagsUrlFor(resolvedTemplate), 'tags', tag) : null
   ]);
 
-  // Keep declaration order regardless of which fetch finished first.
-  for (const value of styles) {
-    if (value == null) continue;
-    if (supportsSheets) {
-      stylesheets.push(value);
-    } else {
-      cssTextAcc += value + '\n';
-    }
-  }
-
-  if (inlineStyle) {
-    const inlineStyles = Array.isArray(inlineStyle) ? inlineStyle : [inlineStyle];
-    // Filter out ones that are likely URLs (they were fetched above)
-    const isUrl = s => typeof s === 'string' && (s.endsWith('.css') || ((s.startsWith('./') || s.startsWith('/')) && !s.startsWith('/*') && !s.includes('{')));
-    const inlines = inlineStyles.filter(s => !isUrl(s));
-    for (const style of inlines) {
-      if (supportsSheets) {
-        const sheet = new CSSStyleSheet();
-        sheet.replaceSync(style);
-        stylesheets.push(sheet);
-      } else {
-        cssTextAcc += style + '\n';
-      }
-    }
-  }
-
-  const cssText = cssTextAcc.trim() ? cssTextAcc : null;
-
+  let templateNode = null;
+  let tagsDescriptor = null;
   if (resolvedTemplate) {
     templateNode = fetchedTemplate ?? null;
     tagsDescriptor = fetchedTags ?? null;
@@ -188,7 +156,104 @@ export async function preloadResources(tag, styleUrls, templateUrl, inlineTempla
     templateNode = createTemplateFragment(inlineTemplate);
   }
 
-  return { templateNode, stylesheets, cssText, tagsDescriptor };
+  return { templateNode, stylesheets: styles.stylesheets, cssText: styles.cssText, tagsDescriptor };
+}
+
+/**
+ * Resources an adopted (DSD) root needs in a built app, loaded without
+ * requesting what the pre-rendered markup already carries (AUDIT P13):
+ *
+ *   - styles: URLs the shadow root already links are skipped (the browser
+ *     loaded them with the page); the rest come from the inline registry or
+ *     are fetched as usual;
+ *   - template and tags descriptor: used only when inlined at build time,
+ *     otherwise null. They are fetched later, only for a soft navigation
+ *     (CSR instance) or a mismatch re-render.
+ *
+ * Returns { templateNode, stylesheets, cssText, tagsDescriptor }.
+ */
+export async function adoptedResources(tag, root, styleUrls, templateUrl, inlineStyle) {
+  const linked = linkedStylesheets(root);
+  const urls = resolveStyleUrls(styleUrls).filter((url) => !linked.has(url));
+  const resolvedTemplate = templateUrl ? resolveAssetUrl(templateUrl) : null;
+  const ifInlined = (url, kind) => (url && inlined(url) !== undefined ? loadAsset(url, kind, tag) : null);
+
+  const [styles, templateNode, tagsDescriptor] = await Promise.all([
+    loadStyles(tag, urls, inlineStyle),
+    ifInlined(resolvedTemplate, 'template'),
+    ifInlined(resolvedTemplate && tagsUrlFor(resolvedTemplate), 'tags')
+  ]);
+
+  return {
+    templateNode: templateNode ?? null,
+    stylesheets: styles.stylesheets,
+    cssText: styles.cssText,
+    tagsDescriptor: tagsDescriptor ?? null
+  };
+}
+
+/**
+ * True when the running app comes from `anza build`: at least one module
+ * registered build-time inlined resources (dev servers never inline). The
+ * pre-rendered markup and the client templates then come from the same
+ * build, so an adopted root can trust its DSD unless an inlined template or
+ * tags descriptor says otherwise.
+ */
+export function isBuiltApp() {
+  const registry = globalThis.__anzaInline;
+  return Boolean(registry) && typeof registry.get === 'function';
+}
+
+function resolveStyleUrls(styleUrls) {
+  const raw = Array.isArray(styleUrls) ? styleUrls : (styleUrls ? [styleUrls] : []);
+  return raw.map((u) => resolveAssetUrl(u));
+}
+
+/** Absolute URLs of the stylesheets a shadow root already links. */
+function linkedStylesheets(root) {
+  const hrefs = new Set();
+  if (!root?.querySelectorAll) return hrefs;
+  for (const link of root.querySelectorAll('link[rel~="stylesheet"][href]')) {
+    if (link.href) hrefs.add(link.href);
+    hrefs.add(resolveAssetUrl(link.getAttribute('href')));
+  }
+  return hrefs;
+}
+
+/**
+ * Loads resolved style URLs, then compiles inline (non-URL) styles. Keeps
+ * declaration order regardless of which fetch finished first. Returns
+ * { stylesheets, cssText }.
+ */
+async function loadStyles(tag, urls, inlineStyle) {
+  const values = await Promise.all(urls.map((url) => loadAsset(url, 'style', tag)));
+  const stylesheets = [];
+  let cssText = '';
+  for (const value of values) {
+    if (value == null) continue;
+    if (supportsSheets) {
+      stylesheets.push(value);
+    } else {
+      cssText += value + '\n';
+    }
+  }
+
+  if (inlineStyle) {
+    const inlineStyles = Array.isArray(inlineStyle) ? inlineStyle : [inlineStyle];
+    // Filter out ones that are likely URLs (they were loaded above)
+    const isUrl = s => typeof s === 'string' && (s.endsWith('.css') || ((s.startsWith('./') || s.startsWith('/')) && !s.startsWith('/*') && !s.includes('{')));
+    for (const style of inlineStyles.filter(s => !isUrl(s))) {
+      if (supportsSheets) {
+        const sheet = new CSSStyleSheet();
+        sheet.replaceSync(style);
+        stylesheets.push(sheet);
+      } else {
+        cssText += style + '\n';
+      }
+    }
+  }
+
+  return { stylesheets, cssText: cssText.trim() ? cssText : null };
 }
 
 /**
@@ -316,7 +381,22 @@ export function hasHydrationMismatch(shadowRoot, templateNode, descriptor) {
     ? descriptor.refs
     : collectRefNames(templateNode);
 
-  for (const name of expectedRefs) {
+  if (hasMissingRefs(shadowRoot, expectedRefs)) return true;
+
+  if (hasStructuralElements(templateNode) && !hasStructuralElements(shadowRoot)) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * True when any of the `ref` names is absent from the root. The ref half of
+ * the mismatch check; needs only a tags descriptor, no template.
+ */
+export function hasMissingRefs(shadowRoot, names) {
+  if (!shadowRoot || !Array.isArray(names)) return false;
+  for (const name of names) {
     try {
       if (!shadowRoot.querySelector(`[ref="${escapeAttrValue(name)}"]`)) {
         return true;
@@ -325,11 +405,6 @@ export function hasHydrationMismatch(shadowRoot, templateNode, descriptor) {
       return true;
     }
   }
-
-  if (hasStructuralElements(templateNode) && !hasStructuralElements(shadowRoot)) {
-    return true;
-  }
-
   return false;
 }
 
