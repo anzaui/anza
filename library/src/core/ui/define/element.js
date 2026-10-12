@@ -8,7 +8,7 @@ import {
 } from './state.js';
 import {
   preloadResources, createTemplateFragment,
-  findDsdTemplate, hasHydrationMismatch, replaceShadowTemplate
+  findDsdTemplate, hasHydrationMismatch, replaceShadowTemplate, hasStructuralElements
 } from './utils.js';
 import { createComponentContext } from './proxy.js';
 
@@ -193,6 +193,18 @@ export function element(tag, spec, base) {
     }
   }
 
+  /** Calls spec.unmount with the element's current context. */
+  const runUnmount = (el) => {
+    if (!spec.unmount) return;
+    spec.unmount({
+      el,
+      tags: el._tags,
+      refs: el._refs,
+      watch: el._watch,
+      internals: internalsMap.get(el)
+    });
+  };
+
   class DeclarativeElement extends BaseElement {
     static observedAttributes = observedAttrs;
 
@@ -259,6 +271,14 @@ export function element(tag, spec, base) {
         window.__native_hmr_instances__?.get(tag)?.add(this);
       }
       
+      // Pre-rendered (DSD) markup is already usable: wire refs/on/mount now and
+      // load the client resources in the background for styles and the
+      // mismatch check only.
+      if (!resolved && adoptedMap.get(this) === true && hasStructuralElements(this.shadowRoot)) {
+        await this.#hydrateAdopted();
+        return;
+      }
+
       // Wait for resolved resources to compile (synchronously if already cached)
       let res = resolved;
       if (!res) {
@@ -297,24 +317,22 @@ export function element(tag, spec, base) {
         // else adopted + matching: keep DSD markup; do NOT clone over it
       }
 
-      if (stylesheets && stylesheets.length > 0) {
-        // Constructable sheets do not wipe existing DSD nodes
-        root.adoptedStyleSheets = stylesheets;
-      } else if (cssText) {
-        // Fallback <style>: skip if DSD already shipped encapsulated styles
-        if (!adopted || !root.querySelector('style')) {
-          const style = document.createElement('style');
-          style.textContent = cssText;
-          root.prepend(style);
-        }
-      }
+      applyStyles(root, stylesheets, cssText, adopted);
 
       // Rehydrate refs / tags / on / watch against existing (or freshly cloned) DOM
+      this.#wire(root, tagsDescriptor, adopted, this.ctrl, true);
+    }
+
+    /**
+     * Builds the component context (refs / tags / on / watch), marks the
+     * element initialized and runs `mount`. Announces `anza:ready` once.
+     */
+    #wire(root, descriptor, adopted, ctrl, announce) {
       const context = createComponentContext({
         el: this,
         shadowRoot: root,
-        ctrl: this.ctrl,
-        descriptor: tagsDescriptor,
+        ctrl,
+        descriptor,
         internals: internalsMap.get(this),
         adopted
       });
@@ -326,7 +344,9 @@ export function element(tag, spec, base) {
       this._watch = context.watch;
 
       initializedMap.set(this, true);
-      this.dispatchEvent(new CustomEvent('anza:ready', { bubbles: false, composed: false }));
+      if (announce) {
+        this.dispatchEvent(new CustomEvent('anza:ready', { bubbles: false, composed: false }));
+      }
 
       // Mount hook trigger passed with unified AbortController signal
       if (spec.mount) {
@@ -340,6 +360,44 @@ export function element(tag, spec, base) {
         } catch (err) {
           console.error('[Native UI] mount failed:', err);
         }
+      }
+    }
+
+    /**
+     * DSD fast path: the adopted shadow root already holds the rendered
+     * markup, so refs/on/mount are wired before any resource is fetched.
+     * Resources then load in the background to adopt stylesheets and to run
+     * the one-shot hydration mismatch check. The first wiring uses a scoped
+     * controller so a mismatch re-render can drop its listeners.
+     */
+    async #hydrateAdopted() {
+      if (typeof document !== 'undefined' && document.readyState === 'loading') {
+        await yieldTask();
+      }
+      const ctrl = this.ctrl;
+      if (!ctrl || ctrl.signal.aborted || !this.isConnected) return;
+
+      const root = this.shadowRoot;
+      let scope = linkedController(ctrl);
+      this.#wire(root, null, true, scope, true);
+
+      const { templateNode, stylesheets, cssText, tagsDescriptor } = await getResources();
+      if (ctrl.signal.aborted || this.ctrl !== ctrl || !this.isConnected) return;
+
+      applyStyles(root, stylesheets, cssText, true);
+
+      if (
+        templateNode &&
+        !hydrationFallbackMap.get(this) &&
+        hasHydrationMismatch(root, templateNode, tagsDescriptor)
+      ) {
+        // Hard mismatch vs client template: one re-render, then re-wire.
+        hydrationFallbackMap.set(this, true);
+        runUnmount(this);
+        scope.abort();
+        replaceShadowTemplate(root, templateNode);
+        scope = linkedController(ctrl);
+        this.#wire(root, tagsDescriptor, true, scope, false);
       }
     }
 
@@ -578,6 +636,38 @@ export function element(tag, spec, base) {
 
   // Define element globally
   customElements.define(tag, DeclarativeElement);
+}
+
+/**
+ * Applies compiled styles to a shadow root: constructable sheets when
+ * available, otherwise a fallback <style> (skipped when adopted DSD already
+ * ships its own).
+ */
+function applyStyles(root, stylesheets, cssText, adopted) {
+  if (stylesheets && stylesheets.length > 0) {
+    // Constructable sheets do not wipe existing DSD nodes
+    root.adoptedStyleSheets = stylesheets;
+  } else if (cssText) {
+    if (!adopted || !root.querySelector('style')) {
+      const style = document.createElement('style');
+      style.textContent = cssText;
+      root.prepend(style);
+    }
+  }
+}
+
+/**
+ * AbortController that also aborts when `parent` aborts. Lets a wiring be
+ * torn down on its own while still following the element's lifetime.
+ */
+function linkedController(parent) {
+  const child = new AbortController();
+  if (parent.signal.aborted) {
+    child.abort();
+  } else {
+    parent.signal.addEventListener('abort', () => child.abort(), { once: true, signal: child.signal });
+  }
+  return child;
 }
 
 /**

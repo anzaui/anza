@@ -81,6 +81,39 @@ function detach(name) {
  * @returns {Node} the inserted node.
  */
 export function add(name, el, parent = 'main', tag = null) {
+  const node = insert(name, el, parent, tag);
+  if (el) notify(name);
+  return node;
+}
+
+// Pending whenLive() resolvers, keyed by container name.
+const waiters = new Map();
+
+function notify(name) {
+  const list = waiters.get(name);
+  if (!list) return;
+  waiters.delete(name);
+  for (const resolveWaiter of list) resolveWaiter();
+}
+
+/**
+ * Resolves once `name` has a live element registered (immediately if it
+ * already has one). Lets cascade.js wait for a freshly created container to
+ * self-register without polling animation frames.
+ *
+ * @param {string} name - registry key.
+ * @returns {Promise<void>}
+ */
+export function whenLive(name) {
+  if (element(name)) return Promise.resolve();
+  return new Promise((resolveWaiter) => {
+    if (!waiters.has(name)) waiters.set(name, new Set());
+    waiters.get(name).add(resolveWaiter);
+  });
+}
+
+/** Inserts or re-points a node; see add(). */
+function insert(name, el, parent, tag) {
   gone.delete(name);
 
   const existing = nodes.get(name);

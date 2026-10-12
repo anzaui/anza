@@ -4,18 +4,27 @@
  * Sequential container mounting. When a navigation targets a container that is
  * not yet in the DOM, walk the graph path from the nearest live ancestor down
  * to the target, creating and mounting each missing level in order and yielding
- * a frame between each so connectedCallback (and self-registration) can run.
+ * until each has registered so connectedCallback (and self-registration) can run.
  *
  * Source: tasks.md Phase 5
  */
 
-import { get, add, element as resolve } from './graph.js';
+import { get, add, element as resolve, whenLive } from './graph.js';
 import { path } from './lca.js';
 
-/** Yields one frame so a freshly-connected element can register itself. */
-function frame() {
-  if (typeof requestAnimationFrame === 'undefined') return Promise.resolve();
-  return new Promise((r) => requestAnimationFrame(() => r()));
+/** Upper bound for a freshly created container to self-register (resource fetches included). */
+const REGISTER_TIMEOUT = 10000;
+
+/**
+ * Resolves true once container `name` registers a live element, or false
+ * after `ms`. Event-driven (graph add), no frame polling.
+ */
+function registered(name, ms = REGISTER_TIMEOUT) {
+  let timer;
+  const timeout = new Promise((r) => {
+    timer = setTimeout(() => r(false), ms);
+  });
+  return Promise.race([whenLive(name).then(() => true), timeout]).finally(() => clearTimeout(timer));
 }
 
 /**
@@ -89,15 +98,10 @@ export async function ensure(target, current = 'main') {
       add(node.name, el, node.parent?.name ?? 'main', tag);
     }
 
-    // Wait for the element's connectedCallback to complete, including any
-    // async resource loading (template/style fetches). A single frame is
-    // not sufficient when preloadResources() hits the network. Adopt path
-    // usually resolves immediately via add() above.
-    let attempts = 0;
-    while (!resolve(node.name) && attempts < 50) {
-      await frame();
-      attempts++;
-    }
+    // Wait for the element's connectedCallback to register it, including any
+    // async resource loading (template/style fetches). The adopt path usually
+    // resolves immediately via add() above.
+    await registered(node.name);
     if (!resolve(node.name)) {
       throw new Error(`CascadeError: container '${node.name}' failed to register after mount`);
     }
