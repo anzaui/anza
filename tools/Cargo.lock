@@ -100,6 +100,7 @@ name = "anza-cli"
 version = "0.5.1"
 dependencies = [
  "ahash",
+ "aho-corasick",
  "anza-logs",
  "axum",
  "clap",

@@ -104,56 +104,53 @@ pub fn base_script_tag(base: &str) -> String {
   )
 }
 
+/// Attribute openers whose root-absolute value gets the base.
+const ATTR_NEEDLES: [&str; 6] = [
+  "href=\"/",
+  "href='/",
+  "src=\"/",
+  "src='/",
+  "content=\"/",
+  "content='/",
+];
+
+fn attr_matcher() -> &'static aho_corasick::AhoCorasick {
+  static AC: std::sync::OnceLock<aho_corasick::AhoCorasick> = std::sync::OnceLock::new();
+  AC.get_or_init(|| {
+    aho_corasick::AhoCorasick::builder()
+      .match_kind(aho_corasick::MatchKind::LeftmostFirst)
+      .build(ATTR_NEEDLES)
+      .expect("static patterns")
+  })
+}
+
 /// Rewrite root-absolute `href`/`src` (and similar) attributes in HTML.
+/// One left-to-right pass over the document.
 pub fn rewrite_html_urls(html: &str, base: &str) -> String {
   let base = normalize_base(base);
   if base.is_empty() {
     return html.to_string();
   }
 
+  let bytes = html.as_bytes();
   let mut out = String::with_capacity(html.len() + 64);
   let mut i = 0usize;
-  let bytes = html.as_bytes();
-  let attr_needles: &[&[u8]] = &[
-    b"href=\"/",
-    b"href='/",
-    b"src=\"/",
-    b"src='/",
-    b"content=\"/",
-    b"content='/",
-  ];
-
   while i < bytes.len() {
-    let mut earliest: Option<(usize, usize)> = None; // (pos, needle_len)
-    for needle in attr_needles {
-      if let Some(rel) = html[i..].find(std::str::from_utf8(needle).unwrap_or("")) {
-        let pos = i + rel;
-        if earliest.map_or(true, |(ep, _)| pos < ep) {
-          earliest = Some((pos, needle.len()));
-        }
-      }
-    }
-
-    let Some((pos, needle_len)) = earliest else {
+    let Some(m) = attr_matcher().find(aho_corasick::Input::new(html).span(i..html.len())) else {
       out.push_str(&html[i..]);
       break;
     };
-
-    out.push_str(&html[i..pos]);
-    let prefix = &html[pos..pos + needle_len];
-    out.push_str(prefix);
-
-    let value_start = pos + needle_len;
-    let quote = if prefix.contains('"') { '"' } else { '\'' };
-    let value_end = html[value_start..]
-      .find(quote)
+    let (pos, value_start) = (m.start(), m.end());
+    out.push_str(&html[i..value_start]);
+    let quote = bytes[value_start - 2];
+    let value_end = memchr::memchr(quote, &bytes[value_start..])
       .map(|j| value_start + j)
       .unwrap_or(bytes.len());
+    debug_assert!(pos < value_start);
 
     let path = &html[value_start..value_end];
     let rewritten = with_base(&base, &format!("/{}", path.trim_start_matches('/')));
-    let trimmed = rewritten.trim_start_matches('/');
-    out.push_str(trimmed);
+    out.push_str(rewritten.trim_start_matches('/'));
     out.push(quote as char);
     i = value_end + 1;
   }
@@ -267,34 +264,40 @@ fn rewrite_importmap_json_paths(json: &str, base: &str) -> String {
   out
 }
 
+/// Root-absolute literals in `app.js` / `sw.js` that get the base.
+const JS_LITERALS: [&str; 7] = [
+  "/sw.js",
+  "/index.html",
+  "/app.js",
+  "/tokens/index.css",
+  "/styles/index.css",
+  "/favicon.ico",
+  "/api/*",
+];
+
+/// Prefix the deploy base onto known root-absolute string literals, in one
+/// pass (single- and double-quoted forms).
 pub fn rewrite_js_root_literals(source: &str, base: &str) -> String {
   let base = normalize_base(base);
   if base.is_empty() {
     return source.to_string();
   }
 
-  let mut out = source.to_string();
-  let replacements = [
-    ("'/sw.js'", &format!("'{}/sw.js'", base)),
-    ("\"/sw.js\"", &format!("\"{}/sw.js\"", base)),
-    ("'/index.html'", &format!("'{}/index.html'", base)),
-    ("\"/index.html\"", &format!("\"{}/index.html\"", base)),
-    ("'/app.js'", &format!("'{}/app.js'", base)),
-    ("\"/app.js\"", &format!("\"{}/app.js\"", base)),
-    ("'/tokens/index.css'", &format!("'{}/tokens/index.css'", base)),
-    ("\"/tokens/index.css\"", &format!("\"{}/tokens/index.css\"", base)),
-    ("'/styles/index.css'", &format!("'{}/styles/index.css'", base)),
-    ("\"/styles/index.css\"", &format!("\"{}/styles/index.css\"", base)),
-    ("'/favicon.ico'", &format!("'{}/favicon.ico'", base)),
-    ("\"/favicon.ico\"", &format!("\"{}/favicon.ico\"", base)),
-    ("path === '/favicon.ico'", &format!("path === '{}/favicon.ico'", base)),
-    ("'/api/*'", &format!("'{}/api/*'", base)),
-    ("\"/api/*\"", &format!("\"{}/api/*\"", base)),
-  ];
-  for (from, to) in replacements {
-    out = out.replace(from, to);
+  let mut patterns: Vec<String> = Vec::with_capacity(JS_LITERALS.len() * 2);
+  let mut replacements: Vec<String> = Vec::with_capacity(JS_LITERALS.len() * 2);
+  for lit in JS_LITERALS {
+    for q in ['\'', '"'] {
+      patterns.push(format!("{q}{lit}{q}"));
+      replacements.push(format!("{q}{base}{lit}{q}"));
+    }
   }
-  out
+  match aho_corasick::AhoCorasick::builder()
+    .match_kind(aho_corasick::MatchKind::LeftmostFirst)
+    .build(&patterns)
+  {
+    Ok(ac) => ac.replace_all(source, &replacements),
+    Err(_) => source.to_string(),
+  }
 }
 
 fn walk_html_files(dir: &Path, out: &mut Vec<PathBuf>) {
@@ -336,21 +339,13 @@ pub fn apply_to_dist(dist_dir: &Path, base: &str) -> Result<(), Vec<String>> {
     }
   }
 
-  for rel in ["index.html", "app.js", "sw.js"] {
+  // dist/index.html is one of the walked files (rewritten once, above).
+  for rel in ["app.js", "sw.js"] {
     let path = dist_dir.join(rel);
     if !path.exists() {
       continue;
     }
-    let result = if rel.ends_with(".html") {
-      rewrite_file(&path, |content| {
-        let step = rewrite_html_urls(content, &base);
-        let step = rewrite_inline_importmaps(&step, &base);
-        inject_base_script(&step, &base)
-      })
-    } else {
-      rewrite_file(&path, |content| rewrite_js_root_literals(content, &base))
-    };
-    if let Err(err) = result {
+    if let Err(err) = rewrite_file(&path, |content| rewrite_js_root_literals(content, &base)) {
       errors.push(err);
     }
   }
@@ -497,5 +492,210 @@ mod tests {
     let out = std::fs::read_to_string(dir.join("importmap.json")).unwrap();
     assert!(out.contains("/anza/core/ui/index.js"), "got: {out}");
     assert!(!out.contains("//anza/"), "got: {out}");
+  }
+
+  /// The rewriters as they were before BP3 (multi-`find` loop, 15 sequential
+  /// replaces, dist/index.html rewritten twice), kept to prove the single-pass
+  /// versions are byte-identical.
+  mod legacy {
+    use super::super::*;
+
+    /// Rewrite root-absolute `href`/`src` (and similar) attributes in HTML.
+    pub fn rewrite_html_urls(html: &str, base: &str) -> String {
+      let base = normalize_base(base);
+      if base.is_empty() {
+        return html.to_string();
+      }
+
+      let mut out = String::with_capacity(html.len() + 64);
+      let mut i = 0usize;
+      let bytes = html.as_bytes();
+      let attr_needles: &[&[u8]] = &[
+        b"href=\"/",
+        b"href='/",
+        b"src=\"/",
+        b"src='/",
+        b"content=\"/",
+        b"content='/",
+      ];
+
+      while i < bytes.len() {
+        let mut earliest: Option<(usize, usize)> = None; // (pos, needle_len)
+        for needle in attr_needles {
+          if let Some(rel) = html[i..].find(std::str::from_utf8(needle).unwrap_or("")) {
+            let pos = i + rel;
+            if earliest.map_or(true, |(ep, _)| pos < ep) {
+              earliest = Some((pos, needle.len()));
+            }
+          }
+        }
+
+        let Some((pos, needle_len)) = earliest else {
+          out.push_str(&html[i..]);
+          break;
+        };
+
+        out.push_str(&html[i..pos]);
+        let prefix = &html[pos..pos + needle_len];
+        out.push_str(prefix);
+
+        let value_start = pos + needle_len;
+        let quote = if prefix.contains('"') { '"' } else { '\'' };
+        let value_end = html[value_start..]
+          .find(quote)
+          .map(|j| value_start + j)
+          .unwrap_or(bytes.len());
+
+        let path = &html[value_start..value_end];
+        let rewritten = with_base(&base, &format!("/{}", path.trim_start_matches('/')));
+        let trimmed = rewritten.trim_start_matches('/');
+        out.push_str(trimmed);
+        out.push(quote as char);
+        i = value_end + 1;
+      }
+
+      out
+    }
+
+    pub fn rewrite_js_root_literals(source: &str, base: &str) -> String {
+      let base = normalize_base(base);
+      if base.is_empty() {
+        return source.to_string();
+      }
+
+      let mut out = source.to_string();
+      let replacements = [
+        ("'/sw.js'", &format!("'{}/sw.js'", base)),
+        ("\"/sw.js\"", &format!("\"{}/sw.js\"", base)),
+        ("'/index.html'", &format!("'{}/index.html'", base)),
+        ("\"/index.html\"", &format!("\"{}/index.html\"", base)),
+        ("'/app.js'", &format!("'{}/app.js'", base)),
+        ("\"/app.js\"", &format!("\"{}/app.js\"", base)),
+        ("'/tokens/index.css'", &format!("'{}/tokens/index.css'", base)),
+        ("\"/tokens/index.css\"", &format!("\"{}/tokens/index.css\"", base)),
+        ("'/styles/index.css'", &format!("'{}/styles/index.css'", base)),
+        ("\"/styles/index.css\"", &format!("\"{}/styles/index.css\"", base)),
+        ("'/favicon.ico'", &format!("'{}/favicon.ico'", base)),
+        ("\"/favicon.ico\"", &format!("\"{}/favicon.ico\"", base)),
+        ("path === '/favicon.ico'", &format!("path === '{}/favicon.ico'", base)),
+        ("'/api/*'", &format!("'{}/api/*'", base)),
+        ("\"/api/*\"", &format!("\"{}/api/*\"", base)),
+      ];
+      for (from, to) in replacements {
+        out = out.replace(from, to);
+      }
+      out
+    }
+
+
+    pub fn apply_to_dist(dist_dir: &Path, base: &str) {
+      let base = normalize_base(base);
+      let mut html_files = Vec::new();
+      walk_html_files(dist_dir, &mut html_files);
+      let html = |content: &str| {
+        let next = rewrite_html_urls(content, &base);
+        let next = rewrite_inline_importmaps(&next, &base);
+        inject_base_script(&next, &base)
+      };
+      for path in &html_files {
+        rewrite_file(path, html).unwrap();
+      }
+      for rel in ["index.html", "app.js", "sw.js"] {
+        let path = dist_dir.join(rel);
+        if !path.exists() {
+          continue;
+        }
+        if rel.ends_with(".html") {
+          rewrite_file(&path, html).unwrap();
+        } else {
+          rewrite_file(&path, |c| rewrite_js_root_literals(c, &base)).unwrap();
+        }
+      }
+      let importmap = dist_dir.join("importmap.json");
+      if importmap.exists() {
+        rewrite_file(&importmap, |c| rewrite_importmap_json_paths(c, &base)).unwrap();
+      }
+    }
+  }
+
+  const HTML_SAMPLES: &[&str] = &[
+    r##"<!DOCTYPE html>
+<html lang="en"><head>
+<meta property="og:image" content="/logo.svg">
+<meta name="description" content="plain text, not a path">
+<link rel="stylesheet" href="/tokens/index.css" />
+<link rel='preload' href='/styles/index.css' as='style'>
+<link rel="icon" href="/">
+<script type="importmap">
+{
+  "imports": {
+    "@anzaui/anza/ui": "/core/ui/index.js",
+    "@anzaui/anza/sw": "/anza/sw/index.js"
+  }
+}
+</script>
+<script type="module" src="/app.js"></script>
+</head><body>
+<a href="/docs">Docs</a><a href="/anza/docs/x">already</a><a href="/anzafoo">near</a>
+<a href="https://example.com/x">ext</a><a href="//cdn.example/x">proto</a>
+<img src="/a.png"><img src='/b.png'><img data-src="/c.png" src="/d.png">
+<a href="#top">frag</a><a href="docs/rel">rel</a><a href="/">home</a><a href="//">x</a>
+<p>href="/in-text" and src='/also' and content="/x"</p>
+<a href="/q?x=1&amp;y=2">query</a><a href="/sp ace">s</a>
+<a href="/unterminated"##,
+    "",
+    "no attributes at all",
+    "<a href=\"/\"></a><a href='/'></a>",
+    "<a href=\"/x\"",
+    "<a href=\"/",
+    "x src=\"/é/ü\" y content='/ß'",
+  ];
+
+  const JS_SAMPLES: &[&str] = &[
+    r#"navigator.serviceWorker.register('/sw.js', { type: 'module' });
+const shell = "/index.html"; precache(['/app.js', "/app.js", '/tokens/index.css', "/tokens/index.css",
+'/styles/index.css', "/styles/index.css", '/favicon.ico', "/favicon.ico"]);
+if (path === '/favicon.ico') return; route('/api/*', networkFirst); route("/api/*", x);
+'/sw.js''/app.js' "/sw.js'" '/sw.jsx' '/app.js/' `/app.js` '/anza/app.js'
+"#,
+    "",
+    "'/favicon.ico'path === '/favicon.ico'",
+  ];
+
+  #[test]
+  fn single_pass_rewriters_match_the_old_output() {
+    for base in ["/anza", "/a/b", "docs/", "/x"] {
+      for html in HTML_SAMPLES {
+        assert_eq!(rewrite_html_urls(html, base), legacy::rewrite_html_urls(html, base), "base {base}: {html}");
+      }
+      for js in JS_SAMPLES {
+        assert_eq!(rewrite_js_root_literals(js, base), legacy::rewrite_js_root_literals(js, base), "base {base}: {js}");
+      }
+    }
+  }
+
+  #[test]
+  fn apply_to_dist_matches_the_old_output() {
+    let root = std::env::temp_dir().join(format!("anza-bp3-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&root);
+    let (new, old) = (root.join("new"), root.join("old"));
+    for dir in [&new, &old] {
+      std::fs::create_dir_all(dir.join("docs/a")).unwrap();
+      std::fs::write(dir.join("index.html"), HTML_SAMPLES[0]).unwrap();
+      std::fs::write(dir.join("docs/a/index.html"), HTML_SAMPLES[0].replace("/docs", "/docs/a")).unwrap();
+      std::fs::write(dir.join("app.js"), JS_SAMPLES[0]).unwrap();
+      std::fs::write(dir.join("sw.js"), JS_SAMPLES[0]).unwrap();
+      std::fs::write(dir.join("importmap.json"), "{\n  \"imports\": {\n    \"a\": \"/core/a.js\"\n  }\n}\n").unwrap();
+    }
+    apply_to_dist(&new, "/anza").unwrap();
+    legacy::apply_to_dist(&old, "/anza");
+    for rel in ["index.html", "docs/a/index.html", "app.js", "sw.js", "importmap.json"] {
+      assert_eq!(
+        std::fs::read(new.join(rel)).unwrap(),
+        std::fs::read(old.join(rel)).unwrap(),
+        "{rel} differs"
+      );
+    }
+    let _ = std::fs::remove_dir_all(&root);
   }
 }
