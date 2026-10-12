@@ -106,8 +106,7 @@ Setup(root="./templates", signing=SignOptions(mode="ed25519", private_key="<64 h
 Setup(root="./templates")  # mode="none": no signature
 ```
 
-`mode="session"` is accepted but does not sign yet. HMAC and Ed25519 raise
-`AnzaError` when their key is missing. See [crypto.md](crypto.md).
+HMAC and Ed25519 raise `AnzaError` when their key is missing. See [crypto.md](crypto.md).
 
 ## Page Rendering
 

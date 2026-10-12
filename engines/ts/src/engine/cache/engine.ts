@@ -8,11 +8,10 @@ import { CacheStore } from './store.js';
 import { renderPageDocument } from '../../render/page.js';
 
 export interface SignOptions {
-  mode: 'ed25519' | 'hmac' | 'session' | 'none';
+  mode: 'ed25519' | 'hmac' | 'none';
   secret?: string | Uint8Array;
   privateKey?: string | Uint8Array | crypto.KeyObject;
   publicKey?: string | Uint8Array | crypto.KeyObject;
-  publishMeta?: boolean;
 }
 
 export class Engine {
@@ -44,7 +43,6 @@ export class Engine {
       case 'hmac':
         if (!this.signing.secret) return undefined;
         return hmac.sign(this.signing.secret, msg);
-      case 'session':
       case 'none':
       default:
         return undefined;

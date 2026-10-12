@@ -3,8 +3,8 @@
 The package includes an HKDF-SHA256 helper (RFC 5869) for deriving per-session
 keys, for example a per-user HMAC secret from a session token.
 
-> `mode: 'session'` does not use it yet: that mode adds no signature. To sign per
-> session today, derive a key and pass it to `crypto.hmac.sign` yourself.
+> No signing mode uses it automatically. To sign per session, derive a key and
+> pass it to `crypto.hmac.sign` yourself.
 
 ## 1. TypeScript API
 

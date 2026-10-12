@@ -28,7 +28,6 @@ tokio = { version = "1.0", features = ["sync", "rt"], optional = true }
 notify = { version = "8.0", optional = true }
 axum = { version = "0.8", optional = true }
 actix-web = { version = "4.0", default-features = false, optional = true }
-tower = { version = "0.5", optional = true }
 futures-util = { version = "0.3", optional = true }
 
 [features]
@@ -38,9 +37,8 @@ default = []
 # Opt-in Web Framework Adapters
 axum = ["dep:axum", "dep:tokio", "dep:futures-util"]
 actix = ["dep:actix-web"]
-tower = ["dep:tower"]
 watch = ["dep:notify"]
-full = ["axum", "actix", "tower", "watch"]
+full = ["axum", "actix", "watch"]
 
 [dev-dependencies]
 # Tests only

@@ -19,7 +19,7 @@ pushes. Envelopes can be signed with HMAC-SHA256 or Ed25519 over `ts:slot:html`.
 ## Key points
 
 1. **Small core.** `default = []` in `Cargo.toml`: no web framework and no async
-   runtime unless you enable the `axum`, `actix`, `tower` or `watch` features.
+   runtime unless you enable the `axum`, `actix` or `watch` features.
 2. **Parse once.** `Setup::run()` reads every `.html` file under the root and
    splits it into static byte chunks and `{{name}}` placeholders. Rendering only
    copies chunks and parameter values into one pre-sized buffer.
@@ -29,7 +29,7 @@ pushes. Envelopes can be signed with HMAC-SHA256 or Ed25519 over `ts:slot:html`.
 4. **Two outputs.** `Page` returns a `Document` (full HTML). `Fragment` and
    `Stream` return an `Envelope`.
 5. **Signing.** `SignMode::Hmac` and `SignMode::Ed25519` add a hex `sig` to every
-   envelope. `SignMode::SessionBound` exists but does not sign (deprecated since 0.5.2, removed in 0.6.0). The browser
+   envelope. The browser
    library does not verify signatures for you (see
    [Cryptographic Verification](crypto/index.md)).
 

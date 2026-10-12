@@ -9,7 +9,7 @@ from ...models.envelope import Envelope
 from ..file.load import Template, one
 from .store import CacheStore
 
-SignMode = Literal["none", "hmac", "ed25519", "session"]
+SignMode = Literal["none", "hmac", "ed25519"]
 
 
 @dataclass

@@ -4,8 +4,8 @@ All notable changes to the Rust template and STUI streaming engine are documente
 
 ## [Unreleased]
 
-### Deprecated
-- `SignMode::SessionBound`, the `publish_meta` field of `SignMode::Ed25519`, and the `adapters::tower` module are marked `#[deprecated(since = "0.5.2")]`. They do nothing and will be removed in 0.6.0. No behaviour change.
+### Removed
+- **Breaking:** `SignMode::SessionBound`, the `publish_meta` field of `SignMode::Ed25519` (`Setup::ed25519` now takes the two key paths only), the empty `adapters::tower` module and the `tower` feature. None of them did anything.
 
 ### Changed
 - **Breaking: `Engine::manifest()` values.** Each entry is now the hex BLAKE3 digest of the template content (what `b3sum` prints). It used to be the BLAKE3 of that digest, so every stored manifest value changes.

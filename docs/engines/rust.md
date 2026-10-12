@@ -32,7 +32,6 @@ tokio = { version = "1", features = ["full"] }
 | *(default)* | No web framework and no async runtime |
 | `axum` | `IntoResponse` for `Document` (HTML) and `Envelope` (JSON); `adapters::axum::stream::event` builds an SSE `Event` |
 | `actix` | `Responder` for `Document` and `Envelope`; `adapters::actix::stream::bytes` for SSE bodies |
-| `tower` | Placeholder: pulls in `tower`, but `adapters::tower` has no `Service` yet. Deprecated since 0.5.2; removed in 0.6.0 |
 | `watch` | Watches the root with `notify` and reloads changed templates into the cache |
 | `full` | All of the above |
 
@@ -115,14 +114,13 @@ let mut setup = Setup::new("./templates");
 setup.signing = Setup::hmac(b"pre-shared-secret-key-32-bytes!!");
 
 // Ed25519: the files hold the raw 32-byte private key and public key
-setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub", false);
+setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub");
 
 // No signature (development)
 setup.signing = SignMode::None;
 ```
 
-`SignMode::SessionBound` and the `publish_meta` flag are accepted but do nothing; both are deprecated since 0.5.2 and removed in 0.6.0. The signature is
-hex-encoded; see [crypto.md](crypto.md).
+The signature is hex-encoded; see [crypto.md](crypto.md).
 
 ## Page Rendering
 
@@ -150,5 +148,5 @@ returns an `axum::response::sse::Event`. See [streaming.md](streaming.md).
 | `render` | Page and fragment rendering |
 | `crypto` | `hmac`, `ed25519` (sign / verify), `hkdf`, `blake` digests |
 | `stream` | SSE and WebSocket encoders |
-| `adapters` | Axum and Actix-web integration (feature-gated); `tower` is an empty placeholder |
+| `adapters` | Axum and Actix-web integration (feature-gated) |
 | `models` | `Document`, `Envelope`, `Manifest` |

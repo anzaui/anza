@@ -26,7 +26,6 @@ The signature is hex-encoded in the envelope's `sig` field. Whoever receives the
 | Mode | Algorithm | Best For | Proxy / CDN Support | Auth Dependency |
 |------|-----------|----------|---------------------|-----------------|
 | **`Ed25519`** | Asymmetric Ed25519 | Public pages, multi-tier CDNs, microfrontends | Yes (Bypasses CDN TLS termination) | None |
-| **`SessionBound`** / `session` | Deprecated since 0.5.2, removed in 0.6.0 (no signature is added) | Authenticated personalized streams | — | — |
 | **`Hmac`** | HMAC-SHA256 | Internal VPC microservices / single origin | Yes | Pre-shared secret |
 | **`None`** | No Signature | Local development and testing | Yes | None |
 
@@ -41,7 +40,7 @@ use anza::Setup;
 
 // Raw 32-byte private and public key files
 let mut setup = Setup::new("./templates");
-setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub", false);
+setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub");
 let engine = setup.run()?;
 ```
 

@@ -21,14 +21,10 @@ pub enum SignMode {
   Ed25519 {
     private_key: Vec<u8>,
     public_key: Vec<u8>,
-    #[deprecated(since = "0.5.2", note = "does nothing; will be removed in 0.6.0")]
-    publish_meta: bool,
   },
   Hmac {
     secret: Vec<u8>,
   },
-  #[deprecated(since = "0.5.2", note = "does nothing; will be removed in 0.6.0")]
-  SessionBound,
   None,
 }
 
@@ -53,7 +49,6 @@ impl Engine {
     Ok(manifest)
   }
 
-  #[allow(deprecated)]
   pub fn sign_payload(&self, ts: u64, slot: &str, html: &str) -> Result<Option<String>> {
     match &self.signing {
       SignMode::Ed25519 { private_key, .. } => {
@@ -66,7 +61,7 @@ impl Engine {
         let sig = hmac::sign::payload(secret, msg.as_bytes())?;
         Ok(Some(sig))
       }
-      SignMode::SessionBound | SignMode::None => Ok(None),
+      SignMode::None => Ok(None),
     }
   }
 

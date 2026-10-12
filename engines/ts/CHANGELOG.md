@@ -2,6 +2,14 @@
 
 All notable changes to the TypeScript / JavaScript template and STUI streaming engine are documented here.
 
+## [Unreleased]
+
+### Removed
+- **Breaking:** `mode: 'session'` and `publishMeta` in `SignOptions`. They never signed anything.
+
+### Security
+- The page fallback no longer writes the request path into HTML unescaped.
+
 ## [0.5.1] — 2026-10-12
 
 ### Changed

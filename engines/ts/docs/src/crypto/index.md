@@ -10,11 +10,10 @@ from the origin unchanged.
 
 ```typescript
 export interface SignOptions {
-  mode: 'ed25519' | 'hmac' | 'session' | 'none';
+  mode: 'ed25519' | 'hmac' | 'none';
   secret?: string | Uint8Array;
   privateKey?: string | Uint8Array | crypto.KeyObject;
   publicKey?: string | Uint8Array | crypto.KeyObject;
-  publishMeta?: boolean;
 }
 ```
 
@@ -22,15 +21,14 @@ export interface SignOptions {
 |---|---|---|
 | **`ed25519`** | `sig` = hex Ed25519 signature, using `privateKey` | `crypto.ed25519.verify` with the public key |
 | **`hmac`** | `sig` = hex HMAC-SHA256, using `secret` | `crypto.hmac.verify` with the same secret |
-| **`session`** | Reserved: no `sig` is added yet | — |
 | **`none`** | No `sig` (the default) | — |
 
 Notes:
 
 - If `privateKey` (ed25519) or `secret` (hmac) is missing, envelopes are sent
   **unsigned** without an error.
-- `publicKey` and `publishMeta` are stored but not used: the engine does not
-  inject the public key into pages.
+- `publicKey` is stored for your own use; the engine does not inject it into
+  pages.
 
 ## 2. Signed message
 

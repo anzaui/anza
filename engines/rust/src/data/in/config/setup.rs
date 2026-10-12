@@ -24,14 +24,12 @@ impl Setup {
     }
   }
 
-  #[allow(deprecated)]
-  pub fn ed25519<P: Into<PathBuf>>(priv_path: P, pub_path: P, publish_meta: bool) -> SignMode {
+  pub fn ed25519<P: Into<PathBuf>>(priv_path: P, pub_path: P) -> SignMode {
     let private_key = std::fs::read(priv_path.into()).unwrap_or_default();
     let public_key = std::fs::read(pub_path.into()).unwrap_or_default();
     SignMode::Ed25519 {
       private_key,
       public_key,
-      publish_meta,
     }
   }
 

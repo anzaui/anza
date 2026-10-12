@@ -29,7 +29,7 @@ SSE/WebSocket pushes. Envelopes can be signed with HMAC-SHA256 or Ed25519 over
 4. **Two outputs.** `Page` returns a `Document` (full HTML). `Fragment` and
    `Stream` return an `Envelope`.
 5. **Signing.** `mode: 'hmac'` and `mode: 'ed25519'` add a hex `sig` to every
-   envelope. `mode: 'session'` exists but does not sign yet. The browser library
+   envelope. The browser library
    does not verify signatures for you (see
    [Cryptographic Verification](crypto/index.md)).
 

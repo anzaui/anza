@@ -2,6 +2,14 @@
 
 All notable changes to the Python template and STUI streaming engine are documented here.
 
+## [Unreleased]
+
+### Removed
+- **Breaking:** `mode="session"` in `SignOptions`. They never signed anything.
+
+### Security
+- The page fallback no longer writes the request path into HTML unescaped. Template reads must resolve inside the template root (`../` in a route could read files outside it), and the page tag name is sanitized.
+
 ## [0.5.1] — 2026-10-12
 
 ### Changed

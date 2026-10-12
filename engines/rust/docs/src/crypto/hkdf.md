@@ -3,9 +3,8 @@
 The crate includes an HKDF-SHA256 helper (RFC 5869) for deriving per-session
 keys, for example a per-user HMAC secret from a session token.
 
-> `SignMode::SessionBound` does not use it: that mode adds no signature, is
-> deprecated since 0.5.2 and is removed in 0.6.0.
-> To sign per session today, derive a key and build an engine (or call
+> No signing mode uses it automatically. To sign per session, derive a key and
+> build an engine with `Setup::hmac` (or call
 > `anza::crypto::hmac::sign::payload`) with it yourself.
 
 ## 1. Rust API

@@ -11,9 +11,8 @@ from the origin unchanged.
 ```rust
 #[derive(Debug, Clone)]
 pub enum SignMode {
-  Ed25519 { private_key: Vec<u8>, public_key: Vec<u8>, publish_meta: bool },
+  Ed25519 { private_key: Vec<u8>, public_key: Vec<u8> },
   Hmac { secret: Vec<u8> },
-  SessionBound,
   None,
 }
 ```
@@ -26,7 +25,7 @@ use anza::{Setup, SignMode};
 let mut setup = Setup::new("templates");
 setup.signing = Setup::hmac(b"pre-shared-secret-key-32-bytes!!");
 // or: files holding the raw 32-byte Ed25519 private key and public key
-setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub", false);
+setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub");
 // or: no signature (the default)
 setup.signing = SignMode::None;
 let engine = setup.run()?;
@@ -36,7 +35,6 @@ let engine = setup.run()?;
 |---|---|---|
 | **`Ed25519`** | `sig` = hex Ed25519 signature (64 bytes) | `anza::crypto::ed25519::verify::check` with the public key |
 | **`Hmac`** | `sig` = hex HMAC-SHA256 (32 bytes) | `anza::crypto::hmac::verify::check` with the same secret |
-| **`SessionBound`** | Deprecated (0.5.2, removed in 0.6.0): no `sig` is added | — |
 | **`None`** | No `sig` | — |
 
 Notes:
@@ -44,8 +42,8 @@ Notes:
 - `Setup::ed25519` reads the key files and uses an empty key if a file is
   missing; the error then shows up on the first render
   (`Error::Crypto("Ed25519 private key must be 32 bytes")`).
-- `publish_meta` is stored but not used: the engine does not inject the public
-  key into pages. The field is deprecated since 0.5.2 and removed in 0.6.0.
+- `public_key` is stored for your own use; the engine does not inject it into
+  pages.
 
 ## 2. Signed message
 

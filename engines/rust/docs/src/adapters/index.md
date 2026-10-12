@@ -20,8 +20,7 @@ anza = { version = "0.5", features = ["full"] }
 |---|---|
 | `axum` | `IntoResponse` for `Document` (HTML) and `Envelope` (JSON); `anza::adapters::axum::event` for SSE |
 | `actix` | `Responder` for `Document` (HTML) and `Envelope` (JSON); `anza::adapters::actix::bytes` for SSE |
-| `tower` | Pulls in `tower`; the `adapters::tower` module is an empty placeholder, there is no `Service` yet. Deprecated since 0.5.2; removed in 0.6.0 |
-| `watch` | Starts a `notify` watcher on the template root; changes are not reloaded yet |
+| `watch` | Starts a `notify` watcher on the template root and reloads changed templates into the cache |
 | `full` | All of the above |
 
 ## 2. Sharing the engine
