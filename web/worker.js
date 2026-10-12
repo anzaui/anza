@@ -13,17 +13,36 @@
  * (page templates, sw.js, importmap.json, routes.json, unbundled modules) and
  * every HTML document is `no-cache`, so a deploy is picked up on the next
  * normal reload (the browser revalidates instead of trusting a year-long cache).
+ *
+ * URLs: one per page. `/x/` and `/x/index` redirect (301) to `/x`. Unknown
+ * paths get `404.html` with status 404 (no soft 404s); paths of client-only
+ * routes in `routes.json` (`/users/:id`) still get the app shell. HTML files
+ * requested by name are fragments (`template.html`, dock templates) and are
+ * served `noindex`.
  */
 
 const HASHED = /^\/assets\/[^/]+-[0-9a-f]{8,}\.[a-z0-9]+$/i;
 const IMMUTABLE = 'public, max-age=31536000, immutable';
 const REVALIDATE = 'no-cache';
 
-function withHeaders(res, kind, cacheControl) {
+function withHeaders(res, kind, cacheControl, { status, noindex = false } = {}) {
   const headers = new Headers(res.headers);
   headers.set('X-Anza', kind);
   headers.set('Cache-Control', cacheControl);
-  return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
+  if (noindex) headers.set('X-Robots-Tag', 'noindex');
+  else headers.delete('X-Robots-Tag');
+  return new Response(res.body, {
+    status: status ?? res.status,
+    statusText: status ? '' : res.statusText,
+    headers
+  });
+}
+
+function redirect(url, pathname) {
+  return new Response(null, {
+    status: 301,
+    headers: { Location: pathname + url.search, 'Cache-Control': 'public, max-age=3600' }
+  });
 }
 
 /** Fetches a site asset by pathname, following one asset-level redirect (e.g. `/x/index.html` → `/x/`). */
@@ -37,28 +56,68 @@ async function asset(env, request, pathname) {
   return res;
 }
 
+/** `404.html` with status 404 (the app shell, noindex: the router renders its fallback). */
+async function notFound(env, request) {
+  const res = await asset(env, request, '/404.html');
+  if (res.ok) return withHeaders(res, 'not-found', REVALIDATE, { status: 404, noindex: true });
+  return new Response('404 Not Found', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+}
+
+/** Route patterns from `routes.json`, loaded once per isolate. */
+let patterns = null;
+function routePatterns(env, request) {
+  patterns ??= asset(env, request, '/routes.json')
+    .then((res) => (res.ok ? res.json() : { routes: [] }))
+    .then((manifest) =>
+      (manifest.routes ?? []).map((route) => route.path).filter((path) => typeof path === 'string' && path.startsWith('/'))
+    )
+    .catch(() => []);
+  return patterns;
+}
+
+/** Whether `path` matches a route pattern (`:param` = one segment, `*` = the rest). */
+function matchesRoute(pattern, path) {
+  const want = pattern.split('/').filter(Boolean);
+  const got = path.split('/').filter(Boolean);
+  if (got.some((segment) => segment === '.' || segment === '..')) return false;
+  for (let i = 0; i < want.length; i++) {
+    const p = want[i];
+    if (p === '*' || /^:.+[*+]$/.test(p)) return p.endsWith('+') ? got.length > i : true;
+    if (i >= got.length || (!p.startsWith(':') && p !== got[i])) return false;
+  }
+  return got.length === want.length;
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const path = url.pathname;
 
+    // One URL per page: `/x/` and `/x/index` → `/x`.
+    if (path !== '/' && path.endsWith('/')) return redirect(url, path.replace(/\/+$/, '') || '/');
+    if (/\/index$/.test(path)) return redirect(url, path.slice(0, -'/index'.length) || '/');
+
     // Any path with a file extension is a real static file (site-root assets)
     if (path.includes('.')) {
       const res = await env.ASSETS.fetch(request);
+      if (res.status === 404) return notFound(env, request);
       const isHtml = path.endsWith('.html');
       const cacheControl = !isHtml && HASHED.test(path) ? IMMUTABLE : REVALIDATE;
-      return withHeaders(res, 'static-file', cacheControl);
+      return withHeaders(res, 'static-file', cacheControl, { noindex: isHtml });
     }
 
     // Extensionless path: prefer the pre-rendered (SSG) page, if one exists.
     if (path !== '/') {
-      const page = await asset(env, request, `${path.replace(/\/+$/, '')}/index.html`);
+      const page = await asset(env, request, `${path}/index.html`);
       if (page.ok && (page.headers.get('content-type') ?? 'text/html').includes('text/html')) {
         return withHeaders(page, 'ssg-page', REVALIDATE);
       }
+      // Not pre-rendered and no client route either: a real 404.
+      const routes = await routePatterns(env, request);
+      if (!routes.some((pattern) => matchesRoute(pattern, path))) return notFound(env, request);
     }
 
-    // Otherwise it is an SPA route: serve the shell.
+    // `/` or a client-only route: serve the shell.
     const res = await env.ASSETS.fetch(new Request(new URL('/index.html', url), request));
     return withHeaders(res, 'spa-shell', REVALIDATE);
   }

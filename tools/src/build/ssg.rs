@@ -256,6 +256,12 @@ pub fn emit_with(
     anza_logs::info!("SSG: no eligible routes to emit");
   }
 
+  match emit_not_found(src_dir, dist_dir, &site, &importmap) {
+    Ok(Some(rel)) => outputs.push(rel),
+    Ok(None) => {}
+    Err(err) => errors.push(format!("SSG: cannot write 404.html: {}", err)),
+  }
+
   // Site-root files the SSG heads point at but no module imports.
   for file in site.image.iter() {
     match copy_site_file(src_dir, dist_dir, file) {
@@ -960,6 +966,58 @@ fn build_head(
     escape_attr(&asset_href(base, ENTRY_MODULE))
   ));
   head
+}
+
+/// File hosts serve (with status 404) for unknown URLs.
+pub const NOT_FOUND: &str = "404.html";
+
+/// `dist/404.html`: the app shell (`src/index.html`) titled "Page not found"
+/// and marked `noindex`, so hosts answer unknown URLs with a real 404 (no
+/// soft 404s) while the app still boots and renders its fallback.
+fn emit_not_found(
+  src_dir: &Path,
+  dist_dir: &Path,
+  site: &SsgSiteConfig,
+  importmap: &str,
+) -> Result<Option<PathBuf>, String> {
+  let Ok(shell) = std::fs::read_to_string(src_dir.join("index.html")) else {
+    return Ok(None);
+  };
+  if !super::html::is_document(&shell) {
+    return Ok(None);
+  }
+  let mut html = super::html::strip_importmap(&shell);
+  let title = format!("<title>Page not found — {}</title>", escape_html(site_name(site)));
+  match (html.find("<title>"), html.find("</title>")) {
+    (Some(a), Some(b)) if a < b => html.replace_range(a..b + "</title>".len(), &title),
+    _ => {}
+  }
+  let mut inject = String::from("\n  <meta name=\"robots\" content=\"noindex\" />\n");
+  if !html.contains("<title>") {
+    inject.push_str(&format!("  {title}\n"));
+  }
+  if importmap.is_empty() {
+    inject.push_str(&format!(
+      "  <script type=\"importmap\" src=\"{}\"></script>\n",
+      escape_attr(&asset_href(site.base.as_deref(), "/importmap.json"))
+    ));
+  } else {
+    inject.push_str(&format!("  <script type=\"importmap\">\n{importmap}\n  </script>\n"));
+  }
+  inject.push_str(&super::base::base_script_tag(site.base.as_deref().unwrap_or("")));
+  let lower = html.to_ascii_lowercase();
+  let Some(head_end) = lower.find("<head").and_then(|at| html[at..].find('>').map(|gt| at + gt + 1)) else {
+    return Ok(None);
+  };
+  html.insert_str(head_end, inject.trim_end_matches('\n'));
+  if let Some(body_end) = html.to_ascii_lowercase().rfind("</body>") {
+    html.insert_str(
+      body_end,
+      "  <noscript><h1>Page not found</h1><p><a href=\"/\">Home</a></p></noscript>\n",
+    );
+  }
+  crate::fs_atomic::write(&dist_dir.join(NOT_FOUND), html)?;
+  Ok(Some(PathBuf::from(NOT_FOUND)))
 }
 
 /// Copy a site-root file (`/og.png`) from src into dist unless the build

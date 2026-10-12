@@ -114,5 +114,14 @@ fn heads_carry_titles_descriptions_social_tags_and_structured_data() {
   let sitemap = read("sitemap.xml");
   assert_eq!(sitemap.matches("<url>").count(), 7, "{sitemap}");
   assert_eq!(sitemap.matches("<lastmod>").count(), 7, "{sitemap}");
+  assert!(!sitemap.contains("404"), "{sitemap}");
+
+  // 404.html: the app shell, noindex, for hosts to serve with status 404.
+  let missing = read("404.html");
+  assert!(missing.contains("<title>Page not found — Site</title>"), "{missing}");
+  assert!(missing.contains("<meta name=\"robots\" content=\"noindex\" />"), "{missing}");
+  assert!(missing.matches("<title>").count() == 1, "{missing}");
+  assert!(missing.find("<meta name=\"robots\"").unwrap() < missing.find("</head>").unwrap());
+  assert!(missing.contains("<noscript><h1>Page not found</h1>"), "{missing}");
   drop(fx);
 }

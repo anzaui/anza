@@ -31,6 +31,16 @@ const CACHE_ALL: &str = "no-cache";
 pub const ASSETS_PATTERN: &str = "/assets/*";
 pub const CACHE_IMMUTABLE: &str = "public, max-age=31536000, immutable";
 
+/// Files requested by URL with an `.html` extension are component and page
+/// fragments (`template.html`, dock templates) or `404.html`, never
+/// canonical pages (those are served at extensionless URLs): keep them out
+/// of search indexes.
+pub const FRAGMENTS_PATTERN: &str = "/*.html";
+pub const NOINDEX: (&str, &str) = ("X-Robots-Tag", "noindex");
+
+/// Rules written before the per-route Link rules.
+const FIXED_RULES: usize = 3;
+
 /// What one SSG route should preload (site-root URLs, no deploy base).
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct Hints {
@@ -62,11 +72,12 @@ pub fn render(base: &str, routes: &[Hints]) -> String {
     with_base(ASSETS_PATTERN),
     CACHE_IMMUTABLE
   ));
+  out.push_str(&format!("{}\n  {}: {}\n", with_base(FRAGMENTS_PATTERN), NOINDEX.0, NOINDEX.1));
 
   let mut sorted: Vec<&Hints> = routes.iter().collect();
   sorted.sort_by(|a, b| a.path.cmp(&b.path));
 
-  let mut budget = MAX_RULES - 2;
+  let mut budget = MAX_RULES - FIXED_RULES;
   for (patterns, hints) in link_rules(&sorted) {
     if patterns.len() > budget {
       break;
@@ -89,7 +100,7 @@ pub fn render(base: &str, routes: &[Hints]) -> String {
 /// of the group shares (in the first route's order).
 fn link_rules(routes: &[&Hints]) -> Vec<(Vec<String>, Hints)> {
   let per_route: usize = routes.iter().map(|h| route_patterns(&h.path).len()).sum();
-  if per_route <= MAX_RULES - 2 {
+  if per_route <= MAX_RULES - FIXED_RULES {
     return routes
       .iter()
       .map(|h| (route_patterns(&h.path), (*h).clone()))
@@ -195,6 +206,13 @@ mod tests {
     assert!(text.contains("</b.js>; rel=modulepreload\n"));
     // Sorted: `/` before `/docs/b`.
     assert!(text.find("\n/\n").unwrap() < text.find("\n/docs/b\n").unwrap());
+  }
+
+  #[test]
+  fn fragments_are_noindex() {
+    let text = render("", &[hints("/docs/a", vec!["/app.js".into()])]);
+    assert!(text.contains("\n/*.html\n  X-Robots-Tag: noindex\n"), "{text}");
+    assert!(render("/base", &[]).contains("\n/base/*.html\n  X-Robots-Tag: noindex\n"));
   }
 
   #[test]

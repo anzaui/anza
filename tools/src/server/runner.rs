@@ -441,6 +441,14 @@ async fn handle_html_fallback(
   let is_route = routes.iter().any(|r| match_route(&r.path, clean).is_some());
 
   if !is_route && clean != "/" {
+    // The build's 404 document (the app shell, noindex), as hosts serve it.
+    if let Ok(html) = tokio::fs::read_to_string(state.src_dir.join(crate::build::ssg::NOT_FOUND)).await {
+      return Response::builder()
+        .status(StatusCode::NOT_FOUND)
+        .header(header::CONTENT_TYPE, "text/html; charset=utf-8")
+        .body(Body::from(html))
+        .unwrap();
+    }
     return Response::builder()
       .status(StatusCode::NOT_FOUND)
       .body(Body::from("404 Not Found"))
