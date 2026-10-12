@@ -31,6 +31,9 @@ jobs:
       - name: Doc imports
         run: npm run doc:imports
 
+      - name: Types cover runtime exports
+        run: npm run types:check
+
   rust:
     name: Rust (CLI + engine)
     runs-on: ubuntu-latest

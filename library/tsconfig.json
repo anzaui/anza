@@ -5,7 +5,7 @@
     "moduleResolution": "bundler",
     "strict": true,
     "noEmit": true,
-    "skipLibCheck": true,
+    "skipLibCheck": false,
     "paths": {
       "@anzaui/anza": ["./types/index.d.ts"],
       "@anzaui/anza/api": ["./types/core/api/index.d.ts"],

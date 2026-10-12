@@ -1,7 +1,7 @@
 {
   "name": "@anzaui/anza",
   "version": "0.5.1",
-  "description": "Anza web platform library — reactive state, networking, offline, animations, custom elements. Instant build step. Pure browser ESM.",
+  "description": "Anza web platform library \u2014 reactive state, networking, offline, animations, custom elements. Instant build step. Pure browser ESM.",
   "author": "fescii",
   "license": "MIT",
   "type": "module",
@@ -91,61 +91,201 @@
       "default": "./src/core/ui/index.js"
     },
     "./defs": {
+      "types": "./types/core/ui/defs/index.d.ts",
       "default": "./src/core/ui/defs/index.js"
     },
     "./elements": {
       "types": "./types/elements/index.d.ts",
       "default": "./src/elements/index.js"
     },
-    "./elements/button": "./src/elements/primitives/button/index.js",
-    "./elements/icon": "./src/elements/primitives/icon/index.js",
-    "./elements/badge": "./src/elements/primitives/badge/index.js",
-    "./elements/avatar": "./src/elements/primitives/avatar/index.js",
-    "./elements/divider": "./src/elements/primitives/divider/index.js",
-    "./elements/text": "./src/elements/primitives/text/index.js",
-    "./elements/link": "./src/elements/primitives/link/index.js",
-    "./elements/spinner": "./src/elements/primitives/spinner/index.js",
-    "./elements/input": "./src/elements/forms/input/index.js",
-    "./elements/textarea": "./src/elements/forms/textarea/index.js",
-    "./elements/select": "./src/elements/forms/select/index.js",
-    "./elements/checkbox": "./src/elements/forms/checkbox/index.js",
-    "./elements/radio": "./src/elements/forms/radio/index.js",
-    "./elements/toggle": "./src/elements/forms/toggle/index.js",
-    "./elements/field": "./src/elements/forms/field/index.js",
-    "./elements/upload": "./src/elements/forms/upload/index.js",
-    "./elements/form": "./src/elements/forms/form/index.js",
-    "./elements/dialog": "./src/elements/overlay/dialog/index.js",
-    "./elements/popover": "./src/elements/overlay/popover/index.js",
-    "./elements/tooltip": "./src/elements/overlay/tooltip/index.js",
-    "./elements/menu": "./src/elements/overlay/menu/index.js",
-    "./elements/drawer": "./src/elements/overlay/drawer/index.js",
-    "./elements/sheet": "./src/elements/overlay/sheet/index.js",
-    "./elements/alert": "./src/elements/feedback/alert/index.js",
-    "./elements/toast": "./src/elements/feedback/toast/index.js",
-    "./elements/progress": "./src/elements/feedback/progress/index.js",
-    "./elements/skeleton": "./src/elements/feedback/skeleton/index.js",
-    "./elements/empty": "./src/elements/feedback/empty/index.js",
-    "./elements/table": "./src/elements/data/table/index.js",
-    "./elements/list": "./src/elements/data/list/index.js",
-    "./elements/card": "./src/elements/data/card/index.js",
-    "./elements/chart": "./src/elements/data/chart/index.js",
-    "./elements/stat": "./src/elements/data/stat/index.js",
-    "./elements/nav": "./src/elements/navigation/nav/index.js",
-    "./elements/tabs": "./src/elements/navigation/tabs/index.js",
-    "./elements/breadcrumb": "./src/elements/navigation/breadcrumb/index.js",
-    "./elements/pagination": "./src/elements/navigation/pagination/index.js",
-    "./elements/steps": "./src/elements/navigation/steps/index.js",
-    "./elements/app": "./src/elements/layout/app/index.js",
-    "./elements/header": "./src/elements/layout/header/index.js",
-    "./elements/sidebar": "./src/elements/layout/sidebar/index.js",
-    "./elements/stack": "./src/elements/layout/stack/index.js",
-    "./elements/grid": "./src/elements/layout/grid/index.js",
-    "./elements/split": "./src/elements/layout/split/index.js",
-    "./elements/scroll": "./src/elements/layout/scroll/index.js",
-    "./elements/surface": "./src/elements/layout/surface/index.js",
+    "./elements/button": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/primitives/button/index.js"
+    },
+    "./elements/icon": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/primitives/icon/index.js"
+    },
+    "./elements/badge": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/primitives/badge/index.js"
+    },
+    "./elements/avatar": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/primitives/avatar/index.js"
+    },
+    "./elements/divider": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/primitives/divider/index.js"
+    },
+    "./elements/text": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/primitives/text/index.js"
+    },
+    "./elements/link": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/primitives/link/index.js"
+    },
+    "./elements/spinner": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/primitives/spinner/index.js"
+    },
+    "./elements/input": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/forms/input/index.js"
+    },
+    "./elements/textarea": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/forms/textarea/index.js"
+    },
+    "./elements/select": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/forms/select/index.js"
+    },
+    "./elements/checkbox": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/forms/checkbox/index.js"
+    },
+    "./elements/radio": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/forms/radio/index.js"
+    },
+    "./elements/toggle": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/forms/toggle/index.js"
+    },
+    "./elements/field": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/forms/field/index.js"
+    },
+    "./elements/upload": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/forms/upload/index.js"
+    },
+    "./elements/form": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/forms/form/index.js"
+    },
+    "./elements/dialog": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/overlay/dialog/index.js"
+    },
+    "./elements/popover": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/overlay/popover/index.js"
+    },
+    "./elements/tooltip": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/overlay/tooltip/index.js"
+    },
+    "./elements/menu": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/overlay/menu/index.js"
+    },
+    "./elements/drawer": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/overlay/drawer/index.js"
+    },
+    "./elements/sheet": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/overlay/sheet/index.js"
+    },
+    "./elements/alert": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/feedback/alert/index.js"
+    },
+    "./elements/toast": {
+      "types": "./types/elements/toast.d.ts",
+      "default": "./src/elements/feedback/toast/index.js"
+    },
+    "./elements/progress": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/feedback/progress/index.js"
+    },
+    "./elements/skeleton": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/feedback/skeleton/index.js"
+    },
+    "./elements/empty": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/feedback/empty/index.js"
+    },
+    "./elements/table": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/data/table/index.js"
+    },
+    "./elements/list": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/data/list/index.js"
+    },
+    "./elements/card": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/data/card/index.js"
+    },
+    "./elements/chart": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/data/chart/index.js"
+    },
+    "./elements/stat": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/data/stat/index.js"
+    },
+    "./elements/nav": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/navigation/nav/index.js"
+    },
+    "./elements/tabs": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/navigation/tabs/index.js"
+    },
+    "./elements/breadcrumb": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/navigation/breadcrumb/index.js"
+    },
+    "./elements/pagination": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/navigation/pagination/index.js"
+    },
+    "./elements/steps": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/navigation/steps/index.js"
+    },
+    "./elements/app": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/layout/app/index.js"
+    },
+    "./elements/header": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/layout/header/index.js"
+    },
+    "./elements/sidebar": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/layout/sidebar/index.js"
+    },
+    "./elements/stack": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/layout/stack/index.js"
+    },
+    "./elements/grid": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/layout/grid/index.js"
+    },
+    "./elements/split": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/layout/split/index.js"
+    },
+    "./elements/scroll": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/layout/scroll/index.js"
+    },
+    "./elements/surface": {
+      "types": "./types/elements/define.d.ts",
+      "default": "./src/elements/layout/surface/index.js"
+    },
     "./styles/*": "./src/styles/*",
     "./tokens/*": "./src/tokens/*",
     "./sw": {
+      "types": "./types/sw/index.d.ts",
       "default": "./src/sw/index.js"
     },
     "./theme": {
@@ -153,6 +293,7 @@
       "default": "./src/core/theme/index.js"
     },
     "./bin/create": {
+      "types": "./types/bin/create.d.ts",
       "default": "./bin/create/index.js"
     },
     "./package.json": "./package.json"

@@ -1,97 +1,108 @@
 /**
  * types/elements/index.d.ts
  *
- * TypeScript declarations for all 42 premium UI custom elements.
+ * Types for `@anzaui/anza/elements`. Importing the barrel defines every
+ * built-in `ui-*` element. The element interfaces are type-only: the runtime
+ * exports no classes; use `document.createElement('ui-button')` or
+ * `customElements.get('ui-button')`.
  */
 
-import { BaseElement } from '../core/ui/index.d.ts';
+import { BaseElement } from '../core/ui/index.js';
 
 // 1. Primitive Elements
-export class Button extends BaseElement {}
-export class Icon extends BaseElement {}
-export class Badge extends BaseElement {}
-export class Avatar extends BaseElement {}
-export class Divider extends BaseElement {}
-export class Text extends BaseElement {}
-export class Link extends BaseElement {}
-export class Spinner extends BaseElement {}
+export interface Button extends BaseElement {}
+export interface Icon extends BaseElement {}
+export interface Badge extends BaseElement {}
+export interface Avatar extends BaseElement {}
+export interface Divider extends BaseElement {}
+export interface Text extends BaseElement {}
+export interface Link extends BaseElement {}
+export interface Spinner extends BaseElement {}
 
 // 2. Form Controls
-export class Input extends BaseElement {
+export interface Input extends BaseElement {
   value: string;
   readonly validity: ValidityState;
 }
-export class Textarea extends BaseElement {
+export interface Textarea extends BaseElement {
   value: string;
   readonly validity: ValidityState;
 }
-export class Select extends BaseElement {
+export interface Select extends BaseElement {
   value: string;
   readonly validity: ValidityState;
 }
-export class Checkbox extends BaseElement {
+export interface Checkbox extends BaseElement {
   checked: boolean;
   readonly validity: ValidityState;
 }
-export class Radio extends BaseElement {
+export interface Radio extends BaseElement {
   checked: boolean;
   readonly validity: ValidityState;
 }
-export class Toggle extends BaseElement {
+export interface Toggle extends BaseElement {
   checked: boolean;
   readonly validity: ValidityState;
 }
-export class Field extends BaseElement {}
-export class Upload extends BaseElement {
+export interface Field extends BaseElement {}
+export interface Upload extends BaseElement {
   readonly files: File[];
 }
-export class Form extends BaseElement {}
+export interface Form extends BaseElement {}
 
 // 3. Overlay System
-export class Dialog extends BaseElement {}
-export class Popover extends BaseElement {}
-export class Tooltip extends BaseElement {}
-export class Menu extends BaseElement {}
-export class Drawer extends BaseElement {}
-export class Sheet extends BaseElement {}
+export interface Dialog extends BaseElement {}
+export interface Popover extends BaseElement {}
+export interface Tooltip extends BaseElement {}
+export interface Menu extends BaseElement {}
+export interface Drawer extends BaseElement {}
+export interface Sheet extends BaseElement {}
 
 // 4. Feedback Elements
-export class Alert extends BaseElement {}
-export class Toast extends BaseElement {}
-export class Progress extends BaseElement {
+export interface Alert extends BaseElement {}
+export interface Toast extends BaseElement {}
+export interface Progress extends BaseElement {
   value: number;
   max: number;
 }
-export class Skeleton extends BaseElement {}
-export class Empty extends BaseElement {}
+export interface Skeleton extends BaseElement {}
+export interface Empty extends BaseElement {}
 
 // 5. Data Elements
-export class Table extends BaseElement {}
-export class List extends BaseElement {}
-export class Card extends BaseElement {}
-export class Chart extends BaseElement {}
-export class Stat extends BaseElement {}
+export interface Table extends BaseElement {}
+export interface List extends BaseElement {}
+export interface Card extends BaseElement {}
+export interface Chart extends BaseElement {}
+export interface Stat extends BaseElement {}
 
 // 6. Navigation System
-export class Nav extends BaseElement {}
-export class Tabs extends BaseElement {
+export interface Nav extends BaseElement {}
+export interface Tabs extends BaseElement {
   value: string;
 }
-export class Breadcrumb extends BaseElement {}
-export class Pagination extends BaseElement {}
-export class Steps extends BaseElement {}
+export interface Breadcrumb extends BaseElement {}
+export interface Pagination extends BaseElement {}
+export interface Steps extends BaseElement {}
 
 // 7. Layout System
-export class App extends BaseElement {}
-export class Header extends BaseElement {}
-export class Sidebar extends BaseElement {}
-export class Stack extends BaseElement {}
-export class Grid extends BaseElement {}
-export class Split extends BaseElement {}
-export class Scroll extends BaseElement {}
-export class Surface extends BaseElement {}
+export interface App extends BaseElement {}
+export interface Header extends BaseElement {}
+export interface Sidebar extends BaseElement {}
+export interface Stack extends BaseElement {}
+export interface Grid extends BaseElement {}
+export interface Split extends BaseElement {}
+export interface Scroll extends BaseElement {}
+export interface Surface extends BaseElement {}
 
-// Add global JSX / Custom Element type bindings
+export interface ToastOptions {
+  /** Auto-dismiss delay in ms (default 3000). */
+  duration?: number;
+}
+
+/** Appends a `<ui-toast>` with `message` to the toast container. */
+export function showToast(message: string, options?: ToastOptions): Toast | undefined;
+
+// Tag name → element type bindings
 declare global {
   interface HTMLElementTagNameMap {
     'ui-button': Button;
@@ -100,7 +111,7 @@ declare global {
     'ui-avatar': Avatar;
     'ui-divider': Divider;
     'ui-text': Text;
-    'nav-link': Link;
+    'ui-link': Link;
     'ui-spinner': Spinner;
 
     'ui-input': Input;

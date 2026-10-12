@@ -94,12 +94,16 @@ export function exportReader(files) {
     const sym = checker.getSymbolAtLocation(sf);
     if (!sym) return { names: new Set(), ambiguous: new Set() };
     const ambiguous = ambiguousStars(sf, checker);
-    const names = new Set(
-      checker.getExportsOfModule(sym)
-        .map((s) => s.escapedName.toString())
-        .filter((n) => !ambiguous.has(n))
-    );
-    return { names, ambiguous };
+    const names = new Set();
+    const typeOnly = new Set();
+    for (const s of checker.getExportsOfModule(sym)) {
+      const name = s.escapedName.toString();
+      if (ambiguous.has(name)) continue;
+      names.add(name);
+      const real = s.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(s) : s;
+      if (!(real.flags & ts.SymbolFlags.Value)) typeOnly.add(name);
+    }
+    return { names, ambiguous, typeOnly };
   };
 }
 

@@ -111,3 +111,33 @@ export function escapeOverflow(
   anchor: HTMLElement,
   options?: EscapeOptions
 ): EscapeController;
+
+/** A process-wide listener or observer owned by the app, keyed by name. */
+export interface GlobalEntry {
+  type?: 'listener' | 'observer';
+  target?: EventTarget | Node | null;
+  dispose(): void;
+}
+
+export interface GlobalInfo {
+  name: string;
+  type: 'listener' | 'observer';
+  target: EventTarget | Node | null;
+}
+
+/** Registers a global; an existing entry with the same name is disposed first. */
+export function attach(name: string, entry: GlobalEntry): void;
+/** Disposes and removes a global by name. */
+export function detach(name: string): void;
+export function count(): number;
+export function list(): GlobalInfo[];
+/** Disposes every registered global. */
+export function clearGlobals(): void;
+
+export const globals: {
+  attach: typeof attach;
+  detach: typeof detach;
+  count: typeof count;
+  list: typeof list;
+  clear: typeof clearGlobals;
+};

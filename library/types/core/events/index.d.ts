@@ -48,3 +48,26 @@ export const events: {
   names: typeof names;
 };
 
+
+/**
+ * Walks `composedPath()` and returns the first element matching `selector`
+ * before `root` (exclusive).
+ */
+export function matchInComposedPath(
+  event: Event,
+  selector: string,
+  root: Node,
+  scope?: 'path' | 'shadow' | 'assigned'
+): Element | null;
+
+/** True when every attribute equals `String(value)`; `null` means the attribute must be absent. */
+export function matchesAttrs(
+  element: Element,
+  attrs?: Record<string, string | number | boolean | null> | null
+): boolean;
+
+/** Event types registered as passive by default (touchstart, touchmove, wheel, …). */
+export const PASSIVE_DEFAULT_TYPES: ReadonlySet<string>;
+
+/** Explicit `passive` wins; otherwise passive for PASSIVE_DEFAULT_TYPES. */
+export function resolvePassiveDefault(eventType: string, optionsPassive?: boolean): boolean;

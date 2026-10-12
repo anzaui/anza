@@ -27,8 +27,7 @@ export class ReactiveStore<T extends Record<string, any>> {
   derived<V>(keys: string[] | (() => V), compute?: () => V): DerivedValue<V>;
 }
 
-export class DerivedValue<T> {
-  constructor(compute: () => T);
+export interface DerivedValue<T> {
   readonly value: T;
   subscribe(callback: () => void): () => void;
   dispose(): void;

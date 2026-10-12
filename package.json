@@ -9,6 +9,7 @@
     "ssg:check": "node tasks/ssg-contract-check.js",
     "docs": "node tasks/docs.js",
     "publish:npm": "node tasks/publish.js",
-    "doc:imports": "node tasks/doc-imports-check.js"
+    "doc:imports": "node tasks/doc-imports-check.js",
+    "types:check": "node tasks/types-check.js"
   }
 }

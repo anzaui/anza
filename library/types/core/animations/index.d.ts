@@ -35,6 +35,50 @@ export function view(
   options?: any
 ): Animation;
 
+export type AnimationStep = [
+  el: HTMLElement,
+  animationInput: string | Keyframe[] | PropertyIndexedKeyframes,
+  options?: KeyframeAnimationOptions & { signal?: AbortSignal }
+];
+
+/** Runs steps one after another; `finished` resolves when the last one ends. */
+export function sequence(steps: AnimationStep[]): { finished: Promise<void> };
+
+export type DurationToken = 'instant' | 'fast' | 'normal' | 'slow' | 'slower';
+export type EaseToken = 'default' | 'in' | 'out' | 'in-out' | 'spring' | 'linear';
+
+/** Reads `--duration-<name>` from the document (ms), with token fallbacks. */
+export function duration(name?: DurationToken | (string & {})): number;
+/** Reads `--ease-<name>` from the document, with token fallbacks. */
+export function ease(name?: EaseToken | (string & {})): string;
+/** True when the user prefers reduced motion. */
+export function reduced(): boolean;
+
+export const Timing: {
+  readonly EASE: 'ease';
+  readonly EASE_IN: 'ease-in';
+  readonly EASE_OUT: 'ease-out';
+  readonly EASE_IN_OUT: 'ease-in-out';
+  readonly LINEAR: 'linear';
+  readonly DEFAULT: string;
+  readonly SMOOTH: string;
+  readonly FAST: string;
+  readonly SOFT: string;
+  readonly BOUNCE: string;
+  readonly SPRING: string;
+};
+
+export function timing(
+  duration?: number,
+  easing?: string,
+  fill?: FillMode
+): { duration: number; easing: string; fill: FillMode };
+
+export function keyframes(
+  type: 'fade' | 'slide' | 'scale' | 'zoom' | 'blur' | (string & {}),
+  options?: { from?: unknown; to?: unknown; axis?: 'x' | 'y' | (string & {}) }
+): Keyframe[];
+
 export const registry: {
   register(name: string, keyframes: Keyframe[] | PropertyIndexedKeyframes, options?: KeyframeAnimationOptions): void;
   get(name: string): { keyframes: Keyframe[] | PropertyIndexedKeyframes; options: KeyframeAnimationOptions } | null;
@@ -45,8 +89,12 @@ export const animations: {
   animate: typeof animate;
   stagger: typeof stagger;
   scroll: typeof scroll;
+  sequence: typeof sequence;
   view: typeof view;
-  Timing: any;
-  timing: any;
-  keyframes: any;
+  Timing: typeof Timing;
+  timing: typeof timing;
+  keyframes: typeof keyframes;
+  duration: typeof duration;
+  ease: typeof ease;
+  reduced: typeof reduced;
 };

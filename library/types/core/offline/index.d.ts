@@ -15,7 +15,7 @@ export interface OfflineTask {
   maxRetries: number;
 }
 
-export class OfflineQueue {
+export interface OfflineQueue {
   push(taskName: string, payload?: any, options?: { idempotencyKey?: string; maxRetries?: number }): Promise<string>;
   list(): Promise<OfflineTask[]>;
   update(task: OfflineTask): Promise<void>;

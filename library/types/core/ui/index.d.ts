@@ -421,6 +421,64 @@ export function scheduleFrame<T>(fn: () => T): Promise<T>;
 
 export function yieldTask(): Promise<void>;
 
+export const Priority: {
+  readonly BLOCKING: 'user-blocking';
+  readonly VISIBLE: 'user-visible';
+  readonly BACKGROUND: 'background';
+};
+
+/** Fallback / loading UI: tag string, HTML string, `{ tag, props }` or `{ html }`. */
+export type FallbackOverride =
+  | string
+  | { tag: string; props?: Record<string, unknown> }
+  | { html: string };
+
+export interface DefTemplate {
+  html?: string;
+  css?: string | string[];
+  shadow?: boolean | 'open' | 'closed';
+}
+
+/**
+ * Lifecycle hooks (`load`, `connect`, `disconnect`, `change`). Any other
+ * function under `on` is installed as an instance method.
+ */
+export interface DefHooks<Host = HTMLElement> {
+  load?(this: Host, context: any): MaybePromise<void>;
+  connect?(this: Host, context: any): MaybePromise<void>;
+  disconnect?(this: Host, context: any): void;
+  change?(this: Host, context: any): MaybePromise<void>;
+  [helper: string]: ((this: Host, ...args: any[]) => any) | undefined;
+}
+
+/** Shared config of `view()`, `part()`, `dock()` and `page()`. */
+export interface DefConfig<Props extends PropsDefinition = {}> {
+  props?: Props;
+  template?: string | DefTemplate;
+  style?: string | string[];
+  form?: boolean;
+  methods?: Record<string, (...args: any[]) => any>;
+  /** `this` is the element; helpers declared under `on` are callable as methods. */
+  on?: DefHooks<ComponentHost<Props> & Record<string, any>>;
+}
+
+export interface DockConfig<Props extends PropsDefinition = {}> extends DefConfig<Props> {
+  /** Tag name; defaults to `dock-<name>`. */
+  tag?: string;
+  /** Parent dock key in the container graph (default `'main'`). */
+  parent?: string;
+  /** View Transition opt-out (`false`) or naming override. */
+  transition?: boolean | { name?: string; enabled?: boolean };
+  /** 404 fallback for routes under this dock. */
+  notfound?: FallbackOverride;
+  /** Error fallback (handler/guard throw). */
+  error?: FallbackOverride;
+  /** Offline fallback. */
+  offline?: FallbackOverride;
+  /** Soft-nav loading UI for this subtree; `false` disables it. */
+  loading?: FallbackOverride | false;
+}
+
 /** SEO inputs for SSG / Mode B HTML head composition. */
 export interface PageSeo {
   title?: string;
@@ -439,7 +497,13 @@ export interface PageConfig {
   params?: Array<{ name: string; type: PropConstructor }>;
   query?: Array<{ name: string; type: PropConstructor }>;
   guard?: (...args: any[]) => any;
-  on?: Record<string, (...args: any[]) => any>;
+  /** Fallback when this route fails (handler/guard throw). */
+  error?: FallbackOverride;
+  /** Soft-nav loading override for this page; wins over dock defaults. */
+  loading?: FallbackOverride | false;
+  form?: boolean;
+  methods?: Record<string, (...args: any[]) => any>;
+  on?: DefHooks;
   meta?: Record<string, unknown>;
   /** Build-time SEO for routes.json → SSG HTML. */
   seo?: PageSeo;
@@ -451,19 +515,99 @@ export function page(
   base?: string | URL
 ): void;
 
-export function dock(
+/** Persistent container shell (`dock-<name>`) in the container graph. */
+export function dock<Props extends PropsDefinition = {}>(
   name: string,
-  config?: {
-    tag?: string;
-    parent?: string;
-    template?: { html?: string; css?: string; shadow?: boolean };
-  },
+  config?: DockConfig<Props>,
   base?: string | URL
 ): void;
 
+/** Composable, stateful component (no route, no graph presence). */
+export function view<Props extends PropsDefinition = {}>(
+  tag: string,
+  config: DefConfig<Props>,
+  base?: string | URL
+): void;
+
+/** Atomic, stateless primitive. `on.change` is ignored (use `view`). */
+export function part<Props extends PropsDefinition = {}>(
+  tag: string,
+  config: DefConfig<Props>,
+  base?: string | URL
+): void;
+
+export interface TransitionOptions {
+  scope?: 'document' | 'element';
+  element?: Element | null;
+  name?: string;
+  sourceElement?: Element;
+  sourceName?: string;
+  direction?: string;
+  signal?: AbortSignal;
+  skip?: boolean;
+  enabled?: boolean;
+}
+
+/** Document- or element-scoped View Transition with a direct fallback. */
 export function transition<T>(
-  fn: () => T
+  fn: () => T | Promise<T>,
+  options?: TransitionOptions
 ): Promise<ViewTransitionLike<T>>;
+
+export interface SwapTransitionOptions {
+  direction?: string;
+  name?: string;
+  dockName?: string;
+  transition?: boolean | { name?: string; skip?: boolean; enabled?: boolean };
+  skip?: boolean;
+  enabled?: boolean;
+  signal?: AbortSignal;
+}
+
+/** Element-scoped View Transition around a dock swap (never document-level). */
+export function runSwapTransition(
+  host: Element,
+  updateDOM: () => void | Promise<void>,
+  options?: SwapTransitionOptions
+): Promise<ViewTransitionLike<unknown>>;
+
+export interface TransitionConfig {
+  enabled: boolean;
+  nameFor(el: Element | null | undefined, hint?: { dockName?: string; name?: string }): string;
+}
+
+export function configureTransitions(partial?: Partial<TransitionConfig>): void;
+export function getTransitionConfig(): TransitionConfig;
+export function prefersReducedMotion(): boolean;
+export function shouldAnimate(options?: {
+  scope?: 'document' | 'element';
+  element?: Element;
+  enabled?: boolean;
+  skip?: boolean;
+  signal?: AbortSignal;
+}): boolean;
+/** Resolves the CSS view-transition-name for a dock host. */
+export function dockTransitionName(
+  el?: Element | null,
+  dockNameOrHint?: string | { dockName?: string; name?: string }
+): string;
+/** Skips an in-flight transition stored on a host. */
+export function skipHostTransition(host: Element | null | undefined): void;
+export function hasDocumentViewTransition(): boolean;
+export function hasElementViewTransition(el?: Element): boolean;
+
+export interface AttachmentStats {
+  onRootListeners: number;
+  onRegistrations: number;
+  watchBuckets: number;
+  watchRegistrations: number;
+  slotListeners: number;
+}
+
+/** Listener bookkeeping for a shadow root (debugging), or null. */
+export function getAttachmentStats(shadowRoot: ShadowRoot): AttachmentStats | null;
+
+export { theme } from '../theme/index.js';
 
 export function template(
   strings: TemplateStringsArray,
@@ -478,12 +622,23 @@ export interface UiApi {
   container: typeof container;
   page: typeof page;
   dock: typeof dock;
+  view: typeof view;
+  part: typeof part;
   schedule: typeof schedule;
   scheduleFrame: typeof scheduleFrame;
   yield: typeof yieldTask;
+  Priority: typeof Priority;
   transition: typeof transition;
+  runSwapTransition: typeof runSwapTransition;
+  configureTransitions: typeof configureTransitions;
+  getTransitionConfig: typeof getTransitionConfig;
+  prefersReducedMotion: typeof prefersReducedMotion;
+  shouldAnimate: typeof shouldAnimate;
+  dockTransitionName: typeof dockTransitionName;
   template: typeof template;
   observe: ObserveApi;
+  theme: import('../theme/index.js').ThemeApi;
+  getAttachmentStats: typeof getAttachmentStats;
 }
 
 export const ui: UiApi;

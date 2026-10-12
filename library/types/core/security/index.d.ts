@@ -10,6 +10,10 @@ export function generateKey(algo?: string, usages?: KeyUsage[], extractable?: bo
 export function deriveKey(password: string, salt: string | ArrayBuffer, iterations?: number): Promise<CryptoKey>;
 export function encrypt(key: CryptoKey, data: string | ArrayBuffer): Promise<ArrayBuffer>;
 export function decrypt(key: CryptoKey, combinedData: ArrayBuffer): Promise<ArrayBuffer>;
+/** Encrypts text with AES-GCM and returns base64 (IV + ciphertext). */
+export function seal(key: CryptoKey, text: string): Promise<string>;
+/** Decrypts a base64 string produced by `seal`. */
+export function unseal(key: CryptoKey, b64: string): Promise<string>;
 export function sign(key: CryptoKey, data: string | ArrayBuffer): Promise<ArrayBuffer>;
 export function verify(key: CryptoKey, signature: ArrayBuffer, data: string | ArrayBuffer): Promise<boolean>;
 
@@ -25,6 +29,8 @@ export const security: {
   deriveKey: typeof deriveKey;
   encrypt: typeof encrypt;
   decrypt: typeof decrypt;
+  seal: typeof seal;
+  unseal: typeof unseal;
   sign: typeof sign;
   verify: typeof verify;
   sanitize: typeof sanitize;
