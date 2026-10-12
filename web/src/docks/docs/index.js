@@ -47,6 +47,39 @@ dock('docs', {
       const disposeFound = router.on('found', highlightActiveLink);
       el.ctrl.signal.addEventListener('abort', disposeFound);
 
+      // Scroll the docs content to a heading inside the page's shadow root
+      // (fragment navigation does not reach into shadow DOM by itself).
+      const scrollToHeading = (heading, behavior) => {
+        const contentEl = refs.content || el.shadowRoot.querySelector('.docs-content');
+        if (!heading || !contentEl) return false;
+        const headingRect = heading.getBoundingClientRect();
+        const contentRect = contentEl.getBoundingClientRect();
+        const targetTop = contentEl.scrollTop + (headingRect.top - contentRect.top) - 16;
+        contentEl.scrollTo({ top: Math.max(0, targetTop), behavior });
+        return true;
+      };
+      // `#anchor` of the current URL, once per URL: retried (on page content
+      // changes and on window load) until the heading sits at the top, since
+      // styles and fonts may still be changing the layout.
+      let scrolledFor = null;
+      const scrollToHash = () => {
+        const id = decodeURIComponent(location.hash.slice(1));
+        if (!id || scrolledFor === location.href) return;
+        const activePage = el.querySelector('dock-doccontent')?.firstElementChild;
+        const heading = activePage?.shadowRoot?.getElementById(id);
+        if (!heading) return;
+        requestAnimationFrame(() => {
+          const contentEl = refs.content || el.shadowRoot.querySelector('.docs-content');
+          if (!scrollToHeading(heading, 'auto')) return;
+          const offset = heading.getBoundingClientRect().top - contentEl.getBoundingClientRect().top;
+          const atEnd = contentEl.scrollTop + contentEl.clientHeight >= contentEl.scrollHeight - 1;
+          if (Math.abs(offset - 16) < 2 || atEnd) scrolledFor = location.href;
+        });
+      };
+      if (document.readyState !== 'complete') {
+        window.addEventListener('load', scrollToHash, { once: true, signal: el.ctrl.signal });
+      }
+
       // 2. Dynamic Table of Contents generation
       let shadowObserver = null;
       const updateTOC = () => {
@@ -89,6 +122,8 @@ dock('docs', {
             li.appendChild(a);
             refs.tocList.appendChild(li);
           }
+
+          scrollToHash();
         };
 
         // Extract immediately in case the template is already loaded/cached
@@ -118,14 +153,10 @@ dock('docs', {
           const innerDock = el.querySelector('dock-doccontent');
           const activePage = innerDock?.firstElementChild;
           const heading = activePage?.shadowRoot?.getElementById(id);
-          const contentEl = refs.content || el.shadowRoot.querySelector('.docs-content');
 
-          if (heading && contentEl) {
-            const headingRect = heading.getBoundingClientRect();
-            const contentRect = contentEl.getBoundingClientRect();
-            const targetTop = contentEl.scrollTop + (headingRect.top - contentRect.top) - 16;
-            contentEl.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
+          if (scrollToHeading(heading, 'smooth')) {
             history.replaceState(null, '', href);
+            scrolledFor = location.href;
 
             // Highlight current in TOC
             const links = refs.tocList.querySelectorAll('a');
