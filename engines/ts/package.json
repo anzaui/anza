@@ -6,6 +6,13 @@
   "main": "./dist/src/index.js",
   "module": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
+  "files": [
+    "dist/src/",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "logo.svg"
+  ],
   "homepage": "https://github.com/anzaui/ts#readme",
   "repository": {
     "type": "git",
@@ -28,7 +35,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "tsc && node --test dist/tests/*.test.js"
+    "test": "tsc && node --test dist/tests/*.test.js",
+    "prepack": "tsc"
   },
   "keywords": [
     "stui",
