@@ -142,7 +142,7 @@ export class Router {
         // Intercept synchronously in fetch event tick with safe network fallback
         event.respondWith(
           Promise.resolve()
-            .then(() => route.strategy.handle(request))
+            .then(() => route.strategy.handle(request, event))
             .catch((err) => {
               console.warn('[anza/sw] Strategy execution failed for', request.url, err);
               return fetch(request);
