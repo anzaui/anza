@@ -7,6 +7,33 @@ use {
   std::collections::HashMap,
 };
 
+/// Escape text for HTML content and attribute values.
+fn escape_html(s: &str) -> String {
+  let mut out = String::with_capacity(s.len());
+  for c in s.chars() {
+    match c {
+      '&' => out.push_str("&amp;"),
+      '<' => out.push_str("&lt;"),
+      '>' => out.push_str("&gt;"),
+      '"' => out.push_str("&quot;"),
+      '\'' => out.push_str("&#39;"),
+      _ => out.push(c),
+    }
+  }
+  out
+}
+
+/// A route usable as a template name: no `.`/`..` segments, backslashes or
+/// NULs. Templates are looked up in the in-memory cache only (never read
+/// from disk here), and cache keys are paths under the root, so this is
+/// defense in depth: a route can never name a template outside `pages/` by
+/// walking up, nor anything outside the root.
+fn safe_route(route: &str) -> bool {
+  !route.contains('\\')
+    && !route.contains('\0')
+    && route.split('/').all(|seg| seg != ".." && seg != ".")
+}
+
 pub fn document(engine: &Engine, route: &str, params: &HashMap<String, String>) -> Result<Document> {
   // Normalize route to template path e.g. "/" -> "pages/home.html" or "pages/index.html"
   let clean_route = route.trim_matches('/');
@@ -17,13 +44,19 @@ pub fn document(engine: &Engine, route: &str, params: &HashMap<String, String>) 
   };
 
   // Try specific page template or fallback to route.html
-  let page_tpl = engine.get(&template_name)
-    .or_else(|_| engine.get(&format!("{}.html", clean_route)))
-    .or_else(|_| engine.get("pages/index.html"));
+  let page_tpl = if safe_route(clean_route) {
+    engine
+      .get(&template_name)
+      .or_else(|_| engine.get(&format!("{}.html", clean_route)))
+      .or_else(|_| engine.get("pages/index.html"))
+  } else {
+    engine.get("pages/index.html")
+  };
 
   let content = match page_tpl {
     Ok(tpl) => tpl.bind(params)?,
-    Err(_) => format!("<div class=\"content\">Route: {}</div>", route),
+    // The route comes from the request URL: never write it unescaped.
+    Err(_) => format!("<div class=\"content\">Route: {}</div>", escape_html(route)),
   };
 
   // Check if shell.html exists
