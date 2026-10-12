@@ -8,6 +8,9 @@
 import { router } from '../../src/sw/routes.js';
 import { CacheFirst, NetworkFirst, StaleRevalidate } from '../../src/sw/strategies.js';
 
+// Routes only match the worker's own origin unless a pattern names one.
+const ORIGIN = self.location.origin;
+
 function fire(r, url, headers) {
   const event = {
     request: new Request(url, { headers }),
@@ -29,9 +32,9 @@ describe('SW routes specificity', () => {
     r.register('/api/*', { handle: async () => new Response('api') });
     r.register('/api/v2/*', { handle: async () => new Response('api-v2') });
 
-    const api = fire(r, 'https://example.com/api/x');
-    const v2 = fire(r, 'https://example.com/api/v2/x');
-    const shell = fire(r, 'https://example.com/app.js');
+    const api = fire(r, ORIGIN + '/api/x');
+    const v2 = fire(r, ORIGIN + '/api/v2/x');
+    const shell = fire(r, ORIGIN + '/app.js');
     if (!api.handled || !v2.handled || !shell.handled) throw new Error('expected all handled');
     if ((await body(api.event)) !== 'api') throw new Error('expected /api/* strategy');
     if ((await body(v2.event)) !== 'api-v2') throw new Error('expected /api/v2/* strategy');
@@ -45,7 +48,7 @@ describe('SW routes specificity', () => {
       const r = router();
       r.register('*', { handle: async () => new Response('shell') });
       r.register('/api/*', { handle: async () => new Response('api') });
-      const api = fire(r, 'https://example.com/api/x');
+      const api = fire(r, ORIGIN + '/api/x');
       if ((await body(api.event)) !== 'api') throw new Error('expected /api/* strategy');
     } finally {
       if (saved) globalThis.URLPattern = saved;
@@ -56,7 +59,7 @@ describe('SW routes specificity', () => {
     const r = router();
     r.register('/a/*', { handle: async () => new Response('first') });
     r.register('/a/*', { handle: async () => new Response('second') });
-    const hit = fire(r, 'https://example.com/a/b');
+    const hit = fire(r, ORIGIN + '/a/b');
     if ((await body(hit.event)) !== 'first') throw new Error('expected first registration');
   });
 });
@@ -71,12 +74,12 @@ describe('SW stream bypass', () => {
   it('router never intercepts /hmr or text/event-stream requests', () => {
     const r = router();
     r.register('*', { handle: async () => new Response('shell') });
-    if (fire(r, 'https://example.com/hmr').handled) throw new Error('/hmr must bypass');
-    if (fire(r, 'https://example.com/base/hmr').handled) throw new Error('/base/hmr must bypass');
-    if (fire(r, 'https://example.com/events', { Accept: 'text/event-stream' }).handled) {
+    if (fire(r, ORIGIN + '/hmr').handled) throw new Error('/hmr must bypass');
+    if (fire(r, ORIGIN + '/base/hmr').handled) throw new Error('/base/hmr must bypass');
+    if (fire(r, ORIGIN + '/events', { Accept: 'text/event-stream' }).handled) {
       throw new Error('event streams must bypass');
     }
-    if (!fire(r, 'https://example.com/hmr.js').handled) throw new Error('/hmr.js is a normal asset');
+    if (!fire(r, ORIGIN + '/hmr.js').handled) throw new Error('/hmr.js is a normal asset');
   });
 
   it('caching strategies never store event streams', async () => {
@@ -85,7 +88,7 @@ describe('SW stream bypass', () => {
       globalThis.fetch = async () =>
         new Response('data: x\n\n', { headers: { 'content-type': 'text/event-stream' } });
       for (const Strategy of [CacheFirst, StaleRevalidate, NetworkFirst]) {
-        const request = new Request('https://example.com/events', {
+        const request = new Request(ORIGIN + '/events', {
           headers: { Accept: 'text/event-stream' }
         });
         await new Strategy(CACHE_NAME).handle(request);

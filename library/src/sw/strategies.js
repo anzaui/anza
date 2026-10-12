@@ -35,9 +35,30 @@ function waitFor(event, promise, label) {
   return settled;
 }
 
-/** Only successful GET responses can go into the Cache API. */
+/** True when `url` is on a different origin from the worker. */
+function crossOrigin(url) {
+  try {
+    return new URL(url).origin !== self.location.origin;
+  } catch {
+    return true;
+  }
+}
+
+/**
+ * Only successful GET responses that are safe to share go into the Cache
+ * API. Skipped: `Cache-Control: no-store` or `private`, `Vary: *`, requests
+ * carrying an `Authorization` header, and credentialed cross-origin requests.
+ * Cached entries outlive a logout, so per-user data must never land there.
+ */
 function storable(request, response) {
-  return request.method === 'GET' && !!response && response.ok;
+  if (request.method !== 'GET' || !response || !response.ok) return false;
+  if (request.headers?.has?.('authorization')) return false;
+  if (request.credentials === 'include' && crossOrigin(request.url)) return false;
+  const cacheControl = (response.headers.get('cache-control') || '').toLowerCase();
+  if (/(^|[\s,])(no-store|private)(\s*($|[,=]))/.test(cacheControl)) return false;
+  const vary = response.headers.get('vary') || '';
+  if (vary.split(',').some((v) => v.trim() === '*')) return false;
+  return true;
 }
 
 /**

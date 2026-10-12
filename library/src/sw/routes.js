@@ -98,6 +98,40 @@ export function isStreamRequest(request) {
   }
 }
 
+/**
+ * True when a route pattern names its own origin: a URLPattern (or init
+ * object) with a concrete protocol, hostname or port, or a `baseURL`.
+ * Every other pattern only matches requests to the worker's own origin.
+ */
+function hasExplicitOrigin(pattern) {
+  if (!pattern || typeof pattern !== 'object') return false;
+  if (typeof pattern.baseURL === 'string') return true;
+  return ['protocol', 'hostname', 'port'].some((key) => {
+    const value = pattern[key];
+    return typeof value === 'string' && value !== '*' && value !== '';
+  });
+}
+
+/** Origin of the current worker (or window, in tests); null when unknown. */
+function ownOrigin() {
+  try {
+    return self.location.origin;
+  } catch {
+    return null;
+  }
+}
+
+/** True when `url` is on the worker's own origin. */
+function sameOrigin(url) {
+  const origin = ownOrigin();
+  if (!origin) return true;
+  try {
+    return new URL(url).origin === origin;
+  } catch {
+    return false;
+  }
+}
+
 export class Router {
   constructor() {
     this.routes = [];
@@ -107,10 +141,13 @@ export class Router {
   /**
    * Registers a URLPattern and a matching caching strategy. When several
    * patterns match, the most specific one wins (ties keep registration order).
+   * Patterns without an explicit protocol/hostname/port only match requests
+   * to the worker's own origin.
    */
   register(pattern, strategy) {
     this.routes.push({
       pattern: normalize(pattern),
+      anyOrigin: hasExplicitOrigin(pattern),
       strategy,
       score: specificity(pattern),
       order: this.routes.length
@@ -137,7 +174,10 @@ export class Router {
       this._sorted = true;
     }
 
+    const local = sameOrigin(request.url);
+
     for (const route of this.routes) {
+      if (!local && !route.anyOrigin) continue;
       if (route.pattern.test(request.url)) {
         // Intercept synchronously in fetch event tick with safe network fallback
         event.respondWith(

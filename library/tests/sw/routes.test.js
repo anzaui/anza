@@ -7,6 +7,9 @@
 
 import { router } from '../../src/sw/routes.js';
 
+// Routes only match the worker's own origin unless a pattern names one.
+const ORIGIN = self.location.origin;
+
 describe('SW routes normalize', () => {
   let OriginalURLPattern;
 
@@ -31,7 +34,7 @@ describe('SW routes normalize', () => {
     r.register('/anza/api/*', { handle: async () => new Response('api') });
 
     const shellEvent = {
-      request: { url: 'https://anzaui.github.io/anza/app.js' },
+      request: { url: ORIGIN + '/anza/app.js' },
       respondWith(p) {
         this._p = p;
       }
@@ -41,7 +44,7 @@ describe('SW routes normalize', () => {
     }
 
     const apiEvent = {
-      request: { url: 'https://anzaui.github.io/anza/api/status' },
+      request: { url: ORIGIN + '/anza/api/status' },
       respondWith(p) {
         this._p = p;
       }
@@ -71,7 +74,7 @@ describe('SW routes normalize', () => {
     });
 
     const miss = {
-      request: { url: 'https://anzaui.github.io/anza/app.js' },
+      request: { url: ORIGIN + '/anza/app.js' },
       respondWith() {}
     };
     if (r.handle(miss)) {
@@ -79,7 +82,7 @@ describe('SW routes normalize', () => {
     }
 
     const hitEvent = {
-      request: { url: 'https://anzaui.github.io/anza/api/x' },
+      request: { url: ORIGIN + '/anza/api/x' },
       respondWith(p) {
         this._p = p;
       }
@@ -99,7 +102,7 @@ describe('SW routes normalize', () => {
     r.register('/api/*', { handle: async () => new Response('api') });
 
     const event = {
-      request: { url: 'https://example.com/foo' },
+      request: { url: ORIGIN + '/foo' },
       respondWith(p) {
         this._p = p;
       }
@@ -115,7 +118,7 @@ describe('SW routes normalize', () => {
 
     for (const method of ['POST', 'PUT', 'DELETE', 'PATCH']) {
       const event = {
-        request: { method, url: 'https://example.com/cdn-cgi/rum' },
+        request: { method, url: ORIGIN + '/cdn-cgi/rum' },
         respondWith() {
           throw new Error(`Should not intercept ${method} requests`);
         }
