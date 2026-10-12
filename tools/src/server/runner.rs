@@ -15,7 +15,7 @@ use axum::{
   routing::get,
   Router,
 };
-use futures_util::stream::{self, Stream};
+use futures_util::stream::{self, Stream, StreamExt};
 use tokio::net::TcpListener;
 use tokio::sync::broadcast;
 use tower_http::cors::CorsLayer;
@@ -153,25 +153,35 @@ async fn bind_port(host: &str, start_port: u16) -> Result<(TcpListener, u16), St
   ))
 }
 
+/// Capacity of the HMR broadcast channel (events buffered per SSE client).
+pub const HMR_CHANNEL: usize = 256;
+
+/// HMR events for one SSE client. A client that falls behind the broadcast
+/// buffer (`Lagged`) gets one `reload` event instead of a closed stream, so
+/// no change is ever silently lost. Ends when the sender is dropped.
+pub fn hmr_messages(rx: broadcast::Receiver<HmrMessage>) -> impl Stream<Item = HmrMessage> {
+  stream::unfold(rx, |mut rx| async move {
+    match rx.recv().await {
+      Ok(msg) => Some((msg, rx)),
+      Err(broadcast::error::RecvError::Lagged(skipped)) => {
+        anza_logs::warn!("HMR client missed {} event(s); asking it to reload", skipped);
+        let reload = HmrMessage { kind: crate::types::ChangeKind::Reload, path: String::new() };
+        Some((reload, rx))
+      }
+      Err(broadcast::error::RecvError::Closed) => None,
+    }
+  })
+}
+
 async fn hmr_handler(
   State(state): State<Arc<ServerState>>,
 ) -> Sse<impl Stream<Item = Result<Event, Infallible>>> {
   let rx = state.tx.subscribe();
   anza_logs::server!("SSE browser client subscribed to hot reload stream");
 
-  let stream = stream::unfold(rx, |mut rx| async move {
-    match rx.recv().await {
-      Ok(msg) => {
-        anza_logs::hmr!(
-          "Dispatched live reload event: {:?} -> {}",
-          msg.kind,
-          msg.path
-        );
-        let event = Event::default().data(serde_json::to_string(&msg).unwrap_or_default());
-        Some((Ok(event), rx))
-      }
-      Err(_) => None,
-    }
+  let stream = hmr_messages(rx).map(|msg| {
+    anza_logs::hmr!("Dispatched live reload event: {:?} -> {}", msg.kind, msg.path);
+    Ok(Event::default().data(serde_json::to_string(&msg).unwrap_or_default()))
   });
 
   Sse::new(stream).keep_alive(KeepAlive::new().interval(Duration::from_secs(30)))
@@ -436,5 +446,31 @@ async fn handle_html_fallback(
       .status(StatusCode::NOT_FOUND)
       .body(Body::from("404 Not Found"))
       .unwrap(),
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use crate::types::ChangeKind;
+
+  fn msg(path: &str) -> HmrMessage {
+    HmrMessage { kind: ChangeKind::Css, path: path.into() }
+  }
+
+  #[tokio::test]
+  async fn lagged_client_gets_a_reload_instead_of_a_closed_stream() {
+    let (tx, _keep) = broadcast::channel::<HmrMessage>(2);
+    let rx = tx.subscribe();
+    for i in 0..5 {
+      tx.send(msg(&format!("{i}.css"))).unwrap();
+    }
+    drop(tx);
+    drop(_keep);
+    let got: Vec<HmrMessage> = hmr_messages(rx).collect().await;
+    assert_eq!(got.len(), 3, "{got:?}");
+    assert_eq!(got[0].kind, ChangeKind::Reload);
+    assert_eq!(got[1].path, "3.css");
+    assert_eq!(got[2].path, "4.css");
   }
 }

@@ -26,7 +26,7 @@ impl Dev {
 
     extract::compile_dev(&self.src, &self.dist, &self.entries);
 
-    let (tx, _rx) = broadcast::channel::<HmrMessage>(16);
+    let (tx, _rx) = broadcast::channel::<HmrMessage>(server::runner::HMR_CHANNEL);
     let dist = self.dist.clone();
     let server_tx = tx.clone();
     let port = self.port;
