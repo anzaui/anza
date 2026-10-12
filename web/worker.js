@@ -5,8 +5,9 @@
  * Cloudflare applies it to every response the static assets layer serves
  * directly (requests that match a file never reach this Worker unless
  * `run_worker_first` is set). It does NOT apply `_headers` to responses the
- * Worker builds, so the Worker sets the same Cache-Control itself and keeps
- * any headers (Link preloads included) that `env.ASSETS.fetch` returned.
+ * Worker builds, so the Worker sets the same Cache-Control and security
+ * headers itself and keeps any headers (Link preloads included) that
+ * `env.ASSETS.fetch` returned.
  *
  * Caching (same rules as `_headers`): the content-hashed build output under
  * `/assets/` (`/assets/core-3f9a1c2e.js`) is immutable. Every other file
@@ -24,11 +25,17 @@
 const HASHED = /^\/assets\/[^/]+-[0-9a-f]{8,}\.[a-z0-9]+$/i;
 const IMMUTABLE = 'public, max-age=31536000, immutable';
 const REVALIDATE = 'no-cache';
+const SECURITY = {
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Content-Security-Policy': "frame-ancestors 'self'"
+};
 
 function withHeaders(res, kind, cacheControl, { status, noindex = false } = {}) {
   const headers = new Headers(res.headers);
   headers.set('X-Anza', kind);
   headers.set('Cache-Control', cacheControl);
+  for (const [name, value] of Object.entries(SECURITY)) headers.set(name, value);
   if (noindex) headers.set('X-Robots-Tag', 'noindex');
   else headers.delete('X-Robots-Tag');
   return new Response(res.body, {
@@ -41,7 +48,7 @@ function withHeaders(res, kind, cacheControl, { status, noindex = false } = {}) 
 function redirect(url, pathname) {
   return new Response(null, {
     status: 301,
-    headers: { Location: pathname + url.search, 'Cache-Control': 'public, max-age=3600' }
+    headers: { Location: pathname + url.search, 'Cache-Control': 'public, max-age=3600', ...SECURITY }
   });
 }
 
@@ -60,7 +67,7 @@ async function asset(env, request, pathname) {
 async function notFound(env, request) {
   const res = await asset(env, request, '/404.html');
   if (res.ok) return withHeaders(res, 'not-found', REVALIDATE, { status: 404, noindex: true });
-  return new Response('404 Not Found', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+  return new Response('404 Not Found', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8', ...SECURITY } });
 }
 
 /** Route patterns from `routes.json`, loaded once per isolate. */
