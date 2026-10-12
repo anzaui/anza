@@ -74,6 +74,7 @@ class TestAnzaCrypto(unittest.TestCase):
 
             self.assertIsNotNone(env.sig)
             self.assertTrue(hmac.verify(secret, env.message(), env.sig))
+            self.assertEqual(env.v, 2)
 
 
 if __name__ == "__main__":

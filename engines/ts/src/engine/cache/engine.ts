@@ -1,4 +1,6 @@
 import { Signer, type SignOptions } from '../../crypto/signer.js';
+import { signatureMessage, verifyWith, type ReceivedEnvelope, type VerifyOptions } from '../../crypto/envelope.js';
+import { AnzaError } from '../../errors/index.js';
 import { Document, Envelope, Manifest } from '../../models/index.js';
 import type { Params } from '../slot/index.js';
 import type { Template } from '../file/load.js';
@@ -34,14 +36,23 @@ export class Engine {
   }
 
   async signPayload(ts: number, slot: string, html: string): Promise<string | undefined> {
-    return this.signer.sign(`${ts}:${slot}:${html}`);
+    return this.signer.sign(signatureMessage(ts, slot, html));
+  }
+
+  /**
+   * Verify an envelope against this engine's own key (HMAC secret or the
+   * Ed25519 public key). Same checks as `verifyEnvelope`; throws `CRYPTO`.
+   */
+  verifyEnvelope(envelope: ReceivedEnvelope, options: VerifyOptions): void {
+    if (this.signer.mode === 'none') throw AnzaError.crypto('signing is off');
+    verifyWith(envelope, options, (msg, sig) => this.signer.verify(msg, sig));
   }
 
   async renderFragment(templateName: string, slot: string, params?: Params): Promise<Envelope> {
     const tpl = this.get(templateName);
     const html = tpl.bind(params);
     const ts = Math.floor(Date.now() / 1000);
-    const sig = await this.signPayload(ts, slot, html);
+    const sig = this.signer.sign(signatureMessage(ts, slot, html));
 
     return new Envelope(slot, ts, html, sig);
   }

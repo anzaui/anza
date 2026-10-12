@@ -4,6 +4,7 @@ import hashlib
 import hmac as _hmac
 from typing import Any, Optional, Union
 
+from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 
@@ -116,6 +117,27 @@ class Signer:
         if self._ed25519 is not None:
             return self._ed25519.sign(message).hex()
         return None
+
+    def verify(self, message: bytes, signature_hex: str) -> bool:
+        """Check a lowercase-hex signature made by this signer (constant-time).
+        Always ``False`` when signing is off."""
+        if self._hmac is not None:
+            actual = decode_length(signature_hex, 32)
+            if actual is None:
+                return False
+            mac = self._hmac.copy()
+            mac.update(message)
+            return _hmac.compare_digest(mac.digest(), actual)
+        if self._ed25519 is not None:
+            actual = decode_length(signature_hex, 64)
+            if actual is None:
+                return False
+            try:
+                self._ed25519.public_key().verify(actual, message)
+                return True
+            except InvalidSignature:
+                return False
+        return False
 
     @property
     def public_key(self) -> Optional[bytes]:

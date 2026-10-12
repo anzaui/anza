@@ -2,6 +2,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal, Optional, Union
+from ...crypto.envelope import DEFAULT_SKEW_SECS, _verify_with
 from ...crypto.signer import Signer
 from ...errors import AnzaError
 from ...models.document import Document
@@ -69,6 +70,22 @@ class Engine:
             return tpl
         except Exception as e:
             raise AnzaError.not_found(f"Template '{normalized}' not found in '{self.root}': {e}")
+
+    def verify_envelope(
+        self,
+        envelope: Any,
+        *,
+        max_age_secs: int,
+        slot: str,
+        skew_secs: int = DEFAULT_SKEW_SECS,
+        now: Optional[int] = None,
+    ) -> None:
+        """Verify an envelope against this engine's own key (HMAC secret or
+        the Ed25519 public key). Same checks as ``verify_envelope``; raises
+        ``CRYPTO``."""
+        if self.signer.mode == "none":
+            raise AnzaError.crypto("signing is off")
+        _verify_with(envelope, self.signer.verify, max_age_secs, slot, skew_secs, now)
 
     def render_page(self, route: str, params: Any = None) -> Document:
         from ...render.page import render_page

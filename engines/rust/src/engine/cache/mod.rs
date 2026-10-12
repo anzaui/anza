@@ -3,7 +3,11 @@ pub mod store;
 
 use {
   crate::{
-    crypto::{blake, signer::Signer},
+    crypto::{
+      blake,
+      envelope::{self, VerifyOptions},
+      signer::Signer,
+    },
     engine::file::{self, Template},
     errors::{Error, Result},
     models::{document::Document, envelope::Envelope, manifest::Manifest},
@@ -78,22 +82,29 @@ impl Engine {
     &self.signer
   }
 
+  /// Sign the v2 message of `ts`, `slot`, `html` (no `css`). `None` when
+  /// signing is off.
   pub fn sign_payload(&self, ts: u64, slot: &str, html: &str) -> Result<Option<String>> {
-    let msg = format!("{}:{}:{}", ts, slot, html);
-    Ok(self.signer.sign(msg.as_bytes()))
+    Ok(self.signer.sign(&envelope::message(ts, slot, html, None)))
+  }
+
+  /// Verify an envelope against this engine's own key (HMAC secret or the
+  /// Ed25519 public key): see [`crate::crypto::envelope::verify`].
+  pub fn verify_envelope(&self, envelope: &Envelope, options: &VerifyOptions<'_>) -> Result<()> {
+    if matches!(self.signer, Signer::None) {
+      return Err(Error::crypto("signing is off"));
+    }
+    envelope::verify_with(envelope, options, |msg, sig| self.signer.verify(msg, sig))
   }
 
   pub fn render_fragment(&self, template_name: &str, slot: &str, params: &HashMap<String, String>) -> Result<Envelope> {
     let tpl = self.get(template_name)?;
     let html = tpl.bind(params)?;
-    let ts = std::time::SystemTime::now()
-      .duration_since(std::time::UNIX_EPOCH)
-      .map_err(|_| Error::internal("Clock error"))?
-      .as_secs();
-
-    let sig = self.sign_payload(ts, slot, &html)?;
+    let ts = envelope::now()?;
+    let sig = self.signer.sign(&envelope::message(ts, slot, &html, None));
 
     Ok(Envelope {
+      v: envelope::VERSION,
       slot: slot.to_string(),
       ts,
       html,

@@ -72,6 +72,23 @@ impl Signer {
     }
   }
 
+  /// Check a lowercase-hex signature made by this signer (constant-time).
+  /// Always `false` when signing is off.
+  pub fn verify(&self, message: &[u8], signature_hex: &str) -> bool {
+    match self {
+      Self::None => false,
+      Self::Hmac(mac) => {
+        let Some(expected) = hex::decode_array::<32>(signature_hex) else {
+          return false;
+        };
+        let mut mac = mac.clone();
+        mac.update(message);
+        mac.verify_slice(&expected).is_ok()
+      }
+      Self::Ed25519(key) => crate::crypto::ed25519::verify::check(key.verifying_key().as_bytes(), message, signature_hex),
+    }
+  }
+
   /// The Ed25519 public key that verifies this signer's signatures.
   pub fn public_key(&self) -> Option<[u8; 32]> {
     match self {

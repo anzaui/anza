@@ -12,6 +12,7 @@ pub use {
     config::setup::Setup,
     template::{fragment::Fragment, page::Page, stream::Stream},
   },
+  crypto::envelope::{verify as verify_envelope, VerifyKey, VerifyOptions},
   engine::{
     cache::{Engine, SignMode},
     slot::{Data, Params},

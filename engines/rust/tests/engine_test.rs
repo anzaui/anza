@@ -141,7 +141,7 @@ fn test_engine_setup_and_fragment_rendering() {
   // Verify signature
   let sig = envelope.sig.clone().unwrap();
   let msg = envelope.message();
-  assert!(hmac::verify::check(secret, msg.as_bytes(), &sig));
+  assert!(hmac::verify::check(secret, &msg, &sig));
 
   let _ = fs::remove_dir_all(&temp_dir);
 }

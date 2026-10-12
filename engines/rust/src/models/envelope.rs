@@ -1,7 +1,12 @@
 use serde::{Deserialize, Serialize};
 
+/// A rendered fragment on the wire (format v2, see `docs/engines/contract.md`).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Envelope {
+  /// Wire-format version. Always 2 for envelopes this engine produces; an
+  /// envelope without `v` deserializes as 0 and fails verification.
+  #[serde(default)]
+  pub v: u32,
   pub slot: String,
   pub ts: u64,
   pub html: String,
@@ -14,6 +19,7 @@ pub struct Envelope {
 impl Envelope {
   pub fn new<S: Into<String>>(slot: S, ts: u64, html: S) -> Self {
     Self {
+      v: crate::crypto::envelope::VERSION,
       slot: slot.into(),
       ts,
       html: html.into(),
@@ -32,7 +38,8 @@ impl Envelope {
     self
   }
 
-  pub fn message(&self) -> String {
-    format!("{}:{}:{}", self.ts, self.slot, self.html)
+  /// The exact bytes the signature covers (v2, length-prefixed fields).
+  pub fn message(&self) -> Vec<u8> {
+    crate::crypto::envelope::message(self.ts, &self.slot, &self.html, self.css.as_deref())
   }
 }

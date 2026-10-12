@@ -1,6 +1,7 @@
 import * as crypto from 'node:crypto';
 import { AnzaError } from '../errors/index.js';
 import { privateKey, publicKey, rawPublicKey, type Ed25519Key } from './ed25519.js';
+import { decodeLength } from './hex.js';
 
 /** Minimum HMAC-SHA256 secret length, in bytes. */
 export const HMAC_MIN_SECRET = 32;
@@ -71,6 +72,21 @@ export class Signer {
     if (this.#hmac) return crypto.createHmac('sha256', this.#hmac).update(message).digest('hex');
     if (this.#ed25519) return crypto.sign(null, typeof message === 'string' ? Buffer.from(message, 'utf8') : message, this.#ed25519).toString('hex');
     return undefined;
+  }
+
+  /** Check a lowercase-hex signature made by this signer (constant-time). Always `false` when signing is off. */
+  verify(message: Uint8Array, signatureHex: string): boolean {
+    if (this.#hmac) {
+      const actual = decodeLength(signatureHex, 32);
+      if (!actual) return false;
+      return crypto.timingSafeEqual(crypto.createHmac('sha256', this.#hmac).update(message).digest(), actual);
+    }
+    if (this.#ed25519) {
+      const actual = decodeLength(signatureHex, 64);
+      if (!actual) return false;
+      return crypto.verify(null, message, crypto.createPublicKey(this.#ed25519), actual);
+    }
+    return false;
   }
 
   /** The raw 32-byte Ed25519 public key that verifies this signer's signatures. */
