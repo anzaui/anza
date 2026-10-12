@@ -108,3 +108,49 @@ fn missing_template_fails_ssg() {
   let out = p.build(&p.root.join("dist"));
   assert!(!out.status.success(), "{}", stderr_and_stdout(&out));
 }
+
+#[test]
+fn duplicate_routes_fail_naming_both_sources() {
+  let p = Project::new("duplicate");
+  p.write(
+    "src/index.js",
+    "import './pages/a/index.js';\nimport './pages/b/index.js';\n",
+  );
+  p.write(
+    "src/pages/a/index.js",
+    "page('/docs/x', { tag: 'page-a', template: { html: './index.html' } });\n",
+  );
+  p.write("src/pages/a/index.html", "<h1>A</h1>\n");
+  p.write(
+    "src/pages/b/index.js",
+    "page('/docs/x/', { tag: 'page-b', template: { html: './index.html' } });\n",
+  );
+  p.write("src/pages/b/index.html", "<h1>B</h1>\n");
+  let out = p.build(&p.root.join("dist"));
+  let log = stderr_and_stdout(&out);
+  assert!(!out.status.success(), "{log}");
+  assert!(log.contains("page-a") && log.contains("page-b"), "{log}");
+}
+
+#[test]
+fn expansion_colliding_with_a_literal_route_fails() {
+  let p = Project::new("expand-collision");
+  p.write(
+    "src/index.js",
+    "import './pages/a/index.js';\nimport './pages/b/index.js';\n",
+  );
+  p.write(
+    "src/pages/a/index.js",
+    "page('/docs/x', { tag: 'page-a', template: { html: './index.html' } });\n",
+  );
+  p.write("src/pages/a/index.html", "<h1>A</h1>\n");
+  p.write(
+    "src/pages/b/index.js",
+    "page('/docs/:slug', { tag: 'page-b', params: [{ name: 'slug', type: String }], ssg: { expand: ['x'] }, template: { html: './index.html' } });\n",
+  );
+  p.write("src/pages/b/index.html", "<h1>{{slug}}</h1>\n");
+  let out = p.build(&p.root.join("dist"));
+  let log = stderr_and_stdout(&out);
+  assert!(!out.status.success(), "{log}");
+  assert!(log.contains("duplicate route /docs/x"), "{log}");
+}

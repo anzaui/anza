@@ -397,7 +397,10 @@ pub fn emit(
   src_dir: &Path,
 ) -> Result<(), Vec<String>> {
   let mut entries: Vec<(RouteRecord, String)> = Vec::new();
-  let mut seen: HashSet<String> = HashSet::new();
+  let mut errors: Vec<String> = Vec::new();
+  // Output key (trailing slash ignored) -> who registered it. A second claim
+  // on the same key is an error naming both sources.
+  let mut seen: HashMap<String, String> = HashMap::new();
   let file_expansions = load_ssg_params_manifest(src_dir);
 
   let mut tag_to_spec = std::collections::HashMap::new();
@@ -493,11 +496,9 @@ pub fn emit(
         continue;
       }
 
-      if !seen.insert(url.to_string()) {
-        eprintln!(
-          "[anza] WARNING: Duplicate route pattern \"{}\" defined on <{}>.",
-          url, spec.tag
-        );
+      if let Err(err) = claim_route(&mut seen, url, &route_source(spec, url)) {
+        errors.push(err);
+        continue;
       }
 
       // Extract raw segment param names (back-compat / trie building).
@@ -610,11 +611,9 @@ pub fn emit(
         let Some(concrete) = expand_path(url, &values) else {
           continue;
         };
-        if !seen.insert(concrete.clone()) {
-          eprintln!(
-            "[anza] WARNING: Duplicate expanded SSG path \"{}\" (from \"{}\" on <{}>).",
-            concrete, url, spec.tag
-          );
+        let source = format!("{} expanded from \"{}\"", route_source(spec, &concrete), url);
+        if let Err(err) = claim_route(&mut seen, &concrete, &source) {
+          errors.push(err);
           continue;
         }
         let expanded_seo = interpolate_seo(resolve_seo(spec, &concrete), &values);
@@ -709,7 +708,6 @@ pub fn emit(
     "routes": records,
   });
 
-  let mut errors: Vec<String> = Vec::new();
   if let Err(err) = std::fs::create_dir_all(dist_dir) {
     errors.push(format!("cannot create {}: {}", dist_dir.display(), err));
   }
@@ -765,6 +763,34 @@ declare global {{
   } else {
     Err(errors)
   }
+}
+
+/// Route key used for collision checks: `/x` and `/x/` are the same output.
+fn route_key(path: &str) -> String {
+  if path.len() > 1 {
+    path.trim_end_matches('/').to_string()
+  } else {
+    path.to_string()
+  }
+}
+
+fn route_source(spec: &ExtractedSpec, path: &str) -> String {
+  format!(
+    "\"{}\" on <{}> in {}",
+    path,
+    spec.tag,
+    spec.file.as_deref().unwrap_or("?")
+  )
+}
+
+/// Register `path` for `source`; a second claim on the same key is an error.
+fn claim_route(seen: &mut HashMap<String, String>, path: &str, source: &str) -> Result<(), String> {
+  let key = route_key(path);
+  if let Some(first) = seen.get(&key) {
+    return Err(format!("duplicate route {}: {} and {}", key, first, source));
+  }
+  seen.insert(key, source.to_string());
+  Ok(())
 }
 
 fn specificity(path: &str) -> u8 {

@@ -142,7 +142,14 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) -> Result<Stats, Vec<String>> {
 
   use rayon::prelude::*;
 
-  let eligible_routes: Vec<&RouteInfo> = manifest.routes.iter().filter(|r| should_ssg(r)).collect();
+  let eligible_routes = match unique_outputs(dist_dir, &manifest.routes) {
+    Ok(routes) => routes,
+    Err(errs) => {
+      // Two workers racing on one index.html is never valid output.
+      errors.extend(errs);
+      return Err(errors);
+    }
+  };
   // Routes are emitted in parallel; each worker touches only its own files.
   // Shared routes.json edits are collected and applied once afterwards —
   // concurrent read-modify-write of that file corrupted it and failed routes.
@@ -193,6 +200,43 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) -> Result<Stats, Vec<String>> {
   } else {
     Err(errors)
   }
+}
+
+/// Select the SSG-eligible routes and check that no two of them write the same
+/// output file (duplicate path, `/x` vs `/x/`, literal vs expanded). Each
+/// collision is an error naming both routes.
+fn unique_outputs<'a>(dist_dir: &Path, routes: &'a [RouteInfo]) -> Result<Vec<&'a RouteInfo>, Vec<String>> {
+  let mut by_output: std::collections::BTreeMap<PathBuf, &RouteInfo> = std::collections::BTreeMap::new();
+  let mut errors = Vec::new();
+  let mut eligible = Vec::new();
+  for route in routes.iter().filter(|r| should_ssg(r)) {
+    let out = output_path(dist_dir, &route.path);
+    if let Some(first) = by_output.get(&out) {
+      errors.push(format!(
+        "SSG output collision at {}: {} and {}",
+        out.display(),
+        describe_route(first),
+        describe_route(route)
+      ));
+      continue;
+    }
+    by_output.insert(out, route);
+    eligible.push(route);
+  }
+  if errors.is_empty() {
+    Ok(eligible)
+  } else {
+    Err(errors)
+  }
+}
+
+fn describe_route(route: &RouteInfo) -> String {
+  format!(
+    "\"{}\" (<{}> in {})",
+    route.path,
+    route.tag,
+    route.file.as_deref().unwrap_or("?")
+  )
 }
 
 /// Rewrite dist asset URLs when a deploy base path is configured.
@@ -1570,5 +1614,24 @@ mod tests {
     let errors = emit(&src, &dist).expect_err("unwritable output is an error");
     assert_eq!(errors.iter().filter(|e| e.contains("/docs/p")).count(), 3, "{errors:?}");
     let _ = std::fs::remove_dir_all(&root);
+  }
+
+  #[test]
+  fn output_collisions_are_errors_naming_both_routes() {
+    let route = |path: &str, tag: &str| RouteInfo {
+      tag: tag.into(),
+      path: path.into(),
+      file: Some(format!("{tag}/index.js")),
+      ssg: Some(true),
+      ..RouteInfo::default()
+    };
+    let dist = Path::new("/tmp/dist");
+    let routes = vec![route("/docs/a", "doc-a"), route("/docs/a/", "doc-b"), route("/docs/c", "doc-c")];
+    let errors = unique_outputs(dist, &routes).expect_err("collision");
+    assert_eq!(errors.len(), 1, "{errors:?}");
+    assert!(errors[0].contains("doc-a") && errors[0].contains("doc-b"), "{errors:?}");
+
+    let ok = vec![route("/", "home"), route("/docs/a", "doc-a")];
+    assert_eq!(unique_outputs(dist, &ok).unwrap().len(), 2);
   }
 }
