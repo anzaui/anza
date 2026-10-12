@@ -9,6 +9,7 @@
  */
 
 import { ui } from '../../../core/ui/index.js';
+import { guard } from '../../../core/platform/index.js';
 
 /** `value` attribute at first mount: what a form reset restores. */
 const defaults = new WeakMap();
@@ -24,6 +25,9 @@ ui.element('ui-select', {
     required: { type: Boolean, reflect: true }
   },
   mount({ el, internals, tags, on, ctrl }) {
+    // Load the Popover API polyfill where the platform lacks it.
+    guard.popover().catch(() => {});
+
     const slot = tags.one('slot');
     const trigger = tags.one('#trigger');
     const popover = tags.one('#dropdown');
@@ -39,7 +43,7 @@ ui.element('ui-select', {
       const option = e.composedPath().find((node) => options.includes(node));
       if (!option) return;
       const val = option.getAttribute('value') || option.textContent.trim();
-      if (popover.matches(':popover-open')) popover.hidePopover();
+      if (isOpen(popover)) popover.hidePopover();
       if (val === el.value) return;
       el.value = val;
       syncValue(el, tags, internals);
@@ -121,5 +125,14 @@ function validate(el, internals) {
     internals.setValidity({ valueMissing: true }, 'Please select an option.');
   } else {
     internals.setValidity({});
+  }
+}
+
+/** Popover open state, native (:popover-open) or polyfilled (data-popover-open). */
+function isOpen(popover) {
+  try {
+    return popover.matches(':popover-open');
+  } catch {
+    return popover.hasAttribute('data-popover-open');
   }
 }

@@ -37,11 +37,13 @@
 }
 
 /* Trend variance color configurations mapping only to semantic feedback tokens */
-:host([trend="positive"]) .trend-box {
+:host([trend="positive"]) .trend-box,
+:host([trend="up"]) .trend-box {
   color: var(--color-feedback-success);
 }
 
-:host([trend="negative"]) .trend-box {
+:host([trend="negative"]) .trend-box,
+:host([trend="down"]) .trend-box {
   color: var(--color-feedback-error);
 }
 

@@ -70,12 +70,20 @@ export function position(floating, anchor, options = {}) {
       top = anchorTop;
       left = anchorLeft + anchorRect.width + offset;
       break;
+    case 'right-end':
+      top = anchorTop + anchorRect.height - floatRect.height;
+      left = anchorLeft + anchorRect.width + offset;
+      break;
     case 'left':
       top = anchorCenterY - floatRect.height / 2;
       left = anchorLeft - floatRect.width - offset;
       break;
     case 'left-start':
       top = anchorTop;
+      left = anchorLeft - floatRect.width - offset;
+      break;
+    case 'left-end':
+      top = anchorTop + anchorRect.height - floatRect.height;
       left = anchorLeft - floatRect.width - offset;
       break;
     default:

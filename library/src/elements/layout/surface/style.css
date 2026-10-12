@@ -27,3 +27,10 @@
   --surface-border: var(--color-border-default);
   --surface-radius: var(--radius-md);
 }
+
+:host([variant="bordered"]) {
+  --surface-bg:     var(--color-surface-page);
+  --surface-border: var(--color-border-default);
+  --surface-shadow: none;
+  --surface-radius: var(--radius-lg);
+}

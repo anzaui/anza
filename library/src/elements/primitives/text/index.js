@@ -63,7 +63,9 @@ ui.element('ui-text', {
 
       // Color mappings
       if (color) {
-        this.style.setProperty('--text-color', `var(--color-content-${color})`);
+        // `muted` is the documented alias for the secondary content token.
+        const token = color === 'muted' ? 'secondary' : color;
+        this.style.setProperty('--text-color', `var(--color-content-${token})`);
       } else {
         this.style.removeProperty('--text-color');
       }
