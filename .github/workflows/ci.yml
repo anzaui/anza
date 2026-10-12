@@ -88,3 +88,42 @@ jobs:
         run: |
           cd engines/py
           python -m unittest discover -s tests -v
+
+  bench:
+    name: Load budgets (bundled web build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: tools -> ../target
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            library/package-lock.json
+            web/package-lock.json
+
+      - name: Build the CLI
+        run: cargo build --release --manifest-path tools/Cargo.toml
+
+      - name: Build the docs site
+        run: |
+          cd web
+          npm ci
+          ../target/release/anza build
+
+      - name: Install library tooling (puppeteer-core)
+        run: cd library && npm ci
+
+      - name: SSG contract
+        run: node tasks/ssg-contract-check.js
+
+      # CLEAN/DIST.md §4. ubuntu-latest ships google-chrome (CHROME_PATH wins when set).
+      - name: Load budgets (Fast 4G, 5 runs)
+        run: npm run bench:load -- --budget --runs 5
