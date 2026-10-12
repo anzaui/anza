@@ -2,7 +2,7 @@
  * bin/create/run.js
  *
  * Scaffold logic. Generates anza app files from templates.
- * Keep in sync with tools/src/create/run.rs.
+ * The only scaffolder: `anza create` just points to `npm create @anzaui/anza`.
  */
 
 import { join } from 'path';

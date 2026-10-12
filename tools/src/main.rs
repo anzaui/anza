@@ -207,10 +207,7 @@ async fn main() {
         }
       }
       Command::Create { name } => {
-        let target = std::env::current_dir()
-          .unwrap_or_else(|_| PathBuf::from("."))
-          .join(&name);
-        let op = Create { target, name };
+        let op = Create { name };
         if let Err(e) = op.run() {
           anza_logs::error!("{}", e);
           std::process::exit(1);

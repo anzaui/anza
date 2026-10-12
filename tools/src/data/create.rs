@@ -1,9 +1,7 @@
-use std::path::PathBuf;
-use crate::create;
-
+/// `anza create <name>`: the scaffolder lives in the npm package
+/// (`npm create @anzaui/anza`); this command only points there.
 #[derive(Debug, Clone)]
 pub struct Create {
-  pub target: PathBuf,
   pub name: String,
 }
 
@@ -15,9 +13,29 @@ impl Create {
     Ok(())
   }
 
+  /// The hint printed for `anza create <name>`.
+  pub fn hint(&self) -> String {
+    format!(
+      "Create a new Anza app with:\n\n  npm create @anzaui/anza {}\n",
+      self.name.trim()
+    )
+  }
+
   pub fn run(&self) -> Result<(), String> {
     self.validate()?;
-    create::run(&self.target, &self.name);
+    println!("{}", self.hint());
     Ok(())
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn hint_points_to_npm_create() {
+    let op = Create { name: "my-app".into() };
+    assert!(op.hint().contains("npm create @anzaui/anza my-app"));
+    assert!(Create { name: " ".into() }.run().is_err());
   }
 }
