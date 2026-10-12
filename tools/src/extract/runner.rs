@@ -33,6 +33,7 @@ pub fn compile(
 ) -> Result<(), Vec<String>> {
   let types_dir = dist_dir.join("types");
   let mut errors: Vec<String> = Vec::new();
+  let mut outputs: Vec<std::path::PathBuf> = Vec::new();
 
   // Production build: start from a clean slate so deleted source files
   // never linger in the output. Dev mode keeps the old dist alive — the
@@ -48,8 +49,9 @@ pub fn compile(
 
   // 2. Type/route/tag extraction (writes dist/types, dist/routes.json,
   //    and .tags.json siblings in src).
-  if let Err(errs) = run(src_dir, &types_dir) {
-    errors.extend(errs);
+  match run(src_dir, &types_dir) {
+    Ok(written) => outputs.extend(written),
+    Err(errs) => errors.extend(errs),
   }
 
   // 3. Import-graph resolution -> minimal, browser-native dist.
@@ -64,13 +66,15 @@ pub fn compile(
         report.copied,
         dist_dir.display()
       );
+      outputs.extend(report.outputs);
 
       // 4. Mode A SSG — contentful HTML with open DSD for public routes.
       //    Runs in build AND dev: otherwise `anza dev` recopies page fragments
       //    over dist/<route>/index.html and soft-nav/CSR fetch nested docs chrome
       //    (stacked dock-docs sidebars). emit() preserves fragments as template.html.
-      if let Err(errs) = crate::build::ssg::emit(src_dir, dist_dir) {
-        errors.extend(errs);
+      match crate::build::ssg::emit(src_dir, dist_dir) {
+        Ok(stats) => outputs.extend(stats.outputs),
+        Err(errs) => errors.extend(errs),
       }
     }
     Err(diags) => {
@@ -79,6 +83,10 @@ pub fn compile(
   }
 
   if errors.is_empty() {
+    if !strict {
+      // Dev keeps dist between builds: drop outputs of deleted sources/routes.
+      remove_orphans(dist_dir, &outputs);
+    }
     return Ok(());
   }
   if strict {
@@ -86,6 +94,34 @@ pub fn compile(
     std::fs::remove_dir_all(dist_dir).ok();
   }
   Err(errors)
+}
+
+/// Delete files under `dist_dir` that the last successful compile did not
+/// produce (deleted pages, routes, assets), then any directories left empty.
+pub fn remove_orphans(dist_dir: &Path, outputs: &[std::path::PathBuf]) {
+  let keep: std::collections::HashSet<&Path> = outputs.iter().map(|p| p.as_path()).collect();
+  let mut dirs = Vec::new();
+  for entry in WalkDir::new(dist_dir).min_depth(1).into_iter().filter_map(|e| e.ok()) {
+    let path = entry.path();
+    if entry.file_type().is_dir() {
+      dirs.push(path.to_path_buf());
+      continue;
+    }
+    let Ok(rel) = path.strip_prefix(dist_dir) else {
+      continue;
+    };
+    if !keep.contains(rel) {
+      match std::fs::remove_file(path) {
+        Ok(()) => anza_logs::compiler!("Removed orphan {}", path.display()),
+        Err(err) => anza_logs::warn!("cannot remove orphan {}: {}", path.display(), err),
+      }
+    }
+  }
+  // Deepest first; remove_dir only succeeds on empty directories.
+  dirs.sort_by_key(|d| std::cmp::Reverse(d.components().count()));
+  for dir in dirs {
+    let _ = std::fs::remove_dir(&dir);
+  }
 }
 
 /// Log every collected compile error.
@@ -109,7 +145,10 @@ pub fn compile_dev(src_dir: &Path, dist_dir: &Path, entries: &[std::path::PathBu
 /// Extract element specs, write dist/types + routes.json/routes.d.ts and the
 /// `.tags.json` descriptors. Returns every error (unreadable or unparsable
 /// files, failed writes) instead of silently dropping pages.
-pub fn run(src_dir: &Path, dist_types_dir: &Path) -> Result<(), Vec<String>> {
+///
+/// On success returns the dist files written (relative to dist).
+pub fn run(src_dir: &Path, dist_types_dir: &Path) -> Result<Vec<std::path::PathBuf>, Vec<String>> {
+  let mut outputs: Vec<std::path::PathBuf> = Vec::new();
   let mut errors: Vec<String> = Vec::new();
 
   // Collect all paths to parallelize with Rayon
@@ -183,6 +222,9 @@ pub fn run(src_dir: &Path, dist_types_dir: &Path) -> Result<(), Vec<String>> {
     let mut type_path = dist_types_dir.join(relative_path);
     type_path.set_extension("d.ts");
     // Write the custom element interface declaration
+    if let Ok(rel) = type_path.strip_prefix(dist_types_dir) {
+      outputs.push(std::path::Path::new("types").join(rel));
+    }
     let dts_content = generate_dts_content(spec);
     if let Err(err) = crate::fs_atomic::write(&type_path, dts_content.as_bytes()) {
       errors.push(err);
@@ -222,7 +264,8 @@ pub fn run(src_dir: &Path, dist_types_dir: &Path) -> Result<(), Vec<String>> {
   }
 
   if errors.is_empty() {
-    Ok(())
+    outputs.extend(["types/index.d.ts", "routes.json", "routes.d.ts"].map(std::path::PathBuf::from));
+    Ok(outputs)
   } else {
     Err(errors)
   }

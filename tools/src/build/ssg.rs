@@ -106,10 +106,12 @@ struct DockInfo {
 }
 
 /// Summary of a successful SSG pass.
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct Stats {
   /// Number of HTML documents written.
   pub emitted: usize,
+  /// Every file written, relative to dist.
+  pub outputs: Vec<PathBuf>,
 }
 
 /// Emit SSG HTML for every eligible route into `dist_dir`.
@@ -161,26 +163,37 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) -> Result<Stats, Vec<String>> {
   // Routes are emitted in parallel; each worker touches only its own files.
   // Shared routes.json edits are collected and applied once afterwards —
   // concurrent read-modify-write of that file corrupted it and failed routes.
-  let results: Vec<Result<(String, Option<String>), (String, String)>> = plans
+  type Emitted = (String, Option<String>, Vec<PathBuf>);
+  let results: Vec<Result<Emitted, (String, String)>> = plans
     .par_iter()
     .map(|plan| {
       let route = plan.route;
       match emit_route(src_dir, plan, &sources, &docks, &importmap, &site) {
-        Ok(preserved) => Ok((normalize_route_path(&route.path), preserved.then(|| route.path.clone()))),
+        Ok((preserved, written)) => Ok((
+          normalize_route_path(&route.path),
+          preserved.then(|| route.path.clone()),
+          written,
+        )),
         Err(err) => Err((route.path.clone(), err.to_string())),
       }
     })
     .collect();
 
   let mut emitted = 0usize;
+  let mut outputs: Vec<PathBuf> = Vec::new();
   let mut ssg_paths: Vec<String> = Vec::with_capacity(results.len());
   let mut preserved_paths: Vec<String> = Vec::new();
   for res in results {
     match res {
-      Ok((path, preserved)) => {
+      Ok((path, preserved, written)) => {
         emitted += 1;
         ssg_paths.push(path);
         preserved_paths.extend(preserved);
+        outputs.extend(
+          written
+            .iter()
+            .filter_map(|p| p.strip_prefix(dist_dir).ok().map(Path::to_path_buf)),
+        );
       }
       Err((route_path, err)) => {
         errors.push(format!("SSG failed for {}: {}", route_path, err));
@@ -201,11 +214,17 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) -> Result<Stats, Vec<String>> {
   if let Err(err) = emit_seo_extras(dist_dir, &site, &ssg_paths) {
     errors.push(format!("SSG: SEO extras failed: {}", err));
   }
+  if site.sitemap {
+    outputs.push(PathBuf::from("sitemap.xml"));
+  }
+  if site.robots {
+    outputs.push(PathBuf::from("robots.txt"));
+  }
 
   apply_base_path(dist_dir, &site, &mut errors);
 
   if errors.is_empty() {
-    Ok(Stats { emitted })
+    Ok(Stats { emitted, outputs })
   } else {
     Err(errors)
   }
@@ -434,7 +453,7 @@ fn emit_route(
   docks: &BTreeMap<String, DockInfo>,
   importmap: &str,
   site: &SsgSiteConfig,
-) -> Result<bool, String> {
+) -> Result<(bool, Vec<PathBuf>), String> {
   let route = plan.route;
   let out_path = &plan.out_path;
 
@@ -511,7 +530,7 @@ fn emit_route(
     crate::fs_atomic::write(path, bytes)?;
   }
   anza_logs::compiler!("SSG {}", out_path.display());
-  Ok(preserved)
+  Ok((preserved, outputs.into_iter().map(|(path, _)| path).collect()))
 }
 
 /// When the page fragment's dist path equals the SSG `index.html` output,

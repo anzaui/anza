@@ -15,6 +15,9 @@ pub const FILE: &str = ".anzacache.json";
 pub struct Cache {
   pub version: String,
   pub dev: bool,
+  /// Hash of import map, structure slots and deploy base (see graph::config_key).
+  #[serde(default)]
+  pub config: String,
   pub hashes: BTreeMap<PathBuf, String>,
   pub timestamp: u64,
 }

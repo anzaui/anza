@@ -147,15 +147,32 @@ impl SystemWatcher {
     })
   }
 
+  /// Event path under the (canonical) watched root. Paths notify reports under
+  /// the root are used as-is: a removed file cannot be canonicalized, so
+  /// canonicalizing first used to drop remove events. Otherwise canonicalize
+  /// the parent directory (which still exists) and re-attach the file name.
+  fn absolute(&self, path: &Path) -> PathBuf {
+    if path.starts_with(&self.src_path) {
+      return path.to_path_buf();
+    }
+    if let Ok(abs) = std::fs::canonicalize(path) {
+      return abs;
+    }
+    match (path.parent(), path.file_name()) {
+      (Some(parent), Some(name)) => std::fs::canonicalize(parent)
+        .map(|p| p.join(name))
+        .unwrap_or_else(|_| path.to_path_buf()),
+      _ => path.to_path_buf(),
+    }
+  }
+
   /// Map a changed file path to an `HmrMessage`.
   ///
   /// Files under `tokens/` or `styles/` are always treated as CSS so the
   /// browser hot-swaps them without a full reload.  Other `.css` files get
   /// the same treatment.  `.js` and `.html` files trigger a full reload.
   fn classify(&self, path: &Path) -> Option<HmrMessage> {
-    // Canonicalize the event path so strip_prefix works regardless of whether
-    // notify returned an absolute or relative path.
-    let abs = std::fs::canonicalize(path).unwrap_or_else(|_| path.to_path_buf());
+    let abs = self.absolute(path);
     let ext = abs.extension()?.to_str()?;
     let rel = abs
       .strip_prefix(&self.src_path)
@@ -192,5 +209,32 @@ impl SystemWatcher {
     };
 
     Some(HmrMessage { kind, path: rel })
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn classifies_removed_files() {
+    let root = std::env::temp_dir().join(format!("anza-watch-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&root);
+    std::fs::create_dir_all(root.join("pages")).unwrap();
+    let (tx, _rx) = tokio::sync::mpsc::unbounded_channel();
+    let watcher = SystemWatcher::new(&root, tx).unwrap();
+
+    let file = watcher.src_path.join("pages/gone.js");
+    std::fs::write(&file, "x").unwrap();
+    std::fs::remove_file(&file).unwrap();
+    let msg = watcher.classify(&file).expect("removed file still classified");
+    assert_eq!(msg.kind, ChangeKind::Js);
+    assert_eq!(msg.path, "pages/gone.js");
+
+    // A non-canonical path to a removed file resolves through its parent.
+    let dotted = std::path::Path::new(&root).join("pages").join("gone.css");
+    let msg = watcher.classify(&dotted).expect("non-canonical path classified");
+    assert_eq!(msg.path, "pages/gone.css");
+    let _ = std::fs::remove_dir_all(&root);
   }
 }

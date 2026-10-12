@@ -71,6 +71,8 @@ pub struct Report {
   pub warnings: Vec<Diagnostic>,
   #[allow(dead_code)]
   pub importmap: BTreeMap<String, String>,
+  /// Every dist file this pass owns, relative to dist (copied or unchanged).
+  pub outputs: Vec<PathBuf>,
 }
 
 /// What a specifier resolved to.
@@ -329,9 +331,20 @@ pub fn resolve(
     }
   }
 
+  // Dev cache key: the import map, structure slots and deploy base config are
+  // baked into copied HTML/JS. When any of them changes, unchanged sources
+  // must still be recopied (stale import maps, doubled base prefixes).
+  let config = config_key(src, &project, &importmap, &order_slots);
+  if cache.as_ref().map_or(false, |c| c.config != config) {
+    cache = None;
+  }
+
+  let mut outputs: Vec<PathBuf> = Vec::new();
+
   // Write generated importmap as a separate JSON file in dist.
   if !importmap.is_empty() {
     let path = dist.join("importmap.json");
+    outputs.push(PathBuf::from("importmap.json"));
     let imports_json = serde_json::json!({ "imports": importmap });
     let written = serde_json::to_string_pretty(&imports_json)
       .map_err(|e| e.to_string())
@@ -344,7 +357,7 @@ pub fn resolve(
   // Copy every reachable file into `dist`, mirroring structure.
   let mut copied = 0usize;
   for file in &reached {
-    let (_rel, target) = if file.starts_with(src) {
+    let (rel, target) = if file.starts_with(src) {
       if let Ok(r) = file.strip_prefix(src) {
         (r, dist.join(r))
       } else {
@@ -364,6 +377,7 @@ pub fn resolve(
       continue;
     };
 
+    outputs.push(rel.to_path_buf());
     let hash = hashes.get(file);
     let prior = cache.as_ref().and_then(|c| c.hashes.get(file));
     let copy = hash != prior || !target.exists();
@@ -404,7 +418,7 @@ pub fn resolve(
   for dir in ["tokens", "styles"] {
     let from = src.join(dir);
     if from.is_dir() {
-      if let Err(err) = copy_dir(&from, &dist.join(dir)) {
+      if let Err(err) = copy_dir(&from, &dist.join(dir), Path::new(dir), &mut outputs) {
         errors.push(Diagnostic::io(&from, err));
       }
     }
@@ -413,6 +427,7 @@ pub fn resolve(
   let favicon = src.join("favicon.ico");
   if favicon.is_file() {
     let target = dist.join("favicon.ico");
+    outputs.push(PathBuf::from("favicon.ico"));
     if let Err(err) = crate::fs_atomic::copy(&favicon, &target) {
       errors.push(Diagnostic::io(&target, err));
     }
@@ -426,24 +441,49 @@ pub fn resolve(
 
   if !errors.is_empty() {
     // Keep the cache of what did succeed so a dev rebuild retries the rest.
-    save_cache(&project, version, dev, hashes);
+    save_cache(&project, version, dev, &config, hashes);
     return Err(errors);
   }
 
-  save_cache(&project, version, dev, hashes);
+  save_cache(&project, version, dev, &config, hashes);
 
   Ok(Report {
     copied,
     modules,
     warnings,
     importmap,
+    outputs,
   })
 }
 
-fn save_cache(project: &Path, version: &str, dev: bool, hashes: BTreeMap<PathBuf, String>) {
+/// Hash of the build configuration that is baked into copied files.
+fn config_key(
+  src: &Path,
+  project: &Path,
+  importmap: &BTreeMap<String, String>,
+  slots: &super::order::Slots,
+) -> String {
+  use std::hash::{Hash, Hasher};
+  let mut h = std::collections::hash_map::DefaultHasher::new();
+  format!("{:?}|{:?}", importmap, slots).hash(&mut h);
+  for path in [src.join("ssg.json"), project.join("ssg.json")] {
+    std::fs::read(path).ok().hash(&mut h);
+  }
+  std::env::var("ANZA_BASE_PATH").ok().hash(&mut h);
+  format!("{:x}", h.finish())
+}
+
+fn save_cache(
+  project: &Path,
+  version: &str,
+  dev: bool,
+  config: &str,
+  hashes: BTreeMap<PathBuf, String>,
+) {
   let cache = super::cache::Cache {
     version: version.to_string(),
     dev,
+    config: config.to_string(),
     hashes,
     timestamp: std::time::SystemTime::now()
       .duration_since(std::time::UNIX_EPOCH)
@@ -453,8 +493,9 @@ fn save_cache(project: &Path, version: &str, dev: bool, hashes: BTreeMap<PathBuf
   super::cache::save(project, &cache);
 }
 
-/// Recursively copy a directory tree.
-fn copy_dir(from: &Path, to: &Path) -> Result<(), String> {
+/// Recursively copy a directory tree, recording each file (relative to dist,
+/// `rel` being the dist-relative path of `to`) in `outputs`.
+fn copy_dir(from: &Path, to: &Path, rel: &Path, outputs: &mut Vec<PathBuf>) -> Result<(), String> {
   let entries =
     std::fs::read_dir(from).map_err(|e| format!("cannot read {}: {}", from.display(), e))?;
   for entry in entries {
@@ -465,9 +506,11 @@ fn copy_dir(from: &Path, to: &Path) -> Result<(), String> {
       .file_type()
       .map_err(|e| format!("cannot stat {}: {}", src.display(), e))?
       .is_dir();
+    let rel = rel.join(entry.file_name());
     if is_dir {
-      copy_dir(&src, &dst)?;
+      copy_dir(&src, &dst, &rel, outputs)?;
     } else {
+      outputs.push(rel);
       crate::fs_atomic::copy(&src, &dst)?;
     }
   }

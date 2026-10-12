@@ -96,7 +96,9 @@ pub fn emit_descriptor(html_path: &Path, descriptor: &TagsDescriptor) -> Extract
   json_path.set_extension("tags.json");
 
   let json = serde_json::to_string(descriptor)?;
-  crate::fs_atomic::write(&json_path, json)?;
+  // Only touch the file when the descriptor changed: it lives in src, so a
+  // rewrite would wake the watcher and dirty git on every compile.
+  crate::fs_atomic::write_if_changed(&json_path, json)?;
   Ok(json_path)
 }
 
