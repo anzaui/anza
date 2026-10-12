@@ -111,3 +111,20 @@ Also document `anza:ready`, `ctx.adopted`, element `::part`/`--el-*`/`:state()`,
 4. Tag the fixed commit `v0.6.0` and run `release.yml` (`workflow_dispatch`, tag `v0.6.0`). It creates the release from the changelog section and attaches all 5 binaries.
 5. Set `last-release-sha` in `release-please-config.json` to that commit, so the next release PR doesn't re-list these fixes. Close any release PR release-please opened in the meantime.
 6. Publish to npm per `NPM.md`.
+
+## Engines become their own repositories (decided 2026-10-13)
+
+User decision: `anzaui/rust`, `anzaui/ts` and `anzaui/py` are independent repos, pushed separately, with **independent versions** (all start at 0.6.0). Each has its Markdown docs built with **anza** (`anza docs`, replacing mdBook) and deployed to its own GitHub Pages. `anza` keeps them as **git submodules**.
+
+Engine repos (worker, commits locally in each nested repo, lead reviews then pushes):
+- self-contained tests (vendored `tests/fixtures/`, source of truth `engines/fixtures/` + `tasks/engine-fixtures.js` in anza);
+- mdBook → anza docs (`docs/*.md` + `docs/config.toml`); theme assets from an `anzaui/anza` checkout at a pinned tag;
+- workflows: `ci.yml`, `docs.yml` (build with the released `anza` binary → GitHub Pages), `release-please.yml` (rust/node/python release types);
+- metadata, README (install, example, docs link, Releasing) and CHANGELOG at 0.6.0.
+
+anza side (lead, after the engine repos are pushed):
+1. Replace the tracked `engines/{rust,ts,py}` with submodules at the pushed commits (`.gitmodules`). Keep `engines/fixtures/` in anza.
+2. Workflows that test the engines check out submodules. Remove `docs.yml` (mdBook builds move to the engine repos).
+3. Drop the engines from `release-please-config.json` extra-files, `tasks/versions-check.js` and `tasks/publish.js` (`@anzaui/engine` is published from `anzaui/ts`). Update `NPM.md`, `.github/RELEASING.md` and `CHANGELOG.md`.
+4. `docs/engines/*` link to each engine's Pages site. The contract stays in anza.
+5. GitHub: enable Pages (`build_type: workflow`) on the three repos. Push, tag `v0.6.0` in each engine repo after its CI is green.
