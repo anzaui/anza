@@ -52,7 +52,7 @@ await storage.set('name', 'Alice', 'memory');
 await storage.set('name', 'Alice', { tier: 'idb', ttl: 60000 });
 ```
 
-IDB path: localStorage write journal (crash recovery), optional gzip when serialized size exceeds `storage.compressionThreshold` (64KB) and Compression Streams are available, then IDB + LRU. Proactive quota check runs before write.
+IDB path: localStorage write journal (crash recovery), optional gzip when serialized size exceeds `storage.compressionThreshold` (64KB) and Compression Streams are available, then IDB + LRU. A quota check (`quota.check()`, which notifies `onQuotaWarning` listeners above 80%) runs before persistent writes, at most once a minute; the `memory` tier skips it.
 
 ### `storage.delete(key, tierOrOptions)`
 

@@ -44,7 +44,7 @@ off(); // remove listener
 
 ## Storage Facade Integration
 
-The storage facade calls `quota.check()` before every write. If over 80%, it triggers eviction of expired and then oldest entries.
+`storage.set()` calls `quota.check()` before persistent writes (`idb`, `opfs`, `cache`), at most once a minute; the `memory` tier never checks. If usage is over 80%, the check notifies `onQuotaWarning` listeners. Nothing is evicted automatically: free space yourself in the listener (for example `storage.clear('cache')`).
 
 ## Platform Detection
 
