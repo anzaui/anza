@@ -31,7 +31,7 @@ showToast('Still working…', { duration: 5000 });
 <p><code>show</code> appends a shared fixed container under <code>document.body</code> and places toasts there — ownership stays with each toast instance, not a long-lived document listener. Auto-dismiss uses <code>setTimeout</code> cleared on the element <code>AbortController</code> (<code>el.ctrl.signal</code> abort). Soft-nav aborts only the detached leaf’s <code>ctrl</code>; toasts that outlive a leaf should be created/owned where their lifetime belongs (or removed explicitly). Prefer signal-owned work over raw <code>document</code> / <code>body</code> listeners. See <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a> and <a href="/docs/events/troubleshooting">Orphan listeners after soft-nav</a>.</p>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements/index">Elements overview</a></li>
+<li><a href="/docs/elements">Elements overview</a></li>
 <li><a href="/docs/elements/feedback">Feedback</a></li>
 <li><a href="/docs/elements/alert">Alert</a></li>
 <li><a href="/docs/elements/overlay">Overlay patterns</a> (native top-layer vs this body-portal exception)</li>

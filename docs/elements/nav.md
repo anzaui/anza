@@ -20,7 +20,7 @@ import '@anzaui/anza/elements/nav';
 ```html
 <ui-nav>
   <a href="/docs">Docs</a>
-  <a href="/docs/elements/index">Elements</a>
+  <a href="/docs/elements">Elements</a>
 </ui-nav>
 <ui-nav orientation="vertical">
   <a href="/a">Section A</a>

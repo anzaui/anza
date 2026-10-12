@@ -1,7 +1,7 @@
 import { page } from '@anzaui/anza/ui';
 
-page('/docs/state/index', {
-  tag: 'doc-state-index',
+page('/docs/state', {
+  tag: 'doc-state',
   via: ['main', 'docs', 'content'],
   template: { html: './index.html' },
   style: ['/styles/shared.css']

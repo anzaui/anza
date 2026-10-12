@@ -1,7 +1,7 @@
 import { page } from '@anzaui/anza/ui';
 
-page('/docs/ssg/index', {
-  tag: 'doc-ssg-index',
+page('/docs/ssg', {
+  tag: 'doc-ssg',
   via: ['main', 'docs', 'content'],
   template: { html: './index.html' },
   style: ['/styles/shared.css'],

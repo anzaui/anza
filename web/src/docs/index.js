@@ -1,5 +1,4 @@
 import './entry/index.js';
-import './index/index.js';
 
 import './animations/index.js';
 import './api/index.js';

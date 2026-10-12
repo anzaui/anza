@@ -18,7 +18,7 @@ import '@anzaui/anza/elements/link';
 ## Basic usage
 
 ```html
-<ui-link href="/docs/intro/index">Introduction</ui-link>
+<ui-link href="/docs/intro">Introduction</ui-link>
 <ui-link href="https://example.com" external>External</ui-link>
 ```
 

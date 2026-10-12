@@ -20,7 +20,7 @@ import '@anzaui/anza/elements/breadcrumb';
 ```html
 <ui-breadcrumb>
   <li><a href="/docs">Docs</a></li>
-  <li><a href="/docs/elements/index">Elements</a></li>
+  <li><a href="/docs/elements">Elements</a></li>
   <li aria-current="page">Breadcrumb</li>
 </ui-breadcrumb>
 ```

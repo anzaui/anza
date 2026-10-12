@@ -1,5 +1,5 @@
 /**
- * Legacy path — canonical styles docs live at /docs/styles/index.
+ * Legacy path — canonical styles docs live at /docs/styles.
  */
 import { page } from '@anzaui/anza/ui';
 import { router } from '@anzaui/anza/router';
@@ -10,7 +10,7 @@ page('/docs/ui/styles', {
   template: { html: './index.html' },
   on: {
     connect() {
-      router.replace('/docs/styles/index');
+      router.replace('/docs/styles');
     }
   }
 }, import.meta.url);

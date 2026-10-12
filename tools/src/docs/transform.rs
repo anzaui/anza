@@ -100,10 +100,20 @@ pub fn route_from_md(md_path: &Path, docs_root: &Path, base: &str) -> Result<Str
     .map_err(|_| format!("{} is outside docs root", md_path.display()))?;
   let no_ext = rel.with_extension("");
   let s = no_ext.to_string_lossy().replace('\\', "/");
-  if s == "index" || s.is_empty() {
+  let s = section_route(&s);
+  if s.is_empty() {
     return Ok(base.trim_end_matches('/').to_string());
   }
   Ok(format!("{}/{}", base.trim_end_matches('/'), s))
+}
+
+/// A section's `index.md` is the section page: `router/index` → `router`
+/// (one URL per page; `/docs/router/index` is never canonical).
+fn section_route(path: &str) -> &str {
+  if path == "index" {
+    return "";
+  }
+  path.strip_suffix("/index").unwrap_or(path)
 }
 
 pub fn tag_from_route(route: &str, base: &str) -> String {
@@ -182,7 +192,8 @@ fn md_href_to_route(href: &str, current_md: &Path, docs_root: &Path, base: &str)
     .to_string_lossy()
     .trim_end_matches(".md")
     .replace('\\', "/");
-  if no_ext.is_empty() || no_ext == "index" {
+  let no_ext = section_route(&no_ext);
+  if no_ext.is_empty() {
     return base.trim_end_matches('/').to_string();
   }
   format!("{}/{}", base.trim_end_matches('/'), no_ext.trim_start_matches('/'))
@@ -350,6 +361,22 @@ mod heading_tests {
     for (text, want) in cases {
       assert_eq!(heading_slug(text), want, "{text}");
     }
+  }
+
+  #[test]
+  fn section_index_pages_route_to_the_section() {
+    let root = Path::new("/d");
+    assert_eq!(route_from_md(Path::new("/d/router/index.md"), root, "/docs").unwrap(), "/docs/router");
+    assert_eq!(route_from_md(Path::new("/d/index.md"), root, "/docs").unwrap(), "/docs");
+    assert_eq!(route_from_md(Path::new("/d/router/api.md"), root, "/docs").unwrap(), "/docs/router/api");
+    assert_eq!(route_from_md(Path::new("/d/a/index/x.md"), root, "/docs").unwrap(), "/docs/a/index/x");
+    let html = rewrite_links(
+      "<a href=\"../ui/index.md#props\">x</a><a href=\"index.md\">y</a>",
+      Path::new("/d/router/api.md"),
+      root,
+      "/docs",
+    );
+    assert_eq!(html, "<a href=\"/docs/ui#props\">x</a><a href=\"/docs/router\">y</a>");
   }
 
   #[test]

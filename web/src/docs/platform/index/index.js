@@ -1,7 +1,7 @@
 import { page } from '@anzaui/anza/ui';
 
-page('/docs/platform/index', {
-  tag: 'doc-platform-index',
+page('/docs/platform', {
+  tag: 'doc-platform',
   via: ['main', 'docs', 'content'],
   template: { html: './index.html' },
   style: ['/styles/shared.css']

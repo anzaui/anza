@@ -1,7 +1,7 @@
 import { page } from '@anzaui/anza/ui';
 
-page('/docs/engines/index', {
-  tag: 'doc-engines-index',
+page('/docs/engines', {
+  tag: 'doc-engines',
   via: ['main', 'docs', 'content'],
   template: { html: './index.html' },
   style: ['/styles/shared.css'],

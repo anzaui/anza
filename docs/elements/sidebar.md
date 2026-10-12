@@ -20,7 +20,7 @@ import '@anzaui/anza/elements/sidebar';
 ```html
 <ui-sidebar>
   <a href="/docs">Docs</a>
-  <a href="/docs/elements/index">Elements</a>
+  <a href="/docs/elements">Elements</a>
 </ui-sidebar>
 <ui-sidebar collapsed></ui-sidebar>
 ```
