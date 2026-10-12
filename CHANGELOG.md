@@ -12,6 +12,77 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.6.0](https://github.com/anzaui/anza/compare/v0.5.1...v0.6.0) (2026-10-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* **engines:** Setup::ed25519 takes only the two key paths; code that named SignMode::SessionBound, publish_meta, adapters::tower or the tower feature, or passed mode 'session', must drop it.
+
+### Features
+
+* **build:** bundle and minify CSS with Lightning CSS, link shared DSD styles ([7a6ae7e](https://github.com/anzaui/anza/commit/7a6ae7e8e0d1258b459d111d10239bd76338ed81))
+* **build:** bundle production output into Rolldown chunks ([f46166f](https://github.com/anzaui/anza/commit/f46166f2ffe76fb816dd7c66385cbe417713219a))
+* **build:** content-hash static assets and cache /assets/* immutably ([f770d67](https://github.com/anzaui/anza/commit/f770d67549cfc1d95b018967fb7db4779d42ffda))
+* **build:** inline element CSS, templates and tags descriptors in production ([abf8cb8](https://github.com/anzaui/anza/commit/abf8cb8958124826f95aefc32a655f4407de3907))
+* **build:** precompress text assets with brotli and gzip ([fec44ad](https://github.com/anzaui/anza/commit/fec44ad147415c4d17aa42abb89a54153566153e))
+* **build:** preload each route's full module closure and emit _headers ([14ab16d](https://github.com/anzaui/anza/commit/14ab16df2cdba9c8bcd0f80538db21d6dc04c2ae))
+* **build:** write type declarations beside dist, not into it ([b64dbac](https://github.com/anzaui/anza/commit/b64dbac3403e904e81946bb5c0d8a412d9e37f35))
+* **docs:** make anza docs the single docs generator ([dd0d846](https://github.com/anzaui/anza/commit/dd0d846316fcb3b156e6219c26885ec0ccf6024d))
+
+
+### Bug Fixes
+
+* **api:** export router gate/ready/reset, security seal/unseal, storage quota ([08b11eb](https://github.com/anzaui/anza/commit/08b11eb1b750b50fe26818902a579df4087489c7))
+* **api:** root entry re-exports shared names from one winner ([960db4e](https://github.com/anzaui/anza/commit/960db4e53c9d50b6197171c94f2b1abc9b7b3211))
+* **build:** fail the build on any SSG, extract, copy or write error ([9ac02f7](https://github.com/anzaui/anza/commit/9ac02f760572cf50260ed68e6e792b2ee6f5b3f1))
+* **build:** make build output deterministic ([b74bc89](https://github.com/anzaui/anza/commit/b74bc893304b0c75d86329b55ad27aa5d4b76380))
+* **build:** treat duplicate routes and SSG output collisions as errors ([6fe0f5b](https://github.com/anzaui/anza/commit/6fe0f5b193a3dc57482a9260db568ad37955fed4))
+* **build:** write every dist file atomically ([d7ad32e](https://github.com/anzaui/anza/commit/d7ad32e29fd8cdf2e2811362cfcbea4e7ee5c0a9))
+* **cli:** lock the project so build and dev never share dist ([447fd7a](https://github.com/anzaui/anza/commit/447fd7a20f3b1ad6df861774da0e1b9e96994cb8))
+* **cli:** take --version from Cargo.toml ([3cb4f99](https://github.com/anzaui/anza/commit/3cb4f994e4d4e03acf45b7fcbed38318c0eca9a5))
+* **create:** scaffold registers the SW on real hosts only and caches safely ([3d5b42b](https://github.com/anzaui/anza/commit/3d5b42b7e6184c2167c48c4818a6b8e7b0dd9367))
+* **dev:** inject the HMR client at serve time, never into build output ([7dcd3eb](https://github.com/anzaui/anza/commit/7dcd3eb811e6416f87db96003ede7a3ca3f616a9))
+* **dev:** invalidate the dev cache on config changes and drop orphan outputs ([491e526](https://github.com/anzaui/anza/commit/491e526e4344cfb7b4296158f05678eeb6c63a09))
+* **dev:** no-cache and strong ETags on every dev response ([94a17de](https://github.com/anzaui/anza/commit/94a17deed02ba775b5097e185fd639b01a41ddc1))
+* **dev:** send reload on a lagged HMR stream, buffer 256 events ([e5ab622](https://github.com/anzaui/anza/commit/e5ab622b675a7ab3d5e585f1ce09328d42867601))
+* **dev:** serve a self-unregistering no-op /sw.js ([4c1195a](https://github.com/anzaui/anza/commit/4c1195ab31eec73200800b4700f77b83c2cec50e))
+* **docs:** write tags descriptors in anza docs --pages ([0e1df33](https://github.com/anzaui/anza/commit/0e1df33b0d9ab13a8f88ddb1bf81db7edc84210f))
+* **engine-rust:** escape the route in the page fallback ([1ec14d0](https://github.com/anzaui/anza/commit/1ec14d03f91e76751ad0511e7e6c60dbf8e24c31))
+* **engine-rust:** hex-encode template digests in the manifest ([d93d5f8](https://github.com/anzaui/anza/commit/d93d5f81d393cb72c3ed26661a4f0935d3eb6fde))
+* **engine-rust:** reload templates when the watch feature sees a change ([cd15acc](https://github.com/anzaui/anza/commit/cd15accc52a244289a514b16ed1bc1ca62aff5d6))
+* **engine-ts:** publish the compiled dist/ ([0e2cf18](https://github.com/anzaui/anza/commit/0e2cf1844de4d4c50542128cb99b18c83fcec3f1))
+* **engines:** escape the route and contain template reads in ts and py ([d9f98eb](https://github.com/anzaui/anza/commit/d9f98eb896e06d14883be96ec3cdbf070c973527))
+* **release:** ship the CLI binaries in @anzaui/anza and verify every npm tarball ([6448f6c](https://github.com/anzaui/anza/commit/6448f6c9ea39dba9637e99bb45fd3f3d578be33d))
+* **ssg:** read templates and CSS from src through a pre-built cache ([4aeb0b7](https://github.com/anzaui/anza/commit/4aeb0b715a02506db71491c2879b39f52f71ca5b))
+* **sw:** skip SW on local hosts, bypass event streams, most specific route wins ([16bf5a8](https://github.com/anzaui/anza/commit/16bf5a80a7c5ca4c3e11371d38d1e8b5e55584e6))
+* **types:** match library types to the runtime exports ([76edb42](https://github.com/anzaui/anza/commit/76edb4204f5fc01c46ac6035c9348a2565ff1498))
+* **ui:** run the cold-load pipeline on HTML hot-swap ([2f3f1f7](https://github.com/anzaui/anza/commit/2f3f1f77bc4ee2e48750215c1a18ccb4300ff1f6))
+* **web:** no-cache unhashed files and serve SSG pages first ([ad27457](https://github.com/anzaui/anza/commit/ad27457b3ea7cfad5f5aee49707d51a6d2565fe6))
+
+
+### Performance Improvements
+
+* **build:** inline page tags descriptors so adopted SSG pages keep the mismatch check ([0dff54b](https://github.com/anzaui/anza/commit/0dff54b3dcd9273e15a0787dd5e95131e8473daa))
+* **build:** merge adjacent head stylesheets into one hashed file ([9f614d7](https://github.com/anzaui/anza/commit/9f614d7aa2a1c6e375f5edd2f3a663669c9c606d))
+* **build:** parallel graph walk and copy, single HTML entry parse ([79a51f0](https://github.com/anzaui/anza/commit/79a51f02c3339939875bea063426e8b27857f2ff))
+* **build:** single-pass base-path rewriters ([dd41d4a](https://github.com/anzaui/anza/commit/dd41d4a17e8199af119595d56993c527fdf0869b))
+* **bundle:** keep routes every page loads in the entry chunk ([5cdf8de](https://github.com/anzaui/anza/commit/5cdf8dee87b21c95f8b150c33db259982cfcfb39))
+* **core:** throttle quota checks, coalesce store flushes, sort routes lazily ([60a2738](https://github.com/anzaui/anza/commit/60a2738638d2410ea5ce2bf0391c4abbba4d5896))
+* **dev:** hot-copy CSS and templates before the rebuild ([163b6a6](https://github.com/anzaui/anza/commit/163b6a6cf841805dc2a129d6b2d8b771a683f4c0))
+* **dev:** keep the route manifest in server state ([1c655bd](https://github.com/anzaui/anza/commit/1c655bd2963907d0bcab837431f799d30f518919))
+* **sw:** respond first and cache via event.waitUntil ([c4e6934](https://github.com/anzaui/anza/commit/c4e69348835a6a5f04a78e9a574e947fa288a4e1))
+* **ui:** fetch element style, template and tags in parallel ([ee0c2fb](https://github.com/anzaui/anza/commit/ee0c2fbcc460bdc40f0ce4ad6b23f65350755b24))
+* **ui:** hydrate adopted DSD roots without refetching template, tags or linked CSS ([262fea4](https://github.com/anzaui/anza/commit/262fea404fa3ba5203a10f023388c5de462c83dc))
+* **ui:** load element resources on first connect by default ([2761df8](https://github.com/anzaui/anza/commit/2761df87e53dc7b5669e649769023e6931e5a6db))
+* **ui:** wire pre-rendered elements before fetching resources ([f1f0a68](https://github.com/anzaui/anza/commit/f1f0a68a92ef1cb17536051d0da362241da963e9))
+* **web:** self-host the web fonts and preload the body face ([cdafec0](https://github.com/anzaui/anza/commit/cdafec0526f83e310c5c3e8401c92fbe9a253717))
+
+
+### Code Refactoring
+
+* **engines:** remove signing options that never did anything ([d5a4065](https://github.com/anzaui/anza/commit/d5a4065b685742b83cc658508d0a807c5a21b2d8))
+
 ## [Unreleased]
 
 ### Added

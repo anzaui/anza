@@ -2,7 +2,7 @@
 # Crate is anza-cli (the engine crate in engines/rust is `anza`); the
 # installed binary is still `anza`.
 name = "anza-cli"
-version = "0.5.1"
+version = "0.6.0"
 edition = "2021"
 
 [lib]
