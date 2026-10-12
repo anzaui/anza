@@ -45,6 +45,10 @@ Everything passes except **requests before ready on docs pages (15 > 12)**: 4 CS
 
 `/` 9 requests, docs pages 12 (exactly at budget), depth 2, JS 49.4 KB br, ready ≈ 0.46 s. Global CSS is merged into one hashed file per page, and routes that every page needs go into the entry chunk. CI job `bench` enforces the budgets. Margin comes from P13.
 
+### After P13 (2026-10-12)
+
+`/` 7 requests before ready, docs pages 9 (budget 12), depth 1, JS 49.6 KB br, ready ≈ 0.46 s. Pre-rendered pages hydrate without refetching their template, tags or CSS.
+
 ## 2. Target output
 
 ```
