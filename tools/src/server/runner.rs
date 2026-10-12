@@ -76,6 +76,8 @@ pub fn router(state: Arc<ServerState>) -> Router {
 
   Router::new()
     .route("/hmr", get(hmr_handler))
+    .route("/sw.js", get(super::dev::noop_sw))
+    .route("/dist/sw.js", get(super::dev::noop_sw))
     .nest_service("/dist", serve_dir.clone())
     .fallback_service(serve_dir)
     .layer(middleware::from_fn(super::dev::layer))

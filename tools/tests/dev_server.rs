@@ -127,3 +127,20 @@ async fn hmr_client_is_injected_at_serve_time_into_documents_only() {
   let len: usize = home.header("content-length").unwrap().parse().unwrap();
   assert_eq!(len, home.body.len());
 }
+
+#[tokio::test]
+async fn sw_js_is_a_self_unregistering_no_op_in_dev() {
+  let fx = fixture("sw");
+  write(&fx.root, "dist/sw.js", "self.addEventListener('fetch', () => {});\n");
+  let (port, _tx) = start(&fx.root.join("dist")).await;
+  for path in ["/sw.js", "/dist/sw.js"] {
+    let sw = get(port, path, &[]).await;
+    assert_eq!(sw.status, 200, "{}", sw.head);
+    assert_eq!(sw.header("cache-control").as_deref(), Some("no-store"), "{}", sw.head);
+    assert!(sw.header("content-type").unwrap().starts_with("text/javascript"));
+    for needle in ["skipWaiting", "caches.delete", "registration.unregister()", "clients.claim()"] {
+      assert!(sw.body.contains(needle), "{needle} missing: {}", sw.body);
+    }
+    assert!(!sw.body.contains("'fetch'"), "{}", sw.body);
+  }
+}

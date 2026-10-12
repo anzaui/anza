@@ -93,6 +93,29 @@ pub fn inject_hmr(html: &str) -> Option<String> {
   Some(out)
 }
 
+/// Served for `/sw.js` in dev: replaces any service worker a browser kept
+/// from a production build, wipes its caches and unregisters itself (R1).
+pub const NOOP_SW: &str = r#"// anza dev: no-op service worker. Removes any stale worker and its caches.
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (event) => {
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.map((key) => caches.delete(key)));
+    await self.clients.claim();
+    await self.registration.unregister();
+  })());
+});
+"#;
+
+/// Handler for `/sw.js` in dev ([`NOOP_SW`], never cached).
+pub async fn noop_sw() -> Response<Body> {
+  Response::builder()
+    .header(header::CONTENT_TYPE, "text/javascript; charset=utf-8")
+    .header(header::CACHE_CONTROL, "no-store")
+    .body(Body::from(NOOP_SW))
+    .unwrap()
+}
+
 fn is_html(res: &Response<Body>) -> bool {
   res
     .headers()
