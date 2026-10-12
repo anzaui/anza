@@ -7,9 +7,9 @@
 Anza is a web UI toolkit built on standard browser features. It has four parts:
 
 - **`@anzaui/anza`** (npm): the browser library. Custom elements, routing, state, storage, offline, animations and service worker helpers, all as plain ES modules.
-- **`anza`** (CLI): the dev server and static build, written in Rust. It is shipped with the npm package, so you run it as `npx anza …` or through `npm run …`.
+- **`anza`** (CLI, Rust crate `anza-cli`): the dev server and static build. It is shipped with the npm package, so you run it as `npx anza …` or through `npm run …`.
 - **`@anzaui/create-anza`** (npm): the project scaffolder behind `npm create @anzaui/anza`.
-- **Server engines**: render full pages and signed JSON fragments from Rust (`anza` crate), TypeScript (`@anzaui/engine`) and Python (`anza` on PyPI).
+- **Server engines**: render full pages and signed JSON fragments from Rust (`anza` crate), TypeScript (`@anzaui/engine`) and Python (`anza` on PyPI). All three implement one [contract](docs/engines/contract.md): wire format v2 envelopes, `verify_envelope` with age and slot checks, an `escape` option, and keys validated at setup.
 
 ## Quick start
 
@@ -22,7 +22,7 @@ npm run dev
 
 Use `.` as the name to scaffold into the current directory. The scaffolder won't overwrite existing files unless you add `-- --force`.
 
-The dev server runs on `http://localhost:3000`. The full walkthrough is in [docs/intro/start.md](docs/intro/start.md).
+The scaffold lists `rolldown` as a devDependency, so `npm run build` bundles. The dev server runs on `http://localhost:3000` and only accepts local requests; pass `--host 0.0.0.0` to reach it from another device. The full walkthrough is in [docs/intro/start.md](docs/intro/start.md).
 
 ## A page and an element
 
@@ -53,7 +53,7 @@ Components are defined with `element()`, `view()`, `part()`, `dock()` and `page(
 | Command | What it does |
 | ------- | ------------ |
 | `npx anza dev` | Dev server with live reload on `127.0.0.1:3000` (`--port`, `--host 0.0.0.0` for the LAN; `npm run dev` in a scaffolded app) |
-| `npx anza build` | Production build into `dist/`: static HTML per public route, modules bundled with Rolldown when installed (`--no-bundle` to skip; `npm run build`) |
+| `npx anza build` | Production build into `dist/` (`npm run build`). Fails on errors. Writes static HTML per public route, Rolldown chunks under `assets/` (needs the `rolldown` devDependency; `--no-bundle` to skip), `404.html`, `_headers`, and a sitemap with `<lastmod>`. Pages get OG, Twitter and JSON-LD tags |
 | `npx anza check` | Strict project structure check for CI; warnings fail |
 | `npx anza doctor` | Same checks as `check`, but warnings only print |
 | `npx anza scan` | Extract element metadata and type declarations |

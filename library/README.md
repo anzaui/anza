@@ -28,8 +28,14 @@ npm install --save-dev @anzaui/anza
 npx anza dev
 ```
 
-`anza build` bundles production output with Rolldown when your project has
-it (`npm install -D rolldown`); otherwise it ships unbundled modules.
+`anza build` bundles production output into `dist/assets/` chunks with
+Rolldown when your project has it (`npm install -D rolldown`); otherwise it
+ships unbundled modules. It fails on errors, and writes static HTML for public
+routes, `404.html`, `_headers` and a sitemap with `<lastmod>`, with OG,
+Twitter and JSON-LD tags on every page.
+
+`anza dev` listens on `127.0.0.1:3000` and answers local requests only. Use
+`anza dev --host 0.0.0.0` to test from another device.
 
 ## Example
 
@@ -64,6 +70,11 @@ Components are defined with `element()`, `view()`, `part()`, `dock()` and
 `/animations`, `/workers`, `/security`, `/platform`, `/ui`, `/defs`, `/theme`,
 `/sw`, `/elements` and `/elements/<name>`, plus CSS under `/tokens/*` and
 `/styles/*`. Types are included for every JS entry point.
+
+The `/sw` helpers never cache `no-store` or `private` responses, `Vary: *`,
+requests with an `Authorization` header, or credentialed cross-origin
+requests. The `/security` sanitizer keeps only `http`, `https` and `mailto`
+URLs and drops `id` and `style` attributes.
 
 ## Documentation
 

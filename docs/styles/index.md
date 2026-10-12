@@ -97,15 +97,16 @@ For browsers without constructable stylesheet support:
 
 ## Hot Module Replacement (HMR)
 
-During development, updates to CSS files trigger HMR events. The dev environment captures stylesheet modifications and updates the cached constructable stylesheet directly:
+Under `anza dev`, saving a component's CSS file dispatches an `anza:hmr:css` event on `window`. The element factory listens for it and calls `replaceSync()` on the shared stylesheet, so every instance updates without a reload:
 
 ```javascript
-window.dispatchEvent(new CustomEvent('native:hmr:css', {
-  detail: { path: './box.css', css: '/* modified styles */' }
+// What the dev client dispatches (you don't call this yourself).
+window.dispatchEvent(new CustomEvent('anza:hmr:css', {
+  detail: { path: 'views/box/style.css', css: '/* new styles */' }
 }));
 ```
 
-Using `replaceSync()`, changes are pushed to the live stylesheet instance, updating all active elements on the screen without triggering a full page reload or layout remount.
+Templates work the same way with `anza:hmr:html` (`detail: { path, html }`).
 
 ## Scoped Styles
 
