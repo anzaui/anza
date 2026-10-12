@@ -3,7 +3,7 @@
 Severity: **C** critical · **H** high · **M** medium · **L** low.
 Status: `[ ]` open · `[~]` partly done · `[x]` closed.
 
-Partly done: H3 (`anza docs` is the only generator, and web/src/docs gets untracked after the next release ships `--pages` in the binary that cf-build.sh downloads), E4 (needs a decision: implement SessionBound/publish_meta/tower or drop them), R5 (interim headers, final once names are hashed), P1 (lazy loading at runtime, build-time inlining is left), P12 (element fetch count 138 → 0, the page-load benchmark is left).
+Partly done: H3 (`anza docs` is the only generator, and web/src/docs gets untracked after the next release ships `--pages` in the binary that cf-build.sh downloads), E4 (decided: `#[deprecated]` now, remove in 0.6.0; Rust work queued after DIST stage A), R5 (interim headers, final once names are hashed), P1 (lazy loading at runtime, build-time inlining is left), P12 (element fetch count 138 → 0, the page-load benchmark is left).
 
 ## R — Reload / "needs a hard refresh"
 
@@ -106,7 +106,7 @@ Build performance (scaling and dev latency; not urgent at 0.1 s):
 | [x] E1 | H | Page fallback interpolates the route into HTML **unescaped** (reflected XSS). | `engines/rust/src/render/page/compile.rs` | **TS and Py fixed** (d9f98eb). Py also had **path traversal** (`../` in the URL read `.html` outside the root) and tag-name injection, both fixed. **Rust left:** escape the fallback, and check `pages/<route>.html` lookup containment. |
 | [x] E2 | M | `watch` feature never reloads: the event receiver is dropped. | `engines/rust` engine/file watch | Keep the receiver alive and reload templates on change. Test. |
 | [x] E3 | M | `Engine::manifest()` hashes the BLAKE3 digest again instead of hex-encoding it. | `engines/rust` manifest | Hex-encode. Fixture test against a known digest. This is a breaking change to the manifest hash value, so note it in the changelog. |
-| [ ] E4 | M | `SignMode::SessionBound` and `publish_meta` are no-ops. `adapters::tower` is empty. | `engines/rust` | Implement or remove from the public API (needs a FREEZE §4 entry if removed). |
+| [~] E4 | M | `SignMode::SessionBound` and `publish_meta` are no-ops. `adapters::tower` is empty. | `engines/rust` | Implement or remove from the public API (needs a FREEZE §4 entry if removed). |
 | [x] E5 | L | `engines/ts/package-lock.json` still has the name `"anza"`. | `engines/ts` | Regenerate the lock name to `@anzaui/engine`. |
 
 ## H — Repo hygiene and tooling

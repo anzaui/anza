@@ -88,6 +88,7 @@ The JSON envelope (`slot`, `ts`, `html`, `sig`, `css`) and HMAC/Ed25519 signing 
 | 2026-10-12 | Service worker not registered in dev | Root cause of stale reloads | R1 |
 | 2026-10-12 | Default element resource loading becomes lazy, then inlined at build | Performance, no API change | P1–P3 |
 | 2026-10-12 | Root `index.d.ts` switches to flat exports | Match runtime | D6 |
+| 2026-10-12 | Rust engine: `SignMode::SessionBound`, `publish_meta`, `adapters::tower` deprecated in 0.5.x and **removed in 0.6.0** | They are public but do nothing. Session-bound signing needs a browser verifier the library lacks; it may come back later as a real feature. | E4 |
 
 ## 5. Out of scope during the freeze
 

@@ -142,7 +142,7 @@ Why this order:
 ## Phase 5 — Release 0.6.0 and unfreeze
 
 1. release-please manifest config covering library, create, tools, engines/{rust,ts,py}, with one shared version (H9).
-2. `create` depends on `@anzaui/anza` `^0.6.0`, bumped by the release tool.
+2. `create` depends on `@anzaui/anza` `^0.6.0`, bumped by the release tool. Remove the deprecated Rust engine items (E4) before tagging.
 3. Write the 0.6.0 changelog: the cleanup summary plus breaking changes (lazy element loading default, flat root types, crate rename).
 4. Tag, publish, deploy the docs.
 5. Delete `CLEAN/`. Lift the freeze.
