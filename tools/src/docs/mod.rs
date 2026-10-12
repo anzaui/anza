@@ -670,7 +670,7 @@ fn render_shell(cfg: &DocsConfig, page: &Page) -> String {
     });
     head_extras.push_str(&format!(
       "  <script type=\"application/ld+json\">{}</script>\n",
-      ld
+      crate::build::html::script_json(&ld.to_string())
     ));
   }
   format!(

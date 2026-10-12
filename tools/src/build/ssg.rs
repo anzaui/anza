@@ -285,7 +285,13 @@ fn unique_outputs<'a>(dist_dir: &Path, routes: &'a [RouteInfo]) -> Result<Vec<&'
   let mut errors = Vec::new();
   let mut eligible = Vec::new();
   for route in routes.iter().filter(|r| should_ssg(r)) {
-    let out = output_path(dist_dir, &route.path);
+    let out = match contained_output_path(dist_dir, &route.path) {
+      Ok(out) => out,
+      Err(err) => {
+        errors.push(format!("SSG refused {}: {}", describe_route(route), err));
+        continue;
+      }
+    };
     if let Some(first) = by_output.get(&out) {
       errors.push(format!(
         "SSG output collision at {}: {} and {}",
@@ -585,7 +591,7 @@ impl Styler<'_> {
           if !inline.is_empty() {
             inline.push('\n');
           }
-          inline.push_str(&interpolate_params(text, params));
+          inline.push_str(&interpolate_css(text, params));
         }
       }
     }
@@ -623,14 +629,14 @@ fn emit_route(
   let first_p = extract_first_p_text(&page_html);
 
   let seo = route.seo.clone().unwrap_or_default();
-  let title = non_empty(seo.title.clone().map(|t| interpolate_params(&t, &route.ssg_params)))
+  let title = non_empty(seo.title.clone().map(|t| interpolate_raw(&t, &route.ssg_params)))
     .or_else(|| non_empty(h1_text.clone()))
     .unwrap_or_else(|| title_from_path(&route.path));
   let description = non_empty(
     seo
       .description
       .clone()
-      .map(|d| interpolate_params(&d, &route.ssg_params)),
+      .map(|d| interpolate_raw(&d, &route.ssg_params)),
   )
   .or_else(|| non_empty(first_p))
   .unwrap_or_else(|| format!("{} — Anza documentation", title));
@@ -638,7 +644,7 @@ fn emit_route(
     seo
       .canonical
       .clone()
-      .map(|c| interpolate_params(&c, &route.ssg_params)),
+      .map(|c| interpolate_raw(&c, &route.ssg_params)),
   )
   .unwrap_or_else(|| normalize_route_path(&route.path));
   let canonical = absolutize(site.origin.as_deref(), &path_canonical);
@@ -793,6 +799,23 @@ fn rewrite_routes_html_field(dist_dir: &Path, route_paths: &[String], new_html: 
   let pretty = serde_json::to_string_pretty(&value).map_err(|e| e.to_string())?;
   crate::fs_atomic::write(&routes_path, pretty + "\n")?;
   Ok(())
+}
+
+/// [`output_path`] for an untrusted route path: every segment must be a plain
+/// name (no `.`/`..`, `\`, `:`, NUL) and the normalized result must stay
+/// under `dist_dir`.
+fn contained_output_path(dist_dir: &Path, path: &str) -> Result<PathBuf, String> {
+  for segment in path.split('/').filter(|s| !s.is_empty()) {
+    if segment == "." || segment == ".." || segment.contains(['\\', ':', '\0']) {
+      return Err(format!("path segment {:?} is not allowed (no `.`, `..`, `\\`, `:` or NUL)", segment));
+    }
+  }
+  let out = output_path(dist_dir, path);
+  let rel = out.strip_prefix(dist_dir).map_err(|_| "output escapes dist".to_string())?;
+  if rel.components().any(|c| !matches!(c, std::path::Component::Normal(_))) {
+    return Err(format!("output {} escapes dist", out.display()));
+  }
+  Ok(out)
 }
 
 fn output_path(dist_dir: &Path, path: &str) -> PathBuf {
@@ -1076,7 +1099,18 @@ fn style_block(css: &str) -> String {
   if trimmed.is_empty() {
     String::new()
   } else {
-    format!("<style>\n{}\n</style>\n", trimmed)
+    // `</style` inside the CSS (a minified string, say) would end the
+    // element early; `\/` is the same character to CSS.
+    let lower = trimmed.to_ascii_lowercase();
+    let mut safe = String::with_capacity(trimmed.len());
+    let mut last = 0;
+    for (at, _) in lower.match_indices("</style") {
+      safe.push_str(&trimmed[last..at]);
+      safe.push_str("<\\/");
+      last = at + 2;
+    }
+    safe.push_str(&trimmed[last..]);
+    format!("<style>\n{}\n</style>\n", safe)
   }
 }
 
@@ -1298,6 +1332,8 @@ fn extract_tag_inner(html: &str, tag: &str) -> Option<String> {
   None
 }
 
+/// Text content of an HTML fragment: tags removed, character references
+/// decoded (the result is escaped again where it is written).
 fn strip_tags(s: &str) -> String {
   let mut out = String::with_capacity(s.len());
   let mut in_tag = false;
@@ -1309,6 +1345,51 @@ fn strip_tags(s: &str) -> String {
       _ => {}
     }
   }
+  decode_entities(&out)
+}
+
+/// Decode the character references HTML text commonly carries.
+fn decode_entities(s: &str) -> String {
+  if !s.contains('&') {
+    return s.to_string();
+  }
+  let mut out = String::with_capacity(s.len());
+  let mut rest = s;
+  while let Some(at) = rest.find('&') {
+    out.push_str(&rest[..at]);
+    let tail = &rest[at..];
+    let decoded = tail.find(';').filter(|&end| end <= 10).and_then(|end| {
+      let name = &tail[1..end];
+      let ch = match name {
+        "amp" => Some('&'),
+        "lt" => Some('<'),
+        "gt" => Some('>'),
+        "quot" => Some('"'),
+        "apos" => Some('\''),
+        "nbsp" => Some('\u{a0}'),
+        _ => {
+          let num = name.strip_prefix('#')?;
+          let code = match num.strip_prefix(['x', 'X']) {
+            Some(hex) => u32::from_str_radix(hex, 16).ok(),
+            None => num.parse().ok(),
+          };
+          code.and_then(char::from_u32)
+        }
+      };
+      ch.map(|c| (c, end))
+    });
+    match decoded {
+      Some((c, end)) => {
+        out.push(c);
+        rest = &tail[end + 1..];
+      }
+      None => {
+        out.push('&');
+        rest = &tail[1..];
+      }
+    }
+  }
+  out.push_str(rest);
   out
 }
 
@@ -1355,14 +1436,46 @@ fn escape_attr(s: &str) -> String {
   escape_html(s).replace('"', "&quot;")
 }
 
-/// Replace `{{name}}` placeholders using Phase 5 expansion values.
+/// Replace `{{name}}` placeholders in HTML with Phase 5 expansion values,
+/// HTML-escaped (text and quoted attributes alike).
 fn interpolate_params(input: &str, values: &BTreeMap<String, String>) -> String {
+  interpolate_with(input, values, |v| escape_attr(v).replace('\'', "&#39;"))
+}
+
+/// [`interpolate_params`] for plain text that is escaped later (title,
+/// description, canonical).
+fn interpolate_raw(input: &str, values: &BTreeMap<String, String>) -> String {
+  interpolate_with(input, values, str::to_string)
+}
+
+/// [`interpolate_params`] for CSS inside a `<style>` element: characters that
+/// could end a string, a rule or the element become CSS escapes.
+fn interpolate_css(input: &str, values: &BTreeMap<String, String>) -> String {
+  interpolate_with(input, values, |v| {
+    let mut out = String::with_capacity(v.len());
+    for ch in v.chars() {
+      match ch {
+        '<' | '>' | '"' | '\'' | '\\' | '&' | '{' | '}' | ';' | '\n' | '\r' => {
+          out.push_str(&format!("\\{:x} ", ch as u32))
+        }
+        c => out.push(c),
+      }
+    }
+    out
+  })
+}
+
+fn interpolate_with(
+  input: &str,
+  values: &BTreeMap<String, String>,
+  escape: impl Fn(&str) -> String,
+) -> String {
   if values.is_empty() || !input.contains("{{") {
     return input.to_string();
   }
   let mut out = input.to_string();
   for (k, v) in values {
-    out = out.replace(&format!("{{{{{}}}}}", k), v);
+    out = out.replace(&format!("{{{{{}}}}}", k), &escape(v));
   }
   out
 }
@@ -1528,7 +1641,7 @@ fn json_ld_script(
   let compact = serde_json::to_string(&doc).unwrap_or_else(|_| "{}".to_string());
   format!(
     "  <script type=\"application/ld+json\">{}</script>\n",
-    compact
+    super::html::script_json(&compact)
   )
 }
 
@@ -1687,6 +1800,34 @@ mod tests {
       "<h1>Expand: foo</h1>"
     );
     assert_eq!(interpolate_params("static", &values), "static");
+  }
+
+  #[test]
+  fn output_paths_stay_under_dist() {
+    let dist = Path::new("/tmp/dist");
+    for bad in ["/docs/..", "/docs/../../x", "/.", "/a\\..\\..\\b", "/C:x", "/a\0b"] {
+      assert!(contained_output_path(dist, bad).is_err(), "{bad:?}");
+    }
+    assert_eq!(
+      contained_output_path(dist, "/docs/a.b").unwrap(),
+      PathBuf::from("/tmp/dist/docs/a.b/index.html")
+    );
+  }
+
+  #[test]
+  fn style_block_cannot_be_closed_by_its_css() {
+    let out = style_block("a::after{content:\"</style><script>x</script>\"}");
+    assert_eq!(out.matches("</style").count(), 1, "{out}");
+    assert!(out.contains("<\\/style><script>"), "{out}");
+  }
+
+  #[test]
+  fn text_extraction_decodes_references_once() {
+    assert_eq!(strip_tags("<code>&lt;ui-button&gt;</code> &amp; &#39;x&#x27; &bogus; a&b"), "<ui-button> & 'x' &bogus; a&b");
+    assert_eq!(
+      interpolate_params("<p title=\"{{v}}\">{{v}}</p>", &BTreeMap::from([("v".to_string(), "<b>\"'&".to_string())])),
+      "<p title=\"&lt;b&gt;&quot;&#39;&amp;\">&lt;b&gt;&quot;&#39;&amp;</p>"
+    );
   }
 
   #[test]

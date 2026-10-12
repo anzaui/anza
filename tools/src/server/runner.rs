@@ -364,6 +364,12 @@ fn match_route(pattern: &str, path: &str) -> Option<std::collections::HashMap<St
     return None;
   }
 
+  // Dot segments (raw or percent-encoded) never match a route: they would
+  // reach the mock lookup and `anza-state` as `..` parameters.
+  if r_parts.iter().any(|r| is_dot_segment(r)) {
+    return None;
+  }
+
   let mut params = std::collections::HashMap::new();
   for (p, r) in p_parts.iter().zip(r_parts.iter()) {
     if p.starts_with(':') {
@@ -375,6 +381,11 @@ fn match_route(pattern: &str, path: &str) -> Option<std::collections::HashMap<St
     }
   }
   Some(params)
+}
+
+fn is_dot_segment(segment: &str) -> bool {
+  let lower = segment.to_ascii_lowercase().replace("%2e", ".");
+  lower == "." || lower == ".."
 }
 
 fn resolve_asset_path(base_file: &str, relative_path: &str) -> String {
@@ -553,7 +564,7 @@ async fn handle_html_fallback(
           if let Ok(json) = serde_json::to_string(&payload) {
             inject.push_str(&format!(
               "    <script type=\"application/json\" id=\"anza-state\">{}</script>\n",
-              json
+              crate::build::html::script_json(&json)
             ));
           }
         }

@@ -323,6 +323,23 @@ fn resolve_expand_values(
   Some(map)
 }
 
+/// SSG param values become path segments of `dist/<route>/index.html`: each
+/// must be a plain non-empty name. `.`/`..`, `/`, `\`, `:` and NUL are
+/// rejected (they could write outside dist or reach another route).
+pub fn check_param_value(name: &str, value: &str) -> Result<(), String> {
+  if value.is_empty() || value == "." || value == ".." || value.contains(['/', '\\', ':', '\0']) {
+    return Err(format!(
+      "param `{}` value {:?} is not allowed (no empty, `.`, `..`, `/`, `\\`, `:` or NUL)",
+      name, value
+    ));
+  }
+  Ok(())
+}
+
+fn check_param_values(values: &BTreeMap<String, String>) -> Result<(), String> {
+  values.iter().try_for_each(|(k, v)| check_param_value(k, v))
+}
+
 fn match_path_to_pattern(pattern: &str, concrete: &str) -> Option<BTreeMap<String, String>> {
   let pat_segs: Vec<&str> = pattern.split('/').filter(|s| !s.is_empty()).collect();
   let con_segs: Vec<&str> = concrete.split('/').filter(|s| !s.is_empty()).collect();
@@ -609,6 +626,10 @@ pub fn emit(
         let Some(values) = resolve_expand_values(url, &raw) else {
           continue;
         };
+        if let Err(err) = check_param_values(&values) {
+          errors.push(format!("{}: ssg expansion of \"{}\": {}", route_source(spec, url), url, err));
+          continue;
+        }
         let Some(concrete) = expand_path(url, &values) else {
           continue;
         };
@@ -895,6 +916,16 @@ fn resolve_compile_time_asset_path(file: &str, asset: &str) -> String {
 #[cfg(test)]
 mod tests {
   use super::*;
+
+  #[test]
+  fn param_values_must_be_plain_names() {
+    for bad in ["", ".", "..", "a/b", "..\\x", "C:x", "a\0b"] {
+      assert!(check_param_value("slug", bad).is_err(), "{bad:?}");
+    }
+    for ok in ["foo", "v1.2", "...", "a..b", "<b>"] {
+      assert!(check_param_value("slug", ok).is_ok(), "{ok:?}");
+    }
+  }
 
   #[test]
   fn expand_path_fills_params() {

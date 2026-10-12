@@ -278,3 +278,35 @@ async fn cross_origin_reads_are_not_allowed() {
   .await;
   assert!(preflight.header("access-control-allow-origin").is_none(), "{}", preflight.head);
 }
+
+/// X8: dot segments never match a `:param` route (no `..` param reaching the
+/// mock lookup), and `anza-state` JSON can't close its `<script>`.
+#[tokio::test]
+async fn param_fallback_rejects_dot_segments_and_escapes_state() {
+  let fx = fixture("state");
+  write(&fx.root, "src/index.js", "import './pages/a/index.js';\nimport './pages/u/index.js';\n");
+  write(
+    &fx.root,
+    "src/pages/u/index.js",
+    "page('/u/:id', { tag: 'user-page', params: ['id'], template: { html: './index.html' } });\n",
+  );
+  write(&fx.root, "src/pages/u/index.html", "<h1>user</h1>\n");
+  write(&fx.root, "src/mocks/api/u/1.json", r#"{ "bio": "</script><script>alert(1)</script><!--", "ls": "\u2028" }"#);
+  compile(&fx.root.join("src"), &fx.root.join("dist"), false, &[]).expect("dev build");
+  let (port, _tx) = start(&fx.root.join("dist")).await;
+
+  let page = get(port, "/u/1", &[]).await;
+  assert_eq!(page.status, 200, "{}", page.head);
+  let state_at = page.body.find("id=\"anza-state\">").expect("anza-state");
+  let state = &page.body[state_at + 16..];
+  let state = &state[..state.find("</script>").unwrap()];
+  assert!(state.contains("\\u003c/script\\u003e\\u003cscript\\u003ealert(1)"), "{state}");
+  assert!(!state.contains('<') && !state.contains('\u{2028}'), "{state}");
+  let value: serde_json::Value = serde_json::from_str(state).unwrap();
+  assert_eq!(value["/api/u/1"]["bio"], "</script><script>alert(1)</script><!--");
+
+  for path in ["/u/..", "/u/.", "/u/%2e%2e", "/u/%2E%2e"] {
+    let reply = get(port, path, &[]).await;
+    assert_eq!(reply.status, 404, "{path}: {}", reply.head);
+  }
+}

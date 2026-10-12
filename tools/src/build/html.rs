@@ -269,3 +269,36 @@ mod tests {
   }
 }
 
+
+/// JSON text safe inside an HTML `<script>` element: `<`, `>`, `&` and the
+/// JS line terminators U+2028/U+2029 become `\uXXXX` escapes (still the same
+/// JSON value), so a value can never close the script or open a comment.
+pub fn script_json(json: &str) -> String {
+  let mut out = String::with_capacity(json.len());
+  for ch in json.chars() {
+    match ch {
+      '<' => out.push_str("\\u003c"),
+      '>' => out.push_str("\\u003e"),
+      '&' => out.push_str("\\u0026"),
+      '\u{2028}' => out.push_str("\\u2028"),
+      '\u{2029}' => out.push_str("\\u2029"),
+      c => out.push(c),
+    }
+  }
+  out
+}
+
+#[cfg(test)]
+mod script_json_tests {
+  use super::script_json;
+
+  #[test]
+  fn script_json_cannot_close_the_script() {
+    let value = serde_json::json!({ "x": "</script><script>alert(1)</script><!-- & \u{2028}" });
+    let out = script_json(&serde_json::to_string(&value).unwrap());
+    assert!(!out.contains('<') && !out.contains('>') && !out.contains('&'), "{out}");
+    assert!(!out.contains('\u{2028}'));
+    let back: serde_json::Value = serde_json::from_str(&out).unwrap();
+    assert_eq!(back, value);
+  }
+}
