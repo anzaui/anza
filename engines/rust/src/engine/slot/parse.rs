@@ -1,13 +1,16 @@
-use {
-  crate::errors::{Error, Result},
-};
+use crate::errors::{Error, Result};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Chunk {
+  /// Literal template text.
   Static(Vec<u8>),
+  /// `{{name}}`: HTML-escaped when the engine runs with `escape: true`.
   Slot(String),
+  /// `{{{name}}}`: always inserted as-is.
+  Raw(String),
 }
 
+/// Split a template into static text and `{{slot}}` / `{{{raw}}}` chunks.
 pub fn extract(template: &str) -> Result<Vec<Chunk>> {
   let mut chunks = Vec::new();
   let mut cursor = 0;
@@ -19,17 +22,22 @@ pub fn extract(template: &str) -> Result<Vec<Chunk>> {
       chunks.push(Chunk::Static(bytes[cursor..start].to_vec()));
     }
 
-    if let Some(close_idx) = template[start..].find("}}") {
-      let end = start + close_idx;
-      let slot_name = template[start + 2..end].trim().to_string();
-      if slot_name.is_empty() {
-        return Err(Error::template("Empty slot placeholder {{}} in template"));
-      }
-      chunks.push(Chunk::Slot(slot_name));
-      cursor = end + 2;
-    } else {
-      return Err(Error::template("Unclosed slot placeholder '{{' in template"));
+    let raw = bytes.get(start + 2) == Some(&b'{');
+    let (open, close) = if raw { (3, "}}}") } else { (2, "}}") };
+    let Some(close_idx) = template[start + open..].find(close) else {
+      return Err(Error::template(if raw {
+        "Unclosed raw slot placeholder '{{{' in template"
+      } else {
+        "Unclosed slot placeholder '{{' in template"
+      }));
+    };
+    let end = start + open + close_idx;
+    let slot_name = template[start + open..end].trim().to_string();
+    if slot_name.is_empty() {
+      return Err(Error::template("Empty slot placeholder {{}} in template"));
     }
+    chunks.push(if raw { Chunk::Raw(slot_name) } else { Chunk::Slot(slot_name) });
+    cursor = end + close.len();
   }
 
   if cursor < bytes.len() {

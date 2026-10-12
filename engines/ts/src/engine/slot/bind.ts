@@ -1,4 +1,5 @@
 import type { Chunk } from './parse.js';
+import { escapeHtml } from './escape.js';
 
 export type Params =
   | Record<string, any>
@@ -9,85 +10,48 @@ export type Params =
 
 export type CompiledRenderer = (params?: Params) => string;
 
-/**
- * Creates a JIT-optimized closure for single-digit nanosecond rendering in V8 / JavaScript runtimes.
- */
-export function compile(chunks: Chunk[]): CompiledRenderer {
-  const parts: Array<{ type: 'static'; value: string } | { type: 'slot'; name: string }> = [];
+export interface CompileOptions {
+  /** HTML-escape `{{slot}}` values; `{{{raw}}}` stays raw. Default `false`. */
+  escape?: boolean;
+}
 
-  for (const chunk of chunks) {
-    if (chunk.type === 'static') {
-      if (chunk.value.length > 0) {
-        parts.push({ type: 'static', value: chunk.value });
-      }
-    } else {
-      parts.push({ type: 'slot', name: chunk.name });
+const hasOwn = Object.hasOwn;
+
+function lookup(params: Params, name: string): unknown {
+  if (!params) return undefined;
+  if (params instanceof Map) return params.get(name);
+  if (Array.isArray(params)) {
+    for (let j = 0; j < params.length; j++) {
+      if (params[j][0] === name) return params[j][1];
     }
+    return undefined;
   }
+  // Own properties only: `{{toString}}` or `{{__proto__}}` never reach the prototype.
+  return hasOwn(params, name) ? (params as Record<string, unknown>)[name] : undefined;
+}
 
-  // Fast direct interpreter closure
+/** Compile chunks into a renderer. */
+export function compile(chunks: Chunk[], options: CompileOptions = {}): CompiledRenderer {
+  const escape = Boolean(options.escape);
+  const parts = chunks.filter((c) => c.type !== 'static' || c.value.length > 0);
+
   return function render(params?: Params): string {
-    if (!params) {
-      let out = '';
-      for (let i = 0; i < parts.length; i++) {
-        const p = parts[i];
-        if (p.type === 'static') out += p.value;
-      }
-      return out;
-    }
-
-    // Map lookup
-    if (params instanceof Map) {
-      let out = '';
-      for (let i = 0; i < parts.length; i++) {
-        const p = parts[i];
-        if (p.type === 'static') {
-          out += p.value;
-        } else {
-          const val = params.get(p.name);
-          if (val !== undefined && val !== null) out += val;
-        }
-      }
-      return out;
-    }
-
-    // Array of key-value pairs
-    if (Array.isArray(params)) {
-      let out = '';
-      for (let i = 0; i < parts.length; i++) {
-        const p = parts[i];
-        if (p.type === 'static') {
-          out += p.value;
-        } else {
-          for (let j = 0; j < params.length; j++) {
-            if (params[j][0] === p.name) {
-              const val = params[j][1];
-              if (val !== undefined && val !== null) out += val;
-              break;
-            }
-          }
-        }
-      }
-      return out;
-    }
-
-    // Direct Object property lookup (V8 optimized hidden classes)
     let out = '';
-    const obj = params as Record<string, any>;
     for (let i = 0; i < parts.length; i++) {
       const p = parts[i];
       if (p.type === 'static') {
         out += p.value;
-      } else {
-        const val = obj[p.name];
-        if (val !== undefined && val !== null) out += val;
+        continue;
       }
+      const val = lookup(params, p.name);
+      if (val === undefined || val === null) continue;
+      const text = String(val);
+      out += escape && p.type === 'slot' ? escapeHtml(text) : text;
     }
     return out;
   };
 }
 
-export function string(chunks: Chunk[], params?: Params): string {
-  const fn = compile(chunks);
-  return fn(params);
+export function string(chunks: Chunk[], params?: Params, options: CompileOptions = {}): string {
+  return compile(chunks, options)(params);
 }

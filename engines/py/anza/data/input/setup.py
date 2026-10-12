@@ -17,6 +17,9 @@ class Setup:
     #: template; otherwise an entry ending in ``/`` allows that prefix (e.g.
     #: ``"fragments/"``) and any other entry allows that exact name.
     fragments: list[str] = field(default_factory=list)
+    #: HTML-escape ``{{slot}}`` values; ``{{{slot}}}`` stays raw. Off by
+    #: default (values are inserted as-is), see ``docs/engines/contract.md``.
+    escape: bool = False
 
     def validate(self) -> None:
         p = Path(self.root)
@@ -29,6 +32,6 @@ class Setup:
         """Validate the root and the signing keys, then load every template."""
         self.validate()
         signer = Signer.from_options(self.signing)
-        templates = load_all(self.root)
+        templates = load_all(self.root, escape=self.escape)
         cache = CacheStore(templates)
         return Engine(self.root, cache, signer, fragments=self.fragments)

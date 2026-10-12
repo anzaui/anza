@@ -15,7 +15,7 @@ pub use {
   crypto::envelope::{verify as verify_envelope, VerifyKey, VerifyOptions},
   engine::{
     cache::{Engine, SignMode},
-    slot::{Data, Params},
+    slot::{escape_html, Data, Params},
   },
   errors::{Error, Result},
   models::{document::Document, envelope::Envelope, manifest::Manifest},

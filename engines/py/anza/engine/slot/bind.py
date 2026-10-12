@@ -1,4 +1,5 @@
 from typing import Any, Optional
+from .escape import escape_html
 from .parse import Chunk
 
 
@@ -16,40 +17,26 @@ def resolve_val(params: Any, key: str) -> Optional[str]:
                 return str(item[1]) if item[1] is not None else None
         return None
 
-    # Object / Dataclass / Model attribute
-    if hasattr(params, key):
-        val = getattr(params, key)
-        return str(val) if val is not None else None
+    # Object / dataclass / model attribute. Private names and methods are
+    # never read, so `{{__class__}}` or `{{__init__}}` render nothing.
+    if not key.startswith("_"):
+        val = getattr(params, key, None)
+        if val is not None and not callable(val):
+            return str(val)
 
     return None
 
 
-def string(chunks: list[Chunk], params: Any = None) -> str:
+def string(chunks: list[Chunk], params: Any = None, escape: bool = False) -> str:
+    """Bind ``params`` into ``chunks``. With ``escape``, ``{{slot}}`` values
+    are HTML-escaped; ``{{{raw}}}`` values never are."""
     parts: list[str] = []
-
-    if params is None:
-        for chunk in chunks:
-            if chunk.kind == "static":
-                parts.append(chunk.value)
-        return "".join(parts)
-
-    if isinstance(params, dict):
-        for chunk in chunks:
-            if chunk.kind == "static":
-                parts.append(chunk.value)
-            else:
-                val = params.get(chunk.value)
-                if val is not None:
-                    parts.append(str(val))
-        return "".join(parts)
-
-    # General parameter resolver
     for chunk in chunks:
         if chunk.kind == "static":
             parts.append(chunk.value)
-        else:
-            val = resolve_val(params, chunk.value)
-            if val is not None:
-                parts.append(val)
-
+            continue
+        val = resolve_val(params, chunk.value)
+        if val is None:
+            continue
+        parts.append(escape_html(val) if escape and chunk.kind == "slot" else val)
     return "".join(parts)

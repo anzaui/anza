@@ -20,7 +20,7 @@ pub struct FileWatcher {
 /// it: a created or changed file is reloaded, a removed one is evicted.
 /// Events are applied on a background thread that ends when the returned
 /// [`FileWatcher`] is dropped. Without the `watch` feature this is a no-op.
-pub fn listen(root: &Path, cache: Arc<CacheStore>) -> Result<FileWatcher> {
+pub fn listen(root: &Path, cache: Arc<CacheStore>, options: super::LoadOptions) -> Result<FileWatcher> {
   #[cfg(feature = "watch")]
   {
     let root = std::fs::canonicalize(root).unwrap_or_else(|_| root.to_path_buf());
@@ -44,7 +44,7 @@ pub fn listen(root: &Path, cache: Arc<CacheStore>) -> Result<FileWatcher> {
     std::thread::spawn(move || {
       for event in rx.into_iter().flatten() {
         for path in event.paths {
-          apply(&root, &cache, &path);
+          apply(&root, &cache, &path, &options);
         }
       }
     });
@@ -56,7 +56,7 @@ pub fn listen(root: &Path, cache: Arc<CacheStore>) -> Result<FileWatcher> {
 
   #[cfg(not(feature = "watch"))]
   {
-    let _ = (root, cache);
+    let _ = (root, cache, options);
     Ok(FileWatcher {})
   }
 }
@@ -71,13 +71,13 @@ fn key(root: &Path, path: &Path) -> Option<(PathBuf, String)> {
 
 /// Bring the cache entry (or folder of entries) for `path` up to date.
 #[cfg(feature = "watch")]
-fn apply(root: &Path, cache: &CacheStore, path: &Path) {
+fn apply(root: &Path, cache: &CacheStore, path: &Path, options: &super::LoadOptions) {
   let Some((rel, name)) = key(root, path) else {
     return;
   };
   if path.is_dir() {
     // A folder moved in: load every template under it.
-    if let Ok(templates) = super::load::all(path) {
+    if let Ok(templates) = super::load::all_with(path, options) {
       for (sub, tpl) in templates {
         let full = format!("{}/{}", name.trim_end_matches('/'), sub);
         cache.insert(full.clone(), crate::engine::file::Template { name: full, ..tpl });
@@ -89,7 +89,7 @@ fn apply(root: &Path, cache: &CacheStore, path: &Path) {
   if path.is_file() {
     if is_html {
       // A half-written file fails to parse; the next event reloads it.
-      if let Ok(tpl) = super::load::one(root, &rel) {
+      if let Ok(tpl) = super::load::one_with(root, &rel, options) {
         cache.insert(name, tpl);
       }
     }

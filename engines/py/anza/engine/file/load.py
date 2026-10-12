@@ -13,15 +13,17 @@ class Template:
     raw: str
     digest: str
     chunks: list[Chunk]
+    #: HTML-escape ``{{slot}}`` values (``Setup.escape``).
+    escape: bool = False
 
     def bind(self, params: Any = None) -> str:
-        return string(self.chunks, params)
+        return string(self.chunks, params, self.escape)
 
     def render(self, params: Any = None) -> str:
-        return string(self.chunks, params)
+        return string(self.chunks, params, self.escape)
 
 
-def one(root_dir: Union[str, Path], rel_path: Union[str, Path]) -> Template:
+def one(root_dir: Union[str, Path], rel_path: Union[str, Path], escape: bool = False) -> Template:
     root = Path(root_dir)
     full_path = root / rel_path
     raw = text(full_path)
@@ -35,10 +37,11 @@ def one(root_dir: Union[str, Path], rel_path: Union[str, Path]) -> Template:
         raw=raw,
         digest=hash_hex,
         chunks=chunks,
+        escape=escape,
     )
 
 
-def all(root_dir: Union[str, Path]) -> dict[str, Template]:
+def all(root_dir: Union[str, Path], escape: bool = False) -> dict[str, Template]:
     root = Path(root_dir)
     templates: dict[str, Template] = {}
 
@@ -48,7 +51,7 @@ def all(root_dir: Union[str, Path]) -> dict[str, Template]:
     for file_path in root.rglob("*.html"):
         if file_path.is_file():
             rel_path = file_path.relative_to(root)
-            tpl = one(root, rel_path)
+            tpl = one(root, rel_path, escape=escape)
             templates[tpl.name] = tpl
 
     return templates

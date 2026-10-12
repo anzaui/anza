@@ -12,6 +12,11 @@ export interface SetupOptions {
   watch?: boolean;
   /** Fragment allowlist, see `EngineOptions.fragments`. */
   fragments?: string[];
+  /**
+   * HTML-escape `{{slot}}` values; `{{{slot}}}` stays raw. Off by default
+   * (values are inserted as-is), see `docs/engines/contract.md`.
+   */
+  escape?: boolean;
 }
 
 export class Setup {
@@ -19,6 +24,7 @@ export class Setup {
   public signing: SignOptions;
   public watch: boolean;
   public fragments: string[];
+  public escape: boolean;
 
   constructor(options: SetupOptions | string) {
     if (typeof options === 'string') {
@@ -26,16 +32,18 @@ export class Setup {
       this.signing = { mode: 'none' };
       this.watch = false;
       this.fragments = [];
+      this.escape = false;
     } else {
       this.root = options.root;
       this.signing = options.signing || { mode: 'none' };
       this.watch = Boolean(options.watch);
       this.fragments = [...(options.fragments ?? [])];
+      this.escape = Boolean(options.escape);
     }
   }
 
   toJSON(): Record<string, unknown> {
-    return { root: this.root, signing: redact(this.signing), watch: this.watch, fragments: this.fragments };
+    return { root: this.root, signing: redact(this.signing), watch: this.watch, fragments: this.fragments, escape: this.escape };
   }
 
   [Symbol.for('nodejs.util.inspect.custom')](): string {
@@ -52,14 +60,15 @@ export class Setup {
   async run(): Promise<Engine> {
     this.validate();
     const signer = Signer.from(this.signing);
-    const templates = await all(this.root);
+    const load = { escape: this.escape };
+    const templates = await all(this.root, load);
     const cache = new CacheStore(templates);
 
     let watcher: FileWatcher | undefined;
     if (this.watch) {
       watcher = listen(this.root, async (_event, filename) => {
         try {
-          const fresh = await all(this.root);
+          const fresh = await all(this.root, load);
           cache.templates = fresh;
         } catch {
           // ignore transient read errors during editor file write

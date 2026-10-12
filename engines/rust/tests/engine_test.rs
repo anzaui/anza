@@ -31,6 +31,7 @@ fn test_struct_direct_rendering() {
     raw: template.into(),
     digest: [0u8; 32],
     chunks,
+    escape: false,
   };
 
   let art = SampleArticle {

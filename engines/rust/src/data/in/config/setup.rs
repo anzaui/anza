@@ -21,6 +21,9 @@ pub struct Setup {
   /// template; otherwise an entry ending in `/` allows that prefix (e.g.
   /// `"fragments/"`) and any other entry allows that exact name.
   pub fragments: Vec<String>,
+  /// HTML-escape `{{slot}}` values; `{{{slot}}}` stays raw. Off by default
+  /// (values are inserted as-is), see `docs/engines/contract.md`.
+  pub escape: bool,
 }
 
 impl Setup {
@@ -30,6 +33,7 @@ impl Setup {
       signing: SignMode::None,
       watch: false,
       fragments: Vec::new(),
+      escape: false,
     }
   }
 
@@ -59,16 +63,21 @@ impl Setup {
     Ok(())
   }
 
+  fn load_options(&self) -> file::LoadOptions {
+    file::LoadOptions { escape: self.escape }
+  }
+
   /// Validate the root and the signing keys, load every template, and start
   /// the watcher when `watch` is set.
   pub fn run(&self) -> Result<Engine> {
     self.validate()?;
     let signer = Signer::new(&self.signing)?;
-    let templates = file::load::all(&self.root)?;
+    let options = self.load_options();
+    let templates = file::load::all_with(&self.root, &options)?;
     let cache = Arc::new(CacheStore::new(templates));
     // With the `watch` feature, template edits are reloaded into the cache.
     let watcher = if self.watch {
-      Some(file::watch::listen(&self.root, cache.clone())?)
+      Some(file::watch::listen(&self.root, cache.clone(), options)?)
     } else {
       None
     };

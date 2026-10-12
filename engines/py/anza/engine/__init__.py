@@ -1,6 +1,6 @@
 from .cache import CacheStore, Engine, SignOptions, SignMode
 from .file import Template, one, all, text
-from .slot import Chunk, extract, string
+from .slot import Chunk, extract, string, escape_html
 
 __all__ = [
     "CacheStore",
@@ -14,4 +14,5 @@ __all__ = [
     "Chunk",
     "extract",
     "string",
+    "escape_html",
 ]

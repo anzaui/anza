@@ -2,6 +2,12 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { digest } from '../../crypto/index.js';
 import { extract, compile, type Chunk, type Params, type CompiledRenderer } from '../slot/index.js';
+
+/** How templates are loaded (from `Setup`). */
+export interface LoadOptions {
+  /** HTML-escape `{{slot}}` values; `{{{raw}}}` stays raw. */
+  escape?: boolean;
+}
 import { text } from './read.js';
 
 export class Template {
@@ -12,9 +18,10 @@ export class Template {
     public path: string,
     public raw: string,
     public digest: string,
-    public chunks: Chunk[]
+    public chunks: Chunk[],
+    options: LoadOptions = {}
   ) {
-    this.renderer = compile(chunks);
+    this.renderer = compile(chunks, { escape: options.escape });
   }
 
   bind(params?: Params): string {
@@ -26,17 +33,17 @@ export class Template {
   }
 }
 
-export async function one(rootDir: string, relPath: string): Promise<Template> {
+export async function one(rootDir: string, relPath: string, options: LoadOptions = {}): Promise<Template> {
   const fullPath = path.join(rootDir, relPath);
   const raw = await text(fullPath);
   const hashHex = digest.hex(raw);
   const chunks = extract(raw);
   const normalizedName = relPath.replace(/\\/g, '/').replace(/^\//, '');
 
-  return new Template(normalizedName, fullPath, raw, hashHex, chunks);
+  return new Template(normalizedName, fullPath, raw, hashHex, chunks, options);
 }
 
-export async function all(rootDir: string): Promise<Map<string, Template>> {
+export async function all(rootDir: string, options: LoadOptions = {}): Promise<Map<string, Template>> {
   const map = new Map<string, Template>();
 
   async function walk(currentDir: string, baseDir: string) {
@@ -53,7 +60,7 @@ export async function all(rootDir: string): Promise<Map<string, Template>> {
         await walk(fullPath, baseDir);
       } else if (entry.isFile() && entry.name.endsWith('.html')) {
         const relPath = path.relative(baseDir, fullPath);
-        const tpl = await one(baseDir, relPath);
+        const tpl = await one(baseDir, relPath, options);
         map.set(tpl.name, tpl);
       }
     }
