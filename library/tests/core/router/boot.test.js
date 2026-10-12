@@ -72,20 +72,27 @@ describe('Router Boot Sequence', () => {
       main = null;
     }
 
-    let error = null;
-    const handler = (e) => {
-      error = e.reason;
-      e.preventDefault();
+    // boot() schedules its async launch with setTimeout and drops the promise.
+    // Capture the launch function and await it here, so the expected rejection
+    // is handled inside the test instead of surfacing as an unhandled error.
+    const originalSetTimeout = window.setTimeout;
+    let launch = null;
+    window.setTimeout = (fn) => {
+      launch = fn;
+      return 0;
     };
+    try {
+      boot(() => {});
+    } finally {
+      window.setTimeout = originalSetTimeout;
+    }
 
-    window.addEventListener('unhandledrejection', handler);
-
-    boot(() => {});
-
-    // Wait a brief period for the async boot to reject
-    await new Promise(r => setTimeout(r, 10));
-
-    window.removeEventListener('unhandledrejection', handler);
+    if (typeof launch !== 'function') {
+      throw new Error('Expected boot to schedule its launch');
+    }
+    const error = await Promise.resolve()
+      .then(() => launch())
+      .then(() => null, (err) => err);
 
     if (!error) {
       throw new Error('Expected boot to fail hard when <main id="main"> is absent');
