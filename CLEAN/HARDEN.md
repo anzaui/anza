@@ -13,7 +13,10 @@ Severity: **H** high · **M** medium · **L** low. Owner lanes run in parallel. 
 | U0 | 305 docs links showed "api.md"-style file names; labels are now page titles. `npm run doc:links` checks this in CI | 26aacbc, f87431b |
 | W0 | favicon.ico regenerated from the logo; apple-touch-icon added to the shell | 1bc114c |
 
-## Lane A — CLI / generator (Rust, `tools/`)
+## Lane A — CLI / generator (Rust, `tools/`) — DONE 2026-10-13
+
+Merged f69936c…1a5dd3d (+ bf8b3a5: `npm run worker:check` in CI). 163 tools tests. SEO: 0 duplicate or URL-derived titles (was 63/126), lastmod 192/192, OG/Twitter/JSON-LD on every page, 0 `/index` URLs, real 404s, heading ids work (the dock scrolls to `#hash`). Notes for lane D: `anza dev --host`, section URLs `/docs/<section>`, 404 page, `seo.image`/site `image` in `ssg.json`, `_headers` security headers. Risks to check on the first real deploy: Cloudflare's `/*.html` `_headers` pattern and its trailing-slash handling ahead of the worker.
+
 
 | ID | Sev | Problem | Fix |
 |----|-----|---------|-----|
