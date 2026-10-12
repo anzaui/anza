@@ -144,3 +144,41 @@ async fn sw_js_is_a_self_unregistering_no_op_in_dev() {
     assert!(!sw.body.contains("'fetch'"), "{}", sw.body);
   }
 }
+
+#[tokio::test]
+async fn dev_responses_revalidate_with_strong_etags() {
+  let fx = fixture("etag");
+  let dist = fx.root.join("dist");
+  let (port, _tx) = start(&dist).await;
+
+  for path in ["/", "/docs/a", "/pages/a/index.css", "/index.js", "/dist/pages/a/index.html"] {
+    let first = get(port, path, &[]).await;
+    assert_eq!(first.status, 200, "{path}: {}", first.head);
+    assert_eq!(first.header("cache-control").as_deref(), Some("no-cache"), "{path}: {}", first.head);
+    assert!(first.header("last-modified").is_none(), "{path}: {}", first.head);
+    let tag = first.header("etag").expect("etag");
+    assert!(tag.starts_with('"') && !tag.starts_with("W/"), "{tag}");
+
+    let again = get(port, path, &[("If-None-Match", &tag)]).await;
+    assert_eq!(again.status, 304, "{path}: {}", again.head);
+    assert_eq!(again.header("etag").as_deref(), Some(tag.as_str()));
+    assert!(again.body.is_empty());
+
+    let stale = get(port, path, &[("If-None-Match", "\"nope\"")]).await;
+    assert_eq!(stale.status, 200, "{path}: {}", stale.head);
+  }
+
+  // An edit changes the tag even within the same second.
+  let first = get(port, "/pages/a/index.css", &[]).await;
+  let tag = first.header("etag").unwrap();
+  write(&fx.root, "dist/pages/a/index.css", "h1 { color: blue; }\n");
+  let after = get(port, "/pages/a/index.css", &[("If-None-Match", &tag)]).await;
+  assert_eq!(after.status, 200, "{}", after.head);
+  assert!(after.body.contains("blue"));
+  assert_ne!(after.header("etag").unwrap(), tag);
+
+  // 404s are not cached either.
+  let missing = get(port, "/nope.js", &[]).await;
+  assert_eq!(missing.status, 404);
+  assert_eq!(missing.header("cache-control").as_deref(), Some("no-cache"));
+}

@@ -5,7 +5,7 @@
 
 use axum::{
   body::{to_bytes, Body},
-  http::{header, HeaderValue, Request, Response},
+  http::{header, HeaderValue, Request, Response, StatusCode},
   middleware::Next,
 };
 
@@ -116,39 +116,78 @@ pub async fn noop_sw() -> Response<Body> {
     .unwrap()
 }
 
-fn is_html(res: &Response<Body>) -> bool {
-  res
-    .headers()
-    .get(header::CONTENT_TYPE)
-    .and_then(|v| v.to_str().ok())
-    .map_or(false, |v| v.starts_with("text/html"))
+/// Strong ETag of a response body (content hash + length).
+pub fn etag(bytes: &[u8]) -> String {
+  use std::hash::{Hash, Hasher};
+  let mut hasher = std::collections::hash_map::DefaultHasher::new();
+  bytes.hash(&mut hasher);
+  format!("\"{:016x}-{:x}\"", hasher.finish(), bytes.len())
 }
 
-/// Dev response layer: injects the HMR client into HTML documents.
-pub async fn layer(req: Request<Body>, next: Next) -> Response<Body> {
+/// True when an `If-None-Match` header value matches `tag` (`*` or a list).
+fn none_match(header: &str, tag: &str) -> bool {
+  header.split(',').map(str::trim).any(|t| t == "*" || t == tag || t.strip_prefix("W/") == Some(tag))
+}
+
+/// Dev response layer, on everything except the `/hmr` stream:
+/// - injects the HMR client into HTML documents (R2);
+/// - `Cache-Control: no-cache` unless the handler set one, so the browser
+///   always revalidates (R3);
+/// - a strong ETag on 200 responses, answering `If-None-Match` with 304.
+///   `Last-Modified` (one-second resolution) is dropped so two saves within
+///   a second can never revalidate as unchanged.
+pub async fn layer(mut req: Request<Body>, next: Next) -> Response<Body> {
   if req.uri().path() == "/hmr" {
     return next.run(req).await;
   }
+  let if_none_match = req
+    .headers_mut()
+    .remove(header::IF_NONE_MATCH)
+    .and_then(|v| v.to_str().ok().map(str::to_string));
+  req.headers_mut().remove(header::IF_MODIFIED_SINCE);
+  req.headers_mut().remove(header::IF_UNMODIFIED_SINCE);
+
   let res = next.run(req).await;
-  if !is_html(&res) || !res.status().is_success() {
-    return res;
-  }
   let (mut parts, body) = res.into_parts();
+  parts.headers.remove(header::LAST_MODIFIED);
+  if !parts.headers.contains_key(header::CACHE_CONTROL) {
+    parts.headers.insert(header::CACHE_CONTROL, HeaderValue::from_static("no-cache"));
+  }
+  let event_stream = parts
+    .headers
+    .get(header::CONTENT_TYPE)
+    .and_then(|v| v.to_str().ok())
+    .map_or(false, |v| v.starts_with("text/event-stream"));
+  if parts.status != StatusCode::OK || event_stream {
+    return Response::from_parts(parts, body);
+  }
+
   let bytes = match to_bytes(body, usize::MAX).await {
     Ok(bytes) => bytes,
     Err(_) => return Response::from_parts(parts, Body::empty()),
   };
-  let injected = std::str::from_utf8(&bytes).ok().and_then(inject_hmr);
-  match injected {
-    Some(html) => {
-      parts.headers.remove(header::CONTENT_LENGTH);
-      if let Ok(len) = HeaderValue::from_str(&html.len().to_string()) {
-        parts.headers.insert(header::CONTENT_LENGTH, len);
-      }
-      Response::from_parts(parts, Body::from(html))
-    }
-    None => Response::from_parts(parts, Body::from(bytes)),
+  let html = parts
+    .headers
+    .get(header::CONTENT_TYPE)
+    .and_then(|v| v.to_str().ok())
+    .map_or(false, |v| v.starts_with("text/html"));
+  let bytes = match html.then(|| std::str::from_utf8(&bytes).ok().and_then(inject_hmr)).flatten() {
+    Some(injected) => axum::body::Bytes::from(injected),
+    None => bytes,
+  };
+
+  let tag = etag(&bytes);
+  if let Ok(value) = HeaderValue::from_str(&tag) {
+    parts.headers.insert(header::ETAG, value);
   }
+  if if_none_match.as_deref().map_or(false, |h| none_match(h, &tag)) {
+    parts.status = StatusCode::NOT_MODIFIED;
+    parts.headers.remove(header::CONTENT_LENGTH);
+    parts.headers.remove(header::CONTENT_TYPE);
+    return Response::from_parts(parts, Body::empty());
+  }
+  parts.headers.insert(header::CONTENT_LENGTH, HeaderValue::from(bytes.len()));
+  Response::from_parts(parts, Body::from(bytes))
 }
 
 #[cfg(test)]
