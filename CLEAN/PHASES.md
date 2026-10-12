@@ -27,7 +27,19 @@ Why this order:
 | D-6 | Production bundler? | **Rolldown 1.x via its stable JS API** (npm devDependency) called by `anza build`. Output: **minified chunks per core, per route group, per element**, content-hashed. Unbundled + full preload stays for dev / `--no-bundle`. |
 | D-7 | Crate name collision (D11)? | **CLI crate → `anza-cli`** (binary is still `anza`). The engine keeps the crate name `anza`. |
 
+## Rust build rules (apply to every phase)
+
+- **One shared `target/`** at the repo root (`.cargo/config.toml`) for `tools`, `tools/src/logs`, `engines/rust` and `examples`. Never set a per-crate `CARGO_TARGET_DIR` locally. (Before: 4 target dirs, 4.4 GB. After: 1, about 0.9 GB.)
+- Dev profile: line tables only for our crates, no debuginfo for dependencies.
+- **One Rust worker at a time.** Parallel workers do JS/docs work; only one builds Rust, against the shared target (no duplicate target dirs, no lock contention).
+- Don't rebuild needlessly: `cargo check` while editing, and one `cargo test` per finished change.
+- Clean up when needed: `cargo clean -p anza` (our crate only) if the target goes stale, and a full `cargo clean` only when the target is over about 5 GB. Delete temporary build copies in `/tmp` after each check.
+- CI: `Swatinem/rust-cache` (keyed on the toolchain and `Cargo.lock`, which is now committed). Release builds use `CARGO_TARGET_DIR=target` inside `tools/` because `cross` only mounts `tools/`.
+- Optional local speed-up: `sccache` as `RUSTC_WRAPPER` in your **user** config (`~/.cargo/config.toml`), never in the repo config. Builds would fail for anyone without it installed.
+
 ## Phase 0 — Sweep and guards
+
+**Status (2026-10-12):** done except S3/S4 (docs generator, moved to Phase 4), S9/S10 (`tasks/` and `cf-build.sh` stay until release-please replaces them, because the Cloudflare dashboard points at `cf-build.sh`), D-1 deletion of `tools/src/create` (Rust worker), D-3 minimal examples (Phase 4), and knip/machete (Phase 0b).
 
 **Closes:** H1 H2 H3 H5 H6 H7 H8 H10 H13, SWEEP §1–§2.
 

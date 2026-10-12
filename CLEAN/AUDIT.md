@@ -90,16 +90,16 @@ Build performance (scaling and dev latency; not urgent at 0.1 s):
 
 | ID | Sev | Finding | Where | Fix |
 |----|-----|---------|-------|-----|
-| [ ] H1 | H | `package/` is a stale old layout: **8.6 MB ELF binary** tracked in git, drifted copies of `run.js` and `boot.js`. Nothing refers to it. | `package/` | Delete (SWEEP). Optionally purge from history. |
-| [ ] H2 | M | Root `dist/` is tracked despite `.gitignore`. | `dist/` | `git rm -r --cached dist`. |
+| [x] H1 | H | `package/` is a stale old layout: **8.6 MB ELF binary** tracked in git, drifted copies of `run.js` and `boot.js`. Nothing refers to it. | `package/` | Delete (SWEEP). Optionally purge from history. |
+| [x] H2 | M | Root `dist/` is tracked despite `.gitignore`. | `dist/` | `git rm -r --cached dist`. |
 | [ ] H3 | H | `web/src/docs/` (727 generated files) is committed **and** there are two generators for it: `tasks/docs.js` and `anza docs` (`tools/src/docs`). | `web/src/docs`, `tasks/docs.js`, `tools/src/docs/*` | Keep one generator (`anza docs`), generate in CI, untrack output. |
 | [ ] H4 | H | Two scaffolders kept in sync by hand: `library/bin/create/run.js` and `tools/src/create/run.rs` ("Keep in sync" comment). | both | Keep one (decision in PHASES Phase 0). |
-| [ ] H5 | H | Root `package.json` ("native-monorepo") scripts point at a `scripts/` dir that doesn't exist. Unused `jsdom` dependency. | `package.json` | Point the scripts at real commands, drop `jsdom`, rename. |
-| [ ] H6 | H | CI never runs the **library** (tsc + browser tests), the main published package. | `.github/workflows/ci.yml` | Add a library job. |
-| [ ] H7 | M | `Cargo.lock` is gitignored, so the CLI isn't reproducible and the CI cache key `hashFiles('tools/Cargo.lock')` never changes. The engines/rust cache path is the wrong `target/`. | `.gitignore:59`, `ci.yml`, `pages.yml`, `release.yml` | Commit `tools/Cargo.lock` and fix the paths. |
-| [ ] H8 | M | `library/package.json` has no devDependencies (tsc only works because it's installed globally) and ships without the LICENSE it lists in `files`. | `library/package.json` | Add `typescript`, `@web/test-runner`. Copy the LICENSE. |
+| [x] H5 | H | Root `package.json` ("native-monorepo") scripts point at a `scripts/` dir that doesn't exist. Unused `jsdom` dependency. | `package.json` | Point the scripts at real commands, drop `jsdom`, rename. |
+| [x] H6 | H | CI never runs the **library** (tsc + browser tests), the main published package. | `.github/workflows/ci.yml` | Add a library job. |
+| [x] H7 | M | `Cargo.lock` is gitignored, so the CLI isn't reproducible and the CI cache key `hashFiles('tools/Cargo.lock')` never changes. The engines/rust cache path is the wrong `target/`. | `.gitignore:59`, `ci.yml`, `pages.yml`, `release.yml` | Commit `tools/Cargo.lock` and fix the paths. |
+| [x] H8 | M | `library/package.json` has no devDependencies (tsc only works because it's installed globally) and ships without the LICENSE it lists in `files`. | `library/package.json` | Add `typescript`, `@web/test-runner`. Copy the LICENSE. |
 | [ ] H9 | M | Release check only compares the tag to `library/package.json`. `create` pins `@anzaui/anza@0.5.0` by hand. | `.github/workflows/release.yml`, `create/package.json` | Have one version source, checked in CI. |
-| [ ] H10 | L | `.gitignore` has rules copied from other projects (`k8/hermes`, `config/prod.toml`, `*.onnx`, `book/`) and a broad `*.bin`. | `.gitignore` | Rewrite it minimally. |
+| [x] H10 | L | `.gitignore` has rules copied from other projects (`k8/hermes`, `config/prod.toml`, `*.onnx`, `book/`) and a broad `*.bin`. | `.gitignore` | Rewrite it minimally. |
 | [ ] H11 | L | Local-only clutter: `report.md`, `reserch.md`, `DESIGN.md`, `SKILL.md`, `engines/*/{DESIGN,DOC,STRUCTURE,SKILL}.md`, `test/`, `tmp/`, `examples/` (891 MB with Rust `target/`). | root, `engines/*` | Fold useful content into docs, delete the rest locally. |
 | [ ] H12 | L | Test log noise: `[Router] <dock-main id="main"> is required but was not found` thrown outside a test. | `library/src/core/router/boot.js:50` | Find the test that isn't awaited and add cleanup. |
-| [ ] H13 | L | `create/index.js:20-22` local fallback points at the repo root, which has no `bin/create`. | `create/index.js` | Point at `library/bin/create`. |
+| [x] H13 | L | `create/index.js:20-22` local fallback points at the repo root, which has no `bin/create`. | `create/index.js` | Point at `library/bin/create`. |
