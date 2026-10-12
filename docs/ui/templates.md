@@ -1,18 +1,28 @@
+---
+title: "Templates"
+order: 3
+description: "Anza UI templates: inline HTML, file templates, when files load, build-time inlining, refs, the tags descriptor and the template tag."
+---
+
 # Templates
 
-Templates define the HTML structure of a declarative element. The UI layer supports inline strings, file references, and tagged template literals.
+A template is the HTML cloned into each element's shadow root. It is plain HTML: there is no `{{ }}` interpolation. Fill in values from hooks through `refs`.
 
-## Inline String
+## Inline string
 
 ```javascript
+import { view } from '@anzaui/anza/defs';
+
 view('user-card', {
   template: '<div class="card"><h2 ref="title"></h2></div>'
 });
 ```
 
-The string is compiled into a `DocumentFragment` once per registration and cloned for each instance.
+The string is compiled to a `DocumentFragment` once, when the element is defined, and cloned for each instance.
 
-## File Reference
+## File template
+
+`page()`, `dock()`, `view()` and `part()` accept a `{ html, css }` object:
 
 ```javascript
 view('user-card', {
@@ -21,20 +31,20 @@ view('user-card', {
 ```
 
 | Field | Required | Description |
-| ------- | ---------- | ------------- |
-| `html` | yes | Path to `.html` file |
-| `css` | no | Path to `.css` file |
-| `shadow` | no | `'open'` or `'closed'`; default `'open'` |
+| ----- | -------- | ----------- |
+| `html` | no | HTML string or path to an `.html` file |
+| `css` | no | CSS string, `.css` path, or an array of both |
+| `shadow` | no | Shadow root mode. Leave it unset: only `'open'` works. |
 
-Paths are resolved relative to the third argument (`import.meta.url`). The native toolchain copies assets during build.
+A top-level `style` field replaces `template.css`. `element()` takes `template` and `style` as separate strings; see [element() factory](factory.md#spec-shape).
 
-### When files load
+Relative paths resolve against the third argument, `import.meta.url`. Without it, the factory logs an error and uses the path as inline text.
 
-File resources load on **first connect** (lazy, the default): defining an
-element costs no requests until one is used on the page. The style, template
-and tags descriptor are fetched in parallel, once per element type. Pass
-`eager: true` (on `element()`, `view()`, `part()` or `dock()`) to start the
-fetch at define time instead, for an element you know will render right away:
+## When files load
+
+File resources load when the first instance connects. Defining an element costs no requests until one is used. The style, the template and its tags descriptor load in parallel, once per URL.
+
+Pass `eager: true` (on `element()`, `page()`, `dock()`, `view()` or `part()`) to start the fetch when the element is defined:
 
 ```javascript
 view('app-header', {
@@ -43,12 +53,63 @@ view('app-header', {
 }, import.meta.url);
 ```
 
-Pre-rendered (declarative shadow DOM) elements mount immediately without
-waiting for these files.
+An element that adopted pre-rendered Declarative Shadow DOM mounts without waiting for these files. See [Hydration (DSD adopt)](hydration.md).
 
-## Tagged Template Literal
+## Build-time inlining
 
-For rapid prototyping outside the element factory:
+`anza build` (production) copies the referenced files to `dist`, and also writes the contents of each relative style and template file into the module that defines the element. The `.tags.json` next to a template goes in too. At runtime the element uses the inlined copy instead of fetching it.
+
+Not inlined:
+
+- `page()` template HTML. Pages are already in the pre-rendered HTML; only their tags descriptor is inlined.
+- CSS that uses `@import` or a relative `url()`. A constructed stylesheet would resolve those against the document.
+- Root-absolute paths such as `/styles/shared.css`.
+
+The build then bundles the modules into hashed chunks under `dist/assets/`. `anza dev` never inlines or bundles, so file edits hot-swap. See [element() factory](factory.md#hmr).
+
+## Refs
+
+Mark elements with `ref="name"`:
+
+```javascript
+view('greeting-card', {
+  template: '<div><h2 ref="title"></h2><button ref="go">Go</button></div>',
+  on: {
+    connect({ refs, ctrl }) {
+      refs.title.textContent = 'Hello';
+      refs.go.addEventListener('click', () => { refs.title.textContent = 'Clicked'; }, { signal: ctrl.signal });
+    }
+  }
+});
+```
+
+`refs` is a frozen object built once per mount: ref name to element. A duplicate name logs a warning and the first match wins. Elements added later are not in `refs`; use `tags` for those.
+
+## Tags descriptor
+
+A file template can have a `.tags.json` file next to it (`card.html` → `card.tags.json`):
+
+```json
+{
+  "version": 1,
+  "refs": ["title", "go"],
+  "ids": ["header"],
+  "classes": ["card"],
+  "tags": ["h2", "button"]
+}
+```
+
+The factory uses it to:
+
+- pre-fill the `tags` cache for each listed `id` and `ref`, so `tags.one('#header')` needs no query;
+- limit `refs` to the listed names;
+- check an adopted DSD root for missing refs (see [Hydration (DSD adopt)](hydration.md)).
+
+A missing descriptor is normal and is not requested again.
+
+## Tagged template literal
+
+`template` builds a fragment outside the element factory:
 
 ```javascript
 import { template } from '@anzaui/anza/ui';
@@ -57,63 +118,11 @@ const fragment = template`<div class="card"><h2>Hello</h2></div>`;
 document.body.appendChild(fragment);
 ```
 
-Interpolated values are ignored in production. The template is parsed once per call site and cached in a `WeakMap`. Cloning a cached fragment is ~10x faster than re-parsing HTML.
+The markup is parsed once per call site and cloned on each call. Interpolated values are always dropped; in development the call also logs a warning. Use refs for dynamic content.
 
-In development, passing values logs a warning:
+## No template
 
-```javascript
-template`<div>${dynamic}</div>`; // warns: use refs for dynamic binding
-```
-
-## Refs
-
-Mark elements with `ref="name"` for easy lookup:
-
-```javascript
-template: '<div><h2 ref="title"></h2><button ref="btn">Go</button></div>'
-```
-
-Access in hooks:
-
-```javascript
-on: {
-  connect({ refs }) {
-    refs.title.textContent = 'Hello';
-    refs.btn.addEventListener('click', handler);
-  }
-}
-```
-
-Duplicate `ref` names log a warning. The first match wins.
-
-## Tags Descriptor
-
-When using file templates, the factory looks for a `.tags.json` alongside the `.html` file:
-
-```json
-{
-  "version": 1,
-  "refs": ["title", "btn"],
-  "ids": ["header"],
-  "classes": ["card", "active"],
-  "tags": ["h2", "button"]
-}
-```
-
-The tags descriptor pre-warms the query cache so `tags.one('#header')` and `tags.all('.card')` resolve instantly without DOM traversal.
-
-## Template Compilation
-
-The compilation path depends on what is available:
-
-1. **`setHTMLUnsafe`** (modern) — fastest, parses HTML directly into a `<template>`
-2. **`innerHTML`** (fallback) — standard template parsing
-
-In both cases, the result is a `DocumentFragment` cloned per instance.
-
-## No Template
-
-An element without a template creates an empty shadow root:
+Without a template the shadow root starts empty:
 
 ```javascript
 view('empty-box', {

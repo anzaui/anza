@@ -1,33 +1,44 @@
-# Forms
+---
+title: "Form-associated elements"
+order: 7
+description: "Form-associated Anza UI elements: form: true, ElementInternals in the context, :state() props, and the reset, disabled and restore form hooks."
+---
 
-Declarative elements can participate in HTML forms by declaring `form: true`. The element gains `ElementInternals`, form-associated callbacks, and the ability to expose custom state pseudo-classes.
+# Form-associated elements
 
-## Enabling Form Participation
+An element with `form: true` takes part in HTML forms. The factory marks the class `formAssociated`, attaches `ElementInternals`, and passes it to every hook as `internals`.
+
+`form: true` works with `element()`, `container()`, `page()`, `dock()`, `view()` and `part()`. The form hooks (`associated`, `disabled`, `reset`, `restore`) are read only from an `element()` spec. The definition layer does not forward them; a `reset` under `on` or `methods` becomes a plain method, not a form callback.
+
+## Submitting a value
+
+Set the value with `internals.setFormValue()`:
 
 ```javascript
+import { view } from '@anzaui/anza/defs';
+
 view('toggle-switch', {
   form: true,
   props: {
     checked: { type: Boolean, state: true }
   },
-  template: `
-    <button type="button" role="switch" ref="btn">
-      <span ref="label">Off</span>
-    </button>
-  `,
+  template: '<button type="button" role="switch"><span ref="label">Off</span></button>',
   on: {
-    connect({ el, refs, internals }) {
-      refs.btn.addEventListener('click', () => {
+    connect({ el, on, refs, internals }) {
+      internals.setFormValue(el.checked ? 'on' : null);
+      refs.label.textContent = el.checked ? 'On' : 'Off';
+      on.click('button', () => {
         el.checked = !el.checked;
-        internals.setFormValue(el.checked ? 'on' : '');
-        refs.label.textContent = el.checked ? 'On' : 'Off';
       });
+    },
+    change({ name, val, refs, internals }) {
+      if (name !== 'checked') return;
+      internals.setFormValue(val ? 'on' : null);
+      refs.label.textContent = val ? 'On' : 'Off';
     }
   }
 });
 ```
-
-Use it in a form:
 
 ```html
 <form>
@@ -36,90 +47,93 @@ Use it in a form:
 </form>
 ```
 
-## Form-Associated Callbacks
+The form submits the value under the element's `name` attribute.
 
-When `form: true` is set, the element receives these callbacks:
+## Form hooks
 
-| Callback | Trigger |
-| ---------- | --------- |
-| `associated` | Element is associated with a form |
-| `disabled` | Form disabled state changes |
-| `reset` | Form is reset |
-| `restore` | Form state is restored |
+On an `element()` spec, these hooks map to the platform callbacks. Each runs with `this` set to the element, so write them as methods, not arrow functions.
+
+| Hook | Platform callback | Arguments |
+| ---- | ----------------- | --------- |
+| `associated` | `formAssociatedCallback` | `(form)` |
+| `disabled` | `formDisabledCallback` | `(disabled)` |
+| `reset` | `formResetCallback` | none |
+| `restore` | `formStateRestoreCallback` | `(state, mode)` |
 
 ```javascript
-view('custom-input', {
+import { element } from '@anzaui/anza/ui';
+
+element('rating-input', {
   form: true,
-  associated: (form) => { console.log('associated with', form); },
-  disabled: (value) => { this.disabled = value; },
-  reset: () => { this.value = ''; },
-  restore: (state, mode) => { this.value = state; }
+  props: {
+    value: { type: Number, default: 0 }
+  },
+  template: '<output ref="out">0</output>',
+  mount({ el, refs, internals }) {
+    refs.out.textContent = el.value;
+    internals.setFormValue(String(el.value));
+  },
+  update({ name, val, refs, internals }) {
+    if (name !== 'value') return;
+    refs.out.textContent = val;
+    internals.setFormValue(String(val));
+  },
+  reset() {
+    this.value = 0;
+  },
+  disabled(disabled) {
+    this.toggleAttribute('aria-disabled', disabled);
+  },
+  restore(state) {
+    this.value = Number(state) || 0;
+  }
 });
 ```
 
-## Custom State
+`restore` gets the saved form value when the browser restores the form, for example after back/forward navigation.
 
-Expose props as CSS custom state pseudo-classes:
+## Custom state
+
+A prop with `state: true` adds a custom state named after the prop while its value is truthy. It needs `form: true`, because custom states live on `ElementInternals`.
 
 ```javascript
-props: {
+const props = {
   checked: { type: Boolean, state: true },
   invalid: { type: Boolean, state: true }
-}
+};
 ```
-
-Style in CSS:
 
 ```css
 toggle-switch:state(checked) { background: green; }
 toggle-switch:state(invalid) { border-color: red; }
 ```
 
-Requires Chrome 132+ / Baseline 2026.
-
 ## Validation
 
-Use `ElementInternals` for custom validation:
+`internals` is in the `change` context too:
 
 ```javascript
 view('email-field', {
   form: true,
   props: {
-    value: { type: String }
+    value: { type: String, reflect: false }
   },
   on: {
     change({ name, val, internals }) {
-      if (name === 'value') {
-        if (!val.includes('@')) {
-          internals.setValidity(
-            { valueMissing: false, typeMismatch: true },
-            'Please enter a valid email'
-          );
-        } else {
-          internals.setValidity({});
-        }
+      if (name !== 'value') return;
+      internals.setFormValue(val);
+      if (val && !val.includes('@')) {
+        internals.setValidity({ typeMismatch: true }, 'Enter a valid email address');
+      } else {
+        internals.setValidity({});
       }
     }
   }
 });
 ```
 
-## Form Reset and Restore
-
-```javascript
-view('rating-input', {
-  form: true,
-  props: {
-    value: { type: Number, default: 0 }
-  },
-  reset: () => { this.value = 0; },
-  restore: (state) => { this.value = Number(state) || 0; }
-});
-```
-
-The `restore` callback receives the saved state string when the browser restores form data (e.g., after back/forward).
-
 ## Related
 
-- Kit form controls: [Elements → Forms](../elements/index.md#forms) (`ui-input`, `ui-select`, `ui-checkbox`, …)
-- [UI `element()` factory](factory.md)
+- [Elements](../elements/index.md#forms): the shipped form controls (`ui-input`, `ui-select`, `ui-checkbox` and others).
+- [element() factory](factory.md)
+- [Props](props.md#custom-state-state)

@@ -43,7 +43,7 @@ globals.list();  // [{ name, type, target }, …]
 // attach / detach / clear — framework and tests only
 ```
 
-Named attachments today include `router.nav-click`, `router.nav-popstate`, `router.container-mo`, `popover.target-click`, and `popover.body-mo:*`. See [Memory safety & framework globals](../ui/advanced.md#framework-global-listeners--observers).
+Named attachments today include `router.nav-click`, `router.nav-popstate`, `router.container-mo`, `popover.target-click`, and `popover.body-mo:*`. See [Memory safety & framework globals](../ui/lifecycle.md#framework-globals).
 
 ### `guard.urlPattern()`
 
@@ -192,4 +192,4 @@ Priorities: `user-blocking`, `user-visible`, `background`.
 - [Guards](guards.md) — narrative usage for each `guard.*` method
 - [Supports](supports.md) — capability flags
 - [Overlay patterns](../elements/overlay.md) — kit architecture (`ui-tooltip` uses escape)
-- [Memory safety & framework globals](../ui/advanced.md)
+- [Memory safety & framework globals](../ui/lifecycle.md#memory-safety)

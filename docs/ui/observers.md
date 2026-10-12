@@ -1,11 +1,18 @@
+---
+title: "Observers"
+order: 9
+description: "Observer factories in the Anza UI layer: resize, intersection, mutation and performance observers that disconnect when an AbortSignal aborts."
+---
+
 # Observers
 
-Safe wrappers around browser observer APIs. Each observer is automatically disconnected when the provided `AbortSignal` aborts, preventing memory leaks.
+Wrappers around the browser observer APIs. Each one takes an `AbortSignal` and disconnects when it aborts. Pass `ctrl.signal` from a hook to tie the observer to the element.
 
 ## resize
 
 ```javascript
 import { observe } from '@anzaui/anza/ui';
+import { view } from '@anzaui/anza/defs';
 
 view('responsive-box', {
   on: {
@@ -42,7 +49,7 @@ view('lazy-image', {
 
 ## mutation
 
-Safe default is `{ childList: true, subtree: false }`. Prefer component `watch.*` inside a shadow; use `observe.mutation` when you need a raw record stream on an explicit root.
+Default options: `{ childList: true, subtree: false }`. `attributes: true` without `attributeFilter` logs a warning. Inside a component prefer `watch`; use `observe.mutation` for raw records on a root you choose.
 
 ### Simple
 
@@ -78,13 +85,13 @@ observe.mutation(panel, (records) => {
   childList: false
 });
 
-// Selector filter inside a shadow (refuses document/body)
+// Records whose target matches the selector, inside a shadow root (document/body refused)
 observe.mutation.scoped(el.shadowRoot, '.row', (matched) => {
   console.log(matched.length, 'row-related records');
 }, ctrl.signal);
 ```
 
-Avoid `observe.mutation(document, …, { subtree: true })` from leaf pages — soft-nav will not clean it up unless you pass `{ signal: ctrl.signal }` (and even then, observing `document` from a leaf is an anti-pattern). Prefer parent docks, events, or `watch`.
+Do not observe `document` with `subtree: true` from a page. Without `ctrl.signal` the observer outlives a soft navigation, and even with it every mutation on the page reaches the callback. Use `watch`, a parent dock or events instead.
 
 ## performance
 
@@ -111,7 +118,7 @@ const dispose = observe.resize(el, handler, signal);
 dispose(); // disconnect manually
 ```
 
-If the signal aborts first, the disposer is a no-op (no double-disconnect).
+Calling it after the signal aborted is harmless.
 
 ## Signal Already Aborted
 
@@ -127,7 +134,7 @@ const dispose = observe.resize(el, handler, controller.signal);
 
 ## Error Handling
 
-Observer callbacks are wrapped in try-catch. Errors are logged to console but do not crash the observer:
+Errors thrown by a callback are caught and logged; the observer keeps running:
 
 ```text
 Error in ResizeObserver callback: ...

@@ -1,171 +1,191 @@
+---
+title: "Troubleshooting"
+order: 12
+description: "Common problems with Anza UI elements: undefined elements, templates that show their path, HMR, change not firing, leaks, form values and refs."
+---
+
 # Troubleshooting
 
-Common problems and their solutions.
+Common problems and their fixes.
 
 ## Element not defined
 
-**Error:** `customElements.get('my-element')` returns `undefined`
+**Symptom:** `customElements.get('user-card')` returns `undefined`, and the tag renders as an unknown element.
 
-**Cause:** The module containing `element()` or `view()` was not executed.
+**Cause:** the module that defines it never ran, or the tag has no hyphen (the browser rejects it).
 
-**Fix:** Ensure the definition module is imported before the element is used in HTML:
+**Fix:** import the definition module before the element is used:
 
 ```javascript
 // app.js
 import './components/user-card.js'; // defines <user-card>
 
-// Now safe to use in HTML
 document.body.innerHTML = '<user-card></user-card>';
 ```
 
-## Template not loading
+## Template shows its file path
 
-**Error:** Empty shadow root, no styles applied
+**Symptom:** the shadow root contains the text `./card.html`, and the console shows `[Native UI] <user-card> template "./card.html" is relative but no base was given`.
 
-**Cause:** File template given without `import.meta.url`.
+**Cause:** a relative file path without `import.meta.url`.
 
-**Fix:**
+**Fix:** pass `import.meta.url` as the last argument:
 
 ```javascript
-// Correct
+import { view } from '@anzaui/anza/defs';
+
 view('user-card', {
   template: { html: './card.html', css: './card.css' }
 }, import.meta.url);
-
-// Wrong — paths cannot be resolved
-view('user-card', {
-  template: { html: './card.html', css: './card.css' }
-}); // missing base
 ```
+
+## Template or styles missing
+
+**Symptom:** an empty shadow root, and `Failed to load template resource …` in the console.
+
+**Cause:** the file URL returned an error. The element still mounts with what loaded, and other instances of the element reuse that result until the page reloads.
+
+**Fix:** check the path relative to the defining module, and that the file is served. With `anza build`, relative files are inlined into the module, so a production build does not request them.
 
 ## Styles not updating in development
 
-**Cause:** HMR listener not receiving the right path.
+**Cause:** HMR only swaps file resources. Inline CSS strings change with the module, which reloads the page. A swap also needs the changed path to match the element's style URL.
 
-**Fix:** The HMR event detail must include the absolute or relative path matching the style URL:
-
-```javascript
-window.dispatchEvent(new CustomEvent('native:hmr:css', {
-  detail: { path: '/src/components/card.css', css: '...' }
-}));
-```
-
-## Property changes not triggering update
-
-**Cause:** `on.change` not declared, or the element is a `part`.
-
-**Fix:**
+**Check:** `anza dev` dispatches `anza:hmr:css` on `window` with `detail: { path, css }`. Log it to see the path it reports:
 
 ```javascript
-// Correct for reactive updates
-view('counter', {
-  props: { count: 0 },
-  on: {
-    change({ name, val }) { ... }
-  }
-});
-
-// part() suppresses on.change — use view() instead
-part('counter', {
-  props: { count: 0 },
-  on: { change: () => {} } // warns in console
+window.addEventListener('anza:hmr:css', (event) => {
+  console.log(event.detail.path);
 });
 ```
 
-## Memory leak after disconnect
+## change does not run
 
-**Cause:** Listeners or timers not bound to `ctrl.signal`.
+**Causes:**
 
-**Fix:** Always pass `ctrl.signal` to observers and long-lived operations:
+- The element is a `part()`. Parts never run `change`, and declaring it logs a warning.
+- The value is the initial one, or was set before the element mounted. Render the first state in `connect`.
+- The new value equals the old one (`===`).
+- The property is not declared in `props`.
 
-```javascript
-// Correct — auto-cleanup on disconnect
-observe.intersection(el, handler, ctrl.signal);
-
-// Wrong — leaks after disconnect
-const observer = new IntersectionObserver(handler);
-observer.observe(el); // never cleaned up
-```
-
-## Form not submitting value
-
-**Cause:** `form: true` not declared, or `setFormValue` not called.
-
-**Fix:**
+**Fix:** use `view()` for reactive elements:
 
 ```javascript
-view('toggle-switch', {
-  form: true, // required
+import { view } from '@anzaui/anza/defs';
+
+view('click-counter', {
+  props: { count: 0 },
+  template: '<span ref="count"></span>',
   on: {
-    connect({ el, internals }) {
-      internals.setFormValue(el.checked ? 'on' : '');
+    connect({ el, refs }) {
+      refs.count.textContent = el.count;
+    },
+    change({ name, val, refs }) {
+      if (name === 'count') refs.count.textContent = val;
     }
   }
 });
 ```
 
+## connect never runs
+
+**Cause:** `load` threw or rejected. The error is logged as `[Native UI] mount failed:` and `connect` is skipped.
+
+**Fix:** catch errors in `load` that should not stop the element.
+
+## Listeners survive after disconnect
+
+**Cause:** listeners, observers or timers not bound to `ctrl.signal`.
+
+**Fix:** pass the signal:
+
+```javascript
+import { observe } from '@anzaui/anza/ui';
+import { view } from '@anzaui/anza/defs';
+
+view('lazy-frame', {
+  on: {
+    connect({ el, ctrl }) {
+      observe.intersection(el, () => el.classList.add('seen'), ctrl.signal);
+      window.addEventListener('resize', () => el.classList.add('resized'), { signal: ctrl.signal });
+    }
+  }
+});
+```
+
+See [Lifecycle](lifecycle.md#memory-safety).
+
+## Form does not submit the value
+
+**Cause:** `form: true` is missing, or `internals.setFormValue()` was never called.
+
+**Fix:**
+
+```javascript
+view('toggle-switch', {
+  form: true,
+  props: { checked: false },
+  on: {
+    connect({ el, internals }) {
+      internals.setFormValue(el.checked ? 'on' : null);
+    }
+  }
+});
+```
+
+## :state() never matches
+
+**Cause:** `state: true` needs `form: true`. Custom states live on `ElementInternals`, which only form-associated elements get. The state name is the prop name.
+
 ## Duplicate ref warning
 
-**Warning:** `Duplicate ref "title" found. Using the first match.`
+**Warning:** `[Native UI] Duplicate ref "title" found. Using the first match.`
 
-**Cause:** Multiple elements with the same `ref` attribute.
-
-**Fix:** Use unique ref names, or use `tags.all()` for collections:
+**Fix:** give each ref a unique name. For repeated elements, use a class and `tags`:
 
 ```javascript
-template: `
-  <li ref="item-1"></li>
-  <li ref="item-2"></li>
-`
-
-// Or use tags for dynamic lists
-tags.each('.item', (el) => { ... });
+view('item-list', {
+  template: '<ul><li class="item"></li><li class="item"></li></ul>',
+  on: {
+    connect({ tags }) {
+      tags.each('.item', (item, i) => { item.textContent = `Item ${i + 1}`; });
+    }
+  }
+});
 ```
 
-## Attribute reflection not working
+## Attribute not reflecting
 
-**Cause:** `reflect: false` set, or the prop is not declared.
-
-**Fix:** Check the prop declaration. Reflection is `true` by default:
+**Cause:** the prop has `reflect: false`, or is not declared. Reflection is on by default:
 
 ```javascript
-props: {
-  label: { type: String }           // reflects by default
+const props = {
+  label: { type: String },                 // reflects
   secret: { type: String, reflect: false } // does not reflect
-}
+};
 ```
 
-## Change callback fires too often
+The attribute name is the prop name in lower case (`maxCount` → `maxcount`).
 
-**Cause:** Rapid assignments from multiple sources.
+## change runs too often
 
-**Fix:** Changes are batched. If you see many callbacks, check for loops or cascading updates:
+**Cause:** a `change` that sets another prop schedules another `change`.
 
 ```javascript
-// Avoid: change triggers change
-change({ name, val, el }) {
-  if (name === 'a') el.b = val; // triggers another change
-}
+const hooks = {
+  change({ name, val, el }) {
+    if (name === 'a') el.b = val; // schedules change for 'b'
+  }
+};
 ```
 
-Use guards or debouncing for user input:
-
-```javascript
-on.input('.search', debounce((e, input) => {
-  el.query = input.value;
-}, 300));
-```
+Each changed prop gets one call per flush. To throttle user input, debounce before setting the prop.
 
 ## Still stuck?
 
-Check internal state:
-
 ```javascript
-// Check if the custom element is defined
-console.log(customElements.get('user-card'));
-
-// Wait for the definition (resolves once element() / view() / part() ran)
-await customElements.whenDefined('user-card');
+console.log(customElements.get('user-card'));    // defined?
+await customElements.whenDefined('user-card');   // resolves once defined
 ```
 
-The element spec registry is internal and not exported.
+The element registry inside the factory is internal and not exported.

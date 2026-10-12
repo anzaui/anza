@@ -1,63 +1,63 @@
 ---
+title: "Hydration (DSD adopt)"
+order: 6
 seo_title: "Hydration (DSD adopt) — Anza"
-description: "How Anza adopts open Declarative Shadow DOM from SSG or Mode B HTML without wiping first paint."
+description: "How Anza elements adopt open Declarative Shadow DOM from SSG or Mode B HTML: mount before fetching, no refetch in built apps, one mismatch re-render."
 ---
 
 # Hydration (DSD adopt)
 
-When a public route ships contentful HTML with open Declarative Shadow DOM (DSD), Anza **adopts** that tree on upgrade instead of clearing and re-cloning. That is the Phase 2 client path for [SSG / Mode B HTML](../ssg/contract.md).
+A pre-rendered page ships each element's shadow root as open Declarative Shadow DOM (DSD). When the element upgrades, Anza **adopts** that shadow root: it keeps the markup, wires it up and runs the hooks. It does not clear it and clone the template again.
 
-Anza does **not** own a production Node SSR runtime. HTML comes from Mode A (`anza build` / `anza dev` SSG) or Mode B (any-language templates). The client only adopts what is already in the document.
+The HTML comes from Mode A (`anza build` / `anza dev` SSG) or Mode B (server templates in any language). See [Page HTML contract (Mode A SSG · Mode B templates)](../ssg/contract.md). Anza has no Node SSR runtime; the client only adopts what is already in the document.
 
 ## Boot sequence
 
-1. Parser attaches open DSD → first paint with content and encapsulated styles (no JS).
-2. Import map + `modulepreload` warm the route graph.
-3. Entry module loads; custom elements upgrade.
-4. Constructor: `this.shadowRoot || attachShadow({ mode: 'open' })`. If a shadow already exists, keep it.
-5. Attr → prop sync from SSG attributes; rehydrate `ref`s, tags cache, `on`, and `watch`.
-6. Soft-nav may CSR-mount a new leaf; full load / hard refresh hits contentful HTML again.
+1. The parser attaches the open DSD. The page paints with content and styles before any JavaScript runs.
+2. The module scripts load and the custom elements upgrade.
+3. Constructor: the element keeps `this.shadowRoot` if one exists. If the browser left a `<template shadowrootmode>` child unattached, the element attaches a shadow root and moves the template content into it.
+4. Props are read from the pre-rendered attributes.
+5. Connect: the element wires `refs`, `tags`, `on` and `watch` to the existing markup, dispatches `anza:ready` and runs `load` and `connect`. It does this before fetching any file. `ctx.adopted` is `true`.
+6. The element loads what it still needs in the background, applies the styles and checks the markup once.
 
-## Adopt, don’t wipe
+This fast path applies when the adopted root holds real elements (not only `<style>`, `<link>` or `<script>`) and the element's resources are not loaded yet. Otherwise the element takes the normal path: it waits for its resources, keeps the adopted markup, applies the styles and runs the same mismatch check before wiring.
 
-```javascript
-// Conceptual — done inside the element factory
-const shadowRoot = this.shadowRoot || this.attachShadow({ mode: 'open' });
-// If adopted: do NOT clone the client template over existing DSD nodes
-```
+## No refetch in built apps
 
-Also handled:
+In an app built by `anza build`, the DSD and the client modules come from the same build. An adopted root therefore loads only what its markup does not carry:
 
-- **Light-DOM DSD polyfill** — if native DSD did not attach, a lingering `<template shadowrootmode="open">` is consumed into an attached shadow.
-- **Styles** — constructable sheets are assigned without removing DSD children; fallback `<style>` is skipped when DSD already shipped styles.
-- **Mismatch** — if the adopted tree fails hard sanity checks vs the client template (missing critical `ref`s / empty structure), one graceful re-render runs. No flash loop.
-- **No refetch in built apps** — after `anza build`, an adopted root does not request what its DSD already carries: stylesheets it links, and its template / tags descriptor unless they were inlined into the module. The mismatch check then uses the inlined template or tags descriptor (a page module carries its tags descriptor, not its HTML, so a page root missing a `ref` still re-renders); an empty adopted root still loads the template. The template is fetched on soft navigation or for a mismatch re-render.
+- **Styles**: stylesheets the shadow root already links are skipped. The rest come from the module (inlined at build time) or are fetched.
+- **Template and tags descriptor**: used only if they were inlined into the module. They are not fetched.
 
-## Soft-nav vs full load
+A `page()` module carries its tags descriptor but not its HTML. The template is fetched later only for a client-rendered instance (after a soft navigation) or a mismatch re-render.
 
-| Path | Behavior |
-| ---- | -------- |
-| **Full load / hard refresh** | Browser fetches SSG or Mode B HTML. Orchestrator reuses a matching leaf already in the dock — it must not wipe adopted SEO content. |
-| **Soft-nav (same via chain)** | Client router keeps parent docks; CSR-mounts a new leaf when the page tag changes. Fetches the **page fragment** (`template.html` when SSG collided with `./index.html`), never the full SSG document. New leaves have no DSD (CSR clone is correct). Adopt rebinds `on` / `watch` on the live shadow; the **old** leaf’s `disconnectedCallback` → `ctrl.abort()` tears down its listeners and observers. |
-| **Parent docks** | Stay mounted across soft-nav in the same `via` chain; their adopted chrome is not torn down. Nested docs chrome is typically `main` → `docs` (`dock-docs`) → `content` (`dock-doccontent`). |
+Under `anza dev` nothing is inlined, so an adopted element fetches all its files for the check.
 
-Document / `#main` / `body` attachments belong only to named framework globals (`router.nav-click`, `router.container-mo`, `popover.*`) — not leaf `mount` code.
+## Mismatch check
 
-`sanitizeTemplateHtml` refuses a full HTML document (doctype / `<html>` / nested `dock-main` / `dock-docs`) as a page template so a mis-pointed fragment path cannot stack docks inside the leaf.
+After adopting, the element compares the markup with the client template (or with the tags descriptor when only that is available):
 
-## Safe to import anywhere
+- a `ref` the template declares is missing from the shadow root, or
+- the template has elements but the shadow root has none.
 
-`element()` / `page()` / `dock()` check for `customElements` before defining. In non-browser environments:
+On a mismatch the element re-renders once: it loads its full resources, runs `unmount`, removes the listeners of the first wiring, replaces the shadow root's content with the template, applies all styles and runs `mount` again. It does not dispatch `anza:ready` a second time, and it never re-renders twice.
 
-- `element()` is a no-op
-- `template()` returns a frozen empty object
-- `observe` factories return no-op disposers
-- `transition()` returns a resolved promise
+## Soft navigation vs full load
 
-Define elements in the browser graph that upgrades SSG HTML; the factory itself is safe to import during build tooling.
+| Path | Behaviour |
+| ---- | --------- |
+| **Full load / hard refresh** | The browser gets pre-rendered HTML. The router finds the matching page element already in its dock and keeps it. It only sets its route props. |
+| **Soft navigation** | Parent docks stay mounted. When the page tag changes, the router creates a new page element and swaps it into the dock. The new element has no DSD, so it clones its template. The old one disconnects and aborts its `ctrl`. |
+| **Parent docks** | Stay mounted across soft navigations in the same `via` chain, with their adopted markup. |
+
+A page template must be a fragment, not a full HTML document. If a template file turns out to be a document (doctype, `<html>`, or a nested `dock-main` / `dock-docs`), the factory uses the page element's DSD content inside it, or logs an error and uses an empty template. This stops a misrouted fetch from nesting docks inside the page.
+
+## Browser only
+
+The UI modules need a DOM: importing `@anzaui/anza/ui` or `@anzaui/anza/defs` in Node throws `ReferenceError: HTMLElement is not defined`. The build tools read element definitions statically and never import them. Keep element modules in the browser graph that upgrades the pre-rendered HTML.
 
 ## Related
 
-- [Page HTML contract](../ssg/contract.md) — Mode A / Mode B shape the client expects
-- [Lifecycle](lifecycle.md) — mount / connect after adopt
-- [Context](context.md) — `refs`, `tags`, `on`, `watch` after rehydrate
+- [Lifecycle](lifecycle.md): hook order and `anza:ready`.
+- [Context](context.md#adopted): `ctx.adopted`.
+- [Templates](templates.md#build-time-inlining): what `anza build` inlines.

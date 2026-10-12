@@ -1,10 +1,18 @@
+---
+title: "Props"
+order: 2
+description: "Reactive props on Anza UI elements: types, attribute reflection, :state(), initial values, route params and update batching."
+---
+
 # Props
 
-Props are reactive properties on declarative elements. They are typed, support default values, automatically reflect to attributes, and trigger batched update callbacks on change.
+Props are typed properties on an element. A prop reads its first value from the matching attribute, reflects changes back to it, and calls `change` (`update` in `element()`) when it changes.
 
-## Declaring Props
+## Declaring props
 
 ```javascript
+import { view } from '@anzaui/anza/defs';
+
 view('user-card', {
   props: {
     name:  { type: String, default: 'Guest' },
@@ -14,124 +22,143 @@ view('user-card', {
 });
 ```
 
+| Option | Default | Description |
+| ------ | ------- | ----------- |
+| `type` | `String` | `String`, `Number` or `Boolean`. Controls how attributes are read. |
+| `default` | see below | Value when the attribute is absent. |
+| `reflect` | `true` | Write the value back to the attribute. |
+| `state` | `false` | Mirror the value to a `:state()` custom state. Needs `form: true`. |
+
 ## Shorthand
 
-Literal values are auto-detected:
+A literal value sets both type and default:
 
 ```javascript
-props: {
-  name:  'Guest',     // type: String,  default: 'Guest'
-  count: 0,           // type: Number,  default: 0
-  active: false       // type: Boolean, default: false
-}
+const props = {
+  name: 'Guest',  // { type: String,  default: 'Guest' }
+  count: 0,       // { type: Number,  default: 0 }
+  active: false   // { type: Boolean, default: false }
+};
 ```
 
-This expands to the full config internally. Use the longhand form when you need `reflect`, `state`, or other options.
+An object with a `type` key is used as is, so you can mix both forms. Use the long form for `reflect` or `state`.
 
-## Supported Types
+## Attributes
 
-| Type | Attribute Cast | Example |
-| ------ | ---------------- | --------- |
-| `String` | As-is | `name="Alice"` → `'Alice'` |
-| `Number` | `Number(val)` | `age="42"` → `42` |
-| `Boolean` | Presence = true | `active` → `true`, absent → `false` |
+The attribute name is the prop name in lower case: a `maxCount` prop reads the `maxcount` attribute.
 
-## Attribute Reflection
-
-By default, props reflect to attributes. Disable it per prop:
+| Type | Attribute to value | Value to attribute |
+| ---- | ------------------ | ------------------ |
+| `String` | as is; removed → `null` | `String(value)`; `null`/`undefined` removes it |
+| `Number` | `Number(attr)`; removed → `default`, or `0` | `String(value)` |
+| `Boolean` | present → `true` | `true` sets `""`; `false` removes it |
 
 ```javascript
-props: {
-  secret: { type: String, reflect: false }
-}
+el.active = true;  // active=""
+el.active = false; // attribute removed
+el.name = null;    // attribute removed
+el.name = 'Bob';   // name="Bob"
 ```
 
-Boolean reflection uses empty string (`active=""`) for true and removes the attribute for false.
+Setting the attribute (`el.setAttribute('name', 'Ann')`) sets the prop, which schedules `change`.
 
-## Custom State (`:state()`)
-
-Expose props as custom state pseudo-classes:
+Turn reflection off for a prop that should not appear in the DOM:
 
 ```javascript
-props: {
-  loading: { type: Boolean, state: true }
-}
+const props = {
+  token: { type: String, reflect: false }
+};
 ```
 
-When `loading` is true, the element matches `:state(loading)` in CSS:
+Only strings, numbers and booleans round-trip through attributes. For an object or array value, set `reflect: false`. Otherwise the value is written as a string, and the attribute callback sets the prop back to that string.
 
-```css
-user-card:state(loading) { opacity: 0.5; }
-```
+## Initial values
 
-Requires `ElementInternals` and the `states` API (Chrome 132+, Baseline 2026).
-
-## Initial Values
-
-Props are initialized from attributes before `connectedCallback`:
+Props are read from attributes in the constructor:
 
 ```html
 <user-card name="Alice" age="30" admin></user-card>
 ```
 
-If an attribute is absent, the default is used. If no default is declared:
+Without the attribute, the prop takes its `default`. Without a default, a `Boolean` is `false` and other types are `null`.
 
-- `String` → `null`
-- `Number` → `null`
-- `Boolean` → `false`
-
-## Programmatic Assignment
-
-Set props from JavaScript:
+`change` does not run for initial values or for values set before the element has mounted. Render the first state in `connect`:
 
 ```javascript
-const card = document.querySelector('user-card');
-card.name = 'Bob';
-card.age = 25;
+view('user-name', {
+  props: { name: 'Guest' },
+  template: '<span ref="name"></span>',
+  on: {
+    connect({ el, refs }) {
+      refs.name.textContent = el.name;
+    },
+    change({ name, val, refs }) {
+      if (name === 'name') refs.name.textContent = val;
+    }
+  }
+});
 ```
 
-The `change` hook fires after the assignment (batched via microtask or rAF depending on the `visual` flag).
+## Custom state (`:state()`)
 
-## Query Param Mapping
-
-For route-bound elements (`page()`), declare `query` as a contract array to map URL query params onto element properties. The library casts values based on the declared type:
+With `state: true`, the element adds a custom state named after the prop while the value is truthy, and removes it when the value is falsy. Custom states live on `ElementInternals`, which the factory attaches only for `form: true`. Without it, `state` does nothing.
 
 ```javascript
+view('save-button', {
+  form: true,
+  props: {
+    busy: { type: Boolean, state: true }
+  },
+  template: '<button type="button"><slot></slot></button>'
+});
+```
+
+```css
+save-button:state(busy) { opacity: 0.5; }
+```
+
+The state name is always the prop name. To use another name, call `internals.states.add('name')` yourself.
+
+## Update batching
+
+Assignments are collected per element and flushed together:
+
+- **Per prop.** The flush calls `change` once for each prop that changed, in the order the props first changed. Two props changed means two calls.
+- **Latest value.** A prop assigned several times before the flush gets one call with its latest value. `old` is the value it had just before that last assignment.
+- **Equal values skip.** Assigning the current value (`===`) does nothing.
+- **Timing.** `view()` and `page()` flush in the next animation frame. `dock()` and `element()` flush in a microtask unless `update.visual = true`. `part()` never calls `change`.
+- **Disconnected elements.** If the element disconnects before the flush, the pending changes are dropped.
+
+```javascript
+el.name = 'Alice';
+el.age = 30;
+el.age = 31;
+// next flush: change({ name: 'name', val: 'Alice', ... })
+//             change({ name: 'age', val: 31, old: 30, ... })
+```
+
+## Route params and query
+
+On a `page()`, the router sets props from the URL before the element connects:
+
+- **Path params**: `/members/:id` sets `el.id`. The value is a string unless a prop with that name is declared as `Number` or `Boolean`.
+- **Query**: names in the `query` contract are set on the element, cast by their declared `type`. A declared prop whose name appears in the query string is set too.
+- **Hash**: a declared `hash` prop receives the URL hash.
+
+```javascript
+import { page } from '@anzaui/anza/defs';
+
 page('/search', {
   tag: 'page-search',
+  via: ['main'],
+  props: { q: '', hash: { type: String } },
   query: [
-    { name: 'q',    type: String },
+    { name: 'q', type: String },
     { name: 'page', type: Number }
   ]
 });
 ```
 
-Visiting `/search?q=hello&page=2` automatically sets the properties `this.q = 'hello'` (String) and `this.page = 2` (Number) on the element, triggering update cycles.
+Visiting `/search?q=hello&page=2#results` sets `el.q = 'hello'`, `el.page = 2` and `el.hash`. The same values reach the `load` hook as `params` and `query`. See [Context](context.md#params).
 
-## Hash Mapping
-
-Declare a `hash` prop to receive the URL hash:
-
-```javascript
-props: {
-  hash: { type: String }
-}
-```
-
-Visiting `/about#team` sets `hash = '#team'`.
-
-## Property Change Callback
-
-The `change` hook receives all pending changes in a single batch:
-
-```javascript
-on: {
-  change({ name, val, old, el, refs }) {
-    if (name === 'name') {
-      refs.title.textContent = val;
-    }
-  }
-}
-```
-
-Multiple rapid assignments are coalesced into one callback.
+`params` and `query` contracts have no defaults and no reflection. They only describe how to read and cast URL values.

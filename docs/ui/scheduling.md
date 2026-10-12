@@ -1,8 +1,14 @@
+---
+title: "Scheduling"
+order: 8
+description: "Cooperative scheduling in the Anza UI layer: schedule, scheduleFrame and yield, with AbortSignal support for soft navigation."
+---
+
 # Scheduling
 
-Cooperative task scheduling for main-thread-friendly work. Prevents long tasks that hurt Interaction to Next Paint (INP). Soft-nav aborts the leaf’s `ctrl` — pass that signal into schedule helpers so pending work does not run on a detached tree.
+Helpers that split work into tasks so the main thread stays responsive. A soft navigation aborts the old page's `ctrl`: pass that signal to these helpers so pending work does not run on a detached tree.
 
-Related: [Transitions](transitions.md) (VT + `AbortSignal`), [Lifecycle](lifecycle.md) (soft-nav abort contract), platform [`guard.scheduler` / `guard.yield`](../platform/guards.md).
+Related: [Transitions](transitions.md), [Lifecycle](lifecycle.md#soft-navigation), [Guards](../platform/guards.md).
 
 ## schedule
 
@@ -14,7 +20,7 @@ ui.schedule(() => {
 }, ui.Priority.VISIBLE);
 ```
 
-Priorities (also accepted as `{ priority, signal }`):
+The second argument is a priority, or `{ priority, signal, delay }`:
 
 | Priority | Fallback latency | Use case |
 | -------- | ---------------- | -------- |
@@ -22,9 +28,9 @@ Priorities (also accepted as `{ priority, signal }`):
 | `VISIBLE` / `ui.Priority.VISIBLE` | ~16ms | UI updates |
 | `BACKGROUND` / `ui.Priority.BACKGROUND` | `requestIdleCallback` | Offscreen / analytics |
 
-Uses `scheduler.postTask` when available (via platform guard), falling back to `setTimeout` or `requestIdleCallback`.
+Uses `window.scheduler.postTask` when it exists. Otherwise it falls back to `setTimeout` (0 ms for `BLOCKING`, 16 ms for `VISIBLE`) or `requestIdleCallback` (`BACKGROUND`). A `delay` option (ms) is passed through.
 
-Pass an `AbortSignal` so soft-nav / leaf teardown cancels pending work:
+Pass an `AbortSignal` so pending work is cancelled when the element disconnects:
 
 ```javascript
 await ui.schedule(() => indexChunk(), {
@@ -49,7 +55,7 @@ ui.scheduleFrame(() => {
 await ui.scheduleFrame(() => measure(), { signal: ctrl.signal });
 ```
 
-Returns a promise that resolves with the callback's return value. Pass `{ signal }` so soft-nav abort cancels the pending frame.
+Returns a promise that resolves with the callback's return value. Pass `{ signal }` to cancel the pending frame on abort.
 
 ## yield
 
@@ -62,13 +68,13 @@ async function processLargeDataset(rows, { signal } = {}) {
   for (let i = 0; i < rows.length; i++) {
     process(rows[i]);
     if (i % 100 === 0) {
-      await ui.yield({ signal }); // let the browser breathe; abort on soft-nav
+      await ui.yield({ signal }); // let the browser handle input; rejects on abort
     }
   }
 }
 ```
 
-Uses `scheduler.yield()` when available, falling back to `setTimeout(..., 0)`. Already-aborted signals reject with `AbortError`.
+Uses `window.scheduler.yield()` when it exists, otherwise `setTimeout(..., 0)`. Already-aborted signals reject with `AbortError`.
 
 Platform equivalent without the UI facade: `await guard.yield()` from `@anzaui/anza/platform`.
 
@@ -80,47 +86,58 @@ Platform equivalent without the UI facade: `await guard.yield()` from `@anzaui/a
 | `scheduleFrame()` | Layout measurement, animation frame work, visual updates |
 | `yield()` | Chunk heavy computation inside loops |
 
-Do **not** schedule unbounded work without a signal from a page leaf — soft-nav will leave orphan tasks otherwise.
+From a page, always pass a signal to unbounded work. Otherwise it keeps running after a soft navigation.
 
-## Soft-nav + AbortSignal (advanced)
+## Soft navigation and AbortSignal
 
 ```javascript
+import { ui } from '@anzaui/anza/ui';
+import { page } from '@anzaui/anza/defs';
+
 page('/reports', {
   tag: 'page-reports',
   via: ['main'],
+  template: '<table><tbody ref="body"></tbody></table>',
   on: {
-    async load({ el, ctrl }) {
-      await ui.schedule(() => buildIndex(el.rows), {
-        priority: ui.Priority.BACKGROUND,
-        signal: ctrl.signal
-      });
-    },
-    async change({ name, val, refs, ctrl }) {
-      if (name !== 'rows') return;
-      refs.body.replaceChildren();
-      for (let i = 0; i < val.length; i += 50) {
-        refs.body.append(...val.slice(i, i + 50).map(createRow));
-        await ui.yield({ signal: ctrl.signal });
+    async load({ refs, ctrl }) {
+      const res = await fetch('/api/reports', { signal: ctrl.signal });
+      const rows = await res.json();
+      for (let i = 0; i < rows.length; i += 50) {
+        await ui.schedule(() => {
+          for (const row of rows.slice(i, i + 50)) {
+            refs.body.insertRow().insertCell().textContent = row.title;
+          }
+        }, { priority: ui.Priority.BACKGROUND, signal: ctrl.signal });
       }
     }
   }
 });
 ```
 
-When soft-nav swaps this leaf, `ctrl.abort()` rejects pending `schedule` / `scheduleFrame` / `yield` with `AbortError`. Catch only if you need cleanup; otherwise let it fail closed.
+When a soft navigation replaces this page, `ctrl.abort()` rejects the pending `schedule`, `scheduleFrame` or `yield` with an `AbortError`. The rejection ends `load`, and the error is logged. Catch it only if you need to clean up.
 
 ## Example: chunked rendering
 
 ```javascript
+import { ui } from '@anzaui/anza/ui';
+import { view } from '@anzaui/anza/defs';
+
+function createRow(row) {
+  const li = document.createElement('li');
+  li.textContent = row.title;
+  return li;
+}
+
 view('data-grid', {
   props: {
-    rows: { type: Array, default: [] }
+    rows: { type: Array, default: null, reflect: false }
   },
+  template: '<ul ref="body"></ul>',
   on: {
     async change({ name, val, refs, ctrl }) {
-      if (name !== 'rows') return;
+      if (name !== 'rows' || !val) return;
 
-      refs.body.innerHTML = '';
+      refs.body.replaceChildren();
       const chunkSize = 50;
 
       for (let i = 0; i < val.length; i += chunkSize) {
@@ -137,4 +154,4 @@ view('data-grid', {
 });
 ```
 
-The grid renders in chunks, yielding between each so the browser stays responsive — and soft-nav abort stops mid-chunk.
+The grid renders 50 rows at a time and yields between chunks. Set `grid.rows = [...]` to render. Object and array props need `reflect: false`; see [Props](props.md#attributes).

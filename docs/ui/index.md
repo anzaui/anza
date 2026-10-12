@@ -5,79 +5,56 @@ order: 3
 
 # UI
 
-The Anza UI layer is a declarative custom element system built on Web Components. It provides reactive properties, lifecycle hooks, template and style loading, event delegation, mutation watching, and cooperative scheduling — all with automatic memory management via AbortController.
+The Anza UI layer builds custom elements from a config object. It gives you typed props, lifecycle hooks, template and style loading, event delegation, mutation watching and scheduling. Every element gets an `AbortController` that aborts when it disconnects, so listeners bound to its signal clean up on their own.
 
-The UI layer is organized into three levels:
+The layer has three levels:
 
-1. **Definition layer** — `page()`, `dock()`, `view()`, `part()` — the way you declare elements
-2. **Factory layer** — `element()`, `define()` — the engine that compiles specs into custom elements
-3. **Utilities** — `template()`, `transition()`, `schedule()`, `observe` — helpers for DOM, animation, and performance
+1. **Definitions**: `page()`, `dock()`, `view()`, `part()`. Use these to declare elements.
+2. **Factory**: `element()` and `define()`. The definitions compile to `element()` specs.
+3. **Utilities**: `template()`, `transition()`, `schedule()`, `observe`.
 
-## What You Get
+## What you get
 
-- **Declarative element definition** — define custom elements with a config object instead of a class
-- **Reactive props** — typed properties with automatic attribute reflection and batched update callbacks
-- **Template loading** — inline strings, file paths (`.html`), or tagged template literals
-- **Style loading** — inline CSS, file paths (`.css`), or constructable stylesheets with HMR
-- **Lifecycle hooks** — `load`, `connect`, `disconnect`, `change` with automatic cleanup
-- **Event delegation** — `on.click('.btn', handler)` with `composedPath` matching, `attrs` / `not` / `key` / `scope`
-- **Mutation watching** — `watch.attr` / `kids` / `text` / `slot` / `tree` with observer buckets
-- **Tags cache** — fast cached queries for shadow DOM elements
-- **Refs** — named element lookups via `ref="name"` attributes
-- **Safe observers** — `ResizeObserver`, `IntersectionObserver`, `MutationObserver`, `PerformanceObserver` with AbortSignal cleanup
-- **Cooperative scheduling** — `schedule()`, `scheduleFrame()`, `yield()` for main-thread-friendly work
-- **View transitions** — `transition()` wrapper with reduced-motion respect
+- **Config, not classes**: one object per element.
+- **Props**: typed properties that reflect to attributes and call `change` once per changed prop per flush.
+- **Templates and styles**: inline strings or files next to the module. Files load on first use and are inlined into the module by `anza build`.
+- **Lifecycle hooks**: `load`, `connect`, `disconnect`, `change`.
+- **Event delegation**: `on.click('.btn', handler)`, one listener per event type on the shadow root.
+- **Mutation watching**: `watch.attr`, `kids`, `text`, `slot`, `tree`.
+- **Refs**: elements marked `ref="name"`, looked up once per mount.
+- **Observers**: `ResizeObserver`, `IntersectionObserver`, `MutationObserver` and `PerformanceObserver` that disconnect when a signal aborts.
+- **Scheduling**: `schedule()`, `scheduleFrame()`, `yield()`.
+- **View transitions**: `transition()`, which falls back to a direct update.
 
 ## Package
 
 ```javascript
-import { ui } from '@anzaui/anza/ui';
+import { ui, BaseElement } from '@anzaui/anza/ui';
 import { page, dock, view, part } from '@anzaui/anza/defs';
-import { BaseElement } from '@anzaui/anza/ui';
 ```
 
-## File Map
+Both entry points need a DOM. Importing them in Node throws `ReferenceError: HTMLElement is not defined`. Load them only from browser code.
 
-| File | What It Covers |
-| ----- | ---------------- |
-| [Quick Start](quickstart.md) | Your first component in five minutes |
-| [Elements](factory.md) | The `element()` factory and spec shape |
-| [Props](props.md) | Reactive properties, types, reflection, state |
-| [Templates](templates.md) | Inline, file-based, and tagged template literals |
-| [Styles](../styles/index.md) | CSS loading, constructable stylesheets, HMR |
-| [Lifecycle](lifecycle.md) | Mount, unmount, connect, disconnect, load, change; soft-nav abort |
-| [Context](context.md) | `el`, `ctrl`, `tags`, `refs`, `on`, `watch` (precision + buckets) |
-| [Scheduling](scheduling.md) | Cooperative task scheduling |
-| [Observers](observers.md) | Safe observer factories; `mutation.scoped` |
-| [Transitions](transitions.md) | View transitions wrapper |
-| [Forms](form-associated.md) | Form-associated custom elements |
-| [Hydration (DSD adopt)](hydration.md) | Adopt open DSD from SSG / Mode B HTML |
-| [Advanced Topics](advanced.md) | Internals, globals, `getAttachmentStats` |
-| [API Reference](api.md) | Complete API reference |
-| [Troubleshooting](troubleshooting.md) | Common problems and how to fix them |
+## Quick start
 
-## One-File Example
+Define a component with `view()`. The tag name must contain a hyphen.
 
 ```javascript
 import { view } from '@anzaui/anza/defs';
 
-view('user-card', {
-  props: {
-    name: { type: String, default: 'Guest' },
-    active: { type: Boolean }
-  },
-  template: `
-    <div class="card">
-      <h2 ref="title">{{ name }}</h2>
-      <span class="badge" hidden="">{{ active }}</span>
-    </div>
-  `,
+view('click-counter', {
+  props: { count: 0 },
+  template: '<button type="button">Clicked <span ref="count">0</span> times</button>',
+  style: ':host { display: inline-block; }',
   on: {
-    connect({ el, refs }) {
-      refs.title.textContent = el.name;
+    connect({ el, refs, on }) {
+      refs.count.textContent = el.count;
+      on.click('button', () => {
+        el.count++;
+      });
     },
     change({ name, val, refs }) {
-      if (name === 'name') refs.title.textContent = val;
+      if (name === 'count') refs.count.textContent = val;
     }
   }
 });
@@ -86,14 +63,37 @@ view('user-card', {
 Use it in HTML:
 
 ```html
-<user-card name="Alice" active></user-card>
+<click-counter count="3"></click-counter>
 ```
 
-## Next Steps
+What happens:
 
-- New to the UI layer? Start with [Quick Start](quickstart.md).
-- Want reactive properties? Read [Props](props.md) and [Lifecycle](lifecycle.md).
-- Building complex layouts? See [Context](context.md) for `tags`, `refs`, `on`, and `watch`.
-- Need performance? [Scheduling](scheduling.md) and [Observers](observers.md).
-- Prefer a single reference page? [API Reference](api.md).
-- Looking for shipped `ui-*` components? [Elements kit](../elements/index.md) (overlays: [patterns](../elements/overlay.md)).
+- `props: { count: 0 }` declares a `Number` prop. The `count="3"` attribute sets its first value.
+- `connect` runs once the template is in the shadow root. It renders the first value and binds the click handler. The handler is removed when the element disconnects.
+- Each click sets `el.count`. The new value is written back to the `count` attribute, and `change` runs on the next animation frame.
+
+Next:
+
+- [Props](props.md): types, reflection, `:state()`.
+- [Templates](templates.md): file templates and the tags descriptor.
+- [Lifecycle](lifecycle.md): hook order, `anza:ready`, memory safety.
+- [Context](context.md): `refs`, `tags`, `on`, `watch`.
+
+## Pages in this section
+
+| Page | What it covers |
+| ---- | -------------- |
+| [element() factory](factory.md) | The `element()` spec, resource loading, HMR, `define()`, `BaseElement` |
+| [Props](props.md) | Types, reflection, `:state()`, update batching |
+| [Templates](templates.md) | Inline and file templates, build-time inlining, tagged templates |
+| [Lifecycle](lifecycle.md) | Hooks, order, `anza:ready`, soft-nav abort, memory safety |
+| [Context](context.md) | `el`, `ctrl`, `tags`, `refs`, `on`, `watch`, `internals`, `adopted` |
+| [Hydration (DSD adopt)](hydration.md) | Adopting pre-rendered Declarative Shadow DOM |
+| [Form-associated elements](form-associated.md) | `form: true`, `ElementInternals`, form hooks |
+| [Scheduling](scheduling.md) | `schedule`, `scheduleFrame`, `yield` |
+| [Observers](observers.md) | Observer factories with `AbortSignal` cleanup |
+| [Transitions](transitions.md) | View transitions for docks and DOM swaps |
+| [API Reference](api.md) | Every export and option |
+| [Troubleshooting](troubleshooting.md) | Common problems |
+
+For CSS loading and tokens, see [Styles](../styles/index.md). For the shipped `ui-*` elements, see [Elements](../elements/index.md).

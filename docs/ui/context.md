@@ -1,270 +1,306 @@
+---
+title: "Context"
+order: 5
+description: "The context object passed to Anza UI hooks: el, ctrl, tags, refs, on, watch, internals, adopted, and the params and query of page load."
+---
+
 # Context
 
-Every lifecycle hook receives a frozen context object with helpers for interacting with the element's shadow DOM, events, and observers.
+Each hook gets a frozen context object as its argument.
 
-## Context Fields
+## Context fields
 
-```javascript
-{
-  el,       // the element instance
-  ctrl,     // AbortController (signal aborts on disconnect)
-  tags,     // TagsCache for fast shadow DOM queries
-  refs,     // named element lookups via ref="name"
-  on,       // delegated event proxy
-  watch,    // mutation watcher
-  internals,// ElementInternals (if form: true)
-  params,   // (load hook only) typed dynamic path params array with getters
-  query,    // (load hook only) typed query params array with getters
-  raw       // (load hook only) raw URLSearchParams object
-}
-```
+| Field | `load` / `connect` | `change` | `disconnect` | Description |
+| ----- | :---: | :---: | :---: | ----------- |
+| `el` | yes | yes | yes | The element |
+| `ctrl` | yes | yes | no | `AbortController`; aborts on disconnect |
+| `tags` | yes | yes | yes | Cached shadow-root queries |
+| `refs` | yes | yes | yes | Elements marked `ref="name"` |
+| `on` | yes | yes | no | Delegated event listeners |
+| `watch` | yes | yes | yes | Mutation watchers |
+| `internals` | yes | yes | yes | `ElementInternals` when `form: true`, else `undefined` |
+| `adopted` | yes | no | no | `true` when the shadow root was pre-rendered |
+| `params`, `query` | `load` only | no | no | Route values on a `page()` |
+
+`change` also gets `name`, `val`, `old` and `prev`. See [Lifecycle](lifecycle.md#change).
 
 ## el
 
-The element instance itself. Access properties, shadow root, and methods:
+The element. Read props, call methods, reach the shadow root:
 
 ```javascript
-on: {
-  connect({ el }) {
-    console.log(el.tagName);      // 'USER-CARD'
-    console.log(el.name);       // current prop value
-    console.log(el.shadowRoot); // the shadow root
+import { view } from '@anzaui/anza/defs';
+
+view('user-badge', {
+  props: { name: 'Guest' },
+  on: {
+    connect({ el }) {
+      console.log(el.localName, el.name, el.shadowRoot);
+    }
   }
-}
+});
 ```
 
 ## ctrl
 
-An `AbortController` whose signal aborts when the element disconnects. Pass it to any async operation for automatic cleanup:
+An `AbortController` created on each connect and aborted on disconnect. Pass its signal to anything that should stop with the element:
 
 ```javascript
-on: {
-  async load({ ctrl }) {
-    const res = await fetch('/api', { signal: ctrl.signal });
+view('user-feed', {
+  on: {
+    async load({ ctrl }) {
+      const res = await fetch('/api/feed', { signal: ctrl.signal });
+      console.log(await res.json());
+    }
   }
-}
+});
 ```
 
-When the element is removed, the signal aborts and the fetch is cancelled.
+## adopted
+
+`true` when the element kept a pre-rendered Declarative Shadow DOM root instead of cloning its template. Use it to skip work the server already did:
+
+```javascript
+view('price-tag', {
+  props: { amount: 0 },
+  template: '<span ref="amount"></span>',
+  on: {
+    connect({ el, refs, adopted }) {
+      if (!adopted) refs.amount.textContent = el.amount;
+    }
+  }
+});
+```
+
+After a hydration mismatch re-render, `adopted` stays `true` but the markup is the client template. See [Hydration (DSD adopt)](hydration.md).
 
 ## params
 
-An ordered, typed array containing dynamic path parameters extracted from the URL. Available in the `load` hook:
+On a `page()`, the `load` context has `params`: the route's path values, in the order of the `params` contract. Read them by index, by name, or with `first` and `last`:
 
 ```javascript
-on: {
-  async load({ params }) {
-    // If route is /members/:id
-    console.log(params[0]);     // '42'
-    console.log(params.first);  // '42'
-    console.log(params.id);     // '42'
+import { page } from '@anzaui/anza/defs';
+
+page('/members/:handle', {
+  tag: 'page-member',
+  via: ['main'],
+  params: [{ name: 'handle', type: String }],
+  on: {
+    load({ params }) {
+      console.log(params[0], params.first, params.handle); // 'ann' for /members/ann
+    }
   }
-}
+});
 ```
 
-Values are automatically cast to their declared contract type (e.g., `Number`).
+Values are read from the element's properties, which the router sets from the URL. Path values are strings unless a prop of the same name is declared `Number` or `Boolean`. Avoid names that clash with element properties, such as `id` or `title`.
 
 ## query
 
-An ordered, typed array containing query parameters mapped from the URL. Available in the `load` hook:
+On a `page()` with a `query` contract, `load` gets the query values in contract order, cast by their declared `type`:
 
 ```javascript
-on: {
-  async load({ query }) {
-    // If URL is /search?q=hello&page=2
-    console.log(query[0]);     // 'hello'
-    console.log(query.first);  // 'hello'
-    console.log(query.page);   // 2 (cast to Number)
-  }
-}
-```
-
-## raw
-
-The raw `URLSearchParams` object representing all query parameters currently in the URL. Useful for accessing undeclared query keys:
-
-```javascript
-on: {
-  async load({ raw }) {
-    if (raw.has('referrer')) {
-      this.referrer = raw.get('referrer');
+page('/search', {
+  tag: 'page-search',
+  via: ['main'],
+  query: [
+    { name: 'q', type: String },
+    { name: 'page', type: Number }
+  ],
+  on: {
+    load({ query }) {
+      console.log(query.q, query.page); // 'hello', 2 for /search?q=hello&page=2
     }
   }
-}
+});
 ```
+
+For keys outside the contract, read `location.search`.
 
 ## tags
 
-A cached query interface for the shadow root. Pre-warmed by the tags descriptor (if available).
+A cached query interface for the shadow root:
 
 ```javascript
-on: {
-  connect({ tags }) {
-    const title = tags.one('.title');     // querySelector, cached
-    const items = tags.all('.item');      // querySelectorAll, cached
-    const hasItems = tags.has('.item');   // boolean
-    tags.each('.item', (el, i) => { ... }); // iterate
+view('item-list', {
+  template: '<h2 class="title">Items</h2><ul><li class="item">One</li></ul>',
+  on: {
+    connect({ tags }) {
+      const title = tags.one('.title');  // querySelector, cached
+      const items = tags.all('.item');   // querySelectorAll, cached
+      if (tags.has('.item')) {
+        tags.each('.item', (item, i) => { item.dataset.index = String(i); });
+      }
+      console.log(title, items.length);
+    }
   }
-}
+});
 ```
 
-The cache is invalidated automatically when shadow DOM children change.
+The cache is cleared when the shadow root's direct children change. Changes deeper in the tree do not clear it: call `tags.clear()` after you add or remove nested elements. With a [tags descriptor](templates.md#tags-descriptor), entries for each listed `id` and `ref` are filled in at mount.
 
 ## refs
 
-Named element lookups based on `ref="name"` attributes in the template:
+A frozen object that maps each `ref` name to its element, built once per mount:
 
 ```javascript
-template: '<div ref="header"><span ref="count">0</span></div>'
-
-on: {
-  connect({ refs }) {
-    refs.header.classList.add('mounted');
-    refs.count.textContent = '1';
+view('count-header', {
+  template: '<header ref="header"><span ref="count">0</span></header>',
+  on: {
+    connect({ refs }) {
+      refs.header.classList.add('mounted');
+      refs.count.textContent = '1';
+    }
   }
-}
+});
 ```
 
 Duplicate `ref` names log a warning. The first match wins.
 
 ## on
 
-Delegated event proxy. One listener per `(type, capture)` on the **shadow root** handles all matching selectors. Matching walks `event.composedPath()` and stops at the shadow root (same algorithm as [`events.delegate`](../events/delegate.md)). Default scope is the shadow tree — use `events.delegate` / `events.listen` for document roots so those attachments stay greppable.
+Delegated event listeners. Each `(type, capture)` pair gets one listener on the **shadow root**. A handler runs when the event's `composedPath()` contains a match before the shadow root, the same matching as [Delegate](../events/delegate.md). Use `events.delegate` or `events.listen` for listeners outside the shadow root.
 
 ### Simple
 
 ```javascript
-on: {
-  connect({ on }) {
-    on.click('.btn', (event, target) => {
-      target.disabled = true;
-    });
+view('search-box', {
+  template: '<form><input class="search"><button class="btn">Go</button></form>',
+  on: {
+    connect({ on }) {
+      on.click('.btn', (event, button) => {
+        button.disabled = true;
+      });
 
-    on.submit('form', (event, form) => {
-      event.preventDefault(); // non-passive by default for submit
-    });
+      on.submit('form', (event) => {
+        event.preventDefault(); // submit listeners are not passive
+      });
 
-    on.input('.search', (event, input) => {
-      console.log(input.value);
-    });
+      on.input('.search', (event, input) => {
+        console.log(input.value);
+      });
+    }
   }
-}
+});
 ```
+
+Every call returns a disposer:
 
 ```javascript
 const dispose = on.click('.btn', handler);
-dispose(); // removes this registration; last handler for the type removes the root listener
+dispose(); // removing the last handler for a type removes the root listener
 ```
 
-### Advanced
+### Options
 
 ```javascript
 on.click('.btn', handler, {
-  signal,           // default: ctrl.signal
+  signal,            // default: ctrl.signal
   once: false,
   capture: false,
-  passive: undefined, // default: true only for touchstart|touchmove|wheel|mousewheel
+  passive: undefined, // default: true only for touchstart, touchmove, wheel, mousewheel
   attrs: {
     'data-action': 'save', // must equal
     'aria-disabled': null  // must be absent
   },
-  not: '.ignore',          // skip if match.closest('.ignore') within the root
-  key: 'toolbar-save',     // second add with same key replaces the first
-  scope: 'assigned'        // also match light-DOM nodes assigned to a slot in this shadow
+  not: '.ignore',          // skip if match.closest('.ignore') is inside the root
+  key: 'toolbar-save',     // a second registration with the same key replaces the first
+  scope: 'assigned'        // also match light-DOM nodes slotted into this shadow root
 });
 
 on.click.once('.btn', handler);
 ```
 
-| Option | Behavior |
-| ------ | -------- |
-| `attrs` | Predicate on the matched element (`null` = attribute must be absent) |
+| Option | Behaviour |
+| ------ | --------- |
+| `attrs` | Attribute test on the matched element (`null` = attribute must be absent) |
 | `not` | Skip when `match.closest(not)` is inside the shadow root |
-| `key` | Dedupe id — re-registering replaces the prior handler |
-| `scope: 'assigned'` | Opt into slotted light-DOM matches via `assignedSlot` (default is shadow-only) |
+| `key` | Dedupe id: registering again with the key replaces the earlier handler |
+| `scope: 'assigned'` | Also match slotted light-DOM nodes (default: shadow tree only) |
 
-**Passive defaults** match `events.listen`: only scroll-critical types are passive unless you pass `{ passive: false }`. Click / submit / key handlers can call `preventDefault()` without an override.
+Events that do not bubble (`focus`, `blur`, `close`, `cancel`, `toggle`, `load`, `error`, `scroll`, `mouseenter` and others) are listened for in the capture phase automatically.
 
-**Empty teardown:** when the last registration for a `(type, capture)` key is disposed (or aborted), the shadow-root `addEventListener` is removed immediately — no idle root listener left behind.
-
-Direct `Element` targets must live inside this shadow; targets outside warn and return a no-op disposer.
+The first argument may be an element instead of a selector. An element outside this shadow root logs a warning and returns a no-op disposer.
 
 ## watch
 
-Shadow-scoped mutation helpers. Prefer typed kinds (`attr` / `kids` / `text` / `slot`) over `tree`. Observers are **bucketed by fingerprint** so a wide `tree` or `attr *` registration never drops `attributeFilter` / `subtree` on a neighbor.
+Mutation watchers scoped to the shadow root. Prefer the typed kinds (`attr`, `kids`, `text`, `slot`) over `tree`. Registrations with different observe options use separate observers, so a wide `tree` or `attr('*')` never widens a neighbour's filter.
 
-Canonical child API is `watch.kids`; `watch.children` is an alias.
+`watch.children` is an alias of `watch.kids`.
 
 ### Simple
 
 ```javascript
-on: {
-  connect({ watch, refs }) {
-    watch.text(refs.counter, (text, old, el) => {
-      console.log('Counter:', text);
-    });
-
-    watch.attr(refs.submit, 'disabled', (attr, next, prev, el) => {
-      el.dataset.wasDisabled = String(prev !== null);
-    });
-
-    watch.kids(refs.list, ({ added, removed }, list) => {
-      console.log(added.length, removed.length);
-    });
-  }
-}
-```
-
-### Advanced
-
-```javascript
-on: {
-  connect({ watch, refs }) {
-    // Named attrs keep attributeFilter; tree lives in a separate bucket
-    watch.attr(refs.toggle, 'aria-pressed', handler);
-    watch.tree(refs.editor, (records) => { /* escape hatch */ });
-
-    // Fail closed when the selector matches nothing at register time
-    watch.attr('.late-btn', 'disabled', handler, { requirePresent: true });
-
-    // Slot / light-DOM boundary (slotchange — not a document MO)
-    watch.slot(refs.body, ({ assigned, assignedElements }, slot) => {
-      console.log(assignedElements.length);
-    });
-
-    watch.kids(refs.list, { deep: true }, ({ added }) => { /* descendants */ });
-    watch.attr.once(refs.panel, 'open', handler);
-    watch.slot.once('slot[name=actions]', handler);
-  }
-}
-```
-
-| Kind | Handler | Notes |
-| ---- | ------- | ----- |
-| `watch.attr(target, name\|names\|'*', handler, opts)` | `(attr, next, prev, el)` | Prefer named attrs over `*` |
-| `watch.kids(target, handler, opts)` / `{ deep }` | `({ added, removed }, el)` | `children` alias |
-| `watch.text(target, handler, opts)` | `(text, old, el)` | Character data under target |
-| `watch.tree(target, handler, opts)` | `(records, el)` | Wide escape hatch; isolated bucket |
-| `watch.slot(slot\|selector, handler, opts)` | `({ assigned, assignedElements }, slot)` | `slotchange` on `<slot>` |
-
-Options: `{ signal, once, requirePresent }` (or pass an `AbortSignal` as the last arg). Default signal is `ctrl.signal`. Every call returns a disposer. Selector targets with zero current matches still observe for late bind unless `requirePresent: true` (then no-op + warn). Direct targets outside the shadow throw in development and no-op in production.
-
-Diagnostics: [`getAttachmentStats(shadowRoot)`](api.md) reports live `on` / `watch` / slot counts for soft-nav leak tests.
-
-## internals
-
-`ElementInternals` when `form: true` is declared. Provides form participation and custom state:
-
-```javascript
-view('toggle-switch', {
-  form: true,
-  props: {
-    checked: { type: Boolean, state: true }
-  },
+view('todo-panel', {
+  template: '<span ref="counter">0</span><button ref="submit">Add</button><ul ref="list"></ul>',
   on: {
-    connect({ el, internals }) {
-      internals.setFormValue(el.checked ? 'on' : '');
+    connect({ watch, refs }) {
+      watch.text(refs.counter, (text) => {
+        console.log('counter:', text);
+      });
+
+      watch.attr(refs.submit, 'disabled', (attr, next, prev, el) => {
+        el.dataset.wasDisabled = String(prev !== null);
+      });
+
+      watch.kids(refs.list, ({ added, removed }) => {
+        console.log(added.length, removed.length);
+      });
     }
   }
 });
 ```
+
+### More kinds
+
+```javascript
+view('editor-panel', {
+  template: '<div ref="editor" contenteditable></div><slot ref="body"></slot><ul ref="list"></ul>',
+  on: {
+    connect({ watch, refs }) {
+      watch.tree(refs.editor, (records) => console.log(records.length));
+      watch.attr('.late-btn', 'disabled', () => {}, { requirePresent: true });
+      watch.slot(refs.body, ({ assignedElements }) => console.log(assignedElements.length));
+      watch.kids(refs.list, { deep: true }, ({ added }) => console.log(added));
+      watch.attr.once(refs.editor, 'contenteditable', () => {});
+    }
+  }
+});
+```
+
+| Kind | Handler | Notes |
+| ---- | ------- | ----- |
+| `watch.attr(target, name \| names \| '*', handler, opts)` | `(attr, next, prev, el)` | Prefer named attributes over `'*'` |
+| `watch.kids(target, handler, opts)` or `watch.kids(target, { deep: true }, handler, opts)` | `({ added, removed }, el)` | `deep` includes descendants |
+| `watch.text(target, handler, opts)` | `(text, old, el)` | Character data under the target |
+| `watch.tree(target, handler, opts)` | `(records, el)` | Everything; own observer |
+| `watch.slot(slot \| selector, handler, opts)` | `({ assigned, assignedElements }, slot)` | Uses `slotchange` |
+
+Every kind also has `.once`.
+
+Options: `{ signal, once, requirePresent }`, or an `AbortSignal` as the last argument. The default signal is `ctrl.signal`. Every call returns a disposer.
+
+A selector that matches nothing yet still observes (with a warning), so late elements are picked up. With `requirePresent: true` it logs a warning and does nothing. An element target outside this shadow root throws.
+
+For leak tests, [`getAttachmentStats`](lifecycle.md#attachment-stats) reports the live `on`, `watch` and slot counts.
+
+## internals
+
+`ElementInternals`, present only when the element declares `form: true`:
+
+```javascript
+view('toggle-switch', {
+  form: true,
+  props: { checked: { type: Boolean, state: true } },
+  on: {
+    connect({ el, internals }) {
+      internals.setFormValue(el.checked ? 'on' : null);
+    },
+    change({ name, val, internals }) {
+      if (name === 'checked') internals.setFormValue(val ? 'on' : null);
+    }
+  }
+});
+```
+
+See [Form-associated elements](form-associated.md).

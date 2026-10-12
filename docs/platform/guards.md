@@ -188,4 +188,4 @@ for (let i = 0; i < 10000; i++) {
 - [Supports](supports.md) (`popoverAPI`, `anchorPositioning`)
 - [Overlay patterns](../elements/overlay.md)
 - [Tooltip](../elements/tooltip.md)
-- [Memory safety & framework globals](../ui/advanced.md)
+- [Memory safety & framework globals](../ui/lifecycle.md#memory-safety)

@@ -1,6 +1,12 @@
+---
+title: "Transitions"
+order: 10
+description: "View transitions in the Anza UI layer: element-scoped dock swaps, transition(), runSwapTransition(), fallbacks and CSS control."
+---
+
 # Transitions
 
-Anza wraps CSS View Transitions for soft-nav docks and ad-hoc DOM swaps. Dock leaf swaps prefer **element-scoped** VT so chrome (sidebar, header, parent docks) stays stable. When VT is missing, reduced-motion is on, the call opts out, or the API fails, the DOM update still runs as a direct swap.
+Anza wraps View Transitions (VT) for dock swaps and your own DOM updates. Dock swaps use **element-scoped** transitions, so the sidebar, header and parent docks stay out of the snapshot. When VT is missing, reduced motion is on, the call opts out or the API fails, the update still runs as a direct swap.
 
 ## Soft-nav docks (main → docs → content)
 
@@ -13,7 +19,7 @@ dock-main
               └── page-*
 ```
 
-Default CSS groups: `dock-main`, `dock-docs`, `dock-content` (registry key → `dock-<key>`). Legacy alias: `dock-swap`.
+A dock's default `view-transition-name` is `dock-<name>`: `dock-main`, `dock-docs`, `dock-content`. A swap host with no dock name falls back to `dock-swap`.
 
 ```javascript
 dock('content', {
@@ -94,7 +100,7 @@ await transitions.run(() => panel.replaceChildren(next), {
 | `prefers-reduced-motion: reduce` | Direct update |
 | `transition: false` / `configureTransitions({ enabled: false })` | Direct update |
 | VT throws / aborts | Direct update (or skip); names + easing restored |
-| `AbortSignal` aborted | `AbortError` before start; in-flight → `skipTransition` |
+| `AbortSignal` aborted | Before start: rejects with `AbortError`. In flight: `skipTransition()` |
 
 `replaceChildren` still runs inside the VT **update callback** when VT is used — leaf `ctrl.abort()` happens at swap time, not after the animation finishes.
 

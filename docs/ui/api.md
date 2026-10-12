@@ -1,266 +1,221 @@
+---
+title: "API Reference"
+order: 11
+description: "Reference for the Anza UI layer: the ui facade, named exports, page/dock/view/part config, the element() spec, the hook context, on and watch."
+---
+
 # API Reference
 
-Complete reference for the UI facade and definition layer.
+Reference for `@anzaui/anza/ui` and `@anzaui/anza/defs`. Both need a DOM; see [Hydration (DSD adopt)](hydration.md#browser-only).
 
-## UI Facade
+## ui facade
 
 ```javascript
 import { ui } from '@anzaui/anza/ui';
 ```
 
+| Member | Description |
+| ------ | ----------- |
+| `ui.define(tag, Class)` | Register a class. Warns and skips a tag that is already defined. |
+| `ui.element(tag, spec, base)` | Declarative element factory. See [element() factory](factory.md). |
+| `ui.container(tag, spec, base)` | `element()` plus router container registration. See below. |
+| `ui.page`, `ui.dock`, `ui.view`, `ui.part` | The definition functions, as below. |
+| `ui.schedule(fn, priorityOrOptions)` | Run `fn` as a task. Returns a promise of its result. |
+| `ui.scheduleFrame(fn, { signal })` | Run `fn` in the next animation frame. Returns a promise. |
+| `ui.yield({ signal })` | Yield to the browser. Returns a promise. |
+| `ui.Priority` | `{ BLOCKING: 'user-blocking', VISIBLE: 'user-visible', BACKGROUND: 'background' }` |
+| `ui.transition(fn, options)` | View transition around a DOM update. See [Transitions](transitions.md). |
+| `ui.runSwapTransition(host, fn, options)` | Element-scoped swap used by docks. |
+| `ui.configureTransitions({ enabled, nameFor })` | Global transition settings. |
+| `ui.getTransitionConfig()` | Current `{ enabled, nameFor }`. |
+| `ui.prefersReducedMotion()` | `true` when the user asks for reduced motion. |
+| `ui.shouldAnimate(options)` | Whether a transition would run for these options. |
+| `ui.dockTransitionName(el, dockName)` | Default `view-transition-name` for a dock. |
+| `ui.template` | Tagged template literal that returns a `DocumentFragment`. See [Templates](templates.md#tagged-template-literal). |
+| `ui.observe` | Observer factories. See [Observers](observers.md). |
+| `ui.theme` | Theme helpers. See [Styles](../styles/index.md). |
+| `ui.getAttachmentStats(shadowRoot)` | Live `on` / `watch` counts. See [Lifecycle](lifecycle.md#attachment-stats). |
+
 ### `ui.define(tag, Class)`
 
-Register a custom element with duplicate guard.
-
 ```javascript
-ui.define('my-element', MyClass);
+import { define } from '@anzaui/anza/ui';
+
+class HelloBanner extends HTMLElement {}
+define('hello-banner', HelloBanner);
 ```
 
-### `ui.element(tag, spec, base)`
-
-Declarative element factory. See [Elements](factory.md).
+Returns nothing. Does nothing when `customElements` is missing. This is the only function that warns about a duplicate tag; `element()` and the definition functions skip a defined tag silently.
 
 ### `ui.container(tag, spec, base)`
 
-Container factory with swap interface. See router docks.md.
+The older way to declare a router container. Prefer `dock()` ([Docks](../router/docks.md)).
 
-### `ui.page(route, config, base)`
-
-Route-bound element. See router pages.md.
-
-### `ui.dock(name, config, base)`
-
-Container shell. See router docks.md.
-
-### `ui.view(tag, config, base)`
-
-Stateful component. See [Components](../router/components.md).
-
-### `ui.part(tag, config, base)`
-
-Stateless primitive. See [Components](../router/components.md).
-
-### `ui.schedule(fn, priorityOrOptions)`
-
-Cooperative task scheduling. Second arg may be a priority string or `{ priority, signal, delay }`.
-
-| Priority | Value |
-| ---------- | ------- |
-| `ui.Priority.BLOCKING` | `'user-blocking'` |
-| `ui.Priority.VISIBLE` | `'user-visible'` |
-| `ui.Priority.BACKGROUND` | `'background'` |
-
-### `ui.scheduleFrame(fn, options?)`
-
-Run during next `requestAnimationFrame`. Options: `{ signal }`. Returns a promise.
-
-### `ui.yield(options?)`
-
-Yield control to the browser. Options: `{ signal }`. Returns a promise.
-
-### `ui.transition(fn, options?)`
-
-View transitions wrapper (document or element scope). Returns a promise resolving to a transition object. See [Transitions](transitions.md).
-
-### `ui.runSwapTransition(host, fn, options?)`
-
-Element-scoped dock/container swap helper with direct-swap fallback.
-
-### `ui.configureTransitions(partial)`
-
-Global `{ enabled, nameFor }` controls for VT.
-
-### `ui.template(strings, ...values)`
-
-Tagged template literal factory. Returns a `DocumentFragment`.
-
-### `ui.observe.resize(el, fn, signal)`
-
-ResizeObserver with AbortSignal cleanup.
-
-### `ui.observe.intersection(el, fn, signal, options)`
-
-IntersectionObserver with AbortSignal cleanup.
-
-### `ui.observe.mutation(el, fn, signal, options)`
-
-MutationObserver with AbortSignal cleanup. Default options: `{ childList: true, subtree: false }`. Prefer a scoped root over `document` / `body` with `subtree: true`. When `attributes: true` without `attributeFilter`, a development warning is emitted.
-
-### `ui.observe.mutation.scoped(shadowRoot, selector, fn, signal, options)`
-
-Filters mutation records to targets matching `selector` inside a shadow root. Refuses `document` / `body` roots (dev warn + no-op). Default observe options include `subtree: true` under that shadow.
-
-### `ui.observe.performance(types, fn, signal, options)`
-
-PerformanceObserver with AbortSignal cleanup.
-
-### `ui.getAttachmentStats(shadowRoot)`
-
-Snapshot of live component attachments for diagnostics / soft-nav leak tests. Returns `null` if the shadow was never bound (or already aborted and cleared):
+- `spec` is an `element()` spec. It also accepts `transition` (`false`, or `{ name }`), like a dock.
+- Prepends `:host { contain: layout; display: block; }` to `spec.style`. Because of this, `spec.style` must be a CSS string, not a file path.
+- On mount, registers the element with the router under its `name` attribute (default: the tag). A second live instance with the same name throws `ContainerError`, which is logged as a mount failure. On unmount, unregisters it.
+- Adds `swapView(newElement, { direction, transition, name, signal })`, which replaces the children inside an element-scoped transition.
 
 ```javascript
-{
-  onRootListeners,    // shadow-root listeners currently attached
-  onRegistrations,    // handler registrations across types
-  watchBuckets,       // distinct MutationObserver fingerprints
-  watchRegistrations, // active watch.* regs (not slot)
-  slotListeners       // active watch.slot slotchange listeners
-}
+import { ui } from '@anzaui/anza/ui';
+
+ui.container('app-shell', {
+  template: '<slot></slot>',
+  transition: { name: 'app-shell' }
+});
 ```
 
-Also available as a named export: `import { getAttachmentStats } from '@anzaui/anza/ui'`.
-
-## Named Exports
+## Named exports
 
 ```javascript
-import { BaseElement, getAttachmentStats } from '@anzaui/anza/ui';
-import { define, element, container, page, dock, view, part } from '@anzaui/anza/ui';
-import { schedule, scheduleFrame, yieldTask } from '@anzaui/anza/ui';
-import { transition } from '@anzaui/anza/ui';
-import { template } from '@anzaui/anza/ui';
-import { observe } from '@anzaui/anza/ui';
+import {
+  BaseElement, define, element, container, page, dock, view, part,
+  schedule, scheduleFrame, yieldTask, Priority,
+  transition, runSwapTransition, configureTransitions, getTransitionConfig,
+  prefersReducedMotion, shouldAnimate, dockTransitionName,
+  skipHostTransition, hasDocumentViewTransition, hasElementViewTransition,
+  template, observe, theme, getAttachmentStats
+} from '@anzaui/anza/ui';
 ```
 
-## Definition Layer Exports
+`yieldTask` is `ui.yield`. `skipHostTransition(host)` skips a host's in-flight swap transition. `hasDocumentViewTransition()` and `hasElementViewTransition(el)` report API support.
+
+## Definition functions
 
 ```javascript
 import { page, dock, view, part } from '@anzaui/anza/defs';
 ```
 
+All four take `base` (`import.meta.url`) as the last argument when they use relative files. Their `template` may be a string or `{ html, css, shadow }`; a top-level `style` replaces `template.css`. They accept `props`, `form`, `eager`, `methods` and `on`. Hooks under `on` are `load`, `connect`, `disconnect` and `change`; other functions under `on` become methods.
+
+`eager: true` fetches file resources (template, styles, tags descriptor) when the element is defined. By default they load when the first instance connects.
+
 ### `page(route, config, base)`
 
-Define a route-bound element.
+A route-bound element. `route` is a pattern or an array of patterns (`'/blog'`, `['/blog', '/blog/:slug']`). See [Pages](../router/pages.md).
 
-- **`route`**: `string | string[]` - A single route pattern or an array of route patterns (e.g. `'/blog'` or `['/blog', '/blog/:slug']`).
-- **`config` fields**: `tag`, `via`, `container`, `template`, `style`, `props`, `params`, `query`, `hash`, `on`, `guard`, `error`, `loading`, `seo`, `meta`.
-  - `params`: `Array<{ name: string, type: Function }>` - path parameter contract (e.g., `[{ name: 'slug', type: String }]`).
-  - `query`: `Array<{ name: string, type: Function }>` - query parameter contract (e.g., `[{ name: 'tab', type: String }]`).
-  - `error` (optional): route-scoped error leaf override — see [Fallbacks (404 / 5xx / offline)](../router/fallbacks.md).
-  - `loading` (optional): soft-nav loading override for this page (`false` disables it).
-
-Page resources always load when the page first connects.
+| Field | Description |
+| ----- | ----------- |
+| `tag` | Required. Custom element tag. |
+| `via` | Container chain, root to leaf. The last entry is where the page renders. |
+| `container` | Single container; older form of `via`. |
+| `params` | `Array<{ name, type }>` path contract. `type` is `String` or `Number`. |
+| `query` | `Array<{ name, type }>` query contract. |
+| `guard` | Route guard; runs only for this page's patterns. |
+| `error` | Error leaf for this route. See [Fallbacks (404 / 5xx / offline)](../router/fallbacks.md). |
+| `loading` | Soft-nav loading UI for this page; `false` disables it. |
+| `seo` | `{ title, description, canonical, image }`, read at build time. |
+| `meta` | Extra route metadata. |
+| `template`, `style`, `props`, `form`, `eager`, `methods`, `on` | As above. `change` runs in the next animation frame. |
 
 ### `dock(name, config, base)`
 
-Define a container shell.
+A persistent container. See [Docks](../router/docks.md).
 
-- **`config` fields**: `tag`, `parent`, `template`, `style`, `props`, `on`, `notfound`, `error`, `offline`, `loading`, `transition`, `eager`.
-  - `notfound` / `error` / `offline` (optional): branded overrides only — bare docks use shared library built-ins; see [Fallbacks (404 / 5xx / offline)](../router/fallbacks.md).
-  - `loading` (optional): soft-nav loading UI for this subtree; `false` disables it.
-  - `transition` (optional): `false` disables the dock's View Transition; `{ name }` overrides the default `dock-<name>`.
-  - `eager` (optional): fetch file resources at define time instead of on first connect.
-
-Default tag: `dock-<name>`. Default parent: `'main'`.
+| Field | Description |
+| ----- | ----------- |
+| `tag` | Default `dock-<name>`. |
+| `parent` | Parent dock name. Default `'main'`. |
+| `template` | Default `'<slot></slot>'`. |
+| `transition` | `false` disables the swap transition; `{ name }` replaces `dock-<name>`. |
+| `notfound`, `error`, `offline` | Fallback leaves for this subtree. See [Fallbacks (404 / 5xx / offline)](../router/fallbacks.md). |
+| `loading` | Soft-nav loading UI for this subtree; `false` disables it. |
+| `style`, `props`, `form`, `eager`, `methods`, `on` | As above. `change` runs in a microtask. |
 
 ### `view(tag, config, base)`
 
-Define a stateful component.
-
-Config: `template`, `style`, `props`, `on`, `methods`, `form`, `eager`.
+A stateful component with no route. `change` runs in the next animation frame. See [Components](../router/components.md).
 
 ### `part(tag, config, base)`
 
-Define a stateless primitive.
+A stateless primitive. It never calls `change`; declaring `on.change` logs a warning. See [Components](../router/components.md).
 
-Config: `template`, `style`, `props`, `on`, `methods`, `eager`.
-
-`eager: true` (view, part, dock, element) fetches file resources (template, style, tags) at define time. By default they load when the first instance connects.
-
-Warns if `on.change` is declared.
-
-## Spec Config Shape
+## element() spec
 
 ```javascript
-{
-  template: string | { html: string, css: string | string[], shadow: 'open' | 'closed' },
-  style: string | string[],
-  mode: 'open' | 'closed',
+const spec = {
+  template: '<p ref="text"></p>',           // string: inline HTML or .html path
+  style: [':host { display: block; }'],     // string or array: CSS or .css paths
+  eager: false,
   props: {
-    name: { type: String | Number | Boolean, default: any, reflect: boolean, state: boolean }
+    name: { type: String, default: null, reflect: true, state: false }
   },
-  params: Array<{ name: string, cast: 'string' | 'number' }>,
-  query: Array<{ name: string, cast: 'string' | 'number' }>,
-  mount: (ctx) => any,
-  unmount: (ctx) => any,
-  update: (ctx) => any,
-  methods: { methodName: fn },
-  url: string,
-  container: string,
-  form: boolean,
-  eager: boolean,   // fetch file resources at define time (default: on first connect)
-  associated: (form) => any,
-  disabled: (value) => any,
-  reset: () => any,
-  restore: (state, mode) => any
-}
+  mount(ctx) {},
+  unmount(ctx) {},
+  update(ctx) {},                           // update.visual = true: next frame
+  methods: { refresh() {} },
+  form: false,
+  associated(form) {},
+  disabled(value) {},
+  reset() {},
+  restore(state, mode) {}
+};
 ```
 
-## Context Shape
+See [element() factory](factory.md#spec-shape) for each field.
+
+## Context
 
 ```javascript
-{
-  el: HTMLElement,
-  ctrl: AbortController,
-  tags: TagsCache,
-  refs: Record<string, Element>,
-  on: EventDelegator,
-  watch: MutationWatcher,
-  internals: ElementInternals | null
-}
+const ctx = {
+  el,         // the element
+  ctrl,       // AbortController; aborts on disconnect
+  tags,       // TagsCache
+  refs,       // frozen { [ref]: Element }
+  on,         // event delegator
+  watch,      // mutation watcher
+  internals,  // ElementInternals with form: true, else undefined
+  adopted     // mount only: true for a pre-rendered shadow root
+};
 ```
 
-## TagsCache Methods
+`update` gets `el`, `ctrl`, `tags`, `on`, `refs`, `watch`, `internals`, `name`, `val`, `old` and `prev`. `unmount` gets `el`, `tags`, `refs`, `watch` and `internals`. A page's `load` also gets `params` and `query`. See [Context](context.md).
+
+## tags
 
 ```javascript
-tags.one(selector)     // querySelector, cached
-tags.all(selector)     // querySelectorAll, cached
-tags.each(selector, fn) // iterate over matches
-tags.has(selector)     // boolean
-tags.clear()           // invalidate cache
-tags.prewarmId(id)     // pre-warm by ID
-tags.prewarm(selector, element) // manual pre-warm
+tags.one(selector);             // querySelector, cached
+tags.all(selector);             // querySelectorAll as an array, cached
+tags.each(selector, fn);        // fn(element, index) for each match
+tags.has(selector);             // boolean
+tags.clear();                   // drop the cache
+tags.prewarmId(id);             // cache '#id'
+tags.prewarm(selector, element);
 ```
 
-## Event Delegator Methods
+## on
 
 ```javascript
-on.click(selector, handler, options)
-on.submit(selector, handler, options)
-on.input(selector, handler, options)
-on[eventType](selectorOrElement, handler, options)
-on[eventType].once(selectorOrElement, handler, options)
+on.click(selector, handler, options);
+on[eventType](selectorOrElement, handler, options);
+on[eventType].once(selectorOrElement, handler, options);
+// handler(event, matchedElement); every call returns a disposer
 ```
-
-Matching walks `composedPath()` within the shadow root (same matcher as `events.delegate`). Selector strings or direct Element references (inside the shadow) are accepted.
 
 | Option | Type | Description |
 | ------ | ---- | ----------- |
-| `signal` | AbortSignal | Default: component `ctrl.signal` |
-| `once` | boolean | Remove after first match |
-| `passive` | boolean | Default: true only for touch/wheel types |
-| `capture` | boolean | Capture phase (separate root listener key) |
-| `attrs` | object | Attribute predicates (`null` = must be absent) |
-| `not` | string | Skip when `closest(not)` is inside the root |
-| `key` | string\|number | Dedupe — same key replaces prior registration |
-| `scope` | `'shadow'` \| `'assigned'` | Default shadow-only; `assigned` includes slotted light DOM |
+| `signal` | AbortSignal | Default: `ctrl.signal` |
+| `once` | boolean | Remove after the first match |
+| `passive` | boolean | Default: `true` only for touch and wheel events |
+| `capture` | boolean | Capture phase. Non-bubbling events always use it. |
+| `attrs` | object | Attribute tests (`null` = must be absent) |
+| `not` | string | Skip when `closest(not)` is inside the shadow root |
+| `key` | string or number | Same key replaces the earlier registration |
+| `scope` | `'shadow'` or `'assigned'` | `'assigned'` also matches slotted light DOM |
 
-Empty registry for a `(type, capture)` key removes the shadow-root listener immediately. See [Context: on](context.md#on).
+See [Context](context.md#on).
 
-Returns a disposer function.
-
-## Mutation Watcher Methods
+## watch
 
 ```javascript
-watch.attr(target, attr, handler, options)   // (attr, next, prev, el) => {}
-watch.kids(target, handler, options)         // ({ added, removed }, el) => {}
-watch.kids(target, { deep: true }, handler, options)
-watch.children(target, handler, options)     // alias of watch.kids
-watch.text(target, handler, options)         // (text, old, el) => {}
-watch.tree(target, handler, options)         // (records, target) => {}
-watch.slot(slotOrSelector, handler, options) // ({ assigned, assignedElements }, slot) => {}
-watch.attr.once(...) / kids.once / text.once / tree.once / slot.once
+watch.attr(target, names, handler, options);   // (attr, next, prev, el)
+watch.kids(target, handler, options);          // ({ added, removed }, el)
+watch.kids(target, { deep: true }, handler, options);
+watch.children(target, handler, options);      // alias of watch.kids
+watch.text(target, handler, options);          // (text, old, el)
+watch.tree(target, handler, options);          // (records, target)
+watch.slot(slotOrSelector, handler, options);  // ({ assigned, assignedElements }, slot)
+// each kind also has .once; every call returns a disposer
 ```
 
-`target` is a shadow-scoped selector or Element. Options: `{ signal, once, requirePresent }` (or a bare `AbortSignal`). Observers are bucketed by option fingerprint so a `tree` / `attr *` registration cannot widen another watch’s `attributeFilter`. `watch.slot` uses `slotchange` (not a MutationObserver). See [Context: watch](context.md#watch).
-
-Returns a disposer function.
+`target` is a selector or an element inside the shadow root. Options: `{ signal, once, requirePresent }`, or an `AbortSignal`. See [Context](context.md#watch).
