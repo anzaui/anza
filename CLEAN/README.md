@@ -33,3 +33,24 @@ The suites all pass today, so the problems are design and hygiene, not broken te
 | engines rust / ts / py | 6 / 8 / 22 |
 
 The cleanup must keep this table green at every phase.
+
+## Status (2026-10-12): library phases done
+
+Phases 0, B, 1, 2, 3 (incl. DIST stages A/B + P13) and 4 are merged on `main`. Phase 5 needs the user: push, merge the release-please PR (0.6.0), `npm run publish:npm`, then untrack `web/src/docs` (H3) once the released binary has `anza docs --pages`. Phase 6 (site redesign) comes next.
+
+| Suite | Baseline | Now |
+|-------|----------|-----|
+| library browser tests | 413 | 464 |
+| tools `cargo test` | 77 | 142 |
+| engines rust / ts / py | 6 / 8 / 22 | 10 / 9 / 24 |
+| doc imports, types, versions, SSG contract, load budgets | — | all pass (CI) |
+
+| Cold load, Fast 4G | Before | Now |
+|--------------------|--------|-----|
+| docs page requests before ready | ~300 | 9 |
+| import chain depth | 6–7 | 1 |
+| JS (brotli) | 139 KB | 51.7 KB |
+| time to ready | ~1.78 s | ~0.46 s |
+| CSS save → hot swap (dev) | ~206 ms | ~27 ms |
+
+Open: D9 (minor changelog polish), BP2/BP4 (optional build perf), H3 (untrack web/src/docs after the release).
