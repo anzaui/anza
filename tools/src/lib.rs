@@ -5,6 +5,7 @@ pub mod docs;
 pub mod extract;
 pub mod fs_atomic;
 pub mod generate;
+pub mod lock;
 pub mod server;
 pub mod structure;
 pub mod types;

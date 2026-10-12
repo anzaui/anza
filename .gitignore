@@ -6,6 +6,7 @@ tmp/
 releases/
 book/
 .anzacache.json
+.anza.lock
 *.egg-info/
 __pycache__/
 *.py[cod]

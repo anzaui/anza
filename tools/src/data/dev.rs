@@ -20,6 +20,8 @@ impl Dev {
 
   pub async fn run(&self) -> Result<(), String> {
     self.validate()?;
+    // Held until shutdown so `anza build` cannot wipe dist under the server.
+    let _lock = crate::lock::Lock::acquire(&crate::lock::project_dir(&self.src), "dev")?;
     anza_logs::info!("Bootstrapping native dev pipeline...");
 
     extract::compile_dev(&self.src, &self.dist, &self.entries);
