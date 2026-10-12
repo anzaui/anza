@@ -9,22 +9,23 @@
 <li><strong><code>slot</code></strong>: Target dock or slot identifier (e.g. <code>feed</code>, <code>main</code>).</li>
 <li><strong><code>html</code></strong>: Rendered HTML markup of the fragment.</li>
 </ul>
-<p>The client runtime validates the signature before mutating the DOM. Stale or tampered payloads are rejected immediately.</p>
+<p>The signature is hex-encoded in the envelope's <code>sig</code> field. Whoever receives the envelope (an edge worker, a proxy, another service, or your own browser code) verifies it with the matching <code>verify</code> helper and checks that <code>ts</code> is fresh. The browser library does not verify envelopes for you; see <a href="#client-side-verification">Client-Side Verification</a>.</p>
 <h2>Signing Modes</h2>
 <div class="table-wrap"><table><thead><tr><th>Mode</th><th>Algorithm</th><th>Best For</th><th>Proxy / CDN Support</th><th>Auth Dependency</th></tr></thead><tbody>
 <tr><td><strong><code>Ed25519</code></strong></td><td>Asymmetric Ed25519</td><td>Public pages, multi-tier CDNs, microfrontends</td><td>Yes (Bypasses CDN TLS termination)</td><td>None</td></tr>
-<tr><td><strong><code>SessionBound</code></strong></td><td>HKDF-SHA256 $\rightarrow$ HMAC-SHA256</td><td>Authenticated personalized streams</td><td>Yes</td><td>Derived from user session token</td></tr>
+<tr><td><strong><code>SessionBound</code></strong> / <code>session</code></td><td>Reserved (HKDF helpers exist, envelopes are not signed yet)</td><td>Authenticated personalized streams</td><td>—</td><td>—</td></tr>
 <tr><td><strong><code>Hmac</code></strong></td><td>HMAC-SHA256</td><td>Internal VPC microservices / single origin</td><td>Yes</td><td>Pre-shared secret</td></tr>
 <tr><td><strong><code>None</code></strong></td><td>No Signature</td><td>Local development and testing</td><td>Yes</td><td>None</td></tr>
 </tbody></table></div>
 <h2>Asymmetric Ed25519 (Recommended)</h2>
 <p>Ed25519 uses public-key cryptography. The origin server holds the private key and signs envelopes; clients and edge proxies verify signatures using the public key without needing access to any secrets.</p>
 <h3>Backend Setup (Rust)</h3>
-<view-code language="rust">use anza::{Setup, SignOptions};
+<view-code language="rust">use anza::Setup;
 
-let engine = Setup::new("./templates")
-    .with_signing(SignOptions::ed25519_pem_file("keys/origin_private.pem")?)
-    .run()?;
+// Raw 32-byte private and public key files
+let mut setup = Setup::new("./templates");
+setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub", false);
+let engine = setup.run()?;
 </view-code>
 <h3>Backend Setup (TypeScript)</h3>
 <view-code language="typescript">import { Setup } from '@anzaui/engine';
@@ -61,13 +62,15 @@ const engine = await new Setup({
 }
 </view-code>
 <h2>Client-Side Verification</h2>
-<p>When full-page SSR runs, the origin embeds its public key into the document head:</p>
+<p>The engines do not inject a key into pages. If you want browser-side checks, publish your public key in the document head yourself:</p>
 <view-code language="html">&lt;meta name="anza-key" content="ed25519:e4d9b2c3a1f09876543210fedcba9876543210fedcba9876543210fedcba9876"&gt;
 </view-code>
-<p>When receiving envelopes via <code>listenStream()</code> or <code>api.stream()</code>, the client runtime automatically:</p>
-<ol>
-<li>Assembles <code>ts:slot:html</code> from the incoming envelope.</li>
-<li>Checks timestamp freshness ($\Delta t \le 60\text{s}$).</li>
-<li>Verifies <code>sig</code> against the key in <code>&lt;meta name="anza-key"&gt;</code> via <code>globalThis.crypto.subtle</code>.</li>
-<li>Dispatches a <code>security:tamper</code> event and drops the fragment if verification fails.</li>
-</ol>
+<p>The browser library does <strong>not</strong> verify envelopes automatically: there is no
+built-in stream listener, and <code>api.stream()</code> only parses JSON. Verification is
+done with the engines' <code>verify</code> helpers (Rust <code>crypto::ed25519</code>, TS
+<code>crypto/ed25519.ts</code> / <code>crypto/hmac.ts</code>, Python <code>anza.crypto</code>), typically on the
+server or edge that relays fragments. To verify in the browser, rebuild the
+<code>ts:slot:html</code> message from the envelope, check that <code>ts</code> is fresh, and call
+<code>crypto.subtle.verify('Ed25519', key, sig, message)</code> with the public key from
+<code>&lt;meta name="anza-key"&gt;</code>. <code>verify()</code> from <code>@anzaui/anza/security</code> covers HMAC and
+ECDSA keys only.</p>

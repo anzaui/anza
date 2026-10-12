@@ -1,67 +1,57 @@
 <h1>Rust Engine</h1>
-<p>The Anza Rust Engine (<code>anza</code>) is a zero-copy Server-Templated UI engine built for the Rust web ecosystem. It delivers Declarative Shadow DOM documents and cryptographically verified dynamic component envelopes with minimal allocations and sub-millisecond execution times.</p>
+<p>The Anza Rust Engine (crate <code>anza</code>) renders full HTML pages and signed JSON
+fragment envelopes from <code>.html</code> templates. Templates are loaded and parsed once
+at startup; a render walks the pre-split chunks and copies parameter values in.</p>
 <h2>What You Get</h2>
 <ul>
-<li><strong>Zero-copy parameter injection</strong> — Templates compile once into memory offsets; parameter replacement uses borrowed slices</li>
-<li><strong>Native framework support</strong> — Pre-built converters for Axum, Actix-web, and Tower</li>
-<li><strong>Serde integration</strong> — Direct data binding from any <code>Serialize</code> struct or map</li>
-<li><strong>Real-time SSE streams</strong> — Built-in event generators for live component streaming</li>
-<li><strong>Live template reload</strong> — Optional <code>watch</code> feature for background filesystem monitoring in development</li>
+<li><strong>Parse once</strong> — every template under the root is read and split into static chunks and <code>{{slot}}</code> placeholders by <code>Setup::run()</code></li>
+<li><strong>Framework adapters</strong> — <code>IntoResponse</code> (Axum) and <code>Responder</code> (Actix-web) for <code>Document</code> and <code>Envelope</code>, plus SSE helpers</li>
+<li><strong>Serde binding</strong> — render any <code>Serialize</code> value with <code>Template::render</code>, or wrap it in <code>Data(...)</code></li>
+<li><strong>Signing</strong> — HMAC-SHA256 or Ed25519 signatures over <code>ts:slot:html</code></li>
+<li><strong>Live reload</strong> — optional <code>watch</code> feature reloads templates when files change</li>
 </ul>
 <h2>Installation</h2>
-<p>Add <code>anza</code> to your <code>Cargo.toml</code>:</p>
 <view-code language="toml">[dependencies]
-anza = { version = "0.5.0", features = ["axum"] }
-tokio = { version = "1.0", features = ["full"] }
-serde = { version = "1.0", features = ["derive"] }
+anza = { version = "0.5", features = ["axum"] }
+tokio = { version = "1", features = ["full"] }
 </view-code>
 <h3>Feature Flags</h3>
 <div class="table-wrap"><table><thead><tr><th>Feature</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>axum</code></td><td>Native response conversions for Axum (<code>Html(doc)</code>, <code>Json(envelope)</code>)</td></tr>
-<tr><td><code>actix</code></td><td>Actix-web response helpers and extractors</td></tr>
-<tr><td><code>tower</code></td><td>Tower Service middleware for template rendering pipelines</td></tr>
-<tr><td><code>watch</code></td><td>Background filesystem template watcher for development hot reloading</td></tr>
+<tr><td><em>(default)</em></td><td>No web framework and no async runtime</td></tr>
+<tr><td><code>axum</code></td><td><code>IntoResponse</code> for <code>Document</code> (HTML) and <code>Envelope</code> (JSON); <code>adapters::axum::stream::event</code> builds an SSE <code>Event</code></td></tr>
+<tr><td><code>actix</code></td><td><code>Responder</code> for <code>Document</code> and <code>Envelope</code>; <code>adapters::actix::stream::bytes</code> for SSE bodies</td></tr>
+<tr><td><code>tower</code></td><td>A Tower <code>Service</code> wrapper (<code>adapters::tower</code>)</td></tr>
+<tr><td><code>watch</code></td><td>Filesystem watcher (<code>notify</code>) for reloading templates in development</td></tr>
+<tr><td><code>full</code></td><td>All of the above</td></tr>
 </tbody></table></div>
 <h2>Quickstart (Axum)</h2>
-<view-code language="rust">use anza::{Setup, Page, Fragment, SignOptions};
-use axum::{
-    routing::get,
-    response::{Html, Json},
-    Router,
-};
-use std::sync::Arc;
+<view-code language="rust">use std::sync::Arc;
+use anza::{Fragment, Page, Setup};
+use axum::{routing::get, Router};
 
 #[tokio::main]
 async fn main() {
-    // 1. Initialize engine once at application startup
-    let engine = Arc::new(
-        Setup::new("./templates")
-            .with_signing(SignOptions::hmac("super-secret-key-32-bytes-long!"))
-            .run()
-            .expect("Failed to initialize Anza engine")
-    );
+    // 1. Load and parse every template once at startup.
+    let mut setup = Setup::new("./templates");
+    setup.signing = Setup::hmac(b"super-secret-key-32-bytes-long!!");
+    let engine = Arc::new(setup.run().expect("load templates"));
 
     let app = Router::new()
-        // Mode A: Full-page SSR with Declarative Shadow DOM
+        // Full page: templates/pages/home.html inside templates/layout/shell.html
         .route("/", get({
             let engine = engine.clone();
             move || async move {
-                let doc = Page::new("/")
-                    .with_param("title", "Anza Rust STUI")
-                    .run(&amp;engine)
-                    .expect("Failed to render page");
-                Html(doc.html)
+                Page::new("/").param("title", "Anza Rust").run(&amp;engine).unwrap()
             }
         }))
-        // Mode B: Dynamic partial fragment (JSON envelope)
+        // Fragment: templates/feed/card.html as a signed JSON envelope
         .route("/card", get({
             let engine = engine.clone();
             move || async move {
-                let envelope = Fragment::new("feed/card.html", "feed")
-                    .with_param("title", "Live Metric")
+                Fragment::new("feed/card.html", "feed")
+                    .param("title", "Live Metric")
                     .run(&amp;engine)
-                    .expect("Failed to render fragment");
-                Json(envelope)
+                    .unwrap()
             }
         }));
 
@@ -69,40 +59,64 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 </view-code>
-<h2>Data Binding (Serde)</h2>
-<p>Bind data directly from any Rust struct deriving <code>Serialize</code>:</p>
+<p><code>Document</code> and <code>Envelope</code> implement <code>IntoResponse</code> with the <code>axum</code> feature, so
+handlers can return them directly.</p>
+<h2>Parameters</h2>
+<p><code>Page::param</code> and <code>Fragment::param</code> take string pairs. For structured data,
+bind a template yourself:</p>
 <view-code language="rust">use serde::Serialize;
-use anza::Page;
 
 #[derive(Serialize)]
 struct UserProfile {
     user_id: String,
     user_name: String,
-    role: String,
 }
 
-let profile = UserProfile {
-    user_id: "usr_9482".into(),
-    user_name: "Alice Developer".into(),
-    role: "Admin".into(),
-};
-
-let doc = Page::new("/profile")
-    .with_data(&amp;profile)
-    .run(&amp;engine)?;
+let profile = UserProfile { user_id: "usr_9482".into(), user_name: "Alice".into() };
+let html = engine.get("partials/profile.html")?.render(&amp;profile)?;
 </view-code>
+<p><code>Template::bind</code> accepts anything that implements <code>Params</code>: <code>HashMap&lt;String, String&gt;</code>,
+arrays of <code>(&amp;str, &amp;str)</code> pairs, <code>serde_json::Value</code>, or <code>Data(value)</code> for any
+<code>Serialize</code> type.</p>
+<p>Values are inserted <strong>as is, without HTML escaping</strong>. Escape user input before
+passing it in.</p>
 <h2>Signing Configuration</h2>
-<h3>Ed25519 (Asymmetric)</h3>
-<view-code language="rust">use anza::{Setup, SignOptions};
+<p><code>Setup</code> has public fields (<code>root</code>, <code>signing</code>, <code>watch</code>). Two helpers build the
+signing mode:</p>
+<view-code language="rust">use anza::{Setup, SignMode};
 
-let engine = Setup::new("./templates")
-    .with_signing(SignOptions::ed25519_pem_file("keys/origin_private.pem")?)
-    .run()?;
-</view-code>
-<h3>HMAC-SHA256 (Symmetric)</h3>
-<view-code language="rust">use anza::{Setup, SignOptions};
+// HMAC-SHA256 with a shared secret
+let mut setup = Setup::new("./templates");
+setup.signing = Setup::hmac(b"pre-shared-secret-key-32-bytes!!");
 
-let engine = Setup::new("./templates")
-    .with_signing(SignOptions::hmac("pre-shared-secret-key-32-bytes"))
-    .run()?;
+// Ed25519: the files hold the raw 32-byte private key and public key
+setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub", false);
+
+// No signature (development)
+setup.signing = SignMode::None;
 </view-code>
+<p><code>SignMode::SessionBound</code> is accepted but does not sign yet. The signature is
+hex-encoded; see <a href="/docs/engines/crypto">crypto.md</a>.</p>
+<h2>Page Rendering</h2>
+<p><code>Page::new(route)</code> maps the route to a template: <code>/</code> → <code>pages/home.html</code>,
+<code>/about</code> → <code>pages/about.html</code>, then falls back to <code>about.html</code> and
+<code>pages/index.html</code>. The page is bound with the params, then inserted into
+<code>layout/shell.html</code> as <code>{{content}}</code> (also <code>{{slot_main}}</code>). Without a shell,
+a minimal document with a <code>&lt;dock-main&gt;</code> is emitted.</p>
+<h2>Streaming</h2>
+<p><code>Stream</code> renders an envelope like <code>Fragment</code>; <code>stream::sse::frame::encode(&amp;envelope)</code>
+formats it as an SSE <code>template</code> event and <code>stream::ws::packet::encode</code> as a
+WebSocket text frame. With the <code>axum</code> feature, <code>adapters::axum::stream::event</code>
+returns an <code>axum::response::sse::Event</code>. See <a href="/docs/engines/streaming">streaming.md</a>.</p>
+<h2>Crate Layout</h2>
+<div class="table-wrap"><table><thead><tr><th>Module</th><th>Contents</th></tr></thead><tbody>
+<tr><td><code>data::r#in</code></td><td><code>Setup</code> (config) and the <code>Page</code>, <code>Fragment</code>, <code>Stream</code> operations</td></tr>
+<tr><td><code>engine::slot</code></td><td><code>{{slot}}</code> parser (<code>extract</code>) and binder (<code>Params</code>, <code>Data</code>)</td></tr>
+<tr><td><code>engine::file</code></td><td>Template loading (<code>load::all</code>, <code>Template</code>), reading, watching</td></tr>
+<tr><td><code>engine::cache</code></td><td><code>Engine</code>, <code>SignMode</code>, the template store</td></tr>
+<tr><td><code>render</code></td><td>Page and fragment rendering</td></tr>
+<tr><td><code>crypto</code></td><td><code>hmac</code>, <code>ed25519</code> (sign / verify), <code>hkdf</code>, <code>blake</code> digests</td></tr>
+<tr><td><code>stream</code></td><td>SSE and WebSocket encoders</td></tr>
+<tr><td><code>adapters</code></td><td>Axum, Actix-web and Tower integration (feature-gated)</td></tr>
+<tr><td><code>models</code></td><td><code>Document</code>, <code>Envelope</code>, <code>Manifest</code></td></tr>
+</tbody></table></div>

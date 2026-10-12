@@ -22,7 +22,7 @@ self.addEventListener('activate', (e) =&gt; {
 
 const r = router();
 r.register('*', new CacheFirst(SHELL));
-r.register('/api/*', new NetworkFirst(API, { timeout: 3000 }));
+r.register('/api/*', new NetworkFirst(API, { timeout: 3000 }));  // more specific: wins over '*'
 
 self.addEventListener('fetch', (e) =&gt; {
   if (r.handle(e)) return;
@@ -33,7 +33,7 @@ self.addEventListener('fetch', (e) =&gt; {
 <ol>
 <li>On <code>install</code>, precaches the app shell into a cache named <code>shell-v3</code>, then <code>skipWaiting()</code> so the new worker can activate without closing every tab</li>
 <li>On <code>activate</code>, deletes other cache names (e.g. an older <code>shell-v2</code>) and claims all tabs</li>
-<li>Registers two routes: static assets get <code>CacheFirst</code>, API calls get <code>NetworkFirst</code> with a 3-second timeout</li>
+<li>Registers two routes: API calls get <code>NetworkFirst</code> with a 3-second timeout (the most specific match wins, so <code>/api/*</code> beats <code>'*'</code>), everything else gets <code>CacheFirst</code></li>
 <li>On <code>fetch</code>, tries the router first; unmatched requests fall through to the network</li>
 </ol>
 <p>Bump <code>SHELL</code> / <code>API</code> cache names when you ship path-breaking asset URL changes — <code>CacheFirst</code> with no TTL otherwise pins stale JS forever. <code>pruneStale</code> only removes <em>other</em> cache names, not entries inside the current one.</p>
@@ -42,16 +42,32 @@ self.addEventListener('fetch', (e) =&gt; {
 <view-code language="javascript">import '@anzaui/anza/ui';
 import { dock } from '@anzaui/anza/ui';
 
-// Register the Service Worker
-navigator.serviceWorker.register('/sw.js');
+// Register the Service Worker on deployed hosts only.
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
+if ('serviceWorker' in navigator) {
+  if (LOCAL_HOSTS.has(location.hostname)) {
+    // Dev: remove workers and caches left over from earlier builds.
+    navigator.serviceWorker.getRegistrations().then(async (regs) =&gt; {
+      if (!regs.length) return;
+      await Promise.all(regs.map((reg) =&gt; reg.unregister()));
+      const keys = await caches.keys();
+      await Promise.all(keys.map((key) =&gt; caches.delete(key)));
+    });
+  } else {
+    navigator.serviceWorker.register('/sw.js', { type: 'module' });
+  }
+}
 
 // Layout shell
 dock('main');
-
-// Pages
-import './pages/index/index.js';
 </view-code>
 <p><code>navigator.serviceWorker.register('/sw.js')</code> starts the SW. The browser resolves the path relative to the page origin, so <code>/sw.js</code> is correct.</p>
+<p><strong>Don't run the SW in dev.</strong> A caching worker on <code>localhost</code> serves old JS/CSS
+after you edit a file, so changes seem to need a hard refresh. Register it only
+on deployed hosts, and unregister any leftover worker locally, as above (this
+is what the Anza site does in <code>web/src/app.js</code>). To test the SW itself, run a
+production build (<code>npx anza build</code>) and serve <code>dist/</code> on a non-local hostname,
+or use DevTools &gt; Application &gt; Service workers &gt; "Update on reload".</p>
 <h2>3. Send Messages from the Main Thread</h2>
 <p>Use the offline bridge to send tasks to the active SW:</p>
 <view-code language="javascript">import { offline } from '@anzaui/anza/offline';

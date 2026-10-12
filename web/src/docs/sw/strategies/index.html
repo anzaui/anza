@@ -1,16 +1,22 @@
 <h1>Strategies</h1>
-<p>Seven caching strategies for intercepting <code>fetch</code> events inside a Service Worker. Each is a class with a <code>handle(request)</code> method that returns a Response.</p>
+<p>Seven caching strategies for intercepting <code>fetch</code> events inside a Service Worker. Each is a class with a <code>handle(request, event?)</code> method that returns a Response.</p>
+<p>Every strategy <strong>responds first</strong> and writes the cache afterwards. When the
+router calls a strategy it passes the <code>FetchEvent</code> as the second argument, and
+the cache write goes to <code>event.waitUntil()</code> so the worker stays alive until it
+finishes. Call <code>handle(request, event)</code> the same way from your own code.
+Strategies never intercept event streams (<code>Accept: text/event-stream</code>) or the
+dev server's <code>/hmr</code> channel.</p>
 <h2>CacheFirst</h2>
 <p>Tries cache first. Falls back to network on miss. Stores the network response in cache.</p>
 <view-code language="javascript">import { CacheFirst } from '@anzaui/anza/sw';
 
 const strategy = new CacheFirst('shell-v1', { ttl: 3600000 });
-const response = await strategy.handle(request);
+const response = await strategy.handle(request, event);
 </view-code>
 <div class="table-wrap"><table><thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>ttl</code></td><td>number</td><td>—</td><td>Time-to-live in milliseconds; stored as <code>x-expires-at</code> header</td></tr>
 </tbody></table></div>
-<p>Use this for static assets: JS, CSS, fonts, images.</p>
+<p>Use this for files whose URL changes when their content changes (content-hashed or <code>?v=</code> versioned assets). For unhashed JS/CSS use <code>StaleRevalidate</code>, otherwise an old file is served until the cache name changes.</p>
 <h2>NetworkFirst</h2>
 <p>Tries network first. Falls back to cache on failure or timeout.</p>
 <view-code language="javascript">import { NetworkFirst } from '@anzaui/anza/sw';

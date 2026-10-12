@@ -1,6 +1,7 @@
 <h1>API Reference</h1>
 <p>Complete reference for the Service Worker toolkit.</p>
 <h2>Strategies</h2>
+<p>Every strategy has <code>handle(request, event?)</code>. It responds first; with an <code>event</code>, the cache write is passed to <code>event.waitUntil()</code>.</p>
 <h3><code>new CacheFirst(cacheName, options)</code></h3>
 <div class="table-wrap"><table><thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>cacheName</code></td><td>string</td><td>Cache storage bucket name</td></tr>
@@ -42,10 +43,10 @@
 <h3><code>router.register(pattern, strategy)</code></h3>
 <div class="table-wrap"><table><thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>pattern</code></td><td>string | URLPatternInit</td><td>URL to match</td></tr>
-<tr><td><code>strategy</code></td><td>object</td><td>Any object with <code>handle(request)</code> method</td></tr>
+<tr><td><code>strategy</code></td><td>object</td><td>Any object with a <code>handle(request, event)</code> method</td></tr>
 </tbody></table></div>
 <h3><code>router.handle(event)</code></h3>
-<p>Returns <code>true</code> if a route matched and <code>event.respondWith()</code> was called. Returns <code>false</code> otherwise.</p>
+<p>Responds with the most specific matching route (catch-alls lose to any literal path; ties keep registration order) and passes <code>event</code> to the strategy. Returns <code>true</code> if a route matched and <code>event.respondWith()</code> was called. Returns <code>false</code> otherwise. <code>GET</code>/<code>HEAD</code> only; event streams and <code>/hmr</code> are never intercepted.</p>
 <h2>Lifecycle</h2>
 <h3><code>precache(cacheName, urls)</code></h3>
 <p>Pre-caches an array of URLs during the <code>install</code> event.</p>

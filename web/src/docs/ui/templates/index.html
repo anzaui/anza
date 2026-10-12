@@ -17,6 +17,19 @@
 <tr><td><code>shadow</code></td><td>no</td><td><code>'open'</code> or <code>'closed'</code>; default <code>'open'</code></td></tr>
 </tbody></table></div>
 <p>Paths are resolved relative to the third argument (<code>import.meta.url</code>). The native toolchain copies assets during build.</p>
+<h3>When files load</h3>
+<p>File resources load on <strong>first connect</strong> (lazy, the default): defining an
+element costs no requests until one is used on the page. The style, template
+and tags descriptor are fetched in parallel, once per element type. Pass
+<code>eager: true</code> (on <code>element()</code>, <code>view()</code>, <code>part()</code> or <code>dock()</code>) to start the
+fetch at define time instead, for an element you know will render right away:</p>
+<view-code language="javascript">view('app-header', {
+  template: { html: './header.html', css: './header.css' },
+  eager: true
+}, import.meta.url);
+</view-code>
+<p>Pre-rendered (declarative shadow DOM) elements mount immediately without
+waiting for these files.</p>
 <h2>Tagged Template Literal</h2>
 <p>For rapid prototyping outside the element factory:</p>
 <view-code language="javascript">import { template } from '@anzaui/anza/ui';

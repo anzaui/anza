@@ -1,12 +1,16 @@
 <h1>TypeScript Engine</h1>
-<p>The Anza TypeScript Engine (<code>@anzaui/engine</code>) is a zero-dependency, JIT-optimized template and STUI streaming engine. It executes with identical behavior and wire compatibility across Node.js, Bun, Deno, Cloudflare Workers, and Vercel Edge.</p>
+<p>The Anza TypeScript Engine (<code>@anzaui/engine</code>) renders full HTML pages and
+signed JSON fragment envelopes from <code>.html</code> templates. It has no npm
+dependencies; it uses Node's <code>node:fs</code> and <code>node:crypto</code> modules, so it runs on
+Node.js 18+ and on runtimes with Node compatibility (Bun, Deno). Responses use
+the standard <code>Response</code> class.</p>
 <h2>What You Get</h2>
 <ul>
-<li><strong>Zero dependencies</strong> — Built exclusively on native Web Standards (<code>Request</code>, <code>Response</code>, <code>SubtleCrypto</code>)</li>
-<li><strong>Universal runtime support</strong> — Runs on Node.js (18+), Bun, Deno, Cloudflare Workers, and edge runtimes</li>
-<li><strong>JIT closure compilation</strong> — Compiles templates once into memory functions for maximum throughput</li>
-<li><strong>Framework adapters</strong> — First-class helpers for Hono, Express, Fastify, and raw Fetch API</li>
-<li><strong>Live SSE streaming</strong> — Built-in <code>sseEvent()</code> helper for real-time Server-Sent Events</li>
+<li><strong>Parse once</strong> — <code>new Setup(...).run()</code> loads every template under the root and compiles it into a render function</li>
+<li><strong>Framework adapters</strong> — <code>htmlResponse</code> / <code>jsonResponse</code> / <code>sseEvent</code> for Fetch-style handlers, plus helpers for Hono, Express and Fastify under <code>adapters</code></li>
+<li><strong>Signing</strong> — HMAC-SHA256 or Ed25519 signatures over <code>ts:slot:html</code></li>
+<li><strong>Live SSE streaming</strong> — <code>sseEvent()</code> / <code>formatEvent()</code> turn an envelope into a <code>template</code> event</li>
+<li><strong>Live reload</strong> — <code>watch: true</code> reloads templates when files change</li>
 </ul>
 <h2>Installation</h2>
 <view-code language="bash">npm install @anzaui/engine
@@ -86,3 +90,39 @@ app.get('/card', async (req, res) =&gt; {
 
 app.listen(3000);
 </view-code>
+<h3>Fastify</h3>
+<view-code language="typescript">import Fastify from 'fastify';
+import { Setup, Page, Fragment, adapters } from '@anzaui/engine';
+
+const engine = await new Setup({ root: './templates' }).run();
+const app = Fastify();
+
+app.get('/', async (req, reply) =&gt; {
+  const doc = await new Page('/', { title: 'Fastify' }).run(engine);
+  return adapters.fastify.sendHtml(reply, doc);
+});
+
+app.get('/card', async (req, reply) =&gt; {
+  const env = await new Fragment('feed/card.html', 'feed', { title: 'Card' }).run(engine);
+  return adapters.fastify.sendJson(reply, env);
+});
+
+await app.listen({ port: 3000 });
+</view-code>
+<h2>Parameters</h2>
+<p>Params can be a plain object, a <code>Map</code>, or an array of <code>[key, value]</code> pairs.
+Values are inserted <strong>as is, without HTML escaping</strong>: escape user input before
+passing it in.</p>
+<h2>Signing</h2>
+<view-code language="typescript">await new Setup({ root: './templates', signing: { mode: 'hmac', secret: process.env.STUI_SECRET! } }).run();
+await new Setup({ root: './templates', signing: { mode: 'ed25519', privateKey: seed32Bytes } }).run();
+</view-code>
+<p><code>privateKey</code> is a raw 32-byte seed, a PEM/DER key, or a <code>KeyObject</code>. When the
+key is missing, or with <code>mode: 'session'</code> (not implemented yet), envelopes are
+sent without <code>sig</code>. See <a href="/docs/engines/crypto">crypto.md</a>.</p>
+<h2>Page Rendering</h2>
+<p><code>Page(route)</code> maps the route to a template: <code>/</code> → <code>pages/home.html</code>, <code>/about</code> →
+<code>pages/about.html</code>, then falls back to <code>about.html</code> and <code>pages/index.html</code>. The
+page is bound with the params and inserted into <code>layout/shell.html</code> as
+<code>{{content}}</code> (also <code>{{slot_main}}</code>). Without a shell, a minimal document with
+a <code>&lt;dock-main&gt;</code> is emitted.</p>

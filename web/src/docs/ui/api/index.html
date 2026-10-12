@@ -74,32 +74,36 @@ import { observe } from '@anzaui/anza/ui';
 <p>Define a route-bound element.</p>
 <ul>
 <li><strong><code>route</code></strong>: <code>string | string[]</code> - A single route pattern or an array of route patterns (e.g. <code>'/blog'</code> or <code>['/blog', '/blog/:slug']</code>).</li>
-<li><strong><code>config</code> fields</strong>: <code>tag</code>, <code>via</code>, <code>container</code>, <code>template</code>, <code>style</code>, <code>props</code>, <code>params</code>, <code>query</code>, <code>hash</code>, <code>on</code>, <code>guard</code>, <code>error</code>, <code>meta</code>.
+<li><strong><code>config</code> fields</strong>: <code>tag</code>, <code>via</code>, <code>container</code>, <code>template</code>, <code>style</code>, <code>props</code>, <code>params</code>, <code>query</code>, <code>hash</code>, <code>on</code>, <code>guard</code>, <code>error</code>, <code>loading</code>, <code>seo</code>, <code>meta</code>.
 <ul>
 <li><code>params</code>: <code>Array&lt;{ name: string, type: Function }&gt;</code> - path parameter contract (e.g., <code>[{ name: 'slug', type: String }]</code>).</li>
 <li><code>query</code>: <code>Array&lt;{ name: string, type: Function }&gt;</code> - query parameter contract (e.g., <code>[{ name: 'tab', type: String }]</code>).</li>
 <li><code>error</code> (optional): route-scoped error leaf override — see <a href="/docs/router/fallbacks">router/fallbacks.md</a>.</li>
+<li><code>loading</code> (optional): soft-nav loading override for this page (<code>false</code> disables it).</li>
 </ul>
 </li>
 </ul>
+<p>Page resources always load when the page first connects.</p>
 <h3><code>dock(name, config, base)</code></h3>
 <p>Define a container shell.</p>
 <ul>
-<li><strong><code>config</code> fields</strong>: <code>tag</code>, <code>parent</code>, <code>template</code>, <code>style</code>, <code>params</code>, <code>query</code>, <code>on</code>, <code>notfound</code>, <code>error</code>, <code>offline</code>.
+<li><strong><code>config</code> fields</strong>: <code>tag</code>, <code>parent</code>, <code>template</code>, <code>style</code>, <code>props</code>, <code>on</code>, <code>notfound</code>, <code>error</code>, <code>offline</code>, <code>loading</code>, <code>transition</code>, <code>eager</code>.
 <ul>
 <li><code>notfound</code> / <code>error</code> / <code>offline</code> (optional): branded overrides only — bare docks use shared library built-ins; see <a href="/docs/router/fallbacks">router/fallbacks.md</a>.</li>
-<li><code>params</code>: <code>Array&lt;{ name: string, type: Function }&gt;</code> - path parameter contract.</li>
-<li><code>query</code>: <code>Array&lt;{ name: string, type: Function }&gt;</code> - query parameter contract.</li>
+<li><code>loading</code> (optional): soft-nav loading UI for this subtree; <code>false</code> disables it.</li>
+<li><code>transition</code> (optional): <code>false</code> disables the dock's View Transition; <code>{ name }</code> overrides the default <code>dock-&lt;name&gt;</code>.</li>
+<li><code>eager</code> (optional): fetch file resources at define time instead of on first connect.</li>
 </ul>
 </li>
 </ul>
-<p>Default tag: <code>dock-&lt;name&gt;</code>. Default parent: <code>'body'</code>.</p>
+<p>Default tag: <code>dock-&lt;name&gt;</code>. Default parent: <code>'main'</code>.</p>
 <h3><code>view(tag, config, base)</code></h3>
 <p>Define a stateful component.</p>
-<p>Config: <code>tag</code>, <code>template</code>, <code>style</code>, <code>props</code>, <code>on</code>, <code>methods</code>.</p>
+<p>Config: <code>template</code>, <code>style</code>, <code>props</code>, <code>on</code>, <code>methods</code>, <code>form</code>, <code>eager</code>.</p>
 <h3><code>part(tag, config, base)</code></h3>
 <p>Define a stateless primitive.</p>
-<p>Config: <code>tag</code>, <code>template</code>, <code>style</code>, <code>props</code>, <code>on</code>, <code>methods</code>.</p>
+<p>Config: <code>template</code>, <code>style</code>, <code>props</code>, <code>on</code>, <code>methods</code>, <code>eager</code>.</p>
+<p><code>eager: true</code> (view, part, dock, element) fetches file resources (template, style, tags) at define time. By default they load when the first instance connects.</p>
 <p>Warns if <code>on.change</code> is declared.</p>
 <h2>Spec Config Shape</h2>
 <view-code language="javascript">{
@@ -118,6 +122,7 @@ import { observe } from '@anzaui/anza/ui';
   url: string,
   container: string,
   form: boolean,
+  eager: boolean,   // fetch file resources at define time (default: on first connect)
   associated: (form) =&gt; any,
   disabled: (value) =&gt; any,
   reset: () =&gt; any,

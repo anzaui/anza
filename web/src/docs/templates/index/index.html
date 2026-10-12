@@ -7,7 +7,7 @@
 <tr><td><strong>Token Binding</strong></td><td>Fast string substitution for <code>{{token}}</code> variables and slotted content injections</td></tr>
 <tr><td><strong>Component Modularity</strong></td><td>Clean separation of Shell layouts (<code>layout/shell.html</code>), Pages (<code>pages/home.html</code>), and Partials (<code>feed/card.html</code>)</td></tr>
 <tr><td><strong>Dual Mode Output</strong></td><td>Output either full HTML documents for SEO crawlers or signed STUI stream envelopes for clients</td></tr>
-<tr><td><strong>Universal Engine Support</strong></td><td>Native parsers and renderers for Rust, Python (FastAPI/ASGI/Flask), and TypeScript (Node/Hono)</td></tr>
+<tr><td><strong>Universal Engine Support</strong></td><td>The same template syntax in Rust, Python (FastAPI/ASGI/Flask) and TypeScript (Node/Hono)</td></tr>
 </tbody></table></div>
 <h2>Template Structure</h2>
 <p>In an Anza application, server templates reside in a structured <code>templates/</code> directory:</p>
@@ -70,24 +70,24 @@
 </view-code>
 <h3>3. Render via Server Engine</h3>
 <p>In Rust:</p>
-<view-code language="rust">use anza::Engine;
+<view-code language="rust">use anza::{Page, Setup};
 use serde_json::json;
 
-let engine = Engine::new("templates")?;
+let engine = Setup::new("templates").run()?;
 
-// Render partial card
-let card_html = engine.render("feed/card.html", &amp;json!({
+// Render a partial card (any Serialize value)
+let card_html = engine.get("feed/card.html")?.render(&amp;json!({
     "slug": "getting-started",
     "title": "Getting Started with Anza STUI",
     "summary": "Build high-performance web applications with server templates.",
     "created": "2026-08-28"
 }))?;
 
-// Render full shell
-let full_page = engine.render_page("pages/home.html", &amp;json!({
-    "title": "Home — Anza Blog",
-    "articles": card_html
-}))?;
+// Render the "/" page (pages/home.html) inside layout/shell.html
+let full_page = Page::new("/")
+    .param("title", "Home — Anza Blog")
+    .param("articles", card_html)
+    .run(&amp;engine)?;
 </view-code>
 <h2>Dual Rendering Modes</h2>
 <p>Server templates support two output targets without code duplication:</p>
@@ -107,7 +107,7 @@ Renders only the partial HTML, generates an Ed25519 cryptographic signature, and
 </ol>
 <h2>Next Steps</h2>
 <ul>
-<li><strong><a href="/docs/templates/syntax">Syntax &amp; Tokens</a></strong>: Learn interpolation rules, array iteration, and escaping.</li>
+<li><strong><a href="/docs/templates/syntax">Syntax &amp; Tokens</a></strong>: Placeholder rules and escaping (values are not escaped for you).</li>
 <li><strong><a href="/docs/templates/layouts">Layouts &amp; Shells</a></strong>: Build composable shells and nested Declarative Shadow DOM docks.</li>
 <li><strong><a href="/docs/templates/components">Components &amp; Partials</a></strong>: Encapsulate UI cards, scoped styles, and forms.</li>
 <li><strong><a href="/docs/templates/binding">Data Binding</a></strong>: Connect Rust, Python, and TypeScript backend models to templates.</li>

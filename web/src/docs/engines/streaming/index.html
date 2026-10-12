@@ -4,8 +4,8 @@
 <ul>
 <li><strong>Server-Sent Events (SSE)</strong> — Standard HTTP transport with automatic reconnection and CDN pass-through</li>
 <li><strong>WebSocket text frames</strong> — High-frequency bidirectional streaming for real-time collaboration</li>
-<li><strong>Declarative client listener</strong> — <code>listenStream()</code> automatically verifies signatures and patches matching docks</li>
-<li><strong>Async generator consumption</strong> — Programmatic <code>for await</code> streams via <code>api.stream()</code></li>
+<li><strong>Plain browser client</strong> — the standard <code>EventSource</code> / <code>WebSocket</code> APIs; no extra runtime</li>
+<li><strong>Async generator consumption</strong> — <code>for await</code> over newline-delimited JSON via <code>api.stream()</code></li>
 </ul>
 <h2>Protocol Overview</h2>
 <h3>Server-Sent Events (SSE)</h3>
@@ -18,29 +18,32 @@ event: template
 data: {"slot":"feed","ts":1724771234,"html":"&lt;ui-card&gt;...&lt;/ui-card&gt;","sig":"3a8f4c...","css":null}
 </view-code>
 <h2>Client Integration</h2>
-<h3>1. <code>listenStream()</code></h3>
-<p>Connect to an SSE stream and automatically patch matching docks in the DOM:</p>
-<view-code language="javascript">import { listenStream } from '@anzaui/anza/ui';
+<p>The library has no built-in stream listener and does not verify envelope
+signatures in the browser. Use the platform APIs directly and decide how a
+<code>slot</code> name maps to an element in your page.</p>
+<h3>1. <code>EventSource</code> (SSE)</h3>
+<view-code language="javascript">const source = new EventSource('/api/live/stream');
 
-const stream = listenStream('/api/live/stream', {
-  reconnect: true,
-  onUpdate(slot, envelope) {
-    console.log(`Updated slot ${slot}`);
-  },
-  onError(err) {
-    console.error('Stream error:', err);
-  },
+source.addEventListener('template', (event) =&gt; {
+  const envelope = JSON.parse(event.data);
+  const target = document.getElementById(envelope.slot);
+  if (target) target.innerHTML = envelope.html;
 });
 
 // To disconnect:
-// stream.close();
+// source.close();
 </view-code>
-<h3>2. <code>api.stream()</code></h3>
-<p>Programmatic stream consumption in custom components:</p>
+<p><code>EventSource</code> reconnects on its own. Only inject HTML from a stream you
+trust: <code>sanitize()</code> from <code>@anzaui/anza/security</code> strips custom elements, so it
+is meant for user content, not for engine fragments. Verify <code>sig</code> with the
+engine's <code>verify</code> helper on any server or edge hop that relays the stream (see
+<a href="/docs/engines/crypto">crypto.md</a>).</p>
+<h3>2. <code>api.stream()</code> (NDJSON)</h3>
+<p><code>api.stream()</code> reads a newline-delimited JSON body (one envelope per line,
+<code>Content-Type: application/x-ndjson</code>) and yields each line already parsed:</p>
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
 
-for await (const chunk of api.stream('/api/live/feed')) {
-  const envelope = JSON.parse(chunk);
+for await (const envelope of api.stream('/api/live/feed')) {
   console.log('Received live envelope:', envelope.slot, envelope.html);
 }
 </view-code>

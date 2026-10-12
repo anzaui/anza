@@ -40,9 +40,9 @@ reset();
 <li><code>wild</code> — <code>*</code> catchall</li>
 </ul>
 <p>Walk order is static → param → wild, matching specificity order. The trie returns <code>{ route, params }</code> on hit. Params are decoded with <code>decodeURIComponent</code>.</p>
-<p>These matched <code>params</code> are raw key-value string mappings. During navigation, the router interceptor looks up the component's contract in the <code>specRegistry</code> to parse and cast these raw values into typed, ordered accessor arrays (<code>params</code> and <code>query</code>) passed to the component lifecycle.</p>
+<p>These matched <code>params</code> are raw key-value string mappings. During navigation, the router interceptor looks up the component's contract in an internal spec registry to parse and cast these raw values into typed, ordered accessor arrays (<code>params</code> and <code>query</code>) passed to the component lifecycle.</p>
 <h2>Handler Contract</h2>
-<p>The internal handler resolution contract separates tag resolution from callback execution:</p>
+<p>The internal handler resolution contract separates tag resolution from callback execution. These helpers are internal (not exported); the sketch shows what the router does:</p>
 <view-code language="javascript">// Match phase — safe to call repeatedly
 const tag = await resolveTag(handler);
 
@@ -96,9 +96,9 @@ router.register = (pattern, handler, meta) =&gt; {
   return originalRegister(pattern, handler, meta);
 };
 </view-code>
-<p>For deeper extension, import internal modules directly:</p>
-<view-code language="javascript">import { register, match } from '@anzaui/anza/router/match';
-import { addGuard } from '@anzaui/anza/router/intercept';
+<p>For deeper extension, use the named exports. Deep paths such as
+<code>@anzaui/anza/router/match</code> are not part of the public API:</p>
+<view-code language="javascript">import { register, match, addGuard } from '@anzaui/anza/router';
 </view-code>
 <h2>Non-browser / Mode A · Mode B</h2>
 <p>The router checks <code>typeof window !== 'undefined'</code> before touching DOM APIs. Outside the browser:</p>

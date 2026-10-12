@@ -161,13 +161,12 @@ router.navigate('/settings', { state: { tab: 'profile' } });
   template: '&lt;svg&gt;...&lt;/svg&gt;'
 });
 </view-code>
-<h2>Internal Exports</h2>
-<p>For middleware and test utilities:</p>
+<h2>Named Exports</h2>
+<p>Every facade method is also a named export, for middleware and test utilities:</p>
 <view-code language="javascript">import { register, match, clear, getRoutes, load } from '@anzaui/anza/router';
 import { addGuard, setNotFound, on, setup, destroy } from '@anzaui/anza/router';
 import { navigate, replace, back, forward, go } from '@anzaui/anza/router';
-import { gate, boot, ready, reset } from '@anzaui/anza/router';
-import { isCallback, resolveTag, runCallback } from '@anzaui/anza/router';
+import { gate, ready, reset } from '@anzaui/anza/router';
 import { transitions } from '@anzaui/anza/router';
 </view-code>
 <h3><code>transitions</code></h3>

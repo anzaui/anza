@@ -115,35 +115,35 @@
 <h3>In Rust (Axum)</h3>
 <view-code language="rust">let articles: Vec&lt;Article&gt; = db::get_recent_articles(&amp;pool).await?;
 
+let card = engine.get("feed/card.html")?;
 let feed_html: String = articles
     .iter()
-    .map(|article| engine.render("feed/card.html", &amp;article))
+    .map(|article| card.render(article))
     .collect::&lt;Result&lt;Vec&lt;_&gt;, _&gt;&gt;()?
     .join("\n");
 
-let page_html = engine.render_page("pages/home.html", &amp;json!({
-    "count": articles.len(),
-    "articles": feed_html
-}))?;
+let doc = Page::new("/")
+    .param("count", articles.len().to_string())
+    .param("articles", feed_html)
+    .run(&amp;engine)?;
 </view-code>
 <h3>In Python (FastAPI)</h3>
 <view-code language="python">articles = await db.get_recent_articles()
 
-feed_html = "\n".join([
-    engine.render("feed/card.html", article.to_dict())
-    for article in articles
-])
+card = engine.get_template("feed/card.html")
+feed_html = "\n".join(card.bind(article) for article in articles)
 
-return engine.render_page("pages/home.html", {
-    "count": len(articles),
-    "articles": feed_html
-})
+doc = Page("/", {"count": len(articles), "articles": feed_html}).run(engine)
+return HTMLResponse(doc.html)
 </view-code>
 <h2>Live Stream Dispatch</h2>
 <p>When a new article is created, render its partial immediately and broadcast a signed STUI envelope to all connected stream clients:</p>
-<view-code language="rust">let card_html = engine.render("feed/card.html", &amp;new_article)?;
-let envelope = engine.sign_envelope("dock-feed", &amp;card_html, anza::StreamMode::Prepend)?;
+<view-code language="rust">// Render the card as a signed envelope targeting the "feed" slot
+let mut params = HashMap::new();
+params.insert("title".to_string(), new_article.title.clone());
+let envelope = engine.render_fragment("feed/card.html", "feed", &amp;params)?;
 
-// Broadcast envelope to SSE clients
-sse_broadcaster.send(envelope)?;
+// Broadcast the SSE frame ("event: template\ndata: {...}\n\n") to clients
+let frame = anza::stream::sse::frame::encode(&amp;envelope);
+sse_broadcaster.send(frame)?;
 </view-code>

@@ -44,6 +44,29 @@
   "css": null
 }
 </view-code>
+<h2>Templates</h2>
+<p>All three engines read the same template tree:</p>
+<view-code language="text">templates/
+├── layout/
+│   └── shell.html      # document wrapper; the page goes into {{content}}
+├── pages/
+│   ├── home.html       # route "/"
+│   └── about.html      # route "/about"
+└── feed/
+    └── card.html       # any other file can be rendered as a fragment
+</view-code>
+<ul>
+<li>Placeholders are <code>{{name}}</code> (whitespace inside the braces is trimmed). An unclosed or empty placeholder is a load error.</li>
+<li>Every template is loaded and parsed once, when <code>Setup</code> runs. Rendering only joins the parsed chunks with the parameter values.</li>
+<li>A missing parameter renders as an empty string.</li>
+<li>Values are <strong>not HTML-escaped</strong>. Escape anything that comes from users before binding it.</li>
+<li>Fragments are addressed by their path under the root (<code>feed/card.html</code>) and a target <code>slot</code> name.</li>
+</ul>
+<p>The envelope (<code>slot</code>, <code>ts</code>, <code>html</code>, <code>sig</code>, <code>css</code>) and its signature are identical
+across engines. Page rendering differs slightly: the Python engine wraps the page
+in <code>&lt;page-&lt;route&gt;&gt;</code> with an open shadow root and requires <code>layout/shell.html</code>;
+the Rust and TypeScript engines insert the page markup as is and fall back to a
+minimal <code>&lt;dock-main&gt;</code> document when there is no shell. See each engine page.</p>
 <h2>File Map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
 <tr><td><a href="/docs/engines/rust">rust.md</a></td><td>Rust engine setup, Axum/Actix adapters, and Serde data binding</td></tr>

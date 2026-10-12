@@ -32,7 +32,7 @@ await storage.get('name', { tier: 'idb' });
 await storage.set('name', 'Alice', 'memory');
 await storage.set('name', 'Alice', { tier: 'idb', ttl: 60000 });
 </view-code>
-<p>IDB path: localStorage write journal (crash recovery), optional gzip when serialized size exceeds <code>storage.compressionThreshold</code> (64KB) and Compression Streams are available, then IDB + LRU. Proactive quota check runs before write.</p>
+<p>IDB path: localStorage write journal (crash recovery), optional gzip when serialized size exceeds <code>storage.compressionThreshold</code> (64KB) and Compression Streams are available, then IDB + LRU. A quota check (<code>quota.check()</code>, which notifies <code>onQuotaWarning</code> listeners above 80%) runs before persistent writes, at most once a minute; the <code>memory</code> tier skips it.</p>
 <h3><code>storage.delete(key, tierOrOptions)</code></h3>
 <p>Remove from the requested tier. Always clears the memory LRU entry for that key.</p>
 <h3><code>storage.query(storeName, queryOpts)</code></h3>
@@ -74,13 +74,10 @@ const ok = await storage.persisted();
 <p>Options: <code>{ index, range, direction, limit }</code>.</p>
 <h3><code>db.transaction(storeNames, mode, callback)</code></h3>
 <p>Multi-store transactional callback.</p>
-<h2>CacheStorage</h2>
-<view-code language="javascript">import { CacheStorage } from '@anzaui/anza/storage';
-</view-code>
-<h3><code>new CacheStorage(name)</code></h3>
-<h3><code>cache.get(request)</code> → <code>Promise&lt;Response | null&gt;</code></h3>
-<h3><code>cache.set(request, response, ttlMs)</code></h3>
-<h3><code>cache.delete(request)</code> / <code>cache.clear()</code></h3>
+<h2>Cache tier</h2>
+<p>The Cache API adapter is internal (it is not exported, because its class name
+shadows the global <code>CacheStorage</code>). Use the <code>'cache'</code> tier of <code>storage</code>, and
+<code>storage.configure({ cache: { name } })</code> to pick the pool name.</p>
 <p>TTL is stored via an <code>x-expires-at</code> header on cached responses.</p>
 <h2>LRUCache / WeakLRUCache</h2>
 <h3><code>new LRUCache(maxSize)</code> — <code>get</code> / <code>set(key, value, ttlMs)</code> / <code>delete</code> / <code>clear</code></h3>

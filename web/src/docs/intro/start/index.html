@@ -7,20 +7,22 @@ npm install
 </view-code>
 <p>This generates:</p>
 <div class="table-wrap"><table><thead><tr><th>Path</th><th>Purpose</th></tr></thead><tbody>
-<tr><td><code>src/app.js</code></td><td>Entry point — imports UI, barrels, and defines a layout dock</td></tr>
+<tr><td><code>src/app.js</code></td><td>Entry point — imports UI, theme and barrels, registers the Service Worker</td></tr>
 <tr><td><code>src/index.html</code></td><td>HTML shell with importmap, tokens, styles, and module script</td></tr>
 <tr><td><code>src/sw.js</code></td><td>Service Worker entry — caching, routing, sync</td></tr>
 <tr><td><code>src/pages/index.js</code></td><td>Pages barrel</td></tr>
 <tr><td><code>src/pages/entry/index.js</code></td><td>Landing page definition</td></tr>
 <tr><td><code>src/pages/entry/index.html</code></td><td>Landing page markup</td></tr>
 <tr><td><code>src/pages/entry/index.css</code></td><td>Landing page styles</td></tr>
-<tr><td><code>src/docks/index.js</code></td><td>Docks barrel (empty until you add docks)</td></tr>
+<tr><td><code>src/docks/index.js</code></td><td>Docks barrel</td></tr>
+<tr><td><code>src/docks/main/index.js</code></td><td>Root layout dock: <code>dock('main')</code></td></tr>
 <tr><td><code>src/views/index.js</code></td><td>Views barrel — global views slot</td></tr>
 <tr><td><code>src/parts/index.js</code></td><td>Parts barrel</td></tr>
 <tr><td><code>src/tokens/</code></td><td>Design tokens copied from the library (colors, spacing, typography)</td></tr>
 <tr><td><code>src/styles/</code></td><td>Global styles copied from the library (reset, layers, base)</td></tr>
 <tr><td><code>importmap.json</code></td><td>Empty starter for custom aliases</td></tr>
-<tr><td><code>package.json</code></td><td>Scripts: <code>dev</code> and <code>build</code></td></tr>
+<tr><td><code>package.json</code></td><td>Scripts: <code>dev</code> and <code>build</code>; <code>@anzaui/anza</code> as a devDependency</td></tr>
+<tr><td><code>.gitignore</code></td><td>Ignores <code>node_modules/</code>, <code>dist/</code>, <code>.anzacache.json</code></td></tr>
 </tbody></table></div>
 <p>You own <code>src/tokens/</code> and <code>src/styles/</code>. The library copies them in as starter files; change them freely.</p>
 <p>Empty <code>src/docks/</code>, <code>src/views/</code>, and <code>src/parts/</code> folders (with <code>index.js</code> barrels) are teaching affordances — optional at runtime. You may rename the landing folder, add extra page trees (e.g. <code>src/docs/</code>), or skip <code>src/sw.js</code> for static sites. Full required / recommended / optional tables, index-per-folder convention, and optional <code>anza.json</code> remaps: <a href="/docs/intro/structure">structure.md</a>.</p>
@@ -51,7 +53,6 @@ npx anza generate part button
 <h2>What Was Generated</h2>
 <h3><code>src/app.js</code></h3>
 <view-code language="javascript">import '@anzaui/anza/ui';
-import { dock } from '@anzaui/anza/ui';
 import '@anzaui/anza/theme';
 
 import './docks/index.js';
@@ -59,11 +60,10 @@ import './views/index.js';
 import './parts/index.js';
 import './pages/index.js';
 
+// Service Worker
 navigator.serviceWorker.register('/sw.js', { type: 'module' });
-
-dock('main');
 </view-code>
-<p>This initializes the UI system, loads barrels, registers the Service Worker, and creates a <code>main</code> dock. Source import order is free-form — <code>anza build</code> rewrites <code>dist/</code> into usage order (library → docks → views → parts → pages).</p>
+<p>This initializes the UI system and loads the barrels; <code>src/docks/main/index.js</code> creates the <code>main</code> dock with <code>dock('main')</code>. It also registers the Service Worker; to avoid stale files in dev, register it only on deployed hosts (see <a href="/docs/sw/start#2-register-from-appjs">sw/start.md</a>). Source import order is free-form — <code>anza build</code> rewrites <code>dist/</code> into usage order (library → docks → views → parts → pages).</p>
 <h3><code>src/pages/entry/index.js</code></h3>
 <view-code language="javascript">import { page } from '@anzaui/anza/ui';
 

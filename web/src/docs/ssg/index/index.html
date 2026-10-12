@@ -1,13 +1,13 @@
 <h1>SSG &amp; SEO</h1>
 <p>Anza ships <strong>contentful HTML</strong> for public routes so hard refresh and crawlers see unique meta, open Declarative Shadow DOM, and primary headings <strong>without executing JS</strong>. There is no Anza-owned production SSR runtime — Mode A emits HTML at build time; Mode B templates in any language emit the same shape at request time.</p>
 <p>Portable rule: treat <code>dist/</code> as the <strong>site root</strong>. Public URLs are <code>/app.js</code>, <code>/importmap.json</code>, <code>/docs/...</code> — never <code>/dist/...</code>.</p>
-<p>Planning track (Phases 0–6): <a href="../../plans/SSG-SEO.md">plans/SSG-SEO.md</a>. Client adopt: <a href="/docs/ui/hydration">ui/hydration.md</a>. Normative markup: <a href="/docs/ssg/contract">contract.md</a>.</p>
+<p>Client adopt: <a href="/docs/ui/hydration">ui/hydration.md</a>. Normative markup: <a href="/docs/ssg/contract">contract.md</a>.</p>
 <h2>Modes</h2>
 <div class="table-wrap"><table><thead><tr><th>Mode</th><th>When</th><th>Who emits HTML</th><th>Assets</th></tr></thead><tbody>
 <tr><td><strong>A — Pure static</strong></td><td><code>anza build</code> / <code>anza dev</code></td><td>SSG emitter → <code>dist/&lt;route&gt;/index.html</code></td><td><code>dist/</code> as site root</td></tr>
 <tr><td><strong>B — Any-lang templates</strong></td><td>Request time</td><td>Jinja / EJS / HBS / Go / Node / …</td><td>Same <code>dist/</code> static files</td></tr>
 </tbody></table></div>
-<p>Both modes must satisfy the <a href="/docs/ssg/contract">page HTML contract</a> so hydration has one adoption path. Examples: <code>examples/mode-b-python/</code>, <code>examples/mode-b-go/</code>, <code>examples/mode-b-node/</code>. Goldens: <code>plans/fixtures/ssg/</code>.</p>
+<p>Both modes must satisfy the <a href="/docs/ssg/contract">page HTML contract</a> so hydration has one adoption path. Examples: <code>examples/mode-b-python/</code>, <code>examples/mode-b-go/</code>, <code>examples/mode-b-node/</code>. Goldens: <code>tools/fixtures/ssg/</code>.</p>
 <h2>What shipped (Phases 0–6)</h2>
 <div class="table-wrap"><table><thead><tr><th>Phase</th><th>Outcome</th></tr></thead><tbody>
 <tr><td><strong>0</strong></td><td>Portable site-root assets — import map and routes without <code>/dist</code> prefixes; serve with <code>cd dist &amp;&amp; python3 -m http.server</code></td></tr>
