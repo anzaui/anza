@@ -22,7 +22,7 @@ impl Dev {
     self.validate()?;
     anza_logs::info!("Bootstrapping native dev pipeline...");
 
-    extract::compile(&self.src, &self.dist, false, &self.entries);
+    extract::compile_dev(&self.src, &self.dist, &self.entries);
 
     let (tx, _rx) = broadcast::channel::<HmrMessage>(16);
     let dist = self.dist.clone();

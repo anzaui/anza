@@ -391,7 +391,11 @@ fn resolve_container<'a>(
 /// Emits `routes.json` and `routes.d.ts` files to `dist_dir`.
 ///
 /// `src_dir` is used to load an optional project-level `ssg.params.json`.
-pub fn emit(specs: &[(std::path::PathBuf, ExtractedSpec)], dist_dir: &Path, src_dir: &Path) {
+pub fn emit(
+  specs: &[(std::path::PathBuf, ExtractedSpec)],
+  dist_dir: &Path,
+  src_dir: &Path,
+) -> Result<(), Vec<String>> {
   let mut entries: Vec<(RouteRecord, String)> = Vec::new();
   let mut seen: HashSet<String> = HashSet::new();
   let file_expansions = load_ssg_params_manifest(src_dir);
@@ -705,20 +709,18 @@ pub fn emit(specs: &[(std::path::PathBuf, ExtractedSpec)], dist_dir: &Path, src_
     "routes": records,
   });
 
-  std::fs::create_dir_all(dist_dir).ok();
+  let mut errors: Vec<String> = Vec::new();
+  if let Err(err) = std::fs::create_dir_all(dist_dir) {
+    errors.push(format!("cannot create {}: {}", dist_dir.display(), err));
+  }
   let dest_json = dist_dir.join("routes.json");
 
   match serde_json::to_string_pretty(&output) {
-    Ok(json) => {
-      std::fs::write(&dest_json, json).ok();
-      anza_logs::success!("Route manifest written to {}", dest_json.display());
-    }
-    Err(err) => {
-      eprintln!(
-        "[anza] ERROR: Failed to serialize routes.json: {}",
-        err
-      );
-    }
+    Ok(json) => match std::fs::write(&dest_json, json) {
+      Ok(()) => anza_logs::success!("Route manifest written to {}", dest_json.display()),
+      Err(err) => errors.push(format!("cannot write {}: {}", dest_json.display(), err)),
+    },
+    Err(err) => errors.push(format!("cannot serialize routes.json: {}", err)),
   }
 
   // Write routes.d.ts
@@ -753,8 +755,15 @@ declare global {{
   );
 
   let dest_dts = dist_dir.join("routes.d.ts");
-  if std::fs::write(&dest_dts, dts_content).is_ok() {
-    anza_logs::success!("Route type declarations written to {}", dest_dts.display());
+  match std::fs::write(&dest_dts, dts_content) {
+    Ok(()) => anza_logs::success!("Route type declarations written to {}", dest_dts.display()),
+    Err(err) => errors.push(format!("cannot write {}: {}", dest_dts.display(), err)),
+  }
+
+  if errors.is_empty() {
+    Ok(())
+  } else {
+    Err(errors)
   }
 }
 

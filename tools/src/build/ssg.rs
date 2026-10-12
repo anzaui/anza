@@ -102,32 +102,41 @@ struct DockInfo {
   css: Vec<String>,
 }
 
+/// Summary of a successful SSG pass.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub struct Stats {
+  /// Number of HTML documents written.
+  pub emitted: usize,
+}
+
 /// Emit SSG HTML for every eligible route into `dist_dir`.
 ///
 /// Must run after `routes.json` exists and the import graph has copied assets.
 /// Prefer reading component templates from `src_dir` (unpolluted); fall back to
 /// `dist_dir` when needed.
-pub fn emit(src_dir: &Path, dist_dir: &Path) {
-  let routes_path = dist_dir.join("routes.json");
-  let content = match std::fs::read_to_string(&routes_path) {
-    Ok(c) => c,
-    Err(err) => {
-      anza_logs::warn!("SSG skipped: cannot read {}: {}", routes_path.display(), err);
-      apply_base_path(dist_dir, &load_site_config(src_dir));
-      return;
-    }
-  };
+///
+/// A missing or invalid `routes.json`, any failed route and any failed write
+/// is an error; every error is collected and returned.
+pub fn emit(src_dir: &Path, dist_dir: &Path) -> Result<Stats, Vec<String>> {
+  let mut errors: Vec<String> = Vec::new();
+  let site = load_site_config(src_dir);
 
-  let manifest: RoutesManifest = match serde_json::from_str(&content) {
+  let routes_path = dist_dir.join("routes.json");
+  let manifest = std::fs::read_to_string(&routes_path)
+    .map_err(|err| format!("SSG: cannot read {}: {}", routes_path.display(), err))
+    .and_then(|content| {
+      serde_json::from_str::<RoutesManifest>(&content)
+        .map_err(|err| format!("SSG: invalid {}: {}", routes_path.display(), err))
+    });
+  let manifest = match manifest {
     Ok(m) => m,
     Err(err) => {
-      anza_logs::warn!("SSG skipped: invalid routes.json: {}", err);
-      apply_base_path(dist_dir, &load_site_config(src_dir));
-      return;
+      errors.push(err);
+      apply_base_path(dist_dir, &site, &mut errors);
+      return Err(errors);
     }
   };
 
-  let site = load_site_config(src_dir);
   let importmap = load_importmap(dist_dir);
   let docks = collect_docks(&manifest.routes);
 
@@ -158,13 +167,13 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) {
         preserved_paths.extend(preserved);
       }
       Err((route_path, err)) => {
-        anza_logs::warn!("SSG failed for {}: {}", route_path, err);
+        errors.push(format!("SSG failed for {}: {}", route_path, err));
       }
     }
   }
 
   if let Err(err) = rewrite_routes_html_field(dist_dir, &preserved_paths, "./template.html") {
-    anza_logs::warn!("SSG failed to update routes.json: {}", err);
+    errors.push(format!("SSG: cannot update routes.json: {}", err));
   }
 
   if emitted > 0 {
@@ -174,17 +183,25 @@ pub fn emit(src_dir: &Path, dist_dir: &Path) {
   }
 
   if let Err(err) = emit_seo_extras(dist_dir, &site, &ssg_paths) {
-    anza_logs::warn!("SSG SEO extras failed: {}", err);
+    errors.push(format!("SSG: SEO extras failed: {}", err));
   }
 
-  apply_base_path(dist_dir, &site);
+  apply_base_path(dist_dir, &site, &mut errors);
+
+  if errors.is_empty() {
+    Ok(Stats { emitted })
+  } else {
+    Err(errors)
+  }
 }
 
 /// Rewrite dist asset URLs when a deploy base path is configured.
-fn apply_base_path(dist_dir: &Path, site: &SsgSiteConfig) {
+fn apply_base_path(dist_dir: &Path, site: &SsgSiteConfig, errors: &mut Vec<String>) {
   if let Some(ref base) = site.base {
     if !base.is_empty() {
-      super::base::apply_to_dist(dist_dir, base);
+      if let Err(errs) = super::base::apply_to_dist(dist_dir, base) {
+        errors.extend(errs);
+      }
     }
   }
 }
@@ -1485,7 +1502,7 @@ mod tests {
     let manifest = serde_json::json!({ "routes": routes, "version": 1 });
     std::fs::write(dist.join("routes.json"), serde_json::to_string_pretty(&manifest).unwrap()).unwrap();
 
-    emit(&src, &dist);
+    emit(&src, &dist).expect("emit succeeds");
 
     let text = std::fs::read_to_string(dist.join("routes.json")).unwrap();
     let parsed: serde_json::Value = serde_json::from_str(&text).expect("routes.json stays valid JSON");
@@ -1501,6 +1518,57 @@ mod tests {
       let module = std::fs::read_to_string(dir.join("index.js")).unwrap();
       assert!(module.contains("html: './template.html'"));
     }
+    let _ = std::fs::remove_dir_all(&root);
+  }
+
+  fn temp_project(name: &str) -> (PathBuf, PathBuf, PathBuf) {
+    let root = std::env::temp_dir().join(format!("anza-ssg-{}-{}", name, std::process::id()));
+    let _ = std::fs::remove_dir_all(&root);
+    let src = root.join("src");
+    let dist = root.join("dist");
+    std::fs::create_dir_all(&src).unwrap();
+    std::fs::create_dir_all(&dist).unwrap();
+    (root, src, dist)
+  }
+
+  #[test]
+  fn emit_fails_without_routes_json() {
+    let (root, src, dist) = temp_project("missing-manifest");
+    let errors = emit(&src, &dist).expect_err("missing routes.json is an error");
+    assert!(errors[0].contains("routes.json"), "{errors:?}");
+    let _ = std::fs::remove_dir_all(&root);
+  }
+
+  #[test]
+  fn emit_fails_on_corrupt_routes_json() {
+    let (root, src, dist) = temp_project("corrupt-manifest");
+    std::fs::write(dist.join("routes.json"), "{ \"routes\": [").unwrap();
+    let errors = emit(&src, &dist).expect_err("corrupt routes.json is an error");
+    assert!(errors[0].contains("invalid"), "{errors:?}");
+    let _ = std::fs::remove_dir_all(&root);
+  }
+
+  #[test]
+  fn emit_reports_every_failed_route() {
+    let (root, src, dist) = temp_project("unwritable");
+    // dist/docs is a regular file, so no route below it can be written.
+    std::fs::write(dist.join("docs"), "blocker").unwrap();
+    let routes: Vec<_> = (0..3)
+      .map(|i| {
+        std::fs::create_dir_all(src.join(format!("p{i}"))).unwrap();
+        std::fs::write(src.join(format!("p{i}/index.html")), "<h1>x</h1>").unwrap();
+        serde_json::json!({
+          "tag": format!("doc-p{i}"),
+          "path": format!("/docs/p{i}"),
+          "file": format!("p{i}/index.js"),
+          "ssg": true,
+        })
+      })
+      .collect();
+    let manifest = serde_json::json!({ "routes": routes, "version": 1 });
+    std::fs::write(dist.join("routes.json"), manifest.to_string()).unwrap();
+    let errors = emit(&src, &dist).expect_err("unwritable output is an error");
+    assert_eq!(errors.iter().filter(|e| e.contains("/docs/p")).count(), 3, "{errors:?}");
     let _ = std::fs::remove_dir_all(&root);
   }
 }

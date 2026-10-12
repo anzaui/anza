@@ -13,21 +13,21 @@ use swc_ecma_parser::{lexer::Lexer, Parser, StringInput, Syntax};
 use swc_ecma_visit::{Visit, VisitWith};
 
 /// Rewrite bare module specifiers in `dist/sw.js` to relative paths.
-pub fn rewrite_imports(dist: &Path, map: &HashMap<String, String>) {
+///
+/// A parse failure is left to the import-graph diagnostics (sw.js is an
+/// entry); read or write failures are errors.
+pub fn rewrite_imports(dist: &Path, map: &HashMap<String, String>) -> Result<(), String> {
   let sw = dist.join("sw.js");
   if !sw.exists() {
-    return;
+    return Ok(());
   }
-  let content = match std::fs::read_to_string(&sw) {
-    Ok(c) => c,
-    Err(_) => return,
-  };
+  let content = std::fs::read_to_string(&sw)
+    .map_err(|e| format!("cannot read {}: {}", sw.display(), e))?;
 
   let cm = Arc::new(SourceMap::default());
-  let fm = match cm.load_file(&sw) {
-    Ok(f) => f,
-    Err(_) => return,
-  };
+  let fm = cm
+    .load_file(&sw)
+    .map_err(|e| format!("cannot read {}: {}", sw.display(), e))?;
 
   let lexer = Lexer::new(
     Syntax::Es(Default::default()),
@@ -38,7 +38,7 @@ pub fn rewrite_imports(dist: &Path, map: &HashMap<String, String>) {
   let mut parser = Parser::new_from(lexer);
   let program = match parser.parse_program() {
     Ok(p) => p,
-    Err(_) => return,
+    Err(_) => return Ok(()),
   };
 
   let mut specs: Vec<(Span, String)> = Vec::new();
@@ -49,7 +49,7 @@ pub fn rewrite_imports(dist: &Path, map: &HashMap<String, String>) {
   program.visit_with(&mut visitor);
 
   if specs.is_empty() {
-    return;
+    return Ok(());
   }
 
   // Sort by position descending so earlier byte offsets stay valid.
@@ -66,7 +66,7 @@ pub fn rewrite_imports(dist: &Path, map: &HashMap<String, String>) {
     }
   }
 
-  std::fs::write(&sw, result).ok();
+  std::fs::write(&sw, result).map_err(|e| format!("cannot write {}: {}", sw.display(), e))
 }
 
 struct Collector<'a> {

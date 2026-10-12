@@ -18,6 +18,8 @@ pub enum Kind {
   Parse,
   Import,
   Type,
+  /// Reading sources or writing dist failed.
+  Io,
 }
 
 #[derive(Debug, Clone)]
@@ -27,6 +29,38 @@ pub struct Diagnostic {
   pub line: usize,
   pub col: usize,
   pub message: String,
+}
+
+impl Diagnostic {
+  fn io(file: &Path, message: String) -> Self {
+    Diagnostic {
+      kind: Kind::Io,
+      file: file.to_path_buf(),
+      line: 0,
+      col: 0,
+      message,
+    }
+  }
+}
+
+impl std::fmt::Display for Diagnostic {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let label = match self.kind {
+      Kind::Parse => "syntax",
+      Kind::Import => "import",
+      Kind::Type => "type",
+      Kind::Io => "io",
+    };
+    write!(
+      f,
+      "[{}] {}:{}:{} {}",
+      label,
+      self.file.display(),
+      self.line,
+      self.col,
+      self.message
+    )
+  }
 }
 
 /// Result of a successful resolution pass.
@@ -298,12 +332,12 @@ pub fn resolve(
   // Write generated importmap as a separate JSON file in dist.
   if !importmap.is_empty() {
     let path = dist.join("importmap.json");
-    if let Some(parent) = path.parent() {
-      std::fs::create_dir_all(parent).ok();
-    }
     let imports_json = serde_json::json!({ "imports": importmap });
-    if let Ok(json) = serde_json::to_string_pretty(&imports_json) {
-      std::fs::write(&path, json).ok();
+    let written = serde_json::to_string_pretty(&imports_json)
+      .map_err(|e| e.to_string())
+      .and_then(|json| write_file(&path, json.as_bytes()));
+    if let Err(err) = written {
+      errors.push(Diagnostic::io(&path, format!("cannot write: {}", err)));
     }
   }
 
@@ -330,68 +364,78 @@ pub fn resolve(
       continue;
     };
 
-    if let Some(parent) = target.parent() {
-      std::fs::create_dir_all(parent).ok();
-    }
-
     let hash = hashes.get(file);
     let prior = cache.as_ref().and_then(|c| c.hashes.get(file));
     let copy = hash != prior || !target.exists();
 
     if copy {
-      if target.extension().map_or(false, |ext| ext == "html") {
-        if let Ok(content) = std::fs::read_to_string(file) {
-          let injected = super::html::inject_assets(&content, &importmap, dev);
-          if std::fs::write(&target, injected).is_ok() {
-            copied += 1;
-          }
-        }
+      let result = if target.extension().map_or(false, |ext| ext == "html") {
+        std::fs::read_to_string(file)
+          .map_err(|e| format!("cannot read {}: {}", file.display(), e))
+          .and_then(|content| {
+            let injected = super::html::inject_assets(&content, &importmap, dev);
+            write_file(&target, injected.as_bytes())
+          })
       } else if is_js(file) {
         // Rewrite static imports into usage order (library → docks → views →
         // parts → pages). Source may import in any order; dist loads correctly.
-        if let Ok(content) = std::fs::read_to_string(file) {
-          let ordered = super::order::rewrite_with(&content, file, src, &order_slots);
-          if std::fs::write(&target, ordered).is_ok() {
-            copied += 1;
-          }
+        std::fs::read_to_string(file)
+          .map_err(|e| format!("cannot read {}: {}", file.display(), e))
+          .and_then(|content| {
+            let ordered = super::order::rewrite_with(&content, file, src, &order_slots);
+            write_file(&target, ordered.as_bytes())
+          })
+      } else {
+        std::fs::read(file)
+          .map_err(|e| format!("cannot read {}: {}", file.display(), e))
+          .and_then(|bytes| write_file(&target, &bytes))
+      };
+      match result {
+        Ok(()) => copied += 1,
+        Err(err) => {
+          // Forget the hash so the next (dev) build retries this file.
+          hashes.remove(file);
+          errors.push(Diagnostic::io(&target, err));
         }
-      } else if std::fs::copy(file, &target).is_ok() {
-        copied += 1;
       }
     }
   }
 
   // Copy entire tokens and styles directories from src to dist (if they exist)
   // so that relative CSS @imports work correctly in the browser.
-  let src_tokens = src.join("tokens");
-  if src_tokens.is_dir() {
-    let _ = crate::create::copy::copy(&src_tokens, &dist.join("tokens"));
-  }
-
-  let src_styles = src.join("styles");
-  if src_styles.is_dir() {
-    let _ = crate::create::copy::copy(&src_styles, &dist.join("styles"));
+  for dir in ["tokens", "styles"] {
+    let from = src.join(dir);
+    if from.is_dir() {
+      if let Err(err) = copy_dir(&from, &dist.join(dir)) {
+        errors.push(Diagnostic::io(&from, err));
+      }
+    }
   }
 
   let favicon = src.join("favicon.ico");
   if favicon.is_file() {
-    let _ = std::fs::copy(&favicon, dist.join("favicon.ico"));
+    let target = dist.join("favicon.ico");
+    let result = std::fs::read(&favicon)
+      .map_err(|e| format!("cannot read {}: {}", favicon.display(), e))
+      .and_then(|bytes| write_file(&target, &bytes));
+    if let Err(err) = result {
+      errors.push(Diagnostic::io(&target, err));
+    }
   }
 
   // Rewrite bare specifiers in dist/sw.js to relative paths.
   // Service Workers do not support import maps.
-  super::sw::rewrite_imports(dist, &importmap);
+  if let Err(err) = super::sw::rewrite_imports(dist, &importmap) {
+    errors.push(Diagnostic::io(&dist.join("sw.js"), err));
+  }
 
-  let cache = super::cache::Cache {
-    version: version.to_string(),
-    dev,
-    hashes,
-    timestamp: std::time::SystemTime::now()
-      .duration_since(std::time::UNIX_EPOCH)
-      .unwrap_or_default()
-      .as_secs(),
-  };
-  super::cache::save(&project, &cache);
+  if !errors.is_empty() {
+    // Keep the cache of what did succeed so a dev rebuild retries the rest.
+    save_cache(&project, version, dev, hashes);
+    return Err(errors);
+  }
+
+  save_cache(&project, version, dev, hashes);
 
   Ok(Report {
     copied,
@@ -401,21 +445,54 @@ pub fn resolve(
   })
 }
 
+fn save_cache(project: &Path, version: &str, dev: bool, hashes: HashMap<PathBuf, String>) {
+  let cache = super::cache::Cache {
+    version: version.to_string(),
+    dev,
+    hashes,
+    timestamp: std::time::SystemTime::now()
+      .duration_since(std::time::UNIX_EPOCH)
+      .unwrap_or_default()
+      .as_secs(),
+  };
+  super::cache::save(project, &cache);
+}
+
+/// Write a dist file, creating parent directories; errors name the path.
+fn write_file(path: &Path, bytes: &[u8]) -> Result<(), String> {
+  if let Some(parent) = path.parent() {
+    std::fs::create_dir_all(parent)
+      .map_err(|e| format!("cannot create {}: {}", parent.display(), e))?;
+  }
+  std::fs::write(path, bytes).map_err(|e| format!("cannot write {}: {}", path.display(), e))
+}
+
+/// Recursively copy a directory tree.
+fn copy_dir(from: &Path, to: &Path) -> Result<(), String> {
+  let entries =
+    std::fs::read_dir(from).map_err(|e| format!("cannot read {}: {}", from.display(), e))?;
+  for entry in entries {
+    let entry = entry.map_err(|e| format!("cannot read {}: {}", from.display(), e))?;
+    let src = entry.path();
+    let dst = to.join(entry.file_name());
+    let is_dir = entry
+      .file_type()
+      .map_err(|e| format!("cannot stat {}: {}", src.display(), e))?
+      .is_dir();
+    if is_dir {
+      copy_dir(&src, &dst)?;
+    } else {
+      let bytes =
+        std::fs::read(&src).map_err(|e| format!("cannot read {}: {}", src.display(), e))?;
+      write_file(&dst, &bytes)?;
+    }
+  }
+  Ok(())
+}
+
 /// Print a diagnostic through the colored logger.
 pub fn report_line(d: &Diagnostic) {
-  let label = match d.kind {
-    Kind::Parse => "syntax",
-    Kind::Import => "import",
-    Kind::Type => "type",
-  };
-  anza_logs::error!(
-    "[{}] {}:{}:{} {}",
-    label,
-    d.file.display(),
-    d.line,
-    d.col,
-    d.message
-  );
+  anza_logs::error!("{}", d);
 }
 
 fn is_js(path: &Path) -> bool {

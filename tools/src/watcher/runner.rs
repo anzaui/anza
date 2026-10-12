@@ -98,7 +98,7 @@ pub fn start(
         let tx2 = tx.clone();
 
         tokio::task::spawn_blocking(move || {
-          crate::extract::compile(&src, &dist, false, &ents);
+          crate::extract::compile_dev(&src, &dist, &ents);
         })
         .await
         .ok();

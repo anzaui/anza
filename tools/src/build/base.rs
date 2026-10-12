@@ -315,63 +315,74 @@ fn walk_html_files(dir: &Path, out: &mut Vec<PathBuf>) {
 }
 
 /// Apply base-path rewrites across dist HTML and selected JS after SSG.
-pub fn apply_to_dist(dist_dir: &Path, base: &str) {
+/// Every failed read or write is returned.
+pub fn apply_to_dist(dist_dir: &Path, base: &str) -> Result<(), Vec<String>> {
   let base = normalize_base(base);
   if base.is_empty() {
-    return;
+    return Ok(());
   }
 
+  let mut errors: Vec<String> = Vec::new();
   let mut html_files = Vec::new();
   walk_html_files(dist_dir, &mut html_files);
 
   for path in &html_files {
-    let Ok(content) = std::fs::read_to_string(path) else {
-      continue;
-    };
-    let mut next = rewrite_html_urls(&content, &base);
-    next = rewrite_inline_importmaps(&next, &base);
-    next = inject_base_script(&next, &base);
-    if next != content {
-      let _ = std::fs::write(path, next);
+    if let Err(err) = rewrite_file(path, |content| {
+      let next = rewrite_html_urls(content, &base);
+      let next = rewrite_inline_importmaps(&next, &base);
+      inject_base_script(&next, &base)
+    }) {
+      errors.push(err);
     }
   }
 
   for rel in ["index.html", "app.js", "sw.js"] {
     let path = dist_dir.join(rel);
-    let Ok(content) = std::fs::read_to_string(&path) else {
+    if !path.exists() {
       continue;
-    };
-    let next = if rel.ends_with(".html") {
-      let step = rewrite_html_urls(&content, &base);
-      let step = rewrite_inline_importmaps(&step, &base);
-      inject_base_script(&step, &base)
+    }
+    let result = if rel.ends_with(".html") {
+      rewrite_file(&path, |content| {
+        let step = rewrite_html_urls(content, &base);
+        let step = rewrite_inline_importmaps(&step, &base);
+        inject_base_script(&step, &base)
+      })
     } else {
-      rewrite_js_root_literals(&content, &base)
+      rewrite_file(&path, |content| rewrite_js_root_literals(content, &base))
     };
-    if next != content {
-      let _ = std::fs::write(path, next);
+    if let Err(err) = result {
+      errors.push(err);
     }
   }
 
-  rewrite_importmap(dist_dir, &base);
+  // Prefix root-absolute values in dist/importmap.json.
+  let importmap = dist_dir.join("importmap.json");
+  if importmap.exists() {
+    if let Err(err) = rewrite_file(&importmap, |content| rewrite_importmap_json_paths(content, &base)) {
+      errors.push(err);
+    }
+  }
 
+  if !errors.is_empty() {
+    return Err(errors);
+  }
   anza_logs::success!(
     "Base path {:?} applied to {}",
     base,
     dist_dir.display()
   );
+  Ok(())
 }
 
-/// Prefix root-absolute values in dist/importmap.json and inline import maps.
-fn rewrite_importmap(dist_dir: &Path, base: &str) {
-  let path = dist_dir.join("importmap.json");
-  let Ok(content) = std::fs::read_to_string(&path) else {
-    return;
-  };
-  let next = rewrite_importmap_json_paths(&content, base);
+/// Read `path`, apply `f`, and write the result back when it changed.
+fn rewrite_file(path: &Path, f: impl Fn(&str) -> String) -> Result<(), String> {
+  let content = std::fs::read_to_string(path)
+    .map_err(|e| format!("cannot read {}: {}", path.display(), e))?;
+  let next = f(&content);
   if next != content {
-    let _ = std::fs::write(&path, next);
+    std::fs::write(path, next).map_err(|e| format!("cannot write {}: {}", path.display(), e))?;
   }
+  Ok(())
 }
 
 #[cfg(test)]
@@ -482,7 +493,7 @@ mod tests {
 "#,
     )
     .unwrap();
-    apply_to_dist(&dir, "/anza");
+    apply_to_dist(&dir, "/anza").unwrap();
     let out = std::fs::read_to_string(dir.join("importmap.json")).unwrap();
     assert!(out.contains("/anza/core/ui/index.js"), "got: {out}");
     assert!(!out.contains("//anza/"), "got: {out}");

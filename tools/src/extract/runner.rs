@@ -12,35 +12,46 @@ use swc_ecma_visit::{Visit, VisitWith};
 
 use crate::types::{ExtractedSpec, ParamDecl, PropConfig, QueryDecl, SeoDecl, SsgDecl};
 
-/// Consolidated build compilation stage.
-///
-/// `strict` controls error handling: in build mode a failed import-graph
-/// resolution aborts the process (no partial dist is published); in dev mode
-/// the errors are logged and the last good dist is kept.
-pub fn build(src_dir: &Path, dist_dir: &Path, entries: &[std::path::PathBuf]) {
-  compile(src_dir, dist_dir, true, entries);
+/// Consolidated build compilation stage (always strict).
+pub fn build(
+  src_dir: &Path,
+  dist_dir: &Path,
+  entries: &[std::path::PathBuf],
+) -> Result<(), Vec<String>> {
+  compile(src_dir, dist_dir, true, entries)
 }
 
-/// Non-fatal compile used by the dev pipeline.
+/// Run extraction, import-graph resolution and SSG, collecting every error.
+///
+/// `strict` (build mode) starts from a clean dist and removes it again when
+/// any stage fails, so a partial dist is never published. In dev mode the
+/// last good dist is kept; the caller logs the errors and keeps serving.
 pub fn compile(
   src_dir: &Path,
   dist_dir: &Path,
   strict: bool,
   entries: &[std::path::PathBuf],
-) {
+) -> Result<(), Vec<String>> {
   let types_dir = dist_dir.join("types");
+  let mut errors: Vec<String> = Vec::new();
 
   // Production build: start from a clean slate so deleted source files
   // never linger in the output. Dev mode keeps the old dist alive — the
   // hash cache handles incremental copies and the browser never gets 404s.
   if strict && dist_dir.exists() {
-    std::fs::remove_dir_all(dist_dir).ok();
+    if let Err(err) = std::fs::remove_dir_all(dist_dir) {
+      return Err(vec![format!("cannot clean {}: {}", dist_dir.display(), err)]);
+    }
   }
-  std::fs::create_dir_all(dist_dir).ok();
+  if let Err(err) = std::fs::create_dir_all(dist_dir) {
+    return Err(vec![format!("cannot create {}: {}", dist_dir.display(), err)]);
+  }
 
   // 2. Type/route/tag extraction (writes dist/types, dist/routes.json,
   //    and .tags.json siblings in src).
-  run(src_dir, &types_dir);
+  if let Err(errs) = run(src_dir, &types_dir) {
+    errors.extend(errs);
+  }
 
   // 3. Import-graph resolution -> minimal, browser-native dist.
   match crate::build::resolve(src_dir, dist_dir, entries, !strict) {
@@ -59,59 +70,89 @@ pub fn compile(
       //    Runs in build AND dev: otherwise `anza dev` recopies page fragments
       //    over dist/<route>/index.html and soft-nav/CSR fetch nested docs chrome
       //    (stacked dock-docs sidebars). emit() preserves fragments as template.html.
-      crate::build::ssg::emit(src_dir, dist_dir);
+      if let Err(errs) = crate::build::ssg::emit(src_dir, dist_dir) {
+        errors.extend(errs);
+      }
     }
     Err(diags) => {
-      for d in &diags {
-        crate::build::graph::report_line(d);
-      }
-      anza_logs::error!("Build failed: {} error(s) in the import graph", diags.len());
-      if strict {
-        // Do not publish a partial dist on a failed build.
-        std::fs::remove_dir_all(dist_dir).ok();
-        std::process::exit(1);
-      }
+      errors.extend(diags.iter().map(|d| d.to_string()));
     }
+  }
+
+  if errors.is_empty() {
+    return Ok(());
+  }
+  if strict {
+    // Do not publish a partial dist on a failed build.
+    std::fs::remove_dir_all(dist_dir).ok();
+  }
+  Err(errors)
+}
+
+/// Log every collected compile error.
+pub fn report_errors(errors: &[String]) {
+  for err in errors {
+    anza_logs::error!("{}", err);
   }
 }
 
-pub fn run(src_dir: &Path, dist_types_dir: &Path) {
+/// Dev pipeline: log compile errors and keep serving the last good output.
+pub fn compile_dev(src_dir: &Path, dist_dir: &Path, entries: &[std::path::PathBuf]) {
+  if let Err(errors) = compile(src_dir, dist_dir, false, entries) {
+    report_errors(&errors);
+    anza_logs::warn!(
+      "Build has {} error(s); still serving the last good output",
+      errors.len()
+    );
+  }
+}
+
+/// Extract element specs, write dist/types + routes.json/routes.d.ts and the
+/// `.tags.json` descriptors. Returns every error (unreadable or unparsable
+/// files, failed writes) instead of silently dropping pages.
+pub fn run(src_dir: &Path, dist_types_dir: &Path) -> Result<(), Vec<String>> {
+  let mut errors: Vec<String> = Vec::new();
+
   // Collect all paths to parallelize with Rayon
-  let paths: Vec<_> = WalkDir::new(src_dir)
-    .into_iter()
-    .filter_map(|e| e.ok())
-    .filter(|e| e.file_type().is_file())
-    .map(|e| e.path().to_path_buf())
-    .collect();
+  let mut paths: Vec<std::path::PathBuf> = Vec::new();
+  for entry in WalkDir::new(src_dir) {
+    match entry {
+      Ok(e) if e.file_type().is_file() => paths.push(e.path().to_path_buf()),
+      Ok(_) => {}
+      Err(err) => errors.push(format!("cannot walk {}: {}", src_dir.display(), err)),
+    }
+  }
 
   let cm = Arc::new(SourceMap::default());
 
   use rayon::prelude::*;
 
   // Parallel walk & parse — import graph handles element selection naturally
-  let specs_nested: Vec<Vec<(std::path::PathBuf, ExtractedSpec)>> = paths
+  let results: Vec<Result<Vec<(std::path::PathBuf, ExtractedSpec)>, String>> = paths
     .par_iter()
-    .filter_map(|path| {
+    .map(|path| {
       if path.extension().map_or(false, |ext| ext == "js") {
-        let file_specs = parse_element_file(path, &cm);
-        if file_specs.is_empty() {
-          None
-        } else {
-          Some(file_specs.into_iter().map(|spec| (path.clone(), spec)).collect())
-        }
+        let file_specs = parse_element_file(path, &cm)?;
+        Ok(file_specs.into_iter().map(|spec| (path.clone(), spec)).collect())
       } else if path.extension().map_or(false, |ext| ext == "html") {
         anza_logs::compiler!("Found HTML: {:?}", path);
-        if let Err(err) = super::html::parse_and_emit(path) {
-          anza_logs::error!("Failed to generate tags descriptor for {:?}: {}", path, err);
-        }
-        None
+        super::html::parse_and_emit(path).map_err(|err| {
+          format!("cannot generate tags descriptor for {}: {}", path.display(), err)
+        })?;
+        Ok(Vec::new())
       } else {
-        None
+        Ok(Vec::new())
       }
     })
     .collect();
 
-  let mut specs = specs_nested.into_iter().flatten().collect::<Vec<_>>();
+  let mut specs = Vec::new();
+  for res in results {
+    match res {
+      Ok(file_specs) => specs.extend(file_specs),
+      Err(err) => errors.push(err),
+    }
+  }
 
   for (file_path, spec) in &mut specs {
     let relative_path = file_path.strip_prefix(src_dir).unwrap_or(file_path);
@@ -130,7 +171,9 @@ pub fn run(src_dir: &Path, dist_types_dir: &Path) {
 
 
   // 2. Write individual .d.ts files and the main index.d.ts
-  std::fs::create_dir_all(dist_types_dir).ok();
+  if let Err(err) = std::fs::create_dir_all(dist_types_dir) {
+    errors.push(format!("cannot create {}: {}", dist_types_dir.display(), err));
+  }
 
   let mut global_typings = String::new();
   global_typings.push_str("/* Auto-generated by anza. Do not edit. */\n\n");
@@ -140,13 +183,11 @@ pub fn run(src_dir: &Path, dist_types_dir: &Path) {
     let relative_path = file_path.strip_prefix(src_dir).unwrap_or(file_path);
     let mut type_path = dist_types_dir.join(relative_path);
     type_path.set_extension("d.ts");
-    if let Some(parent) = type_path.parent() {
-      std::fs::create_dir_all(parent).ok();
-    }
-
     // Write the custom element interface declaration
     let dts_content = generate_dts_content(spec);
-    std::fs::write(&type_path, dts_content).ok();
+    if let Err(err) = write_file(&type_path, dts_content.as_bytes()) {
+      errors.push(err);
+    }
 
     // Add to global HTMLElementTagNameMap augmentation
     let element_class_name = to_pascal_case(&spec.tag);
@@ -168,19 +209,41 @@ pub fn run(src_dir: &Path, dist_types_dir: &Path) {
   }
 
   global_typings.push_str("  }\n}\n\nexport {};\n");
-  std::fs::write(dist_types_dir.join("index.d.ts"), global_typings).ok();
-  anza_logs::success!("Type augmentation registry updated inside dist/types/index.d.ts");
+  match write_file(&dist_types_dir.join("index.d.ts"), global_typings.as_bytes()) {
+    Ok(()) => {
+      anza_logs::success!("Type augmentation registry updated inside dist/types/index.d.ts")
+    }
+    Err(err) => errors.push(err),
+  }
 
   // Emit routes.json for all specs that declare a url pattern
   let dist_dir = dist_types_dir.parent().unwrap_or(dist_types_dir);
-  super::routes::emit(&specs, dist_dir, src_dir);
+  if let Err(errs) = super::routes::emit(&specs, dist_dir, src_dir) {
+    errors.extend(errs);
+  }
+
+  if errors.is_empty() {
+    Ok(())
+  } else {
+    Err(errors)
+  }
 }
 
-fn parse_element_file(file_path: &Path, cm: &Arc<SourceMap>) -> Vec<ExtractedSpec> {
-  let fm = match cm.load_file(file_path) {
-    Ok(f) => f,
-    Err(_) => return Vec::new(),
-  };
+/// Write a generated file, creating parent directories; errors name the path.
+fn write_file(path: &Path, bytes: &[u8]) -> Result<(), String> {
+  if let Some(parent) = path.parent() {
+    std::fs::create_dir_all(parent)
+      .map_err(|e| format!("cannot create {}: {}", parent.display(), e))?;
+  }
+  std::fs::write(path, bytes).map_err(|e| format!("cannot write {}: {}", path.display(), e))
+}
+
+/// Parse one JS file for definition calls. Unreadable or unparsable files are
+/// errors: silently skipping them used to drop pages from routes.json.
+fn parse_element_file(file_path: &Path, cm: &Arc<SourceMap>) -> Result<Vec<ExtractedSpec>, String> {
+  let fm = cm
+    .load_file(file_path)
+    .map_err(|e| format!("cannot read {}: {}", file_path.display(), e))?;
 
   let lexer = Lexer::new(
     Syntax::Es(Default::default()),
@@ -192,7 +255,16 @@ fn parse_element_file(file_path: &Path, cm: &Arc<SourceMap>) -> Vec<ExtractedSpe
   let mut parser = Parser::new_from(lexer);
   let program = match parser.parse_program() {
     Ok(p) => p,
-    Err(_) => return Vec::new(),
+    Err(err) => {
+      let (line, col) = crate::build::graph::pos(cm, swc_common::Spanned::span(&err));
+      return Err(format!(
+        "[syntax] {}:{}:{} {:?}",
+        file_path.display(),
+        line,
+        col,
+        err.kind()
+      ));
+    }
   };
 
   // Run immutability lint check
@@ -205,7 +277,7 @@ fn parse_element_file(file_path: &Path, cm: &Arc<SourceMap>) -> Vec<ExtractedSpe
   let mut visitor = ElementVisitor::default();
   program.visit_with(&mut visitor);
 
-  visitor.specs
+  Ok(visitor.specs)
 }
 
 #[derive(Default)]

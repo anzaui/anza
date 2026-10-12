@@ -19,7 +19,9 @@ impl Build {
 
   pub fn run(&self) -> Result<(), String> {
     self.validate()?;
-    extract::compile(&self.src, &self.dist, self.strict, &self.entries);
-    Ok(())
+    extract::compile(&self.src, &self.dist, self.strict, &self.entries).map_err(|errors| {
+      extract::report_errors(&errors);
+      format!("Build failed: {} error(s)", errors.len())
+    })
   }
 }

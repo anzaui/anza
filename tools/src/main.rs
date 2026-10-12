@@ -137,7 +137,13 @@ async fn main() {
       Command::Scan { src, watch, types } => {
         let src = PathBuf::from(src);
         let types = PathBuf::from(types);
-        extract::run(&src, &types);
+        if let Err(errors) = extract::run(&src, &types) {
+          extract::report_errors(&errors);
+          if !watch {
+            anza_logs::error!("Scan failed: {} error(s)", errors.len());
+            std::process::exit(1);
+          }
+        }
 
         if watch {
           let dist = types
