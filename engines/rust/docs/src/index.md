@@ -29,7 +29,7 @@ pushes. Envelopes can be signed with HMAC-SHA256 or Ed25519 over `ts:slot:html`.
 4. **Two outputs.** `Page` returns a `Document` (full HTML). `Fragment` and
    `Stream` return an `Envelope`.
 5. **Signing.** `SignMode::Hmac` and `SignMode::Ed25519` add a hex `sig` to every
-   envelope. `SignMode::SessionBound` exists but does not sign yet. The browser
+   envelope. `SignMode::SessionBound` exists but does not sign (deprecated since 0.5.2, removed in 0.6.0). The browser
    library does not verify signatures for you (see
    [Cryptographic Verification](crypto/index.md)).
 

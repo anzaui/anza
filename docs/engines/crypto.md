@@ -26,7 +26,7 @@ The signature is hex-encoded in the envelope's `sig` field. Whoever receives the
 | Mode | Algorithm | Best For | Proxy / CDN Support | Auth Dependency |
 |------|-----------|----------|---------------------|-----------------|
 | **`Ed25519`** | Asymmetric Ed25519 | Public pages, multi-tier CDNs, microfrontends | Yes (Bypasses CDN TLS termination) | None |
-| **`SessionBound`** / `session` | Reserved (HKDF helpers exist, envelopes are not signed yet) | Authenticated personalized streams | — | — |
+| **`SessionBound`** / `session` | Deprecated since 0.5.2, removed in 0.6.0 (no signature is added) | Authenticated personalized streams | — | — |
 | **`Hmac`** | HMAC-SHA256 | Internal VPC microservices / single origin | Yes | Pre-shared secret |
 | **`None`** | No Signature | Local development and testing | Yes | None |
 

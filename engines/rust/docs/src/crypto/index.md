@@ -36,7 +36,7 @@ let engine = setup.run()?;
 |---|---|---|
 | **`Ed25519`** | `sig` = hex Ed25519 signature (64 bytes) | `anza::crypto::ed25519::verify::check` with the public key |
 | **`Hmac`** | `sig` = hex HMAC-SHA256 (32 bytes) | `anza::crypto::hmac::verify::check` with the same secret |
-| **`SessionBound`** | Reserved: no `sig` is added yet | — |
+| **`SessionBound`** | Deprecated (0.5.2, removed in 0.6.0): no `sig` is added | — |
 | **`None`** | No `sig` | — |
 
 Notes:
@@ -45,7 +45,7 @@ Notes:
   missing; the error then shows up on the first render
   (`Error::Crypto("Ed25519 private key must be 32 bytes")`).
 - `publish_meta` is stored but not used: the engine does not inject the public
-  key into pages.
+  key into pages. The field is deprecated since 0.5.2 and removed in 0.6.0.
 
 ## 2. Signed message
 

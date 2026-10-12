@@ -32,7 +32,7 @@ tokio = { version = "1", features = ["full"] }
 | *(default)* | No web framework and no async runtime |
 | `axum` | `IntoResponse` for `Document` (HTML) and `Envelope` (JSON); `adapters::axum::stream::event` builds an SSE `Event` |
 | `actix` | `Responder` for `Document` and `Envelope`; `adapters::actix::stream::bytes` for SSE bodies |
-| `tower` | Placeholder: pulls in `tower`, but `adapters::tower` has no `Service` yet |
+| `tower` | Placeholder: pulls in `tower`, but `adapters::tower` has no `Service` yet. Deprecated since 0.5.2; removed in 0.6.0 |
 | `watch` | Watches the root with `notify` and reloads changed templates into the cache |
 | `full` | All of the above |
 
@@ -121,7 +121,7 @@ setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub", false);
 setup.signing = SignMode::None;
 ```
 
-`SignMode::SessionBound` is accepted but does not sign yet. The signature is
+`SignMode::SessionBound` and the `publish_meta` flag are accepted but do nothing; both are deprecated since 0.5.2 and removed in 0.6.0. The signature is
 hex-encoded; see [crypto.md](crypto.md).
 
 ## Page Rendering
