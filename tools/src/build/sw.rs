@@ -3,7 +3,7 @@
 // Service Worker post-processing. Rewrites bare module specifiers in
 // dist/sw.js to relative paths because SW scope does not support import maps.
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::path::Path;
 use std::sync::Arc;
 
@@ -16,7 +16,7 @@ use swc_ecma_visit::{Visit, VisitWith};
 ///
 /// A parse failure is left to the import-graph diagnostics (sw.js is an
 /// entry); read or write failures are errors.
-pub fn rewrite_imports(dist: &Path, map: &HashMap<String, String>) -> Result<(), String> {
+pub fn rewrite_imports(dist: &Path, map: &BTreeMap<String, String>) -> Result<(), String> {
   let sw = dist.join("sw.js");
   if !sw.exists() {
     return Ok(());
@@ -71,7 +71,7 @@ pub fn rewrite_imports(dist: &Path, map: &HashMap<String, String>) -> Result<(),
 
 struct Collector<'a> {
   specs: &'a mut Vec<(Span, String)>,
-  map: &'a HashMap<String, String>,
+  map: &'a BTreeMap<String, String>,
 }
 
 impl<'a> Visit for Collector<'a> {

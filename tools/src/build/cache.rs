@@ -3,7 +3,7 @@
 // Incremental-build cache: hashes of files seen in the last run so unchanged
 // files can be skipped during the copy phase.
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
@@ -15,7 +15,7 @@ pub const FILE: &str = ".anzacache.json";
 pub struct Cache {
   pub version: String,
   pub dev: bool,
-  pub hashes: HashMap<PathBuf, String>,
+  pub hashes: BTreeMap<PathBuf, String>,
   pub timestamp: u64,
 }
 

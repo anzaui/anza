@@ -1,6 +1,5 @@
 // tools/src/extract/runner.rs
 
-use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Arc;
 use walkdir::WalkDir;
@@ -115,7 +114,7 @@ pub fn run(src_dir: &Path, dist_types_dir: &Path) -> Result<(), Vec<String>> {
 
   // Collect all paths to parallelize with Rayon
   let mut paths: Vec<std::path::PathBuf> = Vec::new();
-  for entry in WalkDir::new(src_dir) {
+  for entry in WalkDir::new(src_dir).sort_by_file_name() {
     match entry {
       Ok(e) if e.file_type().is_file() => paths.push(e.path().to_path_buf()),
       Ok(_) => {}
@@ -335,7 +334,7 @@ impl ElementVisitor {
     let mut spec = ExtractedSpec {
       tag: String::new(),
       kind: kind.to_string(),
-      props: HashMap::new(),
+      props: Default::default(),
       methods: Vec::new(),
       url: None,
       routes: Vec::new(),
@@ -343,7 +342,7 @@ impl ElementVisitor {
       via: Vec::new(),
       parent: None,
       name: None,
-      meta: HashMap::new(),
+      meta: Default::default(),
       seo: None,
       ssg: None,
       params: Vec::new(),
@@ -782,10 +781,10 @@ fn parse_ssg(obj: &ObjectLit, spec: &mut ExtractedSpec) {
   spec.ssg = Some(ssg);
 }
 
-fn parse_expand_entry(expr: &Expr) -> Option<std::collections::HashMap<String, String>> {
+fn parse_expand_entry(expr: &Expr) -> Option<std::collections::BTreeMap<String, String>> {
   match expr {
     Expr::Object(obj) => {
-      let mut map = std::collections::HashMap::new();
+      let mut map = std::collections::BTreeMap::new();
       for prop in &obj.props {
         if let PropOrSpread::Prop(p) = prop {
           if let Prop::KeyValue(kv) = &**p {
@@ -811,7 +810,7 @@ fn parse_expand_entry(expr: &Expr) -> Option<std::collections::HashMap<String, S
     Expr::Lit(Lit::Str(s)) => {
       let v = s.value.as_str()?.to_string();
       // Shorthand: single bare value OR full concrete path (resolved in routes emit).
-      let mut map = std::collections::HashMap::new();
+      let mut map = std::collections::BTreeMap::new();
       map.insert("__path__".to_string(), v);
       Some(map)
     }

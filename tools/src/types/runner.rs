@@ -58,7 +58,7 @@ pub struct SeoDecl {
 /// `ssg.params.json`). Each expand entry is a param-name → concrete value map.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct SsgDecl {
-  pub expand: Vec<std::collections::HashMap<String, String>>,
+  pub expand: Vec<std::collections::BTreeMap<String, String>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -66,7 +66,7 @@ pub struct ExtractedSpec {
   pub tag: String,
   /// Definition kind: "page" | "dock" | "view" | "part" | "element" | "container".
   pub kind: String,
-  pub props: std::collections::HashMap<String, PropConfig>,
+  pub props: std::collections::BTreeMap<String, PropConfig>,
   pub methods: Vec<String>,
   /// Single-route (legacy). For new multi-route pages this will be the first entry.
   pub url: Option<String>,
@@ -80,7 +80,7 @@ pub struct ExtractedSpec {
   pub parent: Option<String>,
   /// Dock graph key from `dock(name, …)` (pages leave this empty).
   pub name: Option<String>,
-  pub meta: std::collections::HashMap<String, String>,
+  pub meta: std::collections::BTreeMap<String, String>,
   /// SEO metadata from `page(..., { seo })` for SSG HTML head emission.
   pub seo: Option<SeoDecl>,
   /// Optional build-time SSG expansion for parametric routes.

@@ -4,7 +4,7 @@
 // public / SSG-eligible route. Writes dist/<route>/index.html (and dist/index.html
 // for `/`) so plain static hosts can hard-refresh without JS.
 
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
 use serde::Deserialize;
@@ -57,7 +57,7 @@ struct RouteInfo {
   /// Concrete expansion values from Phase 5 (`ssgParams` in routes.json).
   #[serde(default)]
   #[serde(rename = "ssgParams")]
-  ssg_params: HashMap<String, String>,
+  ssg_params: BTreeMap<String, String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -281,8 +281,8 @@ fn should_ssg(route: &RouteInfo) -> bool {
   route.path == "/" || route.path.starts_with("/docs")
 }
 
-fn collect_docks(routes: &[RouteInfo]) -> HashMap<String, DockInfo> {
-  let mut docks = HashMap::new();
+fn collect_docks(routes: &[RouteInfo]) -> BTreeMap<String, DockInfo> {
+  let mut docks = BTreeMap::new();
   for route in routes {
     // Dock definitions are emitted with path == dock name (no leading '/').
     if route.path.starts_with('/') {
@@ -376,7 +376,7 @@ fn plan_routes<'a>(
   src_dir: &Path,
   dist_dir: &Path,
   routes: &[&'a RouteInfo],
-  docks: &HashMap<String, DockInfo>,
+  docks: &BTreeMap<String, DockInfo>,
 ) -> (Vec<RoutePlan<'a>>, Sources) {
   let mut wanted = std::collections::BTreeSet::new();
   let mut dock_tags: HashMap<String, Option<String>> = HashMap::new();
@@ -431,7 +431,7 @@ fn emit_route(
   src_dir: &Path,
   plan: &RoutePlan,
   sources: &Sources,
-  docks: &HashMap<String, DockInfo>,
+  docks: &BTreeMap<String, DockInfo>,
   importmap: &str,
   site: &SsgSiteConfig,
 ) -> Result<bool, String> {
@@ -624,7 +624,7 @@ fn output_path(dist_dir: &Path, path: &str) -> PathBuf {
 
 fn build_head(
   route: &RouteInfo,
-  docks: &HashMap<String, DockInfo>,
+  docks: &BTreeMap<String, DockInfo>,
   importmap: &str,
   title: &str,
   description: &str,
@@ -819,7 +819,7 @@ fn build_dsd_tree(
 
 fn resolve_dock(
   name: &str,
-  docks: &HashMap<String, DockInfo>,
+  docks: &BTreeMap<String, DockInfo>,
   route: &RouteInfo,
   src_dir: &Path,
   dock_tags: &mut HashMap<String, Option<String>>,
@@ -1202,7 +1202,7 @@ fn escape_attr(s: &str) -> String {
 }
 
 /// Replace `{{name}}` placeholders using Phase 5 expansion values.
-fn interpolate_params(input: &str, values: &HashMap<String, String>) -> String {
+fn interpolate_params(input: &str, values: &BTreeMap<String, String>) -> String {
   if values.is_empty() || !input.contains("{{") {
     return input.to_string();
   }
@@ -1428,7 +1428,7 @@ mod tests {
       ssg: None,
       public: None,
       seo: None,
-      ssg_params: HashMap::new(),
+      ssg_params: BTreeMap::new(),
     };
     assert!(should_ssg(&page));
 
@@ -1455,7 +1455,7 @@ mod tests {
       path: "/docs/ssg/expand/foo".into(),
       ssg: Some(true),
       ssg_params: {
-        let mut m = HashMap::new();
+        let mut m = BTreeMap::new();
         m.insert("slug".into(), "foo".into());
         m
       },
@@ -1479,7 +1479,7 @@ mod tests {
 
   #[test]
   fn interpolates_ssg_params() {
-    let mut values = HashMap::new();
+    let mut values = BTreeMap::new();
     values.insert("slug".into(), "foo".into());
     assert_eq!(
       interpolate_params("<h1>Expand: {{slug}}</h1>", &values),

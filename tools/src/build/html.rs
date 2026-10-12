@@ -9,7 +9,7 @@
 // must treat that interior as text so nested `<button>` / `</dialog>` / etc.
 // are not parsed as real document structure.
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 /// Docs code-snippet custom element whose children are opaque sample text.
 const VIEW_CODE: &str = "view-code";
@@ -137,7 +137,7 @@ pub fn strip_importmap(html: &str) -> String {
 }
 
 /// Inject importmap link and optional HMR script into an HTML string.
-pub fn inject_assets(html: &str, map: &HashMap<String, String>, dev: bool) -> String {
+pub fn inject_assets(html: &str, map: &BTreeMap<String, String>, dev: bool) -> String {
   let clean = strip_importmap(html);
 
   let json = serde_json::json!({ "imports": map });

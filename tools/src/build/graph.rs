@@ -6,7 +6,7 @@
 // syntax errors, and unsupported prop types. No bundling.
 
 use ahash::AHashSet;
-use std::collections::{HashMap, VecDeque};
+use std::collections::{BTreeMap, VecDeque};
 use std::path::{Component, Path, PathBuf};
 use std::sync::Arc;
 
@@ -70,7 +70,7 @@ pub struct Report {
   pub modules: usize,
   pub warnings: Vec<Diagnostic>,
   #[allow(dead_code)]
-  pub importmap: HashMap<String, String>,
+  pub importmap: BTreeMap<String, String>,
 }
 
 /// What a specifier resolved to.
@@ -179,8 +179,8 @@ pub fn resolve(
   }
 
   let mut modules = 0usize;
-  let mut hashes: HashMap<PathBuf, String> = HashMap::new();
-  let mut importmap: HashMap<String, String> = HashMap::new();
+  let mut hashes: BTreeMap<PathBuf, String> = BTreeMap::new();
+  let mut importmap: BTreeMap<String, String> = BTreeMap::new();
 
   while let Some(module) = queue.pop_front() {
     if let Some(hash) = super::cache::hash(&module) {
@@ -440,7 +440,7 @@ pub fn resolve(
   })
 }
 
-fn save_cache(project: &Path, version: &str, dev: bool, hashes: HashMap<PathBuf, String>) {
+fn save_cache(project: &Path, version: &str, dev: bool, hashes: BTreeMap<PathBuf, String>) {
   let cache = super::cache::Cache {
     version: version.to_string(),
     dev,

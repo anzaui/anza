@@ -7,7 +7,7 @@
 // manifest (`page({ ssg: { expand } })` and/or `ssg.params.json`) to emit SSG
 // HTML; without expansion, `ssg` stays false (Mode B or CSR).
 
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashSet};
 use std::path::Path;
 
 use crate::types::ExtractedSpec;
@@ -60,9 +60,9 @@ struct RouteRecord<'a> {
   /// Title/description (and optional canonical/image) for SSG `<head>`.
   seo: SeoRecord,
   /// Concrete param values used to expand this path (SSG HTML interpolation).
-  #[serde(skip_serializing_if = "HashMap::is_empty")]
+  #[serde(skip_serializing_if = "BTreeMap::is_empty")]
   #[serde(rename = "ssgParams")]
-  ssg_params: HashMap<String, String>,
+  ssg_params: BTreeMap<String, String>,
   #[serde(skip_serializing_if = "Option::is_none")]
   file: Option<&'a str>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -174,7 +174,7 @@ fn resolve_seo(spec: &ExtractedSpec, path: &str) -> SeoRecord {
   }
 }
 
-fn interpolate_seo(seo: SeoRecord, values: &HashMap<String, String>) -> SeoRecord {
+fn interpolate_seo(seo: SeoRecord, values: &BTreeMap<String, String>) -> SeoRecord {
   SeoRecord {
     title: interpolate_str(&seo.title, values),
     description: interpolate_str(&seo.description, values),
@@ -184,7 +184,7 @@ fn interpolate_seo(seo: SeoRecord, values: &HashMap<String, String>) -> SeoRecor
 }
 
 /// Replace `{{name}}` placeholders with expansion values.
-fn interpolate_str(input: &str, values: &HashMap<String, String>) -> String {
+fn interpolate_str(input: &str, values: &BTreeMap<String, String>) -> String {
   let mut out = input.to_string();
   for (k, v) in values {
     out = out.replace(&format!("{{{{{}}}}}", k), v);
@@ -195,7 +195,7 @@ fn interpolate_str(input: &str, values: &HashMap<String, String>) -> String {
 /// Load optional `ssg.params.json` from `src_dir` or its parent (project root).
 ///
 /// Shape: `{ "/docs/guides/:slug": [ { "slug": "foo" }, "bar" ] }`
-fn load_ssg_params_manifest(src_dir: &Path) -> HashMap<String, Vec<HashMap<String, String>>> {
+fn load_ssg_params_manifest(src_dir: &Path) -> BTreeMap<String, Vec<BTreeMap<String, String>>> {
   let candidates = [
     src_dir.join("ssg.params.json"),
     src_dir
@@ -217,7 +217,7 @@ fn load_ssg_params_manifest(src_dir: &Path) -> HashMap<String, Vec<HashMap<Strin
     let Some(obj) = raw.as_object() else {
       continue;
     };
-    let mut out: HashMap<String, Vec<HashMap<String, String>>> = HashMap::new();
+    let mut out: BTreeMap<String, Vec<BTreeMap<String, String>>> = BTreeMap::new();
     for (pattern, entries) in obj {
       let Some(arr) = entries.as_array() else {
         continue;
@@ -237,13 +237,13 @@ fn load_ssg_params_manifest(src_dir: &Path) -> HashMap<String, Vec<HashMap<Strin
       return out;
     }
   }
-  HashMap::new()
+  BTreeMap::new()
 }
 
-fn json_expand_entry(value: &serde_json::Value) -> Option<HashMap<String, String>> {
+fn json_expand_entry(value: &serde_json::Value) -> Option<BTreeMap<String, String>> {
   match value {
     serde_json::Value::Object(obj) => {
-      let mut map = HashMap::new();
+      let mut map = BTreeMap::new();
       for (k, v) in obj {
         let s = match v {
           serde_json::Value::String(s) => s.clone(),
@@ -260,7 +260,7 @@ fn json_expand_entry(value: &serde_json::Value) -> Option<HashMap<String, String
       }
     }
     serde_json::Value::String(s) => {
-      let mut map = HashMap::new();
+      let mut map = BTreeMap::new();
       map.insert("__path__".to_string(), s.clone());
       Some(map)
     }
@@ -271,8 +271,8 @@ fn json_expand_entry(value: &serde_json::Value) -> Option<HashMap<String, String
 /// Normalize an expand entry against a route pattern into concrete param values.
 fn resolve_expand_values(
   pattern: &str,
-  raw: &HashMap<String, String>,
-) -> Option<HashMap<String, String>> {
+  raw: &BTreeMap<String, String>,
+) -> Option<BTreeMap<String, String>> {
   if let Some(path) = raw.get("__path__") {
     if path.starts_with('/') {
       return match match_path_to_pattern(pattern, path) {
@@ -289,7 +289,7 @@ fn resolve_expand_values(
     // Bare value: fill the sole `:param` in the pattern.
     let params = extract_params(pattern);
     if params.len() == 1 {
-      let mut map = HashMap::new();
+      let mut map = BTreeMap::new();
       map.insert(params[0].clone(), path.clone());
       return Some(map);
     }
@@ -301,7 +301,7 @@ fn resolve_expand_values(
   }
   // Object map — require every pattern param to be present.
   let params = extract_params(pattern);
-  let mut map = HashMap::new();
+  let mut map = BTreeMap::new();
   for name in &params {
     match raw.get(name) {
       Some(v) if !v.is_empty() && !v.contains('/') => {
@@ -323,13 +323,13 @@ fn resolve_expand_values(
   Some(map)
 }
 
-fn match_path_to_pattern(pattern: &str, concrete: &str) -> Option<HashMap<String, String>> {
+fn match_path_to_pattern(pattern: &str, concrete: &str) -> Option<BTreeMap<String, String>> {
   let pat_segs: Vec<&str> = pattern.split('/').filter(|s| !s.is_empty()).collect();
   let con_segs: Vec<&str> = concrete.split('/').filter(|s| !s.is_empty()).collect();
   if pat_segs.len() != con_segs.len() {
     return None;
   }
-  let mut map = HashMap::new();
+  let mut map = BTreeMap::new();
   for (p, c) in pat_segs.iter().zip(con_segs.iter()) {
     if let Some(name) = p.strip_prefix(':') {
       let clean = name.trim_end_matches(|ch| ch == '?' || ch == '+' || ch == '*');
@@ -344,7 +344,7 @@ fn match_path_to_pattern(pattern: &str, concrete: &str) -> Option<HashMap<String
   Some(map)
 }
 
-fn expand_path(pattern: &str, values: &HashMap<String, String>) -> Option<String> {
+fn expand_path(pattern: &str, values: &BTreeMap<String, String>) -> Option<String> {
   let mut parts = Vec::new();
   let leading = pattern.starts_with('/');
   for seg in pattern.split('/') {
@@ -378,8 +378,8 @@ fn expand_path(pattern: &str, values: &HashMap<String, String>) -> Option<String
 /// Look up a via-chain container by dock name, tag, or `dock-{name}` fallback.
 fn resolve_container<'a>(
   name: &str,
-  tag_to_spec: &std::collections::HashMap<String, &'a ExtractedSpec>,
-  dock_name_to_spec: &std::collections::HashMap<String, &'a ExtractedSpec>,
+  tag_to_spec: &std::collections::BTreeMap<String, &'a ExtractedSpec>,
+  dock_name_to_spec: &std::collections::BTreeMap<String, &'a ExtractedSpec>,
 ) -> Option<&'a ExtractedSpec> {
   dock_name_to_spec
     .get(name)
@@ -400,11 +400,11 @@ pub fn emit(
   let mut errors: Vec<String> = Vec::new();
   // Output key (trailing slash ignored) -> who registered it. A second claim
   // on the same key is an error naming both sources.
-  let mut seen: HashMap<String, String> = HashMap::new();
+  let mut seen: BTreeMap<String, String> = BTreeMap::new();
   let file_expansions = load_ssg_params_manifest(src_dir);
 
-  let mut tag_to_spec = std::collections::HashMap::new();
-  let mut dock_name_to_spec = std::collections::HashMap::new();
+  let mut tag_to_spec = std::collections::BTreeMap::new();
+  let mut dock_name_to_spec = std::collections::BTreeMap::new();
   for (_, spec) in specs {
     tag_to_spec.insert(spec.tag.clone(), spec);
     if spec.kind == "dock" {
@@ -556,7 +556,7 @@ pub fn emit(
         public,
         ssg,
         seo,
-        ssg_params: HashMap::new(),
+        ssg_params: BTreeMap::new(),
         file: spec.file.as_deref(),
         html: spec.html.as_deref(),
         css: spec.css.first().map(|s| s.as_str()),
@@ -597,7 +597,7 @@ pub fn emit(
       if params.is_empty() {
         continue;
       }
-      let mut expand_list: Vec<HashMap<String, String>> = Vec::new();
+      let mut expand_list: Vec<BTreeMap<String, String>> = Vec::new();
       if let Some(ref ssg_decl) = spec.ssg {
         expand_list.extend(ssg_decl.expand.iter().cloned());
       }
@@ -784,7 +784,7 @@ fn route_source(spec: &ExtractedSpec, path: &str) -> String {
 }
 
 /// Register `path` for `source`; a second claim on the same key is an error.
-fn claim_route(seen: &mut HashMap<String, String>, path: &str, source: &str) -> Result<(), String> {
+fn claim_route(seen: &mut BTreeMap<String, String>, path: &str, source: &str) -> Result<(), String> {
   let key = route_key(path);
   if let Some(first) = seen.get(&key) {
     return Err(format!("duplicate route {}: {} and {}", key, first, source));
@@ -897,7 +897,7 @@ mod tests {
 
   #[test]
   fn expand_path_fills_params() {
-    let mut values = HashMap::new();
+    let mut values = BTreeMap::new();
     values.insert("slug".into(), "foo".into());
     assert_eq!(
       expand_path("/docs/ssg/expand/:slug", &values).as_deref(),
@@ -907,12 +907,12 @@ mod tests {
 
   #[test]
   fn resolve_expand_shorthand_and_path() {
-    let mut bare = HashMap::new();
+    let mut bare = BTreeMap::new();
     bare.insert("__path__".into(), "foo".into());
     let v = resolve_expand_values("/docs/x/:slug", &bare).unwrap();
     assert_eq!(v.get("slug").map(String::as_str), Some("foo"));
 
-    let mut full = HashMap::new();
+    let mut full = BTreeMap::new();
     full.insert("__path__".into(), "/docs/x/bar".into());
     let v2 = resolve_expand_values("/docs/x/:slug", &full).unwrap();
     assert_eq!(v2.get("slug").map(String::as_str), Some("bar"));
@@ -920,7 +920,7 @@ mod tests {
 
   #[test]
   fn interpolate_seo_placeholders() {
-    let mut values = HashMap::new();
+    let mut values = BTreeMap::new();
     values.insert("slug".into(), "foo".into());
     let seo = SeoRecord {
       title: "T {{slug}}".into(),

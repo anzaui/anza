@@ -15,7 +15,7 @@ pub fn collect(src: &Path, entries: &[PathBuf]) -> Vec<PathBuf> {
   }
 
   // HTML files under src contribute their module-script and stylesheet entry points.
-  for item in walkdir::WalkDir::new(src)
+  for item in walkdir::WalkDir::new(src).sort_by_file_name()
     .into_iter()
     .filter_map(|e| e.ok())
   {
