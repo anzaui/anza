@@ -25,15 +25,19 @@ ui.element('ui-popover', {
       }));
     });
   },
+  // Methods run with `this` bound to the element (not a context object).
   methods: {
-    show({ tags }) {
-      tags.one('[popover]').showPopover();
+    show() {
+      const popover = this._tags?.one('[popover]');
+      if (popover && !popover.matches(':popover-open')) popover.showPopover();
     },
-    hide({ tags }) {
-      tags.one('[popover]').hidePopover();
+    hide() {
+      const popover = this._tags?.one('[popover]');
+      if (popover?.matches(':popover-open')) popover.hidePopover();
     },
-    toggle({ tags }) {
-      const popover = tags.one('[popover]');
+    toggle() {
+      const popover = this._tags?.one('[popover]');
+      if (!popover) return;
       if (popover.matches(':popover-open')) {
         popover.hidePopover();
       } else {

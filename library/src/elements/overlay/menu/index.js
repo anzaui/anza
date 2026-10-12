@@ -57,20 +57,26 @@ ui.element('ui-menu', {
       }
     });
   },
+  // Methods run with `this` bound to the element (not a context object).
   methods: {
-    show({ el, tags }) {
-      tags.one('[popover]').showPopover();
-      focusItem(el, tags, 0);
+    show() {
+      const tags = this._tags;
+      const popover = tags?.one('[popover]');
+      if (!popover) return;
+      if (!popover.matches(':popover-open')) popover.showPopover();
+      focusItem(this, tags, 0);
     },
-    hide({ tags }) {
-      tags.one('[popover]').hidePopover();
+    hide() {
+      const popover = this._tags?.one('[popover]');
+      if (popover?.matches(':popover-open')) popover.hidePopover();
     },
-    toggle({ el, tags }) {
-      const popover = tags.one('[popover]');
+    toggle() {
+      const popover = this._tags?.one('[popover]');
+      if (!popover) return;
       if (popover.matches(':popover-open')) {
-        hide(el, tags);
+        this.hide();
       } else {
-        this.show({ el, tags });
+        this.show();
       }
     }
   }

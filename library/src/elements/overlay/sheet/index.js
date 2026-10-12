@@ -34,7 +34,7 @@ ui.element('ui-sheet', {
       handle.style.cursor = 'grabbing';
     });
 
-    on.pointermove(el, (e) => {
+    on.pointermove(dialog, (e) => {
       if (el.dataset.dragging !== 'true') return;
       const deltaY = e.clientY - parseInt(el.dataset.startY || '0', 10);
 
@@ -45,7 +45,7 @@ ui.element('ui-sheet', {
       }
     });
 
-    on.pointerup(el, () => {
+    on.pointerup(dialog, () => {
       if (el.dataset.dragging !== 'true') return;
       el.dataset.dragging = 'false';
 
@@ -63,7 +63,7 @@ ui.element('ui-sheet', {
       el.dataset.currentY = '0';
     });
 
-    on.pointercancel(el, () => {
+    on.pointercancel(dialog, () => {
       if (el.dataset.dragging !== 'true') return;
       el.dataset.dragging = 'false';
       dialog.style.transition = '';
@@ -77,12 +77,13 @@ ui.element('ui-sheet', {
   update({ el, tags }) {
     syncAttributes(el, tags);
   },
+  // Methods run with `this` bound to the element (not a context object).
   methods: {
-    show({ el, tags }) {
-      el.open = true;
+    show() {
+      this.open = true;
     },
-    hide({ el, tags }) {
-      el.open = false;
+    hide() {
+      this.open = false;
     }
   }
 }, import.meta.url);

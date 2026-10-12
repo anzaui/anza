@@ -5,6 +5,17 @@ import {
   resolvePassiveDefault
 } from '../../events/match.js';
 
+/**
+ * Events that do not bubble. `on` delegates from the shadow root, so these
+ * are only seen there in the capture phase; listen in capture for them.
+ */
+const NON_BUBBLING = new Set([
+  'close', 'cancel', 'toggle', 'beforetoggle', 'focus', 'blur', 'load', 'error',
+  'abort', 'invalid', 'scroll', 'scrollend', 'mouseenter', 'mouseleave',
+  'pointerenter', 'pointerleave', 'play', 'pause', 'ended', 'loadeddata',
+  'loadedmetadata', 'canplay', 'timeupdate', 'volumechange', 'seeked', 'seeking'
+]);
+
 /** Per-shadowRoot attachment counters for DEV / soft-nav leak tests. */
 const attachmentStats = new WeakMap();
 
@@ -416,7 +427,7 @@ export function createEventDelegator(shadowRoot, defaultSignal) {
     }
 
     const options = normalizeSignalOptions(signalOrOptions, defaultSignal);
-    const capture = Boolean(options.capture);
+    const capture = Boolean(options.capture) || NON_BUBBLING.has(String(eventType));
     const key = listenerKey(eventType, capture);
     const signal = options.signal;
 

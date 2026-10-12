@@ -16,9 +16,10 @@ ui.element('ui-sidebar', {
   props: {
     collapsed: { type: Boolean, reflect: true }
   },
+  // Methods run with `this` bound to the element (not a context object).
   methods: {
-    toggle({ el }) {
-      el.collapsed = !el.collapsed;
+    toggle() {
+      this.collapsed = !this.collapsed;
     }
   }
 }, import.meta.url);

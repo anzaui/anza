@@ -30,12 +30,13 @@ ui.element('ui-drawer', {
   update({ el, tags }) {
     syncAttributes(el, tags);
   },
+  // Methods run with `this` bound to the element (not a context object).
   methods: {
-    show({ el, tags }) {
-      el.open = true;
+    show() {
+      this.open = true;
     },
-    hide({ el, tags }) {
-      el.open = false;
+    hide() {
+      this.open = false;
     }
   }
 }, import.meta.url);

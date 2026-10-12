@@ -41,17 +41,19 @@ ui.element('ui-dialog', {
       }
     });
   },
+  // Methods run with `this` bound to the element (not a context object).
   methods: {
-    showModal({ el, tags }) {
-      const dialog = tags.one('dialog');
-      dialog.showModal();
-      el.open = true;
-      el.dispatchEvent(new CustomEvent('show', { bubbles: true, composed: true }));
+    showModal() {
+      const dialog = this.shadowRoot?.querySelector('dialog');
+      if (!dialog) return;
+      if (!dialog.open) dialog.showModal();
+      this.open = true;
+      this.dispatchEvent(new CustomEvent('show', { bubbles: true, composed: true }));
     },
-    close({ el, tags }, returnValue = '') {
-      const dialog = tags.one('dialog');
-      dialog.close(returnValue);
-      el.open = false;
+    close(returnValue = '') {
+      const dialog = this.shadowRoot?.querySelector('dialog');
+      if (dialog?.open) dialog.close(returnValue);
+      this.open = false;
     }
   }
 }, import.meta.url);
