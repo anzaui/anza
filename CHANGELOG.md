@@ -14,12 +14,59 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [0.6.0](https://github.com/anzaui/anza/compare/v0.5.1...v0.6.0) (2026-10-12)
 
+### Highlights
 
-### ⚠ BREAKING CHANGES
+#### Added
+
+- **Production bundling.** `anza build` bundles with Rolldown into minified, content-hashed chunks (`core`, `elements`, per route group, on-demand) under `dist/assets/`, and bakes element CSS, templates and tags into their modules. Needs `rolldown` as a devDependency (scaffolded apps get it); without it, or with `--no-bundle`, the unbundled output is shipped with a warning.
+- Build output for fast first loads: global CSS bundled and minified with Lightning CSS and merged into one file per page, shared DSD stylesheets linked instead of inlined in every page, full `modulepreload` lists, a generated `dist/_headers` (cache rules + `Link` preloads for 103 Early Hints), `/assets/*` cached immutably, and `.br`/`.gz` siblings. Docs pages on Fast 4G: about 290 requests and 1.1 s to ready → 12 requests and 0.46 s.
+- `anza build --types <dir>`: type declarations are written beside `dist/` (default `types/`), never into it.
+- `anza docs --pages` is the single docs generator, with the sidebar built from the docs tree.
+- Dev server: live reload injected into every HTML response at serve time, a self-unregistering `/sw.js`, `no-cache` + ETag/304 on every response, and a forced reload when the reload stream falls behind. CSS and template edits hot-swap in about 30 ms (was about 200 ms).
+- `npm run bench:load` (cold page-load benchmark with budgets, enforced in CI), `npm run doc:imports`, `npm run types:check`, `npm run versions:check`.
+
+#### Changed
+
+- **Element resources load on first connect** (lazy by default). Pass `eager: true` to `element()`, `view()`, `part()` or `dock()` to fetch them at define time, as before.
+- **`anza build` fails on errors.** Any SSG, extract, copy or write error, a missing or invalid `routes.json`, a duplicate route or two routes writing the same file now fails the build (exit 1) and lists every error. `anza dev` logs them and keeps serving.
+- **The CLI crate is renamed `anza-cli`** (the command is still `anza`; the engine crate keeps the name `anza`). `anza create` now points to `npm create @anzaui/anza`. `anza --version` comes from `Cargo.toml`.
+- `anza build` and `anza dev` lock the project, so they never write the same `dist/` at once.
+- Faster runtime: element style, template and tags are fetched in parallel and pre-rendered elements mount before their files arrive; service worker strategies respond first and cache through `event.waitUntil`; quota checks are throttled and store flushes coalesced.
+- Faster builds: parallel import-graph walk and copy, single-pass base-path rewriting (`web/` release build: 124 ms → 71 ms before compression).
+- **Rust engine (breaking):** `Engine::manifest()` values are now the hex BLAKE3 digest of each template (every stored value changes); `engine::file::watch::listen` takes the engine's `CacheStore`.
+- Python engine: the page tag for nested routes is `page-a-b` (was the invalid `page-a/b`).
+- Releases: one version for every package, bumped by release-please and checked in CI.
+
+#### Removed
+
+- **Engines (breaking):** signing options that never did anything: `SignMode::SessionBound` and the `publish_meta` field (Rust; `Setup::ed25519` now takes two arguments), the empty `adapters::tower` module and `tower` feature (Rust), and `mode: 'session'` / `publishMeta` (TypeScript) / `mode="session"` (Python).
+
+#### Fixed
+
+- **Stale files after an edit ("needs a hard refresh").** The service worker is not registered on local hosts, and old workers and caches are removed there. Event streams and `/hmr` are never intercepted. The most specific SW route wins, so `/api/*` is no longer shadowed by `'*'`. Unhashed files are served `no-cache` in production; extensionless URLs serve the pre-rendered page first.
+- Scaffolded apps (`npm create @anzaui/anza`) register the service worker on real hosts only and cache safely.
+- HTML hot-swap runs the same pipeline as a cold load; the dev cache is invalidated when the import map, structure or base path change, and outputs of deleted files are removed.
+- Build output is deterministic, written atomically, and SSG reads templates and CSS from `src`.
+- Root exports: `state`, `sync`, `storage`, `events`, `view`, `cache` and `reset` were silently dropped from `@anzaui/anza` (name clashes between modules); each is now re-exported from one module.
+- Missing exports added: `gate`, `ready`, `reset` (`./router`), `seal`, `unseal` (`./security`), `quota` (`./storage`).
+- Types match the runtime: the root `index.d.ts` is a flat re-export, and `./defs`, `./sw`, `./elements/*` and `./bin/create` have types.
+- Rust engine: the `watch` feature now reloads changed templates.
+- Docs: every documented `@anzaui/anza` import resolves (checked in CI); engine and template docs no longer claim auto-escaping, `each`/`if` blocks or browser-side signature checks.
+
+- **npm packages were published broken in 0.5.0:** `@anzaui/anza` had no `anza` CLI binary (`npx anza` failed) and `@anzaui/engine` had no compiled `dist/` (imports failed). The engine package now lists its `files`, and `tasks/publish.js` downloads the release binaries and refuses to publish any tarball that is missing a required file (see `NPM.md`).
+
+#### Security
+
+- **Engines: reflected XSS in the page fallback.** The Rust and TypeScript engines wrote the request path into the "unknown route" HTML unescaped; it is now escaped.
+- **Python engine: path traversal.** `../` in a request path could read `.html` files outside the template root; template reads must now resolve inside the root. The route is also sanitized in the page tag name and escaped in the shell `route` value.
+
+### All changes
+
+#### ⚠ BREAKING CHANGES
 
 * **engines:** Setup::ed25519 takes only the two key paths; code that named SignMode::SessionBound, publish_meta, adapters::tower or the tower feature, or passed mode 'session', must drop it.
 
-### Features
+#### Features
 
 * **build:** bundle and minify CSS with Lightning CSS, link shared DSD styles ([7a6ae7e](https://github.com/anzaui/anza/commit/7a6ae7e8e0d1258b459d111d10239bd76338ed81))
 * **build:** bundle production output into Rolldown chunks ([f46166f](https://github.com/anzaui/anza/commit/f46166f2ffe76fb816dd7c66385cbe417713219a))
@@ -31,7 +78,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 * **docs:** make anza docs the single docs generator ([dd0d846](https://github.com/anzaui/anza/commit/dd0d846316fcb3b156e6219c26885ec0ccf6024d))
 
 
-### Bug Fixes
+#### Bug Fixes
 
 * **api:** export router gate/ready/reset, security seal/unseal, storage quota ([08b11eb](https://github.com/anzaui/anza/commit/08b11eb1b750b50fe26818902a579df4087489c7))
 * **api:** root entry re-exports shared names from one winner ([960db4e](https://github.com/anzaui/anza/commit/960db4e53c9d50b6197171c94f2b1abc9b7b3211))
@@ -61,7 +108,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 * **web:** no-cache unhashed files and serve SSG pages first ([ad27457](https://github.com/anzaui/anza/commit/ad27457b3ea7cfad5f5aee49707d51a6d2565fe6))
 
 
-### Performance Improvements
+#### Performance Improvements
 
 * **build:** inline page tags descriptors so adopted SSG pages keep the mismatch check ([0dff54b](https://github.com/anzaui/anza/commit/0dff54b3dcd9273e15a0787dd5e95131e8473daa))
 * **build:** merge adjacent head stylesheets into one hashed file ([9f614d7](https://github.com/anzaui/anza/commit/9f614d7aa2a1c6e375f5edd2f3a663669c9c606d))
@@ -79,55 +126,9 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 * **web:** self-host the web fonts and preload the body face ([cdafec0](https://github.com/anzaui/anza/commit/cdafec0526f83e310c5c3e8401c92fbe9a253717))
 
 
-### Code Refactoring
+#### Code Refactoring
 
 * **engines:** remove signing options that never did anything ([d5a4065](https://github.com/anzaui/anza/commit/d5a4065b685742b83cc658508d0a807c5a21b2d8))
-
-## [Unreleased]
-
-### Added
-
-- **Production bundling.** `anza build` bundles with Rolldown into minified, content-hashed chunks (`core`, `elements`, per route group, on-demand) under `dist/assets/`, and bakes element CSS, templates and tags into their modules. Needs `rolldown` as a devDependency (scaffolded apps get it); without it, or with `--no-bundle`, the unbundled output is shipped with a warning.
-- Build output for fast first loads: global CSS bundled and minified with Lightning CSS and merged into one file per page, shared DSD stylesheets linked instead of inlined in every page, full `modulepreload` lists, a generated `dist/_headers` (cache rules + `Link` preloads for 103 Early Hints), `/assets/*` cached immutably, and `.br`/`.gz` siblings. Docs pages on Fast 4G: about 290 requests and 1.1 s to ready → 12 requests and 0.46 s.
-- `anza build --types <dir>`: type declarations are written beside `dist/` (default `types/`), never into it.
-- `anza docs --pages` is the single docs generator, with the sidebar built from the docs tree.
-- Dev server: live reload injected into every HTML response at serve time, a self-unregistering `/sw.js`, `no-cache` + ETag/304 on every response, and a forced reload when the reload stream falls behind. CSS and template edits hot-swap in about 30 ms (was about 200 ms).
-- `npm run bench:load` (cold page-load benchmark with budgets, enforced in CI), `npm run doc:imports`, `npm run types:check`, `npm run versions:check`.
-
-### Changed
-
-- **Element resources load on first connect** (lazy by default). Pass `eager: true` to `element()`, `view()`, `part()` or `dock()` to fetch them at define time, as before.
-- **`anza build` fails on errors.** Any SSG, extract, copy or write error, a missing or invalid `routes.json`, a duplicate route or two routes writing the same file now fails the build (exit 1) and lists every error. `anza dev` logs them and keeps serving.
-- **The CLI crate is renamed `anza-cli`** (the command is still `anza`; the engine crate keeps the name `anza`). `anza create` now points to `npm create @anzaui/anza`. `anza --version` comes from `Cargo.toml`.
-- `anza build` and `anza dev` lock the project, so they never write the same `dist/` at once.
-- Faster runtime: element style, template and tags are fetched in parallel and pre-rendered elements mount before their files arrive; service worker strategies respond first and cache through `event.waitUntil`; quota checks are throttled and store flushes coalesced.
-- Faster builds: parallel import-graph walk and copy, single-pass base-path rewriting (`web/` release build: 124 ms → 71 ms before compression).
-- **Rust engine (breaking):** `Engine::manifest()` values are now the hex BLAKE3 digest of each template (every stored value changes); `engine::file::watch::listen` takes the engine's `CacheStore`.
-- Python engine: the page tag for nested routes is `page-a-b` (was the invalid `page-a/b`).
-- Releases: one version for every package, bumped by release-please and checked in CI.
-
-### Removed
-
-- **Engines (breaking):** signing options that never did anything: `SignMode::SessionBound` and the `publish_meta` field (Rust; `Setup::ed25519` now takes two arguments), the empty `adapters::tower` module and `tower` feature (Rust), and `mode: 'session'` / `publishMeta` (TypeScript) / `mode="session"` (Python).
-
-### Fixed
-
-- **Stale files after an edit ("needs a hard refresh").** The service worker is not registered on local hosts, and old workers and caches are removed there. Event streams and `/hmr` are never intercepted. The most specific SW route wins, so `/api/*` is no longer shadowed by `'*'`. Unhashed files are served `no-cache` in production; extensionless URLs serve the pre-rendered page first.
-- Scaffolded apps (`npm create @anzaui/anza`) register the service worker on real hosts only and cache safely.
-- HTML hot-swap runs the same pipeline as a cold load; the dev cache is invalidated when the import map, structure or base path change, and outputs of deleted files are removed.
-- Build output is deterministic, written atomically, and SSG reads templates and CSS from `src`.
-- Root exports: `state`, `sync`, `storage`, `events`, `view`, `cache` and `reset` were silently dropped from `@anzaui/anza` (name clashes between modules); each is now re-exported from one module.
-- Missing exports added: `gate`, `ready`, `reset` (`./router`), `seal`, `unseal` (`./security`), `quota` (`./storage`).
-- Types match the runtime: the root `index.d.ts` is a flat re-export, and `./defs`, `./sw`, `./elements/*` and `./bin/create` have types.
-- Rust engine: the `watch` feature now reloads changed templates.
-- Docs: every documented `@anzaui/anza` import resolves (checked in CI); engine and template docs no longer claim auto-escaping, `each`/`if` blocks or browser-side signature checks.
-
-- **npm packages were published broken in 0.5.0:** `@anzaui/anza` had no `anza` CLI binary (`npx anza` failed) and `@anzaui/engine` had no compiled `dist/` (imports failed). The engine package now lists its `files`, and `tasks/publish.js` downloads the release binaries and refuses to publish any tarball that is missing a required file (see `NPM.md`).
-
-### Security
-
-- **Engines: reflected XSS in the page fallback.** The Rust and TypeScript engines wrote the request path into the "unknown route" HTML unescaped; it is now escaped.
-- **Python engine: path traversal.** `../` in a request path could read `.html` files outside the template root; template reads must now resolve inside the root. The route is also sanitized in the page tag name and escaped in the shell `route` value.
 
 ---
 
