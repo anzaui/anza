@@ -8,7 +8,8 @@ import {
 } from './state.js';
 import {
   preloadResources, createTemplateFragment,
-  findDsdTemplate, hasHydrationMismatch, replaceShadowTemplate, hasStructuralElements
+  findDsdTemplate, hasHydrationMismatch, replaceShadowTemplate, hasStructuralElements,
+  sanitizeTemplateHtml, evictAsset
 } from './utils.js';
 import { createComponentContext } from './proxy.js';
 
@@ -176,17 +177,27 @@ export function element(tag, spec, base) {
         const absoluteChangedUrl = new URL(changedPath, window.location.origin).href;
         
         if (templateUrl === absoluteChangedUrl || templateUrl.endsWith(changedPath)) {
-          // Re-parse HTML into the cached resolved object
-          resourcesPromise = preloadResources(tag, styleUrls, null, html, spec.style).then(res => {
-            resolved = res;
-            // Now re-bind instances!
-            const instances = window.__native_hmr_instances__?.get(tag) || [];
-            for (const instance of instances) {
-              if (instance.__hmr_rebind) instance.__hmr_rebind();
-            }
-            console.log(`[HMR] Template hot-swapped for <${tag}>`);
-            return res;
-          });
+          // Drop the stale template so no later load reuses it.
+          evictAsset(templateUrl);
+          const previous = resolved ?? (resourcesPromise ? await resourcesPromise : null);
+          if (!previous) {
+            // Never loaded: the next connect does a normal cold load.
+            resourcesPromise = null;
+            return;
+          }
+
+          // Same pipeline as a cold load (sanitize + compile); keep the
+          // stylesheets and tags descriptor that were already loaded.
+          const templateNode = createTemplateFragment(sanitizeTemplateHtml(html, tag));
+          assetCache.set(templateUrl, templateNode);
+          resolved = { ...previous, templateNode };
+          resourcesPromise = Promise.resolve(resolved);
+
+          const instances = window.__native_hmr_instances__?.get(tag) || [];
+          for (const instance of instances) {
+            if (instance.__hmr_rebind) instance.__hmr_rebind();
+          }
+          console.log(`[HMR] Template hot-swapped for <${tag}>`);
         }
       };
       window.addEventListener('anza:hmr:html', hmrHandler);
