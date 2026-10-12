@@ -120,6 +120,8 @@ export function translate(config, opts = {}) {
 
   if (config.props) spec.props = config.props;
   if (config.form) spec.form = config.form;
+  // Resources load on first connect by default; `eager: true` fetches at define time.
+  if (config.eager === true) spec.eager = true;
 
   // New contract: params and query are typed arrays — handled by page.js and
   // stored on the spec. No action needed here; intercept.js reads spec.params

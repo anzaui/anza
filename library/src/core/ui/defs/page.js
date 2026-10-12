@@ -59,7 +59,6 @@ export function page(route, config, base) {
   // render target and cast params/query (specRegistry is populated by element()).
   spec.via = via;
   spec.container = target;
-  spec.lazy = true;
   if (config.loading !== undefined) {
     spec.loading = config.loading;
   }

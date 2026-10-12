@@ -94,9 +94,12 @@ export function element(tag, spec, base) {
     return resourcesPromise;
   };
 
-  const isLazy = spec.lazy === true && hasUrls;
+  // URL resources load on first connect (lazy, the default) so defining many
+  // elements costs no requests until one is used. `eager: true` starts the
+  // fetch at define time instead.
+  const isEager = spec.eager === true && hasUrls;
 
-  if (!isLazy) {
+  if (!hasUrls || isEager) {
     if (!hasUrls) {
       // Compile synchronously immediately to support synchronous connectedCallback (unit tests and static components)
       const supportsSheets =
