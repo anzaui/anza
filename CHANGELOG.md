@@ -1,7 +1,11 @@
 <!-- markdownlint-disable MD024 -->
 # Changelog
 
-All notable changes to `@anzaui/anza` will be documented here.
+All notable changes to the Anza project are documented here: the
+`@anzaui/anza` library, `@anzaui/create-anza`, the `anza` CLI and the server
+engines. They share one version number. Package changelogs
+(`library/CHANGELOG.md`, `engines/*/CHANGELOG.md`) list the subset that
+affects each package.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Versioning follows [Semantic Versioning](https://semver.org/).
@@ -9,6 +13,22 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 ---
 
 ## [Unreleased]
+
+### Fixed
+
+- **Stale files after an edit ("needs a hard refresh")** — the service worker is no longer registered on local hosts, and old workers and caches are removed there. Event streams and `/hmr` are never intercepted. The SW router picks the most specific matching route, so `/api/*` is no longer shadowed by `'*'`. Unhashed files are served `no-cache` in production.
+- Strategies respond first and write the cache through `event.waitUntil`.
+- HTML hot-swap runs the same pipeline as a cold load.
+- Docs imported symbols that are not exported (`boot`, `isCallback`, `listenStream`, `CacheStorage`, `specRegistry`, deep `router/*` paths); they now use the public API.
+
+### Changed
+
+- **Element resources load on first connect** (lazy by default); `eager: true` on `element()`, `view()`, `part()` and `dock()` fetches them at define time. Style, template and tags are fetched in parallel, and pre-rendered elements mount before their files arrive.
+- Storage quota checks are throttled to once a minute and skipped for the memory tier; store flushes are coalesced; routes are sorted lazily.
+- `@anzaui/anza/router` exports `gate`, `ready`, `reset`; `@anzaui/anza/security` exports `seal`, `unseal`; `@anzaui/anza/storage` exports `quota`.
+- Types match the runtime: the root `index.d.ts` is a flat re-export, and `./defs`, `./sw`, `./elements/*` and `./bin/create` have types.
+- The CLI crate is renamed `anza-cli`; the command is still `anza`. `anza create` points to `npm create @anzaui/anza`.
+- Repository cleanup: stale `package/` and tracked `dist/` removed, `tools/Cargo.lock` committed, one shared Cargo target dir, CI runs the library type check and browser tests plus doc-import and type-coverage checks.
 
 ---
 
@@ -49,6 +69,10 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 - Multi-engine test suite: 22 Python tests, 8 TypeScript tests, and 6 Rust tests with 100% pass rate.
 
+---
+
+## [0.4.11] — 2026-07-29
+
 ### Fixed
 
 - **Docs custom domain base path** — `anza.aduki.org` serves the project site at the **domain root**, so `web/ssg.json` no longer sets `"base": "/anza"` and CI/Pages drop `ANZA_BASE_PATH`. Asset and nav URLs are `/styles/...`, `/app.js`, `/docs/...` again (not `/anza/...`).
@@ -57,7 +81,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
-- **Deploy docs** — clarify `*.github.io/<repo>` needs a base path; a **project** custom domain must clear base. Origin/canonicals use `https://anza.aduki.org`.
+- **Deploy docs** — clarify `*.github.io/<repo>` needs a base path; a **project** custom domain must clear base. Origin/canonicals use `https://anza.aduki.org`. GitHub Pages deployment and package installation docs updated.
 
 ### Tests
 
@@ -185,13 +209,27 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [0.4.2] — 2026-06-15
+## [0.4.3] — 2026-06-16
+
+### Changed
+
+- **Docks** — dock registry keys are separate from custom element tags; container mounting waits for asynchronous definitions.
+- **Landing page** — responsive layout and button fixes, code block presentation.
+
+---
+
+## [0.4.2] — 2026-06-16
 
 ### Added
 
+- **Multiple stylesheets** per element with flexible path resolution and asset preloading.
+- **Typed route params and query** — contract-aware accessors passed to the element lifecycle.
+- TypeScript declarations for platform feature detection.
 - **Styling and Tokens Documentation**: Created a dedicated `docs/styles/` section documenting adopted stylesheet caching, multiple style loading, and design token customization.
 
 ### Changed
+
+- Soft navigation no longer shows the browser loading spinner; route diagnostics improved and server-side route validation normalizes trailing slashes.
 
 - **Design Tokens Simplification**: Removed unused stylesheets (`radius.css`, `shadow.css`, `zindex.css`, and `components.css`). Simplified primitive colors, motion, typography, and spacing scales.
 - **Houdini Registered Colors**: Kept registrations only for core theme custom properties (`--color-surface-page`, `--color-content-primary`, `--color-interactive`, etc.) to drive seamless light/dark swaps.
@@ -200,8 +238,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [0.4.2] — 2026-06-14
-
+## [0.4.1] — 2026-06-14
 
 ### Fixed
 
@@ -306,7 +343,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 - Scaffold structure: landing page moved to `src/pages/entry/` instead of `src/pages/index/`
 - Node.js and Rust create commands generate consistent `src/pages/index.js` barrel file
-- Docs conversion task (`tasks/docs.js`) for markdown-to-anza-page generation
+- Docs conversion task (`tasks/docs.js`) that turns markdown into docs pages
 
 ---
 
