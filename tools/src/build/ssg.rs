@@ -1594,6 +1594,21 @@ mod tests {
   use super::*;
 
   #[test]
+  fn shell_font_preloads_are_collected() {
+    let dir = std::env::temp_dir().join(format!("anza-ssg-fonts-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).unwrap();
+    std::fs::write(
+      dir.join("index.html"),
+      r#"<head><link rel="preload" href="/fonts/a.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/x.css" as="style" /><link rel="preload" href="https://cdn/b.woff2" as="font" /></head>"#,
+    )
+    .unwrap();
+    assert_eq!(shell_font_preloads(&dir), vec!["/fonts/a.woff2".to_string()]);
+    let _ = std::fs::remove_dir_all(&dir);
+  }
+
+  #[test]
   fn should_ssg_fallback() {
     let page = RouteInfo {
       tag: "doc-x".into(),
