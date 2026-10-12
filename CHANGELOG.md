@@ -266,6 +266,14 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.3.8] — 2026-06-13
+
+### Fixed
+
+- `anza build` re-copies a file when its output is missing from `dist/`, even if the build cache says it is unchanged. Deleting `dist/` no longer leaves an incomplete build.
+
+---
+
 ## [0.3.7] — 2026-06-13
 
 ### Changed
@@ -288,6 +296,14 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 - Prevent native browser tab loading spinner during client-side navigation.
 - Removed unnecessary console logs in `boot.js`, `orchestrator.js`, and `element.js`.
+
+---
+
+## [0.3.4] — 2026-06-13
+
+### Removed
+
+- Removed the `web3/` test app from the repository. No package changes: the `v0.3.4` tag was cut without a version bump, so the published packages stayed at 0.3.3.
 
 ---
 
