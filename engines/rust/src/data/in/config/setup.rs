@@ -17,6 +17,10 @@ pub struct Setup {
   pub root: PathBuf,
   pub signing: SignMode,
   pub watch: bool,
+  /// Fragment allowlist. Empty (the default) lets `render_fragment` use any
+  /// template; otherwise an entry ending in `/` allows that prefix (e.g.
+  /// `"fragments/"`) and any other entry allows that exact name.
+  pub fragments: Vec<String>,
 }
 
 impl Setup {
@@ -25,6 +29,7 @@ impl Setup {
       root: root.into(),
       signing: SignMode::None,
       watch: false,
+      fragments: Vec::new(),
     }
   }
 
@@ -73,6 +78,7 @@ impl Setup {
       cache,
       watcher,
       signer,
+      fragments: self.fragments.clone(),
     })
   }
 }

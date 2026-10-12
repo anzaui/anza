@@ -1,50 +1,53 @@
-import html
-import re
-from typing import Any
-from ..models.document import Document
+from typing import Any, Optional
+
 from ..engine.cache.engine import Engine
+from ..engine.name import page_template
+from ..errors import AnzaError
+from ..models.document import Document
+
+#: The document used when the root has no ``layout/shell.html``, split around the page.
+DEFAULT_SHELL = (
+    '<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="utf-8">\n'
+    '  <meta name="viewport" content="width=device-width, initial-scale=1">\n'
+    "  <title>Anza App</title>\n</head>\n<body>\n  <dock-main>\n"
+    '    <template shadowrootmode="open">\n      <slot></slot>\n    </template>\n    ',
+    "\n  </dock-main>\n</body>\n</html>",
+)
+
+
+def _shell_params(params: Any) -> dict[str, Any]:
+    if params is None:
+        return {}
+    if isinstance(params, dict):
+        return dict(params)
+    if isinstance(params, (list, tuple)):
+        return {item[0]: item[1] for item in params if isinstance(item, (list, tuple)) and len(item) == 2}
+    if hasattr(params, "__dict__"):
+        return dict(vars(params))
+    return {}
 
 
 def render_page(engine: Engine, route: str, params: Any = None) -> Document:
-    clean_route = route.strip("/").lower()
-    page_rel = f"pages/{clean_route}.html" if clean_route else "pages/home.html"
+    """Render the page for ``route`` (see ``docs/engines/contract.md``):
 
-    # 1. Fetch shell and page templates
-    shell_tpl = engine.get_template("layout/shell.html")
-    page_tpl = engine.get_template(page_rel)
+    1. ``/`` is ``pages/home.html``, ``/a/b`` is ``pages/a/b.html``.
+    2. Unknown routes use ``pages/index.html`` (the catch-all) when it exists.
+    3. Otherwise (or for a malformed route) it raises ``NOT_FOUND``.
+    4. The page goes into ``layout/shell.html`` as ``{{content}}``, or into a
+       minimal default document when there is no shell.
+    """
+    name: Optional[str] = page_template(route)
+    page = None
+    if name is not None:
+        page = engine.cache.get(name) or engine.cache.get("pages/index.html")
+    if page is None:
+        raise AnzaError.not_found("Page not found")
+    content = page.bind(params)
 
-    # 2. Render inner page
-    inner_html = page_tpl.bind(params)
+    shell = engine.cache.get("layout/shell.html")
+    if shell is None:
+        return Document(html=DEFAULT_SHELL[0] + content + DEFAULT_SHELL[1])
 
-    # 3. Parameter dictionary for global shell
-    shell_params: dict[str, Any] = {}
-    if isinstance(params, dict):
-        shell_params = dict(params)
-    elif params is not None:
-        # Dataclass or object attributes
-        if hasattr(params, "__dict__"):
-            shell_params = dict(params.__dict__)
-        else:
-            for k in dir(params):
-                if not k.startswith("_"):
-                    val = getattr(params, k)
-                    if not callable(val):
-                        shell_params[k] = val
-
-    # Route name for custom element tag. The route comes from the request URL:
-    # keep only characters valid in a custom element name.
-    route_name = re.sub(r"[^a-z0-9]+", "-", clean_route).strip("-") or "home"
-    tag_name = f"page-{route_name}"
-
-    # Construct Open Declarative Shadow DOM
-    dsd_content = f'<{tag_name}><template shadowrootmode="open">{inner_html}</template></{tag_name}>'
-
-    shell_params["content"] = dsd_content
-    shell_params["main"] = dsd_content
-    shell_params["body"] = dsd_content
-    shell_params["route"] = html.escape(route)
-
-    # 4. Render shell wrapper
-    full_html = shell_tpl.bind(shell_params)
-
-    return Document(html=full_html)
+    shell_params = _shell_params(params)
+    shell_params["content"] = content
+    return Document(html=shell.bind(shell_params))

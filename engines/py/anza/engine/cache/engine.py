@@ -1,13 +1,14 @@
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Literal, Optional, Union
+from typing import Any, Literal, Optional, Sequence, Union
 from ...crypto.envelope import DEFAULT_SKEW_SECS, _verify_with
 from ...crypto.signer import Signer
 from ...errors import AnzaError
 from ...models.document import Document
 from ...models.envelope import Envelope
-from ..file.load import Template, one
+from ..file.load import Template
+from ..name import valid_name
 from .store import CacheStore
 
 SignMode = Literal["none", "hmac", "ed25519"]
@@ -44,32 +45,27 @@ class Engine:
         root: Union[str, Path],
         cache: CacheStore,
         signing: Union[SignOptions, Signer, None] = None,
+        fragments: Optional[Sequence[str]] = None,
     ) -> None:
         self.root = Path(root)
         self.cache = cache
         #: The validated signing key (``repr`` is redacted).
         self.signer = signing if isinstance(signing, Signer) else Signer.from_options(signing or SignOptions())
+        #: Fragment allowlist (see ``Setup.fragments``).
+        self.fragments: tuple[str, ...] = tuple(fragments or ())
 
     def __repr__(self) -> str:
         return f"Engine(root={str(self.root)!r}, templates={len(self.cache.templates)}, signer={self.signer!r})"
 
     def get_template(self, name: str) -> Template:
-        normalized = name.replace("\\", "/").lstrip("/")
-        tpl = self.cache.get(normalized)
-        if tpl:
-            return tpl
-
-        # Fallback load on-demand. Names can come from request paths (pages/<route>),
-        # so refuse anything that resolves outside the template root.
-        root = self.root.resolve()
-        if not (root / normalized).resolve().is_relative_to(root):
-            raise AnzaError.not_found(f"Template '{normalized}' is outside '{self.root}'")
-        try:
-            tpl = one(self.root, normalized)
-            self.cache.insert(normalized, tpl)
-            return tpl
-        except Exception as e:
-            raise AnzaError.not_found(f"Template '{normalized}' not found in '{self.root}': {e}")
+        """Look ``name`` up in the cache. Malformed names are a ``VALIDATION``
+        error; the filesystem is never touched."""
+        if not valid_name(name):
+            raise AnzaError.validation("Invalid template name")
+        tpl = self.cache.get(name)
+        if tpl is None:
+            raise AnzaError.not_found(f"Template '{name}' not found")
+        return tpl
 
     def verify_envelope(
         self,

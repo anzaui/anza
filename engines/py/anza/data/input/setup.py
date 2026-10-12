@@ -13,6 +13,10 @@ class Setup:
     root: Union[str, Path]
     signing: SignOptions = field(default_factory=SignOptions)
     watch: bool = False
+    #: Fragment allowlist. Empty (the default) lets fragments use any
+    #: template; otherwise an entry ending in ``/`` allows that prefix (e.g.
+    #: ``"fragments/"``) and any other entry allows that exact name.
+    fragments: list[str] = field(default_factory=list)
 
     def validate(self) -> None:
         p = Path(self.root)
@@ -27,4 +31,4 @@ class Setup:
         signer = Signer.from_options(self.signing)
         templates = load_all(self.root)
         cache = CacheStore(templates)
-        return Engine(self.root, cache, signer)
+        return Engine(self.root, cache, signer, fragments=self.fragments)

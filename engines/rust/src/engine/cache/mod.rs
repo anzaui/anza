@@ -61,6 +61,8 @@ pub struct Engine {
   pub cache: Arc<CacheStore>,
   pub watcher: Option<file::FileWatcher>,
   pub(crate) signer: Signer,
+  /// Fragment allowlist (see `Setup::fragments`).
+  pub(crate) fragments: Vec<String>,
 }
 
 impl Engine {
@@ -97,8 +99,13 @@ impl Engine {
     envelope::verify_with(envelope, options, |msg, sig| self.signer.verify(msg, sig))
   }
 
+  /// Render `template_name` into a (signed) envelope for `slot`. Templates
+  /// outside the `fragments` allowlist are reported as not found.
   pub fn render_fragment(&self, template_name: &str, slot: &str, params: &HashMap<String, String>) -> Result<Envelope> {
     let tpl = self.get(template_name)?;
+    if !crate::engine::name::allowed(&self.fragments, template_name) {
+      return Err(Error::not_found(format!("Template '{}' not found", template_name)));
+    }
     let html = tpl.bind(params)?;
     let ts = envelope::now()?;
     let sig = self.signer.sign(&envelope::message(ts, slot, &html, None));

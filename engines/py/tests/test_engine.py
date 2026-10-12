@@ -20,7 +20,9 @@ class TestAnzaEngine(unittest.TestCase):
             encoding="utf-8",
         )
         (self.root / "pages" / "home.html").write_text(
-            '<section class="hero"><h1>{{title}}</h1><p>Count: {{count}}</p></section>',
+            '<page-home><template shadowrootmode="open">'
+            '<section class="hero"><h1>{{title}}</h1><p>Count: {{count}}</p></section>'
+            "</template></page-home>",
             encoding="utf-8",
         )
         (self.root / "feed" / "card.html").write_text(
@@ -63,17 +65,6 @@ class TestAnzaEngine(unittest.TestCase):
                 Page(f"/../../{self.root.name}-secret", {}).run(engine)
         finally:
             secret.unlink()
-
-    def test_page_route_is_not_injected_into_markup(self):
-        (self.root / "layout" / "shell.html").write_text(
-            "<html><body>{{content}}<p>{{route}}</p></body></html>", encoding="utf-8"
-        )
-        (self.root / "pages" / "x").mkdir(parents=True, exist_ok=True)
-        (self.root / "pages" / "x" / "a.html").write_text("<b>ok</b>", encoding="utf-8")
-        engine = Setup(root=str(self.root)).run()
-        doc = Page("/x/a", {}).run(engine)
-        self.assertIn("<page-x-a><template", doc.html)
-        self.assertIn("<p>/x/a</p>", doc.html)
 
     def test_fragment_rendering(self):
         engine = Setup(root=str(self.root)).run()

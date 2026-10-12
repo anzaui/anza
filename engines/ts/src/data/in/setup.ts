@@ -10,27 +10,32 @@ export interface SetupOptions {
   root: string;
   signing?: SignOptions;
   watch?: boolean;
+  /** Fragment allowlist, see `EngineOptions.fragments`. */
+  fragments?: string[];
 }
 
 export class Setup {
   public root: string;
   public signing: SignOptions;
   public watch: boolean;
+  public fragments: string[];
 
   constructor(options: SetupOptions | string) {
     if (typeof options === 'string') {
       this.root = options;
       this.signing = { mode: 'none' };
       this.watch = false;
+      this.fragments = [];
     } else {
       this.root = options.root;
       this.signing = options.signing || { mode: 'none' };
       this.watch = Boolean(options.watch);
+      this.fragments = [...(options.fragments ?? [])];
     }
   }
 
   toJSON(): Record<string, unknown> {
-    return { root: this.root, signing: redact(this.signing), watch: this.watch };
+    return { root: this.root, signing: redact(this.signing), watch: this.watch, fragments: this.fragments };
   }
 
   [Symbol.for('nodejs.util.inspect.custom')](): string {
@@ -62,6 +67,6 @@ export class Setup {
       });
     }
 
-    return new Engine(this.root, cache, signer, watcher);
+    return new Engine(this.root, cache, signer, watcher, { fragments: this.fragments });
   }
 }

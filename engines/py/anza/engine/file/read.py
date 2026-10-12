@@ -8,4 +8,5 @@ def text(file_path: Union[str, Path]) -> str:
     try:
         return path.read_text(encoding="utf-8")
     except Exception as e:
-        raise AnzaError.not_found(f"Failed to read template at {path}: {e}")
+        # Name the file only, never the full path.
+        raise AnzaError.not_found(f"Failed to read template {path.name}: {type(e).__name__}") from None

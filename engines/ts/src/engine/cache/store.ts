@@ -1,14 +1,18 @@
 import type { Template } from '../file/load.js';
 import { AnzaError } from '../../errors/index.js';
+import { validName } from '../name.js';
 
 export class CacheStore {
   constructor(public templates: Map<string, Template> = new Map()) {}
 
+  /**
+   * Look `name` up in the cache. Malformed names are a `VALIDATION` error;
+   * the filesystem is never touched.
+   */
   get(name: string): Template {
+    if (!validName(name)) throw AnzaError.validation('Invalid template name');
     const tpl = this.templates.get(name);
-    if (!tpl) {
-      throw AnzaError.notFound(`Template '${name}' not found in cache`);
-    }
+    if (!tpl) throw AnzaError.notFound(`Template '${name}' not found`);
     return tpl;
   }
 

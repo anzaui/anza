@@ -6,21 +6,35 @@ import type { Params } from '../slot/index.js';
 import type { Template } from '../file/load.js';
 import type { FileWatcher } from '../file/watch.js';
 import { CacheStore } from './store.js';
+import { fragmentAllowed } from '../name.js';
 import { renderPageDocument } from '../../render/page.js';
 
 export type { SignOptions };
 
+export interface EngineOptions {
+  /**
+   * Fragment allowlist. Empty (the default) lets `renderFragment` use any
+   * template; otherwise an entry ending in `/` allows that prefix (e.g.
+   * `'fragments/'`) and any other entry allows that exact name.
+   */
+  fragments?: string[];
+}
+
 export class Engine {
   /** The validated signing key (never printed). */
   readonly signer: Signer;
+  /** Fragment allowlist (see `EngineOptions.fragments`). */
+  readonly fragments: readonly string[];
 
   constructor(
     public root: string,
     public cache: CacheStore,
     signing: SignOptions | Signer = { mode: 'none' },
-    public watcher?: FileWatcher
+    public watcher?: FileWatcher,
+    options: EngineOptions = {}
   ) {
     this.signer = signing instanceof Signer ? signing : Signer.from(signing);
+    this.fragments = Object.freeze([...(options.fragments ?? [])]);
   }
 
   get(name: string): Template {
@@ -48,8 +62,13 @@ export class Engine {
     verifyWith(envelope, options, (msg, sig) => this.signer.verify(msg, sig));
   }
 
+  /**
+   * Render `templateName` into a (signed) envelope for `slot`. Templates
+   * outside the `fragments` allowlist are reported as not found.
+   */
   async renderFragment(templateName: string, slot: string, params?: Params): Promise<Envelope> {
     const tpl = this.get(templateName);
+    if (!fragmentAllowed(this.fragments, templateName)) throw AnzaError.notFound(`Template '${templateName}' not found`);
     const html = tpl.bind(params);
     const ts = Math.floor(Date.now() / 1000);
     const sig = this.signer.sign(signatureMessage(ts, slot, html));
