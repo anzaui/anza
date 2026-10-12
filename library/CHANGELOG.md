@@ -2,6 +2,12 @@
 
 All notable changes to `@anzaui/anza` are documented here.
 
+## [0.5.1] — 2026-10-12
+
+### Fixed
+- Service worker guards unsupported HTTP methods; CacheFirst no longer rejects on POST.
+- Released alongside the `anza` CLI fix for SSG deep links rendering a bare template on refresh.
+
 ## [0.5.0] — 2026-08-27
 
 ### Added

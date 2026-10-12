@@ -19,14 +19,14 @@ Add `anza` to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-anza = "0.5.0"
+anza = "0.5.1"
 ```
 
 To enable Axum framework response helpers:
 
 ```toml
 [dependencies]
-anza = { version = "0.5.0", features = ["axum"] }
+anza = { version = "0.5.1", features = ["axum"] }
 ```
 
 ## Usage

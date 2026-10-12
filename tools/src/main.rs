@@ -13,7 +13,7 @@ use anza::{
 #[derive(Parser, Debug)]
 #[command(
   name = "anza",
-  version = "0.5.0",
+  version = "0.5.1",
   about = "Anza web platform library — reactive state, networking, offline, animations, custom elements. Instant build step. Pure browser ESM."
 )]
 struct Args {

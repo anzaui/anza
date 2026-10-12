@@ -2,6 +2,11 @@
 
 All notable changes to the Python template and STUI streaming engine are documented here.
 
+## [0.5.1] — 2026-10-12
+
+### Changed
+- Version sync with the Anza 0.5.1 release. No engine changes.
+
 ## [0.5.0] — 2026-08-27
 
 ### Added

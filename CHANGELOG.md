@@ -12,6 +12,20 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.5.1] — 2026-10-12
+
+### Fixed
+
+- **SSG deep links rendered a bare template on refresh** — `anza build` emits SSG routes in parallel, and every worker rewrote the shared `dist/routes.json`, corrupting it. Random routes failed after the CSR fragment was moved to `template.html` but before the SSG document was written, leaving the fragment at `dist/<route>/index.html`. `routes.json` is now updated once after emission. Adds a 300-route regression test.
+- **Service worker** — guards against unsupported HTTP methods; CacheFirst no longer rejects on POST.
+
+### Changed
+
+- TypeScript engine renamed to `@anzaui/engine`; `@anzaui` packages publish with public access.
+- Official SVG logo and favicons across web, docs and engines; legacy repository references replaced with `anzaui`.
+- Docs: Server Templates (STUI) section and navigation, streamlined entry page, layout and README cleanups.
+- Version sync: all packages at 0.5.1 (lockfiles were stale).
+
 ## [0.5.0] — 2026-08-27
 
 ### Added
