@@ -67,6 +67,9 @@ fn default_pages_style() -> Vec<String> {
 pub struct Site {
   #[serde(default = "default_title")]
   pub title: String,
+  /// URL prefix of every docs route. The standalone site is laid out to be
+  /// served at `<base>/` (e.g. `/rust` for https://anzaui.github.io/rust/);
+  /// `""` or `"/"` serves it at the domain root.
   #[serde(default = "default_base")]
   pub base: String,
   #[serde(default = "default_out")]
@@ -146,6 +149,10 @@ pub struct Assets {
   /// Optional landing page folder (template).
   #[serde(default)]
   pub landing: String,
+  /// Optional favicon file (`.svg`, `.ico`, `.png`) → dist/favicon.<ext>,
+  /// linked from every page. No icon link when unset.
+  #[serde(default)]
+  pub favicon: String,
 }
 
 fn default_styles() -> String {

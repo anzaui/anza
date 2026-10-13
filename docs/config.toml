@@ -2,7 +2,7 @@
 # App structure remains anza.json.
 #
 #   anza docs --pages   docs/*.md → web/src/docs (the site's page folders, [pages])
-#   anza docs           docs/*.md → standalone docs site (site.out)
+#   anza docs           docs/*.md → standalone docs site (site.out), served at site.base/
 #
 # The sidebar is generated from the folder tree: one section per folder, titled
 # and ordered by the folder's index.md front matter (`title`, `order`); pages

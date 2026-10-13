@@ -102,18 +102,24 @@ pub fn route_from_md(md_path: &Path, docs_root: &Path, base: &str) -> Result<Str
   let s = no_ext.to_string_lossy().replace('\\', "/");
   let s = section_route(&s);
   if s.is_empty() {
-    return Ok(base.trim_end_matches('/').to_string());
+    return Ok(base_home(base));
   }
   Ok(format!("{}/{}", base.trim_end_matches('/'), s))
 }
 
 /// A section's `index.md` is the section page: `router/index` → `router`
 /// (one URL per page; `/docs/router/index` is never canonical).
-fn section_route(path: &str) -> &str {
+pub fn section_route(path: &str) -> &str {
   if path == "index" {
     return "";
   }
   path.strip_suffix("/index").unwrap_or(path)
+}
+
+/// Route of the docs root: the base itself, or `/` for an empty base.
+pub fn base_home(base: &str) -> String {
+  let base = base.trim_end_matches('/');
+  if base.is_empty() { "/".into() } else { base.into() }
 }
 
 pub fn tag_from_route(route: &str, base: &str) -> String {
@@ -153,7 +159,10 @@ fn rewrite_one_href(href: &str, current_md: &Path, docs_root: &Path, base: &str)
     Some(i) => (&href[..i], &href[i..]),
     None => (href, ""),
   };
-  if !path_part.ends_with(".md") {
+  // Only relative links to markdown files are pages: absolute URLs
+  // (`https://…/x.md`, `//host/x.md`, `mailto:`) and site-root paths are
+  // left exactly as written.
+  if !path_part.ends_with(".md") || path_part.starts_with('/') || has_scheme(path_part) {
     return href.to_string();
   }
 
@@ -170,6 +179,18 @@ fn rewrite_one_href(href: &str, current_md: &Path, docs_root: &Path, base: &str)
     return href.to_string();
   }
   format!("{route}{hash}")
+}
+
+/// `scheme:` prefix (RFC 3986: ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )).
+fn has_scheme(href: &str) -> bool {
+  match href.split_once(':') {
+    Some((scheme, _)) => {
+      let mut chars = scheme.chars();
+      chars.next().map_or(false, |c| c.is_ascii_alphabetic())
+        && chars.all(|c| c.is_ascii_alphanumeric() || matches!(c, '+' | '-' | '.'))
+    }
+    None => false,
+  }
 }
 
 fn md_href_to_route(href: &str, current_md: &Path, docs_root: &Path, base: &str) -> String {
@@ -194,7 +215,7 @@ fn md_href_to_route(href: &str, current_md: &Path, docs_root: &Path, base: &str)
     .replace('\\', "/");
   let no_ext = section_route(&no_ext);
   if no_ext.is_empty() {
-    return base.trim_end_matches('/').to_string();
+    return base_home(base);
   }
   format!("{}/{}", base.trim_end_matches('/'), no_ext.trim_start_matches('/'))
 }
@@ -377,6 +398,28 @@ mod heading_tests {
       "/docs",
     );
     assert_eq!(html, "<a href=\"/docs/ui#props\">x</a><a href=\"/docs/router\">y</a>");
+  }
+
+  #[test]
+  fn only_relative_markdown_links_are_rewritten() {
+    let root = Path::new("/d");
+    let md = Path::new("/d/a/b.md");
+    for href in [
+      "https://example.com/a.md",
+      "http://example.com/x/index.md#h",
+      "//example.com/a.md",
+      "/elsewhere/a.md",
+      "mailto:a.md",
+      "../../outside.md",
+    ] {
+      let html = format!("<a href=\"{href}\">x</a>");
+      assert_eq!(rewrite_links(&html, md, root, "/eng"), html, "{href}");
+    }
+    assert_eq!(
+      rewrite_links("<a href=\"./c.md\">x</a><a href=\"../index.md\">h</a>", md, root, "/eng"),
+      "<a href=\"/eng/a/c\">x</a><a href=\"/eng\">h</a>"
+    );
+    assert_eq!(rewrite_links("<a href=\"index.md\">h</a>", Path::new("/d/x.md"), root, ""), "<a href=\"/\">h</a>");
   }
 
   #[test]
