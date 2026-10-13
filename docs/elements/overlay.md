@@ -19,7 +19,7 @@ No overlay element moves itself to `document.body`. Each one keeps its surface i
 | Modal `<dialog>` driven by the `open` attribute | [Drawer](drawer.md), [Sheet](sheet.md) | `open` attribute, `show()` / `hide()` |
 | Fixed container under `document.body` | [Toast](toast.md) via `showToast()` | `showToast()` |
 
-The modal dialogs trap focus, make the page inert and close on Escape. `ui-dialog` opens only through `showModal()`; its `open` attribute just reflects the state. The popovers close on a click outside. Neither the popovers nor the menu position themselves next to a trigger; style their part to place them.
+The modal dialogs trap focus, make the page inert and close on Escape. `ui-dialog` opens through `showModal()` or its `open` attribute, which always matches the native dialog's state. The popovers close on a click outside. Neither the popovers nor the menu position themselves next to a trigger; style their part to place them.
 
 ## Popover polyfill
 

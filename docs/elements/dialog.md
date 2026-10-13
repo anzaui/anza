@@ -1,6 +1,6 @@
 ---
 seo_title: "Dialog — Anza"
-description: "ui-dialog: modal overlay around the native dialog element. Open it with showModal(), close it with close(returnValue)."
+description: "ui-dialog: modal overlay around the native dialog element. Open it with the open attribute or showModal(), close it with close(returnValue)."
 ---
 
 # Dialog
@@ -31,13 +31,13 @@ document.querySelector('#ok').addEventListener('click', () => dialog.close('ok')
 dialog.addEventListener('close', (e) => console.log(e.detail.returnValue));
 ```
 
-The methods query the shadow root, so call them after the element has mounted (for example from a user action, or after `anza:ready`; see [Lifecycle](../ui/lifecycle.md)).
+`showModal()` before the element has mounted sets `open`, and the dialog opens as soon as it mounts. Markup can open it too: `<ui-dialog open>` opens as a modal when it connects.
 
 ## Attributes
 
 | Attribute | Type | Default | Description |
 | --------- | ---- | ------- | ----------- |
-| `open` | Boolean | `false` | Reflects the open state. `showModal()` sets it and `close()` or a native close clears it. Setting it yourself does **not** open or close the dialog; call `showModal()`. |
+| `open` | Boolean | `false` | Open state. Setting the attribute or property opens the native dialog as a modal; removing it (or `false`) closes it. `showModal()` sets it, and `close()` or a native close (Escape) clears it. |
 
 ## Slots
 
@@ -49,8 +49,8 @@ The methods query the shadow root, so call them after the element has mounted (f
 
 | Event | Detail | When |
 | ----- | ------ | ---- |
-| `show` | none | `showModal()` ran. |
-| `close` | `{ returnValue: string }` | The native dialog closed: `close()` or Escape. |
+| `show` | none | The dialog opened (`showModal()`, or `open` set). |
+| `close` | `{ returnValue: string }` | The native dialog closed: `close()`, `open` removed, or Escape. |
 | `cancel` | none | The user pressed Escape. Cancelable: `preventDefault()` keeps the dialog open. |
 
 All three bubble and are composed.
@@ -59,7 +59,7 @@ All three bubble and are composed.
 
 | Method | Returns | Description |
 | ------ | ------- | ----------- |
-| `showModal()` | `undefined` | Opens the native dialog as a modal (if not already open), sets `open`, fires `show`. |
+| `showModal()` | `undefined` | Sets `open`. Once mounted, opens the native dialog as a modal right away (if not already open) and fires `show`. |
 | `close(returnValue = '')` | `undefined` | Closes the native dialog with `returnValue` (if open) and clears `open`. `close` fires when the native dialog closes. |
 
 ## Keyboard and accessibility
