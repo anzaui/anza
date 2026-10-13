@@ -10,12 +10,13 @@
 </view-code>
 <h3 id="1-primitives">1. Primitives</h3>
 <p>Primitives define the base values in <code>tokens/primitives/</code>:</p>
-<ul>
-<li><strong><code>colors.css</code></strong>: Defines <code>--color-white</code>, <code>--color-black</code>, four grays (<code>--gray-100</code>, <code>--gray-200</code>, <code>--gray-800</code>, <code>--gray-900</code>) and a brand accent (<code>--brand</code>).</li>
-<li><strong><code>motion.css</code></strong>: Defines two durations (<code>--duration-fast</code>, <code>--duration-normal</code>) and three easing curves (<code>--ease-in</code>, <code>--ease-out</code>, <code>--ease-in-out</code>).</li>
-<li><strong><code>spacing.css</code></strong>: Defines <code>--space-0</code>, <code>--space-px</code> (1px) and <code>--space-2</code> to <code>--space-8</code> (0.5rem to 2rem; there is no <code>--space-1</code> or <code>--space-7</code>).</li>
-<li><strong><code>typography.css</code></strong>: Sets standard font sizes (<code>--font-size-base</code> to <code>--font-size-3xl</code>), font weights, and line heights.</li>
-</ul>
+<div class="table-wrap"><table><thead><tr><th>File</th><th>Tokens</th></tr></thead><tbody>
+<tr><td><code>colors.css</code></td><td><code>--color-white</code>, <code>--color-black</code>; grays <code>--gray-100</code>, <code>-200</code>, <code>-300</code>, <code>-400</code>, <code>-500</code>, <code>-600</code>, <code>-700</code>, <code>-800</code>, <code>-900</code>; <code>--brand</code>; feedback hues <code>--red-*</code>, <code>--green-*</code>, <code>--amber-*</code>, <code>--blue-*</code> (<code>-400</code> for dark surfaces, <code>-600</code> for light)</td></tr>
+<tr><td><code>spacing.css</code></td><td><code>--space-0</code>, <code>--space-px</code>, <code>--space-0-5</code> (2px), <code>--space-1</code> (4px), <code>--space-1-5</code> (6px), <code>--space-2</code> … <code>--space-6</code>, <code>--space-8</code>, <code>--space-10</code>, <code>--space-12</code>, <code>--space-16</code>, <code>--space-20</code>, <code>--space-24</code>, <code>--space-32</code> (8rem)</td></tr>
+<tr><td><code>typography.css</code></td><td><code>--font-sans</code>; sizes <code>--font-size-xs</code>, <code>-sm</code>, <code>-base</code>, <code>-lg</code>, <code>-xl</code>, <code>-2xl</code>, <code>-3xl</code>; weights <code>--font-weight-regular</code>, <code>-medium</code>, <code>-semibold</code>, <code>-bold</code>; line heights <code>--line-height-none</code>, <code>-tight</code>, <code>-normal</code></td></tr>
+<tr><td><code>motion.css</code></td><td><code>--duration-fast</code> (120ms), <code>--duration-medium</code> (180ms), <code>--duration-normal</code> (240ms); <code>--ease-in</code>, <code>--ease-out</code>, <code>--ease-in-out</code></td></tr>
+<tr><td><code>shape.css</code></td><td>radii <code>--radius-none</code>, <code>-sm</code>, <code>-md</code>, <code>-lg</code>, <code>-full</code>; shadows <code>--shadow-sm</code>, <code>-md</code>, <code>-lg</code>, <code>-xl</code>, <code>-2xl</code></td></tr>
+</tbody></table></div>
 <h3 id="2-registered">2. Registered</h3>
 <p>Registered tokens use <code>@property</code> rules in <code>tokens/registered/</code> to declare types, inheritance and initial values, so browsers can animate them:</p>
 <ul>
@@ -29,6 +30,16 @@
 <li><strong><code>dark.css</code></strong>: Dark overrides under <code>[data-theme="dark"]</code>, and under <code>prefers-color-scheme: dark</code> unless <code>data-theme="light"</code> is set.</li>
 <li><strong><code>contrast.css</code></strong>: High-contrast overrides under <code>[data-theme="high-contrast"]</code>.</li>
 </ul>
+<p>Every theme defines the same semantic set:</p>
+<div class="table-wrap"><table><thead><tr><th>Group</th><th>Tokens</th></tr></thead><tbody>
+<tr><td>Surfaces</td><td><code>--color-surface-page</code>, <code>--color-surface-elevated</code>, <code>--color-surface-inverse</code></td></tr>
+<tr><td>Content</td><td><code>--color-content-primary</code>, <code>--color-content-secondary</code>, <code>--color-content-link</code>, <code>--color-content-disabled</code>, <code>--color-content-inverse</code></td></tr>
+<tr><td>Borders</td><td><code>--color-border-default</code>, <code>--color-border-strong</code>, <code>--color-border-focus</code></td></tr>
+<tr><td>Interactive</td><td><code>--color-interactive</code>, <code>--color-interactive-hover</code>, <code>--color-interactive-active</code>, <code>--color-interactive-disabled</code></td></tr>
+<tr><td>Feedback</td><td><code>--color-feedback-error</code>, <code>--color-feedback-success</code>, <code>--color-feedback-warning</code>, <code>--color-feedback-info</code></td></tr>
+<tr><td>Links</td><td><code>--link-color</code>, <code>--link-color-hover</code>, <code>--link-color-active</code></td></tr>
+</tbody></table></div>
+<p><code>npm run tokens:check</code> (CI) fails if an element uses a token without a fallback that no file declares.</p>
 <h2 id="view-transition-tokens">View Transition Tokens</h2>
 <p>Dock and page swap transitions read these variables from <code>tokens/semantic/transitions.css</code>:</p>
 <view-code language="css">:root {
