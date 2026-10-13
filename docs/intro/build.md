@@ -233,6 +233,71 @@ anza generate part button
 
 Flags: `--tree`, `--route`, `--via` (comma-separated), `--parent`, `-s/--src`.
 
+## Docs Generator
+
+`anza docs` turns a folder of Markdown files and its `config.toml` into documentation. It has two modes:
+
+```bash
+anza docs --pages                                # docs/*.md → page folders in an app ([pages] out, e.g. web/src/docs), then `anza build`
+anza docs --config docs/config.toml --out _site  # docs/*.md → a complete static site in _site/
+```
+
+The standalone site needs no other step: `_site/` holds every page as `<path>/index.html`, the theme (`styles/`, `tokens/` with its fonts, `docks/`, `views/code/`), `app.js` (soft navigation) and, when configured, `favicon.<ext>`, `sitemap.xml` and `robots.txt`. Upload it as is.
+
+In both modes:
+
+- `x/page.md` is served at `<base>/x/page`, and a section's `x/index.md` at `<base>/x` (the file lands in `x/index.html`). Sidebar links and links between pages use those routes.
+- Only relative links to `.md` files are rewritten to routes. Absolute URLs (`https://…/README.md`) and site-root paths (`/x.md`) are left as written.
+- Every heading gets a GitHub-style `id`, so `page.md#getting-started` links work.
+
+### Serving under a sub-path
+
+`site.base` is the URL prefix of the docs. The standalone site is laid out to be served at `<base>/`: the home page is `_site/index.html`, and every page, asset, font, favicon, canonical and sitemap URL starts with `<base>/`. Use `base = ""` (or `"/"`) to serve it at the domain root.
+
+```toml
+[site]
+title = "Rust engine — Anza"
+base = "/rust"            # served at https://anzaui.github.io/rust/
+out = "_site"
+
+[entry]
+home = "index.md"
+route = "/rust"           # the home page: same as base
+root_dock = "docs"
+
+[assets]
+styles = "../.anza/web/src/styles"
+tokens = "../.anza/web/src/tokens"
+view_code = "../.anza/web/src/views/code"
+docks = "../.anza/web/src/docks"
+favicon = "../logo.svg"   # copied to _site/favicon.svg
+
+[seo]
+origin = "https://anzaui.github.io"   # canonical URLs: https://anzaui.github.io/rust/…
+```
+
+Preview locally the way the host serves it, under the base:
+
+```bash
+anza docs --config docs/config.toml --out _site
+mkdir -p /tmp/preview && ln -sfn "$PWD/_site" /tmp/preview/rust
+python3 -m http.server 8000 --directory /tmp/preview   # open http://localhost:8000/rust/
+```
+
+### Publishing to GitHub Pages under a sub-path
+
+A project site (`https://<owner>.github.io/<repo>/`) is served under `/<repo>/`, so set `base = "/<repo>"` and publish the out folder as the Pages artifact root:
+
+```yaml
+- name: Build docs
+  run: anza docs --config docs/config.toml --out _site
+- uses: actions/upload-pages-artifact@v4
+  with:
+    path: _site
+```
+
+With a custom domain the site is served at the domain root: use `base = ""`.
+
 ## Flags
 
 | Flag | Default | Description |

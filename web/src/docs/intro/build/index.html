@@ -156,6 +156,54 @@ anza generate part button
 <tr><td><code>part</code></td><td><code>parts/</code></td><td>same</td></tr>
 </tbody></table></div>
 <p>Flags: <code>--tree</code>, <code>--route</code>, <code>--via</code> (comma-separated), <code>--parent</code>, <code>-s/--src</code>.</p>
+<h2 id="docs-generator">Docs Generator</h2>
+<p><code>anza docs</code> turns a folder of Markdown files and its <code>config.toml</code> into documentation. It has two modes:</p>
+<view-code language="bash">anza docs --pages                                # docs/*.md → page folders in an app ([pages] out, e.g. web/src/docs), then `anza build`
+anza docs --config docs/config.toml --out _site  # docs/*.md → a complete static site in _site/
+</view-code>
+<p>The standalone site needs no other step: <code>_site/</code> holds every page as <code>&lt;path&gt;/index.html</code>, the theme (<code>styles/</code>, <code>tokens/</code> with its fonts, <code>docks/</code>, <code>views/code/</code>), <code>app.js</code> (soft navigation) and, when configured, <code>favicon.&lt;ext&gt;</code>, <code>sitemap.xml</code> and <code>robots.txt</code>. Upload it as is.</p>
+<p>In both modes:</p>
+<ul>
+<li><code>x/page.md</code> is served at <code>&lt;base&gt;/x/page</code>, and a section's <code>x/index.md</code> at <code>&lt;base&gt;/x</code> (the file lands in <code>x/index.html</code>). Sidebar links and links between pages use those routes.</li>
+<li>Only relative links to <code>.md</code> files are rewritten to routes. Absolute URLs (<code>https://…/README.md</code>) and site-root paths (<code>/x.md</code>) are left as written.</li>
+<li>Every heading gets a GitHub-style <code>id</code>, so <code>page.md#getting-started</code> links work.</li>
+</ul>
+<h3 id="serving-under-a-sub-path">Serving under a sub-path</h3>
+<p><code>site.base</code> is the URL prefix of the docs. The standalone site is laid out to be served at <code>&lt;base&gt;/</code>: the home page is <code>_site/index.html</code>, and every page, asset, font, favicon, canonical and sitemap URL starts with <code>&lt;base&gt;/</code>. Use <code>base = ""</code> (or <code>"/"</code>) to serve it at the domain root.</p>
+<view-code language="toml">[site]
+title = "Rust engine — Anza"
+base = "/rust"            # served at https://anzaui.github.io/rust/
+out = "_site"
+
+[entry]
+home = "index.md"
+route = "/rust"           # the home page: same as base
+root_dock = "docs"
+
+[assets]
+styles = "../.anza/web/src/styles"
+tokens = "../.anza/web/src/tokens"
+view_code = "../.anza/web/src/views/code"
+docks = "../.anza/web/src/docks"
+favicon = "../logo.svg"   # copied to _site/favicon.svg
+
+[seo]
+origin = "https://anzaui.github.io"   # canonical URLs: https://anzaui.github.io/rust/…
+</view-code>
+<p>Preview locally the way the host serves it, under the base:</p>
+<view-code language="bash">anza docs --config docs/config.toml --out _site
+mkdir -p /tmp/preview &amp;&amp; ln -sfn "$PWD/_site" /tmp/preview/rust
+python3 -m http.server 8000 --directory /tmp/preview   # open http://localhost:8000/rust/
+</view-code>
+<h3 id="publishing-to-github-pages-under-a-sub-path">Publishing to GitHub Pages under a sub-path</h3>
+<p>A project site (<code>https://&lt;owner&gt;.github.io/&lt;repo&gt;/</code>) is served under <code>/&lt;repo&gt;/</code>, so set <code>base = "/&lt;repo&gt;"</code> and publish the out folder as the Pages artifact root:</p>
+<view-code language="yaml">- name: Build docs
+  run: anza docs --config docs/config.toml --out _site
+- uses: actions/upload-pages-artifact@v4
+  with:
+    path: _site
+</view-code>
+<p>With a custom domain the site is served at the domain root: use <code>base = ""</code>.</p>
 <h2 id="flags">Flags</h2>
 <div class="table-wrap"><table><thead><tr><th>Flag</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>-s, --src</code></td><td><code>src</code></td><td>Source directory</td></tr>
