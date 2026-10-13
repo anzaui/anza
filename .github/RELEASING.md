@@ -1,20 +1,25 @@
 # Releasing anza
 
-All published packages share **one version**:
+The packages of this repository share **one version**:
 
 | Package | Registry | Version file |
 |---------|----------|--------------|
 | `@anzaui/anza` (`library/`) | npm | `library/package.json` (+ `package-lock.json`) |
 | `@anzaui/create-anza` (`create/`) | npm | `create/package.json`, including its `@anzaui/anza` dependency |
 | `anza-cli` (`tools/`, binary `anza`) | GitHub release binaries, crates.io | `tools/Cargo.toml` (+ `Cargo.lock`) |
-| `anza` (`engines/rust/`) | crates.io | `engines/rust/Cargo.toml` |
-| `@anzaui/engine` (`engines/ts/`) | npm | `engines/ts/package.json` (+ `package-lock.json`) |
-| `anza` (`engines/py/`) | PyPI | `engines/py/pyproject.toml` |
+
+The server engines are separate repositories, git submodules under
+`engines/`, each with its **own version**, release-please and release steps
+(see each README): [anzaui/rust](https://github.com/anzaui/rust) (crate
+`anza`), [anzaui/ts](https://github.com/anzaui/ts) (`@anzaui/engine`) and
+[anzaui/py](https://github.com/anzaui/py) (PyPI `anza`). After releasing an
+engine, bump its submodule pointer here (`git -C engines/<x> checkout vX.Y.Z`,
+then commit). The shared golden fixtures live in `engines/fixtures/`; copy
+them into the engines with `node tasks/engine-fixtures.js`.
 
 The source of truth is `.release-please-manifest.json` (`{ ".": "<version>" }`).
-`npm run versions:check` (also run in CI) fails if any file above, the
-`engines/rust/README.md` install snippets, the web version badges or the CLI's
-`--version` disagree with it.
+`npm run versions:check` (also run in CI) fails if any file above, the web
+version badges or the CLI's `--version` disagree with it.
 
 ## Flow
 
@@ -37,14 +42,12 @@ The source of truth is `.release-please-manifest.json` (`{ ".": "<version>" }`).
 6. **Publish to registries (manual for now).** No registry tokens are stored in
    the repository. npm: follow [NPM.md](../NPM.md) (`node tasks/publish.js`
    downloads the release binaries, verifies every tarball, then publishes
-   `@anzaui/anza`, `@anzaui/create-anza` and `@anzaui/engine` in order).
-   The others, from a clean checkout of the tag:
+   `@anzaui/anza` and `@anzaui/create-anza` in order). The CLI crate, from a
+   clean checkout of the tag:
 
    ```bash
    git checkout v<version>
-   cargo publish --manifest-path engines/rust/Cargo.toml       # anza (crate)
    cargo publish --manifest-path tools/Cargo.toml              # anza-cli
-   (cd engines/py && python -m build && twine upload dist/*)   # anza (PyPI)
    ```
 
 ### Forcing a version
@@ -67,8 +70,8 @@ through `extra-files`. Notes on two of those entries:
 
 - `tools/Cargo.lock` is matched with `$.package[?(@.name.value == 'anza-cli')]`:
   release-please's TOML parser wraps values in `{ value, start, end }` objects.
-- `engines/rust/README.md` and the two web pages are updated through
-  `x-release-please-version` annotations (HTML comments).
+- The two web pages are updated through `x-release-please-version`
+  annotations (HTML comments).
 
 ### Manual tag (fallback)
 

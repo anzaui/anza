@@ -9,9 +9,9 @@
  *   library/package.json (+ package-lock.json)        @anzaui/anza
  *   create/package.json  (+ its @anzaui/anza dep)     @anzaui/create-anza
  *   tools/Cargo.toml     (+ Cargo.lock, src/main.rs)  anza-cli
- *   engines/rust/Cargo.toml (+ README.md snippets)    anza (crate)
- *   engines/ts/package.json (+ package-lock.json)     @anzaui/engine
- *   engines/py/pyproject.toml                         anza (PyPI)
+ *
+ * The server engines (engines/rust, engines/ts, engines/py) are separate
+ * repositories (git submodules here) with their own versions.
  *   web version badges (entry page, docs dock)
  *
  * release-please bumps all of these (release-please-config.json
@@ -75,7 +75,7 @@ function cargoLockVersion(text, name) {
 }
 
 // npm packages and lockfiles
-for (const dir of ['library', 'engines/ts']) {
+for (const dir of ['library']) {
   expect(`${dir}/package.json`, json(`${dir}/package.json`).version);
   const lockPath = `${dir}/package-lock.json`;
   if (existsSync(join(ROOT, lockPath))) {
@@ -98,7 +98,6 @@ const cliName = tomlValue(toolsToml, 'package', 'name') ?? 'anza-cli';
 if (existsSync(join(ROOT, 'tools/Cargo.lock'))) {
   expect(`tools/Cargo.lock (${cliName})`, cargoLockVersion(read('tools/Cargo.lock'), cliName));
 }
-expect('engines/rust/Cargo.toml [package] version', tomlValue(read('engines/rust/Cargo.toml'), 'package', 'version'));
 
 // The CLI's --version: a literal in #[command(version = "...")] must match too.
 // Prefer `#[command(version)]`, which reads CARGO_PKG_VERSION at compile time.
@@ -106,15 +105,6 @@ const mainRs = read('tools/src/main.rs');
 for (const m of mainRs.matchAll(/^\s*version\s*=\s*"([^"]*)"/gm)) {
   expect('tools/src/main.rs #[command(version = ...)] (use `version` without a value instead)', m[1]);
 }
-
-// Python
-expect('engines/py/pyproject.toml [project] version', tomlValue(read('engines/py/pyproject.toml'), 'project', 'version'));
-
-// Docs snippets: anza = "x.y.z" / anza = { version = "x.y.z", ... }
-const readme = read('engines/rust/README.md');
-const snippets = [...readme.matchAll(/^anza\s*=\s*(?:"([^"]+)"|\{[^}]*version\s*=\s*"([^"]+)")/gm)];
-if (snippets.length === 0) expect('engines/rust/README.md (anza = "...")', undefined);
-for (const m of snippets) expect('engines/rust/README.md (anza = ...)', m[1] ?? m[2]);
 
 // Web version badges
 for (const [file, re] of [

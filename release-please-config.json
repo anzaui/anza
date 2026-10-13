@@ -12,19 +12,41 @@
       "package-name": "anza",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
-        { "type": "json", "path": "library/package.json", "jsonpath": "$.version" },
-        { "type": "json", "path": "library/package-lock.json", "jsonpath": "$.version" },
-        { "type": "json", "path": "library/package-lock.json", "jsonpath": "$.packages[''].version" },
-        { "type": "json", "path": "create/package.json", "jsonpath": "$.version" },
-        { "type": "json", "path": "create/package.json", "jsonpath": "$.dependencies['@anzaui/anza']" },
-        { "type": "toml", "path": "tools/Cargo.toml", "jsonpath": "$.package.version" },
-        { "type": "toml", "path": "tools/Cargo.lock", "jsonpath": "$.package[?(@.name.value == 'anza-cli')].version" },
-        { "type": "toml", "path": "engines/rust/Cargo.toml", "jsonpath": "$.package.version" },
-        { "type": "json", "path": "engines/ts/package.json", "jsonpath": "$.version" },
-        { "type": "json", "path": "engines/ts/package-lock.json", "jsonpath": "$.version" },
-        { "type": "json", "path": "engines/ts/package-lock.json", "jsonpath": "$.packages[''].version" },
-        { "type": "toml", "path": "engines/py/pyproject.toml", "jsonpath": "$.project.version" },
-        "engines/rust/README.md",
+        {
+          "type": "json",
+          "path": "library/package.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "library/package-lock.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "library/package-lock.json",
+          "jsonpath": "$.packages[''].version"
+        },
+        {
+          "type": "json",
+          "path": "create/package.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "create/package.json",
+          "jsonpath": "$.dependencies['@anzaui/anza']"
+        },
+        {
+          "type": "toml",
+          "path": "tools/Cargo.toml",
+          "jsonpath": "$.package.version"
+        },
+        {
+          "type": "toml",
+          "path": "tools/Cargo.lock",
+          "jsonpath": "$.package[?(@.name.value == 'anza-cli')].version"
+        },
         "web/src/pages/entry/index.html",
         "web/src/docks/docs/index.html"
       ]

@@ -27,6 +27,11 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - **Engines: one written contract** ([Engine Contract](docs/engines/contract.md)) with golden fixtures (`engines/fixtures/`) run by the Rust, TypeScript and Python suites: same HTML, envelopes, signatures, SSE frames and verification decisions from all three.
 - Engines: `verify_envelope` (Rust `anza::verify_envelope`, TS `verifyEnvelope`, Python `verify_envelope`, plus `Engine.verify_envelope`) checks version, freshness (max age, 5 s future skew), the expected slot, then the signature in constant time.
 - Engines: shared `escape_html` export, and an opt-in `escape` setup option (`{{x}}` escaped, new `{{{x}}}` raw; default off), a `fragments` allowlist for fragment templates, and a template size cap (`max_template_bytes`, default 1 MiB). Python gains `watch=True`.
+- `anza dev --host <addr>` (the dev server binds `127.0.0.1` by default).
+- SEO output: page titles from the H1 with section and site name, sitemap `<lastmod>` from git, full Open Graph / Twitter tags with a default image, JSON-LD (`TechArticle`, `BreadcrumbList`), `404.html`, heading `id`s, and security headers in `_headers`.
+- `anza docs` standalone sites can be served under a sub-path (`site.base`), with `assets.favicon`.
+- Design tokens: the radius, shadow, feedback, disabled/inverse colours, small font sizes and spacing steps the elements use are now declared, in light, dark and high-contrast (`npm run tokens:check` in CI).
+- CI: doc link check, design-token check, worker routing check, supply-chain audit (`npm audit` of runtime deps, `cargo deny`), actions pinned by commit SHA.
 
 #### Changed
 
@@ -43,6 +48,10 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - **Python engine (breaking):** `cryptography>=42` is a required dependency (the `crypto` extra is gone).
 - Engines are faster: Rust shares cached templates (`Arc`) instead of cloning one per render and serializes `Data<T>` once per render instead of once per slot; all three compile templates once, decode signing keys once at setup, and skip the signature message for unsigned envelopes (100-slot fragment, unsigned: Rust 8.3 → 1.8 µs, Python 11.4 → 8.2 µs).
 - Releases: one version for every package, bumped by release-please and checked in CI.
+- **The server engines are separate repositories** ([anzaui/rust](https://github.com/anzaui/rust), [anzaui/ts](https://github.com/anzaui/ts), [anzaui/py](https://github.com/anzaui/py)) with their own versions and docs sites, included here as git submodules. `@anzaui/engine` is published from `anzaui/ts`.
+- Reflecting props write their default value to the attribute on connect (never overwriting an author attribute), so attribute-based CSS works without explicit attributes.
+- `state: true` no longer needs `form: true`; `anza:ready` fires after `load` and `connect` settle.
+- Unknown URLs on the docs site return 404; `/x/` and `/docs/x/index` redirect to `/x` and `/docs/x`.
 
 #### Removed
 
@@ -63,6 +72,12 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Docs: every documented `@anzaui/anza` import resolves (checked in CI); engine and template docs no longer claim auto-escaping, `each`/`if` blocks or browser-side signature checks.
 
 - **npm packages were published broken in 0.5.0:** `@anzaui/anza` had no `anza` CLI binary (`npx anza` failed) and `@anzaui/engine` had no compiled `dist/` (imports failed). The engine package now lists its `files`, and `tasks/publish.js` downloads the release binaries and refuses to publish any tarball that is missing a required file (see `NPM.md`).
+- `ui-dialog`, `ui-drawer`, `ui-menu`, `ui-sheet`, `ui-popover` and `ui-sidebar` methods (`showModal`, `show`, `hide`, `toggle`) no longer throw; non-bubbling `on()` events (`close`, `toggle`, `focus`) fire; `ui-dialog` follows its `open` attribute.
+- Form controls: `ui-input` no longer makes every instance required, `ui-checkbox`/`ui-toggle`/`ui-radio`/`ui-select` toggle and fire `change`, `ui-button type=submit` sends `name=value`, form reset restores the initial value, and `ui-form` submits its slotted controls.
+- Accessibility: `ui-steps` uses a list with `aria-current`, `ui-checkbox` exposes `aria-checked`, radio groups use arrow keys with a roving tabindex, one tab stop per control.
+- Closed shadow roots, `container()` with a CSS file, initial `:state()` from markup attributes, the chart fill colour and the `--input-*`/`--textarea-*` tokens.
+- Docs: link labels show page titles instead of `.md` file names, every `#anchor` link resolves, and the UI, element, intro and security pages describe 0.6.0 behaviour.
+- Release: the Windows binary build (PowerShell env syntax) and a flaky Web Lock test.
 
 #### Security
 
@@ -73,6 +88,12 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - **Engines: strict hex.** The Rust verifier panicked on a non-ASCII signature, and the TypeScript verifier accepted trailing garbage (`sig + "zz"`). Signatures are now lowercase, even-length hex only, in all three engines.
 - **Engines: replay and ambiguity.** v1 messages could collide (`a:b` + `c` vs `a` + `b:c`) and nothing checked freshness or the target slot; see signature v2 and `verify_envelope`.
 - **Engines: template names and routes.** Names with `..`, `\`, NUL, empty segments or a leading `/` are rejected; any cached template was renderable from a route; errors no longer contain absolute paths; key material is redacted from `Debug`/`repr`/`inspect`; TS lookups read own properties only (`{{toString}}` read the prototype); symlinks that resolve outside the template root are not followed.
+- Library sanitizer fallback: `java\tscript:`, `\x01javascript:`, entity-encoded and SVG URL payloads are removed; only http/https/mailto URLs survive, `style`/`id` are dropped and `target` forces `rel="noopener noreferrer"`. `ui-link` filters unsafe schemes; `anza-state` can no longer be clobbered by an element id.
+- Service worker strategies never cache `no-store`/`private`/`Vary: *` responses, `Authorization` requests or credentialed cross-origin requests; routes match the worker's origin unless a pattern names one, and a named origin is matched exactly.
+- Dev server: no longer listens on all interfaces, sends no permissive CORS headers and rejects foreign `Host` headers (DNS rebinding).
+- Build: SSG parameter values cannot write outside `dist/` (`..`, `\`, NUL rejected) and are HTML-escaped; JSON in pages escapes `<`.
+- `npm create @anzaui/anza` refuses to overwrite existing files without `-- --force`; `ui-text as=` only renders text-level tags.
+
 
 ### All changes
 

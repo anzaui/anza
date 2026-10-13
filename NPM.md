@@ -1,14 +1,13 @@
 # Releasing to npm
 
-How to publish the three npm packages. For the whole release flow (release PR, tag, binaries, crates.io, PyPI) see [.github/RELEASING.md](.github/RELEASING.md).
+How to publish the npm packages of this repository. For the whole release flow (release PR, tag, binaries, crates.io, PyPI) see [.github/RELEASING.md](.github/RELEASING.md).
 
 | Package | Folder | Ships |
 |---------|--------|-------|
 | `@anzaui/anza` | `library/` | Browser library, types, schemas, and the `anza` CLI binary for every platform |
 | `@anzaui/create-anza` | `create/` | `npm create @anzaui/anza` (depends on `@anzaui/anza` at the same version) |
-| `@anzaui/engine` | `engines/ts/` | TypeScript server engine (compiled `dist/src/`) |
 
-All three share one version, the one in `.release-please-manifest.json`.
+Both share one version, the one in `.release-please-manifest.json`. The TypeScript server engine `@anzaui/engine` lives in its own repository ([anzaui/ts](https://github.com/anzaui/ts)) with its own version and release steps (see its README).
 
 ## One-time setup
 
@@ -49,10 +48,9 @@ The script:
 
 1. checks that the versions agree (`versions:check`);
 2. downloads the five binaries from the GitHub release into `library/bin/anza/`;
-3. builds `@anzaui/engine`;
-4. packs all three packages and **fails if any tarball is missing a required file** (each binary, `src/index.js`, `types/index.d.ts`, the engine's `dist/src/index.js` and `.d.ts`, create's `index.js`) or has the wrong name or version.
+3. packs both packages and **fails if any tarball is missing a required file** (each binary, `src/index.js`, `types/index.d.ts`, create's `index.js`) or has the wrong name or version.
 
-Nothing is published. You should see three `ok` lines.
+Nothing is published. You should see two `ok` lines.
 
 ### 4. Publish
 
@@ -66,7 +64,7 @@ For a real publish the script also requires:
 - no uncommitted changes;
 - `npm whoami` works.
 
-It publishes in dependency order: `@anzaui/anza` → `@anzaui/create-anza` → `@anzaui/engine`. Versions that are already on npm are skipped, so if a step fails (for example the OTP expired), fix it and run the same command again.
+It publishes in dependency order: `@anzaui/anza` → `@anzaui/create-anza`. Versions that are already on npm are skipped, so if a step fails (for example the OTP expired), fix it and run the same command again.
 
 ### 5. Check the published packages
 
@@ -74,10 +72,7 @@ It publishes in dependency order: `@anzaui/anza` → `@anzaui/create-anza` → `
 npm view @anzaui/anza version
 npx -p @anzaui/anza@X.Y.Z anza --version        # prints "anza X.Y.Z"
 npm create @anzaui/anza@X.Y.Z /tmp/anza-smoke   # scaffold a project
-node --input-type=module -e "import('@anzaui/engine').then(m => console.log(Object.keys(m).length, 'exports'))"
 ```
-
-(Run the last line in a folder where `@anzaui/engine` is installed.)
 
 Then go back to `main`:
 

@@ -28,6 +28,16 @@ STUI bridges server-side rendering and client-side web components. It enables su
 | [TypeScript Engine](ts.md) | `@anzaui/engine` (npm) | Node.js, Bun, Deno, Hono, Express | Zero dependencies, JIT closure compilation |
 | [Python Engine](py.md) | `anza` (PyPI) | FastAPI, Starlette, Flask, Django | Standard library plus `cryptography`, async streaming generator |
 | [Engine Contract](contract.md) | Specification | All engines | Wire format v2, signatures, pages, values, escaping and errors |
+
+Each engine is its own repository with its own version, releases and full documentation site:
+
+| Engine | Repository | Documentation |
+|--------|------------|---------------|
+| Rust | [anzaui/rust](https://github.com/anzaui/rust) | [anzaui.github.io/rust](https://anzaui.github.io/rust/) |
+| TypeScript | [anzaui/ts](https://github.com/anzaui/ts) | [anzaui.github.io/ts](https://anzaui.github.io/ts/) |
+| Python | [anzaui/py](https://github.com/anzaui/py) | [anzaui.github.io/py](https://anzaui.github.io/py/) |
+
+The pages here summarize each engine; the [Engine Contract](contract.md) is the shared specification all three follow.
 | [Cryptographic Verification](crypto.md) | Built-in | All engines | Ed25519, HMAC-SHA256, and HKDF session key derivation |
 | [Real-Time Streaming](streaming.md) | Built-in | All engines | Server-Sent Events (SSE) and WebSocket frame protocols |
 

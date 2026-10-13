@@ -6,7 +6,8 @@
  *
  *   1. @anzaui/anza         (library/, with the CLI binaries from the GitHub release)
  *   2. @anzaui/create-anza  (create/, depends on @anzaui/anza)
- *   3. @anzaui/engine       (engines/ts/)
+ *
+ * @anzaui/engine is published from its own repository (anzaui/ts).
  *
  * Every tarball is packed and checked for the files it must ship before
  * anything is published, so a package can never go out without its binaries
@@ -48,7 +49,6 @@ const PACKAGES = [
     required: ['src/index.js', 'types/index.d.ts', 'bin/anza/index.js', ...BINARIES.map((b) => `bin/anza/${b}`)],
   },
   { name: '@anzaui/create-anza', dir: 'create', required: ['index.js'] },
-  { name: '@anzaui/engine', dir: 'engines/ts', required: ['dist/src/index.js', 'dist/src/index.d.ts'] },
 ];
 
 function valueOf(flag) {
@@ -69,7 +69,7 @@ function step(n, total, text) {
   console.log(`\nStep ${n}/${total}: ${text}`);
 }
 
-const TOTAL = dry ? 4 : 5;
+const TOTAL = dry ? 3 : 4;
 
 // 1. Preconditions: the right commit, a clean tree, versions in sync.
 step(1, TOTAL, `checking release ${tag} (version ${version})`);
@@ -108,13 +108,9 @@ for (const bin of BINARIES) {
   if (!bin.endsWith('.exe')) chmodSync(file, 0o755);
 }
 
-// 3. Build what needs building.
-step(3, TOTAL, 'building @anzaui/engine');
-run('npm', ['ci', '--no-audit', '--no-fund'], join(ROOT, 'engines', 'ts'));
-run('npm', ['run', 'build'], join(ROOT, 'engines', 'ts'));
 
-// 4. Pack every package and check its contents before publishing any.
-step(4, TOTAL, 'packing and verifying every tarball');
+// 3. Pack every package and check its contents before publishing any.
+step(3, TOTAL, 'packing and verifying every tarball');
 for (const pkg of PACKAGES) {
   const out = run('npm', ['pack', '--dry-run', '--json'], join(ROOT, pkg.dir), { quiet: true });
   const [info] = JSON.parse(out);
@@ -131,9 +127,9 @@ if (dry) {
   process.exit(0);
 }
 
-// 5. Publish in dependency order. Versions already on npm are skipped, so a
+// 4. Publish in dependency order. Versions already on npm are skipped, so a
 //    failed run can simply be repeated.
-step(5, TOTAL, 'publishing to npm');
+step(4, TOTAL, 'publishing to npm');
 for (const pkg of PACKAGES) {
   let published = false;
   try {
