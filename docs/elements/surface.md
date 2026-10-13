@@ -23,7 +23,7 @@ import '@anzaui/anza/elements/surface';
 
 | Attribute | Type | Default | Description |
 | --------- | ---- | ------- | ----------- |
-| `variant` | String | — | `flat` (page surface, medium radius), `elevated` (elevated surface, `--shadow-md`, large radius) or `bordered` (page surface, no shadow, large radius). All three draw a 1px default border. Without the attribute no variant styles apply: the property defaults to `flat` but the default is not reflected to the attribute. |
+| `variant` | String | `flat` | `flat` (page surface, medium radius), `elevated` (elevated surface, `--shadow-md`, large radius) or `bordered` (page surface, no shadow, large radius). All three draw a 1px default border. The default is written to the attribute on connect. |
 
 ## Slots
 

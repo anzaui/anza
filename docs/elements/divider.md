@@ -23,7 +23,7 @@ import '@anzaui/anza/elements/divider';
 
 | Attribute | Type | Default | Description |
 | --------- | ---- | ------- | ----------- |
-| `orientation` | String | — | `horizontal` or `vertical`. The line is only drawn when the attribute is present: the property defaults to `horizontal` but the default is not reflected to the attribute. |
+| `orientation` | String | `horizontal` | `horizontal` or `vertical`. The default is written to the attribute on connect. |
 | `spacing` | String | — | Space on both sides of the line. A spacing step (`4` → `var(--space-4)`) or a length containing `px` or `rem`. Sets `--divider-space`. |
 
 ## Keyboard and accessibility

@@ -27,7 +27,7 @@ import '@anzaui/anza/elements/link';
 
 | Attribute | Type | Default | Description |
 | --------- | ---- | ------- | ----------- |
-| `orientation` | String | — | `horizontal` (row, centred, `--space-4` gap) or `vertical` (column, `--space-1` gap). Without the attribute the links sit in a row with no gap: the property defaults to `horizontal` but the default is not reflected to the attribute. |
+| `orientation` | String | `horizontal` | `horizontal` (row, centred, `--space-4` gap) or `vertical` (column, `--space-1` gap). The default is written to the attribute on connect. |
 
 ## Slots
 

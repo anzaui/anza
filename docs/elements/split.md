@@ -26,7 +26,7 @@ import '@anzaui/anza/elements/split';
 
 | Attribute | Type | Default | Description |
 | --------- | ---- | ------- | ----------- |
-| `ratio` | String | — | Flex ratio of the first to the last child: `1-1`, `1-2` or `2-1`. Without the attribute the panes keep their natural width: the property defaults to `1-1` but the default is not reflected to the attribute. |
+| `ratio` | String | `1-1` | Flex ratio of the first to the last child: `1-1`, `1-2` or `2-1`. The default is written to the attribute on connect. |
 
 The panes are `var(--space-6)` apart. At 768px viewport width or less they stack in a column `var(--space-4)` apart.
 

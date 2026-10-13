@@ -35,7 +35,7 @@ drawer.addEventListener('close', () => console.log('closed'));
 | `open` | Boolean | `false` | Opens the drawer (`showModal()`) when set and closes it when removed. Closing waits 300ms for the slide-out before the native dialog closes. |
 | `placement` | String | `right` | Edge to slide from: `left` or `right`. |
 
-Set `placement` as an attribute. The slide styles match `[placement="left"]` and `[placement="right"]` on the host, and the `right` default is not written back to the attribute.
+The slide styles match `[placement="left"]` and `[placement="right"]` on the host. Without the attribute, the `right` default is written to it on connect.
 
 ## Slots
 
