@@ -132,3 +132,19 @@ anza side (lead, after the engine repos are pushed):
 3. Drop the engines from `release-please-config.json` extra-files, `tasks/versions-check.js` and `tasks/publish.js` (`@anzaui/engine` is published from `anzaui/ts`). Update `NPM.md`, `.github/RELEASING.md` and `CHANGELOG.md`.
 4. `docs/engines/*` link to each engine's Pages site. The contract stays in anza.
 5. GitHub: enable Pages (`build_type: workflow`) on the three repos. Push, tag `v0.6.0` in each engine repo after its CI is green.
+
+## Release status (2026-10-13)
+
+- **anza v0.6.0** re-cut at 69d9f35 with all 5 binaries. `@anzaui/anza` and `@anzaui/create-anza` 0.6.0 on npm (verified: `npm create`, `npx anza --version`, `npx anza build` from the registry). 0.5.0 deprecated. Docs live at anza.aduki.org (browser-checked).
+- **Engines** are separate repos with v0.6.0 tags/releases. `@anzaui/engine` 0.6.0 (npm) and `anza` 0.6.0 (crates.io) are published. **PyPI `anza` 0.6.0 is not uploaded yet**: `twine upload dist/*` stops on the existing 0.5.0 file, so run `twine upload dist/anza-0.6.0*`.
+- **Engine docs:** a browser check runs before every deploy (`docs/check.mjs`). rust and ts are deployed and verified live in Chrome. **py docs workflow stays disabled until PyPI has 0.6.0** (its live site is still the broken first deploy).
+
+## Follow-ups for 0.6.1
+
+| ID | Problem | Fix |
+|----|---------|-----|
+| F3 | anza.aduki.org is GitHub Pages behind Cloudflare: `/x` 301s to `/x/`, but canonical/sitemap URLs have no trailing slash | `ssg.json` trailing-slash setting ("always" for Pages hosts), used by canonicals, sitemap and links |
+| F4 | GitHub Pages ignores `_headers`: no immutable caching of hashed assets, no security headers | Serve through the Cloudflare Worker (`web/worker.js`), or Cloudflare cache/transform rules |
+| F5 | Scaffold writes `"@anzaui/anza": "latest"` | Pin `^<version>` |
+| F6 | `anza-cli` crate not on crates.io | Optional: `cargo publish --manifest-path tools/Cargo.toml` |
+| F7 | Engine docs pin `ANZA_REF` to v0.6.0 | Bump with each anza release that changes the docs generator or theme |
