@@ -28,7 +28,7 @@ import '@anzaui/anza/elements/chart';
 
 The chart draws for the device pixel ratio and redraws when the canvas resizes (a `ResizeObserver`, disconnected on unmount) and when `type` or `data` changes. It draws four grid lines with value labels from 0 to 110% of the largest value.
 
-Colours are read from the host's computed `--color-interactive` (series), `--color-border-default` (grid) and `--color-content-secondary` (labels). The line fill appends a hex alpha to `--color-interactive`, so it needs that token to be a 6-digit hex colour.
+Colours are read from the host's computed `--color-interactive` (series), `--color-border-default` (grid) and `--color-content-secondary` (labels). The line fill fades `--color-interactive` from 20% opacity to transparent, so the token can be any CSS colour the canvas accepts.
 
 The host is `calc(var(--space-24) * 3)` tall. Set `height` on `ui-chart` to change it.
 

@@ -77,18 +77,18 @@ Focus and keys go to the native `<input>` in the shadow root. Use [Field](field.
 
 ### Custom properties
 
-The stylesheet reads these properties but declares no defaults, so set them yourself (on `ui-input` or an ancestor):
+Set these on `ui-input` or an ancestor. Each falls back to a design token when unset:
 
 | Property | Default |
 | -------- | ------- |
-| `--input-bg` | none |
-| `--input-border` | none |
-| `--input-border-focus` | none |
-| `--input-radius` | none |
-| `--input-font-size` | none |
-| `--input-padding-y` | none |
-| `--input-padding-x` | none |
-| `--input-text-color` | none |
+| `--input-bg` | `--color-surface-page` |
+| `--input-border` | `--color-border-default` |
+| `--input-border-focus` | `--color-border-focus`, else `--color-interactive` |
+| `--input-radius` | `--radius-md`, else `0.375rem` |
+| `--input-font-size` | `--font-size-base` |
+| `--input-padding-y` | `--space-2` |
+| `--input-padding-x` | `--space-3` |
+| `--input-text-color` | `--color-content-primary` |
 
 ### States
 

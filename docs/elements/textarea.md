@@ -73,18 +73,18 @@ Focus and keys go to the native `<textarea>` in the shadow root. Add `aria-label
 
 ### Custom properties
 
-The stylesheet reads these properties but declares no defaults, so set them yourself (on `ui-textarea` or an ancestor):
+Set these on `ui-textarea` or an ancestor. Each falls back to a design token when unset:
 
 | Property | Default |
 | -------- | ------- |
-| `--textarea-bg` | none |
-| `--textarea-border` | none |
-| `--textarea-border-focus` | none |
-| `--textarea-radius` | none |
-| `--textarea-font-size` | none |
-| `--textarea-padding-y` | none |
-| `--textarea-padding-x` | none |
-| `--textarea-text-color` | none |
+| `--textarea-bg` | `--color-surface-page` |
+| `--textarea-border` | `--color-border-default` |
+| `--textarea-border-focus` | `--color-border-focus`, else `--color-interactive` |
+| `--textarea-radius` | `--radius-md`, else `0.375rem` |
+| `--textarea-font-size` | `--font-size-base` |
+| `--textarea-padding-y` | `--space-2` |
+| `--textarea-padding-x` | `--space-3` |
+| `--textarea-text-color` | `--color-content-primary` |
 
 ### States
 

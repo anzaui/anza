@@ -35,6 +35,31 @@ ui.element('ui-chart', {
   }
 }, import.meta.url);
 
+/**
+ * `color` (any CSS colour a canvas accepts) with its alpha scaled by
+ * `alpha`. The canvas normalises the colour to `#rrggbb` or `rgba(...)`;
+ * other serialisations (wide-gamut colours) use color-mix().
+ */
+function withAlpha(ctx, color, alpha) {
+  const previous = ctx.fillStyle;
+  ctx.fillStyle = '#3b82f6';
+  ctx.fillStyle = color;
+  const parsed = ctx.fillStyle;
+  ctx.fillStyle = previous;
+
+  const hex = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(parsed);
+  if (hex) {
+    const [r, g, b] = hex.slice(1).map((h) => parseInt(h, 16));
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+  const rgba = /^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*(?:,\s*([\d.]+)\s*)?\)$/i.exec(parsed);
+  if (rgba) {
+    const base = rgba[4] === undefined ? 1 : Number(rgba[4]);
+    return `rgba(${rgba[1]}, ${rgba[2]}, ${rgba[3]}, ${Math.round(base * alpha * 1000) / 1000})`;
+  }
+  return `color-mix(in srgb, ${parsed} ${alpha * 100}%, transparent)`;
+}
+
 function draw(el, tags) {
   const canvas = tags.one('canvas');
   const ctx = canvas.getContext('2d');
@@ -112,8 +137,8 @@ function draw(el, tags) {
     ctx.lineTo(30, height - 20);
     ctx.closePath();
     const grad = ctx.createLinearGradient(0, 0, 0, height);
-    grad.addColorStop(0, colorInteractive + '33'); // Fade opacity overlay
-    grad.addColorStop(1, colorInteractive + '00');
+    grad.addColorStop(0, withAlpha(ctx, colorInteractive, 0.2)); // Fade opacity overlay
+    grad.addColorStop(1, withAlpha(ctx, colorInteractive, 0));
     ctx.fillStyle = grad;
     ctx.fill();
 

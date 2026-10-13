@@ -6,13 +6,13 @@
 }
 
 textarea {
-  background: var(--textarea-bg);
-  border: var(--space-px) solid var(--textarea-border);
-  border-radius: var(--textarea-radius);
-  font-size: var(--textarea-font-size);
+  background: var(--textarea-bg, var(--color-surface-page));
+  border: var(--space-px) solid var(--textarea-border, var(--color-border-default));
+  border-radius: var(--textarea-radius, var(--radius-md, 0.375rem));
+  font-size: var(--textarea-font-size, var(--font-size-base));
   font-family: inherit;
-  padding: var(--textarea-padding-y) var(--textarea-padding-x);
-  color: var(--textarea-text-color);
+  padding: var(--textarea-padding-y, var(--space-2)) var(--textarea-padding-x, var(--space-3));
+  color: var(--textarea-text-color, var(--color-content-primary));
   outline: none;
   resize: vertical;
   transition:
@@ -24,8 +24,8 @@ textarea {
 }
 
 textarea:focus {
-  border-color: var(--textarea-border-focus);
-  box-shadow: 0 0 0 var(--space-0-5) var(--textarea-border-focus);
+  border-color: var(--textarea-border-focus, var(--color-border-focus, var(--color-interactive)));
+  box-shadow: 0 0 0 var(--space-0-5) var(--textarea-border-focus, var(--color-border-focus, var(--color-interactive)));
 }
 
 :host([autoresize]) textarea {

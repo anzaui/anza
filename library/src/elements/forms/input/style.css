@@ -6,12 +6,12 @@
 }
 
 input {
-  background: var(--input-bg);
-  border: var(--space-px) solid var(--input-border);
-  border-radius: var(--input-radius);
-  font-size: var(--input-font-size);
-  padding: var(--input-padding-y) var(--input-padding-x);
-  color: var(--input-text-color);
+  background: var(--input-bg, var(--color-surface-page));
+  border: var(--space-px) solid var(--input-border, var(--color-border-default));
+  border-radius: var(--input-radius, var(--radius-md, 0.375rem));
+  font-size: var(--input-font-size, var(--font-size-base));
+  padding: var(--input-padding-y, var(--space-2)) var(--input-padding-x, var(--space-3));
+  color: var(--input-text-color, var(--color-content-primary));
   outline: none;
   transition:
     border-color var(--duration-fast) var(--ease-out),
@@ -21,8 +21,8 @@ input {
 }
 
 input:focus {
-  border-color: var(--input-border-focus);
-  box-shadow: 0 0 0 var(--space-0-5) var(--input-border-focus);
+  border-color: var(--input-border-focus, var(--color-border-focus, var(--color-interactive)));
+  box-shadow: 0 0 0 var(--space-0-5) var(--input-border-focus, var(--color-border-focus, var(--color-interactive)));
 }
 
 :host(:state(disabled)) input {
