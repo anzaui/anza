@@ -16,7 +16,14 @@ Reconfigure pools before first use. Returns `storage` for chaining.
 
 ```javascript
 storage.configure({
-  idb: { name: 'my-app', version: 2, migrations: [] },
+  idb: {
+    name: 'my-app',
+    version: 2,
+    migrations: [
+      (db) => db.createObjectStore('keyval'), // v1: the facade needs 'keyval'
+      (db) => db.createObjectStore('users')   // v2
+    ]
+  },
   lru: { maxSize: 500 },
   cache: { name: 'my-cache' }
 });
@@ -26,7 +33,7 @@ storage.configure({
 | ------ | ------- | ----------- |
 | `idb.name` | `'platform-db'` | IndexedDB database name |
 | `idb.version` | `1` | Schema version |
-| `idb.migrations` | built-in `keyval` | Upgrade callbacks |
+| `idb.migrations` | creates `keyval` | Upgrade callbacks `(db) => void`; index `i` upgrades to version `i + 1`. Custom lists must still create `keyval` |
 | `lru.maxSize` | `200` | In-memory LRU capacity |
 | `cache.name` | `'platform-cache'` | Cache API bucket name |
 
@@ -40,7 +47,7 @@ await storage.get('name', 'memory');
 await storage.get('name', { tier: 'idb' });
 ```
 
-IDB reads populate the memory LRU. OPFS / cache honor TTL wrappers; expired keys delete and return `null`. Cache tier parses JSON when possible, else text.
+IDB reads check the memory LRU first and populate it on a miss. Every tier honors TTL: expired keys are deleted and return `null`. Missing keys return `null`. Cache tier parses JSON when possible, else text.
 
 ### `storage.set(key, value, tierOrOptions)`
 
@@ -56,7 +63,7 @@ IDB path: localStorage write journal (crash recovery), optional gzip when serial
 
 ### `storage.delete(key, tierOrOptions)`
 
-Remove from the requested tier. Always clears the memory LRU entry for that key.
+Remove from the requested tier. Always clears the memory LRU entry for that key. Any tier other than `opfs` or `cache` (including `memory`) also deletes the `idb` record.
 
 ### `storage.query(storeName, queryOpts)`
 
@@ -83,7 +90,7 @@ await storage.transaction(['keyval'], 'readwrite', (store, tx) => {
 
 ### `storage.list(tier)`
 
-List keys. Default `idb` → `keyval` keys. `opfs` → OPFS paths. `cache` → request URLs.
+List keys. Default `idb` → `keyval` keys. `opfs` → OPFS file names. `cache` → request URLs. Any other value (including `memory`) lists `idb` keys.
 
 ### `storage.clear(tier)`
 
@@ -113,9 +120,11 @@ import { Database } from '@anzaui/anza/storage';
 
 ### `new Database(name, version, migrations)`
 
-### `db.open()`
+`migrations` is an array of `(db) => void`; index `i` upgrades to version `i + 1`.
 
-Returns `Promise<IDBDatabase>`.
+### `db.open()` / `db.close()`
+
+`open()` returns `Promise<IDBDatabase>`. Dispatches `storage:blocked` and `storage:versionchange` on `window` (detail `{ name }`). See [IndexedDB](idb.md).
 
 ### `db.get(storeName, key)` / `db.set` / `db.delete` / `db.clear` / `db.getAll` / `db.keys`
 
@@ -148,3 +157,9 @@ import { quota } from '@anzaui/anza/storage';
 ```
 
 ### `quota.estimate()` / `quota.persist()` / `quota.check(onWarning)` / `quota.onQuotaWarning(handler)`
+
+`check` resolves to `true` when usage is above 80% of quota, after calling `onWarning` and the listeners with `{ usage, quota }`. `onQuotaWarning` returns a disposer.
+
+## Not exported
+
+The OPFS manager and the Cache API adapter are internal. Use the `'opfs'` and `'cache'` tiers of `storage`.

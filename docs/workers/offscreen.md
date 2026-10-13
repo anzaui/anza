@@ -11,7 +11,7 @@ const canvas = document.getElementById('canvas');
 const handle = await workers.offscreen(canvas, '/workers/renderer.js');
 ```
 
-The worker must respond with `{ ok: true }` on the received port to signal readiness.
+The worker must respond with `{ ok: true }` on the received port to signal readiness. `send()` and `resize()` post to that same port, not to the worker's global `onmessage`.
 
 ## Worker Implementation
 
@@ -24,8 +24,8 @@ self.onmessage = (e) => {
   // Signal ready
   port.postMessage({ ok: true });
 
-  // Render on message
-  self.onmessage = (e) => {
+  // Commands from send() and resize() arrive on the port
+  port.onmessage = (e) => {
     if (e.data.type === 'resize') {
       // handle resize
     } else {
@@ -48,7 +48,7 @@ handle.send({ type: 'draw', shape: 'circle', x: 50, y: 50 });
 handle.resize({ width: 400, height: 300, dpr: 2 });
 ```
 
-Forwards new dimensions and device pixel ratio to the worker.
+Posts `{ type: 'resize', width, height, dpr }` to the worker. Omitted values default to the canvas's `clientWidth`, `clientHeight` and `devicePixelRatio`. `send()` and `resize()` throw if the handle is closed or not ready.
 
 ## Close
 

@@ -91,13 +91,14 @@ Also remember:
 
 - `storage.clear('all')` always empties the memory LRU first.
 - `storage.delete(key)` clears the memory copy even when you target another durable tier.
+- `storage.delete(key, 'memory')` also deletes the `idb` record: only `opfs` and `cache` are handled separately.
 - Cache-tier values are stored as `Response` bodies; JSON parses back to objects, otherwise you get text.
 
 ## Compression failed
 
 **Cause:** Compression Streams API unavailable, or non-serializable value.
 
-**Fix:** The facade falls back to uncompressed storage automatically. Check that values are serializable (no circular references, no functions).
+**Fix:** If compression throws, the facade logs the error and stores the value uncompressed. Values must still be JSON-serializable (no circular references): `storage.set` serializes them with `JSON.stringify` first.
 
 Only large IDB writes are candidates for gzip, and only when serialized size exceeds `storage.compressionThreshold` (default `65536`). Compression failure should not lose the write; it should only skip the optimization path.
 
@@ -105,7 +106,7 @@ Only large IDB writes are candidates for gzip, and only when serialized size exc
 
 **Cause:** Storage is full.
 
-**Fix:** The facade auto-evicts expired and oldest entries when over 80%. For manual cleanup:
+**Fix:** The facade does not evict anything. Above 80% usage it only notifies `onQuotaWarning` listeners. Free space yourself:
 
 ```javascript
 await storage.delete('old-key');
@@ -128,7 +129,7 @@ const dispose = storage.onQuotaWarning(({ usage, quota }) => {
 });
 ```
 
-Automatic eviction first removes expired records, then evicts the least-recently-accessed wrapped IDB entries until usage drops back under the threshold.
+The check runs before persistent writes, at most once a minute.
 
 ## Write journal not replaying
 

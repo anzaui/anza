@@ -49,7 +49,7 @@ Used by `guard.popover`, `guard.anchor`, and `guard.escape` / `escapeOverflow` (
 | `supports.contentVisibility` | `content-visibility: auto` |
 | `supports.cssScope` | `:scope` selector |
 | `supports.cssLayer` | `@layer` at-rule |
-| `supports.cssModuleScripts` | Import attributes (proxy) |
+| `supports.cssModuleScripts` | `HTMLScriptElement.supports('importmap')` (a proxy; does not test CSS module scripts) |
 
 ## Module System
 
@@ -110,10 +110,4 @@ import { reset } from '@anzaui/anza/platform';
 reset('urlPattern'); // clears cache
 ```
 
-This is useful in unit tests when mocking feature states:
-
-```javascript
-Object.defineProperty(supports, 'urlPattern', { value: false, configurable: true });
-// ... test polyfill path ...
-reset('urlPattern'); // restore
-```
+`reset` only clears the cached value; the next read runs detection again. It does not undo an override you installed with `Object.defineProperty`, so restore the original property descriptor yourself in tests.

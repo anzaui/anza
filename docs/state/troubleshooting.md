@@ -18,13 +18,14 @@ store.set('count', store.get('count'));
 
 ## Derived value stale
 
-**Cause:** The derived value was not accessed after a dependency changed.
+**Cause:** The value was read in the same synchronous block as the write. Store notifications run in a microtask, so the derived value is not yet marked dirty.
 
-**Fix:** Derived values recompute lazily. Access `.value` after changes:
+**Fix:** Read `.value` after the microtask, for example in a subscriber:
 
 ```javascript
 store.set('count', 5);
-console.log(doubled.value); // forces recompute
+await Promise.resolve();
+console.log(doubled.value); // 10
 ```
 
 ## Memory leak with subscribers
@@ -57,31 +58,21 @@ store.broadcast('app-sync', ['theme']);
 
 Private browsing may disable `BroadcastChannel`.
 
-## IndexedDB blocked
+## `NotFoundError` from `state.storage`
 
-**Cause:** Another tab has the database open with an older version.
+**Cause:** The object store does not exist. `PlatformStorage` creates no stores by itself.
 
-**Fix:** Listen for the `storage:blocked` event:
-
-```javascript
-window.addEventListener('storage:blocked', () => {
-  console.warn('IDB upgrade blocked — close other tabs');
-});
-```
-
-## TTL entries returning null
-
-**Cause:** Entry expired between set and get.
-
-**Fix:** Check timestamps. TTL is in milliseconds:
+**Fix:** Register a migration that creates it before the first read or write:
 
 ```javascript
-// Correct — 60 seconds
-await state.storage.set('keyval', 'token', data, { ttl: 60000 });
-
-// Wrong — 60 is 60 milliseconds
-await state.storage.set('keyval', 'token', data, { ttl: 60 });
+state.storage.registerMigrations([(db) => db.createObjectStore('keyval')]);
 ```
+
+## Expired records still returned
+
+**Cause:** `state.storage.get()` does not check the TTL. Expired records are removed only by quota eviction.
+
+**Fix:** Store your own expiry timestamp in the value and check it after reading. TTL values are in milliseconds.
 
 ## Still stuck?
 
@@ -89,5 +80,4 @@ Inspect store state:
 
 ```javascript
 console.log(store.snapshot());
-console.log('Subscribers:', doubled['#listeners']); // not exposed — use subscribe instead
 ```

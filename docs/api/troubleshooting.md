@@ -4,13 +4,13 @@ Common problems and their solutions.
 
 ## Request returns old cached data
 
-**Cause:** TTL not expired, or no cache invalidation performed.
+**Cause:** TTL not expired, no cache invalidation performed, or the URL is in the server-rendered `anza-state` payload.
 
 **Fix:**
 
 ```javascript
-// Force fresh by clearing the cache entry
-await api.cache.delete('/products');
+// Force fresh by clearing the cache entry (cache methods take the resolved URL)
+await api.cache.delete(api.prefix.resolve('/products'));
 
 // Or use network-first strategy
 await api.get('/products', { cache: 'network-first' });
@@ -31,7 +31,7 @@ if (typeof caches === 'undefined') {
 }
 ```
 
-Private browsing modes often disable the Cache API.
+The Cache API needs a secure context (HTTPS or localhost).
 
 ## Prefix not resolving
 
@@ -48,15 +48,17 @@ api.get('/user/profile'); // matches root fallback
 // Also correct
 api.get('user/profile');  // also matches root fallback
 
-// Wrong — fully qualified URL bypasses prefixes
-api.get('https://api.example.com/user/profile'); // no prefix matching
+// Fully qualified URLs are sent unchanged
+api.get('https://api.example.com/user/profile');
 ```
+
+`api.stream`, `api.upload`, `execute` and `api.cache.*` do not apply prefixes. Pass `api.prefix.resolve(path)` to them.
 
 ## Upload progress not firing
 
-**Cause:** Server does not send `Content-Length`, or file is too small.
+**Cause:** The browser does not know the total upload size, or the file is small.
 
-**Fix:** The progress event requires `event.lengthComputable` from the XMLHttpRequest upload. Ensure the server sets the content length. Small files may complete before any progress events fire.
+**Fix:** Progress is reported only when the XMLHttpRequest upload event has `lengthComputable`. Small files may finish before any progress event fires.
 
 ## Stream stops mid-way
 
@@ -82,26 +84,22 @@ async function* reconnectingStream(url) {
 
 ## 401 not triggering handler
 
-**Cause:** Listener registered after the request, or wrong event name.
+**Cause:** For `get`, `post`, `put`, `patch` and `delete`, a non-2xx response becomes an `HTTP_ERROR` before telemetry runs, so `status:401` never fires. Only `error` and `failed` do.
 
-**Fix:**
+**Fix:** Listen for `error` and check the status:
 
 ```javascript
-// Correct — register before the request
-api.on('status:401', handler);
-await api.get('/protected');
-
-// Also correct — per-request listener
-await api.get('/protected', {
-  on: { 'status:401': handler }
+api.on('error', (event) => {
+  if (event.detail.error?.context?.status === 401) handler(event);
 });
+await api.get('/protected');
 ```
 
-Event names are case-sensitive: `'status:401'` not `'Status:401'`.
+Register the listener before the request. Event names are case-sensitive.
 
 ## Request not timing out
 
-**Cause:** Timeout shorter than expected, or signal already aborted.
+**Cause:** The timeout is not in milliseconds, or the request uses `api.stream` or `api.upload`, which have no timeout (use a `signal`).
 
 **Fix:** Check that the timeout value is in milliseconds:
 
@@ -159,11 +157,12 @@ ctrl.abort(); // removes all listeners bound to this signal
 Inspect the pipeline:
 
 ```javascript
-// See registered prefixes
-console.log(api.prefix.resolve('/test'));
+// See where a path resolves
+const url = api.prefix.resolve('/test');
+console.log(url);
 
 // Check cache status
-console.log(await api.cache.get('/test'));
+console.log(await api.cache.get(url));
 
 // Listen to all events for debugging
 api.on('error', (e) => console.error('ERROR', e.detail));

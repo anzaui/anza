@@ -14,12 +14,19 @@ for await (const chunk of api.stream('/logs/stream')) {
 
 Each yielded value is a parsed JSON object. The stream is read via `TextDecoderStream` and `TransformStream` pipelines.
 
+`api.stream` calls `fetch` directly. It does not apply prefixes, the pipeline, caching, retries or a timeout. Pass a full path or `api.prefix.resolve(path)`.
+
 ## Stream Options
 
+Options other than `signal`, `on` and `requestId` are passed to `fetch` as-is. The body is not serialized:
+
 ```javascript
+const controller = new AbortController();
+
 for await (const chunk of api.stream('/ai/generate', {
   method: 'POST',
-  body: { prompt: 'Hello' },
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ prompt: 'Hello' }),
   signal: controller.signal,
   on: {
     chunk: (event) => console.log('Received chunk', event.detail.chunk),
@@ -33,9 +40,11 @@ for await (const chunk of api.stream('/ai/generate', {
 | Option | Description |
 | -------- | ------------- |
 | `method` | HTTP method (default `GET`) |
-| `body` | Request body (auto-serialized for objects) |
+| `headers` | Request headers, passed to `fetch` |
+| `body` | Request body, passed to `fetch` unchanged |
 | `signal` | AbortSignal for cancellation |
 | `on` | Per-request event listeners |
+| `requestId` | ID used in event `detail` (default: generated) |
 
 ## NDJSON Transform
 
@@ -71,7 +80,7 @@ api.on('chunk', (event) => {
 
 ## Error Handling
 
-Stream errors (network drops, parse failures) emit `error` and `failed` events. The async iterable throws the error, so wrap in try-catch:
+A failed `fetch` emits `error` and `failed`. A non-2xx response emits `status:xxx`, `failed` and `error`. Errors while reading (network drops, invalid NDJSON lines) emit `error` only. The async iterable throws a plain `Error` (not a `PlatformError`), so wrap it in try-catch:
 
 ```javascript
 try {
@@ -85,4 +94,4 @@ try {
 
 ## Backpressure
 
-The native Streams API preserves backpressure. If the consumer loop is slow, the fetch pauses reading from the network until the consumer catches up. This prevents unbounded memory growth on fast streams.
+Chunks are read only as the loop asks for them, so the Streams API applies backpressure: a slow consumer slows reading from the network instead of buffering the whole response.

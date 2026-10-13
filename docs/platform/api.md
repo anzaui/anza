@@ -150,7 +150,7 @@ Missing `floating` or `anchor` returns a no-op controller (`strategy: 'fixed'`, 
 
 ### `guard.sanitizer()`
 
-Returns `Promise<{ sanitizeToString(input) }>`. Native `Sanitizer` when available; otherwise `DOMPurify` if present, else a textContent escape.
+Returns `Promise<{ sanitizeToString(input) }>`. Uses a global `DOMPurify` if the page has loaded one; otherwise it escapes the input as text (no markup survives). It does not use the native `Sanitizer` API. For HTML sanitizing, use the security module.
 
 ### `guard.scheduler()`
 
@@ -158,7 +158,7 @@ Returns `Promise<schedulerObject>`.
 
 ### `guard.yield()`
 
-Returns `Promise<void>`. Yields to the event loop.
+Returns `Promise<void>`. Calls `scheduler.yield()` on the native scheduler or the polyfill. Browsers with a native `scheduler.postTask` but no `scheduler.yield` do not get the polyfill, so `guard.yield()` throws there; check `supports.schedulerYield` first if you target them.
 
 ### `reset(key)`
 

@@ -66,7 +66,7 @@ Timing.SPRING;      // resolves to CSS token
 
 ## View Transitions
 
-The router and UI layers read animation tokens automatically when running View Transitions. See [UI transitions](../ui/transitions.md) and [Router transitions](../router/transitions.md) for the `--transition-*` token layer.
+View Transitions are styled in CSS with the `--transition-*` tokens. They default to the motion tokens (`--transition-duration: var(--duration-normal)`, `--transition-easing: var(--ease-out)`). See [Transitions](../ui/transitions.md) for the UI and the router.
 
 ## Timing Helper
 

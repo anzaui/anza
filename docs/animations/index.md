@@ -5,7 +5,7 @@ order: 12
 
 # Animations
 
-The Anza animations layer wraps the Web Animations API (WAAPI) with a declarative, memory-safe interface. It provides registered animation templates, staggered multi-element orchestration, scroll-driven and view-driven timelines, and CSS token synchronization so JavaScript animations and stylesheets share the same timing values.
+The Anza animations layer wraps the Web Animations API (WAAPI). It provides registered animation templates, staggered multi-element orchestration, scroll-driven and view-driven timelines, and CSS token synchronization so JavaScript animations and stylesheets share the same timing values.
 
 ## What You Get
 
@@ -15,7 +15,7 @@ The Anza animations layer wraps the Web Animations API (WAAPI) with a declarativ
 - **Template registry** — register and reuse named animation presets
 - **Scroll/view timelines** — `scroll()` and `view()` for scroll-driven animations
 - **CSS token sync** — `duration()` and `ease()` read CSS custom properties at runtime
-- **Reduced motion** — `reduced()` respects `prefers-reduced-motion`
+- **Reduced motion** — `reduced()` reports `prefers-reduced-motion`. Animations do not check it for you
 
 ## Package
 

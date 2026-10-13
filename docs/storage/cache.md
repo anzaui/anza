@@ -18,10 +18,10 @@ const data = await storage.get('config', 'cache');
 
 ```javascript
 // Cache for 5 minutes
-await storage.set('feed', response, { tier: 'cache', ttl: 300000 });
+await storage.set('feed', { items: [] }, { tier: 'cache', ttl: 300000 });
 ```
 
-Expired entries are evicted on read. The `x-expires-at` header stores the expiry timestamp.
+Values are serialized into the `Response` body (JSON for objects, text otherwise). Expired entries are deleted on read and return `null`. The `x-expires-at` header stores the expiry timestamp.
 
 ## Cache Name
 
@@ -40,12 +40,12 @@ const cached = await storage.get('/api/data', 'cache');
 ## Clear
 
 ```javascript
-await storage.clear('cache'); // deletes every entry in the cache pool
+await storage.clear('cache'); // deletes the whole cache pool
 ```
+
+Keys become `Request` URLs, resolved against the page URL. `storage.list('cache')` returns those absolute URLs.
 
 ## Use Cases
 
-- Offline-first API responses
-- Preloaded assets for SPA navigation
-- Image caching with expiry
+- API response data with an expiry
 - Configuration data that updates infrequently

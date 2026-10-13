@@ -35,7 +35,7 @@ view('styled-box', {
 
 Definitions for `view()`, `dock()`, and `page()` accept an array of styles. This is useful for combining common utility or theme sheets with element-specific layouts.
 
-Additionally, stylesheets can be loaded from any folder in the project, using either relative paths (`../`) or root-relative absolute paths starting with `/` (e.g., `/styles/shared.css`). The compiler automatically resolves these paths, mirrors the files into `dist/`, and registers them for preloading.
+Stylesheets can live in any folder of the project. Use a relative path (`./`, `../`), resolved against the module URL you pass as the third argument, or a root-relative path starting with `/` (e.g., `/styles/shared.css`), resolved against the site root and the deploy base.
 
 ### Array of Inline Styles
 
@@ -77,7 +77,9 @@ page('blog-post', {
 }, import.meta.url);
 ```
 
-When files are referenced, the compiler resolves each relative path independently against the component's file directory (and absolute paths against the project's source root), copies them into `dist/`, and preloads them in the specified sequence.
+The runtime fetches the files in parallel and applies them in the order you list them. A `style` field replaces `template.css`; the two are not merged.
+
+`anza build` inlines relative, self-contained CSS files into the definition module, so the element needs no extra request. CSS that uses `@import` or relative `url()` stays a separate file. `anza dev` never inlines, so edits and HMR work on the files.
 
 ## Adopted Stylesheets
 

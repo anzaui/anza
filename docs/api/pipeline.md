@@ -10,18 +10,23 @@ Modify the request before it hits the network, or short-circuit with a cached/mo
 import { api } from '@anzaui/anza/api';
 
 api.pipeline.outbound((descriptor) => {
-  // Add an auth header to every request
-  descriptor.headers.set('X-Request-ID', descriptor.requestId);
-  return descriptor;
+  // Tag every request with its ID
+  const headers = new Headers(descriptor.headers);
+  headers.set('X-Request-ID', descriptor.requestId);
+  return { ...descriptor, headers };
 });
 ```
 
-Return a `Response` to short-circuit the pipeline entirely:
+`descriptor.headers` is a `Headers` instance unless the caller passed a `headers` option, in which case it is that plain object. Wrap it in `new Headers()` as above.
+
+Return a `Response` to short-circuit the pipeline. Caching, retries and the network are skipped; inbound interceptors still run. Set `Content-Type` so the client parses JSON:
 
 ```javascript
 api.pipeline.outbound((descriptor) => {
   if (descriptor.url === '/mock/user') {
-    return new Response(JSON.stringify({ name: 'Mock' }));
+    return new Response(JSON.stringify({ name: 'Mock' }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
   return descriptor;
 });
@@ -42,7 +47,9 @@ api.pipeline.inbound((responseOrError) => {
 });
 ```
 
-Inbound interceptors receive either a `Response` or an `Error`. They must return a `Response` or throw. The final interceptor's return value is what the caller receives.
+Inbound interceptors receive either a `Response` or an `Error`, and return a `Response` or an `Error` (a thrown error is passed on as the value). Every interceptor runs. If the final value is an `Error`, the request rejects with it; otherwise the client parses the `Response` body.
+
+Non-2xx responses from the network reach inbound interceptors as an `HTTP_ERROR`, not as a `Response`.
 
 ## Chaining
 
@@ -60,32 +67,23 @@ Interceptors run in registration order.
 
 ## Built-In Interceptors
 
-The API client registers one inbound interceptor automatically for telemetry:
-
-```javascript
-api.pipeline.inbound((responseOrError) => {
-  // Emits 'status:xxx', 'type:json', 'error', 'failed', etc.
-});
-```
-
-You can add your own alongside it. The built-in interceptor runs first (registered at module load), then yours.
+The API client registers one inbound interceptor at module load. It emits the telemetry events (`status:xxx`, `type:json`, `error`, `failed`, `timeout`) and returns its input unchanged. It runs first, then yours.
 
 ## Request Descriptor
 
-Outbound interceptors receive and should return a descriptor object:
+Outbound interceptors receive a descriptor. Return a new or modified descriptor, a `Response`, or nothing to keep the current one.
 
-```javascript
-{
-  requestId,    // unique UUID for this request
-  url,          // resolved URL after prefix routing
-  method,       // HTTP method
-  headers,      // Headers instance
-  body,         // request body
-  signal,       // AbortSignal
-  priority,     // task priority
-  timeout,      // timeout in ms
-  cache,        // cache strategy name
-  retries,      // retry attempts
-  ...opts       // additional options
-}
-```
+| Field | Description |
+| ----- | ----------- |
+| `requestId` | Unique ID for this request |
+| `url` | URL after prefix resolution |
+| `method` | HTTP method |
+| `headers` | `Headers` instance, or the caller's `headers` object |
+| `body` | Request body (objects already JSON-serialized) |
+| `signal` | Caller's `AbortSignal` |
+| `priority` | Task priority |
+| `timeout` | Timeout in ms |
+| `cache` | Cache strategy name |
+| `retries` | Total attempts |
+
+Every other request option (`expiry`, `on`, ...) is copied onto the descriptor too.

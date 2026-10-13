@@ -1,15 +1,17 @@
 # Tiers
 
-The storage facade routes reads and writes to one of four tiers. Each tier has different durability, capacity, and performance characteristics.
+The storage facade routes reads and writes to one of four tiers. There is no automatic fallback between tiers: a read goes only to the tier you name.
 
 ## Tier Comparison
 
-| Tier | Durability | Capacity | Speed | Best For |
-| ------ | ------------ | ---------- | ------- | ---------- |
-| `memory` | None (refresh clears) | Limited by RAM | Fastest | Hot data, session state |
-| `idb` | Durable (IndexedDB) | ~50MB+ | Fast | Default key-value storage |
-| `opfs` | Durable (file system) | ~60% of disk | Medium | Large files, binary data |
-| `cache` | Durable (Cache API) | ~50MB+ | Fast | API responses, preloaded assets |
+| Tier | Durability | Stored as | Best For |
+| ------ | ------------ | ---------- | ---------- |
+| `memory` | None (refresh clears) | The value itself (LRU, 200 entries by default) | Hot data, session state |
+| `idb` | Durable (IndexedDB) | Structured clone, gzip above 64KB | Default key-value storage |
+| `opfs` | Durable (file system) | JSON text, one file per key | Large JSON documents |
+| `cache` | Durable (Cache API) | JSON or text `Response` body | API-shaped data |
+
+All persistent tiers share the origin's storage quota.
 
 ## Memory
 
@@ -36,23 +38,25 @@ Values over 64KB are automatically gzip-compressed when the Compression Streams 
 
 ## OPFS
 
-Origin Private File System via a dedicated Web Worker. Uses synchronous file access handles for high performance.
+Origin Private File System via a dedicated Web Worker that uses synchronous file access handles.
 
 ```javascript
-await storage.set('large-file', buffer, 'opfs');
-const file = await storage.get('large-file', 'opfs');
+await storage.set('report', { rows: [] }, 'opfs');
+const report = await storage.get('report', 'opfs');
 ```
 
-Cross-tab invalidation is handled via BroadcastChannel. Use OPFS for blobs, images, and large JSON.
+Values are written with `JSON.stringify`, so binary data (`ArrayBuffer`, `Blob`, typed arrays) does not round-trip. Writes and deletes post a message on a BroadcastChannel; see [OPFS](opfs.md).
 
 ## Cache
 
-The browser Cache API. Stores `Response` objects.
+The browser Cache API. The value is serialized into a `Response` body (JSON for objects, text otherwise).
 
 ```javascript
-await storage.set('config', response, 'cache');
-const cached = await storage.get('config', 'cache'); // returns Response
+await storage.set('config', { theme: 'dark' }, 'cache');
+const cached = await storage.get('config', 'cache'); // { theme: 'dark' }
 ```
+
+`get` parses the body as JSON, or returns text if parsing fails.
 
 TTL is implemented via `x-expires-at` header on cached responses.
 
@@ -62,11 +66,10 @@ TTL is implemented via `x-expires-at` header on cached responses.
 | ------ | ----------------- |
 | User settings | `idb` |
 | Auth token (short-lived) | `memory` or `idb` with TTL |
-| Large image/video | `opfs` |
-| API response | `cache` or `idb` |
+| Large JSON document | `opfs` |
+| API response data | `cache` or `idb` |
 | Component state | `memory` |
-| Offline assets | `cache` |
-| Files, PDFs | `opfs` |
+| Binary data (images, files) | `idb` (stored by structured clone) |
 
 ## List / clear across tiers
 

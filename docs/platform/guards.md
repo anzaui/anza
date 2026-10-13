@@ -154,7 +154,7 @@ const sanitizer = await guard.sanitizer();
 const clean = sanitizer.sanitizeToString('<p>Safe</p>');
 ```
 
-Returns a sanitizer wrapper with `.sanitizeToString(input)`. Uses the native `Sanitizer` API when available, falls back to `DOMPurify` or a textContent-based sanitizer.
+Returns a wrapper with `.sanitizeToString(input)`. Uses a global `DOMPurify` if the page has loaded one; otherwise it escapes the input as text, so no markup survives. It does not use the native `Sanitizer` API.
 
 ## scheduler
 
@@ -171,7 +171,7 @@ Returns `globalThis.scheduler` or loads the polyfill. Supports three priorities:
 await guard.yield();
 ```
 
-Yields execution control back to the event loop. Equivalent to `scheduler.yield()` when available, otherwise falls back to `setTimeout(..., 0)`.
+Calls `scheduler.yield()` on the native scheduler or the polyfill. The polyfill resumes in a new task at the current priority. Browsers with a native `scheduler.postTask` but no `scheduler.yield` do not get the polyfill, so `guard.yield()` throws there; check `supports.schedulerYield` first if you target them.
 
 Use inside heavy loops to prevent UI freezing:
 

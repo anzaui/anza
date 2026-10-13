@@ -15,17 +15,17 @@ reset('urlPattern');
 console.log(supports.urlPattern); // re-detects
 ```
 
-## guard() never resolves
+## A guard call rejects
 
-**Cause:** Polyfill import fails (network error, CSP block, or bad path).
+**Cause:** The polyfill import failed (network error, CSP block, or bad path). The `guard.*` promise rejects with the import error.
 
-**Fix:** Check the console for polyfill load errors. The module logs warnings on failure:
+**Fix:** Check the console. The eager bootstrap that runs when the module loads logs an error on failure:
 
 ```text
 Failed to eagerly bootstrap shadow polyfill: ...
 ```
 
-Ensure your build system bundles the polyfill files or that dynamic imports are allowed by your CSP.
+Polyfills are loaded with dynamic `import()`. Make sure those files are served and that your CSP allows them.
 
 ## typeGuard throws in tests
 

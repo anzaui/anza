@@ -1,6 +1,8 @@
 # Names
 
-The `events.names` object provides typed constants for cross-cutting system events. Using these prevents typos and enables IDE autocomplete.
+The `events.names` object holds string constants for cross-cutting system events. Using them prevents typos.
+
+The library itself emits only the connectivity events (from `@anzaui/anza/offline`, with detail `{ online: boolean }`). The auth, preference and service worker names are reserved constants: your app emits them and chooses the `detail` shape.
 
 ## Available Namespaces
 
@@ -26,8 +28,8 @@ events.on(events.names.auth.signedin, (e) => {
 | `events.names.connectivity.offline` | `'connectivity:offline'` |
 
 ```javascript
-events.on(events.names.connectivity.offline, () => {
-  showToast('You are offline');
+events.on(events.names.connectivity.offline, (e) => {
+  showToast('You are offline'); // e.detail is { online: false }
 });
 ```
 

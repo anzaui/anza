@@ -10,7 +10,7 @@ import { workers } from '@anzaui/anza/workers';
 const conn = workers.shared('/workers/state.js', 'app-shared');
 ```
 
-`connect()` is called automatically on first `send()` or `subscribe()`.
+`workers.shared()` connects immediately. `name` defaults to `'native-shared'`. With `new Shared(script, name)`, call `connect()` yourself, or let the first `send()` do it.
 
 ## Send
 

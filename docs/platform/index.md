@@ -12,7 +12,7 @@ It answers two questions: what does this browser support, and how do I use the f
 ## What You Get
 
 - **Feature detection** — 30+ lazy-evaluated boolean flags for routing, components, CSS, scheduling, storage, networking, and security
-- **Lazy polyfills** — automatic, on-demand loading for URLPattern, Navigation API, popover, shadow DOM, anchor positioning, scheduler, and sanitizer
+- **Lazy polyfills** — automatic, on-demand loading for URLPattern, Navigation API, popover, shadow DOM, anchor positioning, and scheduler
 - **Overflow escape** — `guard.escape` / `escapeOverflow` for in-tree floating UI (used by `ui-tooltip`)
 - **Framework globals registry** — `globals` for soft-nav–stable platform listeners / observers
 - **Runtime guards** — `typeGuard` for early-fail checks in critical paths

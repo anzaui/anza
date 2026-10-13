@@ -5,9 +5,9 @@ order: 9
 
 # API
 
-The Anza API layer is a baseline-native HTTP client built on `fetch`. It wraps every request in a composable pipeline that handles prefix routing, TTL caching, exponential backoff retries, telemetry events, and graceful error normalization.
+The Anza API layer is an HTTP client built on `fetch`. Requests from `get`, `post`, `put`, `patch` and `delete` go through a pipeline that handles prefix routing, caching, retries with backoff, telemetry events and error normalization.
 
-It is designed for production: transient network failures self-heal, caches invalidate by glob pattern, uploads report real-time progress, and streams parse NDJSON while preserving backpressure.
+Transient failures are retried, cache entries can be deleted by glob pattern, uploads report progress, and streams parse NDJSON.
 
 ## What You Get
 
@@ -17,9 +17,9 @@ It is designed for production: transient network failures self-heal, caches inva
 - **Cache invalidation** — delete by exact URL or glob pattern (`*/user/*`)
 - **Telemetry events** — subscribe to `error`, `failed`, `timeout`, `status:xxx`, `type:json`, and per-request scoped events
 - **Streaming** — NDJSON async iterables with chunk-level event hooks
-- **Upload progress** — precise progress tracking via XMLHttpRequest
+- **Upload progress** — progress tracking via XMLHttpRequest
 - **Retry with jitter** — exponential backoff for transient errors (timeouts, 5xx), instant fail for 4xx
-- **Error normalization** — every failure is a `PlatformError` with `code`, `message`, `context`, and `recoverable`
+- **Error normalization** — request and upload failures are `PlatformError`s with `code`, `message`, `context`, and `recoverable`
 
 ## Package
 
@@ -59,7 +59,9 @@ const user = await api.get('/user/profile', { expiry: 60000 });
 const post = await api.post('/posts', { title: 'Hello' });
 
 // Listen for 401s globally
-api.on('status:401', () => redirectToLogin());
+api.on('error', (e) => {
+  if (e.detail.error?.context?.status === 401) redirectToLogin();
+});
 
 // Stream NDJSON
 for await (const chunk of api.stream('/logs')) {

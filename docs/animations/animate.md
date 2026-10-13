@@ -14,7 +14,7 @@ animate(el, animationInput, options);
 | `animationInput` | string \| Keyframe[] | Template name or raw keyframes |
 | `options` | object | WAAPI options plus `signal` |
 
-Returns a `Animation` instance.
+Returns the native `Animation` instance.
 
 ## Using a Preset
 
@@ -40,10 +40,10 @@ animations.animate(el, [
 
 | Option | Type | Default | Description |
 | -------- | ------ | --------- | ------------- |
-| `duration` | number | from template | Animation duration in ms |
+| `duration` | number | from template, else `0` | Animation duration in ms |
 | `delay` | number | 0 | Delay before start |
 | `easing` | string | from template | Easing curve |
-| `fill` | string | `'both'` | Fill mode |
+| `fill` | string | from template (`'both'` for presets), else `'none'` | Fill mode |
 | `iterations` | number | 1 | Repeat count |
 | `direction` | string | `'normal'` | Playback direction |
 | `signal` | AbortSignal | — | Cancel on abort |
@@ -59,7 +59,7 @@ animations.animate(el, 'fade', { signal: ctrl.signal });
 ctrl.abort();
 ```
 
-The animation is automatically cancelled when the signal aborts. The abort listener is removed when the animation finishes to prevent leaks.
+The animation is cancelled when the signal aborts. The abort listener is removed when the animation finishes. A signal that is already aborted when you pass it has no effect, so check `signal.aborted` first.
 
 ## Controlling Playback
 

@@ -13,7 +13,7 @@ import { events } from '@anzaui/anza/events';
 Subscribe to the global event bus. Returns a disposer.
 
 ```javascript
-const off = events.on('update', (e) => { ... });
+const off = events.on('update', (e) => console.log(e.detail));
 off(); // remove
 ```
 
@@ -182,13 +182,11 @@ Component shadow delegation lives on context `on` — [Context: on](../ui/contex
 
 ## Event Payload
 
-Bus and emit listeners receive a `CustomEvent`:
+Bus listeners receive a `CustomEvent`:
 
-```javascript
-{
-  type: string,    // event name
-  detail: any,     // payload passed to emit
-  bubbles: boolean, // false for bus events
-  composed: boolean // false for bus events
-}
-```
+| Property | Value |
+| -------- | ----- |
+| `type` | The event name |
+| `detail` | The payload passed to `emit` |
+| `bubbles` | `false` |
+| `composed` | `false` |

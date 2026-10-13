@@ -6,13 +6,13 @@ Internals, extension points, and edge cases for developers building on or extend
 
 The retry function uses exponential backoff with full jitter:
 
-```javascript
+```text
 delay = random(0, min(maxDelay, base * 2^attempt))
 ```
 
 | Parameter | Default | Description |
 | ----------- | --------- | ------------- |
-| `attempts` | 3 | Maximum retry attempts |
+| `attempts` | 3 | Total attempts, including the first |
 | `base` | 100ms | Starting delay |
 | `maxDelay` | 3000ms | Cap on delay |
 
@@ -22,7 +22,7 @@ Retries apply only to transient failures:
 - `NETWORK_ERROR`
 - `HTTP_ERROR` with status >= 500
 
-4xx errors and aborted requests fail immediately.
+4xx errors fail immediately. An aborted request stops before the next attempt.
 
 The retry loop respects `AbortSignal`. If the signal aborts during backoff, the wait is cancelled and a `NETWORK_ERROR` is thrown.
 
@@ -48,7 +48,7 @@ When `scheduler.postTask` is available, the fetch is scheduled at the requested 
 scheduler.postTask(runFetch, { priority: 'user-visible', signal });
 ```
 
-This improves Interaction to Next Paint (INP) by deferring non-critical requests.
+Lower-priority requests yield to more urgent tasks on the main thread.
 
 When `scheduler.postTask` is unavailable, the fetch runs immediately.
 
@@ -59,7 +59,9 @@ An outbound interceptor can return a `Response` to skip the network entirely:
 ```javascript
 api.pipeline.outbound((descriptor) => {
   if (isOffline()) {
-    return new Response(JSON.stringify({ offline: true }));
+    return new Response(JSON.stringify({ offline: true }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
   return descriptor;
 });
@@ -111,13 +113,8 @@ for (const line of lines) parseJSON(line);
 
 This guarantees correct parsing even when chunks break mid-line.
 
-## SSR Considerations
+## Server-Rendered State
 
-The API client checks `typeof caches !== 'undefined'` before using the Cache API. On the server:
+When the module loads, it reads `<script id="anza-state" type="application/json">` from the document. A `GET` whose resolved URL is a key in that object returns a copy of the stored value without a network call, pipeline or events. `api.state()` returns the `__route` entry, and `api.sync()` re-reads the script.
 
-- Caching is a no-op
-- `fetch` works normally (via polyfill if needed)
-- Events fire normally
-- Uploads require XMLHttpRequest polyfill
-
-For server-side rendering, register prefixes during build or server startup, then make requests as normal.
+If the Cache API is missing (`typeof caches === 'undefined'`), caching is skipped and requests go to the network.

@@ -21,7 +21,7 @@ The callback runs while holding the lock. Other tabs calling `lock('db:users')` 
 | `mode` | string | `'exclusive'` | `'exclusive'` or `'shared'` |
 | `signal` | AbortSignal | — | Abort lock acquisition |
 | `timeout` | number | — | Timeout in ms |
-| `ifAvailable` | boolean | `false` | Fail if lock is not immediately available |
+| `ifAvailable` | boolean | `false` | Reject with a `NotAllowedError` if the lock is not immediately available |
 | `steal` | boolean | `false` | Forcibly take the lock from current holder |
 
 ## Timeout
@@ -30,7 +30,7 @@ The callback runs while holding the lock. Other tabs calling `lock('db:users')` 
 await workers.lock('db:users', async () => {
   await db.save(user);
 }, { timeout: 3000 });
-// Throws if lock not acquired within 3 seconds
+// Rejects with a TimeoutError if the lock is not acquired within 3 seconds
 ```
 
 ## Shared Mode
@@ -67,7 +67,7 @@ async function becomeLeader() {
       startBackgroundSync();
       // Hold forever (or until page unloads)
       await new Promise(() => {});
-    });
+    }, { ifAvailable: true });
   } catch {
     console.log('Another tab is the leader');
   }

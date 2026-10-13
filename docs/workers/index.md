@@ -5,7 +5,7 @@ order: 13
 
 # Workers
 
-The Anza workers layer provides a unified interface for browser concurrency primitives: dedicated worker pools, shared workers, broadcast channels, web locks, and offscreen canvas. It handles feature detection, graceful degradation, and lifecycle management automatically.
+The Anza workers layer provides a unified interface for browser concurrency primitives: dedicated worker pools, shared workers, broadcast channels, web locks, and offscreen canvas. It includes feature detection and fallbacks where the browser lacks a primitive.
 
 ## What You Get
 

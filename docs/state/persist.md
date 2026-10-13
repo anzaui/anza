@@ -1,6 +1,8 @@
 # Persist
 
-`PlatformStorage` provides transactional IndexedDB persistence for reactive state. It supports schema migrations, TTL-based expiry, and automatic eviction when storage quota exceeds 80%.
+`PlatformStorage` provides transactional IndexedDB persistence for reactive state. It supports schema migrations, a per-record TTL, and eviction when storage usage exceeds 80% of quota.
+
+`PlatformStorage` creates no object stores on its own. Register a migration that creates the stores you use (for example `keyval`) before the first read or write. See [Schema Migrations](#schema-migrations).
 
 This is **not** the tiered `@anzaui/anza/storage` facade. Prefer `state.storage` for hydrating `state.create` stores; use the storage package for general KV, OPFS, and Cache API. Give each a distinct DB name if both are open (see [Troubleshooting](../storage/troubleshooting.md)).
 
@@ -12,6 +14,10 @@ Hydrate a store from IndexedDB, then persist on change. Prefer this over inventi
 import { state } from '@anzaui/anza/state';
 
 const store = state.create({ user: null });
+const ctrl = new AbortController();
+
+// Create the 'keyval' object store on first open
+state.storage.registerMigrations([(db) => db.createObjectStore('keyval')]);
 
 // Boot
 const saved = await state.storage.get('keyval', 'user');
@@ -54,12 +60,14 @@ Signature shape: `set(storeName, key, value, options?)`, `get(storeName, key)`, 
 | Call | Role |
 | ---- | ---- |
 | `set(storeName, key, value, { ttl? })` | Persist or update a record |
-| `get(storeName, key)` | Read one record (expired entries resolve to `null`) |
+| `get(storeName, key)` | Read one record (`null` if missing) |
 | `delete(storeName, key)` | Remove one record |
 | `query(storeName, predicate?)` | Read all records and filter in JS |
 | `registerMigrations([...])` | Define sequential schema upgrades before first open |
 | `setDatabaseName(name)` | Isolate the DB name before first open |
 | `persist()` / `isPersisted()` | Ask the browser for persistent storage |
+| `estimate()` | `navigator.storage.estimate()`, or `{ quota: 0, usage: 0 }` |
+| `open()` | Open the database (called for you by the other methods) |
 
 ## Schema Migrations
 
@@ -68,31 +76,30 @@ Register migration functions before opening the database:
 ```javascript
 state.storage.registerMigrations([
   (db, tx) => {
-    // Version 1 -> 2
-    db.createObjectStore('settings');
+    // Version 0 -> 1 (new database)
+    db.createObjectStore('keyval');
   },
   (db, tx) => {
-    // Version 2 -> 3
-    db.createObjectStore('sessions');
+    // Version 1 -> 2
+    db.createObjectStore('settings');
   }
 ]);
 ```
 
-Migrations run sequentially inside `onupgradeneeded`. Each function corresponds to one version step.
+Migrations run in order inside `onupgradeneeded`. Function `i` upgrades the database to version `i + 1`, so the database version equals the number of migrations. Only the steps above the stored version run.
 
 Call `registerMigrations()` before any `get()` / `set()` opens IndexedDB. Once the first connection is live, changing the migration list in the same session will not re-run already-open upgrades.
 
 ## TTL
 
 ```javascript
-// Cache for 60 seconds
+// Mark the record as expiring in 60 seconds
 await state.storage.set('keyval', 'token', 'abc123', { ttl: 60000 });
-
-// After expiry, get returns null
-await state.storage.get('keyval', 'token'); // null if expired
 ```
 
-TTL is stored on the record envelope alongside `lastAccessed`. Reads unwrap the record value for you, so consumers only see the stored payload or `null`.
+The expiry time is stored on the record envelope next to `lastAccessed`. `get()` does not check it: an expired record is still returned until it is removed. Expired records are deleted only by quota eviction (below). If you need strict expiry, store your own timestamp in the value and check it after reading.
+
+Reads unwrap the envelope, so `get()` returns the stored value or `null`.
 
 ## Quota-Aware Eviction
 

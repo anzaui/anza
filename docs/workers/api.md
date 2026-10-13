@@ -10,15 +10,15 @@ import { workers } from '@anzaui/anza/workers';
 
 ### `workers.run(script, task, opts)`
 
-Run a task in a worker pool. Returns `Promise<result>`.
+Run a task in the pool for `script`. One pool per script URL, created on the first call. Returns `Promise<result>`. Rejects if `Worker` is unavailable.
 
 ### `workers.dedicated(script)`
 
-Create a raw `Dedicated` worker. Returns `Dedicated` instance.
+Create a raw `Dedicated` worker. Returns a `Dedicated` instance. Throws if `Worker` is unavailable.
 
 ### `workers.shared(script, name)`
 
-Create a `Shared` connection. Falls back to dedicated worker.
+Create a `Shared` connection and connect it. `name` defaults to `'native-shared'`. Falls back to a dedicated worker.
 
 ### `workers.lock(name, fn, opts)`
 
@@ -30,7 +30,7 @@ Send to a BroadcastChannel. No-op if unsupported.
 
 ### `workers.subscribe(name, fn, signal)`
 
-Subscribe to a BroadcastChannel. Returns disposer.
+Subscribe to a BroadcastChannel. Returns a disposer (a no-op if unsupported).
 
 ### `workers.offscreen(canvas, script, opts)`
 
@@ -43,6 +43,18 @@ Terminate the pool for one script URL.
 ### `workers.clear()`
 
 Terminate all pools and close all broadcast channels.
+
+## Named Exports
+
+```javascript
+import {
+  workers, has,
+  Dedicated, Pool, Shared, Offscreen,
+  broadcast, lock, offscreen
+} from '@anzaui/anza/workers';
+```
+
+`DedicatedWorker`, `WorkerPool`, `SharedConnection` and `OffscreenHandle` are aliases of the four classes.
 
 ## Feature Detection
 
@@ -71,6 +83,20 @@ workers.run(script, task, {
   idempotent,     // boolean
   meta            // arbitrary metadata
 });
+```
+
+`max`, `size` and `idle` in the same object configure the pool, but only on the first call for that script. See [Pool](pool.md).
+
+## Pool
+
+```javascript
+import { Pool } from '@anzaui/anza/workers';
+
+const pool = new Pool('/worker.js', { max: 4, idle: 30000 });
+const result = await pool.run('task', { payload, priority: 'background' });
+pool.size;     // live workers
+pool.pending;  // queued tasks
+pool.terminate();
 ```
 
 ## Dedicated

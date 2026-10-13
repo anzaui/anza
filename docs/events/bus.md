@@ -1,6 +1,6 @@
 # Bus
 
-The global event bus is a singleton `EventBus` instance built on the native `EventTarget`. It provides typed `emit` and `on` methods for application-wide publish/subscribe.
+The global event bus is a singleton `EventBus` instance built on the native `EventTarget`. It provides `emit` and `on` methods for application-wide publish/subscribe.
 
 ## Global Bus
 
@@ -72,6 +72,8 @@ off(); // removes just this listener
 The bus is a full `EventTarget`. Use native methods directly if needed:
 
 ```javascript
+import { bus } from '@anzaui/anza/events';
+
 bus.addEventListener('custom', handler);
 bus.dispatchEvent(new CustomEvent('custom', { detail: {} }));
 bus.removeEventListener('custom', handler);
@@ -83,7 +85,7 @@ Listeners fire in registration order. There is no priority system. If order matt
 
 ## Error Handling
 
-Listener errors are not caught by the bus. Wrap handlers to prevent one listener from breaking others:
+The bus dispatches with the native `dispatchEvent`. If a listener throws, the browser reports the error (it shows up in the console and fires `error` on `window`), and the remaining listeners still run. `emit` itself does not throw. Wrap a handler when you want to handle its errors yourself:
 
 ```javascript
 events.on('update', (e) => {

@@ -18,7 +18,9 @@ store.broadcast('app-sync', ['theme']);
 1. When `store.set('theme', 'dark')` is called, the sync listener sees the mutation with source `'local'`
 2. It posts `{ key: 'theme', value: 'dark' }` to the BroadcastChannel
 3. Other tabs receive the message and call `store.set('theme', 'dark', 'broadcast')`
-4. The `'broadcast'` source prevents the originating tab from echoing the change back
+4. The `'broadcast'` source stops the receiving tabs from posting the change again
+
+A store has one mutation callback, so call `broadcast()` once per store with every key you want to sync.
 
 ## Whitelist
 
@@ -26,6 +28,7 @@ Only specified keys are synchronized. An empty array syncs all keys:
 
 ```javascript
 store.broadcast('app-sync', ['theme', 'language']);
+// or
 store.broadcast('app-sync', []); // sync all keys
 ```
 
@@ -41,7 +44,7 @@ dispose(); // close the BroadcastChannel
 
 ## Fallback
 
-If `BroadcastChannel` is unavailable (older browsers, private mode), sync returns a no-op disposer and logs nothing.
+If `window` or `BroadcastChannel` is unavailable, sync returns a no-op disposer and logs nothing.
 
 ## Example: Theme Sync
 

@@ -42,13 +42,15 @@ One listener on `document.body` handles all `.btn` clicks, including buttons add
 ```javascript
 events.delegate(
   document.body,
-  'my-component .action',
+  '.action',
   'click',
   (event, target) => {
-    // target may be inside a shadow root
+    // target may be inside an open shadow root
   }
 );
 ```
+
+`element.matches()` does not cross shadow boundaries, so a selector such as `'my-component .action'` does not match an element inside `my-component`'s shadow root. Use a selector that matches the element itself. Nodes inside closed shadow roots are not in `composedPath()` and cannot be matched.
 
 The path stops at the `root` element. Selectors outside the root are not evaluated. Default scope for `events.delegate` is `'path'` (any node in `composedPath()` before `root`).
 
@@ -75,7 +77,7 @@ events.delegate(root, '.btn', 'click', handler, {
 | `attrs` | — | Attribute predicates on the matched element |
 | `not` | — | Skip when `match.closest(not)` is contained by `root` |
 | `key` | — | Dedupe on `(root, type, capture, key)` — replaces prior disposer |
-| `scope` | `'path'` | `'path'` = any path node before root; `'assigned'` = also require assigned-slot relationship when used with containment-style matching |
+| `scope` | `'path'` | `'path'` = any path node before `root`; `'assigned'` = the match must be inside `root`, or be a light-DOM node assigned to a slot inside `root` |
 
 Component `on` defaults `scope` to `'shadow'` (must be inside the shadow tree). Pass `scope: 'assigned'` on `on` when you need slotted light-DOM clicks. Prefer `events.delegate(document, …)` when the root must be the document — do not widen component `on` to `document`.
 
@@ -105,7 +107,7 @@ events.delegate(container, '.item', 'click', (event, target) => {
 
 ### Selector matching cache
 
-`element.matches()` results are cached in a two-level `WeakMap` shared with component `on`, so repeated events on the same node + selector avoid redundant selector work.
+`element.matches()` results are cached per element (a `WeakMap` of selector results) shared with component `on`, so repeated events on the same node + selector avoid redundant selector work.
 
 ## Soft-nav
 

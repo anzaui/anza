@@ -74,7 +74,7 @@ if (animations.reduced()) {
 }
 ```
 
-This checks `prefers-reduced-motion: reduce` automatically.
+`reduced()` reads `prefers-reduced-motion: reduce`. `animate()` does not check it, so gate animations yourself.
 
 ## 6. Read CSS Tokens
 

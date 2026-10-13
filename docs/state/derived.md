@@ -20,12 +20,13 @@ The computation runs once on first access. The result is cached.
 
 ```javascript
 store.set('count', 5);
+console.log(doubled.value); // still 0: store notifications run in a microtask
 
-// doubled.value is still 0 — it has not been accessed since the change
-console.log(doubled.value); // 10 — recomputes on access
+await Promise.resolve();
+console.log(doubled.value); // 10, recomputed on access
 ```
 
-Derived values only recompute when accessed after a dependency change. This is lazy evaluation.
+A dependency change marks the value dirty when the store flushes its notifications (one microtask after the write). The next `.value` read recomputes. Reading in the same synchronous block as the write returns the cached value.
 
 ## Dependency Tracking
 
@@ -55,7 +56,7 @@ const total = state.derived(() => {
 });
 ```
 
-`total` tracks both `taxRate` and the dependencies of `subtotal`.
+`total` tracks `taxRate` and the dependencies `subtotal` has already collected. `subtotal` collects them on its first evaluation, so read `subtotal.value` once before `total` is first evaluated.
 
 ## Subscribe to Derived
 
@@ -65,7 +66,7 @@ const off = doubled.subscribe(() => {
 });
 ```
 
-Subscribe to be notified when the derived value recomputes to a new result.
+The callback runs with no arguments when a dependency changes and the value becomes dirty. It does not run again until `.value` is read, so read `.value` inside the callback to keep receiving notifications. Returns a disposer.
 
 ## Dispose
 

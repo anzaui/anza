@@ -1,6 +1,6 @@
 # Quota
 
-The quota manager wraps the browser StorageManager API, providing storage estimates, persistence requests, and proactive eviction warnings.
+The quota manager wraps the browser StorageManager API, providing storage estimates, persistence requests, and a warning when usage passes 80% of quota.
 
 ## Estimate
 
@@ -30,7 +30,7 @@ const warning = await quota.check((data) => {
 });
 ```
 
-Returns `true` if usage exceeds 80% of quota. Triggers the callback and dispatches `quota` events to registered listeners.
+Returns `true` if usage exceeds 80% of quota. In that case it calls the callback and every `onQuotaWarning` listener with `{ usage, quota }`. No DOM event is dispatched.
 
 ## Event Listeners
 

@@ -103,11 +103,12 @@ await events.once(el, 'click'); // never resolves
 **Fix:** Ensure the signal aborts when the component unmounts:
 
 ```javascript
-// Correct
-mount({ ctrl }) {
-  events.on('update', handler, ctrl.signal);
-}
-// ctrl.abort() called on unmount
+// Correct: the component's ctrl aborts on unmount
+view('live-feed', {
+  mount({ ctrl }) {
+    events.on('update', handler, ctrl.signal);
+  }
+});
 
 // Wrong — signal never aborted
 const ctrl = new AbortController();
@@ -132,14 +133,16 @@ Only use `events.emit` and `events.on` for truly global events.
 
 ## Still stuck?
 
-Debug the event flow:
+The bus has no wildcard listener: `events.on('*', ...)` only receives events emitted with the literal type `'*'`. To trace the flow, listen to each type you care about, or wrap `emit` in your app code:
 
 ```javascript
-// Log every event on the bus
-events.on('*', (e) => {
-  console.log('Event:', e.type, e.detail);
-});
+import { bus } from '@anzaui/anza/events';
 
-// Check active listeners (not exposed — use native methods)
-bus.addEventListener('debug', (e) => console.log(e));
+const emit = bus.emit.bind(bus);
+bus.emit = (type, detail) => {
+  console.log('Event:', type, detail);
+  emit(type, detail);
+};
 ```
+
+`events.emit` calls `bus.emit`, so this logs every global event. The bus does not expose its listener list.

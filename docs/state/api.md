@@ -10,7 +10,7 @@ import { state } from '@anzaui/anza/state';
 
 ### `state.create(initial, options)`
 
-Creates a `ReactiveStore`.
+Creates a `ReactiveStore`. Options: `deep` (boolean, default `false`) and `clone` (function used by `snapshot()`).
 
 ```javascript
 const store = state.create({ count: 0 }, { deep: false });
@@ -74,7 +74,11 @@ Alias for `broadcast`.
 
 ### `onMutation(callback)`
 
-Register global mutation listener: `(key, value, source) => void`
+Set the store's mutation listener: `(key, value, source) => void`. A store holds one listener; `broadcast` and `sync` replace it.
+
+### `derived(keys, compute)`
+
+Same as `state.derived(compute)`. `keys` is ignored; dependencies are tracked from the reads. `derived(compute)` also works.
 
 ## DerivedValue
 
@@ -84,7 +88,7 @@ Lazy getter. Recomputes if dirty.
 
 ### `subscribe(callback)`
 
-Notify when value changes. Returns disposer.
+Called with no arguments when a dependency changes and the value becomes dirty. Returns disposer.
 
 ### `dispose()`
 
@@ -98,7 +102,7 @@ Configure database name before first use.
 
 ### `registerMigrations(migrations)`
 
-Register schema migration functions.
+Register schema migration functions `(db, tx) => void`. Function `i` upgrades to version `i + 1`. No object store exists until a migration creates it.
 
 ### `get(storeName, key)`
 
@@ -106,7 +110,7 @@ Read a record.
 
 ### `set(storeName, key, value, options)`
 
-Write a record. Options: `{ ttl }`.
+Write a record. Options: `{ ttl }` (milliseconds). `get` does not check the TTL; expired records are removed only by quota eviction.
 
 ### `delete(storeName, key)`
 
@@ -116,9 +120,21 @@ Remove a record.
 
 Filter records by predicate.
 
+### `open()`
+
+Open the database. The other methods call it for you.
+
+### `estimate()`
+
+Returns `navigator.storage.estimate()`, or `{ quota: 0, usage: 0 }` when unavailable.
+
 ### `persist()`
 
-Request persistent storage.
+Request persistent storage. Resolves to a boolean.
+
+### `isPersisted()`
+
+Whether the origin's storage is persistent.
 
 ## Named Exports
 

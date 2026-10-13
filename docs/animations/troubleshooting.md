@@ -16,9 +16,9 @@ if (el.isConnected) {
 
 ## Stagger not delaying
 
-**Cause:** `staggerDelay` not provided, or elements are not iterable.
+**Cause:** `staggerDelay` set to `0`, or elements are not iterable. The default step is 60ms.
 
-**Fix:** Pass `staggerDelay` explicitly:
+**Fix:** Pass a positive `staggerDelay`:
 
 ```javascript
 animations.stagger(items, 'fade', { staggerDelay: 60 });
@@ -26,9 +26,9 @@ animations.stagger(items, 'fade', { staggerDelay: 60 });
 
 `items` must be a `NodeList` or array.
 
-## Animation cancelled immediately
+## Animation not cancelled by the signal
 
-**Cause:** AbortSignal already aborted when passed.
+**Cause:** The AbortSignal was already aborted when passed. `animate()` only listens for a future `abort` event.
 
 **Fix:** Check signal state before animating:
 

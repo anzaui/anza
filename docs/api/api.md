@@ -10,7 +10,7 @@ import { api } from '@anzaui/anza/api';
 
 ### `api.get(url, opts)`
 
-GET request. Returns parsed JSON or text.
+GET request. Returns parsed JSON or text. If the page has a server-rendered `<script id="anza-state" type="application/json">` payload with a key equal to the resolved URL, `get` returns a copy of that value without a network call.
 
 ```javascript
 const data = await api.get('/user/profile');
@@ -38,15 +38,17 @@ DELETE request.
 
 ### `api.stream(url, opts)`
 
-NDJSON async iterable.
+NDJSON async iterable. Calls `fetch` directly: no prefix resolution, pipeline, cache, retry or timeout, and the body is not serialized.
 
 ```javascript
-for await (const chunk of api.stream('/logs')) { ... }
+for await (const chunk of api.stream('/logs')) {
+  console.log(chunk);
+}
 ```
 
 ### `api.upload(url, data, opts)`
 
-File upload with progress tracking. Returns promise resolving to response data.
+File upload over `XMLHttpRequest` with progress tracking. Returns a promise resolving to the parsed JSON or text body. No prefix resolution.
 
 ```javascript
 await api.upload('/upload', formData, { on: { progress: handler } });
@@ -54,10 +56,10 @@ await api.upload('/upload', formData, { on: { progress: handler } });
 
 ### `api.on(event, handler, signal)`
 
-Subscribe to telemetry events. Returns disposer.
+Subscribe to telemetry events. Returns disposer. An aborted `signal` removes the listener.
 
 ```javascript
-const off = api.on('status:401', handler);
+const off = api.on('error', handler);
 off(); // unsubscribe
 ```
 
@@ -80,6 +82,24 @@ api.prefix.add('default', 'https://api.example.com');
 ### `api.prefix.clear()`
 
 Remove all prefixes.
+
+### `api.prefix.resolve(url)`
+
+Return the URL a request would use after prefix resolution.
+
+### `api.state()`
+
+Return a copy of the `__route` entry of the server-rendered `anza-state` payload, or `{}`.
+
+### `api.sync()`
+
+Re-read the `anza-state` payload from the document (for example after a soft navigation replaced it).
+
+### `api.PlatformError`
+
+The error class. Same as the `PlatformError` named export.
+
+`api.cache.*` does not apply prefixes. Pass the resolved URL (see `api.prefix.resolve`).
 
 ### `api.cache.get(url)`
 
@@ -110,33 +130,32 @@ Register an inbound interceptor.
 ```javascript
 import {
   api,           // facade object
-  pipeline,    // Pipeline instance
+  pipeline,      // Pipeline instance
   PlatformError, // Error class
-  execute,       // raw fetch executor
+  execute,       // fetch executor: timeout, priority, HTTP_ERROR on non-2xx; no prefixes, pipeline, cache or retry
   retry,         // retry utility
   stream,        // streaming function
   createNDJSONTransform, // NDJSON TransformStream
   upload,        // upload function
-  prefixes,      // PrefixRegistry instance
+  prefixes,      // PrefixRegistry instance (same object as api.prefix)
   events,        // ApiEventEmitter instance
-  cache          // ApiCache instance
+  cache,         // ApiCache instance (same object as api.cache)
+  sync           // same as api.sync
 } from '@anzaui/anza/api';
 ```
 
 ## Request Options
 
-```javascript
-{
-  headers: object,           // additional headers
-  signal: AbortSignal,       // cancellation
-  timeout: number,         // ms (default 10000)
-  priority: string,          // 'user-blocking' | 'user-visible' | 'background'
-  retries: number,         // attempts (default 3)
-  cache: string,           // 'cache-first' | 'network-first' | 'stale-while-revalidate'
-  expiry: number,          // TTL in ms (alias: ttl)
-  on: object               // per-request event listeners
-}
-```
+| Option | Type | Default | Description |
+| ------ | ---- | ------- | ----------- |
+| `headers` | object | — | Request headers. When set, sent as given (add `Content-Type` yourself) |
+| `signal` | AbortSignal | — | Cancellation |
+| `timeout` | number | `10000` | Timeout in ms |
+| `priority` | string | `'user-visible'` | `'user-blocking'`, `'user-visible'` or `'background'` |
+| `retries` | number | `3` | Total attempts |
+| `cache` | string | — | `'cache-first'`, `'network-first'` or `'stale-while-revalidate'` |
+| `expiry` / `ttl` | number | — | Cache TTL in ms. Takes precedence over `cache` |
+| `on` | object | — | Per-request event listeners |
 
 ## Telemetry Events
 
@@ -151,6 +170,8 @@ import {
 | `type:text` | `{ response, requestId }` |
 | `progress` | `{ loaded, total, percentage, requestId }` |
 | `chunk` | `{ chunk, requestId }` |
+
+For `get`, `post`, `put`, `patch` and `delete`, a non-2xx response rejects with `HTTP_ERROR` and fires `error` and `failed` with `{ error, requestId }`. `status:xxx` fires only for 2xx responses there. `upload` and `stream` also fire `status:xxx` for non-2xx responses. Read the status of a failed request from `event.detail.error.context.status`.
 
 ## Error Codes
 
@@ -183,7 +204,7 @@ api.get('https://x.com/y'); // left as-is
 
 ```javascript
 retry(operation, {
-  attempts: 3,    // max attempts
+  attempts: 3,    // total attempts, including the first
   base: 100,     // starting delay ms
   maxDelay: 3000 // delay cap ms
 });

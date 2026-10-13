@@ -5,9 +5,9 @@ order: 10
 
 # Events
 
-The Anza events layer is a thin, memory-safe wrapper around the DOM EventTarget. It provides a global event bus, high-performance delegation through Shadow DOM boundaries, promise-wrapped single-event awaits, automatic passive defaults for scroll-critical events, and a centralized registry of system event names.
+The Anza events layer is a thin, memory-safe wrapper around the DOM EventTarget. It provides a global event bus, event delegation through Shadow DOM boundaries, promise-wrapped single-event awaits, automatic passive defaults for scroll-critical events, and a centralized registry of system event names.
 
-Everything is built on the browser's native `EventTarget` and `CustomEvent`. No polyfills, no heavy abstractions.
+Everything is built on the browser's native `EventTarget` and `CustomEvent`. No polyfills.
 
 ## What You Get
 

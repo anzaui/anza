@@ -1,6 +1,8 @@
 # Uploads
 
-Standard `fetch` does not expose upload progress in baseline browsers. The API client bridges this gap with a precise `XMLHttpRequest`-based uploader that reports real-time progress via telemetry events.
+`fetch` does not report upload progress. `api.upload` uses `XMLHttpRequest` instead and reports progress through telemetry events.
+
+`api.upload` does not apply prefixes, the pipeline, caching, retries or a timeout. Pass a full path or `api.prefix.resolve(path)`. The data is sent as-is.
 
 ## Basic Upload
 
@@ -43,6 +45,7 @@ await api.upload('/upload', formData, {
 | `onProgress` | function | Legacy progress callback |
 | `signal` | AbortSignal | Cancel the upload |
 | `on` | object | Per-request event listeners |
+| `requestId` | string | ID used in event `detail` (default: generated) |
 
 ## Legacy onProgress
 
@@ -76,7 +79,7 @@ When aborted, the upload terminates and a `PlatformError` with code `NETWORK_ERR
 Upload raw binary data instead of `FormData`:
 
 ```javascript
-const buffer = new Uint8Array([...]);
+const buffer = new Uint8Array(1024);
 await api.upload('/binary', buffer, {
   headers: { 'Content-Type': 'application/octet-stream' }
 });
@@ -86,8 +89,9 @@ await api.upload('/binary', buffer, {
 
 | Event | Trigger |
 | ------- | --------- |
-| `progress` | Upload progress update |
+| `progress` | Upload progress update (only when the total size is known) |
 | `status:xxx` | HTTP status from the upload response |
 | `failed` | Non-2xx response or network error |
-| `error` | Network failure |
-| `timeout` | Upload timed out |
+| `error` | Non-2xx response or network error |
+
+Aborting rejects without emitting events. The uploader sets no timeout.

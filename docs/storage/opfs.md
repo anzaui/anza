@@ -1,6 +1,6 @@
 # OPFS
 
-The Origin Private File System facade offloads operations to an inline Web Worker, leveraging synchronous file access handles for high-performance reads and writes. Cross-tab invalidation is handled via BroadcastChannel.
+The Origin Private File System tier runs file operations in an inline Web Worker that uses synchronous file access handles. Writes, deletes and clears post a message on a BroadcastChannel so other tabs can react.
 
 ## Requirements
 
@@ -10,7 +10,7 @@ OPFS requires a secure context (HTTPS) and browser support for `navigator.storag
 import { supports } from '@anzaui/anza/platform';
 
 if (supports.opfs) {
-  await storage.set('file', buffer, 'opfs');
+  await storage.set('notes', { text: 'hello' }, 'opfs');
 }
 ```
 
@@ -20,30 +20,29 @@ if (supports.opfs) {
 import { storage } from '@anzaui/anza/storage';
 
 // Write
-const buffer = new Uint8Array([1, 2, 3]);
-await storage.set('data.bin', buffer, 'opfs');
+await storage.set('data.json', { points: [1, 2, 3] }, 'opfs');
 
 // Read
-const data = await storage.get('data.bin', 'opfs');
+const data = await storage.get('data.json', 'opfs');
 ```
 
-Values are JSON-serialized before writing. Binary data should be wrapped in an object or use ArrayBuffer directly.
+Values are written with `JSON.stringify` and read back with `JSON.parse`. Binary data (`ArrayBuffer`, typed arrays, `Blob`) does not round-trip; store it in the `idb` tier instead. A missing file reads as `null`.
 
 ## Delete and Clear
 
 ```javascript
-await storage.delete('data.bin', 'opfs');
+await storage.delete('data.json', 'opfs');
+await storage.clear('opfs'); // removes every entry in the OPFS root
 ```
 
-Clear all OPFS entries directly via the internal manager (not exposed through the facade).
+## Cross-Tab Messages
 
-## Cross-Tab Invalidation
-
-When an OPFS entry is written or deleted, a BroadcastChannel message invalidates the same key in other tabs:
+After a write, delete or clear, the tier posts `{ op, key }` (`op` is `'set'`, `'delete'` or `'clear'`) on the BroadcastChannel `core:opfs-invalidation`. Nothing is invalidated for you; listen on the same channel to react:
 
 ```javascript
-window.addEventListener('message', (e) => {
-  if (e.data.op === 'set' && e.data.key === 'data.bin') {
+const channel = new BroadcastChannel('core:opfs-invalidation');
+channel.addEventListener('message', (e) => {
+  if (e.data.op === 'set' && e.data.key === 'data.json') {
     console.log('File updated in another tab');
   }
 });
@@ -51,13 +50,13 @@ window.addEventListener('message', (e) => {
 
 ## Web Worker Internals
 
-OPFS operations run in a dedicated inline worker to avoid blocking the main thread. The worker:
+OPFS operations run in a dedicated inline worker so they do not block the main thread. The worker:
 
 1. Opens the OPFS root directory
-2. Creates or opens the file handle
-3. Uses `createSyncAccessHandle` for fast synchronous I/O
-4. Serializes values to JSON via TextEncoder
+2. Creates or opens the file handle (one file per key, in the root)
+3. Uses `createSyncAccessHandle` to read or write
+4. Encodes values as JSON text with `TextEncoder`
 
 ## Locks
 
-File operations are coordinated with `navigator.locks` when available. Each key gets its own named lock (`opfs:{key}`) to prevent concurrent writes.
+File operations are coordinated with `navigator.locks` when available. Each key gets its own named lock (`opfs:{key}`) to prevent concurrent writes. `clear` takes `opfs:global`; `list` takes no lock.

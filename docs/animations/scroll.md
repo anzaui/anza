@@ -48,6 +48,8 @@ if (timeline.unsupported) {
 }
 ```
 
+Do not pass the descriptor to `el.animate()` as `timeline`. It is a plain object, and the browser rejects it.
+
 ## Platform Check
 
 ```javascript

@@ -25,7 +25,7 @@ await api.delete('/posts/1');
 
 ## Auto-Serialization
 
-When the body is a plain object (not `Blob` or `FormData`), it is serialized to JSON and the `Content-Type: application/json` header is set automatically:
+When the body is any object other than a `Blob` or `FormData`, it is serialized to JSON and the `Content-Type: application/json` header is set. Strings pass through. Other binary or form types (`ArrayBuffer`, typed arrays, `URLSearchParams`) are also JSON-serialized, so send them with `api.upload` or wrap them in a `Blob`:
 
 ```javascript
 // Sends JSON body with correct header
@@ -45,7 +45,7 @@ The response is parsed based on `Content-Type`:
 | `application/json` | Parsed JSON object |
 | Anything else | Raw text string |
 
-To get the raw `Response` object, use the lower-level `execute` export:
+To get the `Response` object, use the lower-level `execute` export. It applies the timeout and priority and throws `HTTP_ERROR` on non-2xx, but skips prefixes, the pipeline, caching, retries and telemetry:
 
 ```javascript
 import { execute } from '@anzaui/anza/api';
@@ -65,8 +65,7 @@ await api.get('/user/profile', {
   priority: 'user-blocking',
   retries: 5,
   cache: 'network-first',
-  expiry: 60000,
-  on: { 'status:401': handler }
+  on: { 'status:200': handler }
 });
 ```
 
@@ -76,9 +75,9 @@ await api.get('/user/profile', {
 | `signal` | AbortSignal | — | Cancel the request |
 | `timeout` | number | `10000` | Timeout in milliseconds |
 | `priority` | string | `'user-visible'` | Browser task priority (`user-blocking`, `user-visible`, `background`) |
-| `retries` | number | `3` | Retry attempts for transient failures |
+| `retries` | number | `3` | Total attempts for transient failures |
 | `cache` | string | — | Cache strategy (`cache-first`, `network-first`, `stale-while-revalidate`) |
-| `expiry` / `ttl` | number | — | Cache TTL in milliseconds |
+| `expiry` / `ttl` | number | — | Cache TTL in milliseconds. Takes precedence over `cache` |
 | `on` | object | — | Per-request event listeners |
 
 ## Timeouts
@@ -122,7 +121,7 @@ await api.get('/critical-data', { priority: 'user-blocking' });
 
 ## Headers
 
-Custom headers merge with defaults:
+Pass extra headers with `headers`:
 
 ```javascript
 await api.get('/protected', {
@@ -130,4 +129,10 @@ await api.get('/protected', {
 });
 ```
 
-The `Content-Type` header is auto-set for JSON bodies unless already provided.
+Without a `headers` option, the client sets `Content-Type: application/json` for object bodies. If you pass `headers`, your object is sent as given, so include `Content-Type` yourself:
+
+```javascript
+await api.post('/posts', { title: 'Hello' }, {
+  headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+});
+```

@@ -14,7 +14,7 @@ const store = state.create({
 });
 ```
 
-The store is a reactive Proxy. Reading a property tracks it. Writing triggers subscribers.
+The store wraps the object in a Proxy. Reading a key inside a derived computation tracks it. Writing a key notifies its subscribers in a microtask.
 
 ## 2. Read and Write
 
@@ -63,7 +63,7 @@ const total = state.derived(() => {
 console.log(total.value); // computed lazily, memoized
 ```
 
-The derived value automatically tracks which store keys it reads. When any dependency changes, it marks itself dirty and recomputes on the next access.
+The derived value tracks which store keys it reads. When a dependency changes, it is marked dirty once the store flushes its notifications (a microtask later) and recomputes on the next access.
 
 ## 6. Snapshot and Hydrate
 
@@ -88,6 +88,9 @@ Mutations to `count` and `user` replicate to other tabs via BroadcastChannel.
 ## 8. Persist to IndexedDB
 
 ```javascript
+// Create the object store once, before the first read or write
+state.storage.registerMigrations([(db) => db.createObjectStore('keyval')]);
+
 await state.storage.set('keyval', 'count', store.get('count'));
 const restored = await state.storage.get('keyval', 'count');
 ```
@@ -109,12 +112,8 @@ cart.subscribe('items', () => {
   console.log('Cart total:', computedTotal.value);
 });
 
-// Add items in batch
-cart.batch(() => {
-  const items = cart.get('items');
-  items.push({ name: 'Widget', price: 9.99 });
-  cart.set('items', items);
-});
+// Set a new array: setting the same array reference does not notify
+cart.set('items', [...cart.get('items'), { name: 'Widget', price: 9.99 }]);
 
 // Sync across tabs
 cart.broadcast('cart-sync', ['items']);

@@ -4,11 +4,13 @@ The platform scheduler provides prioritized task execution and cooperative yield
 
 ## Priorities
 
-| Priority | Latency | Use Case |
+| Priority | Polyfill runs it as | Use Case |
 | ---------- | --------- | ---------- |
-| `user-blocking` | Immediate | Critical UI, user input response |
-| `user-visible` | ~16ms | Standard UI updates, API calls |
-| `background` | `requestIdleCallback` | Telemetry, prefetch, logging |
+| `user-blocking` | Microtask | Critical UI, user input response |
+| `user-visible` (default) | `MessageChannel` task | Standard UI updates, API calls |
+| `background` | `requestIdleCallback` (2 s timeout), else `setTimeout(0)` | Telemetry, prefetch, logging |
+
+The native scheduler uses the browser's own task queues. Tasks run one at a time, highest priority first.
 
 ## Posting Tasks
 
@@ -67,7 +69,7 @@ async function processItems(items) {
 }
 ```
 
-`guard.yield()` returns a promise that resolves after yielding to the event loop. On browsers with `scheduler.yield()`, it uses the native API. Otherwise it falls back to `setTimeout(..., 0)`.
+`guard.yield()` calls `scheduler.yield()` on the native scheduler or the polyfill. The polyfill resumes in a new task at the current priority (`user-visible` outside a task). Inside a `user-blocking` polyfill task it resumes in a microtask, which does not let the browser paint. Browsers with a native `scheduler.postTask` but no `scheduler.yield` do not get the polyfill, so `guard.yield()` throws there.
 
 ## Chunking Heavy Work
 

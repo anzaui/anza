@@ -18,17 +18,17 @@ Migration functions run in order inside `onupgradeneeded`:
 
 ```javascript
 const db = new Database('my-app', 3, [
-  (db) => db.createObjectStore('users'),        // v1
-  (db) => db.createObjectStore('settings'),     // v2
   (db) => {
-    // v3 — add an index
-    const store = db.transaction('users').objectStore('users');
-    store.createIndex('email', 'email', { unique: true });
-  }
+    // v1: create the store and its index together
+    const users = db.createObjectStore('users');
+    users.createIndex('email', 'email', { unique: true });
+  },
+  (db) => db.createObjectStore('settings'),     // v2
+  (db) => db.createObjectStore('logs')          // v3
 ]);
 ```
 
-Each function corresponds to one version step (0→1, 1→2, 2→3).
+Each function corresponds to one version step (0→1, 1→2, 2→3). Migrations receive only the `IDBDatabase`, not the upgrade transaction, so add indexes when you create a store. A migration that throws is logged and skipped; the upgrade continues.
 
 ## CRUD Operations
 
@@ -48,7 +48,7 @@ const result = await db.transaction(['users', 'logs'], 'readwrite', (store, tx) 
 });
 ```
 
-Supports async callbacks. Errors abort the transaction.
+The callback receives a store accessor and the `IDBTransaction`. The promise resolves with the callback's return value once the transaction completes. A thrown error or rejected promise aborts the transaction. An async callback must only await IndexedDB work: awaiting anything else lets the transaction commit early.
 
 ## Queries
 
@@ -65,7 +65,9 @@ const active = await db.query('users', {
 });
 ```
 
-Query options: `index`, `range`, `direction` (`'next'` or `'prev'`), `limit`.
+Query options: `index`, `range`, `direction` (an `IDBCursorDirection`, default `'next'`), `limit`. Returns record values.
+
+`db.close()` closes the connection. `get` returns `null` for a missing key.
 
 ## Events
 

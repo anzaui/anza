@@ -23,11 +23,11 @@ await storage.set('hot', data, 'memory');
 // IndexedDB — durable, default
 await storage.set('profile', data, 'idb');
 
-// OPFS — large files, synchronous worker-backed
-await storage.set('image', buffer, 'opfs');
+// OPFS — large JSON documents, written by a worker
+await storage.set('report', data, 'opfs');
 
-// Cache API — HTTP-like request/response
-await storage.set('api-data', response, 'cache');
+// Cache API — stored as a JSON or text Response body
+await storage.set('api-data', data, 'cache');
 ```
 
 ## 3. Set TTL
@@ -47,7 +47,7 @@ await storage.get('token'); // null
 await storage.delete('name');
 ```
 
-Deletes from all tiers (memory + the specified tier).
+Deletes from the memory LRU and the specified tier (default `idb`).
 
 ## 5. List keys / clear / estimate
 
@@ -90,13 +90,14 @@ await storage.set('profile', { name: 'Alice', role: 'admin' });
 // Fast in-memory lookup on next read
 const profile = await storage.get('profile'); // hits LRU cache
 
-// Store large image in OPFS
-const buffer = await fetchImage('/avatar.jpg');
-await storage.set('avatar', buffer, 'opfs');
+// Store a large JSON document in OPFS
+const report = await (await fetch('/api/report')).json();
+await storage.set('report', report, 'opfs');
 
 // Temporary API cache
+const posts = await (await fetch('/api/posts')).json();
 await storage.set('posts', posts, { tier: 'cache', ttl: 300000 });
 
-// Clean up
-await storage.delete('posts');
+// Clean up (name the tier you wrote to)
+await storage.delete('posts', 'cache');
 ```

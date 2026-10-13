@@ -7,8 +7,8 @@ The API client emits telemetry events for every request. Subscribe globally for 
 ```javascript
 import { api } from '@anzaui/anza/api';
 
-const off = api.on('status:401', (event) => {
-  redirectToLogin();
+const off = api.on('error', (event) => {
+  if (event.detail.error?.context?.status === 401) redirectToLogin();
 });
 
 // Stop listening
@@ -21,15 +21,15 @@ off();
 
 | Event | Trigger |
 | ------- | --------- |
-| `error` | Any network failure, timeout, or server error |
-| `failed` | Any non-ok response (>= 400) or aborted connection |
+| `error` | Any failed request: non-2xx response, network failure, timeout or abort |
+| `failed` | Same as `error` |
 | `timeout` | Request exceeded its timeout limit |
-| `status:401` | HTTP 401 response |
-| `status:500` | HTTP 500 response |
-| `status:xxx` | Any specific HTTP status |
+| `status:xxx` | A response with that status (for example `status:200`) |
 | `type:json` | Successful `application/json` response |
 | `type:stream` | Successful `text/event-stream` response |
 | `type:text` | Successful `text/*` response |
+
+For `get`, `post`, `put`, `patch` and `delete`, a non-2xx response becomes an `HTTP_ERROR` before telemetry runs. It fires `error` and `failed` with `{ error, requestId }`, not `status:xxx`. Read the status from `event.detail.error.context.status`. `upload` and `stream` fire `status:xxx` for every response.
 
 ## Per-Request Listeners
 
@@ -38,14 +38,14 @@ Scope listeners to a single request using the `on` option:
 ```javascript
 await api.get('/user/profile', {
   on: {
-    'status:401': () => redirectToLogin(),
+    'status:200': () => console.log('loaded'),
     failed: (event) => console.error(event.detail.error),
     timeout: (event) => showToast('Request timed out')
   }
 });
 ```
 
-These listeners are cleaned up automatically when the request completes. No manual disposer needed.
+These listeners are removed when the request settles. No manual disposer needed.
 
 ## Event Payload
 
@@ -54,22 +54,24 @@ All events receive an object with `type` and `detail`:
 ```javascript
 api.on('failed', (event) => {
   console.log(event.type);      // 'failed'
-  console.log(event.detail);    // { error, requestId }
+  console.log(event.detail);    // { error, requestId } or { response, requestId }
 });
 ```
 
-The `detail` object always includes `requestId` for correlation.
+Built-in events always include `requestId` in `detail` for correlation.
 
 ## Lifecycle-Gated Cleanup
 
 Pass an `AbortSignal` for automatic listener removal:
 
 ```javascript
-mount({ ctrl }) {
-  api.on('status:401', () => {
-    redirectToLogin();
-  }, ctrl.signal); // auto-removed on disconnect
-}
+const ctrl = new AbortController();
+
+api.on('error', (event) => {
+  console.error(event.detail.error);
+}, ctrl.signal);
+
+ctrl.abort(); // removes the listener
 ```
 
 ## Emitting Custom Events

@@ -34,13 +34,13 @@ The element fades in, then scales, then slides.
 const seq = animations.sequence([
   [overlay, 'fade', { duration: 150 }],
   [modal, 'scale', { duration: 250 }],
-  [buttons, 'stagger', { staggerDelay: 30, duration: 150 }]
+  [footer, 'slide-y', { duration: 150 }]
 ]);
 ```
 
 ## Error Handling
 
-If any step fails (element missing, animation error), the sequence stops and the `finished` promise rejects:
+If any step fails (element missing, unknown template name, cancelled animation), the sequence stops and the `finished` promise rejects:
 
 ```javascript
 try {
@@ -65,3 +65,5 @@ const seq = animations.sequence([
 // Abort mid-sequence
 ctrl.abort();
 ```
+
+Aborting cancels the running step. Its `finished` promise rejects with an `AbortError`, so the remaining steps do not run and `seq.finished` rejects.

@@ -15,7 +15,7 @@ const result = await workers.run('/workers/calc.js', 'fibonacci', {
 console.log(result); // 102334155
 ```
 
-The pool lazily creates workers (default: `hardwareConcurrency - 1`). Tasks are scheduled by priority.
+The pool starts one worker and adds more on demand, up to `max(2, hardwareConcurrency - 1)` by default. Tasks are scheduled by priority.
 
 ## 2. Priority Scheduling
 
@@ -78,7 +78,7 @@ await workers.lock('db:write', async () => {
 }, { timeout: 3000 });
 ```
 
-Other tabs calling `lock('db:write')` will wait until this callback completes.
+Other tabs calling `lock('db:write')` wait until this callback completes. Without the Web Locks API, the fallback only serializes calls in the same tab.
 
 ## 6. Feature Detection
 

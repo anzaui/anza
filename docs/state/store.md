@@ -15,6 +15,7 @@ Options:
 | Option | Type | Default | Description |
 | -------- | ------ | --------- | ------------- |
 | `deep` | boolean | `false` | Enable deep reactivity on nested objects |
+| `clone` | function | built-in deep clone | Used by `snapshot()` |
 
 ```javascript
 const store = state.create({ user: { name: 'Alice' } }, { deep: true });
@@ -29,7 +30,7 @@ store.get('user').name = 'Bob'; // triggers 'user' subscribers
 const count = store.get('count');
 ```
 
-Reading a property via `get` registers the active subscriber (if any) as a dependency. This is how derived values and reactive contexts know what to watch.
+Reading a property via `get` registers the key with the active subscriber, if any. This is how derived values know what to watch.
 
 ## Set
 
@@ -38,7 +39,7 @@ store.set('count', 5);
 store.set('count', 5, 'local'); // with source tag
 ```
 
-Setting a value to the same reference (via `Object.is`) is a no-op. Setting a different value schedules a notification.
+Setting a value that is `Object.is`-equal to the current one does not notify subscribers. Setting a different value schedules a notification in a microtask. Mutating an array or object in place and setting the same reference does not notify; set a new value instead (or use `deep: true`).
 
 The `source` parameter is used by sync to prevent echo loops. `'local'` means the change originated in this tab.
 
@@ -51,6 +52,8 @@ const off = store.subscribe('count', (val, key, prev) => {
 
 off(); // unsubscribe
 ```
+
+The optional third argument is an `AbortSignal`. Aborting it removes the subscription.
 
 | Param | Description |
 | ------- | ------------- |
@@ -68,7 +71,7 @@ store.batch(() => {
 });
 ```
 
-Multiple sets inside a batch produce a single microtask notification. Subscribers receive the final values.
+Multiple sets inside a batch produce a single flush. Each subscriber callback runs at most once per flush and receives the final value.
 
 ## Snapshot
 
@@ -76,7 +79,7 @@ Multiple sets inside a batch produce a single microtask notification. Subscriber
 const data = store.snapshot();
 ```
 
-Returns a deep-cloned copy of the current state. Safe to serialize with `JSON.stringify`.
+Returns a deep-cloned copy of the current state. Pass `{ clone: fn }` in the `state.create` options to use your own clone function.
 
 ## Hydrate
 
@@ -109,4 +112,4 @@ store.onMutation((key, value, source) => {
 });
 ```
 
-Called on every mutation. Used internally by `sync` to broadcast changes.
+Called on `set()` and, with `deep: true`, on nested mutations. Not called by `hydrate()` or `reset()`. A store holds one mutation callback: a later `onMutation()`, `broadcast()` or `sync()` call replaces the earlier one. `sync` uses it to broadcast changes.

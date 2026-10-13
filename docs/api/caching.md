@@ -61,7 +61,11 @@ Best for timelines, feeds, and dashboards where perceived speed matters.
 
 Caching applies only to `GET` requests. `POST`, `PUT`, `PATCH`, and `DELETE` bypass the cache entirely.
 
-If the Cache API is unavailable (private mode, unsupported browser), caching is silently disabled and all requests go to the network.
+If the Cache API is unavailable (for example on an insecure origin), caching is skipped and all requests go to the network.
+
+Entries stored by the named strategies have no TTL. They stay until you delete them. When `expiry` or `ttl` is set, it takes precedence over `cache`.
+
+Only `ok` responses are stored. Caches persist across sessions, so clear them on logout if responses contain user data.
 
 ## Cache Invalidation
 
@@ -87,17 +91,19 @@ Glob patterns support `*` wildcards. The pattern is matched against both the ful
 
 ## Direct Cache Access
 
-For advanced use, access the cache manager directly:
+For advanced use, access the cache manager directly. These methods do not apply prefixes, and a relative URL resolves against the page, so pass the resolved URL:
 
 ```javascript
+const url = api.prefix.resolve('/products');
+
 // Read
-const cached = await api.cache.get('/products');
+const cached = await api.cache.get(url);
 
 // Write with TTL
-await api.cache.set('/products', response, 60000);
+await api.cache.set(url, response, 60000);
 
 // Delete
-await api.cache.delete('/products');
+await api.cache.delete(url);
 
 // Purge all
 await api.cache.clear();
@@ -115,4 +121,4 @@ api.get('/products');            // key: https://api.example.com/products
 api.get('https://api.example.com/products'); // same key
 ```
 
-Headers and query strings are not part of the cache key.
+The query string is part of the key. Request headers are not.

@@ -1,19 +1,19 @@
 # Errors
 
-Every failure in the API client is normalized to a `PlatformError`. This gives you structured error handling with codes, context, and recovery guidance.
+Failures from `get`, `post`, `put`, `patch`, `delete` and `upload` are `PlatformError`s with a code, context and a recovery hint. `api.stream` throws plain `Error`s.
 
 ## PlatformError
 
-```javascript
-class PlatformError extends Error {
-  name: 'PlatformError',
-  code: string,          // error category
-  message: string,       // human-readable description
-  cause: Error | null,  // original error (if any)
-  context: object,      // request context (url, method, status, etc.)
-  recoverable: boolean  // can retry help?
-}
-```
+`PlatformError` extends `Error`:
+
+| Property | Type | Description |
+| -------- | ---- | ----------- |
+| `name` | string | `'PlatformError'` |
+| `code` | string | Error category (see below) |
+| `message` | string | Human-readable description |
+| `cause` | any | Original error, if any (otherwise `undefined`) |
+| `context` | object | Request context (`url`, `method`, `status`) |
+| `recoverable` | boolean | Whether a retry can help |
 
 ## Error Codes
 
@@ -70,7 +70,7 @@ For advanced cases, use the `retry` utility directly:
 import { retry } from '@anzaui/anza/api';
 
 const result = await retry(
-  () => api.get('/unstable'),
+  () => api.get('/unstable', { retries: 1 }), // avoid nested retries
   { attempts: 5, base: 200, maxDelay: 5000 }
 );
 ```

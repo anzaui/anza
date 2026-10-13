@@ -83,7 +83,7 @@ if (supports.offscreenCanvas) {
 
 **Cause:** Many concurrent tasks, or `max` not set.
 
-**Fix:** The default max is `hardwareConcurrency - 1`. If you need fewer:
+**Fix:** The default max is `hardwareConcurrency - 1` (at least 2). Pool options are read on the first `run` for a script. If you need fewer:
 
 ```javascript
 workers.run('/worker.js', 'task', {
@@ -112,9 +112,10 @@ Pools auto-terminate on `pagehide`, but explicit cleanup is safer.
 Check feature support:
 
 ```javascript
-import { has } from '@anzaui/anza/workers';
+import { has, Pool } from '@anzaui/anza/workers';
 console.log(has);
 
-// Inspect pool state
-console.log('Pool size:', workers.dedicated('/worker.js').size);
+// Inspect pool state with your own Pool instance
+const pool = new Pool('/worker.js');
+console.log(pool.size, pool.pending);
 ```

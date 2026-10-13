@@ -42,7 +42,7 @@ const user = await api.get('/user/profile');
 const products = await api.get('/products', { expiry: 60000 });
 ```
 
-On the next call within 60 seconds, the cached response is returned instantly. After expiry, the cache is stale and the network is hit again.
+On the next call within 60 seconds, the cached response is returned without a network call. After expiry, the entry is deleted and the network is hit again.
 
 ## 5. Listen for Errors
 
@@ -51,10 +51,12 @@ api.on('failed', (event) => {
   console.error('Request failed:', event.detail.error);
 });
 
-api.on('status:401', () => {
-  redirectToLogin();
+api.on('error', (event) => {
+  if (event.detail.error?.context?.status === 401) redirectToLogin();
 });
 ```
+
+A non-2xx response rejects with an `HTTP_ERROR` and fires `error` and `failed`. `status:xxx` events fire only for 2xx responses from `get`, `post`, `put`, `patch` and `delete`.
 
 Listeners return a disposer:
 
@@ -70,13 +72,13 @@ Scope listeners to a single request with the `on` option:
 ```javascript
 await api.get('/user/profile', {
   on: {
-    'status:401': () => redirectToLogin(),
+    'status:200': () => console.log('loaded'),
     failed: (event) => console.error(event.detail.error)
   }
 });
 ```
 
-These listeners auto-cleanup when the request completes. No manual disposer needed.
+These listeners are removed when the request settles. No manual disposer needed.
 
 ## 7. Stream NDJSON
 
@@ -86,7 +88,7 @@ for await (const chunk of api.stream('/logs/stream')) {
 }
 ```
 
-Each chunk is a parsed JSON object. Backpressure is preserved natively via the Streams API.
+Each chunk is a parsed JSON object. `api.stream` and `api.upload` do not apply prefixes, so pass the full path or `api.prefix.resolve(path)`.
 
 ## 8. Upload a File
 
@@ -135,7 +137,7 @@ try {
 }
 ```
 
-Every error is a `PlatformError` with `code`, `message`, `context`, and `recoverable`.
+Request errors are `PlatformError`s with `code`, `message`, `context`, and `recoverable`.
 
 ## Complete Working Example
 
@@ -146,8 +148,10 @@ import { api } from '@anzaui/anza/api';
 api.prefix.add('default', 'https://api.example.com');
 
 // Global error handling
-api.on('status:401', () => redirectToLogin());
-api.on('failed', (e) => showToast(e.detail.error.message));
+api.on('error', (e) => {
+  if (e.detail.error?.context?.status === 401) redirectToLogin();
+});
+api.on('failed', (e) => showToast(e.detail.error?.message ?? 'Request failed'));
 
 // Cached profile
 const profile = await api.get('/user/profile', { expiry: 300000 });
@@ -159,7 +163,7 @@ await api.post('/posts', { title: 'Hello' });
 const form = new FormData();
 form.append('avatar', fileInput.files[0]);
 
-await api.upload('/user/avatar', form, {
+await api.upload(api.prefix.resolve('/user/avatar'), form, {
   on: {
     progress: (e) => updateProgressBar(e.detail.percentage)
   }
