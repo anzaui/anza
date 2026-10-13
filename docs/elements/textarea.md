@@ -90,7 +90,7 @@ Set these on `ui-textarea` or an ancestor. Each falls back to a design token whe
 
 | State | When |
 | ----- | ---- |
-| `disabled` | The `disabled` property changes to true. A `disabled` attribute already in the markup when the element upgrades does not add the state. |
+| `disabled` | The `disabled` property is true, including from a `disabled` attribute in the markup. |
 
 ## Related
 

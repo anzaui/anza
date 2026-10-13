@@ -7,6 +7,11 @@
 
 import '../../src/elements/primitives/divider/index.js';
 import '../../src/elements/overlay/drawer/index.js';
+import '../../src/elements/primitives/button/index.js';
+import '../../src/elements/forms/input/index.js';
+import '../../src/elements/forms/textarea/index.js';
+import '../../src/elements/forms/select/index.js';
+import '../../src/elements/forms/toggle/index.js';
 
 const tick = (ms = 0) => new Promise((r) => setTimeout(r, ms));
 
@@ -64,4 +69,34 @@ describe('prop defaults drive attribute-selector CSS', () => {
     if (style.right !== '0px') throw new Error(`right: ${style.right}`);
     if (style.transform === 'none') throw new Error('closed drawer is not translated off-screen');
   });
+});
+
+describe('kit :state() from markup attributes', () => {
+  let host;
+
+  beforeEach(() => {
+    host = document.createElement('div');
+    document.body.appendChild(host);
+  });
+
+  afterEach(() => host.remove());
+
+  const cases = [
+    ['<ui-button disabled loading>x</ui-button>', ['disabled', 'loading']],
+    ['<ui-input disabled></ui-input>', ['disabled']],
+    ['<ui-textarea disabled></ui-textarea>', ['disabled']],
+    ['<ui-select disabled></ui-select>', ['disabled']],
+    ['<ui-toggle checked></ui-toggle>', ['checked', 'on']]
+  ];
+
+  for (const [html, states] of cases) {
+    it(`${html} sets ${states.join(', ')}`, async () => {
+      host.innerHTML = html;
+      const el = host.firstElementChild;
+      await mounted(el);
+      for (const state of states) {
+        if (!el.matches(`:state(${state})`)) throw new Error(`missing :state(${state})`);
+      }
+    });
+  }
 });

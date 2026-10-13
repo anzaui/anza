@@ -90,7 +90,7 @@ The focusable control is the native `<button>` in the shadow root, so Tab, Enter
 | `disabled` | The `disabled` property is true |
 | `loading` | The `loading` property is true |
 
-Both states are set when the property changes. A `disabled` or `loading` attribute that is already in the markup when the element upgrades does not add the state until the value changes.
+Both states follow the property, including a `disabled` or `loading` attribute already in the markup.
 
 ## Related
 

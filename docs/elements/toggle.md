@@ -84,7 +84,7 @@ The host gets `role="switch"` and `tabindex="0"` unless it already has them, and
 | ----- | ---- |
 | `on` | `checked` is true |
 | `disabled` | `disabled` is true |
-| `checked` | Added and removed when the `checked` property changes. Not set for a `checked` attribute already in the markup at upgrade, so prefer `on`. |
+| `checked` | `checked` is true (same as `on`). |
 
 ## Related
 
