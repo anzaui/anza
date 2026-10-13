@@ -84,7 +84,11 @@ Merged b4defa3…5956f53 + ac2ff8a (ui-text `as` allowlist). 531 browser + 6 sca
 | E2 | H | `ui-input`: every instance `required`, updates throw (`internals`), reset not wired. `ui-checkbox` toggling throws. `ui-button` never submits `value`. toggle/radio/select fire no `change` | Fix form-associated plumbing (`internals` in the change context, form callbacks), emit `change` |
 | E3 | M | Element attribute values documented but not implemented (stat `trend`, surface `bordered`, text `muted`, tooltip `*-end`), popover polyfill claim | Implement where cheap, otherwise fix docs (lane D) |
 
-## Lane D — docs (after A–C land)
+## Lane D — docs — DONE 2026-10-13
+
+Merged 73e649d..80d2ee0. 11 pages merged/removed, all 47 element pages rewritten (Attributes, Events, Methods, Form behaviour, Styling), all ui/intro/security/sw/ssg pages and the three READMEs updated for 0.6.0, and web/src/docs regenerated. Code bugs it found are now **lane C2** (running): ui-form submit, SW origin pattern matching any origin, defaults not reflected, `state` initial `:state()`, input/textarea tokens, chart colour, closed shadow mode, container CSS path, `anza:ready` order, dialog `open` attribute, a11y (role=step, aria-checked, radio arrow keys, extra tab stops).
+
+### Original lane D spec
 
 UI docs audit 2026-10-13. Rewrite the stale 0.6.0 pages (lifecycle, elements→factory, templates, quickstart, intro index/structure/build), the wrong API claims (HMR event `anza:hmr:*`, per-prop `update` batching, dock not rAF-batched, `state` needs `form`, `raw` absent, guards), the broken examples (invalid tag names, missing comma, `{{ }}` in UI templates), and the per-element tables. Then REMOVE/MERGE:
 - Merge the 6 category pages into `elements/index.md` and drop the "Phase" tables.
