@@ -18,10 +18,13 @@ The token system is structured into three layers:
 
 Primitives define the base values in `tokens/primitives/`:
 
-*   **`colors.css`**: Defines `--color-white`, `--color-black`, four grays (`--gray-100`, `--gray-200`, `--gray-800`, `--gray-900`) and a brand accent (`--brand`).
-*   **`motion.css`**: Defines two durations (`--duration-fast`, `--duration-normal`) and three easing curves (`--ease-in`, `--ease-out`, `--ease-in-out`).
-*   **`spacing.css`**: Defines `--space-0`, `--space-px` (1px) and `--space-2` to `--space-8` (0.5rem to 2rem; there is no `--space-1` or `--space-7`).
-*   **`typography.css`**: Sets standard font sizes (`--font-size-base` to `--font-size-3xl`), font weights, and line heights.
+| File | Tokens |
+|---|---|
+| `colors.css` | `--color-white`, `--color-black`; grays `--gray-100`, `-200`, `-300`, `-400`, `-500`, `-600`, `-700`, `-800`, `-900`; `--brand`; feedback hues `--red-*`, `--green-*`, `--amber-*`, `--blue-*` (`-400` for dark surfaces, `-600` for light) |
+| `spacing.css` | `--space-0`, `--space-px`, `--space-0-5` (2px), `--space-1` (4px), `--space-1-5` (6px), `--space-2` … `--space-6`, `--space-8`, `--space-10`, `--space-12`, `--space-16`, `--space-20`, `--space-24`, `--space-32` (8rem) |
+| `typography.css` | `--font-sans`; sizes `--font-size-xs`, `-sm`, `-base`, `-lg`, `-xl`, `-2xl`, `-3xl`; weights `--font-weight-regular`, `-medium`, `-semibold`, `-bold`; line heights `--line-height-none`, `-tight`, `-normal` |
+| `motion.css` | `--duration-fast` (120ms), `--duration-medium` (180ms), `--duration-normal` (240ms); `--ease-in`, `--ease-out`, `--ease-in-out` |
+| `shape.css` | radii `--radius-none`, `-sm`, `-md`, `-lg`, `-full`; shadows `--shadow-sm`, `-md`, `-lg`, `-xl`, `-2xl` |
 
 ### 2. Registered
 
@@ -37,6 +40,19 @@ Semantic tokens map primitives to intents and themes in `tokens/semantic/`:
 *   **`light.css`**: Default light theme on `:root` (e.g., `--color-surface-page` maps to white).
 *   **`dark.css`**: Dark overrides under `[data-theme="dark"]`, and under `prefers-color-scheme: dark` unless `data-theme="light"` is set.
 *   **`contrast.css`**: High-contrast overrides under `[data-theme="high-contrast"]`.
+
+Every theme defines the same semantic set:
+
+| Group | Tokens |
+|---|---|
+| Surfaces | `--color-surface-page`, `--color-surface-elevated`, `--color-surface-inverse` |
+| Content | `--color-content-primary`, `--color-content-secondary`, `--color-content-link`, `--color-content-disabled`, `--color-content-inverse` |
+| Borders | `--color-border-default`, `--color-border-strong`, `--color-border-focus` |
+| Interactive | `--color-interactive`, `--color-interactive-hover`, `--color-interactive-active`, `--color-interactive-disabled` |
+| Feedback | `--color-feedback-error`, `--color-feedback-success`, `--color-feedback-warning`, `--color-feedback-info` |
+| Links | `--link-color`, `--link-color-hover`, `--link-color-active` |
+
+`npm run tokens:check` (CI) fails if an element uses a token without a fallback that no file declares.
 
 ## View Transition Tokens
 

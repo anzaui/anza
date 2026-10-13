@@ -12,6 +12,21 @@
   --color-content-link:     var(--brand);
   --color-interactive:      var(--brand);
   --color-border-default:   var(--gray-800);
+  --color-border-strong:    var(--gray-600);
+  --color-border-focus:     var(--brand);
+  --color-content-disabled: var(--gray-500);
+  --color-content-inverse:  var(--gray-900);
+  --color-surface-inverse:  var(--gray-100);
+  --color-interactive-hover:    color-mix(in oklch, var(--color-interactive), white 14%);
+  --color-interactive-active:   color-mix(in oklch, var(--color-interactive), white 28%);
+  --color-interactive-disabled: var(--gray-700);
+  --color-feedback-error:   var(--red-400);
+  --color-feedback-success: var(--green-400);
+  --color-feedback-warning: var(--amber-400);
+  --color-feedback-info:    var(--blue-400);
+  --link-color:             var(--color-content-link);
+  --link-color-hover:       var(--color-interactive-hover);
+  --link-color-active:      var(--color-interactive-active);
   --background:             var(--color-surface-page);
   --text-color:             var(--color-content-primary);
 }
@@ -25,6 +40,21 @@
     --color-content-link:     var(--brand);
     --color-interactive:      var(--brand);
     --color-border-default:   var(--gray-800);
+    --color-border-strong:    var(--gray-600);
+    --color-border-focus:     var(--brand);
+    --color-content-disabled: var(--gray-500);
+    --color-content-inverse:  var(--gray-900);
+    --color-surface-inverse:  var(--gray-100);
+    --color-interactive-hover:    color-mix(in oklch, var(--color-interactive), white 14%);
+    --color-interactive-active:   color-mix(in oklch, var(--color-interactive), white 28%);
+    --color-interactive-disabled: var(--gray-700);
+    --color-feedback-error:   var(--red-400);
+    --color-feedback-success: var(--green-400);
+    --color-feedback-warning: var(--amber-400);
+    --color-feedback-info:    var(--blue-400);
+    --link-color:             var(--color-content-link);
+    --link-color-hover:       var(--color-interactive-hover);
+    --link-color-active:      var(--color-interactive-active);
     --background:             var(--color-surface-page);
     --text-color:             var(--color-content-primary);
   }

@@ -12,6 +12,21 @@
   --color-content-link:     var(--brand);
   --color-interactive:      var(--brand);
   --color-border-default:   var(--gray-200);
+  --color-border-strong:    var(--gray-400);
+  --color-border-focus:     var(--brand);
+  --color-content-disabled: var(--gray-400);
+  --color-content-inverse:  var(--color-white);
+  --color-surface-inverse:  var(--gray-900);
+  --color-interactive-hover:    color-mix(in oklch, var(--color-interactive), black 12%);
+  --color-interactive-active:   color-mix(in oklch, var(--color-interactive), black 24%);
+  --color-interactive-disabled: var(--gray-200);
+  --color-feedback-error:   var(--red-600);
+  --color-feedback-success: var(--green-600);
+  --color-feedback-warning: var(--amber-600);
+  --color-feedback-info:    var(--blue-600);
+  --link-color:             var(--color-content-link);
+  --link-color-hover:       var(--color-interactive-hover);
+  --link-color-active:      var(--color-interactive-active);
 
   /* Aliases used by base.css and scaffold pages */
   --background:             var(--color-surface-page);

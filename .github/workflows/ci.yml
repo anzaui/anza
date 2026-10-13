@@ -37,6 +37,9 @@ jobs:
       - name: Doc links
         run: npm run doc:links
 
+      - name: Design tokens declared
+        run: npm run tokens:check
+
       - name: Types cover runtime exports
         run: npm run types:check
 

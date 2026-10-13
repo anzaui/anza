@@ -11,6 +11,7 @@
 @import './primitives/spacing.css';
 @import './primitives/typography.css';
 @import './primitives/motion.css';
+@import './primitives/shape.css';
 
 /* 2. Registered (Houdini Typed Properties for Animation) */
 @import './registered/colors.css';

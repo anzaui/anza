@@ -11,6 +11,22 @@
   --color-content-secondary: var(--color-black);
   --color-interactive:       var(--color-black);
   --color-border-default:    var(--color-black);
+  --color-content-link:      var(--color-black);
+  --color-border-strong:     var(--color-black);
+  --color-border-focus:      var(--color-black);
+  --color-content-disabled:  var(--gray-600);
+  --color-content-inverse:   var(--color-white);
+  --color-surface-inverse:   var(--color-black);
+  --color-interactive-hover:    var(--color-black);
+  --color-interactive-active:   var(--color-black);
+  --color-interactive-disabled: var(--gray-300);
+  --color-feedback-error:    oklch(45% 0.2 27);
+  --color-feedback-success:  oklch(42% 0.14 150);
+  --color-feedback-warning:  oklch(45% 0.12 60);
+  --color-feedback-info:     oklch(42% 0.18 260);
+  --link-color:              var(--color-black);
+  --link-color-hover:        var(--color-black);
+  --link-color-active:       var(--color-black);
 
   transition:
     --color-surface-page 220ms var(--ease-out),

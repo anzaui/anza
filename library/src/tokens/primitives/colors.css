@@ -9,8 +9,23 @@
   --color-black: #000000;
   --gray-100: oklch(95% 0 0);
   --gray-200: oklch(90% 0 0);
+  --gray-300: oklch(83% 0 0);
+  --gray-400: oklch(70% 0 0);
+  --gray-500: oklch(56% 0 0);
+  --gray-600: oklch(44% 0 0);
+  --gray-700: oklch(32% 0 0);
   --gray-800: oklch(20% 0 0);
   --gray-900: oklch(10% 0 0);
   --brand: oklch(62% 0.17 145); /* Base brand accent */
+
+  /* Feedback hues: -600 for light surfaces, -400 for dark surfaces. */
+  --red-400: oklch(70% 0.19 25);
+  --red-600: oklch(55% 0.22 27);
+  --green-400: oklch(78% 0.17 150);
+  --green-600: oklch(55% 0.16 150);
+  --amber-400: oklch(82% 0.16 80);
+  --amber-600: oklch(62% 0.16 65);
+  --blue-400: oklch(72% 0.14 250);
+  --blue-600: oklch(55% 0.19 260);
 }
 
