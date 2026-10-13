@@ -1,27 +1,32 @@
 <h1 id="list">List</h1>
-<p>List panel with optional bordered surface. Children should use <code>role="listitem"</code> when they are list items.</p>
+<p>A vertical list whose rows are padded and divided by borders.</p>
 <p><strong>Tag:</strong> <code>ui-list</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/list</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/list';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
-<view-code language="html">&lt;ui-list&gt;
-  &lt;div role="listitem"&gt;First&lt;/div&gt;
-  &lt;div role="listitem"&gt;Second&lt;/div&gt;
-&lt;/ui-list&gt;
-&lt;ui-list bordered&gt;
-  &lt;div role="listitem"&gt;Bordered item&lt;/div&gt;
+<view-code language="html">&lt;ui-list bordered&gt;
+  &lt;div role="listitem"&gt;Inbox &lt;ui-badge&gt;4&lt;/ui-badge&gt;&lt;/div&gt;
+  &lt;div role="listitem"&gt;Archive&lt;/div&gt;
 &lt;/ui-list&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>bordered</code></td><td>Boolean</td><td>Reflect</td><td>Adds a bordered panel treatment</td></tr>
+<h2 id="attributes">Attributes</h2>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>bordered</code></td><td>Boolean</td><td><code>false</code></td><td>Draws a border, radius and elevated background around the list.</td></tr>
 </tbody></table></div>
-<h2 id="notes">Notes</h2>
-<p>Inner container uses <code>role="list"</code> and <code>part="list"</code>.</p>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td>default</td><td>The rows. Direct children that are <code>div[role="listitem"]</code> or <code>ui-list-item</code> get row padding, a bottom border (except the last) and a hover background.</td></tr>
+</tbody></table></div>
+<h2 id="keyboard-and-accessibility">Keyboard and accessibility</h2>
+<p>The inner wrapper has <code>role="list"</code>. Give each row <code>role="listitem"</code>.</p>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>list</code></td><td>The <code>role="list"</code> wrapper</td></tr>
+</tbody></table></div>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/data">Data</a></li>
+<li><a href="/docs/elements#data">Elements</a></li>
 <li><a href="/docs/elements/table">Table</a></li>
+<li><a href="/docs/elements/card">Card</a></li>
 </ul>

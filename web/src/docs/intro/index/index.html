@@ -1,18 +1,18 @@
 <h1 id="intro">Intro</h1>
-<p>Anza is a web platform library built on browser-native APIs. It gives you reactive state, client-side routing, custom elements, offline sync, and animations — all as plain ES modules the browser resolves directly. No bundler, no virtual DOM, no framework lock-in.</p>
-<p>A Rust CLI (<code>anza</code>) handles the development server, import-graph resolution, and build. It copies only the modules you actually import into <code>dist/</code>, generates type declarations, and serves everything with hot module replacement.</p>
+<p>Anza is a web platform library built on browser-native APIs. It gives you reactive state, client-side routing, custom elements, offline sync, and animations as plain ES modules. Source is plain JavaScript, HTML and CSS, with no virtual DOM and no JSX or TypeScript compile step.</p>
+<p>A Rust CLI (<code>anza</code>) runs the dev server and the build. <code>anza dev</code> serves your modules unbundled, as the browser loads them, and reloads on change. <code>anza build</code> copies only the modules you import, pre-renders public routes to HTML, and bundles the modules into hashed chunks with <a href="https://rolldown.rs">Rolldown</a> when it is installed (<code>--no-bundle</code> turns that off). It also writes type declarations for your editor.</p>
 <h2 id="what-you-get">What You Get</h2>
 <ul>
-<li><strong>Pure ESM modules</strong> — authored as <code>.js</code> files, resolved by the browser natively</li>
+<li><strong>Plain ESM modules</strong> — authored as <code>.js</code> files; unbundled in dev, bundled for production</li>
 <li><strong>Reactive state</strong> — typed stores with batched updates and cross-tab sync</li>
 <li><strong>Declarative components</strong> — <code>page()</code>, <code>dock()</code>, <code>view()</code>, <code>part()</code> instead of classes</li>
 <li><strong>File templates</strong> — split markup, styles, and logic into <code>.html</code>, <code>.css</code>, and <code>.js</code></li>
-<li><strong>Client-side router</strong> — AOT matching tree compiled by Rust, design-by-contract typed validations, URLPattern-based matching with hierarchical container layouts</li>
+<li><strong>Client-side router</strong> — route manifest built by the CLI, typed route params, nested dock layouts</li>
+<li><strong>Static HTML for public routes</strong> — pre-rendered pages with titles, descriptions, Open Graph tags, JSON-LD and a sitemap</li>
 <li><strong>Offline queue</strong> — IndexedDB-backed operation queue with retry and conflict resolution</li>
 <li><strong>Service Worker toolkit</strong> — caching strategies, route interception, background sync, and push notifications</li>
 <li><strong>Automatic theme switching</strong> — light, dark, and high-contrast with OS preference detection and localStorage persistence</li>
 <li><strong>Animation helpers</strong> — WAAPI wrappers, stagger groups, and view transitions</li>
-<li><strong>Real-browser tests</strong> — <code>@web/test-runner</code> with Playwright, no jsdom</li>
 </ul>
 <h2 id="package">Package</h2>
 <view-code language="javascript">import { state } from '@anzaui/anza/state';
@@ -25,7 +25,7 @@ import { page, dock, view } from '@anzaui/anza/ui';
 <tr><td><a href="/docs/intro/start">Start</a></td><td>Scaffold your first app</td></tr>
 <tr><td><a href="/docs/intro/build">Build</a></td><td>Dev server, production build, <code>doctor</code> / <code>check</code> / <code>generate</code></td></tr>
 <tr><td><a href="/docs/intro/structure">Structure</a></td><td><strong>Project structure contract</strong> — required slots, <code>anza.json</code>, doctor/check, <code>anza generate</code></td></tr>
-<tr><td><code>docs/sw/</code></td><td>Service Worker caching, routing, sync, and push</td></tr>
+<tr><td><a href="/docs/sw">Service Worker</a></td><td>Service Worker caching, routing, sync, and push</td></tr>
 </tbody></table></div>
 <h2 id="one-file-example">One-File Example</h2>
 <view-code language="html">&lt;!-- src/index.html --&gt;
@@ -37,7 +37,9 @@ import { page, dock, view } from '@anzaui/anza/ui';
     &lt;link rel="stylesheet" href="/tokens/index.css"&gt;
     &lt;script type="module" src="/app.js"&gt;&lt;/script&gt;
   &lt;/head&gt;
-  &lt;body&gt;&lt;/body&gt;
+  &lt;body&gt;
+    &lt;dock-main&gt;&lt;/dock-main&gt;
+  &lt;/body&gt;
 &lt;/html&gt;
 </view-code>
 <view-code language="javascript">// src/app.js
@@ -57,9 +59,8 @@ page('/', {
 <ul>
 <li>New here? Read <a href="/docs/intro/install">Install</a> then <a href="/docs/intro/start">Start</a>.</li>
 <li>What must exist on disk? See <a href="/docs/intro/structure">Structure</a> — single source of truth (<code>anza doctor</code> / <code>anza check</code>).</li>
-<li>Want the router? See <code>docs/router/</code>.</li>
-<li>Want the UI layer? See <code>docs/ui/</code>.</li>
+<li>Want the router? See <a href="/docs/router">Router</a>.</li>
+<li>Want the UI layer? See <a href="/docs/ui">UI</a>.</li>
 <li>Shipping public pages? See <a href="/docs/ssg/contract">Page HTML contract (Mode A SSG · Mode B templates)</a> (site-root URLs, open DSD) and <a href="/docs/ui/hydration">Hydration (DSD adopt)</a>.</li>
-<li>Need offline and caching? See <code>docs/sw/</code>.</li>
-<li>Need the API surface? Check the per-module docs in <code>docs/</code>.</li>
+<li>Need offline and caching? See <a href="/docs/sw">Service Worker</a>.</li>
 </ul>

@@ -10,7 +10,7 @@ const result = await workers.run('/workers/calc.js', 'fibonacci', {
 
 console.log(result); // 102334155
 </view-code>
-<p>The pool lazily creates workers (default: <code>hardwareConcurrency - 1</code>). Tasks are scheduled by priority.</p>
+<p>The pool starts one worker and adds more on demand, up to <code>max(2, hardwareConcurrency - 1)</code> by default. Tasks are scheduled by priority.</p>
 <h2 id="2-priority-scheduling">2. Priority Scheduling</h2>
 <view-code language="javascript">// Critical path — runs first
 workers.run('/workers/calc.js', 'render', {
@@ -58,7 +58,7 @@ off(); // unsubscribe
   await db.put('key', value);
 }, { timeout: 3000 });
 </view-code>
-<p>Other tabs calling <code>lock('db:write')</code> will wait until this callback completes.</p>
+<p>Other tabs calling <code>lock('db:write')</code> wait until this callback completes. Without the Web Locks API, the fallback only serializes calls in the same tab.</p>
 <h2 id="6-feature-detection">6. Feature Detection</h2>
 <view-code language="javascript">import { has } from '@anzaui/anza/workers';
 

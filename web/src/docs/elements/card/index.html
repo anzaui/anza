@@ -1,33 +1,36 @@
 <h1 id="card">Card</h1>
-<p>Content card with header, body, and footer slots. Optional interactive hover lift.</p>
+<p>A bordered panel with header, body and footer areas.</p>
 <p><strong>Tag:</strong> <code>ui-card</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/card</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/card';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
 <view-code language="html">&lt;ui-card&gt;
-  &lt;span slot="header"&gt;Account&lt;/span&gt;
-  Profile summary goes here.
-  &lt;span slot="footer"&gt;Updated today&lt;/span&gt;
-&lt;/ui-card&gt;
-&lt;ui-card interactive&gt;
-  Clickable-looking card body
+  &lt;h3 slot="header"&gt;Plan&lt;/h3&gt;
+  &lt;p&gt;Pro, billed monthly.&lt;/p&gt;
+  &lt;ui-button slot="footer"&gt;Change&lt;/ui-button&gt;
 &lt;/ui-card&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>interactive</code></td><td>Boolean</td><td>Reflect</td><td>Enables hover lift / interactive styling</td></tr>
+<h2 id="attributes">Attributes</h2>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>interactive</code></td><td>Boolean</td><td><code>false</code></td><td>Pointer cursor, and on hover the card lifts, its shadow grows and its border darkens.</td></tr>
 </tbody></table></div>
-<h2 id="slots--parts">Slots / parts</h2>
-<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>header</code></td><td>slot</td><td>Card header</td></tr>
-<tr><td><em>(default)</em></td><td>slot</td><td>Body</td></tr>
-<tr><td><code>footer</code></td><td>slot</td><td>Footer</td></tr>
-<tr><td><code>header</code> / <code>body</code> / <code>footer</code></td><td>parts</td><td>Section wrappers</td></tr>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td><code>header</code></td><td>Top area, divided from the body by a border</td></tr>
+<tr><td>default</td><td>The body</td></tr>
+<tr><td><code>footer</code></td><td>Bottom area, right-aligned, on the page surface colour</td></tr>
+</tbody></table></div>
+<p>The header and footer areas keep their padding and border even when their slot is empty.</p>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>header</code></td><td>The header area</td></tr>
+<tr><td><code>body</code></td><td>The body area</td></tr>
+<tr><td><code>footer</code></td><td>The footer area</td></tr>
 </tbody></table></div>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/data">Data</a></li>
+<li><a href="/docs/elements#data">Elements</a></li>
 <li><a href="/docs/elements/surface">Surface</a></li>
+<li><a href="/docs/elements/stat">Stat</a></li>
 </ul>

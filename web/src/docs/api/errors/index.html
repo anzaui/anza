@@ -1,15 +1,15 @@
 <h1 id="errors">Errors</h1>
-<p>Every failure in the API client is normalized to a <code>PlatformError</code>. This gives you structured error handling with codes, context, and recovery guidance.</p>
+<p>Failures from <code>get</code>, <code>post</code>, <code>put</code>, <code>patch</code>, <code>delete</code> and <code>upload</code> are <code>PlatformError</code>s with a code, context and a recovery hint. <code>api.stream</code> throws plain <code>Error</code>s.</p>
 <h2 id="platformerror">PlatformError</h2>
-<view-code language="javascript">class PlatformError extends Error {
-  name: 'PlatformError',
-  code: string,          // error category
-  message: string,       // human-readable description
-  cause: Error | null,  // original error (if any)
-  context: object,      // request context (url, method, status, etc.)
-  recoverable: boolean  // can retry help?
-}
-</view-code>
+<p><code>PlatformError</code> extends <code>Error</code>:</p>
+<div class="table-wrap"><table><thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td>string</td><td><code>'PlatformError'</code></td></tr>
+<tr><td><code>code</code></td><td>string</td><td>Error category (see below)</td></tr>
+<tr><td><code>message</code></td><td>string</td><td>Human-readable description</td></tr>
+<tr><td><code>cause</code></td><td>any</td><td>Original error, if any (otherwise <code>undefined</code>)</td></tr>
+<tr><td><code>context</code></td><td>object</td><td>Request context (<code>url</code>, <code>method</code>, <code>status</code>)</td></tr>
+<tr><td><code>recoverable</code></td><td>boolean</td><td>Whether a retry can help</td></tr>
+</tbody></table></div>
 <h2 id="error-codes">Error Codes</h2>
 <div class="table-wrap"><table><thead><tr><th>Code</th><th>Meaning</th><th>Recoverable</th></tr></thead><tbody>
 <tr><td><code>HTTP_ERROR</code></td><td>Server returned non-2xx status</td><td>5xx yes, 4xx no</td></tr>
@@ -52,7 +52,7 @@ try {
 <view-code language="javascript">import { retry } from '@anzaui/anza/api';
 
 const result = await retry(
-  () =&gt; api.get('/unstable'),
+  () =&gt; api.get('/unstable', { retries: 1 }), // avoid nested retries
   { attempts: 5, base: 200, maxDelay: 5000 }
 );
 </view-code>

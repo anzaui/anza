@@ -5,7 +5,7 @@
 
 const conn = workers.shared('/workers/state.js', 'app-shared');
 </view-code>
-<p><code>connect()</code> is called automatically on first <code>send()</code> or <code>subscribe()</code>.</p>
+<p><code>workers.shared()</code> connects immediately. <code>name</code> defaults to <code>'native-shared'</code>. With <code>new Shared(script, name)</code>, call <code>connect()</code> yourself, or let the first <code>send()</code> do it.</p>
 <h2 id="send">Send</h2>
 <view-code language="javascript">conn.send({ action: 'increment', value: 1 });
 </view-code>

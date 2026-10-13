@@ -1,5 +1,5 @@
 <h1 id="state">State</h1>
-<p>The Anza state layer provides reactive in-memory stores, lazy computed values, cross-tab synchronization, and transactional IndexedDB persistence. It is built on JavaScript Proxies for fine-grained reactivity without virtual DOM overhead.</p>
+<p>The Anza state layer provides reactive in-memory stores, lazy computed values, cross-tab synchronization, and transactional IndexedDB persistence. Stores are built on JavaScript Proxies.</p>
 <h2 id="what-you-get">What You Get</h2>
 <ul>
 <li><strong>Reactive stores</strong> — Proxy-based state with automatic dependency tracking and microtask-batched updates</li>
@@ -41,14 +41,15 @@ store.batch(() =&gt; {
 });
 // One notification batch for both changes
 
-// Derived value
+// Derived value (the batched writes above are already applied)
 const doubled = state.derived(() =&gt; store.get('count') * 2);
 console.log(doubled.value); // 20
 
 // Sync across tabs
 store.broadcast('app-state', ['count', 'user']);
 
-// Persist to IndexedDB
+// Persist to IndexedDB (create the object store first)
+state.storage.registerMigrations([(db) =&gt; db.createObjectStore('keyval')]);
 state.storage.set('keyval', 'count', store.get('count'));
 </view-code>
 <h2 id="next-steps">Next Steps</h2>

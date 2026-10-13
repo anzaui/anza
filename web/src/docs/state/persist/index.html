@@ -1,11 +1,16 @@
 <h1 id="persist">Persist</h1>
-<p><code>PlatformStorage</code> provides transactional IndexedDB persistence for reactive state. It supports schema migrations, TTL-based expiry, and automatic eviction when storage quota exceeds 80%.</p>
+<p><code>PlatformStorage</code> provides transactional IndexedDB persistence for reactive state. It supports schema migrations, a per-record TTL, and eviction when storage usage exceeds 80% of quota.</p>
+<p><code>PlatformStorage</code> creates no object stores on its own. Register a migration that creates the stores you use (for example <code>keyval</code>) before the first read or write. See <a href="#schema-migrations">Schema Migrations</a>.</p>
 <p>This is <strong>not</strong> the tiered <code>@anzaui/anza/storage</code> facade. Prefer <code>state.storage</code> for hydrating <code>state.create</code> stores; use the storage package for general KV, OPFS, and Cache API. Give each a distinct DB name if both are open (see <a href="/docs/storage/troubleshooting">Troubleshooting</a>).</p>
 <h2 id="bridge-pattern">Bridge pattern</h2>
 <p>Hydrate a store from IndexedDB, then persist on change. Prefer this over inventing a second persistence layer with <code>@anzaui/anza/storage</code> for the same keys.</p>
 <view-code language="javascript">import { state } from '@anzaui/anza/state';
 
 const store = state.create({ user: null });
+const ctrl = new AbortController();
+
+// Create the 'keyval' object store on first open
+state.storage.registerMigrations([(db) =&gt; db.createObjectStore('keyval')]);
 
 // Boot
 const saved = await state.storage.get('keyval', 'user');
@@ -38,36 +43,36 @@ await state.storage.delete('keyval', 'user');
 <h3 id="api-surface-at-a-glance">API surface at a glance</h3>
 <div class="table-wrap"><table><thead><tr><th>Call</th><th>Role</th></tr></thead><tbody>
 <tr><td><code>set(storeName, key, value, { ttl? })</code></td><td>Persist or update a record</td></tr>
-<tr><td><code>get(storeName, key)</code></td><td>Read one record (expired entries resolve to <code>null</code>)</td></tr>
+<tr><td><code>get(storeName, key)</code></td><td>Read one record (<code>null</code> if missing)</td></tr>
 <tr><td><code>delete(storeName, key)</code></td><td>Remove one record</td></tr>
 <tr><td><code>query(storeName, predicate?)</code></td><td>Read all records and filter in JS</td></tr>
 <tr><td><code>registerMigrations([...])</code></td><td>Define sequential schema upgrades before first open</td></tr>
 <tr><td><code>setDatabaseName(name)</code></td><td>Isolate the DB name before first open</td></tr>
 <tr><td><code>persist()</code> / <code>isPersisted()</code></td><td>Ask the browser for persistent storage</td></tr>
+<tr><td><code>estimate()</code></td><td><code>navigator.storage.estimate()</code>, or <code>{ quota: 0, usage: 0 }</code></td></tr>
+<tr><td><code>open()</code></td><td>Open the database (called for you by the other methods)</td></tr>
 </tbody></table></div>
 <h2 id="schema-migrations">Schema Migrations</h2>
 <p>Register migration functions before opening the database:</p>
 <view-code language="javascript">state.storage.registerMigrations([
   (db, tx) =&gt; {
-    // Version 1 -&gt; 2
-    db.createObjectStore('settings');
+    // Version 0 -&gt; 1 (new database)
+    db.createObjectStore('keyval');
   },
   (db, tx) =&gt; {
-    // Version 2 -&gt; 3
-    db.createObjectStore('sessions');
+    // Version 1 -&gt; 2
+    db.createObjectStore('settings');
   }
 ]);
 </view-code>
-<p>Migrations run sequentially inside <code>onupgradeneeded</code>. Each function corresponds to one version step.</p>
+<p>Migrations run in order inside <code>onupgradeneeded</code>. Function <code>i</code> upgrades the database to version <code>i + 1</code>, so the database version equals the number of migrations. Only the steps above the stored version run.</p>
 <p>Call <code>registerMigrations()</code> before any <code>get()</code> / <code>set()</code> opens IndexedDB. Once the first connection is live, changing the migration list in the same session will not re-run already-open upgrades.</p>
 <h2 id="ttl">TTL</h2>
-<view-code language="javascript">// Cache for 60 seconds
+<view-code language="javascript">// Mark the record as expiring in 60 seconds
 await state.storage.set('keyval', 'token', 'abc123', { ttl: 60000 });
-
-// After expiry, get returns null
-await state.storage.get('keyval', 'token'); // null if expired
 </view-code>
-<p>TTL is stored on the record envelope alongside <code>lastAccessed</code>. Reads unwrap the record value for you, so consumers only see the stored payload or <code>null</code>.</p>
+<p>The expiry time is stored on the record envelope next to <code>lastAccessed</code>. <code>get()</code> does not check it: an expired record is still returned until it is removed. Expired records are deleted only by quota eviction (below). If you need strict expiry, store your own timestamp in the value and check it after reading.</p>
+<p>Reads unwrap the envelope, so <code>get()</code> returns the stored value or <code>null</code>.</p>
 <h2 id="quota-aware-eviction">Quota-Aware Eviction</h2>
 <p>When storage usage exceeds 80% of quota:</p>
 <ol>

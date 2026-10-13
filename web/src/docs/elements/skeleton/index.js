@@ -7,6 +7,6 @@ page('/docs/elements/skeleton', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Skeleton — Anza',
-    description: 'ui-skeleton — loading placeholder with reduced-motion-aware shimmer.'
+    description: 'ui-skeleton: loading placeholder with block, text and circle shapes and a pulse that pauses under reduced motion.'
   }
 }, import.meta.url);

@@ -1,0 +1,118 @@
+<h1 id="element-factory">element() factory</h1>
+<p><code>element(tag, spec, base)</code> turns a spec object into a custom element class and registers it. <code>page()</code>, <code>dock()</code>, <code>view()</code> and <code>part()</code> translate their config into an <code>element()</code> spec, so everything on this page applies to them too.</p>
+<h2 id="signature">Signature</h2>
+<view-code language="javascript">import { element } from '@anzaui/anza/ui';
+
+element(tag, spec, base);
+element({ tag, ...spec }, base); // single-object form; `name` also works for the tag
+</view-code>
+<div class="table-wrap"><table><thead><tr><th>Argument</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>tag</code></td><td>string</td><td>yes</td><td>Custom element tag. It must contain a hyphen.</td></tr>
+<tr><td><code>spec</code></td><td>object</td><td>yes</td><td>Element definition (see below).</td></tr>
+<tr><td><code>base</code></td><td>string</td><td>for relative files</td><td><code>import.meta.url</code> of the calling module.</td></tr>
+</tbody></table></div>
+<p><code>element()</code> returns nothing. When the tag is already defined it returns without a warning. Only <a href="#define"><code>define()</code></a> warns about duplicates.</p>
+<h2 id="spec-shape">Spec shape</h2>
+<view-code language="javascript">element('my-widget', {
+  template: '&lt;p ref="text"&gt;&lt;/p&gt;',     // HTML string or path to an .html file
+  style: ':host { display: block; }', // CSS string, .css path, or an array of both
+  eager: false,                       // true: fetch file resources at define time
+
+  props: {
+    count: { type: Number, default: 0 },
+    active: { type: Boolean, state: true } // `state` needs `form: true`
+  },
+
+  mount(ctx) {},    // after the template is in the shadow root
+  unmount(ctx) {},  // on disconnect
+  update(ctx) {},   // once per changed prop per flush
+
+  methods: {
+    refresh() {}    // installed on the prototype; `this` is the element
+  },
+
+  form: true,       // form-associated: attaches ElementInternals
+  associated(form) {},
+  disabled(value) {},
+  reset() {},
+  restore(state, mode) {}
+}, import.meta.url);
+</view-code>
+<div class="table-wrap"><table><thead><tr><th>Field</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>template</code></td><td>HTML string, or a path ending in <code>.html</code> (or starting with <code>./</code> or <code>/</code>). Only a string: the <code>{ html, css }</code> object form belongs to <code>page</code>/<code>dock</code>/<code>view</code>/<code>part</code>.</td></tr>
+<tr><td><code>style</code></td><td>CSS string, path ending in <code>.css</code>, or an array mixing both.</td></tr>
+<tr><td><code>eager</code></td><td><code>true</code> starts fetching file resources when the element is defined.</td></tr>
+<tr><td><code>props</code></td><td>Reactive properties. See <a href="/docs/ui/props">Props</a>.</td></tr>
+<tr><td><code>mount</code>, <code>unmount</code>, <code>update</code></td><td>Lifecycle hooks. See <a href="/docs/ui/lifecycle">Lifecycle</a>.</td></tr>
+<tr><td><code>methods</code></td><td>Prototype methods. Reserved names are skipped with a warning.</td></tr>
+<tr><td><code>form</code></td><td><code>true</code> makes the element form-associated. See <a href="/docs/ui/form-associated">Form-associated elements</a>.</td></tr>
+<tr><td><code>associated</code>, <code>disabled</code>, <code>reset</code>, <code>restore</code></td><td>Form callbacks, called with <code>this</code> = element.</td></tr>
+</tbody></table></div>
+<p><code>update</code> runs in a microtask by default. Set <code>update.visual = true</code> to run it in the next animation frame instead. <code>view()</code> and <code>page()</code> set it for you.</p>
+<h2 id="resource-loading">Resource loading</h2>
+<p>Inline strings compile when the element is defined. File resources work like this:</p>
+<ul>
+<li><strong>Lazy by default.</strong> Nothing is fetched until the first instance connects. Defining many elements costs no requests.</li>
+<li><strong><code>eager: true</code></strong> starts the fetch at define time, for an element you know renders right away.</li>
+<li><strong>Parallel.</strong> The styles, the template and the template's <code>.tags.json</code> descriptor load in parallel.</li>
+<li><strong>Once per URL.</strong> Concurrent loads share one request. A loaded asset is cached for every element that uses the same URL. A failed load is not cached.</li>
+<li><strong>Inlined in production.</strong> <code>anza build</code> puts relative style and template files into the module itself, so production elements make no requests for them. See <a href="/docs/ui/templates#build-time-inlining">Templates</a>.</li>
+<li><strong>Pre-rendered elements mount first.</strong> An element that adopted a Declarative Shadow DOM root wires up and runs <code>mount</code> before any fetch. In a built app it does not request what the DSD already carries. See <a href="/docs/ui/hydration">Hydration (DSD adopt)</a>.</li>
+</ul>
+<p>A relative path without <code>base</code> cannot be resolved. The factory logs <code>[Native UI] &lt;tag&gt; template "./x.html" is relative but no base was given</code> and then treats the path as inline text. Root-absolute paths (<code>/styles/card.css</code>) resolve against the deploy base without <code>base</code>.</p>
+<p>A file that fails to load logs <code>Failed to load template resource …</code> and the element mounts with what did load (an empty shadow root when the template is missing). Later instances of the same element reuse that result until the page reloads.</p>
+<h2 id="stylesheets">Stylesheets</h2>
+<p>When the browser supports constructable stylesheets, each CSS file or string becomes one <code>CSSStyleSheet</code> shared by every instance through <code>adoptedStyleSheets</code>. Otherwise the CSS is added as a <code>&lt;style&gt;</code> element in each shadow root.</p>
+<h2 id="hmr">HMR</h2>
+<p><code>anza dev</code> injects a client that listens to the dev server and dispatches window events:</p>
+<div class="table-wrap"><table><thead><tr><th>Event</th><th><code>detail</code></th><th>Effect</th></tr></thead><tbody>
+<tr><td><code>anza:hmr:css</code></td><td><code>{ path, css }</code></td><td>The shared sheet of every element whose style URL matches <code>path</code> is replaced with <code>replaceSync(css)</code>. Instances keep their DOM.</td></tr>
+<tr><td><code>anza:hmr:html</code></td><td><code>{ path, html }</code></td><td>The template is recompiled. Every live instance runs <code>unmount</code>, gets a fresh clone and runs <code>mount</code> again.</td></tr>
+</tbody></table></div>
+<p>JavaScript changes reload the page. Only file resources hot-swap; inline strings change with the module.</p>
+<h2 id="shadow-dom">Shadow DOM</h2>
+<p>Every element gets an open shadow root. Do not set <code>mode: 'closed'</code>: the factory reads <code>el.shadowRoot</code> after construction, which is <code>null</code> for a closed root. Light DOM (<code>shadow: false</code> in the definition layer) is not supported; it logs a warning and uses an open root.</p>
+<h2 id="reserved-names">Reserved names</h2>
+<p>These names are skipped in <code>spec.methods</code>, with a warning:</p>
+<ul>
+<li><code>connectedCallback</code>, <code>disconnectedCallback</code>, <code>attributeChangedCallback</code></li>
+<li><code>adoptedCallback</code>, <code>formAssociatedCallback</code>, <code>formDisabledCallback</code></li>
+<li><code>formResetCallback</code>, <code>formStateRestoreCallback</code></li>
+<li><code>mount</code>, <code>unmount</code>, <code>constructor</code></li>
+</ul>
+<p>Names that already exist on the element prototype are skipped too.</p>
+<h2 id="define">define()</h2>
+<p><code>define(tag, Class)</code> registers a class you wrote yourself. It warns and skips when the tag is already defined, and does nothing when <code>customElements</code> is missing.</p>
+<view-code language="javascript">import { define } from '@anzaui/anza/ui';
+
+class HelloBanner extends HTMLElement {}
+
+define('hello-banner', HelloBanner);
+define('hello-banner', HelloBanner); // warns: already registered, skipped
+</view-code>
+<h2 id="baseelement">BaseElement</h2>
+<p>The generated class extends <code>BaseElement</code>. You can extend it yourself for an imperative element:</p>
+<ul>
+<li><code>connectedCallback</code> creates <code>this.ctrl</code> (an <code>AbortController</code>) and calls <code>this.mount()</code>. A rejected <code>mount()</code> promise is logged.</li>
+<li><code>disconnectedCallback</code> calls <code>this.unmount()</code>, then aborts <code>this.ctrl</code>.</li>
+</ul>
+<view-code language="javascript">import { BaseElement } from '@anzaui/anza/ui';
+
+class ChartWidget extends BaseElement {
+  mount() {
+    window.addEventListener('resize', () =&gt; this.draw(), { signal: this.ctrl.signal });
+    this.draw();
+  }
+
+  draw() {
+    this.textContent = `${window.innerWidth}px`;
+  }
+}
+
+customElements.define('chart-widget', ChartWidget);
+</view-code>
+<h2 id="related">Related</h2>
+<ul>
+<li><a href="/docs/elements">Elements</a>: the shipped <code>ui-*</code> elements, all built with <code>element()</code>.</li>
+<li><a href="/docs/elements/overlay">Overlay patterns</a>: popover and dialog elements.</li>
+</ul>

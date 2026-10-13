@@ -10,10 +10,11 @@ store.set('count', store.get('count') + 1);
 store.set('count', store.get('count'));
 </view-code>
 <h2 id="derived-value-stale">Derived value stale</h2>
-<p><strong>Cause:</strong> The derived value was not accessed after a dependency changed.</p>
-<p><strong>Fix:</strong> Derived values recompute lazily. Access <code>.value</code> after changes:</p>
+<p><strong>Cause:</strong> The value was read in the same synchronous block as the write. Store notifications run in a microtask, so the derived value is not yet marked dirty.</p>
+<p><strong>Fix:</strong> Read <code>.value</code> after the microtask, for example in a subscriber:</p>
 <view-code language="javascript">store.set('count', 5);
-console.log(doubled.value); // forces recompute
+await Promise.resolve();
+console.log(doubled.value); // 10
 </view-code>
 <h2 id="memory-leak-with-subscribers">Memory leak with subscribers</h2>
 <p><strong>Cause:</strong> Subscribers never removed.</p>
@@ -34,24 +35,15 @@ store.broadcast('app-sync', ['theme']);
 store.broadcast('app-sync', ['theme']);
 </view-code>
 <p>Private browsing may disable <code>BroadcastChannel</code>.</p>
-<h2 id="indexeddb-blocked">IndexedDB blocked</h2>
-<p><strong>Cause:</strong> Another tab has the database open with an older version.</p>
-<p><strong>Fix:</strong> Listen for the <code>storage:blocked</code> event:</p>
-<view-code language="javascript">window.addEventListener('storage:blocked', () =&gt; {
-  console.warn('IDB upgrade blocked — close other tabs');
-});
+<h2 id="notfounderror-from-statestorage"><code>NotFoundError</code> from <code>state.storage</code></h2>
+<p><strong>Cause:</strong> The object store does not exist. <code>PlatformStorage</code> creates no stores by itself.</p>
+<p><strong>Fix:</strong> Register a migration that creates it before the first read or write:</p>
+<view-code language="javascript">state.storage.registerMigrations([(db) =&gt; db.createObjectStore('keyval')]);
 </view-code>
-<h2 id="ttl-entries-returning-null">TTL entries returning null</h2>
-<p><strong>Cause:</strong> Entry expired between set and get.</p>
-<p><strong>Fix:</strong> Check timestamps. TTL is in milliseconds:</p>
-<view-code language="javascript">// Correct — 60 seconds
-await state.storage.set('keyval', 'token', data, { ttl: 60000 });
-
-// Wrong — 60 is 60 milliseconds
-await state.storage.set('keyval', 'token', data, { ttl: 60 });
-</view-code>
+<h2 id="expired-records-still-returned">Expired records still returned</h2>
+<p><strong>Cause:</strong> <code>state.storage.get()</code> does not check the TTL. Expired records are removed only by quota eviction.</p>
+<p><strong>Fix:</strong> Store your own expiry timestamp in the value and check it after reading. TTL values are in milliseconds.</p>
 <h2 id="still-stuck">Still stuck?</h2>
 <p>Inspect store state:</p>
 <view-code language="javascript">console.log(store.snapshot());
-console.log('Subscribers:', doubled['#listeners']); // not exposed — use subscribe instead
 </view-code>

@@ -1,36 +1,36 @@
 <h1 id="design-tokens">Design Tokens</h1>
-<p>Anza implements a minimal design token architecture based on CSS custom properties. This system defines variables for base values (primitives), registers animatable variables via Houdini (registered), and maps them to themes and transitions (semantic).</p>
+<p>Anza's design tokens are CSS custom properties in three layers: base values (primitives), typed <code>@property</code> registrations so they can animate (registered), and theme and transition mappings (semantic). <code>tokens/index.css</code> imports them in that order.</p>
 <h2 id="token-architecture">Token Architecture</h2>
 <p>The token system is structured into three layers:</p>
 <view-code language="text">[Primitives]   -&gt; Raw, immutable design constants (e.g., base colors, timings, fonts)
      |
-[Registered]   -&gt; Houdini typed declarations enabling GPU-accelerated theme morphing
+[Registered]   -&gt; Typed @property declarations so tokens can animate
      |
 [Semantic]     -&gt; Intent-based mappings for Light, Dark, High-Contrast, and Transitions
 </view-code>
 <h3 id="1-primitives">1. Primitives</h3>
-<p>Primitives define the baseline design values inside <code>/src/tokens/primitives/</code>:</p>
+<p>Primitives define the base values in <code>tokens/primitives/</code>:</p>
 <ul>
-<li><strong><code>colors.css</code></strong>: Defines raw black, white, gray scales (<code>--gray-100</code> to <code>--gray-900</code>), and a base brand accent (<code>--brand</code>).</li>
-<li><strong><code>motion.css</code></strong>: Configures fast/normal durations (<code>--duration-normal</code>) and default easing curves (<code>--ease-out</code>).</li>
-<li><strong><code>spacing.css</code></strong>: Sets a standard 4px numeric increment grid (<code>--space-0</code> to <code>--space-4</code>).</li>
+<li><strong><code>colors.css</code></strong>: Defines <code>--color-white</code>, <code>--color-black</code>, four grays (<code>--gray-100</code>, <code>--gray-200</code>, <code>--gray-800</code>, <code>--gray-900</code>) and a brand accent (<code>--brand</code>).</li>
+<li><strong><code>motion.css</code></strong>: Defines two durations (<code>--duration-fast</code>, <code>--duration-normal</code>) and three easing curves (<code>--ease-in</code>, <code>--ease-out</code>, <code>--ease-in-out</code>).</li>
+<li><strong><code>spacing.css</code></strong>: Defines <code>--space-0</code>, <code>--space-px</code> (1px) and <code>--space-2</code> to <code>--space-8</code> (0.5rem to 2rem; there is no <code>--space-1</code> or <code>--space-7</code>).</li>
 <li><strong><code>typography.css</code></strong>: Sets standard font sizes (<code>--font-size-base</code> to <code>--font-size-3xl</code>), font weights, and line heights.</li>
 </ul>
 <h3 id="2-registered">2. Registered</h3>
-<p>Registered tokens use Houdini <code>@property</code> rules in <code>/src/tokens/registered/</code> to define types, inheritance, and initial values. This allows browsers to animate variables smoothly:</p>
+<p>Registered tokens use <code>@property</code> rules in <code>tokens/registered/</code> to declare types, inheritance and initial values, so browsers can animate them:</p>
 <ul>
 <li><strong><code>colors.css</code></strong>: Registers the core semantic color variables (e.g., <code>--color-surface-page</code>, <code>--color-content-primary</code>, <code>--color-border-default</code>, <code>--color-interactive</code>).</li>
 <li><strong><code>dimensions.css</code></strong>: Registers transition-specific properties (e.g., <code>--transition-duration</code>, <code>--transition-offset</code>).</li>
 </ul>
 <h3 id="3-semantic--themes">3. Semantic &amp; Themes</h3>
-<p>Semantic tokens map primitive choices to specific intents and themes in <code>/src/tokens/semantic/</code>:</p>
+<p>Semantic tokens map primitives to intents and themes in <code>tokens/semantic/</code>:</p>
 <ul>
-<li><strong><code>light.css</code></strong>: Default Light theme mappings (e.g., <code>--color-surface-page</code> maps to white).</li>
-<li><strong><code>dark.css</code></strong>: Dark theme overrides applied under <code>[data-theme="dark"]</code> or matching user preferences.</li>
-<li><strong><code>contrast.css</code></strong>: WCAG AAA compliant high-contrast overrides applied under <code>[data-theme="high-contrast"]</code>.</li>
+<li><strong><code>light.css</code></strong>: Default light theme on <code>:root</code> (e.g., <code>--color-surface-page</code> maps to white).</li>
+<li><strong><code>dark.css</code></strong>: Dark overrides under <code>[data-theme="dark"]</code>, and under <code>prefers-color-scheme: dark</code> unless <code>data-theme="light"</code> is set.</li>
+<li><strong><code>contrast.css</code></strong>: High-contrast overrides under <code>[data-theme="high-contrast"]</code>.</li>
 </ul>
 <h2 id="view-transition-tokens">View Transition Tokens</h2>
-<p>Swap transitions between layout docks and pages are controlled via dedicated variables in <code>/src/tokens/semantic/transitions.css</code>:</p>
+<p>Dock and page swap transitions read these variables from <code>tokens/semantic/transitions.css</code>:</p>
 <view-code language="css">:root {
   --transition-duration: var(--duration-normal);
   --transition-easing: var(--ease-out);
@@ -41,15 +41,17 @@
   --transition-bg: var(--color-surface-page);
 }
 </view-code>
-<p>The transitions engine uses these values to drive the slide and fade animations when swapping routing views.</p>
+<p>The same file styles the <code>::view-transition-old/new()</code> groups of the docks (<code>dock-main</code>, <code>dock-docs</code>, <code>dock-content</code>, <code>dock-swap</code>) with a fade-out and a slide-in. The UI transition code reads <code>--transition-push</code>, <code>--transition-pop</code> and <code>--transition-replace</code> for the easing of each navigation direction. Under <code>prefers-reduced-motion: reduce</code> the duration is <code>0ms</code>.</p>
 <h2 id="customizing-token-values">Customizing Token Values</h2>
-<p>All Anza system styles (including layout base styles and view transitions) reference values using CSS custom properties. Because these are standard custom properties, the actual variable names and values can be overridden, deleted, or mapped to the user's own naming conventions.</p>
-<h3 id="graceful-fallbacks">Graceful Fallbacks</h3>
-<p>System styles include default fallback values. If a user deletes the library's default variable declarations from their styles, the system falls back to base defaults:</p>
-<view-code language="css">/* Example of library internal base.css using custom properties with fallbacks */
+<p>The library's base styles and view transitions read these custom properties, so you can override them or map them to your own names.</p>
+<h3 id="fallbacks">Fallbacks</h3>
+<p><code>styles/base.css</code> gives the typography tokens fallback values, so text still renders without the token files. Colors have no fallbacks: the body reads the <code>--background</code> and <code>--text-color</code> aliases that the light and dark themes define.</p>
+<view-code language="css">/* From the library's styles/base.css (inside @layer base) */
 body {
-  background-color: var(--color-surface-page, #ffffff);
-  color: var(--color-content-primary, #111111);
+  background-color: var(--background);
+  color: var(--text-color);
+  font-weight: var(--font-weight-regular, 400);
+  line-height: var(--line-height-normal, 1.5);
 }
 </view-code>
 <h3 id="customizing-via-overrides">Customizing via Overrides</h3>
@@ -77,4 +79,4 @@ body {
   --color-content-primary: var(--app-text);
 }
 </view-code>
-<p>This mapping allows you to maintain full control over the variable names in your application stylesheet while ensuring the library's layout and transition engines receive the correct values.</p>
+<p>Your stylesheet keeps its own names, and the library's styles still receive the values.</p>

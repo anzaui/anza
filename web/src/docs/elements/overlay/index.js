@@ -6,7 +6,7 @@ page('/docs/elements/overlay', {
   template: { html: './index.html' },
   style: ['/styles/shared.css'],
   seo: {
-    title: 'Overlay — Anza',
-    description: 'Overlay kit patterns: native popover/menu and dialog/drawer/sheet top-layer, tooltip escapeOverflow, toast body portal.'
+    title: 'Overlay patterns — Anza',
+    description: 'How the overlay elements share the top layer: popover vs dialog, the Popover polyfill, guard.escape for custom floats, and cleanup.'
   }
 }, import.meta.url);

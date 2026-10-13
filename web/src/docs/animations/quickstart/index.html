@@ -56,7 +56,7 @@ animations.animate(el, 'bounce');
   animations.animate(el, 'fade', { duration: 300 });
 }
 </view-code>
-<p>This checks <code>prefers-reduced-motion: reduce</code> automatically.</p>
+<p><code>reduced()</code> reads <code>prefers-reduced-motion: reduce</code>. <code>animate()</code> does not check it, so gate animations yourself.</p>
 <h2 id="6-read-css-tokens">6. Read CSS Tokens</h2>
 <view-code language="javascript">const dur = animations.duration('slow');   // e.g. 300
 const easing = animations.ease('spring');    // e.g. cubic-bezier(...)

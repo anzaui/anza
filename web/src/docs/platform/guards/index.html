@@ -106,7 +106,7 @@ async function bindHint(host, tip, wrapper) {
 <view-code language="javascript">const sanitizer = await guard.sanitizer();
 const clean = sanitizer.sanitizeToString('&lt;p&gt;Safe&lt;/p&gt;');
 </view-code>
-<p>Returns a sanitizer wrapper with <code>.sanitizeToString(input)</code>. Uses the native <code>Sanitizer</code> API when available, falls back to <code>DOMPurify</code> or a textContent-based sanitizer.</p>
+<p>Returns a wrapper with <code>.sanitizeToString(input)</code>. Uses a global <code>DOMPurify</code> if the page has loaded one; otherwise it escapes the input as text, so no markup survives. It does not use the native <code>Sanitizer</code> API.</p>
 <h2 id="scheduler">scheduler</h2>
 <view-code language="javascript">const scheduler = await guard.scheduler();
 scheduler.postTask(fn, { priority: 'user-visible' });
@@ -115,7 +115,7 @@ scheduler.postTask(fn, { priority: 'user-visible' });
 <h2 id="yield">yield</h2>
 <view-code language="javascript">await guard.yield();
 </view-code>
-<p>Yields execution control back to the event loop. Equivalent to <code>scheduler.yield()</code> when available, otherwise falls back to <code>setTimeout(..., 0)</code>.</p>
+<p>Calls <code>scheduler.yield()</code> on the native scheduler or the polyfill. The polyfill resumes in a new task at the current priority. Browsers with a native <code>scheduler.postTask</code> but no <code>scheduler.yield</code> do not get the polyfill, so <code>guard.yield()</code> throws there; check <code>supports.schedulerYield</code> first if you target them.</p>
 <p>Use inside heavy loops to prevent UI freezing:</p>
 <view-code language="javascript">for (let i = 0; i &lt; 10000; i++) {
   process(i);
@@ -128,5 +128,5 @@ scheduler.postTask(fn, { priority: 'user-visible' });
 <li><a href="/docs/platform/supports">Supports</a> (<code>popoverAPI</code>, <code>anchorPositioning</code>)</li>
 <li><a href="/docs/elements/overlay">Overlay patterns</a></li>
 <li><a href="/docs/elements/tooltip">Tooltip</a></li>
-<li><a href="/docs/ui/advanced">Memory safety &amp; framework globals</a></li>
+<li><a href="/docs/ui/lifecycle#memory-safety">Memory safety &amp; framework globals</a></li>
 </ul>

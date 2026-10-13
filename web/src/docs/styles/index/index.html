@@ -18,7 +18,7 @@
 </view-code>
 <h2 id="multiple--shared-stylesheets">Multiple &amp; Shared Stylesheets</h2>
 <p>Definitions for <code>view()</code>, <code>dock()</code>, and <code>page()</code> accept an array of styles. This is useful for combining common utility or theme sheets with element-specific layouts.</p>
-<p>Additionally, stylesheets can be loaded from any folder in the project, using either relative paths (<code>../</code>) or root-relative absolute paths starting with <code>/</code> (e.g., <code>/styles/shared.css</code>). The compiler automatically resolves these paths, mirrors the files into <code>dist/</code>, and registers them for preloading.</p>
+<p>Stylesheets can live in any folder of the project. Use a relative path (<code>./</code>, <code>../</code>), resolved against the module URL you pass as the third argument, or a root-relative path starting with <code>/</code> (e.g., <code>/styles/shared.css</code>), resolved against the site root and the deploy base.</p>
 <h3 id="array-of-inline-styles">Array of Inline Styles</h3>
 <view-code language="javascript">view('themed-button', {
   template: '&lt;button&gt;&lt;slot&gt;&lt;/slot&gt;&lt;/button&gt;',
@@ -48,7 +48,8 @@
   }
 }, import.meta.url);
 </view-code>
-<p>When files are referenced, the compiler resolves each relative path independently against the component's file directory (and absolute paths against the project's source root), copies them into <code>dist/</code>, and preloads them in the specified sequence.</p>
+<p>The runtime fetches the files in parallel and applies them in the order you list them. A <code>style</code> field replaces <code>template.css</code>; the two are not merged.</p>
+<p><code>anza build</code> inlines relative, self-contained CSS files into the definition module, so the element needs no extra request. CSS that uses <code>@import</code> or relative <code>url()</code> stays a separate file. <code>anza dev</code> never inlines, so edits and HMR work on the files.</p>
 <h2 id="adopted-stylesheets">Adopted Stylesheets</h2>
 <p>When the browser supports <code>CSSStyleSheet</code> and <code>adoptedStyleSheets</code>:</p>
 <ol>
@@ -64,12 +65,13 @@
 <li>The factory prepends a <code>&lt;style&gt;</code> element containing the CSS text directly inside the shadow root of each instance.</li>
 </ol>
 <h2 id="hot-module-replacement-hmr">Hot Module Replacement (HMR)</h2>
-<p>During development, updates to CSS files trigger HMR events. The dev environment captures stylesheet modifications and updates the cached constructable stylesheet directly:</p>
-<view-code language="javascript">window.dispatchEvent(new CustomEvent('native:hmr:css', {
-  detail: { path: './box.css', css: '/* modified styles */' }
+<p>Under <code>anza dev</code>, saving a component's CSS file dispatches an <code>anza:hmr:css</code> event on <code>window</code>. The element factory listens for it and calls <code>replaceSync()</code> on the shared stylesheet, so every instance updates without a reload:</p>
+<view-code language="javascript">// What the dev client dispatches (you don't call this yourself).
+window.dispatchEvent(new CustomEvent('anza:hmr:css', {
+  detail: { path: 'views/box/style.css', css: '/* new styles */' }
 }));
 </view-code>
-<p>Using <code>replaceSync()</code>, changes are pushed to the live stylesheet instance, updating all active elements on the screen without triggering a full page reload or layout remount.</p>
+<p>Templates work the same way with <code>anza:hmr:html</code> (<code>detail: { path, html }</code>).</p>
 <h2 id="scoped-styles">Scoped Styles</h2>
 <p>Custom elements use Shadow DOM by default, isolating styles to prevent leaks:</p>
 <view-code language="css">/* Scoped to the element's shadow root. Will not affect other DOM nodes */

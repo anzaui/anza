@@ -4,7 +4,7 @@
 <view-code language="javascript">import { state } from '@anzaui/anza/state';
 </view-code>
 <h3 id="statecreateinitial-options"><code>state.create(initial, options)</code></h3>
-<p>Creates a <code>ReactiveStore</code>.</p>
+<p>Creates a <code>ReactiveStore</code>. Options: <code>deep</code> (boolean, default <code>false</code>) and <code>clone</code> (function used by <code>snapshot()</code>).</p>
 <view-code language="javascript">const store = state.create({ count: 0 }, { deep: false });
 </view-code>
 <h3 id="statederivedcompute"><code>state.derived(compute)</code></h3>
@@ -36,29 +36,37 @@
 <h3 id="synckeys-channelname"><code>sync(keys, channelName)</code></h3>
 <p>Alias for <code>broadcast</code>.</p>
 <h3 id="onmutationcallback"><code>onMutation(callback)</code></h3>
-<p>Register global mutation listener: <code>(key, value, source) =&gt; void</code></p>
+<p>Set the store's mutation listener: <code>(key, value, source) =&gt; void</code>. A store holds one listener; <code>broadcast</code> and <code>sync</code> replace it.</p>
+<h3 id="derivedkeys-compute"><code>derived(keys, compute)</code></h3>
+<p>Same as <code>state.derived(compute)</code>. <code>keys</code> is ignored; dependencies are tracked from the reads. <code>derived(compute)</code> also works.</p>
 <h2 id="derivedvalue">DerivedValue</h2>
 <h3 id="value"><code>value</code></h3>
 <p>Lazy getter. Recomputes if dirty.</p>
 <h3 id="subscribecallback"><code>subscribe(callback)</code></h3>
-<p>Notify when value changes. Returns disposer.</p>
+<p>Called with no arguments when a dependency changes and the value becomes dirty. Returns disposer.</p>
 <h3 id="dispose"><code>dispose()</code></h3>
 <p>Clean up all subscriptions.</p>
 <h2 id="platformstorage">PlatformStorage</h2>
 <h3 id="setdatabasenamename"><code>setDatabaseName(name)</code></h3>
 <p>Configure database name before first use.</p>
 <h3 id="registermigrationsmigrations"><code>registerMigrations(migrations)</code></h3>
-<p>Register schema migration functions.</p>
+<p>Register schema migration functions <code>(db, tx) =&gt; void</code>. Function <code>i</code> upgrades to version <code>i + 1</code>. No object store exists until a migration creates it.</p>
 <h3 id="getstorename-key"><code>get(storeName, key)</code></h3>
 <p>Read a record.</p>
 <h3 id="setstorename-key-value-options"><code>set(storeName, key, value, options)</code></h3>
-<p>Write a record. Options: <code>{ ttl }</code>.</p>
+<p>Write a record. Options: <code>{ ttl }</code> (milliseconds). <code>get</code> does not check the TTL; expired records are removed only by quota eviction.</p>
 <h3 id="deletestorename-key"><code>delete(storeName, key)</code></h3>
 <p>Remove a record.</p>
 <h3 id="querystorename-filterfn"><code>query(storeName, filterFn)</code></h3>
 <p>Filter records by predicate.</p>
+<h3 id="open"><code>open()</code></h3>
+<p>Open the database. The other methods call it for you.</p>
+<h3 id="estimate"><code>estimate()</code></h3>
+<p>Returns <code>navigator.storage.estimate()</code>, or <code>{ quota: 0, usage: 0 }</code> when unavailable.</p>
 <h3 id="persist"><code>persist()</code></h3>
-<p>Request persistent storage.</p>
+<p>Request persistent storage. Resolves to a boolean.</p>
+<h3 id="ispersisted"><code>isPersisted()</code></h3>
+<p>Whether the origin's storage is persistent.</p>
 <h2 id="named-exports">Named Exports</h2>
 <view-code language="javascript">import {
   ReactiveStore,

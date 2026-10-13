@@ -6,8 +6,29 @@ the cache write goes to <code>event.waitUntil()</code> so the worker stays alive
 finishes. Call <code>handle(request, event)</code> the same way from your own code.
 Strategies never intercept event streams (<code>Accept: text/event-stream</code>) or the
 dev server's <code>/hmr</code> channel.</p>
+<h2 id="what-is-never-cached">What is never cached</h2>
+<p>A strategy stores a response only if the request is <code>GET</code> and the response is OK (2xx). It also skips:</p>
+<div class="table-wrap"><table><thead><tr><th>Condition</th><th>Why</th></tr></thead><tbody>
+<tr><td>Response <code>Cache-Control</code> contains <code>no-store</code> or <code>private</code></td><td>The server says the response is not shareable</td></tr>
+<tr><td>Response <code>Vary: *</code></td><td>The response cannot be matched safely</td></tr>
+<tr><td>Request has an <code>Authorization</code> header</td><td>Per-user data</td></tr>
+<tr><td>Request is cross-origin with <code>credentials: 'include'</code></td><td>Per-user data (cookies)</td></tr>
+</tbody></table></div>
+<p>The response is still returned to the page. It is just not written to the cache. Cache entries outlive a logout, so mark per-user API responses <code>Cache-Control: private</code> or <code>no-store</code>, even if they use cookies on your own origin.</p>
+<h2 id="clear-caches-on-logout">Clear caches on logout</h2>
+<p>Same-origin requests sent with cookies are cached unless the response forbids it. Delete the caches when the user logs out, from the page or the worker:</p>
+<view-code language="javascript">import { offline } from '@anzaui/anza/offline';
+
+async function logout() {
+  await fetch('/api/logout', { method: 'POST' });
+  const keys = await caches.keys();
+  await Promise.all(keys.map((key) =&gt; caches.delete(key)));
+  await offline.queue.clear(); // queued requests keep their headers
+}
+</view-code>
+<p><code>caches</code> is the browser's Cache Storage API. <code>offline.queue.clear()</code> empties the <a href="/docs/sw/sync">Sync</a> queue, whose tasks store request headers in IndexedDB.</p>
 <h2 id="cachefirst">CacheFirst</h2>
-<p>Tries cache first. Falls back to network on miss. Stores the network response in cache.</p>
+<p>Tries cache first. Falls back to network on a miss or an expired entry, and stores the network response. If the network fails, an expired entry is still returned.</p>
 <view-code language="javascript">import { CacheFirst } from '@anzaui/anza/sw';
 
 const strategy = new CacheFirst('shell-v1', { ttl: 3600000 });
@@ -42,7 +63,7 @@ const strategy = new StaleRevalidate('data-v1', { ttl: 300000 });
 
 const strategy = new CacheThenNetwork('live-v1', { ttl: 60000 });
 </view-code>
-<p>After the background fetch completes, the SW sends a <code>cache-update</code> message to every controlled client with the new JSON payload. The main thread can listen for this and refresh the UI.</p>
+<p>After a successful background fetch, the SW posts <code>{ type: 'cache-update', url, payload }</code> to every client. <code>payload</code> is the parsed body for <code>application/json</code> responses, otherwise <code>null</code>. The main thread can listen for this and refresh the UI.</p>
 <h2 id="networkonly">NetworkOnly</h2>
 <p>Never uses cache. Direct pass-through to <code>fetch</code>.</p>
 <view-code language="javascript">import { NetworkOnly } from '@anzaui/anza/sw';
@@ -63,9 +84,9 @@ const strategy = new CacheOnly('offline-v1');
 
 const strategy = new OfflineFallback('/offline.html');
 </view-code>
-<p>Only applies to <code>mode === 'navigate'</code> requests. Non-navigation errors pass through unchanged.</p>
+<p>Only applies to <code>mode === 'navigate'</code> requests. For other requests, or when the page is not cached, <code>handle</code> throws.</p>
 <h2 id="ttl-and-expiry">TTL and Expiry</h2>
-<p>All strategies that cache responses accept a <code>ttl</code> option. The SW stores the response with a custom <code>x-expires-at</code> header. When the entry is older than the TTL, the strategy treats it as a cache miss.</p>
+<p>All strategies that cache responses accept a <code>ttl</code> option. The SW stores the response with a custom <code>x-expires-at</code> header. <code>CacheFirst</code> treats an expired entry as a miss. The other strategies do not check the header when they read from the cache.</p>
 <p>Expired entries are not deleted automatically. Use <code>pruneExpired</code> or <code>setupAutoPrune</code> to clean them up:</p>
 <view-code language="javascript">import { pruneExpired, setupAutoPrune } from '@anzaui/anza/sw';
 

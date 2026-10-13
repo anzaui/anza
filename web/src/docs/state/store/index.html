@@ -8,6 +8,7 @@ const store = state.create({ count: 0 });
 <p>Options:</p>
 <div class="table-wrap"><table><thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>deep</code></td><td>boolean</td><td><code>false</code></td><td>Enable deep reactivity on nested objects</td></tr>
+<tr><td><code>clone</code></td><td>function</td><td>built-in deep clone</td><td>Used by <code>snapshot()</code></td></tr>
 </tbody></table></div>
 <view-code language="javascript">const store = state.create({ user: { name: 'Alice' } }, { deep: true });
 
@@ -17,12 +18,12 @@ store.get('user').name = 'Bob'; // triggers 'user' subscribers
 <h2 id="get">Get</h2>
 <view-code language="javascript">const count = store.get('count');
 </view-code>
-<p>Reading a property via <code>get</code> registers the active subscriber (if any) as a dependency. This is how derived values and reactive contexts know what to watch.</p>
+<p>Reading a property via <code>get</code> registers the key with the active subscriber, if any. This is how derived values know what to watch.</p>
 <h2 id="set">Set</h2>
 <view-code language="javascript">store.set('count', 5);
 store.set('count', 5, 'local'); // with source tag
 </view-code>
-<p>Setting a value to the same reference (via <code>Object.is</code>) is a no-op. Setting a different value schedules a notification.</p>
+<p>Setting a value that is <code>Object.is</code>-equal to the current one does not notify subscribers. Setting a different value schedules a notification in a microtask. Mutating an array or object in place and setting the same reference does not notify; set a new value instead (or use <code>deep: true</code>).</p>
 <p>The <code>source</code> parameter is used by sync to prevent echo loops. <code>'local'</code> means the change originated in this tab.</p>
 <h2 id="subscribe">Subscribe</h2>
 <view-code language="javascript">const off = store.subscribe('count', (val, key, prev) =&gt; {
@@ -31,6 +32,7 @@ store.set('count', 5, 'local'); // with source tag
 
 off(); // unsubscribe
 </view-code>
+<p>The optional third argument is an <code>AbortSignal</code>. Aborting it removes the subscription.</p>
 <div class="table-wrap"><table><thead><tr><th>Param</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>val</code></td><td>New value</td></tr>
 <tr><td><code>key</code></td><td>The key that changed</td></tr>
@@ -43,11 +45,11 @@ off(); // unsubscribe
   store.set('c', 3);
 });
 </view-code>
-<p>Multiple sets inside a batch produce a single microtask notification. Subscribers receive the final values.</p>
+<p>Multiple sets inside a batch produce a single flush. Each subscriber callback runs at most once per flush and receives the final value.</p>
 <h2 id="snapshot">Snapshot</h2>
 <view-code language="javascript">const data = store.snapshot();
 </view-code>
-<p>Returns a deep-cloned copy of the current state. Safe to serialize with <code>JSON.stringify</code>.</p>
+<p>Returns a deep-cloned copy of the current state. Pass <code>{ clone: fn }</code> in the <code>state.create</code> options to use your own clone function.</p>
 <h2 id="hydrate">Hydrate</h2>
 <view-code language="javascript">store.hydrate({ count: 10, user: { name: 'Bob' } });
 </view-code>
@@ -65,4 +67,4 @@ store.sync(['count', 'user'], 'channel-name'); // alias
   console.log('Mutated:', key, value, source);
 });
 </view-code>
-<p>Called on every mutation. Used internally by <code>sync</code> to broadcast changes.</p>
+<p>Called on <code>set()</code> and, with <code>deep: true</code>, on nested mutations. Not called by <code>hydrate()</code> or <code>reset()</code>. A store holds one mutation callback: a later <code>onMutation()</code>, <code>broadcast()</code> or <code>sync()</code> call replaces the earlier one. <code>sync</code> uses it to broadcast changes.</p>

@@ -1,5 +1,5 @@
 <h1 id="transitions">Transitions</h1>
-<p>Anza wraps CSS View Transitions for soft-nav docks and ad-hoc DOM swaps. Dock leaf swaps prefer <strong>element-scoped</strong> VT so chrome (sidebar, header, parent docks) stays stable. When VT is missing, reduced-motion is on, the call opts out, or the API fails, the DOM update still runs as a direct swap.</p>
+<p>Anza wraps View Transitions (VT) for dock swaps and your own DOM updates. Dock swaps use <strong>element-scoped</strong> transitions, so the sidebar, header and parent docks stay out of the snapshot. When VT is missing, reduced motion is on, the call opts out or the API fails, the update still runs as a direct swap.</p>
 <h2 id="soft-nav-docks-main--docs--content">Soft-nav docks (main → docs → content)</h2>
 <p>Nested docks keep chrome mounted; only the leaf dock runs <code>swap</code> / <code>swapView</code>:</p>
 <view-code language="text">dock-main
@@ -7,7 +7,7 @@
         └── dock-doccontent  ← leaf swap + VT group `dock-content`
               └── page-*
 </view-code>
-<p>Default CSS groups: <code>dock-main</code>, <code>dock-docs</code>, <code>dock-content</code> (registry key → <code>dock-&lt;key&gt;</code>). Legacy alias: <code>dock-swap</code>.</p>
+<p>A dock's default <code>view-transition-name</code> is <code>dock-&lt;name&gt;</code>: <code>dock-main</code>, <code>dock-docs</code>, <code>dock-content</code>. A swap host with no dock name falls back to <code>dock-swap</code>.</p>
 <view-code language="javascript">dock('content', {
   parent: 'docs',
   tag: 'dock-doccontent',
@@ -74,7 +74,7 @@ await transitions.run(() =&gt; panel.replaceChildren(next), {
 <tr><td><code>prefers-reduced-motion: reduce</code></td><td>Direct update</td></tr>
 <tr><td><code>transition: false</code> / <code>configureTransitions({ enabled: false })</code></td><td>Direct update</td></tr>
 <tr><td>VT throws / aborts</td><td>Direct update (or skip); names + easing restored</td></tr>
-<tr><td><code>AbortSignal</code> aborted</td><td><code>AbortError</code> before start; in-flight → <code>skipTransition</code></td></tr>
+<tr><td><code>AbortSignal</code> aborted</td><td>Before start: rejects with <code>AbortError</code>. In flight: <code>skipTransition()</code></td></tr>
 </tbody></table></div>
 <p><code>replaceChildren</code> still runs inside the VT <strong>update callback</strong> when VT is used — leaf <code>ctrl.abort()</code> happens at swap time, not after the animation finishes.</p>
 <h2 id="css-control">CSS control</h2>

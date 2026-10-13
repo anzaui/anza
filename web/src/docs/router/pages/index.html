@@ -46,7 +46,7 @@
 <view-code language="javascript">template: { html: './home.html', css: './home.css', shadow: false }
 </view-code>
 <p>Setting <code>shadow: false</code> renders into the light DOM instead of a shadow root.</p>
-<p>For public/indexable pages, build-time SSG still emits the route HTML contract around the page host. Soft-nav continues to fetch only the page fragment (<code>index.html</code> or preserved <code>template.html</code>), not the full SSG document. See <a href="/docs/ssg/contract">SSG contract</a>.</p>
+<p>For public/indexable pages, build-time SSG still emits the route HTML contract around the page host. Soft-nav continues to fetch only the page fragment (<code>index.html</code> or preserved <code>template.html</code>), not the full SSG document. See <a href="/docs/ssg/contract">Page HTML contract (Mode A SSG · Mode B templates)</a>.</p>
 <h3 id="style"><code>style</code></h3>
 <p>Inline CSS string, a file path, or an array containing CSS strings or stylesheet paths (both relative and root-relative starting with <code>/</code>).</p>
 <view-code language="javascript">// Inline CSS
@@ -160,7 +160,26 @@ on: {
   }
 }, import.meta.url);
 </view-code>
-<p>Use <code>ssg.expand</code> only for routes whose concrete param values are known at build time. Unexpanded param patterns stay client-matchable but do not emit <code>dist/&lt;route&gt;/index.html</code>. See <a href="/docs/ssg">SSG overview</a> and the <a href="/docs/ssg/contract">SSG contract</a>.</p>
+<p>Use <code>ssg.expand</code> only for routes whose concrete param values are known at build time. Unexpanded param patterns stay client-matchable but do not emit <code>dist/&lt;route&gt;/index.html</code>. See <a href="/docs/ssg">SSG &amp; SEO</a> and the <a href="/docs/ssg/contract">Page HTML contract (Mode A SSG · Mode B templates)</a>.</p>
+<h3 id="seo"><code>seo</code></h3>
+<p>Build-time <code>&lt;head&gt;</code> fields for the route's SSG page. The build reads them from the source, so use string literals.</p>
+<view-code language="javascript">page('/pricing', {
+  tag: 'page-pricing',
+  via: ['main'],
+  seo: {
+    title: 'Pricing — Acme',
+    description: 'Plans and prices for teams of every size.',
+    image: '/og.png'
+  }
+}, import.meta.url);
+</view-code>
+<div class="table-wrap"><table><thead><tr><th>Field</th><th>Default</th></tr></thead><tbody>
+<tr><td><code>title</code></td><td><code>"{H1} — {Section} — {siteName}"</code></td></tr>
+<tr><td><code>description</code></td><td>The first paragraph of the page HTML</td></tr>
+<tr><td><code>canonical</code></td><td>The route path</td></tr>
+<tr><td><code>image</code></td><td>The site <code>image</code> in <code>ssg.json</code></td></tr>
+</tbody></table></div>
+<p>See <a href="/docs/ssg#simple-mode-a-page-seo">SSG &amp; SEO</a>.</p>
 <h3 id="scaffold--generate">Scaffold / generate</h3>
 <p><code>anza generate page &lt;name&gt;</code> writes <code>index.js</code> + HTML/CSS into a page tree and updates the barrel — it does <strong>not</strong> create error-page files. Fallbacks stay by reference on docks/pages. Layout contract: <a href="/docs/intro/structure">Structure</a>.</p>
 <h3 id="meta"><code>meta</code></h3>

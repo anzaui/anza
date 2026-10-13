@@ -7,6 +7,6 @@ page('/docs/elements/checkbox', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Checkbox — Anza',
-    description: 'ui-checkbox — form-participating tri-state checkbox.'
+    description: 'ui-checkbox: a form-associated checkbox with an indeterminate state, required validation, change events and form reset.'
   }
 }, import.meta.url);

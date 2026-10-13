@@ -7,6 +7,6 @@ page('/docs/elements/avatar', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Avatar — Anza',
-    description: 'ui-avatar — profile picture with image or initials fallback.'
+    description: 'ui-avatar — profile image that falls back to initials from the name, with a size attribute and an automatic aria-label.'
   }
 }, import.meta.url);

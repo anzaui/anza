@@ -7,12 +7,12 @@ at startup; a render walks the pre-split chunks and copies parameter values in.<
 <li><strong>Parse once</strong> — every template under the root is read and split into static chunks and <code>{{slot}}</code> placeholders by <code>Setup::run()</code></li>
 <li><strong>Framework adapters</strong> — <code>IntoResponse</code> (Axum) and <code>Responder</code> (Actix-web) for <code>Document</code> and <code>Envelope</code>, plus SSE helpers</li>
 <li><strong>Serde binding</strong> — render any <code>Serialize</code> value with <code>Template::render</code>, or wrap it in <code>Data(...)</code></li>
-<li><strong>Signing</strong> — HMAC-SHA256 or Ed25519 signatures over <code>ts:slot:html</code></li>
-<li><strong>Watch</strong> — with the <code>watch</code> feature and <code>Setup { watch: true, .. }</code>, edited, added and removed <code>.html</code> templates are reloaded into the cache</li>
+<li><strong>Signing</strong> — HMAC-SHA256 or Ed25519 signatures over the v2 message (see <a href="/docs/engines/contract">Engine Contract</a>), and <code>verify_envelope</code> to check received envelopes</li>
+<li><strong>Watch</strong> — with the <code>watch</code> feature and <code>setup.watch = true</code>, edited, added and removed <code>.html</code> templates are reloaded into the cache</li>
 </ul>
 <h2 id="installation">Installation</h2>
 <view-code language="toml">[dependencies]
-anza = { version = "0.5", features = ["axum"] }
+anza = { version = "0.6", features = ["axum"] }
 tokio = { version = "1", features = ["full"] }
 </view-code>
 <h3 id="feature-flags">Feature Flags</h3>
@@ -74,33 +74,88 @@ struct UserProfile {
 let profile = UserProfile { user_id: "usr_9482".into(), user_name: "Alice".into() };
 let html = engine.get("partials/profile.html")?.render(&amp;profile)?;
 </view-code>
+<p><code>engine.get(name)</code> returns <code>Result&lt;Arc&lt;Template&gt;&gt;</code>, a shared handle to the
+cached template. Lookups only use the cache: a malformed name (leading <code>/</code>,
+<code>\</code>, NUL, or an empty, <code>.</code> or <code>..</code> segment) is a <code>Validation</code> error, and an
+unknown one is <code>NotFound</code>. <code>Template::render</code> converts the value to JSON once
+per render.</p>
 <p><code>Template::bind</code> accepts anything that implements <code>Params</code>: <code>HashMap&lt;String, String&gt;</code>,
 arrays of <code>(&amp;str, &amp;str)</code> pairs, <code>serde_json::Value</code>, or <code>Data(value)</code> for any
 <code>Serialize</code> type.</p>
-<p>Values are inserted <strong>as is, without HTML escaping</strong>. Escape user input before
-passing it in.</p>
+<p>By default, <code>{{name}}</code> and <code>{{{name}}}</code> both insert values <strong>as is, without
+HTML escaping</strong>. Escape user input with <code>anza::escape_html</code> before passing it
+in, or set <code>setup.escape = true</code>: then <code>{{name}}</code> is HTML-escaped (<code>&amp;</code> <code>&lt;</code> <code>&gt;</code>
+<code>"</code> <code>'</code>) and <code>{{{name}}}</code> stays raw. With escaping on, the shell must use
+<code>{{{content}}}</code> so the page HTML isn't escaped.</p>
+<p>Values are stringified the same way in every engine: booleans as
+<code>true</code>/<code>false</code>, integral floats without <code>.0</code>, <code>null</code> as nothing, arrays and
+objects as compact JSON.</p>
 <h2 id="signing-configuration">Signing Configuration</h2>
-<p><code>Setup</code> has public fields (<code>root</code>, <code>signing</code>, <code>watch</code>). Two helpers build the
-signing mode:</p>
+<p><code>Setup::new(root)</code> returns the defaults; set its public fields before <code>run()</code>:</p>
+<div class="table-wrap"><table><thead><tr><th>Field</th><th>Meaning</th><th>Default</th></tr></thead><tbody>
+<tr><td><code>signing</code></td><td><code>SignMode::Hmac</code>, <code>SignMode::Ed25519</code> or <code>SignMode::None</code></td><td><code>None</code></td></tr>
+<tr><td><code>watch</code></td><td>Reload templates on change (feature <code>watch</code>)</td><td><code>false</code></td></tr>
+<tr><td><code>fragments</code></td><td>Allowlist for fragments: exact names, or prefixes ending in <code>/</code> (<code>"fragments/"</code>). Other templates are reported as not found</td><td>empty (all templates)</td></tr>
+<tr><td><code>escape</code></td><td>HTML-escape <code>{{name}}</code> values</td><td><code>false</code></td></tr>
+<tr><td><code>max_template_bytes</code></td><td>Larger template files are a <code>Template</code> error</td><td>1 MiB</td></tr>
+</tbody></table></div>
+<p>Two helpers build the signing mode:</p>
 <view-code language="rust">use anza::{Setup, SignMode};
 
 // HMAC-SHA256 with a shared secret
 let mut setup = Setup::new("./templates");
 setup.signing = Setup::hmac(b"pre-shared-secret-key-32-bytes!!");
 
-// Ed25519: the files hold the raw 32-byte private key and public key
-setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub");
+// Ed25519: the files hold the raw 32-byte private seed and public key.
+// A missing or unreadable file is an error.
+setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub")?;
 
 // No signature (development)
 setup.signing = SignMode::None;
+
+let engine = setup.run()?;
 </view-code>
-<p>The signature is hex-encoded; see <a href="/docs/engines/crypto">Cryptographic Verification</a>.</p>
+<p>Keys are validated once, in <code>run()</code>. An HMAC secret shorter than 32 bytes, an
+Ed25519 private key that is not a 32-byte seed, or a public key that doesn't
+match the seed is a <code>Crypto</code> error at setup, never an unsigned envelope.
+<code>engine.signer()</code> returns the validated key; its <code>Debug</code> output never shows
+key material.</p>
+<p>The signature is lowercase hex over the v2 message
+(<code>anza::crypto::envelope::message(ts, slot, html, css)</code>, also
+<code>envelope.message()</code>); see <a href="/docs/engines/crypto">Cryptographic Verification</a>.</p>
+<h3 id="verifying-envelopes">Verifying Envelopes</h3>
+<p><code>anza::verify_envelope</code> checks a received envelope: version, signature format,
+freshness, slot, then the signature (constant time). Every failure is a
+<code>Crypto</code> error naming the check (<code>envelope expired</code>, <code>slot mismatch</code>,
+<code>bad signature</code>, ...).</p>
+<view-code language="rust">use anza::{verify_envelope, Envelope, VerifyKey, VerifyOptions};
+
+let envelope: Envelope = serde_json::from_str(&amp;body)?;
+// Accept envelopes for slot "feed" that are at most 60 seconds old.
+let options = VerifyOptions::new("feed", 60);
+verify_envelope(VerifyKey::Hmac(&amp;secret), &amp;envelope, &amp;options)?;
+// or with an Ed25519 public key: VerifyKey::Ed25519(&amp;public_key)
+
+// With the engine's own key:
+engine.verify_envelope(&amp;envelope, &amp;options)?;
+</view-code>
+<p><code>VerifyOptions</code> also has <code>skew_secs</code> (future timestamps allowed, default 5)
+and <code>now</code> (<code>Option&lt;u64&gt;</code>, defaults to the system clock).</p>
 <h2 id="page-rendering">Page Rendering</h2>
-<p><code>Page::new(route)</code> maps the route to a template: <code>/</code> → <code>pages/home.html</code>,
-<code>/about</code> → <code>pages/about.html</code>, then falls back to <code>about.html</code> and
-<code>pages/index.html</code>. The page is bound with the params, then inserted into
-<code>layout/shell.html</code> as <code>{{content}}</code> (also <code>{{slot_main}}</code>). Without a shell,
-a minimal document with a <code>&lt;dock-main&gt;</code> is emitted.</p>
+<p><code>Page::new(route)</code> maps the route to a template under <code>pages/</code>: <code>/</code> →
+<code>pages/home.html</code>, <code>/about</code> → <code>pages/about.html</code>, <code>/a/b</code> → <code>pages/a/b.html</code>.
+When that template is missing, <code>pages/index.html</code> is the catch-all. Otherwise,
+or when the route is malformed (<code>..</code>, <code>\</code>, NUL), the result is a <code>NotFound</code>
+error, <code>Page not found</code>; the route is never echoed. Routes never resolve
+outside <code>pages/</code>.</p>
+<p>The page is bound with the params, then inserted into <code>layout/shell.html</code> as
+<code>{{content}}</code>. Without a shell, a minimal document with a <code>&lt;dock-main&gt;</code> is
+emitted.</p>
+<h2 id="errors">Errors</h2>
+<p><code>anza::Error</code> has five variants, with the same codes as the other engines:
+<code>Validation</code>, <code>NotFound</code>, <code>Template</code>, <code>Crypto</code>, <code>Internal</code>. <code>Error::code()</code>
+returns <code>VALIDATION</code>, <code>NOT_FOUND</code>, and so on, and errors display as
+<code>[Anza:CODE] message</code>.</p>
 <h2 id="streaming">Streaming</h2>
 <p><code>Stream</code> renders an envelope like <code>Fragment</code>; <code>stream::sse::frame::encode(&amp;envelope)</code>
 formats it as an SSE <code>template</code> event and <code>stream::ws::packet::encode</code> as a
@@ -111,9 +166,9 @@ returns an <code>axum::response::sse::Event</code>. See <a href="/docs/engines/s
 <tr><td><code>data::r#in</code></td><td><code>Setup</code> (config) and the <code>Page</code>, <code>Fragment</code>, <code>Stream</code> operations</td></tr>
 <tr><td><code>engine::slot</code></td><td><code>{{slot}}</code> parser (<code>extract</code>) and binder (<code>Params</code>, <code>Data</code>)</td></tr>
 <tr><td><code>engine::file</code></td><td>Template loading (<code>load::all</code>, <code>Template</code>), reading, watching</td></tr>
-<tr><td><code>engine::cache</code></td><td><code>Engine</code>, <code>SignMode</code>, the template store</td></tr>
+<tr><td><code>engine::cache</code></td><td><code>Engine</code>, <code>SignMode</code>, the template store (<code>Arc&lt;Template&gt;</code> entries)</td></tr>
 <tr><td><code>render</code></td><td>Page and fragment rendering</td></tr>
-<tr><td><code>crypto</code></td><td><code>hmac</code>, <code>ed25519</code> (sign / verify), <code>hkdf</code>, <code>blake</code> digests</td></tr>
+<tr><td><code>crypto</code></td><td><code>envelope</code> (v2 message, <code>verify</code>), <code>signer</code>, <code>hmac</code>, <code>ed25519</code>, <code>hkdf</code>, <code>hex</code>, <code>digest</code> (SHA-256 manifest digests)</td></tr>
 <tr><td><code>stream</code></td><td>SSE and WebSocket encoders</td></tr>
 <tr><td><code>adapters</code></td><td>Axum and Actix-web integration (feature-gated)</td></tr>
 <tr><td><code>models</code></td><td><code>Document</code>, <code>Envelope</code>, <code>Manifest</code></td></tr>

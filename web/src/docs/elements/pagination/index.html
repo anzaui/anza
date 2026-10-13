@@ -1,38 +1,33 @@
 <h1 id="pagination">Pagination</h1>
-<p>Prev / next pagination. Uses <code>page</code> when set; otherwise syncs with the URL <code>?page=</code> query via the router.</p>
+<p>Previous and Next buttons with a "Page N of M" indicator.</p>
 <p><strong>Tag:</strong> <code>ui-pagination</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/pagination</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/pagination';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
-<view-code language="html">&lt;!-- Controlled via props --&gt;
-&lt;ui-pagination page="2" total="100" limit="10"&gt;&lt;/ui-pagination&gt;
-
-&lt;!-- URL query mode (omit page — reads/writes ?page=) --&gt;
-&lt;ui-pagination total="48" limit="12"&gt;&lt;/ui-pagination&gt;
+<view-code language="html">&lt;ui-pagination total="240" limit="20"&gt;&lt;/ui-pagination&gt;
 </view-code>
-<view-code language="javascript">document.querySelector('ui-pagination').addEventListener('page-change', (e) =&gt; {
-  console.log(e.detail.page);
-});
-</view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>page</code></td><td>Number</td><td>Reflect</td><td>Current page (when set, controls locally instead of URL)</td></tr>
-<tr><td><code>total</code></td><td>Number</td><td>Reflect</td><td>Total item count</td></tr>
-<tr><td><code>limit</code></td><td>Number</td><td>Reflect</td><td>Items per page (default <code>10</code>)</td></tr>
+<h2 id="attributes">Attributes</h2>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>page</code></td><td>Number</td><td>—</td><td>Current page, 1-based. When set, the buttons change this attribute. When unset (or <code>0</code>), the page comes from the URL's <code>?page=</code> query and the buttons navigate.</td></tr>
+<tr><td><code>total</code></td><td>Number</td><td><code>0</code></td><td>Total number of items.</td></tr>
+<tr><td><code>limit</code></td><td>Number</td><td><code>10</code></td><td>Items per page. Values below 1 count as 1.</td></tr>
 </tbody></table></div>
+<p>The page count is <code>ceil(total / limit)</code>, at least 1. The current page is clamped to that range. Previous is disabled on page 1 and Next on the last page.</p>
+<p>In URL mode, a click sets <code>?page=</code> on the current URL and calls the router's <code>navigate()</code> with the path and query. The indicator resyncs on every Navigation API <code>navigate</code> event, where the browser supports it.</p>
 <h2 id="events">Events</h2>
-<div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody>
-<tr><td><code>page-change</code></td><td>After prev/next; <code>detail.page</code> is the new page</td></tr>
+<div class="table-wrap"><table><thead><tr><th>Event</th><th>Detail</th><th>When</th></tr></thead><tbody>
+<tr><td><code>page-change</code></td><td><code>{ page }</code> (the new page number)</td><td>After Previous or Next is clicked. Bubbles and composed.</td></tr>
 </tbody></table></div>
-<h2 id="notes">Notes</h2>
-<p>Parts: <code>button</code>, <code>prev</code>, <code>next</code>, <code>indicator</code>. Click handlers use shadow-scoped <code>on</code> (signal-owned). Navigation API <code>navigate</code> listener uses <code>{ signal: el.ctrl.signal }</code> when URL-synced.</p>
-<h3 id="lifecycle--memory">Lifecycle / memory</h3>
-<p>Prev/next <code>on.click</code> and the Navigation API listener abort with the component <code>ctrl</code>. Soft-nav disconnect clears them. Prefer this over raw <code>document</code> listeners for page changes.</p>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>button</code></td><td>Both buttons</td></tr>
+<tr><td><code>prev</code></td><td>The Previous button</td></tr>
+<tr><td><code>next</code></td><td>The Next button</td></tr>
+<tr><td><code>indicator</code></td><td>The "Page N of M" text</td></tr>
+</tbody></table></div>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/navigation">Navigation</a></li>
-<li><a href="/docs/elements/tabs">Tabs</a></li>
-<li><a href="/docs/ui/advanced">Memory safety &amp; framework globals</a></li>
+<li><a href="/docs/elements#navigation">Elements</a></li>
+<li><a href="/docs/router/navigation">Navigation</a></li>
 </ul>

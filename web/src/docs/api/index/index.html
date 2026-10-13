@@ -1,6 +1,6 @@
 <h1 id="api">API</h1>
-<p>The Anza API layer is a baseline-native HTTP client built on <code>fetch</code>. It wraps every request in a composable pipeline that handles prefix routing, TTL caching, exponential backoff retries, telemetry events, and graceful error normalization.</p>
-<p>It is designed for production: transient network failures self-heal, caches invalidate by glob pattern, uploads report real-time progress, and streams parse NDJSON while preserving backpressure.</p>
+<p>The Anza API layer is an HTTP client built on <code>fetch</code>. Requests from <code>get</code>, <code>post</code>, <code>put</code>, <code>patch</code> and <code>delete</code> go through a pipeline that handles prefix routing, caching, retries with backoff, telemetry events and error normalization.</p>
+<p>Transient failures are retried, cache entries can be deleted by glob pattern, uploads report progress, and streams parse NDJSON.</p>
 <h2 id="what-you-get">What You Get</h2>
 <ul>
 <li><strong>HTTP methods</strong> — <code>get</code>, <code>post</code>, <code>put</code>, <code>patch</code>, <code>delete</code> with automatic JSON body serialization and response parsing</li>
@@ -9,9 +9,9 @@
 <li><strong>Cache invalidation</strong> — delete by exact URL or glob pattern (<code>*/user/*</code>)</li>
 <li><strong>Telemetry events</strong> — subscribe to <code>error</code>, <code>failed</code>, <code>timeout</code>, <code>status:xxx</code>, <code>type:json</code>, and per-request scoped events</li>
 <li><strong>Streaming</strong> — NDJSON async iterables with chunk-level event hooks</li>
-<li><strong>Upload progress</strong> — precise progress tracking via XMLHttpRequest</li>
+<li><strong>Upload progress</strong> — progress tracking via XMLHttpRequest</li>
 <li><strong>Retry with jitter</strong> — exponential backoff for transient errors (timeouts, 5xx), instant fail for 4xx</li>
-<li><strong>Error normalization</strong> — every failure is a <code>PlatformError</code> with <code>code</code>, <code>message</code>, <code>context</code>, and <code>recoverable</code></li>
+<li><strong>Error normalization</strong> — request and upload failures are <code>PlatformError</code>s with <code>code</code>, <code>message</code>, <code>context</code>, and <code>recoverable</code></li>
 </ul>
 <h2 id="package">Package</h2>
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
@@ -44,7 +44,9 @@ const user = await api.get('/user/profile', { expiry: 60000 });
 const post = await api.post('/posts', { title: 'Hello' });
 
 // Listen for 401s globally
-api.on('status:401', () =&gt; redirectToLogin());
+api.on('error', (e) =&gt; {
+  if (e.detail.error?.context?.status === 401) redirectToLogin();
+});
 
 // Stream NDJSON
 for await (const chunk of api.stream('/logs')) {

@@ -50,7 +50,7 @@ if (supports.offscreenCanvas) {
 </view-code>
 <h2 id="worker-pool-grows-too-large">Worker pool grows too large</h2>
 <p><strong>Cause:</strong> Many concurrent tasks, or <code>max</code> not set.</p>
-<p><strong>Fix:</strong> The default max is <code>hardwareConcurrency - 1</code>. If you need fewer:</p>
+<p><strong>Fix:</strong> The default max is <code>hardwareConcurrency - 1</code> (at least 2). Pool options are read on the first <code>run</code> for a script. If you need fewer:</p>
 <view-code language="javascript">workers.run('/worker.js', 'task', {
   // These configure the pool on first use
   max: 2,
@@ -67,9 +67,10 @@ if (supports.offscreenCanvas) {
 <p>Pools auto-terminate on <code>pagehide</code>, but explicit cleanup is safer.</p>
 <h2 id="still-stuck">Still stuck?</h2>
 <p>Check feature support:</p>
-<view-code language="javascript">import { has } from '@anzaui/anza/workers';
+<view-code language="javascript">import { has, Pool } from '@anzaui/anza/workers';
 console.log(has);
 
-// Inspect pool state
-console.log('Pool size:', workers.dedicated('/worker.js').size);
+// Inspect pool state with your own Pool instance
+const pool = new Pool('/worker.js');
+console.log(pool.size, pool.pending);
 </view-code>

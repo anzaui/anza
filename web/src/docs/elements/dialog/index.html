@@ -1,44 +1,56 @@
 <h1 id="dialog">Dialog</h1>
-<p>Modal overlay wrapping the native <code>&lt;dialog&gt;</code> element for focus trap, backdrop, and Escape handling.</p>
+<p>Modal overlay that wraps a native <code>&lt;dialog&gt;</code>, so the browser provides the top layer, backdrop, focus trap and Escape handling.</p>
 <p><strong>Tag:</strong> <code>ui-dialog</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/dialog</code></p>
-<h2 id="import">Import</h2>
-<view-code language="javascript">import '@anzaui/anza/elements/dialog';
-</view-code>
-<h2 id="basic-usage">Basic usage</h2>
-<view-code language="html">&lt;ui-dialog id="confirm"&gt;
-  &lt;h2&gt;Confirm&lt;/h2&gt;
-  &lt;p&gt;Delete this item?&lt;/p&gt;
-  &lt;ui-button type="button"&gt;Cancel&lt;/ui-button&gt;
-  &lt;ui-button type="button"&gt;Delete&lt;/ui-button&gt;
-&lt;/ui-dialog&gt;
+<h2 id="usage">Usage</h2>
+<view-code language="html">&lt;ui-button id="delete" type="button"&gt;Delete&lt;/ui-button&gt;
 
-&lt;script type="module"&gt;
-  const dlg = document.querySelector('#confirm');
-  dlg.showModal();
-  // dlg.close('ok');
-&lt;/script&gt;
+&lt;ui-dialog id="confirm"&gt;
+  &lt;h2&gt;Delete this item?&lt;/h2&gt;
+  &lt;ui-button id="cancel" type="button"&gt;Cancel&lt;/ui-button&gt;
+  &lt;ui-button id="ok" type="button"&gt;Delete&lt;/ui-button&gt;
+&lt;/ui-dialog&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>open</code></td><td>Boolean</td><td>Reflect</td><td>Mirrors open state; set via <code>showModal()</code> / <code>close()</code></td></tr>
+<view-code language="javascript">import '@anzaui/anza/elements/dialog';
+
+const dialog = document.querySelector('#confirm');
+document.querySelector('#delete').addEventListener('click', () =&gt; dialog.showModal());
+document.querySelector('#cancel').addEventListener('click', () =&gt; dialog.close('cancel'));
+document.querySelector('#ok').addEventListener('click', () =&gt; dialog.close('ok'));
+dialog.addEventListener('close', (e) =&gt; console.log(e.detail.returnValue));
+</view-code>
+<p>The methods query the shadow root, so call them after the element has mounted (for example from a user action, or after <code>anza:ready</code>; see <a href="/docs/ui/lifecycle">Lifecycle</a>).</p>
+<h2 id="attributes">Attributes</h2>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>open</code></td><td>Boolean</td><td><code>false</code></td><td>Reflects the open state. <code>showModal()</code> sets it and <code>close()</code> or a native close clears it. Setting it yourself does <strong>not</strong> open or close the dialog; call <code>showModal()</code>.</td></tr>
+</tbody></table></div>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td>(default)</td><td>Dialog body. It sits in a column flex wrapper with a <code>--space-4</code> gap.</td></tr>
 </tbody></table></div>
 <h2 id="events">Events</h2>
-<div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody>
-<tr><td><code>show</code></td><td>After <code>showModal()</code></td></tr>
-<tr><td><code>close</code></td><td>When the native dialog closes; <code>detail.returnValue</code></td></tr>
-<tr><td><code>cancel</code></td><td>Cancelable; mirrors native <code>cancel</code> (Escape)</td></tr>
+<div class="table-wrap"><table><thead><tr><th>Event</th><th>Detail</th><th>When</th></tr></thead><tbody>
+<tr><td><code>show</code></td><td>none</td><td><code>showModal()</code> ran.</td></tr>
+<tr><td><code>close</code></td><td><code>{ returnValue: string }</code></td><td>The native dialog closed: <code>close()</code> or Escape.</td></tr>
+<tr><td><code>cancel</code></td><td>none</td><td>The user pressed Escape. Cancelable: <code>preventDefault()</code> keeps the dialog open.</td></tr>
 </tbody></table></div>
-<h2 id="notes">Notes</h2>
-<p>Methods: <code>showModal()</code>, <code>close(returnValue?)</code>. Default slot is the dialog body. Native surface is <code>part="dialog"</code>.</p>
-<p>This element is the modal-dialog branch of the overlay kit (alongside <a href="/docs/elements/drawer">drawer</a> / <a href="/docs/elements/sheet">sheet</a>). Architecture: <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
-<h3 id="lifecycle--memory">Lifecycle / memory</h3>
-<p>Open/close and Escape handling stay on the dialog instance. Soft-nav aborts the hosting leaf’s <code>ctrl</code> so shadow-scoped listeners tear down with disconnect. Do not add raw <code>document</code> listeners from a leaf without <code>{ signal: ctrl.signal }</code>. See <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a> and <a href="/docs/events/troubleshooting">Orphan listeners after soft-nav</a>.</p>
+<p>All three bubble and are composed.</p>
+<h2 id="methods">Methods</h2>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>showModal()</code></td><td><code>undefined</code></td><td>Opens the native dialog as a modal (if not already open), sets <code>open</code>, fires <code>show</code>.</td></tr>
+<tr><td><code>close(returnValue = '')</code></td><td><code>undefined</code></td><td>Closes the native dialog with <code>returnValue</code> (if open) and clears <code>open</code>. <code>close</code> fires when the native dialog closes.</td></tr>
+</tbody></table></div>
+<h2 id="keyboard-and-accessibility">Keyboard and accessibility</h2>
+<p>The native <code>&lt;dialog&gt;</code> handles focus: <code>showModal()</code> moves focus into the dialog, traps it there and makes the rest of the page inert. Escape fires <code>cancel</code>, then closes the dialog unless you prevented <code>cancel</code>. Give the dialog a heading so it has a visible title.</p>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>dialog</code></td><td>The native <code>&lt;dialog&gt;</code> surface</td></tr>
+</tbody></table></div>
+<p>The backdrop is the native <code>dialog::backdrop</code>, styled inside the shadow root.</p>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
 <li><a href="/docs/elements/overlay">Overlay patterns</a></li>
-<li><a href="/docs/elements/drawer">Drawer</a> / <a href="/docs/elements/sheet">Sheet</a></li>
-<li><a href="/docs/platform/api">Platform API</a></li>
-<li><a href="/docs/ui/forms">Form association</a> (when <code>form: true</code>)</li>
-<li><a href="/docs/ui/advanced">Memory safety &amp; framework globals</a></li>
+<li><a href="/docs/elements/drawer">Drawer</a></li>
+<li><a href="/docs/elements/sheet">Sheet</a></li>
+<li><a href="/docs/elements">Elements</a></li>
 </ul>

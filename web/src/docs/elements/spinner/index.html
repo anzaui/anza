@@ -1,19 +1,28 @@
 <h1 id="spinner">Spinner</h1>
-<p>Indeterminate loading spinner using the Web Animations API, with prefers-reduced-motion respect.</p>
+<p>An indeterminate loading ring.</p>
 <p><strong>Tag:</strong> <code>ui-spinner</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/spinner</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/spinner';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
-<view-code language="html">&lt;ui-spinner&gt;&lt;/ui-spinner&gt;
-&lt;ui-spinner aria-label="Saving"&gt;&lt;/ui-spinner&gt;
+<view-code language="html">&lt;ui-spinner aria-label="Loading results"&gt;&lt;/ui-spinner&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<p><em>None — style via CSS / ARIA attributes only.</em></p>
-<h2 id="notes">Notes</h2>
-<p>Defaults <code>role="progressbar"</code> and <code>aria-label="Loading"</code>. Animation pauses when <code>prefers-reduced-motion: reduce</code> matches. No reflected props — style via CSS / parts.</p>
+<p>The spinner has no attributes. The ring turns once every 800 ms with the Web Animations API. The animation pauses while <code>prefers-reduced-motion: reduce</code> matches, and is cancelled on disconnect.</p>
+<h2 id="keyboard-and-accessibility">Keyboard and accessibility</h2>
+<p>The spinner sets <code>role="progressbar"</code> unless the host has a <code>role</code>, and <code>aria-label="Loading"</code> unless it has <code>aria-label</code> or <code>aria-labelledby</code>.</p>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>ring</code></td><td>The rotating ring</td></tr>
+</tbody></table></div>
+<h3 id="custom-properties">Custom properties</h3>
+<div class="table-wrap"><table><thead><tr><th>Property</th><th>Default</th></tr></thead><tbody>
+<tr><td><code>--spinner-size</code></td><td><code>var(--space-6)</code></td></tr>
+<tr><td><code>--spinner-color</code></td><td><code>var(--color-interactive)</code></td></tr>
+<tr><td><code>--spinner-width</code></td><td><code>var(--space-0-5)</code></td></tr>
+</tbody></table></div>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/primitives">Primitives</a></li>
+<li><a href="/docs/elements#primitives">Elements</a></li>
+<li><a href="/docs/elements/progress">Progress</a></li>
+<li><a href="/docs/elements/skeleton">Skeleton</a></li>
 </ul>

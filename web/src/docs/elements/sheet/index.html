@@ -1,43 +1,49 @@
 <h1 id="sheet">Sheet</h1>
-<p>Bottom sheet overlay backed by native <code>&lt;dialog&gt;</code> + <code>showModal()</code>, with drag-to-dismiss on the handle.</p>
+<p>Modal bottom sheet on a native <code>&lt;dialog&gt;</code>. Drag the handle down to dismiss it.</p>
 <p><strong>Tag:</strong> <code>ui-sheet</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/sheet</code></p>
-<p>Architecture and when-to-use: <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
-<h2 id="import">Import</h2>
-<view-code language="javascript">import '@anzaui/anza/elements/sheet';
-</view-code>
-<h2 id="basic-usage">Basic usage</h2>
-<view-code language="html">&lt;ui-sheet id="filters"&gt;
-  &lt;h2&gt;Filters&lt;/h2&gt;
-  &lt;!-- drag the handle to dismiss --&gt;
-&lt;/ui-sheet&gt;
+<h2 id="usage">Usage</h2>
+<view-code language="html">&lt;ui-button id="open-filters" type="button"&gt;Filters&lt;/ui-button&gt;
 
-&lt;script type="module"&gt;
-  document.querySelector('#filters').show();
-  // hide() or open = false closes after the exit transition
-&lt;/script&gt;
+&lt;ui-sheet id="filters"&gt;
+  &lt;h2&gt;Filters&lt;/h2&gt;
+  &lt;p&gt;Sheet content&lt;/p&gt;
+&lt;/ui-sheet&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>open</code></td><td>Boolean</td><td>Reflect</td><td>Mirrors open state; synced to <code>dialog.showModal()</code> / <code>close()</code></td></tr>
+<view-code language="javascript">import '@anzaui/anza/elements/sheet';
+
+const sheet = document.querySelector('#filters');
+document.querySelector('#open-filters').addEventListener('click', () =&gt; sheet.show());
+</view-code>
+<h2 id="attributes">Attributes</h2>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>open</code></td><td>Boolean</td><td><code>false</code></td><td>Opens the sheet (<code>showModal()</code>) when set and closes it when removed. Closing waits 300ms for the slide-down before the native dialog closes.</td></tr>
 </tbody></table></div>
-<h2 id="methods">Methods</h2>
-<div class="table-wrap"><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>show()</code></td><td>Sets <code>open</code> → opens modal</td></tr>
-<tr><td><code>hide()</code></td><td>Clears <code>open</code> → closes after transition</td></tr>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td>(default)</td><td>Sheet content, in a scrollable area below the handle</td></tr>
 </tbody></table></div>
 <h2 id="events">Events</h2>
-<div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody>
-<tr><td><code>close</code></td><td>When the native dialog closes</td></tr>
+<div class="table-wrap"><table><thead><tr><th>Event</th><th>Detail</th><th>When</th></tr></thead><tbody>
+<tr><td><code>close</code></td><td>none</td><td>The native dialog closed (after <code>hide()</code>, <code>open</code> removed, a drag dismiss, or Escape). Bubbles and is composed.</td></tr>
 </tbody></table></div>
-<h2 id="notes">Notes</h2>
-<p>Default slot projects into <code>part="content"</code>. Drag handle is <code>part="handle"</code> (dismiss threshold ~120px). Dialog surface is <code>part="dialog"</code>. Same modal-dialog family as <a href="/docs/elements/dialog">dialog</a> and <a href="/docs/elements/drawer">drawer</a>.</p>
-<h3 id="lifecycle--memory">Lifecycle / memory</h3>
-<p>Pointer drag and close handling stay on the sheet instance / <code>el.ctrl</code>. Soft-nav aborts teardown. See <a href="/docs/elements/overlay">Overlay patterns</a> and <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a>.</p>
+<h2 id="methods">Methods</h2>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>show()</code></td><td><code>undefined</code></td><td>Sets <code>open</code> to <code>true</code>.</td></tr>
+<tr><td><code>hide()</code></td><td><code>undefined</code></td><td>Sets <code>open</code> to <code>false</code>.</td></tr>
+</tbody></table></div>
+<h2 id="keyboard-and-accessibility">Keyboard and accessibility</h2>
+<p>The native modal dialog traps focus and makes the page inert. Escape closes it at once and clears <code>open</code>.</p>
+<p>Drag: press on the handle and move down; the sheet follows the pointer (upward moves are ignored). Releasing after more than 120px closes the sheet; a shorter drag snaps it back. The drag has no keyboard equivalent, so keep a close button in the content.</p>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>dialog</code></td><td>The native <code>&lt;dialog&gt;</code> panel</td></tr>
+<tr><td><code>handle</code></td><td>The drag handle bar</td></tr>
+<tr><td><code>content</code></td><td>Scrollable wrapper around the default slot</td></tr>
+</tbody></table></div>
 <h2 id="related">Related</h2>
 <ul>
 <li><a href="/docs/elements/overlay">Overlay patterns</a></li>
 <li><a href="/docs/elements/dialog">Dialog</a></li>
 <li><a href="/docs/elements/drawer">Drawer</a></li>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/platform/api">Platform API</a></li>
 </ul>

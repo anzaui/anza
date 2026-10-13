@@ -7,6 +7,6 @@ page('/docs/elements/breadcrumb', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Breadcrumb — Anza',
-    description: 'ui-breadcrumb — accessible breadcrumb trail.'
+    description: 'ui-breadcrumb — breadcrumb trail in a labelled nav, with slash separators and the last item shown as current.'
   }
 }, import.meta.url);

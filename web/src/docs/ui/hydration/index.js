@@ -7,6 +7,6 @@ page('/docs/ui/hydration', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Hydration (DSD adopt) — Anza',
-    description: 'How Anza adopts open Declarative Shadow DOM from SSG or Mode B HTML without wiping first paint.'
+    description: 'How Anza elements adopt open Declarative Shadow DOM from SSG or Mode B HTML: mount before fetching, no refetch in built apps, one mismatch re-render.'
   }
 }, import.meta.url);

@@ -7,6 +7,6 @@ page('/docs/elements/card', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Card — Anza',
-    description: 'ui-card — content card with header, body, and footer slots.'
+    description: 'ui-card — content card with header, body and footer slots and an interactive hover lift.'
   }
 }, import.meta.url);

@@ -1,29 +1,34 @@
 <h1 id="grid">Grid</h1>
-<p>Responsive CSS grid with column template and gap.</p>
+<p>A CSS grid with a column count or template and a gap.</p>
 <p><strong>Tag:</strong> <code>ui-grid</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/grid</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/grid';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
 <view-code language="html">&lt;ui-grid cols="3" gap="4"&gt;
-  &lt;div&gt;A&lt;/div&gt;&lt;div&gt;B&lt;/div&gt;&lt;div&gt;C&lt;/div&gt;
-&lt;/ui-grid&gt;
-&lt;ui-grid cols="1fr 2fr" gap="1rem"&gt;
-  &lt;div&gt;Narrow&lt;/div&gt;
-  &lt;div&gt;Wide&lt;/div&gt;
+  &lt;ui-card&gt;One&lt;/ui-card&gt;
+  &lt;ui-card&gt;Two&lt;/ui-card&gt;
+  &lt;ui-card&gt;Three&lt;/ui-card&gt;
 &lt;/ui-grid&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>cols</code></td><td>String</td><td>Reflect</td><td>Numeric → <code>repeat(N, minmax(0, 1fr))</code>; otherwise raw CSS track list</td></tr>
-<tr><td><code>gap</code></td><td>String</td><td>Reflect</td><td>Sets <code>--grid-gap</code> (length/<code>rem</code>, or space token name)</td></tr>
+<h2 id="attributes">Attributes</h2>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>cols</code></td><td>String</td><td>—</td><td>A number gives <code>repeat(n, minmax(0, 1fr))</code>. Anything else is used as <code>grid-template-columns</code>, for example <code>cols="200px 1fr"</code>. Without it the grid has one column.</td></tr>
+<tr><td><code>gap</code></td><td>String</td><td>—</td><td>A spacing step (<code>4</code> → <code>var(--space-4)</code>) or a length containing <code>px</code> or <code>rem</code>. Without it there is no gap.</td></tr>
 </tbody></table></div>
-<h2 id="notes">Notes</h2>
-<p>Default slot / <code>part="grid"</code>.</p>
+<p>The grid does not change columns by viewport width. Use a template such as <code>repeat(auto-fit, minmax(16rem, 1fr))</code> for a responsive grid.</p>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>grid</code></td><td>The grid container</td></tr>
+</tbody></table></div>
+<h3 id="custom-properties">Custom properties</h3>
+<div class="table-wrap"><table><thead><tr><th>Property</th><th>Default</th></tr></thead><tbody>
+<tr><td><code>--grid-cols</code></td><td>none (one column)</td></tr>
+<tr><td><code>--grid-gap</code></td><td>none (no gap)</td></tr>
+</tbody></table></div>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/layout">Layout</a></li>
+<li><a href="/docs/elements#layout">Elements</a></li>
 <li><a href="/docs/elements/stack">Stack</a></li>
 <li><a href="/docs/elements/split">Split</a></li>
 </ul>

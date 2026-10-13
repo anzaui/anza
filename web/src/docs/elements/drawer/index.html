@@ -1,44 +1,49 @@
 <h1 id="drawer">Drawer</h1>
-<p>Side panel overlay backed by native <code>&lt;dialog&gt;</code> + <code>showModal()</code> (top-layer, focus trap).</p>
+<p>Modal side panel on a native <code>&lt;dialog&gt;</code> that slides in from the left or right edge.</p>
 <p><strong>Tag:</strong> <code>ui-drawer</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/drawer</code></p>
-<p>Architecture and when-to-use: <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
-<h2 id="import">Import</h2>
-<view-code language="javascript">import '@anzaui/anza/elements/drawer';
-</view-code>
-<h2 id="basic-usage">Basic usage</h2>
-<view-code language="html">&lt;ui-drawer id="nav-drawer" placement="left"&gt;
-  &lt;h2&gt;Navigate&lt;/h2&gt;
-  &lt;!-- side panel content --&gt;
-&lt;/ui-drawer&gt;
+<h2 id="usage">Usage</h2>
+<view-code language="html">&lt;ui-button id="open-nav" type="button"&gt;Menu&lt;/ui-button&gt;
 
-&lt;script type="module"&gt;
-  document.querySelector('#nav-drawer').show();
-  // hide() or open = false closes after the exit transition
-&lt;/script&gt;
+&lt;ui-drawer id="nav" placement="left"&gt;
+  &lt;h2&gt;Navigate&lt;/h2&gt;
+  &lt;a href="/docs"&gt;Docs&lt;/a&gt;
+&lt;/ui-drawer&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>open</code></td><td>Boolean</td><td>Reflect</td><td>Mirrors open state; synced to <code>dialog.showModal()</code> / <code>close()</code></td></tr>
-<tr><td><code>placement</code></td><td>String</td><td>Reflect</td><td><code>left</code> or <code>right</code> (default <code>right</code>)</td></tr>
+<view-code language="javascript">import '@anzaui/anza/elements/drawer';
+
+const drawer = document.querySelector('#nav');
+document.querySelector('#open-nav').addEventListener('click', () =&gt; drawer.show());
+drawer.addEventListener('close', () =&gt; console.log('closed'));
+</view-code>
+<h2 id="attributes">Attributes</h2>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>open</code></td><td>Boolean</td><td><code>false</code></td><td>Opens the drawer (<code>showModal()</code>) when set and closes it when removed. Closing waits 300ms for the slide-out before the native dialog closes.</td></tr>
+<tr><td><code>placement</code></td><td>String</td><td><code>right</code></td><td>Edge to slide from: <code>left</code> or <code>right</code>.</td></tr>
 </tbody></table></div>
-<h2 id="methods">Methods</h2>
-<div class="table-wrap"><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>show()</code></td><td>Sets <code>open</code> → opens modal</td></tr>
-<tr><td><code>hide()</code></td><td>Clears <code>open</code> → closes after transition</td></tr>
+<p>Set <code>placement</code> as an attribute. The slide styles match <code>[placement="left"]</code> and <code>[placement="right"]</code> on the host, and the <code>right</code> default is not written back to the attribute.</p>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td>(default)</td><td>Drawer body (column flex layout)</td></tr>
 </tbody></table></div>
 <h2 id="events">Events</h2>
-<div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody>
-<tr><td><code>close</code></td><td>When the native dialog closes</td></tr>
+<div class="table-wrap"><table><thead><tr><th>Event</th><th>Detail</th><th>When</th></tr></thead><tbody>
+<tr><td><code>close</code></td><td>none</td><td>The native dialog closed (after <code>hide()</code>, <code>open</code> removed, or Escape). Bubbles and is composed.</td></tr>
 </tbody></table></div>
-<h2 id="notes">Notes</h2>
-<p>Default slot is the drawer body. Native surface is <code>part="dialog"</code>. Same modal-dialog family as <a href="/docs/elements/dialog">dialog</a> and <a href="/docs/elements/sheet">sheet</a>.</p>
-<h3 id="lifecycle--memory">Lifecycle / memory</h3>
-<p>Close handling stays on the dialog instance. Soft-nav aborts the leaf <code>ctrl</code>. See <a href="/docs/elements/overlay">Overlay patterns</a> and <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a>.</p>
+<h2 id="methods">Methods</h2>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>show()</code></td><td><code>undefined</code></td><td>Sets <code>open</code> to <code>true</code>.</td></tr>
+<tr><td><code>hide()</code></td><td><code>undefined</code></td><td>Sets <code>open</code> to <code>false</code>.</td></tr>
+</tbody></table></div>
+<h2 id="keyboard-and-accessibility">Keyboard and accessibility</h2>
+<p>The native modal dialog traps focus and makes the page inert. Escape closes it at once (no slide-out) and clears <code>open</code>.</p>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>dialog</code></td><td>The native <code>&lt;dialog&gt;</code> panel</td></tr>
+</tbody></table></div>
 <h2 id="related">Related</h2>
 <ul>
 <li><a href="/docs/elements/overlay">Overlay patterns</a></li>
 <li><a href="/docs/elements/dialog">Dialog</a></li>
 <li><a href="/docs/elements/sheet">Sheet</a></li>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/platform/api">Platform API</a></li>
 </ul>

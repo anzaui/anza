@@ -1,43 +1,43 @@
 <h1 id="opfs">OPFS</h1>
-<p>The Origin Private File System facade offloads operations to an inline Web Worker, leveraging synchronous file access handles for high-performance reads and writes. Cross-tab invalidation is handled via BroadcastChannel.</p>
+<p>The Origin Private File System tier runs file operations in an inline Web Worker that uses synchronous file access handles. Writes, deletes and clears post a message on a BroadcastChannel so other tabs can react.</p>
 <h2 id="requirements">Requirements</h2>
 <p>OPFS requires a secure context (HTTPS) and browser support for <code>navigator.storage.getDirectory</code>. Check with the platform layer:</p>
 <view-code language="javascript">import { supports } from '@anzaui/anza/platform';
 
 if (supports.opfs) {
-  await storage.set('file', buffer, 'opfs');
+  await storage.set('notes', { text: 'hello' }, 'opfs');
 }
 </view-code>
 <h2 id="read-and-write">Read and Write</h2>
 <view-code language="javascript">import { storage } from '@anzaui/anza/storage';
 
 // Write
-const buffer = new Uint8Array([1, 2, 3]);
-await storage.set('data.bin', buffer, 'opfs');
+await storage.set('data.json', { points: [1, 2, 3] }, 'opfs');
 
 // Read
-const data = await storage.get('data.bin', 'opfs');
+const data = await storage.get('data.json', 'opfs');
 </view-code>
-<p>Values are JSON-serialized before writing. Binary data should be wrapped in an object or use ArrayBuffer directly.</p>
+<p>Values are written with <code>JSON.stringify</code> and read back with <code>JSON.parse</code>. Binary data (<code>ArrayBuffer</code>, typed arrays, <code>Blob</code>) does not round-trip; store it in the <code>idb</code> tier instead. A missing file reads as <code>null</code>.</p>
 <h2 id="delete-and-clear">Delete and Clear</h2>
-<view-code language="javascript">await storage.delete('data.bin', 'opfs');
+<view-code language="javascript">await storage.delete('data.json', 'opfs');
+await storage.clear('opfs'); // removes every entry in the OPFS root
 </view-code>
-<p>Clear all OPFS entries directly via the internal manager (not exposed through the facade).</p>
-<h2 id="cross-tab-invalidation">Cross-Tab Invalidation</h2>
-<p>When an OPFS entry is written or deleted, a BroadcastChannel message invalidates the same key in other tabs:</p>
-<view-code language="javascript">window.addEventListener('message', (e) =&gt; {
-  if (e.data.op === 'set' &amp;&amp; e.data.key === 'data.bin') {
+<h2 id="cross-tab-messages">Cross-Tab Messages</h2>
+<p>After a write, delete or clear, the tier posts <code>{ op, key }</code> (<code>op</code> is <code>'set'</code>, <code>'delete'</code> or <code>'clear'</code>) on the BroadcastChannel <code>core:opfs-invalidation</code>. Nothing is invalidated for you; listen on the same channel to react:</p>
+<view-code language="javascript">const channel = new BroadcastChannel('core:opfs-invalidation');
+channel.addEventListener('message', (e) =&gt; {
+  if (e.data.op === 'set' &amp;&amp; e.data.key === 'data.json') {
     console.log('File updated in another tab');
   }
 });
 </view-code>
 <h2 id="web-worker-internals">Web Worker Internals</h2>
-<p>OPFS operations run in a dedicated inline worker to avoid blocking the main thread. The worker:</p>
+<p>OPFS operations run in a dedicated inline worker so they do not block the main thread. The worker:</p>
 <ol>
 <li>Opens the OPFS root directory</li>
-<li>Creates or opens the file handle</li>
-<li>Uses <code>createSyncAccessHandle</code> for fast synchronous I/O</li>
-<li>Serializes values to JSON via TextEncoder</li>
+<li>Creates or opens the file handle (one file per key, in the root)</li>
+<li>Uses <code>createSyncAccessHandle</code> to read or write</li>
+<li>Encodes values as JSON text with <code>TextEncoder</code></li>
 </ol>
 <h2 id="locks">Locks</h2>
-<p>File operations are coordinated with <code>navigator.locks</code> when available. Each key gets its own named lock (<code>opfs:{key}</code>) to prevent concurrent writes.</p>
+<p>File operations are coordinated with <code>navigator.locks</code> when available. Each key gets its own named lock (<code>opfs:{key}</code>) to prevent concurrent writes. <code>clear</code> takes <code>opfs:global</code>; <code>list</code> takes no lock.</p>

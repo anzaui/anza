@@ -7,6 +7,6 @@ page('/docs/elements/link', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Link — Anza',
-    description: 'ui-link — router-aware hyperlink with soft navigation and aria-current.'
+    description: 'ui-link — router-aware link: soft navigation for local hrefs, aria-current, an external event, and unsafe schemes dropped.'
   }
 }, import.meta.url);

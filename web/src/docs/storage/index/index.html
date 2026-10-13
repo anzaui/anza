@@ -1,5 +1,5 @@
 <h1 id="storage">Storage</h1>
-<p>The Anza storage layer provides a unified, tiered storage surface. It integrates LRU memory caching, IndexedDB, Origin Private File System (OPFS), and the Cache API under a single facade with automatic tier fallback, TTL support, and transparent gzip compression.</p>
+<p>The Anza storage layer puts an LRU memory cache, IndexedDB, the Origin Private File System (OPFS) and the Cache API behind one facade. You pick the tier per call. It supports TTLs and gzips large IndexedDB values.</p>
 <p><strong>vs <code>state.storage</code>:</strong> use <code>@anzaui/anza/storage</code> for general key/value, files, and HTTP cache tiers. Use <code>state.storage</code> (<code>PlatformStorage</code>) for reactive-store snapshots keyed by object-store name — including filter-function <code>query</code>. If you use both, give them <strong>different IndexedDB database names</strong> (both default to <code>platform-db</code> — see <a href="/docs/storage/troubleshooting">Troubleshooting</a>).</p>
 <h2 id="what-you-get">What You Get</h2>
 <ul>
@@ -8,7 +8,7 @@
 <li><strong>TTL</strong> — per-key expiry honored across all tiers</li>
 <li><strong>Compression</strong> — automatic gzip for values over 64KB in IndexedDB (when Compression Streams exist)</li>
 <li><strong>Write journaling</strong> — localStorage-backed journal for crash recovery on IDB writes</li>
-<li><strong>Quota management</strong> — proactive checks, eviction, and warning callbacks</li>
+<li><strong>Quota management</strong> — throttled checks before persistent writes, with warning callbacks above 80%</li>
 <li><strong>List / clear / estimate</strong> — <code>storage.list</code>, <code>storage.clear</code>, <code>storage.estimate</code> / <code>persist</code></li>
 </ul>
 <h2 id="package">Package</h2>
@@ -21,7 +21,7 @@
 <tr><td><a href="/docs/storage/tiers">Tiers</a></td><td>Storage tiers and when to use each</td></tr>
 <tr><td><a href="/docs/storage/idb">IndexedDB</a></td><td>IndexedDB adapter, migrations, transactions</td></tr>
 <tr><td><a href="/docs/storage/opfs">OPFS</a></td><td>Origin Private File System via Web Worker</td></tr>
-<tr><td><a href="/docs/storage/cache">Cache</a></td><td>Cache API wrapper with TTL</td></tr>
+<tr><td><a href="/docs/storage/cache">Cache</a></td><td>Cache API tier with TTL</td></tr>
 <tr><td><a href="/docs/storage/lru">LRU</a></td><td>In-memory LRU and WeakLRU caches</td></tr>
 <tr><td><a href="/docs/storage/quota">Quota</a></td><td>Quota estimation, persistence, warnings</td></tr>
 <tr><td><a href="/docs/storage/api">API Reference</a></td><td>Complete API reference</td></tr>
@@ -40,13 +40,13 @@ const user = await storage.get('user');
 await storage.set('session', { token: 'abc' }, 'memory');
 
 // TTL — expires in 5 minutes
-await storage.set('temp', data, { tier: 'idb', ttl: 300000 });
+await storage.set('temp', { step: 2 }, { tier: 'idb', ttl: 300000 });
 
-// OPFS for large files
-await storage.set('blob', fileBuffer, 'opfs');
+// OPFS for large JSON documents
+await storage.set('report', { rows: [] }, 'opfs');
 
 // Cache tier
-await storage.set('config', settings, 'cache');
+await storage.set('config', { theme: 'dark' }, 'cache');
 
 const keys = await storage.list();
 </view-code>
@@ -55,7 +55,7 @@ const keys = await storage.list();
 <li>New to storage? Start with <a href="/docs/storage/quickstart">Quick Start</a>.</li>
 <li>Choosing a tier? Read <a href="/docs/storage/tiers">Tiers</a>.</li>
 <li>Need migrations? <a href="/docs/storage/idb">IndexedDB</a>.</li>
-<li>Large files? <a href="/docs/storage/opfs">OPFS</a>.</li>
+<li>Large JSON documents? <a href="/docs/storage/opfs">OPFS</a>.</li>
 <li>Prefer a single reference page? <a href="/docs/storage/api">API Reference</a>.</li>
 <li>Persisting reactive stores? <a href="/docs/state/persist">Persist</a>.</li>
 </ul>

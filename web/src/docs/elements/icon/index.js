@@ -7,6 +7,6 @@ page('/docs/elements/icon', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Icon — Anza',
-    description: 'ui-icon — accessible SVG sprite icon with size tokens and ARIA decoration.'
+    description: 'ui-icon — SVG sprite icon with name or href, size and stroke attributes, hidden from assistive tech unless labelled.'
   }
 }, import.meta.url);

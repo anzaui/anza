@@ -1,26 +1,23 @@
 <h1 id="chart">Chart</h1>
-<p>Lightweight canvas chart (<code>bar</code> or <code>line</code>) with high-DPI scaling and resize redraw.</p>
+<p>A small canvas chart that draws a bar or line series from a JSON array of numbers.</p>
 <p><strong>Tag:</strong> <code>ui-chart</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/chart</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/chart';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
-<view-code language="html">&lt;ui-chart type="bar" data="[10, 30, 20, 50, 40, 60]"&gt;&lt;/ui-chart&gt;
-&lt;ui-chart type="line" data="[5, 12, 9, 18, 14]"&gt;&lt;/ui-chart&gt;
+<view-code language="html">&lt;ui-chart type="line" data="[12, 30, 24, 48, 40]"&gt;&lt;/ui-chart&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>type</code></td><td>String</td><td>Reflect</td><td>Chart kind: <code>bar</code> (default) or <code>line</code></td></tr>
-<tr><td><code>data</code></td><td>String</td><td>Reflect</td><td>JSON array of numbers (invalid / missing → sample series)</td></tr>
+<h2 id="attributes">Attributes</h2>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>type</code></td><td>String</td><td><code>bar</code></td><td><code>bar</code> or <code>line</code>. Any other value draws bars.</td></tr>
+<tr><td><code>data</code></td><td>String</td><td>—</td><td>JSON array of numbers. When it is missing or not valid JSON, the chart draws the sample series <code>[10, 30, 20, 50, 40, 60]</code>.</td></tr>
 </tbody></table></div>
-<h2 id="notes">Notes</h2>
-<p>Draws with CSS tokens <code>--color-interactive</code>, <code>--color-border-default</code>, <code>--color-content-secondary</code> when present. A <code>ResizeObserver</code> on the canvas redraws on size changes and disconnects on <code>el.ctrl.signal</code> abort.</p>
-<h3 id="lifecycle--memory">Lifecycle / memory</h3>
-<p><code>ResizeObserver</code> is tied to the component abort signal — soft-nav disconnect cleans it up. Prefer prop updates (<code>data</code> / <code>type</code>) over attaching your own observers from a leaf without a signal.</p>
+<p>The chart draws for the device pixel ratio and redraws when the canvas resizes (a <code>ResizeObserver</code>, disconnected on unmount) and when <code>type</code> or <code>data</code> changes. It draws four grid lines with value labels from 0 to 110% of the largest value.</p>
+<p>Colours are read from the host's computed <code>--color-interactive</code> (series), <code>--color-border-default</code> (grid) and <code>--color-content-secondary</code> (labels). The line fill appends a hex alpha to <code>--color-interactive</code>, so it needs that token to be a 6-digit hex colour.</p>
+<p>The host is <code>calc(var(--space-24) * 3)</code> tall. Set <code>height</code> on <code>ui-chart</code> to change it.</p>
+<h2 id="styling">Styling</h2>
+<p>The chart has no parts, custom properties or custom states.</p>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/data">Data</a></li>
+<li><a href="/docs/elements#data">Elements</a></li>
 <li><a href="/docs/elements/stat">Stat</a></li>
-<li><a href="/docs/ui/advanced">Memory safety &amp; framework globals</a></li>
 </ul>

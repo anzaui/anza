@@ -7,6 +7,6 @@ page('/docs/elements/button', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Button — Anza',
-    description: 'ui-button — form-associated button with loading and disabled states.'
+    description: 'ui-button: a form-associated button with disabled and loading states, submit and reset types, and an activate event.'
   }
 }, import.meta.url);

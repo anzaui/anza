@@ -1,23 +1,31 @@
 <h1 id="breadcrumb">Breadcrumb</h1>
-<p>Accessible breadcrumb trail (<code>nav</code> + ordered list). Dividers between items come from CSS.</p>
+<p>A breadcrumb trail with a separator between items.</p>
 <p><strong>Tag:</strong> <code>ui-breadcrumb</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/breadcrumb</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/breadcrumb';
+import '@anzaui/anza/elements/link';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
 <view-code language="html">&lt;ui-breadcrumb&gt;
-  &lt;li&gt;&lt;a href="/docs"&gt;Docs&lt;/a&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;a href="/docs/elements"&gt;Elements&lt;/a&gt;&lt;/li&gt;
-  &lt;li aria-current="page"&gt;Breadcrumb&lt;/li&gt;
+  &lt;ui-link href="/"&gt;Home&lt;/ui-link&gt;
+  &lt;ui-link href="/docs"&gt;Docs&lt;/ui-link&gt;
+  &lt;span&gt;Breadcrumb&lt;/span&gt;
 &lt;/ui-breadcrumb&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<p><em>None — slot list items; style via CSS / parts.</em></p>
-<h2 id="notes">Notes</h2>
-<p>Uses <code>aria-label="Breadcrumb"</code>. Parts: <code>nav</code>, <code>list</code>. Slot children into the ordered list (typically <code>&lt;li&gt;</code>).</p>
+<p>The breadcrumb has no attributes. Every item except the last gets a <code>/</code> after it. The last item is shown in the primary content colour and does not take clicks (<code>pointer-events: none</code>).</p>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td>default</td><td>The items: <code>ui-link</code>, <code>a</code> or <code>span</code> elements</td></tr>
+</tbody></table></div>
+<h2 id="keyboard-and-accessibility">Keyboard and accessibility</h2>
+<p>The items sit inside <code>&lt;nav aria-label="Breadcrumb"&gt;</code> and an <code>&lt;ol&gt;</code>. The breadcrumb does not set <code>aria-current</code>; set it on the last item yourself.</p>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>nav</code></td><td>The <code>&lt;nav&gt;</code></td></tr>
+<tr><td><code>list</code></td><td>The <code>&lt;ol&gt;</code></td></tr>
+</tbody></table></div>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/navigation">Navigation</a></li>
-<li><a href="/docs/elements/nav">Nav</a></li>
+<li><a href="/docs/elements#navigation">Elements</a></li>
+<li><a href="/docs/elements/link">Link</a></li>
 </ul>

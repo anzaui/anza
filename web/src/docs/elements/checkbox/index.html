@@ -1,26 +1,71 @@
 <h1 id="checkbox">Checkbox</h1>
-<p>Form-participating checkbox with checked / indeterminate states and ElementInternals custom states.</p>
+<p>A form-associated checkbox with checked, indeterminate and disabled states.</p>
 <p><strong>Tag:</strong> <code>ui-checkbox</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/checkbox</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/checkbox';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
-<view-code language="html">&lt;ui-checkbox name="tos" value="accepted" required&gt;I agree&lt;/ui-checkbox&gt;
-&lt;ui-checkbox indeterminate&gt;Partial&lt;/ui-checkbox&gt;
+<view-code language="html">&lt;form&gt;
+  &lt;ui-checkbox name="terms" value="accepted" required&gt;I accept the terms&lt;/ui-checkbox&gt;
+&lt;/form&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>checked</code></td><td>Boolean</td><td>Reflect + custom state</td><td>Checked state</td></tr>
-<tr><td><code>indeterminate</code></td><td>Boolean</td><td>Reflect + custom state</td><td>Indeterminate (cleared when checked)</td></tr>
-<tr><td><code>disabled</code></td><td>Boolean</td><td>Reflect + custom state</td><td>Disables interaction</td></tr>
-<tr><td><code>required</code></td><td>Boolean</td><td>Reflect</td><td>Must be checked to be valid</td></tr>
-<tr><td><code>value</code></td><td>String</td><td>Reflect</td><td>Form value when checked (default <code>on</code>)</td></tr>
+<h2 id="attributes">Attributes</h2>
+<p>All attributes reflect to properties of the same name.</p>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td>String</td><td>none</td><td>Plain attribute (not a property). The form field name.</td></tr>
+<tr><td><code>checked</code></td><td>Boolean</td><td><code>false</code></td><td>Whether the box is checked.</td></tr>
+<tr><td><code>indeterminate</code></td><td>Boolean</td><td><code>false</code></td><td>Shows a dash. Ignored while <code>checked</code> is true. Cleared when the user toggles the box.</td></tr>
+<tr><td><code>value</code></td><td>String</td><td><code>on</code> when empty</td><td>Submitted value when checked.</td></tr>
+<tr><td><code>required</code></td><td>Boolean</td><td><code>false</code></td><td>The box must be checked.</td></tr>
+<tr><td><code>disabled</code></td><td>Boolean</td><td><code>false</code></td><td>Ignores clicks and keys and removes the element from the tab order.</td></tr>
 </tbody></table></div>
-<h2 id="notes">Notes</h2>
-<p>Toggle via click or Space/Enter. Uses <code>form: true</code>. Default slot is the label content.</p>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td>(default)</td><td>The label, shown next to the box. Clicking it toggles the box.</td></tr>
+</tbody></table></div>
+<h2 id="events">Events</h2>
+<div class="table-wrap"><table><thead><tr><th>Event</th><th>Detail</th><th>When</th></tr></thead><tbody>
+<tr><td><code>change</code></td><td>none</td><td>The user toggles the box by click, Space or Enter. Fires after <code>checked</code> and the form value update. Bubbles and is composed.</td></tr>
+</tbody></table></div>
+<p>Setting <code>checked</code> from code does not fire <code>change</code>.</p>
+<h2 id="form-behaviour">Form behaviour</h2>
+<ul>
+<li>When checked, the form value is <code>value</code> (or <code>on</code>). When unchecked, nothing is submitted.</li>
+<li>With <code>required</code> and unchecked, validity is <code>valueMissing</code> with the message "You must check this box."</li>
+<li>Form reset restores the <code>checked</code> attribute as it was at first mount and clears <code>indeterminate</code>.</li>
+<li>Inside a disabled <code>&lt;fieldset&gt;</code> the element removes its <code>tabindex</code>.</li>
+<li>On browser state restore, any non-null state checks the box.</li>
+</ul>
+<h2 id="keyboard-and-accessibility">Keyboard and accessibility</h2>
+<p>The host gets <code>tabindex="0"</code> unless it already has one; it is removed while disabled. Space and Enter toggle the box. The inner <code>box</code> part also has <code>tabindex="0"</code>, which adds a second tab stop. The element sets no <code>role</code> or <code>aria-checked</code>; add <code>role="checkbox"</code> and keep <code>aria-checked</code> in sync yourself if you need them.</p>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>box</code></td><td>The square that holds the check mark and the dash</td></tr>
+</tbody></table></div>
+<h3 id="custom-properties">Custom properties</h3>
+<div class="table-wrap"><table><thead><tr><th>Property</th><th>Default</th></tr></thead><tbody>
+<tr><td><code>--check-bg</code></td><td><code>var(--color-surface-page)</code></td></tr>
+<tr><td><code>--check-bg-checked</code></td><td><code>var(--color-interactive)</code></td></tr>
+<tr><td><code>--check-border</code></td><td><code>var(--color-border-default)</code></td></tr>
+<tr><td><code>--check-border-focus</code></td><td><code>var(--color-border-focus)</code></td></tr>
+<tr><td><code>--check-radius</code></td><td><code>var(--radius-sm)</code></td></tr>
+<tr><td><code>--check-size</code></td><td><code>var(--space-5)</code></td></tr>
+<tr><td><code>--check-color</code></td><td><code>var(--color-content-inverse)</code></td></tr>
+</tbody></table></div>
+<h3 id="states">States</h3>
+<div class="table-wrap"><table><thead><tr><th>State</th><th>When</th></tr></thead><tbody>
+<tr><td><code>checked</code></td><td><code>checked</code> is true</td></tr>
+<tr><td><code>indeterminate</code></td><td><code>indeterminate</code> is true and <code>checked</code> is false</td></tr>
+<tr><td><code>disabled</code></td><td><code>disabled</code> is true</td></tr>
+</tbody></table></div>
+<view-code language="css">ui-checkbox:state(checked)::part(box) {
+  border-width: 2px;
+}
+</view-code>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/forms">Forms</a></li>
-<li><a href="/docs/ui/forms">Form association</a></li>
+<li><a href="/docs/elements#forms">Elements</a></li>
+<li><a href="/docs/ui/form-associated">Form-associated elements</a></li>
+<li><a href="/docs/elements/toggle">Toggle</a></li>
+<li><a href="/docs/elements/radio">Radio</a></li>
 </ul>

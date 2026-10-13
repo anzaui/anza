@@ -26,7 +26,7 @@ globals.count(); // number of named framework attachments
 globals.list();  // [{ name, type, target }, …]
 // attach / detach / clear — framework and tests only
 </view-code>
-<p>Named attachments today include <code>router.nav-click</code>, <code>router.nav-popstate</code>, <code>router.container-mo</code>, <code>popover.target-click</code>, and <code>popover.body-mo:*</code>. See <a href="/docs/ui/advanced#framework-global-listeners--observers">Memory safety &amp; framework globals</a>.</p>
+<p>Named attachments today include <code>router.nav-click</code>, <code>router.nav-popstate</code>, <code>router.container-mo</code>, <code>popover.target-click</code>, and <code>popover.body-mo:*</code>. See <a href="/docs/ui/lifecycle#framework-globals">Memory safety &amp; framework globals</a>.</p>
 <h3 id="guardurlpattern"><code>guard.urlPattern()</code></h3>
 <p>Returns <code>Promise&lt;URLPatternClass&gt;</code>.</p>
 <h3 id="guardnavigation"><code>guard.navigation()</code></h3>
@@ -102,11 +102,11 @@ window.addEventListener('scroll', () =&gt; ctrl.update(), {
 </view-code>
 <p>Missing <code>floating</code> or <code>anchor</code> returns a no-op controller (<code>strategy: 'fixed'</code>, <code>open: false</code>).</p>
 <h3 id="guardsanitizer"><code>guard.sanitizer()</code></h3>
-<p>Returns <code>Promise&lt;{ sanitizeToString(input) }&gt;</code>. Native <code>Sanitizer</code> when available; otherwise <code>DOMPurify</code> if present, else a textContent escape.</p>
+<p>Returns <code>Promise&lt;{ sanitizeToString(input) }&gt;</code>. Uses a global <code>DOMPurify</code> if the page has loaded one; otherwise it escapes the input as text (no markup survives). It does not use the native <code>Sanitizer</code> API. For HTML sanitizing, use the security module.</p>
 <h3 id="guardscheduler"><code>guard.scheduler()</code></h3>
 <p>Returns <code>Promise&lt;schedulerObject&gt;</code>.</p>
 <h3 id="guardyield"><code>guard.yield()</code></h3>
-<p>Returns <code>Promise&lt;void&gt;</code>. Yields to the event loop.</p>
+<p>Returns <code>Promise&lt;void&gt;</code>. Calls <code>scheduler.yield()</code> on the native scheduler or the polyfill. Browsers with a native <code>scheduler.postTask</code> but no <code>scheduler.yield</code> do not get the polyfill, so <code>guard.yield()</code> throws there; check <code>supports.schedulerYield</code> first if you target them.</p>
 <h3 id="resetkey"><code>reset(key)</code></h3>
 <p>Clears cached detection value for a flag.</p>
 <view-code language="javascript">reset('urlPattern');
@@ -126,5 +126,5 @@ scheduler.yield()
 <li><a href="/docs/platform/guards">Guards</a> — narrative usage for each <code>guard.*</code> method</li>
 <li><a href="/docs/platform/supports">Supports</a> — capability flags</li>
 <li><a href="/docs/elements/overlay">Overlay patterns</a> — kit architecture (<code>ui-tooltip</code> uses escape)</li>
-<li><a href="/docs/ui/advanced">Memory safety &amp; framework globals</a></li>
+<li><a href="/docs/ui/lifecycle#memory-safety">Memory safety &amp; framework globals</a></li>
 </ul>

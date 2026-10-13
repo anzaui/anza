@@ -8,12 +8,12 @@
 reset('urlPattern');
 console.log(supports.urlPattern); // re-detects
 </view-code>
-<h2 id="guard-never-resolves">guard() never resolves</h2>
-<p><strong>Cause:</strong> Polyfill import fails (network error, CSP block, or bad path).</p>
-<p><strong>Fix:</strong> Check the console for polyfill load errors. The module logs warnings on failure:</p>
+<h2 id="a-guard-call-rejects">A guard call rejects</h2>
+<p><strong>Cause:</strong> The polyfill import failed (network error, CSP block, or bad path). The <code>guard.*</code> promise rejects with the import error.</p>
+<p><strong>Fix:</strong> Check the console. The eager bootstrap that runs when the module loads logs an error on failure:</p>
 <view-code language="text">Failed to eagerly bootstrap shadow polyfill: ...
 </view-code>
-<p>Ensure your build system bundles the polyfill files or that dynamic imports are allowed by your CSP.</p>
+<p>Polyfills are loaded with dynamic <code>import()</code>. Make sure those files are served and that your CSP allows them.</p>
 <h2 id="typeguard-throws-in-tests">typeGuard throws in tests</h2>
 <p><strong>Cause:</strong> The test environment (JSDOM, Node) does not support the browser API.</p>
 <p><strong>Fix:</strong> Mock the flag before calling <code>typeGuard</code>, or skip the guard in test environments:</p>

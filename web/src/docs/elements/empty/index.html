@@ -1,32 +1,35 @@
 <h1 id="empty">Empty</h1>
-<p>Empty-state panel with illustration, title, description, and optional CTA slot.</p>
+<p>Centered empty-state panel with an illustration, a title, a description and actions.</p>
 <p><strong>Tag:</strong> <code>ui-empty</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/empty</code></p>
-<h2 id="import">Import</h2>
-<view-code language="javascript">import '@anzaui/anza/elements/empty';
-</view-code>
-<h2 id="basic-usage">Basic usage</h2>
-<view-code language="html">&lt;ui-empty&gt;&lt;/ui-empty&gt;
-&lt;ui-empty title="No projects" description="Create a project to get started."&gt;
-  &lt;ui-button&gt;New project&lt;/ui-button&gt;
+<h2 id="usage">Usage</h2>
+<view-code language="html">&lt;ui-empty title="No projects yet" description="Create a project to get started."&gt;
+  &lt;ui-button type="button"&gt;New project&lt;/ui-button&gt;
 &lt;/ui-empty&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>title</code></td><td>String</td><td>Reflect</td><td>Heading text (default “No records found”)</td></tr>
-<tr><td><code>description</code></td><td>String</td><td>Reflect</td><td>Supporting copy under the title</td></tr>
+<view-code language="javascript">import '@anzaui/anza/elements/empty';
+</view-code>
+<h2 id="attributes">Attributes</h2>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>title</code></td><td>String</td><td>"No records found"</td><td>Heading text (rendered in an <code>&lt;h3&gt;</code>).</td></tr>
+<tr><td><code>description</code></td><td>String</td><td>"Try adjusting your search criteria or add new records."</td><td>Paragraph below the heading.</td></tr>
 </tbody></table></div>
-<h2 id="slots--parts">Slots / parts</h2>
-<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>illustration</code></td><td>slot</td><td>Custom illustration (default SVG)</td></tr>
-<tr><td><em>(default)</em></td><td>slot</td><td>Actions / CTAs</td></tr>
-<tr><td><code>illustration</code></td><td>part</td><td>Illustration wrapper</td></tr>
-<tr><td><code>title</code></td><td>part</td><td>Title heading</td></tr>
-<tr><td><code>description</code></td><td>part</td><td>Description paragraph</td></tr>
-<tr><td><code>actions</code></td><td>part</td><td>Actions row</td></tr>
+<p>Both are set as plain text. <code>title</code> is also the global HTML attribute, so browsers show it as a native hover tooltip on the element.</p>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td><code>illustration</code></td><td>Image or icon above the title. Defaults to a circle-with-dash SVG. Slotted <code>svg</code> and <code>img</code> are sized to <code>--space-12 * 2</code>.</td></tr>
+<tr><td>(default)</td><td>Actions, laid out in a centered row</td></tr>
+</tbody></table></div>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>illustration</code></td><td>Wrapper around the illustration slot</td></tr>
+<tr><td><code>title</code></td><td>The <code>&lt;h3&gt;</code> heading</td></tr>
+<tr><td><code>description</code></td><td>The <code>&lt;p&gt;</code> description</td></tr>
+<tr><td><code>actions</code></td><td>Wrapper around the default slot</td></tr>
 </tbody></table></div>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/feedback">Feedback</a></li>
 <li><a href="/docs/elements/alert">Alert</a></li>
+<li><a href="/docs/elements/skeleton">Skeleton</a></li>
+<li><a href="/docs/elements#feedback">Elements</a></li>
 </ul>

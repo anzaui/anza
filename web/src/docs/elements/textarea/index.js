@@ -7,6 +7,6 @@ page('/docs/elements/textarea', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Textarea — Anza',
-    description: 'ui-textarea — form-participating multi-line text with validation and auto-resize.'
+    description: 'ui-textarea: a form-associated multi-line text control with native validation, optional auto-resize and form reset.'
   }
 }, import.meta.url);

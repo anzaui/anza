@@ -7,6 +7,6 @@ page('/docs/elements/toggle', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Toggle — Anza',
-    description: 'ui-toggle — form-participating switch with role=switch.'
+    description: 'ui-toggle: a form-associated on/off switch with role=switch, change events, form reset and an on custom state.'
   }
 }, import.meta.url);

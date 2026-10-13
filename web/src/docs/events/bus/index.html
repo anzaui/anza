@@ -1,5 +1,5 @@
 <h1 id="bus">Bus</h1>
-<p>The global event bus is a singleton <code>EventBus</code> instance built on the native <code>EventTarget</code>. It provides typed <code>emit</code> and <code>on</code> methods for application-wide publish/subscribe.</p>
+<p>The global event bus is a singleton <code>EventBus</code> instance built on the native <code>EventTarget</code>. It provides <code>emit</code> and <code>on</code> methods for application-wide publish/subscribe.</p>
 <h2 id="global-bus">Global Bus</h2>
 <view-code language="javascript">import { events } from '@anzaui/anza/events';
 
@@ -47,14 +47,16 @@ off(); // removes just this listener
 </view-code>
 <h2 id="using-native-eventtarget-methods">Using Native EventTarget Methods</h2>
 <p>The bus is a full <code>EventTarget</code>. Use native methods directly if needed:</p>
-<view-code language="javascript">bus.addEventListener('custom', handler);
+<view-code language="javascript">import { bus } from '@anzaui/anza/events';
+
+bus.addEventListener('custom', handler);
 bus.dispatchEvent(new CustomEvent('custom', { detail: {} }));
 bus.removeEventListener('custom', handler);
 </view-code>
 <h2 id="listener-order">Listener Order</h2>
 <p>Listeners fire in registration order. There is no priority system. If order matters, register in the correct sequence.</p>
 <h2 id="error-handling">Error Handling</h2>
-<p>Listener errors are not caught by the bus. Wrap handlers to prevent one listener from breaking others:</p>
+<p>The bus dispatches with the native <code>dispatchEvent</code>. If a listener throws, the browser reports the error (it shows up in the console and fires <code>error</code> on <code>window</code>), and the remaining listeners still run. <code>emit</code> itself does not throw. Wrap a handler when you want to handle its errors yourself:</p>
 <view-code language="javascript">events.on('update', (e) =&gt; {
   try {
     process(e.detail);

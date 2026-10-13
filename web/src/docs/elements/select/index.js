@@ -7,6 +7,6 @@ page('/docs/elements/select', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Select — Anza',
-    description: 'ui-select — form-participating dropdown using Popover API.'
+    description: 'ui-select: a form-associated dropdown that lists slotted options in a native popover and fires change on selection.'
   }
 }, import.meta.url);

@@ -1,29 +1,30 @@
 <h1 id="table">Table</h1>
-<p>Styled wrapper for a native HTML table (slot content). Use a light-DOM <code>&lt;table&gt;</code> inside for semantics.</p>
+<p>A bordered wrapper that scrolls a native <code>&lt;table&gt;</code> horizontally when it is too wide.</p>
 <p><strong>Tag:</strong> <code>ui-table</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/table</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/table';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
 <view-code language="html">&lt;ui-table&gt;
   &lt;table&gt;
     &lt;thead&gt;
-      &lt;tr&gt;&lt;th&gt;Name&lt;/th&gt;&lt;th&gt;Status&lt;/th&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;th&gt;Name&lt;/th&gt;&lt;th&gt;Role&lt;/th&gt;&lt;/tr&gt;
     &lt;/thead&gt;
     &lt;tbody&gt;
-      &lt;tr&gt;&lt;td&gt;Alpha&lt;/td&gt;&lt;td&gt;Active&lt;/td&gt;&lt;/tr&gt;
-      &lt;tr&gt;&lt;td&gt;Beta&lt;/td&gt;&lt;td&gt;Paused&lt;/td&gt;&lt;/tr&gt;
+      &lt;tr&gt;&lt;td&gt;Ada&lt;/td&gt;&lt;td&gt;Admin&lt;/td&gt;&lt;/tr&gt;
     &lt;/tbody&gt;
   &lt;/table&gt;
 &lt;/ui-table&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<p><em>None — presentational wrapper; style via CSS / slotted table markup.</em></p>
-<h2 id="notes">Notes</h2>
-<p>Default slot receives the table (or table wrap). Pair with a host/page <code>.table-wrap</code> if you need horizontal scroll outside the element.</p>
+<p>The table has no attributes. The host draws the border, radius and elevated background and sets <code>overflow-x: auto</code>. The slotted <code>&lt;table&gt;</code> gets full width, collapsed borders, the sans font and the primary content colour.</p>
+<p><code>::slotted()</code> only reaches direct children, so rows and cells are not styled by the element. Style <code>th</code>, <code>td</code> and <code>tr</code> from your own stylesheet.</p>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td>default</td><td>A <code>&lt;table&gt;</code></td></tr>
+</tbody></table></div>
+<h2 id="styling">Styling</h2>
+<p>The table has no parts, custom properties or custom states.</p>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/data">Data</a></li>
+<li><a href="/docs/elements#data">Elements</a></li>
 <li><a href="/docs/elements/list">List</a></li>
 </ul>

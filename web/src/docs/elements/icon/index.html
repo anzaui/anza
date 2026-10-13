@@ -1,24 +1,36 @@
 <h1 id="icon">Icon</h1>
-<p>Accessible SVG sprite icon with size tokens, name/href targets, and ARIA decoration.</p>
+<p>Renders one symbol from an SVG sprite through <code>&lt;use&gt;</code>.</p>
 <p><strong>Tag:</strong> <code>ui-icon</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/icon</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/icon';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
-<view-code language="html">&lt;ui-icon name="check" size="4"&gt;&lt;/ui-icon&gt;
-&lt;ui-icon href="/assets/icons.svg#icon-search" aria-label="Search"&gt;&lt;/ui-icon&gt;
+<view-code language="html">&lt;ui-icon name="search" size="5"&gt;&lt;/ui-icon&gt;
+&lt;ui-icon href="/assets/brand.svg#logo" aria-label="Anza"&gt;&lt;/ui-icon&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>name</code></td><td>String</td><td>Reflect</td><td>Sprite id; resolves to <code>/assets/icons.svg#icon-{name}</code> when <code>href</code> is unset</td></tr>
-<tr><td><code>href</code></td><td>String</td><td>Reflect</td><td>Full <code>&lt;use href&gt;</code> target (overrides <code>name</code>)</td></tr>
-<tr><td><code>size</code></td><td>String</td><td>Reflect</td><td>CSS length or space token key (e.g. <code>4</code> → <code>var(--space-4)</code>)</td></tr>
-<tr><td><code>stroke</code></td><td>String</td><td>Reflect</td><td>Stroke color via <code>--icon-stroke</code></td></tr>
+<h2 id="attributes">Attributes</h2>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td>String</td><td>—</td><td>Sprite symbol. Resolves to <code>/assets/icons.svg#icon-&lt;name&gt;</code>.</td></tr>
+<tr><td><code>href</code></td><td>String</td><td>—</td><td>Full sprite reference. Takes precedence over <code>name</code>.</td></tr>
+<tr><td><code>size</code></td><td>String</td><td>—</td><td>A spacing step (<code>5</code> → <code>var(--space-5)</code>) or a length containing <code>px</code> or <code>rem</code>. Sets <code>--icon-size</code>.</td></tr>
+<tr><td><code>stroke</code></td><td>String</td><td>—</td><td>Stroke width. Sets <code>--icon-stroke</code>.</td></tr>
 </tbody></table></div>
-<h2 id="notes">Notes</h2>
-<p>Without <code>aria-label</code> / <code>aria-labelledby</code>, the SVG is <code>aria-hidden</code>. Provide a label when the icon is meaningful.</p>
+<h2 id="keyboard-and-accessibility">Keyboard and accessibility</h2>
+<p>The inner <code>&lt;svg&gt;</code> has <code>aria-hidden="true"</code> unless the host has <code>aria-label</code> or <code>aria-labelledby</code>.</p>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>svg</code></td><td>The <code>&lt;svg&gt;</code></td></tr>
+</tbody></table></div>
+<h3 id="custom-properties">Custom properties</h3>
+<div class="table-wrap"><table><thead><tr><th>Property</th><th>Default</th></tr></thead><tbody>
+<tr><td><code>--icon-size</code></td><td><code>var(--space-4)</code></td></tr>
+<tr><td><code>--icon-color</code></td><td><code>currentColor</code></td></tr>
+<tr><td><code>--icon-stroke</code></td><td><code>2</code></td></tr>
+</tbody></table></div>
+<p>The <code>size</code> and <code>stroke</code> attributes set <code>--icon-size</code> and <code>--icon-stroke</code> inline on the host, so they win over stylesheet values.</p>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/primitives">Primitives</a></li>
+<li><a href="/docs/elements#primitives">Elements</a></li>
+<li><a href="/docs/elements/button">Button</a></li>
+<li><a href="/docs/styles/tokens">Design Tokens</a></li>
 </ul>

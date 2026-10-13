@@ -7,6 +7,6 @@ page('/docs/elements/app', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'App — Anza',
-    description: 'ui-app — application shell with header, sidebar, and main slots.'
+    description: 'ui-app — full-height application shell with header, sidebar and main slots that stacks below 768px.'
   }
 }, import.meta.url);

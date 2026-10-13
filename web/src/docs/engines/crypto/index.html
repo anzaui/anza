@@ -1,29 +1,51 @@
 <h1 id="cryptographic-verification">Cryptographic Verification</h1>
 <p>The cryptographic verification module protects Server-Templated UI (STUI) fragments from tampering, replay attacks, and unauthorized origin injection across reverse proxies, CDNs, and microservices.</p>
 <h2 id="overview">Overview</h2>
-<p>When dynamic component fragments or real-time streaming updates are sent over the wire, the backend signs the payload across a canonical string:</p>
-<view-code language="text">ts:slot:html
+<p>When dynamic component fragments or real-time streaming updates are sent over the wire, the backend signs a length-prefixed message built from the envelope (signature v2):</p>
+<view-code language="text">message  = "anza-sig-v2\n" field(ts) field(slot) field(html) field(css)
+field(x) = &lt;decimal UTF-8 byte length of x&gt; ":" x "\n"
 </view-code>
 <ul>
-<li><strong><code>ts</code></strong>: Unix epoch timestamp in seconds at time of generation.</li>
+<li><strong><code>ts</code></strong>: Unix time in seconds when the fragment was rendered, written in decimal.</li>
 <li><strong><code>slot</code></strong>: Target dock or slot identifier (e.g. <code>feed</code>, <code>main</code>).</li>
 <li><strong><code>html</code></strong>: Rendered HTML markup of the fragment.</li>
+<li><strong><code>css</code></strong>: Fragment CSS. An absent <code>css</code> is the empty string.</li>
 </ul>
-<p>The signature is hex-encoded in the envelope's <code>sig</code> field. Whoever receives the envelope (an edge worker, a proxy, another service, or your own browser code) verifies it with the matching <code>verify</code> helper and checks that <code>ts</code> is fresh. The browser library does not verify envelopes for you; see <a href="#client-side-verification">Client-Side Verification</a>.</p>
+<p>For example, <code>{ts: 1, slot: "a:b", html: "c"}</code> signs
+<code>anza-sig-v2\n1:1\n3:a:b\n1:c\n0:\n</code>. Every field is length-prefixed, so two
+different envelopes never share a message. Version 1 joined the fields with
+colons, so slot <code>a:b</code> with html <code>c</code> and slot <code>a</code> with html <code>b:c</code> produced the
+same bytes. Version 1 is no longer produced or accepted.</p>
+<p>The signature is lowercase hex in the envelope's <code>sig</code> field. Whoever receives the envelope (an edge worker, a proxy, another service) checks it with <code>verify_envelope</code>, which also checks the version, freshness and slot. The browser library does not verify envelopes for you; see <a href="#client-side-verification">Client-Side Verification</a>. The exact rules are in the <a href="/docs/engines/contract">Engine Contract</a>.</p>
+<p>Each engine also exposes the message builder: Rust <code>anza::crypto::envelope::message(ts, slot, html, css)</code>, TS <code>signatureMessage(ts, slot, html, css?)</code>, Python <code>signature_message(ts, slot, html, css=None)</code>, and <code>envelope.message()</code> on every envelope.</p>
 <h2 id="signing-modes">Signing Modes</h2>
-<div class="table-wrap"><table><thead><tr><th>Mode</th><th>Algorithm</th><th>Best For</th><th>Proxy / CDN Support</th><th>Auth Dependency</th></tr></thead><tbody>
-<tr><td><strong><code>Ed25519</code></strong></td><td>Asymmetric Ed25519</td><td>Public pages, multi-tier CDNs, microfrontends</td><td>Yes (Bypasses CDN TLS termination)</td><td>None</td></tr>
-<tr><td><strong><code>Hmac</code></strong></td><td>HMAC-SHA256</td><td>Internal VPC microservices / single origin</td><td>Yes</td><td>Pre-shared secret</td></tr>
-<tr><td><strong><code>None</code></strong></td><td>No Signature</td><td>Local development and testing</td><td>Yes</td><td>None</td></tr>
+<div class="table-wrap"><table><thead><tr><th>Mode</th><th>Algorithm</th><th>Key</th><th><code>sig</code></th><th>Best For</th></tr></thead><tbody>
+<tr><td><strong><code>ed25519</code></strong></td><td>Ed25519 (RFC 8032)</td><td>32-byte private seed; optional 32-byte public key</td><td>128 hex characters</td><td>Public pages, multi-tier CDNs, microfrontends</td></tr>
+<tr><td><strong><code>hmac</code></strong></td><td>HMAC-SHA256</td><td>Secret of at least 32 bytes</td><td>64 hex characters</td><td>Internal services and single origins sharing a secret</td></tr>
+<tr><td><strong><code>none</code></strong></td><td>No signature</td><td>—</td><td>absent</td><td>Local development and testing</td></tr>
 </tbody></table></div>
+<h2 id="key-validation">Key Validation</h2>
+<p>Keys are checked once, when <code>Setup</code> runs. A bad key is a <code>CRYPTO</code> error at
+setup. A running engine never sends an unsigned envelope because of a bad key,
+and never fails at render time because of one. Setup rejects:</p>
+<ul>
+<li>an HMAC secret that is missing or shorter than 32 bytes (a string counts its UTF-8 bytes);</li>
+<li>an Ed25519 private key that is not a 32-byte seed (TS also takes 64-char lowercase hex, PEM or a <code>KeyObject</code>; Python also takes 64-char lowercase hex or an <code>Ed25519PrivateKey</code>);</li>
+<li>an Ed25519 public key that is given but does not match the private key;</li>
+<li>in Rust, a key file passed to <code>Setup::ed25519</code> that cannot be read.</li>
+</ul>
+<p>Hex is strict everywhere: lowercase, even length, <code>0-9a-f</code> only. Rust
+<code>Debug</code>, TS <code>inspect</code>/<code>JSON.stringify</code> and Python <code>repr</code> print <code>&lt;redacted&gt;</code>
+instead of key material. The validated key is available as <code>engine.signer()</code>
+(Rust) or <code>engine.signer</code> (TS, Python).</p>
 <h2 id="asymmetric-ed25519-recommended">Asymmetric Ed25519 (Recommended)</h2>
-<p>Ed25519 uses public-key cryptography. The origin server holds the private key and signs envelopes; clients and edge proxies verify signatures using the public key without needing access to any secrets.</p>
+<p>Ed25519 uses public-key cryptography. The origin server holds the private key and signs envelopes. Edge proxies and other services verify signatures with the public key without needing access to any secret.</p>
 <h3 id="backend-setup-rust">Backend Setup (Rust)</h3>
 <view-code language="rust">use anza::Setup;
 
-// Raw 32-byte private and public key files
+// Raw 32-byte private seed and public key files; a missing file is an error.
 let mut setup = Setup::new("./templates");
-setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub");
+setup.signing = Setup::ed25519("keys/origin.key", "keys/origin.pub")?;
 let engine = setup.run()?;
 </view-code>
 <h3 id="backend-setup-typescript">Backend Setup (TypeScript)</h3>
@@ -38,8 +60,16 @@ const engine = await new Setup({
   },
 }).run();
 </view-code>
+<h3 id="backend-setup-python">Backend Setup (Python)</h3>
+<view-code language="python">from anza import Setup, SignOptions
+
+engine = Setup(
+    root="./templates",
+    signing=SignOptions(mode="ed25519", private_key=open("keys/origin.key", "rb").read()),
+).run()
+</view-code>
 <h2 id="symmetric-hmac-sha256">Symmetric HMAC-SHA256</h2>
-<p>For single-origin deployments or internal microservices sharing a secure environment secret:</p>
+<p>For single-origin deployments or internal microservices sharing a secret of at least 32 bytes:</p>
 <view-code language="typescript">import { Setup } from '@anzaui/engine';
 
 const engine = await new Setup({
@@ -51,25 +81,76 @@ const engine = await new Setup({
 }).run();
 </view-code>
 <h2 id="wire-envelope-format">Wire Envelope Format</h2>
-<p>All signed fragments conform to the standard wire envelope:</p>
-<view-code language="json">{
-  "slot": "feed",
-  "ts": 1724771234,
-  "html": "&lt;ui-card class=\"stream-card\"&gt;&lt;div slot=\"header\"&gt;Live Card&lt;/div&gt;&lt;/ui-card&gt;",
-  "sig": "9f83a8b2c4e1d7f005a3e4b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8",
-  "css": null
-}
+<p>All fragments use the v2 wire envelope. It is serialized as compact JSON with
+<code>v</code> first, and <code>sig</code> and <code>css</code> are left out when absent:</p>
+<view-code language="json">{"v":2,"slot":"feed","ts":1724771234,"html":"&lt;ui-card class=\"stream-card\"&gt;&lt;div slot=\"header\"&gt;Live Card&lt;/div&gt;&lt;/ui-card&gt;","sig":"9f83a8b2…c7d8"}
+</view-code>
+<div class="table-wrap"><table><thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>v</code></td><td>integer</td><td>Wire-format version. Always <code>2</code>.</td></tr>
+<tr><td><code>slot</code></td><td>string</td><td>Target slot or dock.</td></tr>
+<tr><td><code>ts</code></td><td>integer</td><td>Unix time in seconds when the fragment was rendered.</td></tr>
+<tr><td><code>html</code></td><td>string</td><td>Rendered markup.</td></tr>
+<tr><td><code>sig</code></td><td>string, optional</td><td>Lowercase hex signature. Absent when signing is off.</td></tr>
+<tr><td><code>css</code></td><td>string, optional</td><td>Fragment CSS. Absent when there is none.</td></tr>
+</tbody></table></div>
+<h2 id="verifying-envelopes">Verifying Envelopes</h2>
+<p><code>verify_envelope</code> takes a key, a received envelope, the maximum age in seconds
+and the expected slot. <code>skew_secs</code> (default 5) allows for clocks that run
+slightly ahead, and <code>now</code> overrides the clock. The checks run in this order,
+and the first failure is a <code>CRYPTO</code> error with this message:</p>
+<div class="table-wrap"><table><thead><tr><th>Check</th><th>Message</th></tr></thead><tbody>
+<tr><td><code>v</code> is <code>2</code></td><td><code>unsupported envelope version</code></td></tr>
+<tr><td>fields have the right types (TS, Python)</td><td><code>malformed envelope</code></td></tr>
+<tr><td><code>sig</code> is present</td><td><code>envelope is not signed</code></td></tr>
+<tr><td><code>sig</code> is strict hex</td><td><code>malformed signature</code></td></tr>
+<tr><td><code>ts</code> is at most <code>skew_secs</code> in the future</td><td><code>envelope timestamp is in the future</code></td></tr>
+<tr><td><code>ts</code> is at most <code>max_age_secs</code> old</td><td><code>envelope expired</code></td></tr>
+<tr><td><code>slot</code> equals the expected slot</td><td><code>slot mismatch</code></td></tr>
+<tr><td>the signature verifies (constant-time)</td><td><code>bad signature</code></td></tr>
+</tbody></table></div>
+<p>A short HMAC secret or a malformed public key is <code>invalid verification key</code>.
+The slot check stops a fragment signed for one slot from being replayed into
+another one. <code>Engine.verify_envelope</code> runs the same checks with the engine's
+own key.</p>
+<h3 id="rust">Rust</h3>
+<view-code language="rust">use anza::{verify_envelope, Envelope, VerifyKey, VerifyOptions};
+
+let envelope: Envelope = serde_json::from_str(&amp;body)?;
+verify_envelope(VerifyKey::Ed25519(&amp;public_key), &amp;envelope, &amp;VerifyOptions::new("feed", 60))?;
+// HMAC: VerifyKey::Hmac(&amp;secret). With the engine's own key:
+engine.verify_envelope(&amp;envelope, &amp;VerifyOptions::new("feed", 60))?;
+</view-code>
+<h3 id="typescript">TypeScript</h3>
+<view-code language="typescript">import { verifyEnvelope } from '@anzaui/engine';
+
+// Throws AnzaError with code CRYPTO.
+verifyEnvelope({ mode: 'ed25519', publicKey }, JSON.parse(body), { maxAgeSecs: 60, slot: 'feed' });
+verifyEnvelope({ mode: 'hmac', secret }, JSON.parse(body), { maxAgeSecs: 60, slot: 'feed' });
+engine.verifyEnvelope(JSON.parse(body), { maxAgeSecs: 60, slot: 'feed' });
+</view-code>
+<h3 id="python">Python</h3>
+<view-code language="python">import json
+from anza import AnzaError, VerifyKey, verify_envelope
+
+try:
+    verify_envelope(VerifyKey.ed25519(public_key), json.loads(body), max_age_secs=60, slot="feed")
+except AnzaError as err:
+    print(err.code, err)  # CRYPTO [Anza:CRYPTO] envelope expired
+
+# HMAC: VerifyKey.hmac(secret). With the engine's own key:
+engine.verify_envelope(json.loads(body), max_age_secs=60, slot="feed")
 </view-code>
 <h2 id="client-side-verification">Client-Side Verification</h2>
 <p>The engines do not inject a key into pages. If you want browser-side checks, publish your public key in the document head yourself:</p>
 <view-code language="html">&lt;meta name="anza-key" content="ed25519:e4d9b2c3a1f09876543210fedcba9876543210fedcba9876543210fedcba9876"&gt;
 </view-code>
-<p>The browser library does <strong>not</strong> verify envelopes automatically: there is no
+<p>The browser library still does <strong>not</strong> verify envelopes: there is no
 built-in stream listener, and <code>api.stream()</code> only parses JSON. Verification is
-done with the engines' <code>verify</code> helpers (Rust <code>crypto::ed25519</code>, TS
-<code>crypto/ed25519.ts</code> / <code>crypto/hmac.ts</code>, Python <code>anza.crypto</code>), typically on the
-server or edge that relays fragments. To verify in the browser, rebuild the
-<code>ts:slot:html</code> message from the envelope, check that <code>ts</code> is fresh, and call
-<code>crypto.subtle.verify('Ed25519', key, sig, message)</code> with the public key from
-<code>&lt;meta name="anza-key"&gt;</code>. <code>verify()</code> from <code>@anzaui/anza/security</code> covers HMAC and
-ECDSA keys only.</p>
+done with <code>verify_envelope</code> (see <a href="#verifying-envelopes">Verifying Envelopes</a>),
+typically on the server or edge that relays fragments. To verify in the
+browser, check that <code>v</code> is <code>2</code> and that <code>ts</code> is fresh and <code>slot</code> is the one you
+expect, rebuild the v2 message (<code>anza-sig-v2\n</code> followed by the
+length-prefixed <code>ts</code>, <code>slot</code>, <code>html</code> and <code>css</code> fields, with lengths counted in
+UTF-8 bytes) and call <code>crypto.subtle.verify('Ed25519', key, sig, message)</code>
+with the public key from <code>&lt;meta name="anza-key"&gt;</code>. <code>verify()</code> from
+<code>@anzaui/anza/security</code> covers HMAC and ECDSA keys only.</p>

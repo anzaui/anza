@@ -6,15 +6,16 @@
 <li><strong>Open Declarative Shadow DOM (DSD)</strong> — Instant initial render without client-side hydration pauses</li>
 <li><strong>Zero-copy parameter injection</strong> — Templates are pre-parsed once at startup into memory offsets</li>
 <li><strong>Cryptographic tamper-proofing</strong> — Signed JSON envelopes protect dynamic fragments across CDNs and proxies</li>
-<li><strong>Multi-language wire compatibility</strong> — Identical envelope format across Rust, TypeScript, and Python</li>
+<li><strong>Multi-language wire compatibility</strong> — Byte-identical envelopes, signatures and SSE frames across Rust, TypeScript, and Python, pinned by one <a href="/docs/engines/contract">Engine Contract</a></li>
 <li><strong>Universal streaming</strong> — First-class Server-Sent Events (SSE) and WebSocket text frame support</li>
-<li><strong>Zero external runtime dependencies</strong> — Standard libraries and Web Standards across all engines</li>
+<li><strong>Small dependency footprint</strong> — The TypeScript engine has no runtime dependencies, the Python engine needs only <code>cryptography</code>, and the Rust crate uses a few audited crates (<code>serde</code>, <code>sha2</code>, <code>hmac</code>, <code>ed25519-dalek</code>)</li>
 </ul>
 <h2 id="package-map">Package Map</h2>
 <div class="table-wrap"><table><thead><tr><th>Engine</th><th>Package / Crate</th><th>Ecosystem</th><th>Key Feature</th></tr></thead><tbody>
 <tr><td><a href="/docs/engines/rust">Rust Engine</a></td><td><code>anza</code> (Cargo)</td><td>Axum, Actix-web</td><td>Zero-copy byte slices, sub-millisecond latency</td></tr>
 <tr><td><a href="/docs/engines/ts">TypeScript Engine</a></td><td><code>@anzaui/engine</code> (npm)</td><td>Node.js, Bun, Deno, Hono, Express</td><td>Zero dependencies, JIT closure compilation</td></tr>
-<tr><td><a href="/docs/engines/py">Python Engine</a></td><td><code>anza</code> (PyPI)</td><td>FastAPI, Starlette, Flask, Django</td><td>Pure standard library, async streaming generator</td></tr>
+<tr><td><a href="/docs/engines/py">Python Engine</a></td><td><code>anza</code> (PyPI)</td><td>FastAPI, Starlette, Flask, Django</td><td>Standard library plus <code>cryptography</code>, async streaming generator</td></tr>
+<tr><td><a href="/docs/engines/contract">Engine Contract</a></td><td>Specification</td><td>All engines</td><td>Wire format v2, signatures, pages, values, escaping and errors</td></tr>
 <tr><td><a href="/docs/engines/crypto">Cryptographic Verification</a></td><td>Built-in</td><td>All engines</td><td>Ed25519, HMAC-SHA256, and HKDF session key derivation</td></tr>
 <tr><td><a href="/docs/engines/streaming">Real-Time Streaming</a></td><td>Built-in</td><td>All engines</td><td>Server-Sent Events (SSE) and WebSocket frame protocols</td></tr>
 </tbody></table></div>
@@ -37,13 +38,15 @@
 <h3 id="mode-b-dynamic-fragment-envelopes-sse--fetch">Mode B: Dynamic Fragment Envelopes (SSE &amp; Fetch)</h3>
 <p>Generates targeted JSON envelopes for real-time slot replacement and live streaming:</p>
 <view-code language="json">{
+  "v": 2,
   "slot": "feed",
   "ts": 1724771234,
   "html": "&lt;ui-card class=\"stream-card\"&gt;&lt;div slot=\"header\"&gt;Live Card&lt;/div&gt;&lt;/ui-card&gt;",
-  "sig": "3a8f4c2e1b...",
-  "css": null
+  "sig": "3a8f4c2e1b..."
 }
 </view-code>
+<p>On the wire the envelope is compact JSON (no spaces) with <code>v</code> first. <code>sig</code> and
+<code>css</code> are left out when absent.</p>
 <h2 id="templates">Templates</h2>
 <p>All three engines read the same template tree:</p>
 <view-code language="text">templates/
@@ -56,17 +59,20 @@
     └── card.html       # any other file can be rendered as a fragment
 </view-code>
 <ul>
-<li>Placeholders are <code>{{name}}</code> (whitespace inside the braces is trimmed). An unclosed or empty placeholder is a load error.</li>
+<li>Placeholders are <code>{{name}}</code> and <code>{{{name}}}</code> (raw). Whitespace inside the braces is trimmed. An unclosed or empty placeholder is a load error.</li>
 <li>Every template is loaded and parsed once, when <code>Setup</code> runs. Rendering only joins the parsed chunks with the parameter values.</li>
-<li>A missing parameter renders as an empty string.</li>
-<li>Values are <strong>not HTML-escaped</strong>. Escape anything that comes from users before binding it.</li>
-<li>Fragments are addressed by their path under the root (<code>feed/card.html</code>) and a target <code>slot</code> name.</li>
+<li>A missing parameter renders as an empty string. Booleans render as <code>true</code> / <code>false</code>, and lists, arrays, dicts and objects render as compact JSON.</li>
+<li>By default values are <strong>not HTML-escaped</strong>. Escape anything that comes from users with <code>escape_html</code> (TS <code>escapeHtml</code>) before binding it, or turn on the <code>escape</code> setup option so <code>{{name}}</code> is escaped and only <code>{{{name}}}</code> is raw.</li>
+<li>Fragments are addressed by their path under the root (<code>feed/card.html</code>) and a target <code>slot</code> name. The optional <code>fragments</code> setup option limits which templates can be rendered as fragments.</li>
+<li>Template names are relative <code>/</code>-separated paths. Lookups only use the in-memory cache, so request input never reaches the filesystem.</li>
 </ul>
-<p>The envelope (<code>slot</code>, <code>ts</code>, <code>html</code>, <code>sig</code>, <code>css</code>) and its signature are identical
-across engines. Page rendering differs slightly: the Python engine wraps the page
-in <code>&lt;page-&lt;route&gt;&gt;</code> with an open shadow root and requires <code>layout/shell.html</code>;
-the Rust and TypeScript engines insert the page markup as is and fall back to a
-minimal <code>&lt;dock-main&gt;</code> document when there is no shell. See each engine page.</p>
+<p>The envelope (<code>v</code>, <code>slot</code>, <code>ts</code>, <code>html</code>, <code>sig</code>, <code>css</code>), its signature and page
+rendering are identical across engines. A route resolves only under <code>pages/</code>
+(<code>/</code> is <code>pages/home.html</code>, <code>/about</code> is <code>pages/about.html</code>), falls back to
+<code>pages/index.html</code> when it exists, and is otherwise a <code>NOT_FOUND</code> error. The
+page markup goes into <code>layout/shell.html</code> as <code>{{content}}</code>, or into a minimal
+<code>&lt;dock-main&gt;</code> document when there is no shell. See the
+<a href="/docs/engines/contract">Engine Contract</a>.</p>
 <h2 id="file-map">File Map</h2>
 <div class="table-wrap"><table><thead><tr><th>File</th><th>What It Covers</th></tr></thead><tbody>
 <tr><td><a href="/docs/engines/rust">Rust Engine</a></td><td>Rust engine setup, Axum/Actix adapters, and Serde data binding</td></tr>
@@ -74,4 +80,5 @@ minimal <code>&lt;dock-main&gt;</code> document when there is no shell. See each
 <tr><td><a href="/docs/engines/py">Python Engine</a></td><td>Python engine setup, FastAPI, Flask, and dataclass binding</td></tr>
 <tr><td><a href="/docs/engines/crypto">Cryptographic Verification</a></td><td>Cryptographic signing, Ed25519, and tamper verification</td></tr>
 <tr><td><a href="/docs/engines/streaming">Real-Time Streaming</a></td><td>Real-time SSE streaming, WebSockets, and client adoption</td></tr>
+<tr><td><a href="/docs/engines/contract">Engine Contract</a></td><td>The behaviour all three engines share: wire format v2, signatures, pages, values and errors</td></tr>
 </tbody></table></div>

@@ -7,6 +7,6 @@ page('/docs/elements/upload', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Upload — Anza',
-    description: 'ui-upload — drag-and-drop file picker with optional upload progress.'
+    description: 'ui-upload: a click or drag-and-drop file picker that either reports the chosen files or POSTs them with progress events.'
   }
 }, import.meta.url);

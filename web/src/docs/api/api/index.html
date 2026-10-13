@@ -4,7 +4,7 @@
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
 </view-code>
 <h3 id="apigeturl-opts"><code>api.get(url, opts)</code></h3>
-<p>GET request. Returns parsed JSON or text.</p>
+<p>GET request. Returns parsed JSON or text. If the page has a server-rendered <code>&lt;script id="anza-state" type="application/json"&gt;</code> payload with a key equal to the resolved URL, <code>get</code> returns a copy of that value without a network call.</p>
 <view-code language="javascript">const data = await api.get('/user/profile');
 </view-code>
 <h3 id="apiposturl-body-opts"><code>api.post(url, body, opts)</code></h3>
@@ -18,16 +18,18 @@
 <h3 id="apideleteurl-opts"><code>api.delete(url, opts)</code></h3>
 <p>DELETE request.</p>
 <h3 id="apistreamurl-opts"><code>api.stream(url, opts)</code></h3>
-<p>NDJSON async iterable.</p>
-<view-code language="javascript">for await (const chunk of api.stream('/logs')) { ... }
+<p>NDJSON async iterable. Calls <code>fetch</code> directly: no prefix resolution, pipeline, cache, retry or timeout, and the body is not serialized.</p>
+<view-code language="javascript">for await (const chunk of api.stream('/logs')) {
+  console.log(chunk);
+}
 </view-code>
 <h3 id="apiuploadurl-data-opts"><code>api.upload(url, data, opts)</code></h3>
-<p>File upload with progress tracking. Returns promise resolving to response data.</p>
+<p>File upload over <code>XMLHttpRequest</code> with progress tracking. Returns a promise resolving to the parsed JSON or text body. No prefix resolution.</p>
 <view-code language="javascript">await api.upload('/upload', formData, { on: { progress: handler } });
 </view-code>
 <h3 id="apionevent-handler-signal"><code>api.on(event, handler, signal)</code></h3>
-<p>Subscribe to telemetry events. Returns disposer.</p>
-<view-code language="javascript">const off = api.on('status:401', handler);
+<p>Subscribe to telemetry events. Returns disposer. An aborted <code>signal</code> removes the listener.</p>
+<view-code language="javascript">const off = api.on('error', handler);
 off(); // unsubscribe
 </view-code>
 <h3 id="apiemitevent-detail"><code>api.emit(event, detail)</code></h3>
@@ -40,6 +42,15 @@ off(); // unsubscribe
 </view-code>
 <h3 id="apiprefixclear"><code>api.prefix.clear()</code></h3>
 <p>Remove all prefixes.</p>
+<h3 id="apiprefixresolveurl"><code>api.prefix.resolve(url)</code></h3>
+<p>Return the URL a request would use after prefix resolution.</p>
+<h3 id="apistate"><code>api.state()</code></h3>
+<p>Return a copy of the <code>__route</code> entry of the server-rendered <code>anza-state</code> payload, or <code>{}</code>.</p>
+<h3 id="apisync"><code>api.sync()</code></h3>
+<p>Re-read the <code>anza-state</code> payload from the document (for example after a soft navigation replaced it).</p>
+<h3 id="apiplatformerror"><code>api.PlatformError</code></h3>
+<p>The error class. Same as the <code>PlatformError</code> named export.</p>
+<p><code>api.cache.*</code> does not apply prefixes. Pass the resolved URL (see <code>api.prefix.resolve</code>).</p>
 <h3 id="apicachegeturl"><code>api.cache.get(url)</code></h3>
 <p>Read a cached response. Returns <code>Response</code> or <code>null</code>.</p>
 <h3 id="apicacheseturl-response-ttlms"><code>api.cache.set(url, response, ttlMs)</code></h3>
@@ -55,30 +66,30 @@ off(); // unsubscribe
 <h2 id="named-exports">Named Exports</h2>
 <view-code language="javascript">import {
   api,           // facade object
-  pipeline,    // Pipeline instance
+  pipeline,      // Pipeline instance
   PlatformError, // Error class
-  execute,       // raw fetch executor
+  execute,       // fetch executor: timeout, priority, HTTP_ERROR on non-2xx; no prefixes, pipeline, cache or retry
   retry,         // retry utility
   stream,        // streaming function
   createNDJSONTransform, // NDJSON TransformStream
   upload,        // upload function
-  prefixes,      // PrefixRegistry instance
+  prefixes,      // PrefixRegistry instance (same object as api.prefix)
   events,        // ApiEventEmitter instance
-  cache          // ApiCache instance
+  cache,         // ApiCache instance (same object as api.cache)
+  sync           // same as api.sync
 } from '@anzaui/anza/api';
 </view-code>
 <h2 id="request-options">Request Options</h2>
-<view-code language="javascript">{
-  headers: object,           // additional headers
-  signal: AbortSignal,       // cancellation
-  timeout: number,         // ms (default 10000)
-  priority: string,          // 'user-blocking' | 'user-visible' | 'background'
-  retries: number,         // attempts (default 3)
-  cache: string,           // 'cache-first' | 'network-first' | 'stale-while-revalidate'
-  expiry: number,          // TTL in ms (alias: ttl)
-  on: object               // per-request event listeners
-}
-</view-code>
+<div class="table-wrap"><table><thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>headers</code></td><td>object</td><td>—</td><td>Request headers. When set, sent as given (add <code>Content-Type</code> yourself)</td></tr>
+<tr><td><code>signal</code></td><td>AbortSignal</td><td>—</td><td>Cancellation</td></tr>
+<tr><td><code>timeout</code></td><td>number</td><td><code>10000</code></td><td>Timeout in ms</td></tr>
+<tr><td><code>priority</code></td><td>string</td><td><code>'user-visible'</code></td><td><code>'user-blocking'</code>, <code>'user-visible'</code> or <code>'background'</code></td></tr>
+<tr><td><code>retries</code></td><td>number</td><td><code>3</code></td><td>Total attempts</td></tr>
+<tr><td><code>cache</code></td><td>string</td><td>—</td><td><code>'cache-first'</code>, <code>'network-first'</code> or <code>'stale-while-revalidate'</code></td></tr>
+<tr><td><code>expiry</code> / <code>ttl</code></td><td>number</td><td>—</td><td>Cache TTL in ms. Takes precedence over <code>cache</code></td></tr>
+<tr><td><code>on</code></td><td>object</td><td>—</td><td>Per-request event listeners</td></tr>
+</tbody></table></div>
 <h2 id="telemetry-events">Telemetry Events</h2>
 <div class="table-wrap"><table><thead><tr><th>Event</th><th>Payload</th></tr></thead><tbody>
 <tr><td><code>error</code></td><td><code>{ error, requestId }</code></td></tr>
@@ -91,6 +102,7 @@ off(); // unsubscribe
 <tr><td><code>progress</code></td><td><code>{ loaded, total, percentage, requestId }</code></td></tr>
 <tr><td><code>chunk</code></td><td><code>{ chunk, requestId }</code></td></tr>
 </tbody></table></div>
+<p>For <code>get</code>, <code>post</code>, <code>put</code>, <code>patch</code> and <code>delete</code>, a non-2xx response rejects with <code>HTTP_ERROR</code> and fires <code>error</code> and <code>failed</code> with <code>{ error, requestId }</code>. <code>status:xxx</code> fires only for 2xx responses there. <code>upload</code> and <code>stream</code> also fire <code>status:xxx</code> for non-2xx responses. Read the status of a failed request from <code>event.detail.error.context.status</code>.</p>
 <h2 id="error-codes">Error Codes</h2>
 <div class="table-wrap"><table><thead><tr><th>Code</th><th>Context</th></tr></thead><tbody>
 <tr><td><code>HTTP_ERROR</code></td><td><code>{ url, status, method }</code></td></tr>
@@ -113,7 +125,7 @@ api.get('https://x.com/y'); // left as-is
 </tbody></table></div>
 <h2 id="retry-parameters">Retry Parameters</h2>
 <view-code language="javascript">retry(operation, {
-  attempts: 3,    // max attempts
+  attempts: 3,    // total attempts, including the first
   base: 100,     // starting delay ms
   maxDelay: 3000 // delay cap ms
 });

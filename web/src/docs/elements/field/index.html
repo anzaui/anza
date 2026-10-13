@@ -1,26 +1,41 @@
 <h1 id="field">Field</h1>
-<p>Field wrapper that coordinates label, required marker, hint, error, and a control slot.</p>
+<p>A layout wrapper that stacks a label, a hint, a form control and an error message.</p>
 <p><strong>Tag:</strong> <code>ui-field</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/field</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/field';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
 <view-code language="html">&lt;ui-field label="Email" required&gt;
+  &lt;span slot="hint"&gt;We never share your address.&lt;/span&gt;
   &lt;ui-input name="email" type="email" required&gt;&lt;/ui-input&gt;
-  &lt;span slot="hint"&gt;We'll never share this.&lt;/span&gt;
-  &lt;span slot="error"&gt;Enter a valid email.&lt;/span&gt;
+  &lt;span slot="error"&gt;Enter a valid email address.&lt;/span&gt;
 &lt;/ui-field&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>label</code></td><td>String</td><td>Reflect</td><td>Label text when the <code>label</code> slot is empty</td></tr>
-<tr><td><code>required</code></td><td>Boolean</td><td>Reflect</td><td>Shows the required marker</td></tr>
+<p><code>ui-field</code> is not form-associated and does not read the control's validity. It does not set <code>required</code> on the control, and its <code>&lt;label&gt;</code> is not linked to the control for assistive technology.</p>
+<h2 id="attributes">Attributes</h2>
+<p>All attributes reflect to properties of the same name.</p>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>label</code></td><td>String</td><td>none</td><td>Label text. Used only when the <code>label</code> slot is empty.</td></tr>
+<tr><td><code>required</code></td><td>Boolean</td><td><code>false</code></td><td>Shows a <code>*</code> after the label.</td></tr>
 </tbody></table></div>
-<h2 id="notes">Notes</h2>
-<p>Slots: <code>label</code>, <code>hint</code>, default (control), <code>error</code>. Not form-associated itself — wrap form controls inside.</p>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td><code>label</code></td><td>Label content. Takes the place of the <code>label</code> attribute.</td></tr>
+<tr><td><code>hint</code></td><td>Help text under the label.</td></tr>
+<tr><td>(default)</td><td>The form control.</td></tr>
+<tr><td><code>error</code></td><td>Error text under the control. It is always shown; add or remove it yourself.</td></tr>
+</tbody></table></div>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>label</code></td><td>The <code>&lt;label&gt;</code> with the label text and the required marker</td></tr>
+<tr><td><code>hint</code></td><td>The wrapper around the <code>hint</code> slot</td></tr>
+<tr><td><code>control</code></td><td>The wrapper around the default slot</td></tr>
+<tr><td><code>error</code></td><td>The wrapper around the <code>error</code> slot</td></tr>
+</tbody></table></div>
+<p><code>ui-field</code> declares no custom properties and no custom states.</p>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/forms">Forms</a></li>
+<li><a href="/docs/elements#forms">Elements</a></li>
 <li><a href="/docs/elements/input">Input</a></li>
+<li><a href="/docs/elements/form">Form</a></li>
 </ul>

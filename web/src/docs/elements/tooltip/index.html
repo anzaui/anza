@@ -1,48 +1,37 @@
 <h1 id="tooltip">Tooltip</h1>
-<p>Hover / focus hint. The tip stays in-tree (not a body portal) and uses the platform <strong>escape / position</strong> helper so it can leave <code>overflow</code> clipping via Popover top-layer, with a fixed-position fallback when APIs are missing.</p>
+<p>Short hint shown on hover or focus. The tip stays in the shadow tree and uses <code>guard.escape</code> to leave <code>overflow: hidden</code> ancestors.</p>
 <p><strong>Tag:</strong> <code>ui-tooltip</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/tooltip</code></p>
-<p>Architecture and when-to-use: <a href="/docs/elements/overlay">Overlay patterns</a>.</p>
-<h2 id="import">Import</h2>
-<view-code language="javascript">import '@anzaui/anza/elements/tooltip';
-</view-code>
-<h2 id="basic-usage">Basic usage</h2>
-<view-code language="html">&lt;ui-tooltip&gt;
+<h2 id="usage">Usage</h2>
+<view-code language="html">&lt;ui-tooltip placement="bottom"&gt;
   &lt;ui-button type="button"&gt;Save&lt;/ui-button&gt;
   &lt;span slot="content"&gt;Save changes&lt;/span&gt;
 &lt;/ui-tooltip&gt;
 </view-code>
-<p>Optional placement (default <code>top</code>):</p>
-<view-code language="html">&lt;ui-tooltip placement="bottom"&gt;
-  &lt;ui-button type="button"&gt;Info&lt;/ui-button&gt;
-  &lt;span slot="content"&gt;More detail&lt;/span&gt;
-&lt;/ui-tooltip&gt;
+<view-code language="javascript">import '@anzaui/anza/elements/tooltip';
 </view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>placement</code></td><td>String</td><td>Reflect</td><td>Anchor side: <code>top</code> (default), <code>bottom</code>, <code>left</code>, <code>right</code>, plus <code>-start</code> / <code>-end</code> variants</td></tr>
+<h2 id="attributes">Attributes</h2>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>placement</code></td><td>String</td><td><code>top</code></td><td>Side and alignment: <code>top</code>, <code>top-start</code>, <code>top-end</code>, <code>bottom</code>, <code>bottom-start</code>, <code>bottom-end</code>, <code>left</code>, <code>left-start</code>, <code>left-end</code>, <code>right</code>, <code>right-start</code>, <code>right-end</code>. An unknown value places the tip below the trigger, aligned to its start.</td></tr>
 </tbody></table></div>
-<h2 id="slots--parts">Slots / parts</h2>
-<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
-<tr><td>(default)</td><td>slot</td><td>Trigger content</td></tr>
-<tr><td><code>content</code></td><td>slot</td><td>Hint text / markup</td></tr>
-<tr><td><code>wrapper</code></td><td><code>::part</code></td><td>Hover / focus target</td></tr>
-<tr><td><code>tooltip</code></td><td><code>::part</code></td><td>Hint surface (<code>role="tooltip"</code>, <code>popover="manual"</code>)</td></tr>
+<p>The tip is offset 8px from the trigger and clamped to the viewport. It does not flip to the other side. A changed <code>placement</code> applies the next time the tip opens.</p>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td>(default)</td><td>The trigger</td></tr>
+<tr><td><code>content</code></td><td>The hint text</td></tr>
 </tbody></table></div>
-<h2 id="positioning--escape">Positioning / escape</h2>
-<ul>
-<li>On pointer enter / focus-within, the tip opens via <code>showPopover()</code> when the Popover API (or polyfill) is available — top-layer, so typical <code>overflow: hidden</code> ancestors do not clip it.</li>
-<li>Placement is computed by <code>@anzaui/anza/platform</code> (<code>escapeOverflow</code> / <code>guard.escape</code>) with <code>position: fixed</code> coordinates; scroll/resize keep it aligned.</li>
-<li>If popover methods are unavailable, the helper falls back to fixed positioning and a <code>data-escape-open</code> marker (still not a <code>document.body</code> portal).</li>
-<li>Prefer <a href="/docs/elements/popover">popover</a> / <a href="/docs/elements/menu">menu</a> for interactive panels; tooltip is for short non-interactive hints.</li>
-</ul>
-<p>Platform API: <code>import { escapeOverflow, guard } from '@anzaui/anza/platform'</code>.</p>
-<h3 id="lifecycle--memory">Lifecycle / memory</h3>
-<p>Show/hide uses the host <code>AbortController</code> (<code>el.ctrl.signal</code>) for the escape controller and pointer listeners. Soft-nav aborts teardown. See <a href="/docs/elements/overlay">Overlay patterns</a> and <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a>.</p>
+<h2 id="keyboard-and-accessibility">Keyboard and accessibility</h2>
+<p>The tip opens when the pointer enters the trigger area or focus moves into it. It closes when the pointer leaves, or when focus leaves both the trigger and the tip. The tip has <code>role="tooltip"</code>. The element does not set <code>aria-describedby</code> on the trigger; add an accessible name or description to the trigger yourself if the hint carries meaning.</p>
+<h2 id="how-it-escapes-clipping">How it escapes clipping</h2>
+<p>The tip is a <code>popover="manual"</code> element. On first show the element calls <code>guard.escape(tip, wrapper, { placement, offset: 8, signal })</code>, which loads the Popover polyfill if needed, then shows the tip in the top layer and positions it with fixed coordinates. If <code>showPopover()</code> fails, it falls back to <code>position: fixed</code> and sets <code>data-escape-open</code>. Scroll and resize listeners exist only while the tip is open. The controller is released when the element disconnects. See <a href="/docs/elements/overlay#custom-floats">Overlay patterns</a>.</p>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>wrapper</code></td><td>Wrapper around the trigger and the tip; the hover and focus target</td></tr>
+<tr><td><code>tooltip</code></td><td>The tip surface (<code>role="tooltip"</code>, <code>popover="manual"</code>)</td></tr>
+</tbody></table></div>
 <h2 id="related">Related</h2>
 <ul>
 <li><a href="/docs/elements/overlay">Overlay patterns</a></li>
 <li><a href="/docs/elements/popover">Popover</a></li>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/platform/api">Platform API</a> (<code>escapeOverflow</code> / <code>guard.escape</code>)</li>
-<li><a href="/docs/platform/guards#escape">Guards → escape</a></li>
+<li><a href="/docs/platform/guards#escape">Guards</a></li>
 </ul>

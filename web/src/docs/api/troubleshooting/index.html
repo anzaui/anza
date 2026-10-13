@@ -1,10 +1,10 @@
 <h1 id="troubleshooting">Troubleshooting</h1>
 <p>Common problems and their solutions.</p>
 <h2 id="request-returns-old-cached-data">Request returns old cached data</h2>
-<p><strong>Cause:</strong> TTL not expired, or no cache invalidation performed.</p>
+<p><strong>Cause:</strong> TTL not expired, no cache invalidation performed, or the URL is in the server-rendered <code>anza-state</code> payload.</p>
 <p><strong>Fix:</strong></p>
-<view-code language="javascript">// Force fresh by clearing the cache entry
-await api.cache.delete('/products');
+<view-code language="javascript">// Force fresh by clearing the cache entry (cache methods take the resolved URL)
+await api.cache.delete(api.prefix.resolve('/products'));
 
 // Or use network-first strategy
 await api.get('/products', { cache: 'network-first' });
@@ -19,7 +19,7 @@ await api.get('/products', { expiry: 5000 });
   console.warn('Cache API unavailable');
 }
 </view-code>
-<p>Private browsing modes often disable the Cache API.</p>
+<p>The Cache API needs a secure context (HTTPS or localhost).</p>
 <h2 id="prefix-not-resolving">Prefix not resolving</h2>
 <p><strong>Cause:</strong> Prefix not registered, or path format mismatch.</p>
 <p><strong>Fix:</strong> Check prefix registration and path format:</p>
@@ -31,12 +31,13 @@ api.get('/user/profile'); // matches root fallback
 // Also correct
 api.get('user/profile');  // also matches root fallback
 
-// Wrong — fully qualified URL bypasses prefixes
-api.get('https://api.example.com/user/profile'); // no prefix matching
+// Fully qualified URLs are sent unchanged
+api.get('https://api.example.com/user/profile');
 </view-code>
+<p><code>api.stream</code>, <code>api.upload</code>, <code>execute</code> and <code>api.cache.*</code> do not apply prefixes. Pass <code>api.prefix.resolve(path)</code> to them.</p>
 <h2 id="upload-progress-not-firing">Upload progress not firing</h2>
-<p><strong>Cause:</strong> Server does not send <code>Content-Length</code>, or file is too small.</p>
-<p><strong>Fix:</strong> The progress event requires <code>event.lengthComputable</code> from the XMLHttpRequest upload. Ensure the server sets the content length. Small files may complete before any progress events fire.</p>
+<p><strong>Cause:</strong> The browser does not know the total upload size, or the file is small.</p>
+<p><strong>Fix:</strong> Progress is reported only when the XMLHttpRequest upload event has <code>lengthComputable</code>. Small files may finish before any progress event fires.</p>
 <h2 id="stream-stops-mid-way">Stream stops mid-way</h2>
 <p><strong>Cause:</strong> Network drop, or server closed connection.</p>
 <p><strong>Fix:</strong> Wrap in try-catch and handle reconnection:</p>
@@ -55,20 +56,16 @@ api.get('https://api.example.com/user/profile'); // no prefix matching
 }
 </view-code>
 <h2 id="401-not-triggering-handler">401 not triggering handler</h2>
-<p><strong>Cause:</strong> Listener registered after the request, or wrong event name.</p>
-<p><strong>Fix:</strong></p>
-<view-code language="javascript">// Correct — register before the request
-api.on('status:401', handler);
-await api.get('/protected');
-
-// Also correct — per-request listener
-await api.get('/protected', {
-  on: { 'status:401': handler }
+<p><strong>Cause:</strong> For <code>get</code>, <code>post</code>, <code>put</code>, <code>patch</code> and <code>delete</code>, a non-2xx response becomes an <code>HTTP_ERROR</code> before telemetry runs, so <code>status:401</code> never fires. Only <code>error</code> and <code>failed</code> do.</p>
+<p><strong>Fix:</strong> Listen for <code>error</code> and check the status:</p>
+<view-code language="javascript">api.on('error', (event) =&gt; {
+  if (event.detail.error?.context?.status === 401) handler(event);
 });
+await api.get('/protected');
 </view-code>
-<p>Event names are case-sensitive: <code>'status:401'</code> not <code>'Status:401'</code>.</p>
+<p>Register the listener before the request. Event names are case-sensitive.</p>
 <h2 id="request-not-timing-out">Request not timing out</h2>
-<p><strong>Cause:</strong> Timeout shorter than expected, or signal already aborted.</p>
+<p><strong>Cause:</strong> The timeout is not in milliseconds, or the request uses <code>api.stream</code> or <code>api.upload</code>, which have no timeout (use a <code>signal</code>).</p>
 <p><strong>Fix:</strong> Check that the timeout value is in milliseconds:</p>
 <view-code language="javascript">// Correct — 5 seconds
 await api.get('/slow', { timeout: 5000 });
@@ -105,11 +102,12 @@ ctrl.abort(); // removes all listeners bound to this signal
 <p><strong>Fix:</strong> The API client does not handle CORS. Ensure the server sends appropriate <code>Access-Control-Allow-*</code> headers. For preflight issues, check that custom headers are allowed.</p>
 <h2 id="still-stuck">Still stuck?</h2>
 <p>Inspect the pipeline:</p>
-<view-code language="javascript">// See registered prefixes
-console.log(api.prefix.resolve('/test'));
+<view-code language="javascript">// See where a path resolves
+const url = api.prefix.resolve('/test');
+console.log(url);
 
 // Check cache status
-console.log(await api.cache.get('/test'));
+console.log(await api.cache.get(url));
 
 // Listen to all events for debugging
 api.on('error', (e) =&gt; console.error('ERROR', e.detail));

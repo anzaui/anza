@@ -13,11 +13,13 @@ store.broadcast('app-sync', ['theme']);
 <li>When <code>store.set('theme', 'dark')</code> is called, the sync listener sees the mutation with source <code>'local'</code></li>
 <li>It posts <code>{ key: 'theme', value: 'dark' }</code> to the BroadcastChannel</li>
 <li>Other tabs receive the message and call <code>store.set('theme', 'dark', 'broadcast')</code></li>
-<li>The <code>'broadcast'</code> source prevents the originating tab from echoing the change back</li>
+<li>The <code>'broadcast'</code> source stops the receiving tabs from posting the change again</li>
 </ol>
+<p>A store has one mutation callback, so call <code>broadcast()</code> once per store with every key you want to sync.</p>
 <h2 id="whitelist">Whitelist</h2>
 <p>Only specified keys are synchronized. An empty array syncs all keys:</p>
 <view-code language="javascript">store.broadcast('app-sync', ['theme', 'language']);
+// or
 store.broadcast('app-sync', []); // sync all keys
 </view-code>
 <h2 id="manual-sync">Manual Sync</h2>
@@ -28,7 +30,7 @@ const dispose = sync(store, ['count'], 'counter-channel');
 dispose(); // close the BroadcastChannel
 </view-code>
 <h2 id="fallback">Fallback</h2>
-<p>If <code>BroadcastChannel</code> is unavailable (older browsers, private mode), sync returns a no-op disposer and logs nothing.</p>
+<p>If <code>window</code> or <code>BroadcastChannel</code> is unavailable, sync returns a no-op disposer and logs nothing.</p>
 <h2 id="example-theme-sync">Example: Theme Sync</h2>
 <view-code language="javascript">const store = state.create({ theme: 'light' });
 store.broadcast('theme-sync', ['theme']);

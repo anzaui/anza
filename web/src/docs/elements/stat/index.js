@@ -7,6 +7,6 @@ page('/docs/elements/stat', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Stat — Anza',
-    description: 'ui-stat — KPI statistic with label, value, and trend.'
+    description: 'ui-stat — KPI panel with a label, a large value and a change line coloured by trend up, down or neutral.'
   }
 }, import.meta.url);

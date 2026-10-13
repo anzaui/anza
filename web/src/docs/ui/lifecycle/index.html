@@ -1,126 +1,146 @@
 <h1 id="lifecycle">Lifecycle</h1>
-<p>Declarative elements have six lifecycle hooks. Each receives a context object with <code>el</code>, <code>ctrl</code>, <code>tags</code>, <code>refs</code>, <code>on</code>, <code>watch</code>, and <code>internals</code>.</p>
-<h2 id="hook-map">Hook Map</h2>
-<div class="table-wrap"><table><thead><tr><th>Definition Layer</th><th>Factory Layer</th><th>When It Fires</th><th>Async?</th></tr></thead><tbody>
-<tr><td><code>on.load</code></td><td><code>spec.mount</code></td><td>After resources load, before <code>connect</code></td><td>yes</td></tr>
-<tr><td><code>on.connect</code></td><td><code>spec.mount</code> (after load)</td><td>Element connected to DOM</td><td>yes</td></tr>
-<tr><td><code>on.disconnect</code></td><td><code>spec.unmount</code></td><td>Element disconnected from DOM</td><td>no</td></tr>
-<tr><td><code>on.change</code></td><td><code>spec.update</code></td><td>Prop value changes (batched)</td><td>no</td></tr>
+<p>An element runs four hooks. In <code>page()</code>, <code>dock()</code>, <code>view()</code> and <code>part()</code> they live under <code>on</code>. Each hook is called with <code>this</code> set to the element and a context object as its argument. See <a href="/docs/ui/context">Context</a> for the fields.</p>
+<h2 id="hook-map">Hook map</h2>
+<div class="table-wrap"><table><thead><tr><th>Definition layer</th><th><code>element()</code> spec</th><th>When it runs</th></tr></thead><tbody>
+<tr><td><code>on.load</code></td><td>inside <code>mount</code></td><td>After the template is in the shadow root, before <code>connect</code>. Awaited.</td></tr>
+<tr><td><code>on.connect</code></td><td>inside <code>mount</code></td><td>After <code>load</code> resolves.</td></tr>
+<tr><td><code>on.change</code></td><td><code>update</code></td><td>After a prop changes. See <a href="/docs/ui/props#update-batching">Update batching</a>.</td></tr>
+<tr><td><code>on.disconnect</code></td><td><code>unmount</code></td><td>When the element leaves the DOM, before <code>ctrl</code> aborts.</td></tr>
 </tbody></table></div>
-<h2 id="load">load</h2>
-<p>Runs once per mount, after template and style resources have resolved. Use it for initial data fetching:</p>
-<view-code language="javascript">on: {
-  async load({ params, query, raw, ctrl }) {
-    // Access dynamic path params (e.g. /user/:id)
-    const userId = params.id ?? params[0];
-    
-    // Access query params (e.g. ?tab=posts)
-    const activeTab = query.tab ?? query[0];
-
-    const data = await fetch(`/api/user/${userId}?tab=${activeTab}`, { signal: ctrl.signal });
-    this.user = await data.json();
-  }
-}
-</view-code>
-<p>The context object passed to <code>load</code> provides routing contracts parameters:</p>
-<ul>
-<li><code>params</code>: An ordered array containing dynamic path parameters, with cast values and convenience getters (<code>.first</code>, <code>.last</code>, and named accessors matching the path segment names).</li>
-<li><code>query</code>: An ordered array containing query parameters mapped via the <code>query</code> contract, with cast values and convenience getters.</li>
-<li><code>raw</code>: The raw <code>URLSearchParams</code> object representing all query parameters currently in the URL.</li>
-<li><code>ctrl.signal</code>: Aborts the fetch automatically if the element disconnects.</li>
-</ul>
-<p><code>load</code> is awaited before <code>connect</code> runs. If <code>load</code> throws, <code>connect</code> still runs — the error is logged but not propagated.</p>
-<h2 id="connect">connect</h2>
-<p>Runs after <code>load</code>, when the element is fully connected:</p>
-<view-code language="javascript">on: {
-  connect({ el, refs, on, watch }) {
-    refs.title.textContent = el.name;
-    on.click('.btn', handleClick);
-    watch.text('.counter', handleTextChange);
-  }
-}
-</view-code>
-<p>Attach event listeners, observers, and set up reactive bindings here.</p>
-<h2 id="disconnect">disconnect</h2>
-<p>Runs when the element is removed from the DOM:</p>
-<view-code language="javascript">on: {
-  disconnect({ el }) {
-    console.log('cleaning up', el.tagName);
-  }
-}
-</view-code>
-<p>The <code>AbortController</code> (<code>ctrl</code>) is aborted automatically, so any listeners or observers bound to <code>ctrl.signal</code> clean up without manual work.</p>
-<h3 id="soft-nav-contract">Soft-nav contract</h3>
-<p>Soft-nav swaps only the <strong>page leaf</strong> (<code>replaceChildren</code> / <code>swapView</code>). Parent docks stay mounted.</p>
-<view-code language="text">connect / mount
-  ctrl = new AbortController()
-  on + watch bind to shadowRoot with defaultSignal = ctrl.signal
-
-soft-nav (same via chain)
-  parent docks: keep their on / watch / globals
-  old leaf: disconnect → unmount → ctrl.abort()
-    → on registries clear; watch buckets disconnect; tags MO disconnect
-    → events.listen / delegate / observe that used ctrl.signal dispose
-  new leaf: fresh ctrl + fresh on / watch
-
-hard refresh
-  new document; adopt open DSD; same connect path
-</view-code>
-<p>Author rules:</p>
+<p>Other functions under <code>on</code> are installed as element methods, so a hook can call <code>this.render()</code>.</p>
+<h2 id="order">Order</h2>
+<p>For an element created on the client:</p>
 <ol>
-<li>Never <code>document.addEventListener</code> / <code>new MutationObserver</code> in <code>mount</code> without <code>{ signal: ctrl.signal }</code> or a disposer from <code>unmount</code>.</li>
-<li>Prefer <code>on</code> / <code>watch</code> inside components; prefer <code>events.*</code> + signal outside.</li>
-<li>Do not observe <code>document</code> / <code>body</code> for leaf concerns — lift to a parent dock or use events/store.</li>
-<li>Framework globals (<code>router.nav-click</code>, <code>router.container-mo</code>, <code>popover.*</code>) stay stable across soft-nav — see <a href="/docs/ui/advanced#framework-global-listeners--observers">Advanced Topics</a>.</li>
+<li><strong>Constructor.</strong> Attaches an open shadow root, or keeps one that already exists (see <a href="/docs/ui/hydration">Hydration (DSD adopt)</a>). Attaches <code>ElementInternals</code> when <code>form: true</code>. Reads props from attributes.</li>
+<li><strong>Connect.</strong> Creates <code>ctrl</code>, a fresh <code>AbortController</code>.</li>
+<li><strong>Resources.</strong> Waits for the template and styles. Files load on the first connect of the first instance; inline strings are ready already.</li>
+<li><strong>Render.</strong> Clones the template into an empty shadow root and applies the styles. If the document is still parsing, it waits one task first.</li>
+<li><strong>Wire.</strong> Builds <code>refs</code>, <code>tags</code>, <code>on</code> and <code>watch</code>, then dispatches <a href="#anzaready"><code>anza:ready</code></a>.</li>
+<li><strong><code>load</code></strong>, then <strong><code>connect</code></strong>.</li>
+<li><strong><code>change</code></strong>, for each later prop change.</li>
+<li><strong>Disconnect.</strong> Runs <code>disconnect</code>, then aborts <code>ctrl</code>.</li>
 </ol>
-<h2 id="change">change</h2>
-<p>Runs when a declared prop changes. Multiple rapid changes are batched into one callback:</p>
-<view-code language="javascript">on: {
-  change({ name, val, old, el, refs }) {
-    if (name === 'name') {
-      refs.title.textContent = val;
-    }
-    if (name === 'active') {
-      el.classList.toggle('active', val);
+<p>An element that disconnects while its resources are loading stops after step 3. It never wires or mounts.</p>
+<p>Moving an element in the DOM disconnects and connects it again: a new <code>ctrl</code>, a new context, another <code>anza:ready</code>, and <code>load</code> and <code>connect</code> run again. The shadow root keeps its content.</p>
+<p>An element that adopted pre-rendered Declarative Shadow DOM runs steps 5 and 6 before step 3. See <a href="/docs/ui/hydration">Hydration (DSD adopt)</a>.</p>
+<h2 id="load">load</h2>
+<p>Use <code>load</code> for the first data fetch. Pass <code>ctrl.signal</code> so the request is cancelled when the element disconnects:</p>
+<view-code language="javascript">import { page } from '@anzaui/anza/defs';
+
+page('/members/:handle', {
+  tag: 'page-member',
+  via: ['main'],
+  template: '&lt;h1 ref="name"&gt;&lt;/h1&gt;',
+  params: [{ name: 'handle', type: String }],
+  on: {
+    async load({ params, refs, ctrl }) {
+      const res = await fetch(`/api/members/${params.handle}`, { signal: ctrl.signal });
+      const member = await res.json();
+      refs.name.textContent = member.name;
     }
   }
-}
-</view-code>
-<p>The context includes:</p>
-<div class="table-wrap"><table><thead><tr><th>Field</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>name</code></td><td>The prop name that changed</td></tr>
-<tr><td><code>val</code></td><td>The new value</td></tr>
-<tr><td><code>old</code></td><td>The previous value</td></tr>
-<tr><td><code>prev</code></td><td>Alias for <code>old</code></td></tr>
-<tr><td><code>el</code></td><td>The element instance</td></tr>
-<tr><td><code>ctrl</code></td><td>The AbortController</td></tr>
-<tr><td><code>tags</code></td><td>TagsCache for shadow DOM queries</td></tr>
-<tr><td><code>on</code></td><td>Event delegator</td></tr>
-<tr><td><code>refs</code></td><td>Named element refs</td></tr>
-<tr><td><code>watch</code></td><td>Mutation watcher</td></tr>
-</tbody></table></div>
-<h2 id="batching">Batching</h2>
-<p>Property changes are collected and flushed in one callback. The flush strategy depends on the <code>visual</code> flag:</p>
-<ul>
-<li><code>visual: true</code> — flushes via <code>requestAnimationFrame</code> (smooth, layout-aware)</li>
-<li><code>visual: false</code> (default) — flushes via <code>queueMicrotask</code> (fast, synchronous-feeling)</li>
-</ul>
-<p>Set <code>visual: true</code> on the definition layer:</p>
-<view-code language="javascript">page('/', {
-  tag: 'page-home',
-  template: { html: './home.html', css: './home.css' }
-  // visual: true is set automatically by page(), dock(), view()
 });
 </view-code>
-<p><code>part()</code> uses <code>visual: false</code> because stateless primitives do not need rAF batching.</p>
-<h2 id="lifecycle-order">Lifecycle Order</h2>
-<p>For a newly created element:</p>
+<p>On a <code>page()</code>, the <code>load</code> context also has <code>params</code> and <code>query</code>. See <a href="/docs/ui/context#params">Context</a>.</p>
+<p><code>connect</code> waits for <code>load</code>. If <code>load</code> throws or rejects, the error is logged as <code>[Native UI] mount failed:</code> and <code>connect</code> does not run.</p>
+<h2 id="connect">connect</h2>
+<p>Bind listeners and render the first state:</p>
+<view-code language="javascript">const hooks = {
+  connect({ el, refs, on, watch }) {
+    refs.title.textContent = el.name;
+    on.click('.toggle', () =&gt; {
+      el.active = !el.active;
+    });
+    watch.text('.counter', (text) =&gt; console.log(text));
+  }
+};
+</view-code>
+<p><code>on</code> and <code>watch</code> registrations, and anything bound to <code>ctrl.signal</code>, are removed when the element disconnects.</p>
+<h2 id="change">change</h2>
+<p>Runs once per changed prop per flush:</p>
+<view-code language="javascript">const hooks = {
+  change({ name, val, old, el, refs }) {
+    if (name === 'name') refs.title.textContent = val;
+    if (name === 'active') el.classList.toggle('active', val);
+  }
+};
+</view-code>
+<div class="table-wrap"><table><thead><tr><th>Field</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td>The prop that changed</td></tr>
+<tr><td><code>val</code></td><td>The new value</td></tr>
+<tr><td><code>old</code></td><td>The value before the last assignment</td></tr>
+<tr><td><code>prev</code></td><td>Same as <code>old</code></td></tr>
+<tr><td><code>el</code>, <code>ctrl</code>, <code>tags</code>, <code>on</code>, <code>refs</code>, <code>watch</code></td><td>As in <code>connect</code></td></tr>
+<tr><td><code>internals</code></td><td><code>ElementInternals</code> when <code>form: true</code>, else <code>undefined</code></td></tr>
+</tbody></table></div>
+<p><code>change</code> does not run for initial values, for values set before the element mounted, or in a <code>part()</code>. Timing (frame or microtask) is on <a href="/docs/ui/props#update-batching">Props</a>.</p>
+<h2 id="disconnect">disconnect</h2>
+<view-code language="javascript">const hooks = {
+  disconnect({ el }) {
+    console.log('removed', el.localName);
+  }
+};
+</view-code>
+<p>The <code>disconnect</code> context has <code>el</code>, <code>tags</code>, <code>refs</code>, <code>watch</code> and <code>internals</code>. It has no <code>ctrl</code> or <code>on</code>. <code>ctrl</code> aborts right after the hook returns.</p>
+<h2 id="anzaready">anza:ready</h2>
+<p>Every element made by the factory dispatches <code>anza:ready</code> on itself each time it connects, once its context is wired and just before <code>load</code> runs.</p>
+<div class="table-wrap"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td>Target</td><td>The element</td></tr>
+<tr><td><code>bubbles</code> / <code>composed</code></td><td><code>false</code> / <code>false</code></td></tr>
+<tr><td><code>detail</code></td><td><code>null</code></td></tr>
+</tbody></table></div>
+<p>It does not fire again when a hydration mismatch re-renders the element, or when HMR swaps its template. The router waits for it on the new page after a soft navigation and then hides the loading indicator, so the indicator ends before <code>load</code> finishes.</p>
+<view-code language="javascript">const card = document.createElement('user-card');
+card.addEventListener('anza:ready', () =&gt; console.log('wired'), { once: true });
+document.body.append(card);
+</view-code>
+<h2 id="memory-safety">Memory safety</h2>
+<p>Each connect creates an <code>AbortController</code> (<code>ctrl</code>), and each disconnect aborts it. Abort removes:</p>
+<ul>
+<li>every <code>on</code> and <code>watch</code> registration;</li>
+<li>the observer that keeps the <code>tags</code> cache fresh;</li>
+<li>anything you passed <code>ctrl.signal</code> to: <code>events.listen</code>, <code>events.delegate</code>, <code>observe.*</code>, <code>schedule</code>, <code>fetch</code>, <code>addEventListener</code>.</li>
+</ul>
+<p>Rules for component code:</p>
 <ol>
-<li>Constructor runs — props initialize from attributes</li>
-<li><code>connectedCallback</code> — resources load, <code>AbortController</code> created</li>
-<li><code>load</code> hook — initial data fetching</li>
-<li><code>connect</code> hook — DOM ready, listeners attached</li>
-<li>Prop changes → <code>change</code> hook (batched)</li>
-<li><code>disconnect</code> hook — cleanup</li>
-<li><code>disconnectedCallback</code> — <code>AbortController</code> aborted</li>
+<li>Never call <code>document.addEventListener</code> or <code>new MutationObserver</code> in a hook without <code>{ signal: ctrl.signal }</code> or a matching cleanup in <code>disconnect</code>.</li>
+<li>Inside a component, prefer <code>on</code> and <code>watch</code>. Outside, use <code>events.*</code> with a signal.</li>
+<li>Do not observe <code>document</code> or <code>body</code> for a leaf concern. Move it to a parent dock, or use events or the store.</li>
 </ol>
+<h3 id="soft-navigation">Soft navigation</h3>
+<p>A soft navigation replaces only the page leaf. Parent docks stay mounted.</p>
+<view-code language="text">soft-nav within the same via chain
+  parent docks: keep their on / watch / listeners
+  old leaf: disconnect → ctrl.abort()
+    → on and watch registrations removed, tags observer disconnected
+    → listeners and observers bound to ctrl.signal removed
+  new leaf: new ctrl, new on / watch
+
+hard refresh
+  new document; leaves adopt their pre-rendered shadow roots
+</view-code>
+<p>When a dock uses an element-scoped View Transition, <code>replaceChildren</code> runs inside the transition's update callback. The old leaf disconnects and aborts at swap time, not after the animation.</p>
+<h3 id="framework-globals">Framework globals</h3>
+<p>A few listeners and observers belong to the framework, not to a component. They stay stable across soft navigations:</p>
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Source</th><th>Target</th><th>Lifetime</th></tr></thead><tbody>
+<tr><td><code>router.nav-click</code></td><td><code>platform/polyfills/navigation.js</code></td><td><code>document</code> click</td><td>Page lifetime</td></tr>
+<tr><td><code>router.nav-popstate</code></td><td><code>platform/polyfills/navigation.js</code></td><td><code>window</code> popstate</td><td>Page lifetime</td></tr>
+<tr><td><code>router.container-mo</code></td><td><code>router/container.js</code></td><td><code>#main</code> mutation observer</td><td>Until the awaited containers appear</td></tr>
+<tr><td><code>popover.target-click</code></td><td><code>platform/polyfills/popover.js</code></td><td><code>document</code> click</td><td>Page lifetime, when the polyfill installs</td></tr>
+<tr><td><code>popover.body-mo:*</code></td><td><code>platform/polyfills/popover.js</code></td><td>Popover parent or <code>body</code></td><td>Until the popover hides</td></tr>
+</tbody></table></div>
+<p>List them with <code>globals</code> from <code>@anzaui/anza/platform</code>:</p>
+<view-code language="javascript">import { globals } from '@anzaui/anza/platform';
+
+console.log(globals.count(), globals.list());
+</view-code>
+<h3 id="attachment-stats">Attachment stats</h3>
+<p><code>getAttachmentStats(shadowRoot)</code> counts the live <code>on</code> and <code>watch</code> attachments of one element. Use it in tests to check that a soft navigation leaves nothing behind:</p>
+<view-code language="javascript">import { getAttachmentStats } from '@anzaui/anza/ui';
+
+const el = document.querySelector('user-card');
+const stats = getAttachmentStats(el.shadowRoot);
+// { onRootListeners, onRegistrations, watchBuckets, watchRegistrations, slotListeners }
+</view-code>
+<p>It returns <code>null</code> for a shadow root that was never wired. After the element disconnects, every count is <code>0</code>.</p>
+<p>For overlay elements (native top layer, toast portal, popover polyfill), see <a href="/docs/elements/overlay">Overlay patterns</a>.</p>

@@ -7,6 +7,6 @@ page('/docs/ssg', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'SSG & SEO — Anza',
-    description: 'Mode A/B SSG overview: portable site-root, open DSD, expand, sitemap, and hydration.'
+    description: 'Mode A/B SSG overview: site-root dist, open DSD, page SEO fields, ssg.json, 404 page, sitemap and parametric expand.'
   }
 }, import.meta.url);

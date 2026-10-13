@@ -1,32 +1,75 @@
 <h1 id="input">Input</h1>
-<p>Form-participating text control wrapping a native <code>&lt;input&gt;</code> with ElementInternals validation and form value sync.</p>
+<p>A form-associated single-line text control that wraps a native <code>&lt;input&gt;</code> and reports its validity to the form.</p>
 <p><strong>Tag:</strong> <code>ui-input</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/input</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/input';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
-<view-code language="html">&lt;ui-input name="email" type="email" placeholder="you@example.com" required&gt;&lt;/ui-input&gt;
-&lt;ui-input type="password" minlength="8"&gt;&lt;/ui-input&gt;
+<view-code language="html">&lt;form&gt;
+  &lt;ui-input name="email" type="email" placeholder="you@example.com" required&gt;
+    &lt;span slot="error"&gt;Enter a valid email address.&lt;/span&gt;
+  &lt;/ui-input&gt;
+&lt;/form&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>type</code></td><td>String</td><td>Reflect, default <code>text</code></td><td>Forwarded to the inner input (<code>text</code>, <code>email</code>, <code>password</code>, <code>number</code>, …)</td></tr>
-<tr><td><code>value</code></td><td>String</td><td>Reflect</td><td>Current value; synced on <code>input</code></td></tr>
-<tr><td><code>placeholder</code></td><td>String</td><td>Reflect</td><td>Placeholder text</td></tr>
-<tr><td><code>disabled</code></td><td>Boolean</td><td>Reflect + custom state</td><td>Disables the control</td></tr>
-<tr><td><code>required</code></td><td>Boolean</td><td>Reflect</td><td>HTML required</td></tr>
-<tr><td><code>minlength / maxlength</code></td><td>Number</td><td>Reflect</td><td>Length constraints</td></tr>
-<tr><td><code>min / max</code></td><td>Number</td><td>Reflect</td><td>Numeric constraints</td></tr>
-<tr><td><code>pattern</code></td><td>String</td><td>Reflect</td><td>Validation pattern</td></tr>
+<h2 id="attributes">Attributes</h2>
+<p>All attributes reflect to properties of the same name. Every one except <code>value</code> and <code>disabled</code> is copied to the inner <code>&lt;input&gt;</code>.</p>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td>String</td><td>none</td><td>Plain attribute (not a property). The form field name.</td></tr>
+<tr><td><code>type</code></td><td>String</td><td><code>text</code></td><td>Inner input type, for example <code>text</code>, <code>email</code>, <code>password</code>, <code>number</code>.</td></tr>
+<tr><td><code>value</code></td><td>String</td><td>none</td><td>Current value. Typing updates the property and the attribute.</td></tr>
+<tr><td><code>placeholder</code></td><td>String</td><td>none</td><td>Placeholder text.</td></tr>
+<tr><td><code>required</code></td><td>Boolean</td><td><code>false</code></td><td>The value must not be empty.</td></tr>
+<tr><td><code>minlength</code></td><td>Number</td><td>none</td><td>Minimum length.</td></tr>
+<tr><td><code>maxlength</code></td><td>Number</td><td>none</td><td>Maximum length.</td></tr>
+<tr><td><code>min</code></td><td>Number</td><td>none</td><td>Minimum value. Parsed as a number, so it only works for numeric types such as <code>number</code> and <code>range</code>.</td></tr>
+<tr><td><code>max</code></td><td>Number</td><td>none</td><td>Maximum value. Parsed as a number, like <code>min</code>.</td></tr>
+<tr><td><code>pattern</code></td><td>String</td><td>none</td><td>Regular expression the value must match.</td></tr>
+<tr><td><code>disabled</code></td><td>Boolean</td><td><code>false</code></td><td>Disables the inner input.</td></tr>
+</tbody></table></div>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td><code>error</code></td><td>Error text shown under the input. It is always shown; add or remove it yourself.</td></tr>
 </tbody></table></div>
 <h2 id="events">Events</h2>
-<div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody>
-<tr><td><code>change</code></td><td>Bubbles when the inner input fires <code>change</code></td></tr>
+<div class="table-wrap"><table><thead><tr><th>Event</th><th>Detail</th><th>When</th></tr></thead><tbody>
+<tr><td><code>input</code></td><td>none</td><td>Native <code>input</code> from the inner input, retargeted to the host. The <code>value</code> property and form value are already updated.</td></tr>
+<tr><td><code>change</code></td><td>none</td><td>The inner input fires <code>change</code> (on commit, for example blur). Re-dispatched from the host. Bubbles and is composed.</td></tr>
 </tbody></table></div>
-<h2 id="notes">Notes</h2>
-<p>Named <code>error</code> slot for validation messaging. Form reset restores the attribute <code>value</code> (or empty).</p>
+<h2 id="form-behaviour">Form behaviour</h2>
+<ul>
+<li>The form value is the inner input's value, an empty string when empty. It updates on every keystroke and every <code>value</code> change.</li>
+<li>Validity is copied from the inner input, with the browser's own messages (<code>valueMissing</code>, <code>typeMismatch</code>, <code>tooShort</code>, <code>patternMismatch</code> and so on). <code>form.checkValidity()</code> and <code>:invalid</code> see it.</li>
+<li>Form reset restores the <code>value</code> attribute as it was at first mount (empty if there was none).</li>
+<li>Inside a disabled <code>&lt;fieldset&gt;</code> the inner input is disabled too.</li>
+<li>On browser state restore (back/forward, autofill), a string state becomes the <code>value</code>.</li>
+</ul>
+<h2 id="keyboard-and-accessibility">Keyboard and accessibility</h2>
+<p>Focus and keys go to the native <code>&lt;input&gt;</code> in the shadow root. Use <a href="/docs/elements/field">Field</a> for a visible label; it does not connect the label to the input for assistive technology, so add <code>aria-label</code> if needed.</p>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>input</code></td><td>The inner <code>&lt;input&gt;</code></td></tr>
+<tr><td><code>error-box</code></td><td>The wrapper around the <code>error</code> slot</td></tr>
+</tbody></table></div>
+<h3 id="custom-properties">Custom properties</h3>
+<p>The stylesheet reads these properties but declares no defaults, so set them yourself (on <code>ui-input</code> or an ancestor):</p>
+<div class="table-wrap"><table><thead><tr><th>Property</th><th>Default</th></tr></thead><tbody>
+<tr><td><code>--input-bg</code></td><td>none</td></tr>
+<tr><td><code>--input-border</code></td><td>none</td></tr>
+<tr><td><code>--input-border-focus</code></td><td>none</td></tr>
+<tr><td><code>--input-radius</code></td><td>none</td></tr>
+<tr><td><code>--input-font-size</code></td><td>none</td></tr>
+<tr><td><code>--input-padding-y</code></td><td>none</td></tr>
+<tr><td><code>--input-padding-x</code></td><td>none</td></tr>
+<tr><td><code>--input-text-color</code></td><td>none</td></tr>
+</tbody></table></div>
+<h3 id="states">States</h3>
+<div class="table-wrap"><table><thead><tr><th>State</th><th>When</th></tr></thead><tbody>
+<tr><td><code>disabled</code></td><td>The <code>disabled</code> property changes to true. A <code>disabled</code> attribute already in the markup when the element upgrades does not add the state.</td></tr>
+</tbody></table></div>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/ui/forms">Form association</a> (when <code>form: true</code>)</li>
+<li><a href="/docs/elements#forms">Elements</a></li>
+<li><a href="/docs/ui/form-associated">Form-associated elements</a></li>
+<li><a href="/docs/elements/field">Field</a></li>
+<li><a href="/docs/elements/textarea">Textarea</a></li>
 </ul>

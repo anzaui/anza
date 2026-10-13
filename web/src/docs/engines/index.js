@@ -1,3 +1,4 @@
+import './contract/index.js';
 import './crypto/index.js';
 import './index/index.js';
 import './py/index.js';

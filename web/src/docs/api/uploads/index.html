@@ -1,5 +1,6 @@
 <h1 id="uploads">Uploads</h1>
-<p>Standard <code>fetch</code> does not expose upload progress in baseline browsers. The API client bridges this gap with a precise <code>XMLHttpRequest</code>-based uploader that reports real-time progress via telemetry events.</p>
+<p><code>fetch</code> does not report upload progress. <code>api.upload</code> uses <code>XMLHttpRequest</code> instead and reports progress through telemetry events.</p>
+<p><code>api.upload</code> does not apply prefixes, the pipeline, caching, retries or a timeout. Pass a full path or <code>api.prefix.resolve(path)</code>. The data is sent as-is.</p>
 <h2 id="basic-upload">Basic Upload</h2>
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
 
@@ -32,6 +33,7 @@ const result = await api.upload('/upload', form);
 <tr><td><code>onProgress</code></td><td>function</td><td>Legacy progress callback</td></tr>
 <tr><td><code>signal</code></td><td>AbortSignal</td><td>Cancel the upload</td></tr>
 <tr><td><code>on</code></td><td>object</td><td>Per-request event listeners</td></tr>
+<tr><td><code>requestId</code></td><td>string</td><td>ID used in event <code>detail</code> (default: generated)</td></tr>
 </tbody></table></div>
 <h2 id="legacy-onprogress">Legacy onProgress</h2>
 <p>For non-telemetry use, pass <code>onProgress</code> directly:</p>
@@ -53,16 +55,16 @@ setTimeout(() =&gt; controller.abort(), 10000);
 <p>When aborted, the upload terminates and a <code>PlatformError</code> with code <code>NETWORK_ERROR</code> is rejected.</p>
 <h2 id="raw-binary-upload">Raw Binary Upload</h2>
 <p>Upload raw binary data instead of <code>FormData</code>:</p>
-<view-code language="javascript">const buffer = new Uint8Array([...]);
+<view-code language="javascript">const buffer = new Uint8Array(1024);
 await api.upload('/binary', buffer, {
   headers: { 'Content-Type': 'application/octet-stream' }
 });
 </view-code>
 <h2 id="upload-events">Upload Events</h2>
 <div class="table-wrap"><table><thead><tr><th>Event</th><th>Trigger</th></tr></thead><tbody>
-<tr><td><code>progress</code></td><td>Upload progress update</td></tr>
+<tr><td><code>progress</code></td><td>Upload progress update (only when the total size is known)</td></tr>
 <tr><td><code>status:xxx</code></td><td>HTTP status from the upload response</td></tr>
 <tr><td><code>failed</code></td><td>Non-2xx response or network error</td></tr>
-<tr><td><code>error</code></td><td>Network failure</td></tr>
-<tr><td><code>timeout</code></td><td>Upload timed out</td></tr>
+<tr><td><code>error</code></td><td>Non-2xx response or network error</td></tr>
 </tbody></table></div>
+<p>Aborting rejects without emitting events. The uploader sets no timeout.</p>

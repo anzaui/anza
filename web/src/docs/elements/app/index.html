@@ -1,33 +1,35 @@
 <h1 id="app">App</h1>
-<p>Application shell with header, optional sidebar, and main content slots.</p>
+<p>A full-height application shell with a header, a sidebar and a main area.</p>
 <p><strong>Tag:</strong> <code>ui-app</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/app</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/app';
+import '@anzaui/anza/elements/header';
+import '@anzaui/anza/elements/sidebar';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
 <view-code language="html">&lt;ui-app&gt;
   &lt;ui-header slot="header"&gt;
-    &lt;span slot="brand"&gt;Acme&lt;/span&gt;
+    &lt;strong slot="brand"&gt;Acme&lt;/strong&gt;
   &lt;/ui-header&gt;
-  &lt;ui-sidebar slot="sidebar"&gt;
-    &lt;a href="/"&gt;Home&lt;/a&gt;
-  &lt;/ui-sidebar&gt;
-  &lt;p&gt;Main content&lt;/p&gt;
+  &lt;ui-sidebar slot="sidebar"&gt;Navigation&lt;/ui-sidebar&gt;
+  &lt;p&gt;Page content&lt;/p&gt;
 &lt;/ui-app&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<p><em>None — composition via slots.</em></p>
-<h2 id="slots--parts">Slots / parts</h2>
-<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>header</code></td><td>slot</td><td>Top header region</td></tr>
-<tr><td><code>sidebar</code></td><td>slot</td><td>Side navigation</td></tr>
-<tr><td><em>(default)</em></td><td>slot</td><td>Main content (<code>part="main"</code>)</td></tr>
-<tr><td><code>frame</code></td><td>part</td><td>Header + sidebar + main frame</td></tr>
+<p>The app has no attributes. The host is at least <code>100vh</code> tall. The sidebar and main area sit side by side, and stack in a column when the viewport is 768px wide or less.</p>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td><code>header</code></td><td>Top bar, usually <code>ui-header</code></td></tr>
+<tr><td><code>sidebar</code></td><td>Side panel, usually <code>ui-sidebar</code></td></tr>
+<tr><td>default</td><td>Main content, inside a <code>&lt;main&gt;</code></td></tr>
+</tbody></table></div>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>frame</code></td><td>The row holding the sidebar and main area</td></tr>
+<tr><td><code>main</code></td><td>The <code>&lt;main&gt;</code></td></tr>
 </tbody></table></div>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/layout">Layout</a></li>
+<li><a href="/docs/elements#layout">Elements</a></li>
 <li><a href="/docs/elements/header">Header</a></li>
 <li><a href="/docs/elements/sidebar">Sidebar</a></li>
 </ul>

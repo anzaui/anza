@@ -5,7 +5,7 @@
 </view-code>
 <h3 id="eventsontype-handler-signal"><code>events.on(type, handler, signal)</code></h3>
 <p>Subscribe to the global event bus. Returns a disposer.</p>
-<view-code language="javascript">const off = events.on('update', (e) =&gt; { ... });
+<view-code language="javascript">const off = events.on('update', (e) =&gt; console.log(e.detail));
 off(); // remove
 </view-code>
 <h3 id="eventsemittype-detail"><code>events.emit(type, detail)</code></h3>
@@ -118,11 +118,10 @@ PASSIVE_DEFAULT_TYPES.has('wheel'); // true
 <p>Matching walks <code>composedPath()</code> and stops at <code>root</code>. See <a href="/docs/events/delegate">Delegate</a>.</p>
 <p>Component shadow delegation lives on context <code>on</code> — <a href="/docs/ui/context#on">Context: on</a> — with the same <code>attrs</code> / <code>not</code> / <code>key</code> options and empty-registry teardown.</p>
 <h2 id="event-payload">Event Payload</h2>
-<p>Bus and emit listeners receive a <code>CustomEvent</code>:</p>
-<view-code language="javascript">{
-  type: string,    // event name
-  detail: any,     // payload passed to emit
-  bubbles: boolean, // false for bus events
-  composed: boolean // false for bus events
-}
-</view-code>
+<p>Bus listeners receive a <code>CustomEvent</code>:</p>
+<div class="table-wrap"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+<tr><td><code>type</code></td><td>The event name</td></tr>
+<tr><td><code>detail</code></td><td>The payload passed to <code>emit</code></td></tr>
+<tr><td><code>bubbles</code></td><td><code>false</code></td></tr>
+<tr><td><code>composed</code></td><td><code>false</code></td></tr>
+</tbody></table></div>

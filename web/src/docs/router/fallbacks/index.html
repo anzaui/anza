@@ -139,10 +139,10 @@ router.pages.show('offline', { via: ['main', 'docs', 'content'] });
 <tr><td>Soft-nav miss / error</td><td>Leaf swap inside deepest <code>via</code> dock; parents stay; VT + <code>signal</code> honored</td></tr>
 <tr><td>Hard refresh miss</td><td>Same resolver after boot gates</td></tr>
 <tr><td>Guard throws</td><td><code>error</code> event with <code>phase: 'guard'</code> → error leaf (<a href="/docs/router/guards">Guards</a>)</td></tr>
-<tr><td>SSG / static host</td><td>Unknown URL may be host <code>404</code> or SPA shell; CSR paints the dock-scoped leaf after boot</td></tr>
+<tr><td>SSG / static host</td><td>Unknown URL gets <code>dist/404.html</code> (the app shell, <code>noindex</code>) with status 404 when the host serves it; CSR paints the dock-scoped leaf after boot</td></tr>
 <tr><td>Scaffold</td><td>Bare <code>dock('main')</code> — no error-page files in <code>src/docks/</code></td></tr>
 </tbody></table></div>
-<p>Host HTML 404 and Mode A SSG emission are separate from this CSR leaf resolver. See <a href="/docs/ssg">SSG &amp; SEO</a>.</p>
+<p>The site-wide <code>dist/404.html</code> that <code>anza build</code> writes is not a dock fallback: it boots the app, and this resolver paints the leaf. See <a href="/docs/ssg#unknown-urls-404">SSG &amp; SEO</a>.</p>
 <h2 id="related">Related</h2>
 <ul>
 <li><a href="/docs/router/docks">Docks</a> — <code>notfound</code> / <code>error</code> / <code>offline</code> on docks</li>

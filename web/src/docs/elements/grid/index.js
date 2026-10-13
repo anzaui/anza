@@ -7,6 +7,6 @@ page('/docs/elements/grid', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Grid — Anza',
-    description: 'ui-grid — responsive CSS grid with columns and gap.'
+    description: 'ui-grid — CSS grid with a cols attribute (a count or a template) and a gap attribute.'
   }
 }, import.meta.url);

@@ -7,6 +7,6 @@ page('/docs/elements/split', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Split — Anza',
-    description: 'ui-split — two-pane split layout.'
+    description: 'ui-split — two-pane row with a 1-1, 1-2 or 2-1 ratio that stacks below 768px.'
   }
 }, import.meta.url);

@@ -7,6 +7,6 @@ page('/docs/elements/steps', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Steps — Anza',
-    description: 'ui-steps — linear step indicator for multi-step workflows.'
+    description: 'ui-steps — linear step indicator: steps before active are completed, a progress line fills to the active step.'
   }
 }, import.meta.url);

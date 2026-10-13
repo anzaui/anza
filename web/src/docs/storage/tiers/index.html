@@ -1,12 +1,13 @@
 <h1 id="tiers">Tiers</h1>
-<p>The storage facade routes reads and writes to one of four tiers. Each tier has different durability, capacity, and performance characteristics.</p>
+<p>The storage facade routes reads and writes to one of four tiers. There is no automatic fallback between tiers: a read goes only to the tier you name.</p>
 <h2 id="tier-comparison">Tier Comparison</h2>
-<div class="table-wrap"><table><thead><tr><th>Tier</th><th>Durability</th><th>Capacity</th><th>Speed</th><th>Best For</th></tr></thead><tbody>
-<tr><td><code>memory</code></td><td>None (refresh clears)</td><td>Limited by RAM</td><td>Fastest</td><td>Hot data, session state</td></tr>
-<tr><td><code>idb</code></td><td>Durable (IndexedDB)</td><td>~50MB+</td><td>Fast</td><td>Default key-value storage</td></tr>
-<tr><td><code>opfs</code></td><td>Durable (file system)</td><td>~60% of disk</td><td>Medium</td><td>Large files, binary data</td></tr>
-<tr><td><code>cache</code></td><td>Durable (Cache API)</td><td>~50MB+</td><td>Fast</td><td>API responses, preloaded assets</td></tr>
+<div class="table-wrap"><table><thead><tr><th>Tier</th><th>Durability</th><th>Stored as</th><th>Best For</th></tr></thead><tbody>
+<tr><td><code>memory</code></td><td>None (refresh clears)</td><td>The value itself (LRU, 200 entries by default)</td><td>Hot data, session state</td></tr>
+<tr><td><code>idb</code></td><td>Durable (IndexedDB)</td><td>Structured clone, gzip above 64KB</td><td>Default key-value storage</td></tr>
+<tr><td><code>opfs</code></td><td>Durable (file system)</td><td>JSON text, one file per key</td><td>Large JSON documents</td></tr>
+<tr><td><code>cache</code></td><td>Durable (Cache API)</td><td>JSON or text <code>Response</code> body</td><td>API-shaped data</td></tr>
 </tbody></table></div>
+<p>All persistent tiers share the origin's storage quota.</p>
 <h2 id="memory">Memory</h2>
 <p>An LRU cache in JavaScript memory. Fastest but lost on page refresh.</p>
 <view-code language="javascript">await storage.set('session', data, 'memory');
@@ -21,26 +22,26 @@ await storage.set('settings', data, { tier: 'idb', ttl: 60000 });
 </view-code>
 <p>Values over 64KB are automatically gzip-compressed when the Compression Streams API is available.</p>
 <h2 id="opfs">OPFS</h2>
-<p>Origin Private File System via a dedicated Web Worker. Uses synchronous file access handles for high performance.</p>
-<view-code language="javascript">await storage.set('large-file', buffer, 'opfs');
-const file = await storage.get('large-file', 'opfs');
+<p>Origin Private File System via a dedicated Web Worker that uses synchronous file access handles.</p>
+<view-code language="javascript">await storage.set('report', { rows: [] }, 'opfs');
+const report = await storage.get('report', 'opfs');
 </view-code>
-<p>Cross-tab invalidation is handled via BroadcastChannel. Use OPFS for blobs, images, and large JSON.</p>
+<p>Values are written with <code>JSON.stringify</code>, so binary data (<code>ArrayBuffer</code>, <code>Blob</code>, typed arrays) does not round-trip. Writes and deletes post a message on a BroadcastChannel; see <a href="/docs/storage/opfs">OPFS</a>.</p>
 <h2 id="cache">Cache</h2>
-<p>The browser Cache API. Stores <code>Response</code> objects.</p>
-<view-code language="javascript">await storage.set('config', response, 'cache');
-const cached = await storage.get('config', 'cache'); // returns Response
+<p>The browser Cache API. The value is serialized into a <code>Response</code> body (JSON for objects, text otherwise).</p>
+<view-code language="javascript">await storage.set('config', { theme: 'dark' }, 'cache');
+const cached = await storage.get('config', 'cache'); // { theme: 'dark' }
 </view-code>
+<p><code>get</code> parses the body as JSON, or returns text if parsing fails.</p>
 <p>TTL is implemented via <code>x-expires-at</code> header on cached responses.</p>
 <h2 id="tier-selection-guide">Tier Selection Guide</h2>
 <div class="table-wrap"><table><thead><tr><th>Data</th><th>Recommended Tier</th></tr></thead><tbody>
 <tr><td>User settings</td><td><code>idb</code></td></tr>
 <tr><td>Auth token (short-lived)</td><td><code>memory</code> or <code>idb</code> with TTL</td></tr>
-<tr><td>Large image/video</td><td><code>opfs</code></td></tr>
-<tr><td>API response</td><td><code>cache</code> or <code>idb</code></td></tr>
+<tr><td>Large JSON document</td><td><code>opfs</code></td></tr>
+<tr><td>API response data</td><td><code>cache</code> or <code>idb</code></td></tr>
 <tr><td>Component state</td><td><code>memory</code></td></tr>
-<tr><td>Offline assets</td><td><code>cache</code></td></tr>
-<tr><td>Files, PDFs</td><td><code>opfs</code></td></tr>
+<tr><td>Binary data (images, files)</td><td><code>idb</code> (stored by structured clone)</td></tr>
 </tbody></table></div>
 <h2 id="list--clear-across-tiers">List / clear across tiers</h2>
 <view-code language="javascript">const idbKeys = await storage.list();        // default idb

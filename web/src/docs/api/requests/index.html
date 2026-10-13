@@ -19,7 +19,7 @@ await api.patch('/posts/1', { title: 'Partial update' });
 await api.delete('/posts/1');
 </view-code>
 <h2 id="auto-serialization">Auto-Serialization</h2>
-<p>When the body is a plain object (not <code>Blob</code> or <code>FormData</code>), it is serialized to JSON and the <code>Content-Type: application/json</code> header is set automatically:</p>
+<p>When the body is any object other than a <code>Blob</code> or <code>FormData</code>, it is serialized to JSON and the <code>Content-Type: application/json</code> header is set. Strings pass through. Other binary or form types (<code>ArrayBuffer</code>, typed arrays, <code>URLSearchParams</code>) are also JSON-serialized, so send them with <code>api.upload</code> or wrap them in a <code>Blob</code>:</p>
 <view-code language="javascript">// Sends JSON body with correct header
 api.post('/posts', { title: 'Hello' });
 
@@ -33,7 +33,7 @@ api.post('/upload', blob);     // Blob passes through as-is
 <tr><td><code>application/json</code></td><td>Parsed JSON object</td></tr>
 <tr><td>Anything else</td><td>Raw text string</td></tr>
 </tbody></table></div>
-<p>To get the raw <code>Response</code> object, use the lower-level <code>execute</code> export:</p>
+<p>To get the <code>Response</code> object, use the lower-level <code>execute</code> export. It applies the timeout and priority and throws <code>HTTP_ERROR</code> on non-2xx, but skips prefixes, the pipeline, caching, retries and telemetry:</p>
 <view-code language="javascript">import { execute } from '@anzaui/anza/api';
 const response = await execute({ url: '/image', method: 'GET' });
 const blob = await response.blob();
@@ -47,8 +47,7 @@ const blob = await response.blob();
   priority: 'user-blocking',
   retries: 5,
   cache: 'network-first',
-  expiry: 60000,
-  on: { 'status:401': handler }
+  on: { 'status:200': handler }
 });
 </view-code>
 <div class="table-wrap"><table><thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
@@ -56,9 +55,9 @@ const blob = await response.blob();
 <tr><td><code>signal</code></td><td>AbortSignal</td><td>—</td><td>Cancel the request</td></tr>
 <tr><td><code>timeout</code></td><td>number</td><td><code>10000</code></td><td>Timeout in milliseconds</td></tr>
 <tr><td><code>priority</code></td><td>string</td><td><code>'user-visible'</code></td><td>Browser task priority (<code>user-blocking</code>, <code>user-visible</code>, <code>background</code>)</td></tr>
-<tr><td><code>retries</code></td><td>number</td><td><code>3</code></td><td>Retry attempts for transient failures</td></tr>
+<tr><td><code>retries</code></td><td>number</td><td><code>3</code></td><td>Total attempts for transient failures</td></tr>
 <tr><td><code>cache</code></td><td>string</td><td>—</td><td>Cache strategy (<code>cache-first</code>, <code>network-first</code>, <code>stale-while-revalidate</code>)</td></tr>
-<tr><td><code>expiry</code> / <code>ttl</code></td><td>number</td><td>—</td><td>Cache TTL in milliseconds</td></tr>
+<tr><td><code>expiry</code> / <code>ttl</code></td><td>number</td><td>—</td><td>Cache TTL in milliseconds. Takes precedence over <code>cache</code></td></tr>
 <tr><td><code>on</code></td><td>object</td><td>—</td><td>Per-request event listeners</td></tr>
 </tbody></table></div>
 <h2 id="timeouts">Timeouts</h2>
@@ -86,9 +85,13 @@ setTimeout(() =&gt; controller.abort(), 5000);
 <view-code language="javascript">await api.get('/critical-data', { priority: 'user-blocking' });
 </view-code>
 <h2 id="headers">Headers</h2>
-<p>Custom headers merge with defaults:</p>
+<p>Pass extra headers with <code>headers</code>:</p>
 <view-code language="javascript">await api.get('/protected', {
   headers: { Authorization: `Bearer ${token}` }
 });
 </view-code>
-<p>The <code>Content-Type</code> header is auto-set for JSON bodies unless already provided.</p>
+<p>Without a <code>headers</code> option, the client sets <code>Content-Type: application/json</code> for object bodies. If you pass <code>headers</code>, your object is sent as given, so include <code>Content-Type</code> yourself:</p>
+<view-code language="javascript">await api.post('/posts', { title: 'Hello' }, {
+  headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+});
+</view-code>

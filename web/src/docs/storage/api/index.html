@@ -7,7 +7,14 @@
 <h3 id="storageconfigureoptions"><code>storage.configure(options)</code></h3>
 <p>Reconfigure pools before first use. Returns <code>storage</code> for chaining.</p>
 <view-code language="javascript">storage.configure({
-  idb: { name: 'my-app', version: 2, migrations: [] },
+  idb: {
+    name: 'my-app',
+    version: 2,
+    migrations: [
+      (db) =&gt; db.createObjectStore('keyval'), // v1: the facade needs 'keyval'
+      (db) =&gt; db.createObjectStore('users')   // v2
+    ]
+  },
   lru: { maxSize: 500 },
   cache: { name: 'my-cache' }
 });
@@ -15,7 +22,7 @@
 <div class="table-wrap"><table><thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>idb.name</code></td><td><code>'platform-db'</code></td><td>IndexedDB database name</td></tr>
 <tr><td><code>idb.version</code></td><td><code>1</code></td><td>Schema version</td></tr>
-<tr><td><code>idb.migrations</code></td><td>built-in <code>keyval</code></td><td>Upgrade callbacks</td></tr>
+<tr><td><code>idb.migrations</code></td><td>creates <code>keyval</code></td><td>Upgrade callbacks <code>(db) =&gt; void</code>; index <code>i</code> upgrades to version <code>i + 1</code>. Custom lists must still create <code>keyval</code></td></tr>
 <tr><td><code>lru.maxSize</code></td><td><code>200</code></td><td>In-memory LRU capacity</td></tr>
 <tr><td><code>cache.name</code></td><td><code>'platform-cache'</code></td><td>Cache API bucket name</td></tr>
 </tbody></table></div>
@@ -25,7 +32,7 @@
 await storage.get('name', 'memory');
 await storage.get('name', { tier: 'idb' });
 </view-code>
-<p>IDB reads populate the memory LRU. OPFS / cache honor TTL wrappers; expired keys delete and return <code>null</code>. Cache tier parses JSON when possible, else text.</p>
+<p>IDB reads check the memory LRU first and populate it on a miss. Every tier honors TTL: expired keys are deleted and return <code>null</code>. Missing keys return <code>null</code>. Cache tier parses JSON when possible, else text.</p>
 <h3 id="storagesetkey-value-tieroroptions"><code>storage.set(key, value, tierOrOptions)</code></h3>
 <p>Write to a tier. Options: <code>{ tier, ttl }</code> (TTL in ms, honored across tiers).</p>
 <view-code language="javascript">await storage.set('name', 'Alice');
@@ -34,7 +41,7 @@ await storage.set('name', 'Alice', { tier: 'idb', ttl: 60000 });
 </view-code>
 <p>IDB path: localStorage write journal (crash recovery), optional gzip when serialized size exceeds <code>storage.compressionThreshold</code> (64KB) and Compression Streams are available, then IDB + LRU. A quota check (<code>quota.check()</code>, which notifies <code>onQuotaWarning</code> listeners above 80%) runs before persistent writes, at most once a minute; the <code>memory</code> tier skips it.</p>
 <h3 id="storagedeletekey-tieroroptions"><code>storage.delete(key, tierOrOptions)</code></h3>
-<p>Remove from the requested tier. Always clears the memory LRU entry for that key.</p>
+<p>Remove from the requested tier. Always clears the memory LRU entry for that key. Any tier other than <code>opfs</code> or <code>cache</code> (including <code>memory</code>) also deletes the <code>idb</code> record.</p>
 <h3 id="storagequerystorename-queryopts"><code>storage.query(storeName, queryOpts)</code></h3>
 <p>Advanced IndexedDB <strong>cursor</strong> query (not a filter callback — that is <code>state.storage.query</code>).</p>
 <view-code language="javascript">const rows = await storage.query('keyval', {
@@ -51,7 +58,7 @@ await storage.set('name', 'Alice', { tier: 'idb', ttl: 60000 });
 });
 </view-code>
 <h3 id="storagelisttier"><code>storage.list(tier)</code></h3>
-<p>List keys. Default <code>idb</code> → <code>keyval</code> keys. <code>opfs</code> → OPFS paths. <code>cache</code> → request URLs.</p>
+<p>List keys. Default <code>idb</code> → <code>keyval</code> keys. <code>opfs</code> → OPFS file names. <code>cache</code> → request URLs. Any other value (including <code>memory</code>) lists <code>idb</code> keys.</p>
 <h3 id="storagecleartier"><code>storage.clear(tier)</code></h3>
 <p><code>tier</code>: <code>'all'</code> (default) | <code>'memory'</code> (via LRU clear on all clears) | <code>'idb'</code> | <code>'opfs'</code> | <code>'cache'</code>. Clearing always empties the LRU; then clears the named durable tier(s).</p>
 <h3 id="storageestimate--persist--persisted"><code>storage.estimate()</code> / <code>persist()</code> / <code>persisted()</code></h3>
@@ -67,8 +74,9 @@ const ok = await storage.persisted();
 <view-code language="javascript">import { Database } from '@anzaui/anza/storage';
 </view-code>
 <h3 id="new-databasename-version-migrations"><code>new Database(name, version, migrations)</code></h3>
-<h3 id="dbopen"><code>db.open()</code></h3>
-<p>Returns <code>Promise&lt;IDBDatabase&gt;</code>.</p>
+<p><code>migrations</code> is an array of <code>(db) =&gt; void</code>; index <code>i</code> upgrades to version <code>i + 1</code>.</p>
+<h3 id="dbopen--dbclose"><code>db.open()</code> / <code>db.close()</code></h3>
+<p><code>open()</code> returns <code>Promise&lt;IDBDatabase&gt;</code>. Dispatches <code>storage:blocked</code> and <code>storage:versionchange</code> on <code>window</code> (detail <code>{ name }</code>). See <a href="/docs/storage/idb">IndexedDB</a>.</p>
 <h3 id="dbgetstorename-key--dbset--dbdelete--dbclear--dbgetall--dbkeys"><code>db.get(storeName, key)</code> / <code>db.set</code> / <code>db.delete</code> / <code>db.clear</code> / <code>db.getAll</code> / <code>db.keys</code></h3>
 <h3 id="dbquerystorename-options"><code>db.query(storeName, options)</code></h3>
 <p>Options: <code>{ index, range, direction, limit }</code>.</p>
@@ -86,3 +94,6 @@ shadows the global <code>CacheStorage</code>). Use the <code>'cache'</code> tier
 <view-code language="javascript">import { quota } from '@anzaui/anza/storage';
 </view-code>
 <h3 id="quotaestimate--quotapersist--quotacheckonwarning--quotaonquotawarninghandler"><code>quota.estimate()</code> / <code>quota.persist()</code> / <code>quota.check(onWarning)</code> / <code>quota.onQuotaWarning(handler)</code></h3>
+<p><code>check</code> resolves to <code>true</code> when usage is above 80% of quota, after calling <code>onWarning</code> and the listeners with <code>{ usage, quota }</code>. <code>onQuotaWarning</code> returns a disposer.</p>
+<h2 id="not-exported">Not exported</h2>
+<p>The OPFS manager and the Cache API adapter are internal. Use the <code>'opfs'</code> and <code>'cache'</code> tiers of <code>storage</code>.</p>

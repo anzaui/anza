@@ -7,6 +7,6 @@ page('/docs/elements/divider', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Divider — Anza',
-    description: 'ui-divider — separating line with orientation and spacing tokens.'
+    description: 'ui-divider — horizontal or vertical separator line with a spacing attribute and role separator.'
   }
 }, import.meta.url);

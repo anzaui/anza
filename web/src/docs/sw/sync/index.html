@@ -1,23 +1,35 @@
 <h1 id="sync">Sync</h1>
 <p>Background Sync queues failed requests and replays them when the browser comes back online.</p>
-<h2 id="how-it-works">How It Works</h2>
+<h2 id="how-it-works">How it works</h2>
 <ol>
-<li>The main thread queues a task via <code>offline.queue.push()</code></li>
-<li>The browser fires a <code>sync</code> event when connectivity returns</li>
-<li>The Service Worker replays all queued requests in order</li>
-<li>Successful tasks are removed; failed tasks are retried or moved to a dead-letter queue</li>
+<li>The main thread stores a task with <code>offline.queue.push()</code>.</li>
+<li>It asks for a <code>sync</code> event with <code>offline.sync.register()</code>.</li>
+<li>When connectivity returns, the browser fires <code>sync</code> in the Service Worker.</li>
+<li><code>replayQueue()</code> replays the stored requests in order. Successful tasks are removed. Failed tasks are retried until they reach their retry limit, then marked as failed.</li>
 </ol>
-<h2 id="queue-a-task-from-the-main-thread">Queue a Task from the Main Thread</h2>
+<h2 id="queue-a-task-from-the-main-thread">Queue a task from the main thread</h2>
 <view-code language="javascript">import { offline } from '@anzaui/anza/offline';
 
-await offline.queue.push({
+const id = await offline.queue.push('create-post', {
   url: '/api/posts',
   method: 'POST',
-  body: JSON.stringify({ title: 'Hello' }),
-  headers: { 'content-type': 'application/json' }
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ title: 'Hello' })
 });
 </view-code>
-<p><code>offline.queue.push()</code> serializes the request and stores it in IndexedDB. It returns a Promise that resolves when the store write completes.</p>
+<p><code>push(taskName, payload, options)</code> stores the task in IndexedDB and resolves with its id. <code>replayQueue()</code> turns <code>payload</code> back into a <code>Request</code>, so it must have the shape <code>{ url, method, headers, body }</code> (the shape <code>serializeRequest</code> returns).</p>
+<div class="table-wrap"><table><thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>idempotencyKey</code></td><td>string</td><td>random UUID</td><td>Task id. Pushing the same key again overwrites the task</td></tr>
+<tr><td><code>maxRetries</code></td><td>number</td><td><code>5</code></td><td>Failed attempts before the task is marked as failed</td></tr>
+</tbody></table></div>
+<p><code>push</code> throws a <code>QuotaExceededError</code> when storage use is above 80%.</p>
+<h2 id="request-the-sync-event">Request the sync event</h2>
+<p>The browser fires <code>sync</code> only for a registered tag:</p>
+<view-code language="javascript">import { offline } from '@anzaui/anza/offline';
+
+await offline.sync.register('sync-tasks');
+</view-code>
+<p>Without Background Sync support (Safari, Firefox), <code>register</code> waits for the window's <code>online</code> event and dispatches a <code>core:sync-fallback</code> event with <code>detail.tag</code>.</p>
 <h2 id="replay-in-the-service-worker">Replay in the Service Worker</h2>
 <view-code language="javascript">import { replayQueue } from '@anzaui/anza/sw';
 
@@ -27,29 +39,19 @@ self.addEventListener('sync', (e) =&gt; {
   }
 });
 </view-code>
-<p><code>replayQueue()</code> reads all stored tasks, replays them as <code>fetch()</code> calls, and removes the ones that succeed. Failed tasks stay in the queue for the next sync event.</p>
-<h2 id="register-the-sync-event">Register the Sync Event</h2>
-<p>The browser does not fire <code>sync</code> events unless you request them. Use the main thread bridge:</p>
-<view-code language="javascript">import { offline } from '@anzaui/anza/offline';
-
-async function registerSync() {
-  const reg = await navigator.serviceWorker.ready;
-  await reg.sync.register('sync-tasks');
-}
-</view-code>
-<p>Call <code>registerSync()</code> after any mutation that should survive going offline.</p>
-<h2 id="dead-letter-queue">Dead Letter Queue</h2>
-<p>After a configurable number of retries, failed tasks move to a dead-letter queue where they wait for manual inspection.</p>
-<view-code language="javascript">import { requeueFailed } from '@anzaui/anza/sw';
-
-// After 3 failed attempts, move to dead letter
-await requeueFailed({ maxAttempts: 3 });
-</view-code>
-<h2 id="request-serialization">Request Serialization</h2>
-<p>The queue stores standard <code>Request</code> objects as plain objects. Two helpers handle the conversion:</p>
+<p><code>replayQueue()</code> reads the queue in order and <code>fetch</code>es each task:</p>
+<ul>
+<li><strong>OK response</strong>: the task is removed and every client gets <code>{ type: 'sync-success', id, task }</code>.</li>
+<li><strong>Non-OK response</strong>: the retry count goes up and replay continues with the next task.</li>
+<li><strong>Network error</strong>: the retry count goes up and replay stops (the promise rejects), so later tasks keep their order. The browser retries the sync later.</li>
+</ul>
+<p>Tasks already marked as failed are skipped.</p>
+<h2 id="failed-tasks">Failed tasks</h2>
+<p><code>requeueFailed(entry, error)</code> is what <code>replayQueue</code> calls after a failed attempt. It increments <code>entry.retries</code>. When <code>retries</code> reaches <code>entry.maxRetries</code> (default 5), it sets <code>entry.failed = true</code>, stores <code>error.message</code> in <code>entry.error</code>, and posts <code>{ type: 'sync-failed', id, task, error }</code> to every client. Failed tasks stay in IndexedDB until you remove them with <code>offline.queue.delete(id)</code>.</p>
+<h2 id="request-serialization">Request serialization</h2>
 <view-code language="javascript">import { serializeRequest, deserializeRequest } from '@anzaui/anza/sw';
 
 const payload = await serializeRequest(request);
-const restored = await deserializeRequest(payload);
+const restored = deserializeRequest(payload);
 </view-code>
-<p><code>serializeRequest</code> reads the body as a blob and extracts headers. <code>deserializeRequest</code> rebuilds a standard <code>Request</code> from the stored payload.</p>
+<p><code>serializeRequest</code> is async. It copies the URL, method and headers, and reads the body as an <code>ArrayBuffer</code> (<code>GET</code> and <code>HEAD</code> have no body). <code>deserializeRequest</code> is synchronous and returns a new <code>Request</code>.</p>

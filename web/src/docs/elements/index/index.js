@@ -7,6 +7,6 @@ page('/docs/elements', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Elements — Anza',
-    description: 'Inventory and import map for the Anza ui-* custom element kit.'
+    description: 'The ui-* custom element kit: every element by category, with imports and shared behaviour.'
   }
 }, import.meta.url);

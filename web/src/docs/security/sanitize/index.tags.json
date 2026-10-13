@@ -1,1 +1,1 @@
-{"version":1,"refs":[],"ids":["allowed-attributes","allowed-tags","basic-use","fallback","native-sanitizer-api","sanitize","ssr","trusted-types"],"classes":[],"tags":["code","h1","h2","p","view-code"],"compound":[],"attrs":["id","language"],"refTypes":{}}
+{"version":1,"refs":[],"ids":["allowed-attributes","allowed-tags","basic-use","fallback","links-with-target","native-sanitizer-api","sanitize","server","trusted-types","urls"],"classes":[],"tags":["code","h1","h2","li","p","ul","view-code"],"compound":[],"attrs":["id","language"],"refTypes":{}}

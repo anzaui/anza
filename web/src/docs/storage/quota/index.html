@@ -1,5 +1,5 @@
 <h1 id="quota">Quota</h1>
-<p>The quota manager wraps the browser StorageManager API, providing storage estimates, persistence requests, and proactive eviction warnings.</p>
+<p>The quota manager wraps the browser StorageManager API, providing storage estimates, persistence requests, and a warning when usage passes 80% of quota.</p>
 <h2 id="estimate">Estimate</h2>
 <view-code language="javascript">import { quota } from '@anzaui/anza/storage';
 
@@ -17,7 +17,7 @@ console.log('Persistent storage:', granted);
   console.warn('Storage 80% full:', data);
 });
 </view-code>
-<p>Returns <code>true</code> if usage exceeds 80% of quota. Triggers the callback and dispatches <code>quota</code> events to registered listeners.</p>
+<p>Returns <code>true</code> if usage exceeds 80% of quota. In that case it calls the callback and every <code>onQuotaWarning</code> listener with <code>{ usage, quota }</code>. No DOM event is dispatched.</p>
 <h2 id="event-listeners">Event Listeners</h2>
 <view-code language="javascript">const off = quota.onQuotaWarning((data) =&gt; {
   showToast('Storage running low');

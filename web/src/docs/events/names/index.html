@@ -1,5 +1,6 @@
 <h1 id="names">Names</h1>
-<p>The <code>events.names</code> object provides typed constants for cross-cutting system events. Using these prevents typos and enables IDE autocomplete.</p>
+<p>The <code>events.names</code> object holds string constants for cross-cutting system events. Using them prevents typos.</p>
+<p>The library itself emits only the connectivity events (from <code>@anzaui/anza/offline</code>, with detail <code>{ online: boolean }</code>). The auth, preference and service worker names are reserved constants: your app emits them and chooses the <code>detail</code> shape.</p>
 <h2 id="available-namespaces">Available Namespaces</h2>
 <h3 id="auth">Auth</h3>
 <div class="table-wrap"><table><thead><tr><th>Constant</th><th>Value</th></tr></thead><tbody>
@@ -16,8 +17,8 @@
 <tr><td><code>events.names.connectivity.online</code></td><td><code>'connectivity:online'</code></td></tr>
 <tr><td><code>events.names.connectivity.offline</code></td><td><code>'connectivity:offline'</code></td></tr>
 </tbody></table></div>
-<view-code language="javascript">events.on(events.names.connectivity.offline, () =&gt; {
-  showToast('You are offline');
+<view-code language="javascript">events.on(events.names.connectivity.offline, (e) =&gt; {
+  showToast('You are offline'); // e.detail is { online: false }
 });
 </view-code>
 <h2 id="preference">Preference</h2>

@@ -151,7 +151,12 @@ router.navigate('/settings', { state: { tab: 'profile' } });
 <p>Define a stateful component.</p>
 <view-code language="javascript">view('user-card', {
   props: { name: { type: String } },
-  template: '&lt;span&gt;{{ name }}&lt;/span&gt;'
+  template: '&lt;span ref="name"&gt;&lt;/span&gt;',
+  on: {
+    change({ name, val, refs }) {
+      if (name === 'name') refs.name.textContent = val;
+    }
+  }
 });
 </view-code>
 <h3 id="parttag-config-base"><code>part(tag, config, base)</code></h3>

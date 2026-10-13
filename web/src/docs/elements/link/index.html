@@ -1,29 +1,40 @@
 <h1 id="link">Link</h1>
-<p>Router-aware hyperlink that intercepts same-origin clicks for soft navigation and tracks <code>aria-current</code>.</p>
+<p>A link that navigates through the router for local URLs and marks itself as the current page.</p>
 <p><strong>Tag:</strong> <code>ui-link</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/link</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/link';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
 <view-code language="html">&lt;ui-link href="/docs/intro"&gt;Introduction&lt;/ui-link&gt;
-&lt;ui-link href="https://example.com" external&gt;External&lt;/ui-link&gt;
+&lt;ui-link href="https://example.com" target="_blank"&gt;Example&lt;/ui-link&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>href</code></td><td>String</td><td>Reflect</td><td>Destination URL</td></tr>
-<tr><td><code>target</code></td><td>String</td><td>Reflect</td><td>Forwarded to the inner <code>&lt;a&gt;</code> (e.g. <code>_blank</code>)</td></tr>
-<tr><td><code>current</code></td><td>String</td><td>Reflect</td><td>Explicit <code>aria-current</code> value; auto-sets <code>page</code> when path matches</td></tr>
-<tr><td><code>external</code></td><td>Boolean</td><td>Reflect</td><td>Treat as external (also auto when <code>http(s):</code>)</td></tr>
+<h2 id="attributes">Attributes</h2>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>href</code></td><td>String</td><td>—</td><td>Destination. A <code>javascript:</code>, <code>data:</code> or <code>vbscript:</code> URL, or one that does not parse, is dropped: the inner <code>&lt;a&gt;</code> gets no <code>href</code>.</td></tr>
+<tr><td><code>target</code></td><td>String</td><td>—</td><td>Copied to the inner <code>&lt;a&gt;</code>.</td></tr>
+<tr><td><code>current</code></td><td>String</td><td>—</td><td>Explicit <code>aria-current</code> value for the inner <code>&lt;a&gt;</code>. Without it, the link sets <code>aria-current="page"</code> when its path and query match the current URL.</td></tr>
+<tr><td><code>external</code></td><td>Boolean</td><td><code>false</code></td><td>Treat the link as external. Any <code>href</code> starting with <code>http://</code> or <code>https://</code> is external too. External links show an indicator icon.</td></tr>
+</tbody></table></div>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td>default</td><td>The link text</td></tr>
 </tbody></table></div>
 <h2 id="events">Events</h2>
-<div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody>
-<tr><td><code>external</code></td><td>Cancelable; fired for external clicks before the browser follows the link</td></tr>
+<div class="table-wrap"><table><thead><tr><th>Event</th><th>Detail</th><th>When</th></tr></thead><tbody>
+<tr><td><code>external</code></td><td><code>{ href, target }</code></td><td>An external link is clicked. Bubbles, composed and cancelable. Call <code>preventDefault()</code> to stop the browser following it.</td></tr>
 </tbody></table></div>
-<h2 id="notes">Notes</h2>
-<p>Same-origin clicks call <code>router.navigate(href)</code> unless modified keys, <code>#</code> hashes, or <code>target="_blank"</code>. External links show an indicator icon.</p>
+<h2 id="navigation">Navigation</h2>
+<p>A click on a non-external link calls <code>router.navigate(href)</code> instead of loading the page. The link leaves the click to the browser when there is no <code>href</code>, <code>target="_blank"</code>, the <code>href</code> starts with <code>#</code>, the click was already prevented, it is not the main button, or Ctrl, Meta, Shift or Alt is held.</p>
+<p><code>aria-current</code> is recomputed after every route match (the router <code>found</code> event).</p>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>anchor</code></td><td>The inner <code>&lt;a&gt;</code></td></tr>
+</tbody></table></div>
+<p>The colours come from <code>--link-color</code>, <code>--link-color-hover</code> and <code>--link-color-active</code>, inherited from the page. The shipped tokens do not define them.</p>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/primitives">Primitives</a></li>
-<li><a href="/docs/router">Router</a></li>
+<li><a href="/docs/elements#primitives">Elements</a></li>
+<li><a href="/docs/elements/nav">Nav</a></li>
+<li><a href="/docs/elements/breadcrumb">Breadcrumb</a></li>
+<li><a href="/docs/router/navigation">Navigation</a></li>
 </ul>

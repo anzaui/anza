@@ -1,0 +1,185 @@
+<h1 id="engine-contract">Engine Contract</h1>
+<p>The Rust (<code>anza</code>), TypeScript (<code>@anzaui/engine</code>) and Python (<code>anza</code>) engines
+implement one contract. Given the same templates, parameters and keys, they
+produce byte-identical HTML, envelopes, signatures and SSE frames, and they
+accept and reject the same envelopes.</p>
+<p>The shared golden fixtures in <code>engines/fixtures/</code> pin this down. Each
+engine's test suite runs them: <code>signature.json</code> (messages, signatures,
+verification decisions), <code>render.json</code> (fragments, pages, framing,
+manifest) and the template roots in <code>render/</code>. <code>engines/fixtures/generate.py</code>
+regenerates the JSON files from this document, without using any engine
+code.</p>
+<h2 id="wire-format-v2">Wire Format v2</h2>
+<p>A fragment travels as a JSON envelope:</p>
+<view-code language="json">{"v":2,"slot":"feed","ts":1724771234,"html":"&lt;ui-card&gt;Live&lt;/ui-card&gt;","sig":"0df0…327f"}
+</view-code>
+<div class="table-wrap"><table><thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><code>v</code></td><td>integer</td><td>Wire-format version. Always <code>2</code>. Serialized first.</td></tr>
+<tr><td><code>slot</code></td><td>string</td><td>Target slot or dock.</td></tr>
+<tr><td><code>ts</code></td><td>integer</td><td>Unix time in seconds when the fragment was rendered.</td></tr>
+<tr><td><code>html</code></td><td>string</td><td>Rendered markup.</td></tr>
+<tr><td><code>sig</code></td><td>string, optional</td><td>Lowercase hex signature. Absent when signing is off.</td></tr>
+<tr><td><code>css</code></td><td>string, optional</td><td>Fragment CSS. Absent when there is none.</td></tr>
+</tbody></table></div>
+<p>Envelopes are serialized as compact JSON (no spaces) with the keys in the
+order above and non-ASCII characters left as UTF-8. SSE frames are
+<code>event: template\ndata: &lt;json&gt;\n\n</code>. WebSocket packets are the JSON alone.</p>
+<h2 id="signatures">Signatures</h2>
+<p>The signature covers this exact byte string:</p>
+<view-code language="text">message  = "anza-sig-v2\n" field(ts) field(slot) field(html) field(css)
+field(x) = &lt;decimal UTF-8 byte length of x&gt; ":" x "\n"
+</view-code>
+<p><code>ts</code> is written in decimal ASCII. An absent <code>css</code> is the empty string. For
+example, <code>{ts: 1, slot: "a:b", html: "c"}</code> signs
+<code>anza-sig-v2\n1:1\n3:a:b\n1:c\n0:\n</code>. Every field is length-prefixed, so two
+different envelopes never share a message. Version 1 signed <code>ts:slot:html</code>,
+where <code>a:b</code> + <code>c</code> and <code>a</code> + <code>b:c</code> collided.</p>
+<div class="table-wrap"><table><thead><tr><th>Mode</th><th>Algorithm</th><th>Key</th><th><code>sig</code></th></tr></thead><tbody>
+<tr><td><code>hmac</code></td><td>HMAC-SHA256</td><td>Secret of <strong>at least 32 bytes</strong></td><td>64 hex characters</td></tr>
+<tr><td><code>ed25519</code></td><td>Ed25519 (RFC 8032)</td><td><strong>32-byte</strong> private seed; optional 32-byte public key</td><td>128 hex characters</td></tr>
+<tr><td><code>none</code></td><td>—</td><td>—</td><td>absent</td></tr>
+</tbody></table></div>
+<p>Hex is strict everywhere: lowercase, even length, <code>0-9a-f</code> only. Uppercase,
+odd lengths, trailing characters (<code>sig + "zz"</code>) and non-ASCII input are
+rejected and never panic.</p>
+<h3 id="key-validation">Key Validation</h3>
+<p>Keys are checked once, when <code>Setup</code> runs. A bad key is a <code>CRYPTO</code> error at
+setup, never an unsigned envelope or an error at render time:</p>
+<ul>
+<li>an HMAC secret that is missing or shorter than 32 bytes (a string counts
+its UTF-8 bytes);</li>
+<li>an Ed25519 private key that is not a 32-byte seed (TS also takes 64-char
+lowercase hex, PEM or a <code>KeyObject</code>; Python also takes 64-char lowercase hex
+or an <code>Ed25519PrivateKey</code>);</li>
+<li>an Ed25519 public key that is given but does not match the private key;</li>
+<li>in Rust, a key file passed to <code>Setup::ed25519</code> that cannot be read.</li>
+</ul>
+<p><code>Debug</code> (Rust), <code>inspect</code>/<code>JSON.stringify</code> (TS) and <code>repr</code> (Python) never
+print key material. They print <code>&lt;redacted&gt;</code> instead.</p>
+<h3 id="verification">Verification</h3>
+<p><code>verify_envelope</code> (Rust <code>anza::verify_envelope</code>, TS <code>verifyEnvelope</code>, Python
+<code>verify_envelope</code>) takes a key, a received envelope and the options
+<code>max_age_secs</code>, <code>slot</code>, <code>skew_secs</code> (default 5) and <code>now</code> (default: the
+clock). <code>Engine.verify_envelope</code> does the same with the engine's own key. The
+checks run in this order, and the first failure is a <code>CRYPTO</code> error with
+exactly this message:</p>
+<div class="table-wrap"><table><thead><tr><th>Check</th><th>Message</th></tr></thead><tbody>
+<tr><td><code>v</code> is <code>2</code></td><td><code>unsupported envelope version</code></td></tr>
+<tr><td>fields have the right types (TS, Python)</td><td><code>malformed envelope</code></td></tr>
+<tr><td><code>sig</code> is present</td><td><code>envelope is not signed</code></td></tr>
+<tr><td><code>sig</code> is strict hex</td><td><code>malformed signature</code></td></tr>
+<tr><td><code>ts &lt;= now + skew_secs</code></td><td><code>envelope timestamp is in the future</code></td></tr>
+<tr><td><code>now - ts &lt;= max_age_secs</code></td><td><code>envelope expired</code></td></tr>
+<tr><td><code>slot</code> equals the expected slot</td><td><code>slot mismatch</code></td></tr>
+<tr><td>the signature verifies (constant-time)</td><td><code>bad signature</code></td></tr>
+</tbody></table></div>
+<p>A short HMAC secret or a malformed public key is <code>invalid verification key</code>.
+The slot check stops a fragment signed for one slot from being replayed into
+another one.</p>
+<h2 id="templates">Templates</h2>
+<h3 id="syntax">Syntax</h3>
+<p><code>{{name}}</code> inserts a value. <code>{{{name}}}</code> inserts it raw. Whitespace around
+the name is trimmed. An unclosed or empty placeholder is a <code>TEMPLATE</code> error.</p>
+<h3 id="escaping">Escaping</h3>
+<p>With <code>escape</code> off (the default), <code>{{name}}</code> and <code>{{{name}}}</code> both insert the
+value as-is. The caller escapes untrusted input with <code>escape_html</code>. With
+<code>escape: true</code>, <code>{{name}}</code> is HTML-escaped and <code>{{{name}}}</code> is raw. Use
+<code>{{{content}}}</code> in a shell when escaping is on.</p>
+<p><code>escape_html</code> (Rust <code>anza::escape_html</code>, TS <code>escapeHtml</code>, Python
+<code>escape_html</code>) maps <code>&amp;</code> <code>&lt;</code> <code>&gt;</code> <code>"</code> <code>'</code> to <code>&amp;amp;</code> <code>&amp;lt;</code> <code>&amp;gt;</code> <code>&amp;quot;</code>
+<code>&amp;#39;</code>. Its output is safe in element content and in quoted attribute
+values.</p>
+<h3 id="values">Values</h3>
+<div class="table-wrap"><table><thead><tr><th>Value</th><th>Text</th></tr></thead><tbody>
+<tr><td>string</td><td>as-is</td></tr>
+<tr><td><code>true</code> / <code>false</code></td><td><code>true</code> / <code>false</code></td></tr>
+<tr><td>integer</td><td>decimal (<code>42</code>, <code>-7</code>)</td></tr>
+<tr><td>float</td><td>integral floats without <code>.0</code> (<code>3.0</code> → <code>3</code>), others in their shortest form (<code>1.5</code>)</td></tr>
+<tr><td><code>null</code> / <code>None</code> / <code>undefined</code>, missing key</td><td>nothing</td></tr>
+<tr><td>array, list, tuple, plain object, dict</td><td>compact JSON (<code>[1,"a",true,null]</code>, <code>{"a":1}</code>)</td></tr>
+<tr><td>anything else</td><td>the language's string conversion</td></tr>
+</tbody></table></div>
+<p>Floats outside <code>1e-6</code> to <code>1e21</code>, NaN, infinities and floats nested inside
+JSON values follow each language's own formatting.</p>
+<p>Parameters come from a map (Rust <code>HashMap</code>, <code>serde_json::Value</code> or any
+<code>Serialize</code> type, TS object or <code>Map</code>, Python <code>dict</code>), from key/value pairs,
+or from an object. TS reads own properties only (<code>Object.hasOwn</code>), so
+<code>{{toString}}</code> and <code>{{__proto__}}</code> render nothing. Python reads public,
+non-callable attributes only. Rust reads serialized fields.</p>
+<h3 id="names">Names</h3>
+<p>A template name is a relative, <code>/</code>-separated path under the template root.
+It has no leading <code>/</code>, no <code>\</code> or NUL, and no empty, <code>.</code> or <code>..</code> segment. A
+malformed name is a <code>VALIDATION</code> error. Lookups only use the in-memory
+cache. Request input never reaches the filesystem.</p>
+<h3 id="loading">Loading</h3>
+<p>At setup, every <code>.html</code> file under the root is loaded. A file larger than
+<code>max_template_bytes</code> (default 1 MiB) is a <code>TEMPLATE</code> error. Symlinked
+directories are not followed. Symlinked files load only when they resolve
+inside the root. Errors name the template, never the absolute path.</p>
+<p>The manifest maps each template name to the <strong>SHA-256</strong> of its content, in
+lowercase hex. SHA-256 is available in every standard library (<code>node:crypto</code>,
+<code>hashlib</code>, and the <code>sha2</code> crate the Rust engine already uses for HMAC), so
+anyone can recompute a digest without BLAKE3. Digest speed doesn't matter
+here: templates are hashed once at load.</p>
+<p>With <code>watch</code> on, edits, additions and removals reach the cache. Rust uses
+<code>notify</code> (the <code>watch</code> feature). TS uses <code>fs.watch</code> with a 50 ms debounce and
+serialized reloads. Python uses a polling thread; stop it with
+<code>Engine.close()</code>. A reload that fails keeps the last good templates.</p>
+<h2 id="fragments">Fragments</h2>
+<p><code>render_fragment(template, slot, params)</code> binds the template, stamps <code>ts</code>,
+signs, and returns a v2 envelope. The optional <code>fragments</code> setup option is an
+allowlist. An entry ending in <code>/</code> allows that prefix (<code>"fragments/"</code>). Any
+other entry allows that exact name. A template outside the allowlist is
+reported as <code>Template '&lt;name&gt;' not found</code>, the same as a missing one.</p>
+<h2 id="pages">Pages</h2>
+<p><code>render_page(route, params)</code>:</p>
+<ol>
+<li><code>/</code> (or an empty route) selects <code>pages/home.html</code>. <code>/a/b</code> and <code>/a/b/</code>
+select <code>pages/a/b.html</code>.</li>
+<li>When that template doesn't exist, <code>pages/index.html</code> is the catch-all.</li>
+<li>Otherwise, or when the route is not a valid name (<code>..</code>, <code>\</code>, NUL), the
+result is <code>NOT_FOUND</code> with the message <code>Page not found</code>. The route is
+never echoed.</li>
+<li>The page is bound with <code>params</code>. Then it goes into <code>layout/shell.html</code>,
+bound with <code>params</code> plus <code>content</code> (the engine's <code>content</code> wins), or into
+the default document below when there is no shell.</li>
+</ol>
+<p>Routes only ever resolve under <code>pages/</code>. A route can't render a fragment,
+a layout or any other cached template.</p>
+<view-code language="html">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+  &lt;title&gt;Anza App&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;dock-main&gt;
+    &lt;template shadowrootmode="open"&gt;
+      &lt;slot&gt;&lt;/slot&gt;
+    &lt;/template&gt;
+    &lt;!-- page --&gt;
+  &lt;/dock-main&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</view-code>
+<h2 id="setup-options">Setup Options</h2>
+<div class="table-wrap"><table><thead><tr><th>Option</th><th>Rust <code>Setup</code> field</th><th>TS <code>SetupOptions</code></th><th>Python <code>Setup</code></th><th>Default</th></tr></thead><tbody>
+<tr><td>Template root</td><td><code>root</code></td><td><code>root</code></td><td><code>root</code></td><td>required</td></tr>
+<tr><td>Signing</td><td><code>signing: SignMode</code></td><td><code>signing: SignOptions</code></td><td><code>signing: SignOptions</code></td><td>none</td></tr>
+<tr><td>Reload on change</td><td><code>watch</code> (feature <code>watch</code>)</td><td><code>watch</code></td><td><code>watch</code></td><td>off</td></tr>
+<tr><td>Fragment allowlist</td><td><code>fragments</code></td><td><code>fragments</code></td><td><code>fragments</code></td><td>all templates</td></tr>
+<tr><td>Escape <code>{{x}}</code></td><td><code>escape</code></td><td><code>escape</code></td><td><code>escape</code></td><td>off</td></tr>
+<tr><td>Max template size</td><td><code>max_template_bytes</code></td><td><code>maxTemplateBytes</code></td><td><code>max_template_bytes</code></td><td>1 MiB</td></tr>
+</tbody></table></div>
+<h2 id="errors">Errors</h2>
+<p>Every engine uses the same five codes. Rust has <code>Error::code()</code>, TS
+<code>AnzaError.code</code> and Python <code>AnzaError.code</code>. Errors display as
+<code>[Anza:CODE] message</code>.</p>
+<div class="table-wrap"><table><thead><tr><th>Code</th><th>Raised for</th></tr></thead><tbody>
+<tr><td><code>VALIDATION</code></td><td>missing template root, empty template, slot or route, malformed template name</td></tr>
+<tr><td><code>NOT_FOUND</code></td><td>unknown template or page, template outside the fragment allowlist</td></tr>
+<tr><td><code>TEMPLATE</code></td><td>unclosed or empty placeholder, oversized or non-UTF-8 template</td></tr>
+<tr><td><code>CRYPTO</code></td><td>bad signing key at setup, any <code>verify_envelope</code> failure</td></tr>
+<tr><td><code>INTERNAL</code></td><td>clock or lock failures</td></tr>
+</tbody></table></div>

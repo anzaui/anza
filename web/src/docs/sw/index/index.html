@@ -9,8 +9,9 @@
 <h2 id="what-you-get">What You Get</h2>
 <ul>
 <li><strong>Caching strategies</strong> — CacheFirst, NetworkFirst, StaleRevalidate, CacheThenNetwork, NetworkOnly, CacheOnly, and OfflineFallback</li>
-<li><strong>URLPattern routing</strong> — match URLs with parameters and wildcards inside the SW</li>
-<li><strong>TTL expiry</strong> — responses carry custom headers; expired entries are pruned automatically</li>
+<li><strong>URLPattern routing</strong> — match URLs with parameters and wildcards inside the SW, on the worker's own origin unless a pattern names another</li>
+<li><strong>Safe caching</strong> — <code>no-store</code>, <code>private</code>, <code>Vary: *</code>, <code>Authorization</code> and credentialed cross-origin responses are never cached</li>
+<li><strong>TTL expiry</strong> — cached responses carry an <code>x-expires-at</code> header; <code>pruneExpired</code> and <code>setupAutoPrune</code> delete expired entries</li>
 <li><strong>Install/activate helpers</strong> — precache shell assets and clean up old caches on update</li>
 <li><strong>Background sync</strong> — queue failed requests and replay them when connectivity returns</li>
 <li><strong>Push notifications</strong> — VAPID subscription and notification display</li>
@@ -33,14 +34,14 @@ import { offline } from '@anzaui/anza/offline';
 </tbody></table></div>
 <h2 id="one-file-example">One-File Example</h2>
 <view-code language="javascript">// src/sw.js
-import { precache, router, CacheFirst, NetworkFirst } from '@anzaui/anza/sw';
+import { precache, router, StaleRevalidate, NetworkFirst } from '@anzaui/anza/sw';
 
 self.addEventListener('install', (e) =&gt; {
   e.waitUntil(precache('shell-v1', ['/index.html', '/app.js']));
 });
 
 const r = router();
-r.register('*', new CacheFirst('shell-v1'));
+r.register('*', new StaleRevalidate('shell-v1'));
 r.register('/api/*', new NetworkFirst('api-v1', { timeout: 3000 }));
 
 self.addEventListener('fetch', (e) =&gt; {
@@ -52,7 +53,7 @@ self.addEventListener('fetch', (e) =&gt; {
 import '@anzaui/anza/ui';
 import { dock } from '@anzaui/anza/ui';
 
-navigator.serviceWorker.register('/sw.js');
+navigator.serviceWorker.register('/sw.js', { type: 'module' });
 
 dock('main');
 </view-code>

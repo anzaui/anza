@@ -1,35 +1,35 @@
 <h1 id="stat">Stat</h1>
-<p>KPI statistic with label, value, and optional trend/change slot.</p>
+<p>A panel showing one metric: a label, a large value and a change line.</p>
 <p><strong>Tag:</strong> <code>ui-stat</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/stat</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/stat';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
 <view-code language="html">&lt;ui-stat trend="up"&gt;
   &lt;span slot="label"&gt;Revenue&lt;/span&gt;
-  $42k
-  &lt;span slot="change"&gt;+12%&lt;/span&gt;
-&lt;/ui-stat&gt;
-&lt;ui-stat trend="down"&gt;
-  &lt;span slot="label"&gt;Churn&lt;/span&gt;
-  2.1%
-  &lt;span slot="change"&gt;−0.4%&lt;/span&gt;
+  $48,200
+  &lt;span slot="change"&gt;+12% vs last month&lt;/span&gt;
 &lt;/ui-stat&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>trend</code></td><td>String</td><td>Reflect</td><td>Trend styling: <code>neutral</code> (default), <code>up</code>, or <code>down</code> (theme-dependent)</td></tr>
+<h2 id="attributes">Attributes</h2>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>trend</code></td><td>String</td><td>—</td><td>Colour of the change line: <code>up</code> or <code>positive</code> (success), <code>down</code> or <code>negative</code> (error), <code>neutral</code> (secondary content). Without the attribute the change line inherits its colour.</td></tr>
 </tbody></table></div>
-<h2 id="slots--parts">Slots / parts</h2>
-<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>label</code></td><td>slot</td><td>Metric label</td></tr>
-<tr><td><em>(default)</em></td><td>slot</td><td>Primary value</td></tr>
-<tr><td><code>change</code></td><td>slot</td><td>Trend / delta text</td></tr>
-<tr><td><code>label</code> / <code>value</code> / <code>trend</code></td><td>parts</td><td>Section wrappers</td></tr>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td><code>label</code></td><td>Small uppercase label</td></tr>
+<tr><td>default</td><td>The value</td></tr>
+<tr><td><code>change</code></td><td>The change line</td></tr>
+</tbody></table></div>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>label</code></td><td>The label area</td></tr>
+<tr><td><code>value</code></td><td>The value area</td></tr>
+<tr><td><code>trend</code></td><td>The change line area</td></tr>
 </tbody></table></div>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/data">Data</a></li>
+<li><a href="/docs/elements#data">Elements</a></li>
+<li><a href="/docs/elements/card">Card</a></li>
 <li><a href="/docs/elements/chart">Chart</a></li>
 </ul>

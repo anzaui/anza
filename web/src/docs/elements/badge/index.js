@@ -7,6 +7,6 @@ page('/docs/elements/badge', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Badge — Anza',
-    description: 'ui-badge — compact label indicator with semantic variants and size scaling.'
+    description: 'ui-badge — compact status label with info, success, warning and error variants and sm or lg sizes.'
   }
 }, import.meta.url);

@@ -1,38 +1,51 @@
 <h1 id="sanitize">Sanitize</h1>
-<p>The sanitizer strips disallowed tags, event handler attributes, and <code>javascript:</code> scheme links from HTML. When Trusted Types is available, it wraps the output in a <code>TrustedHTML</code> object.</p>
-<h2 id="basic-use">Basic Use</h2>
+<p><code>sanitize(html)</code> removes tags and attributes that are not on an allowlist, event handler attributes, and URLs that are not <code>http:</code>, <code>https:</code> or <code>mailto:</code>. When Trusted Types is available, it returns a <code>TrustedHTML</code> object.</p>
+<h2 id="basic-use">Basic use</h2>
 <view-code language="javascript">import { security } from '@anzaui/anza/security';
 
 const safe = String(security.sanitize('&lt;p&gt;&lt;script&gt;alert(1)&lt;/script&gt;Hello&lt;/p&gt;'));
 // '&lt;p&gt;Hello&lt;/p&gt;'
 </view-code>
-<p>Use <code>String()</code> to get the raw string. Without it, the return type may be <code>TrustedHTML</code> when Trusted Types is active.</p>
-<h2 id="allowed-tags">Allowed Tags</h2>
-<p>The sanitizer allows a conservative whitelist:</p>
+<p>Use <code>String()</code> to get a plain string. Without it, the result is a <code>TrustedHTML</code> object when Trusted Types is active.</p>
+<h2 id="allowed-tags">Allowed tags</h2>
 <view-code language="text">a, abbr, b, bdi, bdo, blockquote, br, caption, cite, code, col, colgroup,
 data, dd, del, dfn, div, dl, dt, em, figcaption, figure, footer, h1-h6,
 header, hr, i, img, ins, kbd, li, mark, ol, p, pre, q, rp, rt, ruby, s,
 samp, section, small, span, strong, sub, sup, table, tbody, td, tfoot, th,
 thead, time, tr, u, ul, var, wbr
 </view-code>
-<p>All other tags are stripped (replaced with empty text nodes).</p>
-<h2 id="allowed-attributes">Allowed Attributes</h2>
-<view-code language="text">href, title, src, alt, width, height, class, id, target, rel, style
+<p>Any other element is removed together with its content. <code>&lt;my-card&gt;Hi&lt;/my-card&gt;</code> becomes an empty string, not <code>Hi</code>.</p>
+<h2 id="allowed-attributes">Allowed attributes</h2>
+<view-code language="text">href, title, src, alt, width, height, class, target, rel
 </view-code>
-<p>Any attribute starting with <code>on</code> is removed. <code>href</code> values starting with <code>javascript:</code> are stripped.</p>
+<p>All other attributes are removed. That includes:</p>
+<ul>
+<li>every attribute starting with <code>on</code></li>
+<li><code>style</code>, which can be used for CSS-based data exfiltration and UI redress</li>
+<li><code>id</code>, which can clobber global variables (DOM clobbering)</li>
+</ul>
+<h2 id="urls">URLs</h2>
+<p><code>href</code> and <code>src</code> are checked with the <code>URL</code> parser, resolved against <code>document.baseURI</code>. The attribute is kept only if the protocol is <code>http:</code>, <code>https:</code> or <code>mailto:</code>. Relative URLs resolve to the page's protocol, so they are kept.</p>
+<p>Because the browser's parser does the check, obfuscated schemes such as <code>java&amp;#9;script:</code> or a leading control character do not get through.</p>
+<view-code language="javascript">String(security.sanitize('&lt;a href="javascript:alert(1)"&gt;x&lt;/a&gt;'));
+// '&lt;a&gt;x&lt;/a&gt;'
+
+String(security.sanitize('&lt;img src="data:image/png;base64,AAAA" alt="x"&gt;'));
+// '&lt;img alt="x"&gt;'
+</view-code>
+<h2 id="links-with-target">Links with <code>target</code></h2>
+<p>If an element keeps a <code>target</code> attribute, the sanitizer sets <code>rel="noopener noreferrer"</code> on it and replaces any <code>rel</code> value you passed.</p>
+<view-code language="javascript">String(security.sanitize('&lt;a href="https://example.com" target="_blank"&gt;x&lt;/a&gt;'));
+// '&lt;a href="https://example.com" target="_blank" rel="noopener noreferrer"&gt;x&lt;/a&gt;'
+</view-code>
 <h2 id="trusted-types">Trusted Types</h2>
-<p>When <code>window.trustedTypes</code> is available, the sanitizer registers a <code>core-sanitize</code> policy and wraps output:</p>
+<p>When <code>window.trustedTypes</code> exists, the module registers a <code>core-sanitize</code> policy and wraps every result in it:</p>
 <view-code language="javascript">const trusted = security.sanitize('&lt;p&gt;Safe&lt;/p&gt;');
-// Returns TrustedHTML when Trusted Types is active
-element.innerHTML = trusted; // accepted by Trusted Types CSP
+element.innerHTML = trusted; // accepted under a Trusted Types CSP
 </view-code>
 <h2 id="native-sanitizer-api">Native Sanitizer API</h2>
-<p>When the experimental <code>Sanitizer</code> API is available, it is used preferentially:</p>
-<view-code language="javascript">const sanitizer = new globalThis.Sanitizer();
-const div = document.createElement('div');
-div.setHTML(html, { sanitizer });
-</view-code>
+<p>When the browser has a global <code>Sanitizer</code>, <code>sanitize(html, config)</code> uses it instead of the fallback above. <code>config</code> is passed to <code>new Sanitizer(config)</code> and the HTML goes through <code>setHTML()</code>. In that case the browser's rules apply, not the allowlists on this page. <code>config</code> has no effect on the fallback.</p>
 <h2 id="fallback">Fallback</h2>
-<p>When neither native Sanitizer nor Trusted Types is available, the fallback uses <code>DOMParser</code> or <code>Document.parseHTMLUnsafe</code> to parse the HTML, then walks the tree removing disallowed content.</p>
-<h2 id="ssr">SSR</h2>
-<p>On the server (no <code>window</code>), <code>sanitize</code> returns the input unchanged. Sanitize on the client before rendering user-generated HTML.</p>
+<p>Without a native <code>Sanitizer</code>, the HTML is parsed with <code>Document.parseHTMLUnsafe</code> (or <code>DOMParser</code>) and the tree is walked with the allowlists above. The parsed document is never attached to the page, so no script runs during parsing.</p>
+<h2 id="server">Server</h2>
+<p>Without <code>window</code> (on the server), <code>sanitize</code> returns the input unchanged. Sanitize in the browser before you insert user HTML.</p>

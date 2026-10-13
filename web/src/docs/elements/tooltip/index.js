@@ -7,6 +7,6 @@ page('/docs/elements/tooltip', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Tooltip — Anza',
-    description: 'ui-tooltip — hover/focus hint with overflow-escape positioning.'
+    description: 'ui-tooltip: hover and focus hint that escapes overflow clipping through the top layer, with 12 placements.'
   }
 }, import.meta.url);

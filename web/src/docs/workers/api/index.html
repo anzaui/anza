@@ -4,23 +4,31 @@
 <view-code language="javascript">import { workers } from '@anzaui/anza/workers';
 </view-code>
 <h3 id="workersrunscript-task-opts"><code>workers.run(script, task, opts)</code></h3>
-<p>Run a task in a worker pool. Returns <code>Promise&lt;result&gt;</code>.</p>
+<p>Run a task in the pool for <code>script</code>. One pool per script URL, created on the first call. Returns <code>Promise&lt;result&gt;</code>. Rejects if <code>Worker</code> is unavailable.</p>
 <h3 id="workersdedicatedscript"><code>workers.dedicated(script)</code></h3>
-<p>Create a raw <code>Dedicated</code> worker. Returns <code>Dedicated</code> instance.</p>
+<p>Create a raw <code>Dedicated</code> worker. Returns a <code>Dedicated</code> instance. Throws if <code>Worker</code> is unavailable.</p>
 <h3 id="workerssharedscript-name"><code>workers.shared(script, name)</code></h3>
-<p>Create a <code>Shared</code> connection. Falls back to dedicated worker.</p>
+<p>Create a <code>Shared</code> connection and connect it. <code>name</code> defaults to <code>'native-shared'</code>. Falls back to a dedicated worker.</p>
 <h3 id="workerslockname-fn-opts"><code>workers.lock(name, fn, opts)</code></h3>
 <p>Acquire a Web Lock. Returns <code>Promise&lt;fn_result&gt;</code>.</p>
 <h3 id="workersbroadcastname-payload"><code>workers.broadcast(name, payload)</code></h3>
 <p>Send to a BroadcastChannel. No-op if unsupported.</p>
 <h3 id="workerssubscribename-fn-signal"><code>workers.subscribe(name, fn, signal)</code></h3>
-<p>Subscribe to a BroadcastChannel. Returns disposer.</p>
+<p>Subscribe to a BroadcastChannel. Returns a disposer (a no-op if unsupported).</p>
 <h3 id="workersoffscreencanvas-script-opts"><code>workers.offscreen(canvas, script, opts)</code></h3>
 <p>Transfer canvas to worker. Returns <code>Promise&lt;Offscreen&gt;</code>.</p>
 <h3 id="workersclosescript"><code>workers.close(script)</code></h3>
 <p>Terminate the pool for one script URL.</p>
 <h3 id="workersclear"><code>workers.clear()</code></h3>
 <p>Terminate all pools and close all broadcast channels.</p>
+<h2 id="named-exports">Named Exports</h2>
+<view-code language="javascript">import {
+  workers, has,
+  Dedicated, Pool, Shared, Offscreen,
+  broadcast, lock, offscreen
+} from '@anzaui/anza/workers';
+</view-code>
+<p><code>DedicatedWorker</code>, <code>WorkerPool</code>, <code>SharedConnection</code> and <code>OffscreenHandle</code> are aliases of the four classes.</p>
 <h2 id="feature-detection">Feature Detection</h2>
 <view-code language="javascript">import { has } from '@anzaui/anza/workers';
 </view-code>
@@ -42,6 +50,16 @@
   idempotent,     // boolean
   meta            // arbitrary metadata
 });
+</view-code>
+<p><code>max</code>, <code>size</code> and <code>idle</code> in the same object configure the pool, but only on the first call for that script. See <a href="/docs/workers/pool">Pool</a>.</p>
+<h2 id="pool">Pool</h2>
+<view-code language="javascript">import { Pool } from '@anzaui/anza/workers';
+
+const pool = new Pool('/worker.js', { max: 4, idle: 30000 });
+const result = await pool.run('task', { payload, priority: 'background' });
+pool.size;     // live workers
+pool.pending;  // queued tasks
+pool.terminate();
 </view-code>
 <h2 id="dedicated">Dedicated</h2>
 <view-code language="javascript">import { Dedicated } from '@anzaui/anza/workers';

@@ -7,6 +7,6 @@ page('/docs/elements/spinner', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Spinner — Anza',
-    description: 'ui-spinner — indeterminate loading spinner with reduced-motion support.'
+    description: 'ui-spinner — indeterminate loading ring animated with the Web Animations API, paused under prefers-reduced-motion.'
   }
 }, import.meta.url);

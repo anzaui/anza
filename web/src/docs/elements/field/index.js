@@ -7,6 +7,6 @@ page('/docs/elements/field', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Field — Anza',
-    description: 'ui-field — field wrapper for label, hint, error, and controls.'
+    description: 'ui-field: a layout wrapper that places a label, hint, form control and error message in one column.'
   }
 }, import.meta.url);

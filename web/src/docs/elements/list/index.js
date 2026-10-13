@@ -7,6 +7,6 @@ page('/docs/elements/list', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'List — Anza',
-    description: 'ui-list — list panel with optional bordered surface.'
+    description: 'ui-list — vertical list with divided rows and an optional bordered panel.'
   }
 }, import.meta.url);

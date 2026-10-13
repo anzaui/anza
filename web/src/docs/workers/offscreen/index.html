@@ -6,7 +6,7 @@
 const canvas = document.getElementById('canvas');
 const handle = await workers.offscreen(canvas, '/workers/renderer.js');
 </view-code>
-<p>The worker must respond with <code>{ ok: true }</code> on the received port to signal readiness.</p>
+<p>The worker must respond with <code>{ ok: true }</code> on the received port to signal readiness. <code>send()</code> and <code>resize()</code> post to that same port, not to the worker's global <code>onmessage</code>.</p>
 <h2 id="worker-implementation">Worker Implementation</h2>
 <view-code language="javascript">// /workers/renderer.js
 self.onmessage = (e) =&gt; {
@@ -16,8 +16,8 @@ self.onmessage = (e) =&gt; {
   // Signal ready
   port.postMessage({ ok: true });
 
-  // Render on message
-  self.onmessage = (e) =&gt; {
+  // Commands from send() and resize() arrive on the port
+  port.onmessage = (e) =&gt; {
     if (e.data.type === 'resize') {
       // handle resize
     } else {
@@ -33,7 +33,7 @@ self.onmessage = (e) =&gt; {
 <h2 id="resize">Resize</h2>
 <view-code language="javascript">handle.resize({ width: 400, height: 300, dpr: 2 });
 </view-code>
-<p>Forwards new dimensions and device pixel ratio to the worker.</p>
+<p>Posts <code>{ type: 'resize', width, height, dpr }</code> to the worker. Omitted values default to the canvas's <code>clientWidth</code>, <code>clientHeight</code> and <code>devicePixelRatio</code>. <code>send()</code> and <code>resize()</code> throw if the handle is closed or not ready.</p>
 <h2 id="close">Close</h2>
 <view-code language="javascript">handle.close();
 </view-code>

@@ -5,15 +5,19 @@
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
 
 api.pipeline.outbound((descriptor) =&gt; {
-  // Add an auth header to every request
-  descriptor.headers.set('X-Request-ID', descriptor.requestId);
-  return descriptor;
+  // Tag every request with its ID
+  const headers = new Headers(descriptor.headers);
+  headers.set('X-Request-ID', descriptor.requestId);
+  return { ...descriptor, headers };
 });
 </view-code>
-<p>Return a <code>Response</code> to short-circuit the pipeline entirely:</p>
+<p><code>descriptor.headers</code> is a <code>Headers</code> instance unless the caller passed a <code>headers</code> option, in which case it is that plain object. Wrap it in <code>new Headers()</code> as above.</p>
+<p>Return a <code>Response</code> to short-circuit the pipeline. Caching, retries and the network are skipped; inbound interceptors still run. Set <code>Content-Type</code> so the client parses JSON:</p>
 <view-code language="javascript">api.pipeline.outbound((descriptor) =&gt; {
   if (descriptor.url === '/mock/user') {
-    return new Response(JSON.stringify({ name: 'Mock' }));
+    return new Response(JSON.stringify({ name: 'Mock' }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
   return descriptor;
 });
@@ -29,7 +33,8 @@ api.pipeline.outbound((descriptor) =&gt; {
   return responseOrError;
 });
 </view-code>
-<p>Inbound interceptors receive either a <code>Response</code> or an <code>Error</code>. They must return a <code>Response</code> or throw. The final interceptor's return value is what the caller receives.</p>
+<p>Inbound interceptors receive either a <code>Response</code> or an <code>Error</code>, and return a <code>Response</code> or an <code>Error</code> (a thrown error is passed on as the value). Every interceptor runs. If the final value is an <code>Error</code>, the request rejects with it; otherwise the client parses the <code>Response</code> body.</p>
+<p>Non-2xx responses from the network reach inbound interceptors as an <code>HTTP_ERROR</code>, not as a <code>Response</code>.</p>
 <h2 id="chaining">Chaining</h2>
 <p><code>outbound</code> and <code>inbound</code> return the pipeline instance for chaining:</p>
 <view-code language="javascript">api.pipeline
@@ -40,25 +45,19 @@ api.pipeline.outbound((descriptor) =&gt; {
 </view-code>
 <p>Interceptors run in registration order.</p>
 <h2 id="built-in-interceptors">Built-In Interceptors</h2>
-<p>The API client registers one inbound interceptor automatically for telemetry:</p>
-<view-code language="javascript">api.pipeline.inbound((responseOrError) =&gt; {
-  // Emits 'status:xxx', 'type:json', 'error', 'failed', etc.
-});
-</view-code>
-<p>You can add your own alongside it. The built-in interceptor runs first (registered at module load), then yours.</p>
+<p>The API client registers one inbound interceptor at module load. It emits the telemetry events (<code>status:xxx</code>, <code>type:json</code>, <code>error</code>, <code>failed</code>, <code>timeout</code>) and returns its input unchanged. It runs first, then yours.</p>
 <h2 id="request-descriptor">Request Descriptor</h2>
-<p>Outbound interceptors receive and should return a descriptor object:</p>
-<view-code language="javascript">{
-  requestId,    // unique UUID for this request
-  url,          // resolved URL after prefix routing
-  method,       // HTTP method
-  headers,      // Headers instance
-  body,         // request body
-  signal,       // AbortSignal
-  priority,     // task priority
-  timeout,      // timeout in ms
-  cache,        // cache strategy name
-  retries,      // retry attempts
-  ...opts       // additional options
-}
-</view-code>
+<p>Outbound interceptors receive a descriptor. Return a new or modified descriptor, a <code>Response</code>, or nothing to keep the current one.</p>
+<div class="table-wrap"><table><thead><tr><th>Field</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>requestId</code></td><td>Unique ID for this request</td></tr>
+<tr><td><code>url</code></td><td>URL after prefix resolution</td></tr>
+<tr><td><code>method</code></td><td>HTTP method</td></tr>
+<tr><td><code>headers</code></td><td><code>Headers</code> instance, or the caller's <code>headers</code> object</td></tr>
+<tr><td><code>body</code></td><td>Request body (objects already JSON-serialized)</td></tr>
+<tr><td><code>signal</code></td><td>Caller's <code>AbortSignal</code></td></tr>
+<tr><td><code>priority</code></td><td>Task priority</td></tr>
+<tr><td><code>timeout</code></td><td>Timeout in ms</td></tr>
+<tr><td><code>cache</code></td><td>Cache strategy name</td></tr>
+<tr><td><code>retries</code></td><td>Total attempts</td></tr>
+</tbody></table></div>
+<p>Every other request option (<code>expiry</code>, <code>on</code>, ...) is copied onto the descriptor too.</p>

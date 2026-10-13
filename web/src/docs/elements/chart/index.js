@@ -7,6 +7,6 @@ page('/docs/elements/chart', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Chart — Anza',
-    description: 'ui-chart — lightweight canvas bar/line chart with resize redraw.'
+    description: 'ui-chart — canvas bar or line chart drawn from a JSON array, redrawn on resize and on attribute changes.'
   }
 }, import.meta.url);

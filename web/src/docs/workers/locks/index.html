@@ -13,14 +13,14 @@ await workers.lock('db:users', async () =&gt; {
 <tr><td><code>mode</code></td><td>string</td><td><code>'exclusive'</code></td><td><code>'exclusive'</code> or <code>'shared'</code></td></tr>
 <tr><td><code>signal</code></td><td>AbortSignal</td><td>—</td><td>Abort lock acquisition</td></tr>
 <tr><td><code>timeout</code></td><td>number</td><td>—</td><td>Timeout in ms</td></tr>
-<tr><td><code>ifAvailable</code></td><td>boolean</td><td><code>false</code></td><td>Fail if lock is not immediately available</td></tr>
+<tr><td><code>ifAvailable</code></td><td>boolean</td><td><code>false</code></td><td>Reject with a <code>NotAllowedError</code> if the lock is not immediately available</td></tr>
 <tr><td><code>steal</code></td><td>boolean</td><td><code>false</code></td><td>Forcibly take the lock from current holder</td></tr>
 </tbody></table></div>
 <h2 id="timeout">Timeout</h2>
 <view-code language="javascript">await workers.lock('db:users', async () =&gt; {
   await db.save(user);
 }, { timeout: 3000 });
-// Throws if lock not acquired within 3 seconds
+// Rejects with a TimeoutError if the lock is not acquired within 3 seconds
 </view-code>
 <h2 id="shared-mode">Shared Mode</h2>
 <view-code language="javascript">await workers.lock('cache:read', async () =&gt; {
@@ -46,7 +46,7 @@ await workers.lock('db:users', async () =&gt; {
       startBackgroundSync();
       // Hold forever (or until page unloads)
       await new Promise(() =&gt; {});
-    });
+    }, { ifAvailable: true });
   } catch {
     console.log('Another tab is the leader');
   }

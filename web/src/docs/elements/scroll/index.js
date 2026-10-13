@@ -7,6 +7,6 @@ page('/docs/elements/scroll', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Scroll — Anza',
-    description: 'ui-scroll — scroll viewport with optional snap.'
+    description: 'ui-scroll — vertical scroll viewport that fills its parent, with optional mandatory scroll snapping.'
   }
 }, import.meta.url);

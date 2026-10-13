@@ -7,6 +7,6 @@ page('/docs/elements/popover', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Popover — Anza',
-    description: 'ui-popover — contextual overlay using the native Popover API.'
+    description: 'ui-popover: light-dismiss panel on the native Popover API, with show(), hide(), toggle() and a toggle event. Polyfilled where missing.'
   }
 }, import.meta.url);

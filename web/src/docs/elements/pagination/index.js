@@ -7,6 +7,6 @@ page('/docs/elements/pagination', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Pagination — Anza',
-    description: 'ui-pagination — prev/next pagination with URL or prop control.'
+    description: 'ui-pagination — Previous and Next buttons with a page indicator, driven by the page attribute or the ?page= query.'
   }
 }, import.meta.url);

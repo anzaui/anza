@@ -2,10 +2,10 @@
 <p>Internals, extension points, and edge cases for developers building on or extending the API client.</p>
 <h2 id="retry-internals">Retry Internals</h2>
 <p>The retry function uses exponential backoff with full jitter:</p>
-<view-code language="javascript">delay = random(0, min(maxDelay, base * 2^attempt))
+<view-code language="text">delay = random(0, min(maxDelay, base * 2^attempt))
 </view-code>
 <div class="table-wrap"><table><thead><tr><th>Parameter</th><th>Default</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>attempts</code></td><td>3</td><td>Maximum retry attempts</td></tr>
+<tr><td><code>attempts</code></td><td>3</td><td>Total attempts, including the first</td></tr>
 <tr><td><code>base</code></td><td>100ms</td><td>Starting delay</td></tr>
 <tr><td><code>maxDelay</code></td><td>3000ms</td><td>Cap on delay</td></tr>
 </tbody></table></div>
@@ -15,7 +15,7 @@
 <li><code>NETWORK_ERROR</code></li>
 <li><code>HTTP_ERROR</code> with status &gt;= 500</li>
 </ul>
-<p>4xx errors and aborted requests fail immediately.</p>
+<p>4xx errors fail immediately. An aborted request stops before the next attempt.</p>
 <p>The retry loop respects <code>AbortSignal</code>. If the signal aborts during backoff, the wait is cancelled and a <code>NETWORK_ERROR</code> is thrown.</p>
 <h2 id="abortsignal-composition">AbortSignal Composition</h2>
 <p>The API client composes its internal timeout signal with any user-provided signal:</p>
@@ -30,13 +30,15 @@ userSignal.addEventListener('abort', () =&gt; timeoutSignal.abort());
 <p>When <code>scheduler.postTask</code> is available, the fetch is scheduled at the requested priority:</p>
 <view-code language="javascript">scheduler.postTask(runFetch, { priority: 'user-visible', signal });
 </view-code>
-<p>This improves Interaction to Next Paint (INP) by deferring non-critical requests.</p>
+<p>Lower-priority requests yield to more urgent tasks on the main thread.</p>
 <p>When <code>scheduler.postTask</code> is unavailable, the fetch runs immediately.</p>
 <h2 id="pipeline-short-circuiting">Pipeline Short-Circuiting</h2>
 <p>An outbound interceptor can return a <code>Response</code> to skip the network entirely:</p>
 <view-code language="javascript">api.pipeline.outbound((descriptor) =&gt; {
   if (isOffline()) {
-    return new Response(JSON.stringify({ offline: true }));
+    return new Response(JSON.stringify({ offline: true }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
   return descriptor;
 });
@@ -68,12 +70,6 @@ buffer = lines.pop(); // keep trailing fragment
 for (const line of lines) parseJSON(line);
 </view-code>
 <p>This guarantees correct parsing even when chunks break mid-line.</p>
-<h2 id="ssr-considerations">SSR Considerations</h2>
-<p>The API client checks <code>typeof caches !== 'undefined'</code> before using the Cache API. On the server:</p>
-<ul>
-<li>Caching is a no-op</li>
-<li><code>fetch</code> works normally (via polyfill if needed)</li>
-<li>Events fire normally</li>
-<li>Uploads require XMLHttpRequest polyfill</li>
-</ul>
-<p>For server-side rendering, register prefixes during build or server startup, then make requests as normal.</p>
+<h2 id="server-rendered-state">Server-Rendered State</h2>
+<p>When the module loads, it reads <code>&lt;script id="anza-state" type="application/json"&gt;</code> from the document. A <code>GET</code> whose resolved URL is a key in that object returns a copy of the stored value without a network call, pipeline or events. <code>api.state()</code> returns the <code>__route</code> entry, and <code>api.sync()</code> re-reads the script.</p>
+<p>If the Cache API is missing (<code>typeof caches === 'undefined'</code>), caching is skipped and requests go to the network.</p>

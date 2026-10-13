@@ -8,9 +8,9 @@ the standard <code>Response</code> class.</p>
 <ul>
 <li><strong>Parse once</strong> — <code>new Setup(...).run()</code> loads every template under the root and compiles it into a render function</li>
 <li><strong>Framework adapters</strong> — <code>htmlResponse</code> / <code>jsonResponse</code> / <code>sseEvent</code> for Fetch-style handlers, plus helpers for Hono, Express and Fastify under <code>adapters</code></li>
-<li><strong>Signing</strong> — HMAC-SHA256 or Ed25519 signatures over <code>ts:slot:html</code></li>
+<li><strong>Signing</strong> — HMAC-SHA256 or Ed25519 signatures over the length-prefixed v2 message, checked with <code>verifyEnvelope</code></li>
 <li><strong>Live SSE streaming</strong> — <code>sseEvent()</code> / <code>formatEvent()</code> turn an envelope into a <code>template</code> event</li>
-<li><strong>Live reload</strong> — <code>watch: true</code> reloads templates when files change</li>
+<li><strong>Live reload</strong> — <code>watch: true</code> reloads templates when files change (50 ms debounce, serialized reloads)</li>
 </ul>
 <h2 id="installation">Installation</h2>
 <view-code language="bash">npm install @anzaui/engine
@@ -25,7 +25,7 @@ const engine = await new Setup({
   root: './templates',
   signing: {
     mode: 'hmac',
-    secret: 'super-secret-key-32-chars-long!!',
+    secret: process.env.ANZA_SECRET!, // at least 32 bytes
   },
 }).run();
 
@@ -111,17 +111,42 @@ await app.listen({ port: 3000 });
 </view-code>
 <h2 id="parameters">Parameters</h2>
 <p>Params can be a plain object, a <code>Map</code>, or an array of <code>[key, value]</code> pairs.
-Values are inserted <strong>as is, without HTML escaping</strong>: escape user input before
-passing it in.</p>
+Only own properties of an object are read (<code>Object.hasOwn</code>), so <code>{{toString}}</code>
+renders nothing. Strings are inserted as-is, booleans as <code>true</code>/<code>false</code>,
+<code>null</code>/<code>undefined</code> as nothing, and plain objects and arrays as compact JSON.</p>
+<p><code>{{name}}</code> inserts a value and <code>{{{name}}}</code> inserts it raw. By default both
+insert the value <strong>without HTML escaping</strong>: escape user input with
+<code>escapeHtml</code> before passing it in. With <code>escape: true</code> in <code>Setup</code>, <code>{{name}}</code>
+is HTML-escaped and <code>{{{name}}}</code> stays raw (use <code>{{{content}}}</code> in the shell).</p>
+<p>Other setup options: <code>fragments</code> (an allowlist of exact names and <code>dir/</code>
+prefixes that <code>renderFragment</code> may use; others are <code>NOT_FOUND</code>) and
+<code>maxTemplateBytes</code> (default 1 MiB; a larger file is a <code>TEMPLATE</code> error).</p>
 <h2 id="signing">Signing</h2>
-<view-code language="typescript">await new Setup({ root: './templates', signing: { mode: 'hmac', secret: process.env.STUI_SECRET! } }).run();
+<view-code language="typescript">await new Setup({ root: './templates', signing: { mode: 'hmac', secret: process.env.ANZA_SECRET! } }).run();
 await new Setup({ root: './templates', signing: { mode: 'ed25519', privateKey: seed32Bytes } }).run();
 </view-code>
-<p><code>privateKey</code> is a raw 32-byte seed, a PEM/DER key, or a <code>KeyObject</code>. When the
-key is missing, envelopes are sent without <code>sig</code>. See <a href="/docs/engines/crypto">Cryptographic Verification</a>.</p>
+<p>The HMAC <code>secret</code> must be at least 32 bytes. <code>privateKey</code> is a 32-byte seed,
+a 64-char lowercase hex seed, a PEM string or a <code>KeyObject</code>; an optional
+<code>publicKey</code> must match it. A missing or bad key throws an <code>AnzaError</code> with
+code <code>CRYPTO</code> from <code>Setup.run()</code>; the engine never sends unsigned envelopes
+by accident. The validated key is <code>engine.signer</code> (it never prints key
+material).</p>
+<p>Envelopes are <code>{"v":2,"slot","ts","html","sig"?,"css"?}</code>. The signature covers
+the v2 message from <code>signatureMessage(ts, slot, html, css)</code> (also
+<code>envelope.message()</code>). To check a received envelope:</p>
+<view-code language="typescript">import { verifyEnvelope } from '@anzaui/engine';
+
+verifyEnvelope({ mode: 'ed25519', publicKey }, envelope, { maxAgeSecs: 60, slot: 'feed' });
+engine.verifyEnvelope(envelope, { maxAgeSecs: 60, slot: 'feed' }); // with the engine's own key
+</view-code>
+<p>Both throw an <code>AnzaError</code> with code <code>CRYPTO</code> naming the failed check (version,
+signature format, freshness, slot, signature). See
+<a href="/docs/engines/crypto">Cryptographic Verification</a> and the <a href="/docs/engines/contract">Engine Contract</a>.</p>
 <h2 id="page-rendering">Page Rendering</h2>
 <p><code>Page(route)</code> maps the route to a template: <code>/</code> → <code>pages/home.html</code>, <code>/about</code> →
-<code>pages/about.html</code>, then falls back to <code>about.html</code> and <code>pages/index.html</code>. The
-page is bound with the params and inserted into <code>layout/shell.html</code> as
-<code>{{content}}</code> (also <code>{{slot_main}}</code>). Without a shell, a minimal document with
-a <code>&lt;dock-main&gt;</code> is emitted.</p>
+<code>pages/about.html</code>. When that template is missing, <code>pages/index.html</code> is the
+catch-all. Otherwise, or for a malformed route (<code>..</code>, <code>\</code>, NUL), it rejects
+with an <code>AnzaError</code> of code <code>NOT_FOUND</code> and the message <code>Page not found</code>.
+Routes only resolve under <code>pages/</code>. The page is bound with the params and
+inserted into <code>layout/shell.html</code> as <code>{{content}}</code>. Without a shell, a minimal
+document with a <code>&lt;dock-main&gt;</code> is emitted.</p>

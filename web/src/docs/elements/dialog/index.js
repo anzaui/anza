@@ -7,6 +7,6 @@ page('/docs/elements/dialog', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Dialog — Anza',
-    description: 'ui-dialog — modal overlay wrapping the native dialog element.'
+    description: 'ui-dialog: modal overlay around the native dialog element. Open it with showModal(), close it with close(returnValue).'
   }
 }, import.meta.url);

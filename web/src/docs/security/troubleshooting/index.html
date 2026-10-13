@@ -12,11 +12,14 @@
 <p><strong>Cause:</strong> Wrong key, corrupted ciphertext, or reused IV.</p>
 <p><strong>Fix:</strong> Ensure you use the same key for encrypt and decrypt. Check that the ciphertext was not truncated or modified. Never reuse an IV with the same key — always generate a fresh key for new data or use <code>seal</code>/<code>unseal</code>.</p>
 <h2 id="sanitize-returns-empty-string">Sanitize returns empty string</h2>
-<p><strong>Cause:</strong> Input contained no allowed tags.</p>
-<p><strong>Fix:</strong> Check the allowed tag list in <a href="/docs/security/sanitize">Sanitize</a>. Plain text is preserved. Only disallowed tags are stripped:</p>
+<p><strong>Cause:</strong> The input was wrapped in an element that is not on the allowlist. The sanitizer removes such elements together with their content, so <code>&lt;my-card&gt;Hello&lt;/my-card&gt;</code> becomes <code>''</code>.</p>
+<p><strong>Fix:</strong> Check the allowed tag list in <a href="/docs/security/sanitize">Sanitize</a>. Text outside disallowed elements is kept:</p>
 <view-code language="javascript">const safe = String(sanitize('&lt;script&gt;alert(1)&lt;/script&gt;Hello'));
-// 'Hello' — script removed, text kept
+// 'Hello'
 </view-code>
+<h2 id="links-ids-or-inline-styles-disappear">Links, ids or inline styles disappear</h2>
+<p><strong>Cause:</strong> The sanitizer drops <code>id</code> and <code>style</code>, and keeps <code>href</code> and <code>src</code> only for <code>http:</code>, <code>https:</code> and <code>mailto:</code> URLs. <code>data:</code> images and <code>tel:</code> links are removed.</p>
+<p><strong>Fix:</strong> Style sanitized content with classes. Add ids and other URL schemes after sanitizing, from values you control.</p>
 <h2 id="trusted-types-policy-already-registered">Trusted Types policy already registered</h2>
 <p><strong>Warning:</strong> <code>Trusted Types policy "core-sanitize" registration failed</code></p>
 <p><strong>Cause:</strong> Another script registered the same policy name.</p>

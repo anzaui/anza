@@ -7,6 +7,6 @@ page('/docs/elements/drawer', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Drawer — Anza',
-    description: 'ui-drawer — side panel overlay using native dialog showModal.'
+    description: 'ui-drawer: modal side panel on the native dialog that slides in from the left or right. Open with the open attribute or show().'
   }
 }, import.meta.url);

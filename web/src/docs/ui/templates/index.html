@@ -1,79 +1,84 @@
 <h1 id="templates">Templates</h1>
-<p>Templates define the HTML structure of a declarative element. The UI layer supports inline strings, file references, and tagged template literals.</p>
-<h2 id="inline-string">Inline String</h2>
-<view-code language="javascript">view('user-card', {
+<p>A template is the HTML cloned into each element's shadow root. It is plain HTML: there is no <code>{{ }}</code> interpolation. Fill in values from hooks through <code>refs</code>.</p>
+<h2 id="inline-string">Inline string</h2>
+<view-code language="javascript">import { view } from '@anzaui/anza/defs';
+
+view('user-card', {
   template: '&lt;div class="card"&gt;&lt;h2 ref="title"&gt;&lt;/h2&gt;&lt;/div&gt;'
 });
 </view-code>
-<p>The string is compiled into a <code>DocumentFragment</code> once per registration and cloned for each instance.</p>
-<h2 id="file-reference">File Reference</h2>
+<p>The string is compiled to a <code>DocumentFragment</code> once, when the element is defined, and cloned for each instance.</p>
+<h2 id="file-template">File template</h2>
+<p><code>page()</code>, <code>dock()</code>, <code>view()</code> and <code>part()</code> accept a <code>{ html, css }</code> object:</p>
 <view-code language="javascript">view('user-card', {
   template: { html: './card.html', css: './card.css' }
 }, import.meta.url);
 </view-code>
 <div class="table-wrap"><table><thead><tr><th>Field</th><th>Required</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>html</code></td><td>yes</td><td>Path to <code>.html</code> file</td></tr>
-<tr><td><code>css</code></td><td>no</td><td>Path to <code>.css</code> file</td></tr>
-<tr><td><code>shadow</code></td><td>no</td><td><code>'open'</code> or <code>'closed'</code>; default <code>'open'</code></td></tr>
+<tr><td><code>html</code></td><td>no</td><td>HTML string or path to an <code>.html</code> file</td></tr>
+<tr><td><code>css</code></td><td>no</td><td>CSS string, <code>.css</code> path, or an array of both</td></tr>
+<tr><td><code>shadow</code></td><td>no</td><td>Shadow root mode. Leave it unset: only <code>'open'</code> works.</td></tr>
 </tbody></table></div>
-<p>Paths are resolved relative to the third argument (<code>import.meta.url</code>). The native toolchain copies assets during build.</p>
-<h3 id="when-files-load">When files load</h3>
-<p>File resources load on <strong>first connect</strong> (lazy, the default): defining an
-element costs no requests until one is used on the page. The style, template
-and tags descriptor are fetched in parallel, once per element type. Pass
-<code>eager: true</code> (on <code>element()</code>, <code>view()</code>, <code>part()</code> or <code>dock()</code>) to start the
-fetch at define time instead, for an element you know will render right away:</p>
+<p>A top-level <code>style</code> field replaces <code>template.css</code>. <code>element()</code> takes <code>template</code> and <code>style</code> as separate strings; see <a href="/docs/ui/factory#spec-shape">element() factory</a>.</p>
+<p>Relative paths resolve against the third argument, <code>import.meta.url</code>. Without it, the factory logs an error and uses the path as inline text.</p>
+<h2 id="when-files-load">When files load</h2>
+<p>File resources load when the first instance connects. Defining an element costs no requests until one is used. The style, the template and its tags descriptor load in parallel, once per URL.</p>
+<p>Pass <code>eager: true</code> (on <code>element()</code>, <code>page()</code>, <code>dock()</code>, <code>view()</code> or <code>part()</code>) to start the fetch when the element is defined:</p>
 <view-code language="javascript">view('app-header', {
   template: { html: './header.html', css: './header.css' },
   eager: true
 }, import.meta.url);
 </view-code>
-<p>Pre-rendered (declarative shadow DOM) elements mount immediately without
-waiting for these files.</p>
-<h2 id="tagged-template-literal">Tagged Template Literal</h2>
-<p>For rapid prototyping outside the element factory:</p>
+<p>An element that adopted pre-rendered Declarative Shadow DOM mounts without waiting for these files. See <a href="/docs/ui/hydration">Hydration (DSD adopt)</a>.</p>
+<h2 id="build-time-inlining">Build-time inlining</h2>
+<p><code>anza build</code> (production) copies the referenced files to <code>dist</code>, and also writes the contents of each relative style and template file into the module that defines the element. The <code>.tags.json</code> next to a template goes in too. At runtime the element uses the inlined copy instead of fetching it.</p>
+<p>Not inlined:</p>
+<ul>
+<li><code>page()</code> template HTML. Pages are already in the pre-rendered HTML; only their tags descriptor is inlined.</li>
+<li>CSS that uses <code>@import</code> or a relative <code>url()</code>. A constructed stylesheet would resolve those against the document.</li>
+<li>Root-absolute paths such as <code>/styles/shared.css</code>.</li>
+</ul>
+<p>The build then bundles the modules into hashed chunks under <code>dist/assets/</code>. <code>anza dev</code> never inlines or bundles, so file edits hot-swap. See <a href="/docs/ui/factory#hmr">element() factory</a>.</p>
+<h2 id="refs">Refs</h2>
+<p>Mark elements with <code>ref="name"</code>:</p>
+<view-code language="javascript">view('greeting-card', {
+  template: '&lt;div&gt;&lt;h2 ref="title"&gt;&lt;/h2&gt;&lt;button ref="go"&gt;Go&lt;/button&gt;&lt;/div&gt;',
+  on: {
+    connect({ refs, ctrl }) {
+      refs.title.textContent = 'Hello';
+      refs.go.addEventListener('click', () =&gt; { refs.title.textContent = 'Clicked'; }, { signal: ctrl.signal });
+    }
+  }
+});
+</view-code>
+<p><code>refs</code> is a frozen object built once per mount: ref name to element. A duplicate name logs a warning and the first match wins. Elements added later are not in <code>refs</code>; use <code>tags</code> for those.</p>
+<h2 id="tags-descriptor">Tags descriptor</h2>
+<p>A file template can have a <code>.tags.json</code> file next to it (<code>card.html</code> → <code>card.tags.json</code>):</p>
+<view-code language="json">{
+  "version": 1,
+  "refs": ["title", "go"],
+  "ids": ["header"],
+  "classes": ["card"],
+  "tags": ["h2", "button"]
+}
+</view-code>
+<p>The factory uses it to:</p>
+<ul>
+<li>pre-fill the <code>tags</code> cache for each listed <code>id</code> and <code>ref</code>, so <code>tags.one('#header')</code> needs no query;</li>
+<li>limit <code>refs</code> to the listed names;</li>
+<li>check an adopted DSD root for missing refs (see <a href="/docs/ui/hydration">Hydration (DSD adopt)</a>).</li>
+</ul>
+<p>A missing descriptor is normal and is not requested again.</p>
+<h2 id="tagged-template-literal">Tagged template literal</h2>
+<p><code>template</code> builds a fragment outside the element factory:</p>
 <view-code language="javascript">import { template } from '@anzaui/anza/ui';
 
 const fragment = template`&lt;div class="card"&gt;&lt;h2&gt;Hello&lt;/h2&gt;&lt;/div&gt;`;
 document.body.appendChild(fragment);
 </view-code>
-<p>Interpolated values are ignored in production. The template is parsed once per call site and cached in a <code>WeakMap</code>. Cloning a cached fragment is ~10x faster than re-parsing HTML.</p>
-<p>In development, passing values logs a warning:</p>
-<view-code language="javascript">template`&lt;div&gt;${dynamic}&lt;/div&gt;`; // warns: use refs for dynamic binding
-</view-code>
-<h2 id="refs">Refs</h2>
-<p>Mark elements with <code>ref="name"</code> for easy lookup:</p>
-<view-code language="javascript">template: '&lt;div&gt;&lt;h2 ref="title"&gt;&lt;/h2&gt;&lt;button ref="btn"&gt;Go&lt;/button&gt;&lt;/div&gt;'
-</view-code>
-<p>Access in hooks:</p>
-<view-code language="javascript">on: {
-  connect({ refs }) {
-    refs.title.textContent = 'Hello';
-    refs.btn.addEventListener('click', handler);
-  }
-}
-</view-code>
-<p>Duplicate <code>ref</code> names log a warning. The first match wins.</p>
-<h2 id="tags-descriptor">Tags Descriptor</h2>
-<p>When using file templates, the factory looks for a <code>.tags.json</code> alongside the <code>.html</code> file:</p>
-<view-code language="json">{
-  "version": 1,
-  "refs": ["title", "btn"],
-  "ids": ["header"],
-  "classes": ["card", "active"],
-  "tags": ["h2", "button"]
-}
-</view-code>
-<p>The tags descriptor pre-warms the query cache so <code>tags.one('#header')</code> and <code>tags.all('.card')</code> resolve instantly without DOM traversal.</p>
-<h2 id="template-compilation">Template Compilation</h2>
-<p>The compilation path depends on what is available:</p>
-<ol>
-<li><strong><code>setHTMLUnsafe</code></strong> (modern) — fastest, parses HTML directly into a <code>&lt;template&gt;</code></li>
-<li><strong><code>innerHTML</code></strong> (fallback) — standard template parsing</li>
-</ol>
-<p>In both cases, the result is a <code>DocumentFragment</code> cloned per instance.</p>
-<h2 id="no-template">No Template</h2>
-<p>An element without a template creates an empty shadow root:</p>
+<p>The markup is parsed once per call site and cloned on each call. Interpolated values are always dropped; in development the call also logs a warning. Use refs for dynamic content.</p>
+<h2 id="no-template">No template</h2>
+<p>Without a template the shadow root starts empty:</p>
 <view-code language="javascript">view('empty-box', {
   on: {
     connect({ el }) {

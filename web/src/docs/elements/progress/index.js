@@ -7,6 +7,6 @@ page('/docs/elements/progress', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Progress — Anza',
-    description: 'ui-progress — determinate progress bar with ARIA progressbar semantics.'
+    description: 'ui-progress: determinate progress bar with a label slot, a percentage readout and progressbar ARIA values.'
   }
 }, import.meta.url);

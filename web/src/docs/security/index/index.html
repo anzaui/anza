@@ -4,7 +4,7 @@
 <ul>
 <li><strong>Cryptography</strong> — AES-GCM encryption, PBKDF2 key derivation, HMAC/ECDSA signing and verification, SHA hashing, UUID generation</li>
 <li><strong>String encryption</strong> — <code>seal</code> and <code>unseal</code> for storing encrypted data as base64 in JSON or localStorage</li>
-<li><strong>HTML sanitization</strong> — XSS-safe HTML with Trusted Types policy when available</li>
+<li><strong>HTML sanitization</strong> — allowlist-based cleanup of untrusted HTML (no <code>id</code>, <code>style</code> or non-http(s)/mailto URLs), wrapped in a Trusted Types policy when available</li>
 <li><strong>Permissions</strong> — query and watch browser permission states (geolocation, camera, etc.)</li>
 </ul>
 <h2 id="package">Package</h2>

@@ -8,7 +8,7 @@
 <tr><td><code>animationInput</code></td><td>string | Keyframe[]</td><td>Template name or raw keyframes</td></tr>
 <tr><td><code>options</code></td><td>object</td><td>WAAPI options plus <code>signal</code></td></tr>
 </tbody></table></div>
-<p>Returns a <code>Animation</code> instance.</p>
+<p>Returns the native <code>Animation</code> instance.</p>
 <h2 id="using-a-preset">Using a Preset</h2>
 <view-code language="javascript">import { animations } from '@anzaui/anza/animations';
 
@@ -24,10 +24,10 @@ await anim.finished;
 </view-code>
 <h2 id="options">Options</h2>
 <div class="table-wrap"><table><thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>duration</code></td><td>number</td><td>from template</td><td>Animation duration in ms</td></tr>
+<tr><td><code>duration</code></td><td>number</td><td>from template, else <code>0</code></td><td>Animation duration in ms</td></tr>
 <tr><td><code>delay</code></td><td>number</td><td>0</td><td>Delay before start</td></tr>
 <tr><td><code>easing</code></td><td>string</td><td>from template</td><td>Easing curve</td></tr>
-<tr><td><code>fill</code></td><td>string</td><td><code>'both'</code></td><td>Fill mode</td></tr>
+<tr><td><code>fill</code></td><td>string</td><td>from template (<code>'both'</code> for presets), else <code>'none'</code></td><td>Fill mode</td></tr>
 <tr><td><code>iterations</code></td><td>number</td><td>1</td><td>Repeat count</td></tr>
 <tr><td><code>direction</code></td><td>string</td><td><code>'normal'</code></td><td>Playback direction</td></tr>
 <tr><td><code>signal</code></td><td>AbortSignal</td><td>—</td><td>Cancel on abort</td></tr>
@@ -40,7 +40,7 @@ animations.animate(el, 'fade', { signal: ctrl.signal });
 // Cancel the animation
 ctrl.abort();
 </view-code>
-<p>The animation is automatically cancelled when the signal aborts. The abort listener is removed when the animation finishes to prevent leaks.</p>
+<p>The animation is cancelled when the signal aborts. The abort listener is removed when the animation finishes. A signal that is already aborted when you pass it has no effect, so check <code>signal.aborted</code> first.</p>
 <h2 id="controlling-playback">Controlling Playback</h2>
 <view-code language="javascript">const anim = animations.animate(el, 'slide');
 

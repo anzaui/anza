@@ -2,6 +2,7 @@
 <p>Complete reference for the Service Worker toolkit.</p>
 <h2 id="strategies">Strategies</h2>
 <p>Every strategy has <code>handle(request, event?)</code>. It responds first; with an <code>event</code>, the cache write is passed to <code>event.waitUntil()</code>.</p>
+<p>Only OK responses to <code>GET</code> requests are cached. Never cached: responses with <code>Cache-Control: no-store</code> or <code>private</code>, or <code>Vary: *</code>; requests with an <code>Authorization</code> header; cross-origin requests with <code>credentials: 'include'</code>. See <a href="/docs/sw/strategies#what-is-never-cached">Strategies</a>.</p>
 <h3 id="new-cachefirstcachename-options"><code>new CacheFirst(cacheName, options)</code></h3>
 <div class="table-wrap"><table><thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>cacheName</code></td><td>string</td><td>Cache storage bucket name</td></tr>
@@ -24,7 +25,7 @@
 <tr><td><code>cacheName</code></td><td>string</td><td>Cache storage bucket name</td></tr>
 <tr><td><code>options.ttl</code></td><td>number</td><td>Cache TTL in ms</td></tr>
 </tbody></table></div>
-<p>Posts <code>cache-update</code> messages to all controlled clients after a successful background fetch.</p>
+<p>Posts <code>{ type: 'cache-update', url, payload }</code> to all clients after a successful background fetch. <code>payload</code> is the parsed JSON body, or <code>null</code> for other content types.</p>
 <h3 id="new-networkonly"><code>new NetworkOnly()</code></h3>
 <p>No params. Direct <code>fetch()</code> pass-through.</p>
 <h3 id="new-cacheonlycachename"><code>new CacheOnly(cacheName)</code></h3>
@@ -36,17 +37,17 @@
 <div class="table-wrap"><table><thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>fallbackUrl</code></td><td>string</td><td>Precached fallback page URL</td></tr>
 </tbody></table></div>
-<p>Only intercepts <code>request.mode === 'navigate'</code>.</p>
+<p>Only serves the fallback for <code>request.mode === 'navigate'</code>. Throws otherwise, or when the fallback is not cached.</p>
 <h2 id="router">Router</h2>
 <h3 id="router-1"><code>router()</code></h3>
 <p>Factory. Returns a new <code>Router</code> instance.</p>
 <h3 id="routerregisterpattern-strategy"><code>router.register(pattern, strategy)</code></h3>
 <div class="table-wrap"><table><thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>pattern</code></td><td>string | URLPatternInit</td><td>URL to match</td></tr>
+<tr><td><code>pattern</code></td><td>string | URLPatternInit | URLPattern</td><td>URL to match. Only the worker's own origin, unless an object pattern sets <code>baseURL</code>, <code>protocol</code>, <code>hostname</code> or <code>port</code></td></tr>
 <tr><td><code>strategy</code></td><td>object</td><td>Any object with a <code>handle(request, event)</code> method</td></tr>
 </tbody></table></div>
 <h3 id="routerhandleevent"><code>router.handle(event)</code></h3>
-<p>Responds with the most specific matching route (catch-alls lose to any literal path; ties keep registration order) and passes <code>event</code> to the strategy. Returns <code>true</code> if a route matched and <code>event.respondWith()</code> was called. Returns <code>false</code> otherwise. <code>GET</code>/<code>HEAD</code> only; event streams and <code>/hmr</code> are never intercepted.</p>
+<p>Responds with the most specific matching route (catch-alls lose to any literal path; ties keep registration order) and passes <code>event</code> to the strategy. If the strategy throws, it falls back to <code>fetch(request)</code>. Returns <code>true</code> if a route matched and <code>event.respondWith()</code> was called. Returns <code>false</code> otherwise. <code>GET</code>/<code>HEAD</code> only; event streams and <code>/hmr</code> are never intercepted.</p>
 <h2 id="lifecycle">Lifecycle</h2>
 <h3 id="precachecachename-urls"><code>precache(cacheName, urls)</code></h3>
 <p>Pre-caches an array of URLs during the <code>install</code> event.</p>
@@ -76,21 +77,22 @@ clearInterval(timer);
 </view-code>
 <h2 id="queue-and-sync">Queue and Sync</h2>
 <h3 id="serializerequestrequest"><code>serializeRequest(request)</code></h3>
-<p>Converts a <code>Request</code> into a structured-cloneable object for IndexedDB storage.</p>
+<p>Async. Converts a <code>Request</code> into <code>{ url, method, headers, body }</code> for IndexedDB storage. <code>body</code> is an <code>ArrayBuffer</code>, or <code>null</code> for <code>GET</code>/<code>HEAD</code>.</p>
 <h3 id="deserializerequestpayload"><code>deserializeRequest(payload)</code></h3>
-<p>Rebuilds a <code>Request</code> from a serialized payload.</p>
+<p>Synchronous. Rebuilds a <code>Request</code> from a serialized payload.</p>
 <h3 id="replayqueue"><code>replayQueue()</code></h3>
-<p>Replays all queued tasks in FIFO order. Removes successful tasks. Retries failures on next call.</p>
+<p>Replays queued tasks in FIFO order and skips tasks marked as failed. Removes successful tasks and posts <code>sync-success</code> to clients. A non-OK response counts as a failed attempt. A network error counts as a failed attempt and stops the replay (the promise rejects).</p>
 <view-code language="javascript">self.addEventListener('sync', (e) =&gt; {
   if (e.tag === 'sync-tasks') {
     e.waitUntil(replayQueue());
   }
 });
 </view-code>
-<h3 id="requeuefailedoptions"><code>requeueFailed(options?)</code></h3>
-<p>Moves tasks that exceeded <code>maxAttempts</code> to a dead-letter queue.</p>
-<div class="table-wrap"><table><thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>maxAttempts</code></td><td>number</td><td><code>3</code></td><td>Retry limit before dead-letter</td></tr>
+<h3 id="requeuefailedentry-error"><code>requeueFailed(entry, error)</code></h3>
+<p>Called by <code>replayQueue</code> after a failed attempt. Increments <code>entry.retries</code> and saves the entry. When <code>retries</code> reaches <code>entry.maxRetries</code> (default 5, set by <code>offline.queue.push</code>), it sets <code>entry.failed = true</code> and <code>entry.error</code>, and posts <code>{ type: 'sync-failed', id, task, error }</code> to clients.</p>
+<div class="table-wrap"><table><thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>entry</code></td><td>object</td><td>A queue entry from <code>offline.queue.list()</code></td></tr>
+<tr><td><code>error</code></td><td>Error</td><td>The failure; its <code>message</code> is stored on the entry</td></tr>
 </tbody></table></div>
 <h2 id="push">Push</h2>
 <h3 id="subscriberegistration-vapidkey"><code>subscribe(registration?, vapidKey)</code></h3>

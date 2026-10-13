@@ -1,6 +1,6 @@
 <h1 id="scheduling">Scheduling</h1>
-<p>Cooperative task scheduling for main-thread-friendly work. Prevents long tasks that hurt Interaction to Next Paint (INP). Soft-nav aborts the leaf’s <code>ctrl</code> — pass that signal into schedule helpers so pending work does not run on a detached tree.</p>
-<p>Related: <a href="/docs/ui/transitions">Transitions</a> (VT + <code>AbortSignal</code>), <a href="/docs/ui/lifecycle">Lifecycle</a> (soft-nav abort contract), platform <a href="/docs/platform/guards"><code>guard.scheduler</code> / <code>guard.yield</code></a>.</p>
+<p>Helpers that split work into tasks so the main thread stays responsive. A soft navigation aborts the old page's <code>ctrl</code>: pass that signal to these helpers so pending work does not run on a detached tree.</p>
+<p>Related: <a href="/docs/ui/transitions">Transitions</a>, <a href="/docs/ui/lifecycle#soft-navigation">Lifecycle</a>, <a href="/docs/platform/guards">Guards</a>.</p>
 <h2 id="schedule">schedule</h2>
 <view-code language="javascript">import { ui } from '@anzaui/anza/ui';
 
@@ -8,14 +8,14 @@ ui.schedule(() =&gt; {
   renderChunk();
 }, ui.Priority.VISIBLE);
 </view-code>
-<p>Priorities (also accepted as <code>{ priority, signal }</code>):</p>
+<p>The second argument is a priority, or <code>{ priority, signal, delay }</code>:</p>
 <div class="table-wrap"><table><thead><tr><th>Priority</th><th>Fallback latency</th><th>Use case</th></tr></thead><tbody>
 <tr><td><code>BLOCKING</code> / <code>ui.Priority.BLOCKING</code></td><td>0ms</td><td>Critical path work</td></tr>
 <tr><td><code>VISIBLE</code> / <code>ui.Priority.VISIBLE</code></td><td>~16ms</td><td>UI updates</td></tr>
 <tr><td><code>BACKGROUND</code> / <code>ui.Priority.BACKGROUND</code></td><td><code>requestIdleCallback</code></td><td>Offscreen / analytics</td></tr>
 </tbody></table></div>
-<p>Uses <code>scheduler.postTask</code> when available (via platform guard), falling back to <code>setTimeout</code> or <code>requestIdleCallback</code>.</p>
-<p>Pass an <code>AbortSignal</code> so soft-nav / leaf teardown cancels pending work:</p>
+<p>Uses <code>window.scheduler.postTask</code> when it exists. Otherwise it falls back to <code>setTimeout</code> (0 ms for <code>BLOCKING</code>, 16 ms for <code>VISIBLE</code>) or <code>requestIdleCallback</code> (<code>BACKGROUND</code>). A <code>delay</code> option (ms) is passed through.</p>
+<p>Pass an <code>AbortSignal</code> so pending work is cancelled when the element disconnects:</p>
 <view-code language="javascript">await ui.schedule(() =&gt; indexChunk(), {
   priority: ui.Priority.VISIBLE,
   signal: ctrl.signal
@@ -32,7 +32,7 @@ ui.schedule(() =&gt; {
 
 await ui.scheduleFrame(() =&gt; measure(), { signal: ctrl.signal });
 </view-code>
-<p>Returns a promise that resolves with the callback's return value. Pass <code>{ signal }</code> so soft-nav abort cancels the pending frame.</p>
+<p>Returns a promise that resolves with the callback's return value. Pass <code>{ signal }</code> to cancel the pending frame on abort.</p>
 <h2 id="yield">yield</h2>
 <p>Yield control to the browser mid-task:</p>
 <view-code language="javascript">import { ui } from '@anzaui/anza/ui';
@@ -41,12 +41,12 @@ async function processLargeDataset(rows, { signal } = {}) {
   for (let i = 0; i &lt; rows.length; i++) {
     process(rows[i]);
     if (i % 100 === 0) {
-      await ui.yield({ signal }); // let the browser breathe; abort on soft-nav
+      await ui.yield({ signal }); // let the browser handle input; rejects on abort
     }
   }
 }
 </view-code>
-<p>Uses <code>scheduler.yield()</code> when available, falling back to <code>setTimeout(..., 0)</code>. Already-aborted signals reject with <code>AbortError</code>.</p>
+<p>Uses <code>window.scheduler.yield()</code> when it exists, otherwise <code>setTimeout(..., 0)</code>. Already-aborted signals reject with <code>AbortError</code>.</p>
 <p>Platform equivalent without the UI facade: <code>await guard.yield()</code> from <code>@anzaui/anza/platform</code>.</p>
 <h2 id="when-to-use-each">When to use each</h2>
 <div class="table-wrap"><table><thead><tr><th>Helper</th><th>Prefer for</th></tr></thead><tbody>
@@ -54,40 +54,51 @@ async function processLargeDataset(rows, { signal } = {}) {
 <tr><td><code>scheduleFrame()</code></td><td>Layout measurement, animation frame work, visual updates</td></tr>
 <tr><td><code>yield()</code></td><td>Chunk heavy computation inside loops</td></tr>
 </tbody></table></div>
-<p>Do <strong>not</strong> schedule unbounded work without a signal from a page leaf — soft-nav will leave orphan tasks otherwise.</p>
-<h2 id="soft-nav--abortsignal-advanced">Soft-nav + AbortSignal (advanced)</h2>
-<view-code language="javascript">page('/reports', {
+<p>From a page, always pass a signal to unbounded work. Otherwise it keeps running after a soft navigation.</p>
+<h2 id="soft-navigation-and-abortsignal">Soft navigation and AbortSignal</h2>
+<view-code language="javascript">import { ui } from '@anzaui/anza/ui';
+import { page } from '@anzaui/anza/defs';
+
+page('/reports', {
   tag: 'page-reports',
   via: ['main'],
+  template: '&lt;table&gt;&lt;tbody ref="body"&gt;&lt;/tbody&gt;&lt;/table&gt;',
   on: {
-    async load({ el, ctrl }) {
-      await ui.schedule(() =&gt; buildIndex(el.rows), {
-        priority: ui.Priority.BACKGROUND,
-        signal: ctrl.signal
-      });
-    },
-    async change({ name, val, refs, ctrl }) {
-      if (name !== 'rows') return;
-      refs.body.replaceChildren();
-      for (let i = 0; i &lt; val.length; i += 50) {
-        refs.body.append(...val.slice(i, i + 50).map(createRow));
-        await ui.yield({ signal: ctrl.signal });
+    async load({ refs, ctrl }) {
+      const res = await fetch('/api/reports', { signal: ctrl.signal });
+      const rows = await res.json();
+      for (let i = 0; i &lt; rows.length; i += 50) {
+        await ui.schedule(() =&gt; {
+          for (const row of rows.slice(i, i + 50)) {
+            refs.body.insertRow().insertCell().textContent = row.title;
+          }
+        }, { priority: ui.Priority.BACKGROUND, signal: ctrl.signal });
       }
     }
   }
 });
 </view-code>
-<p>When soft-nav swaps this leaf, <code>ctrl.abort()</code> rejects pending <code>schedule</code> / <code>scheduleFrame</code> / <code>yield</code> with <code>AbortError</code>. Catch only if you need cleanup; otherwise let it fail closed.</p>
+<p>When a soft navigation replaces this page, <code>ctrl.abort()</code> rejects the pending <code>schedule</code>, <code>scheduleFrame</code> or <code>yield</code> with an <code>AbortError</code>. The rejection ends <code>load</code>, and the error is logged. Catch it only if you need to clean up.</p>
 <h2 id="example-chunked-rendering">Example: chunked rendering</h2>
-<view-code language="javascript">view('data-grid', {
+<view-code language="javascript">import { ui } from '@anzaui/anza/ui';
+import { view } from '@anzaui/anza/defs';
+
+function createRow(row) {
+  const li = document.createElement('li');
+  li.textContent = row.title;
+  return li;
+}
+
+view('data-grid', {
   props: {
-    rows: { type: Array, default: [] }
+    rows: { type: Array, default: null, reflect: false }
   },
+  template: '&lt;ul ref="body"&gt;&lt;/ul&gt;',
   on: {
     async change({ name, val, refs, ctrl }) {
-      if (name !== 'rows') return;
+      if (name !== 'rows' || !val) return;
 
-      refs.body.innerHTML = '';
+      refs.body.replaceChildren();
       const chunkSize = 50;
 
       for (let i = 0; i &lt; val.length; i += chunkSize) {
@@ -103,4 +114,4 @@ async function processLargeDataset(rows, { signal } = {}) {
   }
 });
 </view-code>
-<p>The grid renders in chunks, yielding between each so the browser stays responsive — and soft-nav abort stops mid-chunk.</p>
+<p>The grid renders 50 rows at a time and yields between chunks. Set <code>grid.rows = [...]</code> to render. Object and array props need <code>reflect: false</code>; see <a href="/docs/ui/props#attributes">Props</a>.</p>

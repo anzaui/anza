@@ -7,6 +7,6 @@ page('/docs/elements/sheet', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Sheet — Anza',
-    description: 'ui-sheet — bottom sheet overlay with drag-to-dismiss.'
+    description: 'ui-sheet: modal bottom sheet on the native dialog with a drag handle to dismiss. Open with the open attribute or show().'
   }
 }, import.meta.url);

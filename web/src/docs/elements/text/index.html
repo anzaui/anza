@@ -1,27 +1,41 @@
 <h1 id="text">Text</h1>
-<p>Typography primitive that maps size, weight, color, and family to design tokens, with optional semantic tag swapping.</p>
+<p>Renders text in a chosen tag with size, weight, colour and family taken from design tokens.</p>
 <p><strong>Tag:</strong> <code>ui-text</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/text</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/text';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
-<view-code language="html">&lt;ui-text size="lg" weight="semibold"&gt;Headline&lt;/ui-text&gt;
-&lt;ui-text as="p" color="muted" block&gt;Supporting copy.&lt;/ui-text&gt;
+<view-code language="html">&lt;ui-text as="h2" size="2xl" weight="semibold" block&gt;Settings&lt;/ui-text&gt;
+&lt;ui-text color="muted"&gt;Last saved 2 minutes ago&lt;/ui-text&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>as</code></td><td>String</td><td>Reflect, default <code>span</code></td><td>Inner text tag: <code>span</code>, <code>p</code>, <code>div</code>, <code>label</code>, <code>small</code>, <code>strong</code>, <code>em</code>, <code>code</code>, <code>blockquote</code>, <code>pre</code>, <code>h1</code>–<code>h6</code> and other text-level tags. Anything else renders as <code>span</code></td></tr>
-<tr><td><code>size</code></td><td>String</td><td>Reflect</td><td>Maps to <code>var(--font-size-{size})</code></td></tr>
-<tr><td><code>weight</code></td><td>String</td><td>Reflect</td><td>Maps to <code>var(--font-weight-{weight})</code></td></tr>
-<tr><td><code>color</code></td><td>String</td><td>Reflect</td><td>Maps to <code>var(--color-content-{color})</code></td></tr>
-<tr><td><code>family</code></td><td>String</td><td>Reflect</td><td>Maps to <code>var(--font-family-{family})</code></td></tr>
-<tr><td><code>block</code></td><td>Boolean</td><td>Reflect</td><td>Block display when set</td></tr>
+<h2 id="attributes">Attributes</h2>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>as</code></td><td>String</td><td><code>span</code></td><td>Tag rendered inside the shadow root. Allowed: <code>span</code>, <code>p</code>, <code>div</code>, <code>label</code>, <code>small</code>, <code>strong</code>, <code>em</code>, <code>b</code>, <code>i</code>, <code>u</code>, <code>s</code>, <code>mark</code>, <code>code</code>, <code>kbd</code>, <code>samp</code>, <code>var</code>, <code>abbr</code>, <code>cite</code>, <code>q</code>, <code>blockquote</code>, <code>pre</code>, <code>time</code>, <code>sub</code>, <code>sup</code>, <code>del</code>, <code>ins</code>, <code>h1</code>–<code>h6</code>, <code>figcaption</code>, <code>legend</code>. Matching is case-insensitive. Any other value renders a <code>&lt;span&gt;</code>.</td></tr>
+<tr><td><code>size</code></td><td>String</td><td>—</td><td>Font-size token suffix: <code>lg</code> → <code>var(--font-size-lg)</code>. The shipped tokens define <code>base</code>, <code>lg</code>, <code>xl</code>, <code>2xl</code> and <code>3xl</code>.</td></tr>
+<tr><td><code>weight</code></td><td>String</td><td>—</td><td>Font-weight token suffix: <code>semibold</code> → <code>var(--font-weight-semibold)</code>. The shipped tokens define <code>regular</code>, <code>medium</code> and <code>semibold</code>.</td></tr>
+<tr><td><code>color</code></td><td>String</td><td>—</td><td>Content colour token suffix: <code>secondary</code> → <code>var(--color-content-secondary)</code>. The shipped tokens define <code>primary</code>, <code>secondary</code> and <code>link</code>. <code>muted</code> is an alias for <code>secondary</code>.</td></tr>
+<tr><td><code>family</code></td><td>String</td><td>—</td><td>Font-family token suffix: <code>mono</code> → <code>var(--font-family-mono)</code>. The shipped tokens define no <code>--font-family-*</code> variables, so define the ones you use.</td></tr>
+<tr><td><code>block</code></td><td>Boolean</td><td><code>false</code></td><td>Displays the host as <code>block</code> instead of <code>inline</code>.</td></tr>
 </tbody></table></div>
-<h2 id="notes">Notes</h2>
-<p>Default slot content is projected into the dynamic root (<code>part="text"</code>).</p>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td>default</td><td>The text</td></tr>
+</tbody></table></div>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>text</code></td><td>The rendered tag (the one chosen by <code>as</code>)</td></tr>
+</tbody></table></div>
+<h3 id="custom-properties">Custom properties</h3>
+<div class="table-wrap"><table><thead><tr><th>Property</th><th>Default</th></tr></thead><tbody>
+<tr><td><code>--text-size</code></td><td><code>var(--font-size-base)</code></td></tr>
+<tr><td><code>--text-weight</code></td><td><code>var(--font-weight-regular)</code></td></tr>
+<tr><td><code>--text-family</code></td><td><code>var(--font-sans)</code></td></tr>
+<tr><td><code>--text-height</code></td><td><code>var(--line-height-normal)</code></td></tr>
+<tr><td><code>--text-color</code></td><td><code>var(--color-content-primary)</code></td></tr>
+</tbody></table></div>
+<p>The <code>size</code>, <code>weight</code>, <code>color</code> and <code>family</code> attributes set these properties inline on the host, so they win over stylesheet values.</p>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/primitives">Primitives</a></li>
-<li><a href="/docs/styles/tokens">Tokens</a></li>
+<li><a href="/docs/elements#primitives">Elements</a></li>
+<li><a href="/docs/styles/tokens">Design Tokens</a></li>
 </ul>

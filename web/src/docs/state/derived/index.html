@@ -12,11 +12,12 @@ console.log(doubled.value); // 0
 <p>The computation runs once on first access. The result is cached.</p>
 <h2 id="lazy-recomputation">Lazy Recomputation</h2>
 <view-code language="javascript">store.set('count', 5);
+console.log(doubled.value); // still 0: store notifications run in a microtask
 
-// doubled.value is still 0 — it has not been accessed since the change
-console.log(doubled.value); // 10 — recomputes on access
+await Promise.resolve();
+console.log(doubled.value); // 10, recomputed on access
 </view-code>
-<p>Derived values only recompute when accessed after a dependency change. This is lazy evaluation.</p>
+<p>A dependency change marks the value dirty when the store flushes its notifications (one microtask after the write). The next <code>.value</code> read recomputes. Reading in the same synchronous block as the write returns the cached value.</p>
 <h2 id="dependency-tracking">Dependency Tracking</h2>
 <p>During computation, <code>derived</code> intercepts all <code>store.get()</code> calls:</p>
 <view-code language="javascript">const fullName = state.derived(() =&gt; {
@@ -36,13 +37,13 @@ const total = state.derived(() =&gt; {
   return subtotal.value * (1 + taxRate);
 });
 </view-code>
-<p><code>total</code> tracks both <code>taxRate</code> and the dependencies of <code>subtotal</code>.</p>
+<p><code>total</code> tracks <code>taxRate</code> and the dependencies <code>subtotal</code> has already collected. <code>subtotal</code> collects them on its first evaluation, so read <code>subtotal.value</code> once before <code>total</code> is first evaluated.</p>
 <h2 id="subscribe-to-derived">Subscribe to Derived</h2>
 <view-code language="javascript">const off = doubled.subscribe(() =&gt; {
   console.log('Doubled changed:', doubled.value);
 });
 </view-code>
-<p>Subscribe to be notified when the derived value recomputes to a new result.</p>
+<p>The callback runs with no arguments when a dependency changes and the value becomes dirty. It does not run again until <code>.value</code> is read, so read <code>.value</code> inside the callback to keep receiving notifications. Returns a disposer.</p>
 <h2 id="dispose">Dispose</h2>
 <view-code language="javascript">doubled.dispose();
 </view-code>

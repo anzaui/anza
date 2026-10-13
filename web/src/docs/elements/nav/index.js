@@ -7,6 +7,6 @@ page('/docs/elements/nav', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Nav — Anza',
-    description: 'ui-nav — accessible navigation wrapper with orientation.'
+    description: 'ui-nav — navigation landmark that lays out ui-link children in a row or a column.'
   }
 }, import.meta.url);

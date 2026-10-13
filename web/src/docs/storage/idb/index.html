@@ -10,16 +10,16 @@ const db = new Database('my-app', 1, [
 <h2 id="migrations">Migrations</h2>
 <p>Migration functions run in order inside <code>onupgradeneeded</code>:</p>
 <view-code language="javascript">const db = new Database('my-app', 3, [
-  (db) =&gt; db.createObjectStore('users'),        // v1
-  (db) =&gt; db.createObjectStore('settings'),     // v2
   (db) =&gt; {
-    // v3 — add an index
-    const store = db.transaction('users').objectStore('users');
-    store.createIndex('email', 'email', { unique: true });
-  }
+    // v1: create the store and its index together
+    const users = db.createObjectStore('users');
+    users.createIndex('email', 'email', { unique: true });
+  },
+  (db) =&gt; db.createObjectStore('settings'),     // v2
+  (db) =&gt; db.createObjectStore('logs')          // v3
 ]);
 </view-code>
-<p>Each function corresponds to one version step (0→1, 1→2, 2→3).</p>
+<p>Each function corresponds to one version step (0→1, 1→2, 2→3). Migrations receive only the <code>IDBDatabase</code>, not the upgrade transaction, so add indexes when you create a store. A migration that throws is logged and skipped; the upgrade continues.</p>
 <h2 id="crud-operations">CRUD Operations</h2>
 <view-code language="javascript">await db.set('users', 'alice', { name: 'Alice', email: 'a@x.com' });
 const user = await db.get('users', 'alice');
@@ -32,7 +32,7 @@ await db.delete('users', 'alice');
   return 'done';
 });
 </view-code>
-<p>Supports async callbacks. Errors abort the transaction.</p>
+<p>The callback receives a store accessor and the <code>IDBTransaction</code>. The promise resolves with the callback's return value once the transaction completes. A thrown error or rejected promise aborts the transaction. An async callback must only await IndexedDB work: awaiting anything else lets the transaction commit early.</p>
 <h2 id="queries">Queries</h2>
 <view-code language="javascript">// All records
 const all = await db.getAll('users');
@@ -45,7 +45,8 @@ const active = await db.query('users', {
   limit: 10
 });
 </view-code>
-<p>Query options: <code>index</code>, <code>range</code>, <code>direction</code> (<code>'next'</code> or <code>'prev'</code>), <code>limit</code>.</p>
+<p>Query options: <code>index</code>, <code>range</code>, <code>direction</code> (an <code>IDBCursorDirection</code>, default <code>'next'</code>), <code>limit</code>. Returns record values.</p>
+<p><code>db.close()</code> closes the connection. <code>get</code> returns <code>null</code> for a missing key.</p>
 <h2 id="events">Events</h2>
 <view-code language="javascript">// Blocked upgrade
 window.addEventListener('storage:blocked', (e) =&gt; {

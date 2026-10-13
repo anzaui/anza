@@ -7,6 +7,6 @@ page('/docs/elements/text', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Text — Anza',
-    description: 'ui-text — typography primitive bound to design tokens.'
+    description: 'ui-text — typography element: pick the rendered tag with as, and size, weight, color and family from design tokens.'
   }
 }, import.meta.url);

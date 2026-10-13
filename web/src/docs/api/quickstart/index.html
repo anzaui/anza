@@ -25,16 +25,17 @@ const user = await api.get('/user/profile');
 <view-code language="javascript">// Cache for 60 seconds
 const products = await api.get('/products', { expiry: 60000 });
 </view-code>
-<p>On the next call within 60 seconds, the cached response is returned instantly. After expiry, the cache is stale and the network is hit again.</p>
+<p>On the next call within 60 seconds, the cached response is returned without a network call. After expiry, the entry is deleted and the network is hit again.</p>
 <h2 id="5-listen-for-errors">5. Listen for Errors</h2>
 <view-code language="javascript">api.on('failed', (event) =&gt; {
   console.error('Request failed:', event.detail.error);
 });
 
-api.on('status:401', () =&gt; {
-  redirectToLogin();
+api.on('error', (event) =&gt; {
+  if (event.detail.error?.context?.status === 401) redirectToLogin();
 });
 </view-code>
+<p>A non-2xx response rejects with an <code>HTTP_ERROR</code> and fires <code>error</code> and <code>failed</code>. <code>status:xxx</code> events fire only for 2xx responses from <code>get</code>, <code>post</code>, <code>put</code>, <code>patch</code> and <code>delete</code>.</p>
 <p>Listeners return a disposer:</p>
 <view-code language="javascript">const off = api.on('error', handler);
 off(); // stop listening
@@ -43,18 +44,18 @@ off(); // stop listening
 <p>Scope listeners to a single request with the <code>on</code> option:</p>
 <view-code language="javascript">await api.get('/user/profile', {
   on: {
-    'status:401': () =&gt; redirectToLogin(),
+    'status:200': () =&gt; console.log('loaded'),
     failed: (event) =&gt; console.error(event.detail.error)
   }
 });
 </view-code>
-<p>These listeners auto-cleanup when the request completes. No manual disposer needed.</p>
+<p>These listeners are removed when the request settles. No manual disposer needed.</p>
 <h2 id="7-stream-ndjson">7. Stream NDJSON</h2>
 <view-code language="javascript">for await (const chunk of api.stream('/logs/stream')) {
   console.log(chunk.timestamp, chunk.message);
 }
 </view-code>
-<p>Each chunk is a parsed JSON object. Backpressure is preserved natively via the Streams API.</p>
+<p>Each chunk is a parsed JSON object. <code>api.stream</code> and <code>api.upload</code> do not apply prefixes, so pass the full path or <code>api.prefix.resolve(path)</code>.</p>
 <h2 id="8-upload-a-file">8. Upload a File</h2>
 <view-code language="javascript">const form = new FormData();
 form.append('file', fileBlob);
@@ -93,7 +94,7 @@ try {
   }
 }
 </view-code>
-<p>Every error is a <code>PlatformError</code> with <code>code</code>, <code>message</code>, <code>context</code>, and <code>recoverable</code>.</p>
+<p>Request errors are <code>PlatformError</code>s with <code>code</code>, <code>message</code>, <code>context</code>, and <code>recoverable</code>.</p>
 <h2 id="complete-working-example">Complete Working Example</h2>
 <view-code language="javascript">import { api } from '@anzaui/anza/api';
 
@@ -101,8 +102,10 @@ try {
 api.prefix.add('default', 'https://api.example.com');
 
 // Global error handling
-api.on('status:401', () =&gt; redirectToLogin());
-api.on('failed', (e) =&gt; showToast(e.detail.error.message));
+api.on('error', (e) =&gt; {
+  if (e.detail.error?.context?.status === 401) redirectToLogin();
+});
+api.on('failed', (e) =&gt; showToast(e.detail.error?.message ?? 'Request failed'));
 
 // Cached profile
 const profile = await api.get('/user/profile', { expiry: 300000 });
@@ -114,7 +117,7 @@ await api.post('/posts', { title: 'Hello' });
 const form = new FormData();
 form.append('avatar', fileInput.files[0]);
 
-await api.upload('/user/avatar', form, {
+await api.upload(api.prefix.resolve('/user/avatar'), form, {
   on: {
     progress: (e) =&gt; updateProgressBar(e.detail.percentage)
   }

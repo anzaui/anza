@@ -1,8 +1,8 @@
 <h1 id="start">Start</h1>
 <p>Write a Service Worker that caches your shell and intercepts API calls.</p>
 <h2 id="1-create-srcswjs">1. Create <code>src/sw.js</code></h2>
-<p>The scaffold generates this file for you. Here is what it contains:</p>
-<view-code language="javascript">import { precache, router, CacheFirst, NetworkFirst, pruneStale, claim } from '@anzaui/anza/sw';
+<p>The scaffold (<code>npm create @anzaui/anza</code>) writes a fuller <code>src/sw.js</code>. This is the minimal version:</p>
+<view-code language="javascript">import { precache, router, StaleRevalidate, NetworkFirst, pruneStale, claim } from '@anzaui/anza/sw';
 
 const SHELL = 'shell-v3';
 const API = 'api-v3';
@@ -21,7 +21,7 @@ self.addEventListener('activate', (e) =&gt; {
 });
 
 const r = router();
-r.register('*', new CacheFirst(SHELL));
+r.register('*', new StaleRevalidate(SHELL));
 r.register('/api/*', new NetworkFirst(API, { timeout: 3000 }));  // more specific: wins over '*'
 
 self.addEventListener('fetch', (e) =&gt; {
@@ -33,10 +33,11 @@ self.addEventListener('fetch', (e) =&gt; {
 <ol>
 <li>On <code>install</code>, precaches the app shell into a cache named <code>shell-v3</code>, then <code>skipWaiting()</code> so the new worker can activate without closing every tab</li>
 <li>On <code>activate</code>, deletes other cache names (e.g. an older <code>shell-v2</code>) and claims all tabs</li>
-<li>Registers two routes: API calls get <code>NetworkFirst</code> with a 3-second timeout (the most specific match wins, so <code>/api/*</code> beats <code>'*'</code>), everything else gets <code>CacheFirst</code></li>
+<li>Registers two routes: API calls get <code>NetworkFirst</code> with a 3-second timeout (the most specific match wins, so <code>/api/*</code> beats <code>'*'</code>), everything else on the worker's origin gets <code>StaleRevalidate</code></li>
 <li>On <code>fetch</code>, tries the router first; unmatched requests fall through to the network</li>
 </ol>
-<p>Bump <code>SHELL</code> / <code>API</code> cache names when you ship path-breaking asset URL changes — <code>CacheFirst</code> with no TTL otherwise pins stale JS forever. <code>pruneStale</code> only removes <em>other</em> cache names, not entries inside the current one.</p>
+<p>Use <code>CacheFirst</code> only for content-hashed files (the scaffold does this for <code>/assets/*-&lt;hash&gt;.*</code>). With unhashed URLs it serves old JS until the cache name changes. <code>pruneStale</code> only removes <em>other</em> cache names, not entries inside the current one. Note that it also deletes the <code>API</code> cache here, since it keeps only one name.</p>
+<p>Responses marked <code>Cache-Control: no-store</code> or <code>private</code>, requests with an <code>Authorization</code> header, and credentialed cross-origin requests are never cached. Clear the caches when the user logs out: see <a href="/docs/sw/strategies#clear-caches-on-logout">Strategies</a>.</p>
 <p>Keep helpers in optional <code>src/sw/</code> and <code>import</code> them from <code>src/sw.js</code> — that folder is <strong>modules only</strong>, not extra registrations. Multi-scope workers (advanced) use <code>anza.json</code> <code>sw</code> arrays — see <a href="/docs/intro/structure#service-workers">Structure: Service workers</a>.</p>
 <h2 id="2-register-from-appjs">2. Register from <code>app.js</code></h2>
 <view-code language="javascript">import '@anzaui/anza/ui';
@@ -90,7 +91,7 @@ offline.send('sync', { action: 'flush-queue' });
     sync.js          # Background replay
     push.js          # Web Push helpers
 </view-code>
-<p>The build tool copied these from <code>library/src/sw/</code> and rewrote bare specifiers in <code>dist/sw.js</code> to relative paths like <code>./sw/index.js</code>.</p>
+<p>Service workers cannot use import maps, so the build rewrites bare specifiers in <code>dist/sw.js</code> to relative paths taken from the import map (for example <code>./sw/index.js</code>). The production bundle does not bundle <code>sw.js</code>: the modules it imports stay in <code>dist/</code>. Where they land depends on where your import map points <code>@anzaui/anza/sw</code>. The build also prepends <code>self.__ANZA_PRECACHE__ = [...]</code>, the list of files to precache (see <a href="/docs/intro/build">Build</a>).</p>
 <h2 id="next">Next</h2>
 <p>Add background sync to replay failed mutations:</p>
 <view-code language="javascript">import { replayQueue } from '@anzaui/anza/sw';

@@ -15,8 +15,16 @@ Cache-Control: no-cache
 Connection: keep-alive
 
 event: template
-data: {"slot":"feed","ts":1724771234,"html":"&lt;ui-card&gt;...&lt;/ui-card&gt;","sig":"3a8f4c...","css":null}
+data: {"v":2,"slot":"feed","ts":1724771234,"html":"&lt;ui-card&gt;...&lt;/ui-card&gt;","sig":"3a8f4c..."}
+
 </view-code>
+<p>Each frame is <code>event: template\ndata: &lt;json&gt;\n\n</code>, where <code>&lt;json&gt;</code> is the v2
+envelope as compact JSON: no spaces, keys in the order <code>v</code>, <code>slot</code>, <code>ts</code>,
+<code>html</code>, <code>sig</code>, <code>css</code>, non-ASCII characters left as UTF-8, and <code>sig</code> and <code>css</code>
+left out when absent. All three engines produce byte-identical frames (Rust
+<code>stream::sse::frame::encode</code>, TS <code>formatEvent</code> or <code>sseEvent</code>, Python
+<code>format_event</code>). A WebSocket packet is the same JSON alone. See the
+<a href="/docs/engines/contract">Engine Contract</a>.</p>
 <h2 id="client-integration">Client Integration</h2>
 <p>The library has no built-in stream listener and does not verify envelope
 signatures in the browser. Use the platform APIs directly and decide how a
@@ -35,8 +43,9 @@ source.addEventListener('template', (event) =&gt; {
 </view-code>
 <p><code>EventSource</code> reconnects on its own. Only inject HTML from a stream you
 trust: <code>sanitize()</code> from <code>@anzaui/anza/security</code> strips custom elements, so it
-is meant for user content, not for engine fragments. Verify <code>sig</code> with the
-engine's <code>verify</code> helper on any server or edge hop that relays the stream (see
+is meant for user content, not for engine fragments. Verify each envelope
+with <code>verify_envelope</code> on any server or edge hop that relays the stream. It
+checks the version (<code>v: 2</code>), the age, the slot and the signature (see
 <a href="/docs/engines/crypto">Cryptographic Verification</a>).</p>
 <h3 id="2-apistream-ndjson">2. <code>api.stream()</code> (NDJSON)</h3>
 <p><code>api.stream()</code> reads a newline-delimited JSON body (one envelope per line,

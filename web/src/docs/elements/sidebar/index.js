@@ -7,6 +7,6 @@ page('/docs/elements/sidebar', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Sidebar — Anza',
-    description: 'ui-sidebar — collapsible side panel.'
+    description: 'ui-sidebar — sticky side panel that collapses to a narrow rail with the collapsed attribute or toggle().'
   }
 }, import.meta.url);

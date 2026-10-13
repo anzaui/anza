@@ -1,7 +1,9 @@
 <h1 id="props">Props</h1>
-<p>Props are reactive properties on declarative elements. They are typed, support default values, automatically reflect to attributes, and trigger batched update callbacks on change.</p>
-<h2 id="declaring-props">Declaring Props</h2>
-<view-code language="javascript">view('user-card', {
+<p>Props are typed properties on an element. A prop reads its first value from the matching attribute, reflects changes back to it, and calls <code>change</code> (<code>update</code> in <code>element()</code>) when it changes.</p>
+<h2 id="declaring-props">Declaring props</h2>
+<view-code language="javascript">import { view } from '@anzaui/anza/defs';
+
+view('user-card', {
   props: {
     name:  { type: String, default: 'Guest' },
     age:   { type: Number },
@@ -9,81 +11,105 @@
   }
 });
 </view-code>
-<h2 id="shorthand">Shorthand</h2>
-<p>Literal values are auto-detected:</p>
-<view-code language="javascript">props: {
-  name:  'Guest',     // type: String,  default: 'Guest'
-  count: 0,           // type: Number,  default: 0
-  active: false       // type: Boolean, default: false
-}
-</view-code>
-<p>This expands to the full config internally. Use the longhand form when you need <code>reflect</code>, <code>state</code>, or other options.</p>
-<h2 id="supported-types">Supported Types</h2>
-<div class="table-wrap"><table><thead><tr><th>Type</th><th>Attribute Cast</th><th>Example</th></tr></thead><tbody>
-<tr><td><code>String</code></td><td>As-is</td><td><code>name="Alice"</code> → <code>'Alice'</code></td></tr>
-<tr><td><code>Number</code></td><td><code>Number(val)</code></td><td><code>age="42"</code> → <code>42</code></td></tr>
-<tr><td><code>Boolean</code></td><td>Presence = true</td><td><code>active</code> → <code>true</code>, absent → <code>false</code></td></tr>
+<div class="table-wrap"><table><thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>type</code></td><td><code>String</code></td><td><code>String</code>, <code>Number</code> or <code>Boolean</code>. Controls how attributes are read.</td></tr>
+<tr><td><code>default</code></td><td>see below</td><td>Value when the attribute is absent.</td></tr>
+<tr><td><code>reflect</code></td><td><code>true</code></td><td>Write the value back to the attribute.</td></tr>
+<tr><td><code>state</code></td><td><code>false</code></td><td>Mirror the value to a <code>:state()</code> custom state. Needs <code>form: true</code>.</td></tr>
 </tbody></table></div>
-<h2 id="attribute-reflection">Attribute Reflection</h2>
-<p>By default, props reflect to attributes. Disable it per prop:</p>
-<view-code language="javascript">props: {
-  secret: { type: String, reflect: false }
-}
+<h2 id="shorthand">Shorthand</h2>
+<p>A literal value sets both type and default:</p>
+<view-code language="javascript">const props = {
+  name: 'Guest',  // { type: String,  default: 'Guest' }
+  count: 0,       // { type: Number,  default: 0 }
+  active: false   // { type: Boolean, default: false }
+};
 </view-code>
-<p>Boolean reflection uses empty string (<code>active=""</code>) for true and removes the attribute for false.</p>
-<h2 id="custom-state-state">Custom State (<code>:state()</code>)</h2>
-<p>Expose props as custom state pseudo-classes:</p>
-<view-code language="javascript">props: {
-  loading: { type: Boolean, state: true }
-}
+<p>An object with a <code>type</code> key is used as is, so you can mix both forms. Use the long form for <code>reflect</code> or <code>state</code>.</p>
+<h2 id="attributes">Attributes</h2>
+<p>The attribute name is the prop name in lower case: a <code>maxCount</code> prop reads the <code>maxcount</code> attribute.</p>
+<div class="table-wrap"><table><thead><tr><th>Type</th><th>Attribute to value</th><th>Value to attribute</th></tr></thead><tbody>
+<tr><td><code>String</code></td><td>as is; removed → <code>null</code></td><td><code>String(value)</code>; <code>null</code>/<code>undefined</code> removes it</td></tr>
+<tr><td><code>Number</code></td><td><code>Number(attr)</code>; removed → <code>default</code>, or <code>0</code></td><td><code>String(value)</code></td></tr>
+<tr><td><code>Boolean</code></td><td>present → <code>true</code></td><td><code>true</code> sets <code>""</code>; <code>false</code> removes it</td></tr>
+</tbody></table></div>
+<view-code language="javascript">el.active = true;  // active=""
+el.active = false; // attribute removed
+el.name = null;    // attribute removed
+el.name = 'Bob';   // name="Bob"
 </view-code>
-<p>When <code>loading</code> is true, the element matches <code>:state(loading)</code> in CSS:</p>
-<view-code language="css">user-card:state(loading) { opacity: 0.5; }
+<p>Setting the attribute (<code>el.setAttribute('name', 'Ann')</code>) sets the prop, which schedules <code>change</code>.</p>
+<p>Turn reflection off for a prop that should not appear in the DOM:</p>
+<view-code language="javascript">const props = {
+  token: { type: String, reflect: false }
+};
 </view-code>
-<p>Requires <code>ElementInternals</code> and the <code>states</code> API (Chrome 132+, Baseline 2026).</p>
-<h2 id="initial-values">Initial Values</h2>
-<p>Props are initialized from attributes before <code>connectedCallback</code>:</p>
+<p>Only strings, numbers and booleans round-trip through attributes. For an object or array value, set <code>reflect: false</code>. Otherwise the value is written as a string, and the attribute callback sets the prop back to that string.</p>
+<h2 id="initial-values">Initial values</h2>
+<p>Props are read from attributes in the constructor:</p>
 <view-code language="html">&lt;user-card name="Alice" age="30" admin&gt;&lt;/user-card&gt;
 </view-code>
-<p>If an attribute is absent, the default is used. If no default is declared:</p>
-<ul>
-<li><code>String</code> → <code>null</code></li>
-<li><code>Number</code> → <code>null</code></li>
-<li><code>Boolean</code> → <code>false</code></li>
-</ul>
-<h2 id="programmatic-assignment">Programmatic Assignment</h2>
-<p>Set props from JavaScript:</p>
-<view-code language="javascript">const card = document.querySelector('user-card');
-card.name = 'Bob';
-card.age = 25;
+<p>Without the attribute, the prop takes its <code>default</code>. Without a default, a <code>Boolean</code> is <code>false</code> and other types are <code>null</code>.</p>
+<p><code>change</code> does not run for initial values or for values set before the element has mounted. Render the first state in <code>connect</code>:</p>
+<view-code language="javascript">view('user-name', {
+  props: { name: 'Guest' },
+  template: '&lt;span ref="name"&gt;&lt;/span&gt;',
+  on: {
+    connect({ el, refs }) {
+      refs.name.textContent = el.name;
+    },
+    change({ name, val, refs }) {
+      if (name === 'name') refs.name.textContent = val;
+    }
+  }
+});
 </view-code>
-<p>The <code>change</code> hook fires after the assignment (batched via microtask or rAF depending on the <code>visual</code> flag).</p>
-<h2 id="query-param-mapping">Query Param Mapping</h2>
-<p>For route-bound elements (<code>page()</code>), declare <code>query</code> as a contract array to map URL query params onto element properties. The library casts values based on the declared type:</p>
-<view-code language="javascript">page('/search', {
+<h2 id="custom-state-state">Custom state (<code>:state()</code>)</h2>
+<p>With <code>state: true</code>, the element adds a custom state named after the prop while the value is truthy, and removes it when the value is falsy. Custom states live on <code>ElementInternals</code>, which the factory attaches only for <code>form: true</code>. Without it, <code>state</code> does nothing.</p>
+<view-code language="javascript">view('save-button', {
+  form: true,
+  props: {
+    busy: { type: Boolean, state: true }
+  },
+  template: '&lt;button type="button"&gt;&lt;slot&gt;&lt;/slot&gt;&lt;/button&gt;'
+});
+</view-code>
+<view-code language="css">save-button:state(busy) { opacity: 0.5; }
+</view-code>
+<p>The state name is always the prop name. To use another name, call <code>internals.states.add('name')</code> yourself.</p>
+<h2 id="update-batching">Update batching</h2>
+<p>Assignments are collected per element and flushed together:</p>
+<ul>
+<li><strong>Per prop.</strong> The flush calls <code>change</code> once for each prop that changed, in the order the props first changed. Two props changed means two calls.</li>
+<li><strong>Latest value.</strong> A prop assigned several times before the flush gets one call with its latest value. <code>old</code> is the value it had just before that last assignment.</li>
+<li><strong>Equal values skip.</strong> Assigning the current value (<code>===</code>) does nothing.</li>
+<li><strong>Timing.</strong> <code>view()</code> and <code>page()</code> flush in the next animation frame. <code>dock()</code> and <code>element()</code> flush in a microtask unless <code>update.visual = true</code>. <code>part()</code> never calls <code>change</code>.</li>
+<li><strong>Disconnected elements.</strong> If the element disconnects before the flush, the pending changes are dropped.</li>
+</ul>
+<view-code language="javascript">el.name = 'Alice';
+el.age = 30;
+el.age = 31;
+// next flush: change({ name: 'name', val: 'Alice', ... })
+//             change({ name: 'age', val: 31, old: 30, ... })
+</view-code>
+<h2 id="route-params-and-query">Route params and query</h2>
+<p>On a <code>page()</code>, the router sets props from the URL before the element connects:</p>
+<ul>
+<li><strong>Path params</strong>: <code>/members/:id</code> sets <code>el.id</code>. The value is a string unless a prop with that name is declared as <code>Number</code> or <code>Boolean</code>.</li>
+<li><strong>Query</strong>: names in the <code>query</code> contract are set on the element, cast by their declared <code>type</code>. A declared prop whose name appears in the query string is set too.</li>
+<li><strong>Hash</strong>: a declared <code>hash</code> prop receives the URL hash.</li>
+</ul>
+<view-code language="javascript">import { page } from '@anzaui/anza/defs';
+
+page('/search', {
   tag: 'page-search',
+  via: ['main'],
+  props: { q: '', hash: { type: String } },
   query: [
-    { name: 'q',    type: String },
+    { name: 'q', type: String },
     { name: 'page', type: Number }
   ]
 });
 </view-code>
-<p>Visiting <code>/search?q=hello&amp;page=2</code> automatically sets the properties <code>this.q = 'hello'</code> (String) and <code>this.page = 2</code> (Number) on the element, triggering update cycles.</p>
-<h2 id="hash-mapping">Hash Mapping</h2>
-<p>Declare a <code>hash</code> prop to receive the URL hash:</p>
-<view-code language="javascript">props: {
-  hash: { type: String }
-}
-</view-code>
-<p>Visiting <code>/about#team</code> sets <code>hash = '#team'</code>.</p>
-<h2 id="property-change-callback">Property Change Callback</h2>
-<p>The <code>change</code> hook receives all pending changes in a single batch:</p>
-<view-code language="javascript">on: {
-  change({ name, val, old, el, refs }) {
-    if (name === 'name') {
-      refs.title.textContent = val;
-    }
-  }
-}
-</view-code>
-<p>Multiple rapid assignments are coalesced into one callback.</p>
+<p>Visiting <code>/search?q=hello&amp;page=2#results</code> sets <code>el.q = 'hello'</code>, <code>el.page = 2</code> and <code>el.hash</code>. The same values reach the <code>load</code> hook as <code>params</code> and <code>query</code>. See <a href="/docs/ui/context#params">Context</a>.</p>
+<p><code>params</code> and <code>query</code> contracts have no defaults and no reflection. They only describe how to read and cast URL values.</p>

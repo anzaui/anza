@@ -38,7 +38,7 @@
 <h3 id="securityverifykey-signature-data"><code>security.verify(key, signature, data)</code></h3>
 <p>Returns <code>Promise&lt;boolean&gt;</code>.</p>
 <h3 id="securitysanitizehtml-config"><code>security.sanitize(html, config)</code></h3>
-<p>Returns <code>TrustedHTML | string</code>.</p>
+<p>Returns <code>TrustedHTML | string</code>. Drops tags and attributes outside the allowlist (including <code>id</code> and <code>style</code>), event handlers, and <code>href</code>/<code>src</code> values that are not <code>http:</code>, <code>https:</code> or <code>mailto:</code>. Sets <code>rel="noopener noreferrer"</code> on elements with <code>target</code>. <code>config</code> is only used by the native <code>Sanitizer</code>. See <a href="/docs/security/sanitize">Sanitize</a>.</p>
 <h3 id="securitypermissionname"><code>security.permission(name)</code></h3>
 <p>Returns <code>Promise&lt;'granted' | 'denied' | 'prompt'&gt;</code>.</p>
 <h3 id="securitywatchpermissionname-fn-signal"><code>security.watchPermission(name, fn, signal)</code></h3>

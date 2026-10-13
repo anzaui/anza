@@ -7,6 +7,6 @@ page('/docs/elements/empty', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Empty — Anza',
-    description: 'ui-empty — empty-state panel with illustration, title, and actions.'
+    description: 'ui-empty: empty-state panel with an illustration slot, title, description and an actions slot.'
   }
 }, import.meta.url);

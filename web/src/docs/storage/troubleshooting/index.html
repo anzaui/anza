@@ -61,15 +61,16 @@ if (!supports.opfs) {
 <ul>
 <li><code>storage.clear('all')</code> always empties the memory LRU first.</li>
 <li><code>storage.delete(key)</code> clears the memory copy even when you target another durable tier.</li>
+<li><code>storage.delete(key, 'memory')</code> also deletes the <code>idb</code> record: only <code>opfs</code> and <code>cache</code> are handled separately.</li>
 <li>Cache-tier values are stored as <code>Response</code> bodies; JSON parses back to objects, otherwise you get text.</li>
 </ul>
 <h2 id="compression-failed">Compression failed</h2>
 <p><strong>Cause:</strong> Compression Streams API unavailable, or non-serializable value.</p>
-<p><strong>Fix:</strong> The facade falls back to uncompressed storage automatically. Check that values are serializable (no circular references, no functions).</p>
+<p><strong>Fix:</strong> If compression throws, the facade logs the error and stores the value uncompressed. Values must still be JSON-serializable (no circular references): <code>storage.set</code> serializes them with <code>JSON.stringify</code> first.</p>
 <p>Only large IDB writes are candidates for gzip, and only when serialized size exceeds <code>storage.compressionThreshold</code> (default <code>65536</code>). Compression failure should not lose the write; it should only skip the optimization path.</p>
 <h2 id="quota-exceeded">Quota exceeded</h2>
 <p><strong>Cause:</strong> Storage is full.</p>
-<p><strong>Fix:</strong> The facade auto-evicts expired and oldest entries when over 80%. For manual cleanup:</p>
+<p><strong>Fix:</strong> The facade does not evict anything. Above 80% usage it only notifies <code>onQuotaWarning</code> listeners. Free space yourself:</p>
 <view-code language="javascript">await storage.delete('old-key');
 </view-code>
 <p>Or request persistent storage:</p>
@@ -83,7 +84,7 @@ const dispose = storage.onQuotaWarning(({ usage, quota }) =&gt; {
   console.warn('Storage pressure', { usage, quota });
 });
 </view-code>
-<p>Automatic eviction first removes expired records, then evicts the least-recently-accessed wrapped IDB entries until usage drops back under the threshold.</p>
+<p>The check runs before persistent writes, at most once a minute.</p>
 <h2 id="write-journal-not-replaying">Write journal not replaying</h2>
 <p><strong>Cause:</strong> <code>localStorage</code> is disabled or full.</p>
 <p><strong>Fix:</strong> The journal is a best-effort crash recovery mechanism. Critical writes should be confirmed:</p>

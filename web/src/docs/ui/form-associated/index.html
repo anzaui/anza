@@ -1,0 +1,108 @@
+<h1 id="form-associated-elements">Form-associated elements</h1>
+<p>An element with <code>form: true</code> takes part in HTML forms. The factory marks the class <code>formAssociated</code>, attaches <code>ElementInternals</code>, and passes it to every hook as <code>internals</code>.</p>
+<p><code>form: true</code> works with <code>element()</code>, <code>container()</code>, <code>page()</code>, <code>dock()</code>, <code>view()</code> and <code>part()</code>. The form hooks (<code>associated</code>, <code>disabled</code>, <code>reset</code>, <code>restore</code>) are read only from an <code>element()</code> spec. The definition layer does not forward them; a <code>reset</code> under <code>on</code> or <code>methods</code> becomes a plain method, not a form callback.</p>
+<h2 id="submitting-a-value">Submitting a value</h2>
+<p>Set the value with <code>internals.setFormValue()</code>:</p>
+<view-code language="javascript">import { view } from '@anzaui/anza/defs';
+
+view('toggle-switch', {
+  form: true,
+  props: {
+    checked: { type: Boolean, state: true }
+  },
+  template: '&lt;button type="button" role="switch"&gt;&lt;span ref="label"&gt;Off&lt;/span&gt;&lt;/button&gt;',
+  on: {
+    connect({ el, on, refs, internals }) {
+      internals.setFormValue(el.checked ? 'on' : null);
+      refs.label.textContent = el.checked ? 'On' : 'Off';
+      on.click('button', () =&gt; {
+        el.checked = !el.checked;
+      });
+    },
+    change({ name, val, refs, internals }) {
+      if (name !== 'checked') return;
+      internals.setFormValue(val ? 'on' : null);
+      refs.label.textContent = val ? 'On' : 'Off';
+    }
+  }
+});
+</view-code>
+<view-code language="html">&lt;form&gt;
+  &lt;toggle-switch name="notifications"&gt;&lt;/toggle-switch&gt;
+  &lt;button type="submit"&gt;Save&lt;/button&gt;
+&lt;/form&gt;
+</view-code>
+<p>The form submits the value under the element's <code>name</code> attribute.</p>
+<h2 id="form-hooks">Form hooks</h2>
+<p>On an <code>element()</code> spec, these hooks map to the platform callbacks. Each runs with <code>this</code> set to the element, so write them as methods, not arrow functions.</p>
+<div class="table-wrap"><table><thead><tr><th>Hook</th><th>Platform callback</th><th>Arguments</th></tr></thead><tbody>
+<tr><td><code>associated</code></td><td><code>formAssociatedCallback</code></td><td><code>(form)</code></td></tr>
+<tr><td><code>disabled</code></td><td><code>formDisabledCallback</code></td><td><code>(disabled)</code></td></tr>
+<tr><td><code>reset</code></td><td><code>formResetCallback</code></td><td>none</td></tr>
+<tr><td><code>restore</code></td><td><code>formStateRestoreCallback</code></td><td><code>(state, mode)</code></td></tr>
+</tbody></table></div>
+<view-code language="javascript">import { element } from '@anzaui/anza/ui';
+
+element('rating-input', {
+  form: true,
+  props: {
+    value: { type: Number, default: 0 }
+  },
+  template: '&lt;output ref="out"&gt;0&lt;/output&gt;',
+  mount({ el, refs, internals }) {
+    refs.out.textContent = el.value;
+    internals.setFormValue(String(el.value));
+  },
+  update({ name, val, refs, internals }) {
+    if (name !== 'value') return;
+    refs.out.textContent = val;
+    internals.setFormValue(String(val));
+  },
+  reset() {
+    this.value = 0;
+  },
+  disabled(disabled) {
+    this.toggleAttribute('aria-disabled', disabled);
+  },
+  restore(state) {
+    this.value = Number(state) || 0;
+  }
+});
+</view-code>
+<p><code>restore</code> gets the saved form value when the browser restores the form, for example after back/forward navigation.</p>
+<h2 id="custom-state">Custom state</h2>
+<p>A prop with <code>state: true</code> adds a custom state named after the prop while its value is truthy. It needs <code>form: true</code>, because custom states live on <code>ElementInternals</code>.</p>
+<view-code language="javascript">const props = {
+  checked: { type: Boolean, state: true },
+  invalid: { type: Boolean, state: true }
+};
+</view-code>
+<view-code language="css">toggle-switch:state(checked) { background: green; }
+toggle-switch:state(invalid) { border-color: red; }
+</view-code>
+<h2 id="validation">Validation</h2>
+<p><code>internals</code> is in the <code>change</code> context too:</p>
+<view-code language="javascript">view('email-field', {
+  form: true,
+  props: {
+    value: { type: String, reflect: false }
+  },
+  on: {
+    change({ name, val, internals }) {
+      if (name !== 'value') return;
+      internals.setFormValue(val);
+      if (val &amp;&amp; !val.includes('@')) {
+        internals.setValidity({ typeMismatch: true }, 'Enter a valid email address');
+      } else {
+        internals.setValidity({});
+      }
+    }
+  }
+});
+</view-code>
+<h2 id="related">Related</h2>
+<ul>
+<li><a href="/docs/elements#forms">Elements</a>: the shipped form controls (<code>ui-input</code>, <code>ui-select</code>, <code>ui-checkbox</code> and others).</li>
+<li><a href="/docs/ui/factory">element() factory</a></li>
+<li><a href="/docs/ui/props#custom-state-state">Props</a></li>
+</ul>

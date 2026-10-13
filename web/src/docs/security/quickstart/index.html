@@ -37,7 +37,7 @@ const plain = await security.unseal(key, sealed);
 // '&lt;p&gt;Hello&lt;/p&gt;'
 
 const link = String(security.sanitize('&lt;a href="javascript:void(0)"&gt;click&lt;/a&gt;'));
-// '&lt;a&gt;click&lt;/a&gt;' — javascript: href stripped
+// '&lt;a&gt;click&lt;/a&gt;': only http, https and mailto URLs are kept
 </view-code>
 <h2 id="6-query-permission">6. Query Permission</h2>
 <view-code language="javascript">const state = await security.permission('geolocation');

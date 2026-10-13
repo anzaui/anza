@@ -1,32 +1,71 @@
 <h1 id="textarea">Textarea</h1>
-<p>Form-participating multi-line text control with ElementInternals validation and optional auto-resize.</p>
+<p>A form-associated multi-line text control that wraps a native <code>&lt;textarea&gt;</code> and can grow with its content.</p>
 <p><strong>Tag:</strong> <code>ui-textarea</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/textarea</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/textarea';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
-<view-code language="html">&lt;ui-textarea name="bio" placeholder="Tell us about yourself" rows="4"&gt;&lt;/ui-textarea&gt;
-&lt;ui-textarea autoresize maxlength="500" required&gt;&lt;/ui-textarea&gt;
+<view-code language="html">&lt;form&gt;
+  &lt;ui-textarea name="bio" rows="4" maxlength="500" autoresize&gt;&lt;/ui-textarea&gt;
+&lt;/form&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>value</code></td><td>String</td><td>Reflect</td><td>Current value; synced on <code>input</code></td></tr>
-<tr><td><code>placeholder</code></td><td>String</td><td>Reflect</td><td>Placeholder text</td></tr>
-<tr><td><code>disabled</code></td><td>Boolean</td><td>Reflect + custom state</td><td>Disables the control</td></tr>
-<tr><td><code>required</code></td><td>Boolean</td><td>Reflect</td><td>HTML required</td></tr>
-<tr><td><code>minlength / maxlength</code></td><td>Number</td><td>Reflect</td><td>Length constraints</td></tr>
-<tr><td><code>autoresize</code></td><td>Boolean</td><td>Reflect</td><td>Grow height to fit content</td></tr>
-<tr><td><code>rows</code></td><td>Number</td><td>Reflect</td><td>Initial row count on the inner textarea</td></tr>
+<h2 id="attributes">Attributes</h2>
+<p>All attributes reflect to properties of the same name. <code>placeholder</code>, <code>required</code>, <code>minlength</code>, <code>maxlength</code> and <code>rows</code> are copied to the inner <code>&lt;textarea&gt;</code>.</p>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>name</code></td><td>String</td><td>none</td><td>Plain attribute (not a property). The form field name.</td></tr>
+<tr><td><code>value</code></td><td>String</td><td>none</td><td>Current value. Typing updates the property and the attribute.</td></tr>
+<tr><td><code>placeholder</code></td><td>String</td><td>none</td><td>Placeholder text.</td></tr>
+<tr><td><code>required</code></td><td>Boolean</td><td><code>false</code></td><td>The value must not be empty.</td></tr>
+<tr><td><code>minlength</code></td><td>Number</td><td>none</td><td>Minimum length.</td></tr>
+<tr><td><code>maxlength</code></td><td>Number</td><td>none</td><td>Maximum length.</td></tr>
+<tr><td><code>rows</code></td><td>Number</td><td>none</td><td>Visible rows.</td></tr>
+<tr><td><code>autoresize</code></td><td>Boolean</td><td><code>false</code></td><td>Sets the height to fit the content on input and on resize, and turns off the manual resize handle.</td></tr>
+<tr><td><code>disabled</code></td><td>Boolean</td><td><code>false</code></td><td>Disables the inner textarea.</td></tr>
+</tbody></table></div>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td><code>error</code></td><td>Error text shown under the textarea. It is always shown; add or remove it yourself.</td></tr>
 </tbody></table></div>
 <h2 id="events">Events</h2>
-<div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody>
-<tr><td><code>change</code></td><td>Bubbles when the inner textarea fires <code>change</code></td></tr>
+<div class="table-wrap"><table><thead><tr><th>Event</th><th>Detail</th><th>When</th></tr></thead><tbody>
+<tr><td><code>input</code></td><td>none</td><td>Native <code>input</code> from the inner textarea, retargeted to the host. The <code>value</code> property and form value are already updated.</td></tr>
+<tr><td><code>change</code></td><td>none</td><td>The inner textarea fires <code>change</code> (on commit, for example blur). Re-dispatched from the host. Bubbles and is composed.</td></tr>
 </tbody></table></div>
-<h2 id="notes">Notes</h2>
-<p>Uses <code>form: true</code>. Form reset restores the attribute <code>value</code> (or empty).</p>
+<h2 id="form-behaviour">Form behaviour</h2>
+<ul>
+<li>The form value is the inner textarea's value, an empty string when empty.</li>
+<li>Validity is copied from the inner textarea, with the browser's own messages (<code>valueMissing</code>, <code>tooShort</code>, <code>tooLong</code>).</li>
+<li>Form reset restores the <code>value</code> attribute as it was at first mount (empty if there was none).</li>
+<li>Inside a disabled <code>&lt;fieldset&gt;</code> the inner textarea is disabled too.</li>
+<li>On browser state restore, a string state becomes the <code>value</code>.</li>
+</ul>
+<h2 id="keyboard-and-accessibility">Keyboard and accessibility</h2>
+<p>Focus and keys go to the native <code>&lt;textarea&gt;</code> in the shadow root. Add <code>aria-label</code> when there is no visible label.</p>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>textarea</code></td><td>The inner <code>&lt;textarea&gt;</code></td></tr>
+<tr><td><code>error-box</code></td><td>The wrapper around the <code>error</code> slot</td></tr>
+</tbody></table></div>
+<h3 id="custom-properties">Custom properties</h3>
+<p>The stylesheet reads these properties but declares no defaults, so set them yourself (on <code>ui-textarea</code> or an ancestor):</p>
+<div class="table-wrap"><table><thead><tr><th>Property</th><th>Default</th></tr></thead><tbody>
+<tr><td><code>--textarea-bg</code></td><td>none</td></tr>
+<tr><td><code>--textarea-border</code></td><td>none</td></tr>
+<tr><td><code>--textarea-border-focus</code></td><td>none</td></tr>
+<tr><td><code>--textarea-radius</code></td><td>none</td></tr>
+<tr><td><code>--textarea-font-size</code></td><td>none</td></tr>
+<tr><td><code>--textarea-padding-y</code></td><td>none</td></tr>
+<tr><td><code>--textarea-padding-x</code></td><td>none</td></tr>
+<tr><td><code>--textarea-text-color</code></td><td>none</td></tr>
+</tbody></table></div>
+<h3 id="states">States</h3>
+<div class="table-wrap"><table><thead><tr><th>State</th><th>When</th></tr></thead><tbody>
+<tr><td><code>disabled</code></td><td>The <code>disabled</code> property changes to true. A <code>disabled</code> attribute already in the markup when the element upgrades does not add the state.</td></tr>
+</tbody></table></div>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/forms">Forms</a></li>
-<li><a href="/docs/ui/forms">Form association</a></li>
+<li><a href="/docs/elements#forms">Elements</a></li>
+<li><a href="/docs/ui/form-associated">Form-associated elements</a></li>
+<li><a href="/docs/elements/input">Input</a></li>
+<li><a href="/docs/elements/field">Field</a></li>
 </ul>

@@ -8,10 +8,15 @@ for await (const chunk of api.stream('/logs/stream')) {
 }
 </view-code>
 <p>Each yielded value is a parsed JSON object. The stream is read via <code>TextDecoderStream</code> and <code>TransformStream</code> pipelines.</p>
+<p><code>api.stream</code> calls <code>fetch</code> directly. It does not apply prefixes, the pipeline, caching, retries or a timeout. Pass a full path or <code>api.prefix.resolve(path)</code>.</p>
 <h2 id="stream-options">Stream Options</h2>
-<view-code language="javascript">for await (const chunk of api.stream('/ai/generate', {
+<p>Options other than <code>signal</code>, <code>on</code> and <code>requestId</code> are passed to <code>fetch</code> as-is. The body is not serialized:</p>
+<view-code language="javascript">const controller = new AbortController();
+
+for await (const chunk of api.stream('/ai/generate', {
   method: 'POST',
-  body: { prompt: 'Hello' },
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ prompt: 'Hello' }),
   signal: controller.signal,
   on: {
     chunk: (event) =&gt; console.log('Received chunk', event.detail.chunk),
@@ -23,9 +28,11 @@ for await (const chunk of api.stream('/logs/stream')) {
 </view-code>
 <div class="table-wrap"><table><thead><tr><th>Option</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>method</code></td><td>HTTP method (default <code>GET</code>)</td></tr>
-<tr><td><code>body</code></td><td>Request body (auto-serialized for objects)</td></tr>
+<tr><td><code>headers</code></td><td>Request headers, passed to <code>fetch</code></td></tr>
+<tr><td><code>body</code></td><td>Request body, passed to <code>fetch</code> unchanged</td></tr>
 <tr><td><code>signal</code></td><td>AbortSignal for cancellation</td></tr>
 <tr><td><code>on</code></td><td>Per-request event listeners</td></tr>
+<tr><td><code>requestId</code></td><td>ID used in event <code>detail</code> (default: generated)</td></tr>
 </tbody></table></div>
 <h2 id="ndjson-transform">NDJSON Transform</h2>
 <p>For direct stream manipulation, the NDJSON transform stream is exported:</p>
@@ -51,7 +58,7 @@ while (true) {
 });
 </view-code>
 <h2 id="error-handling">Error Handling</h2>
-<p>Stream errors (network drops, parse failures) emit <code>error</code> and <code>failed</code> events. The async iterable throws the error, so wrap in try-catch:</p>
+<p>A failed <code>fetch</code> emits <code>error</code> and <code>failed</code>. A non-2xx response emits <code>status:xxx</code>, <code>failed</code> and <code>error</code>. Errors while reading (network drops, invalid NDJSON lines) emit <code>error</code> only. The async iterable throws a plain <code>Error</code> (not a <code>PlatformError</code>), so wrap it in try-catch:</p>
 <view-code language="javascript">try {
   for await (const chunk of api.stream('/logs')) {
     process(chunk);
@@ -61,4 +68,4 @@ while (true) {
 }
 </view-code>
 <h2 id="backpressure">Backpressure</h2>
-<p>The native Streams API preserves backpressure. If the consumer loop is slow, the fetch pauses reading from the network until the consumer catches up. This prevents unbounded memory growth on fast streams.</p>
+<p>Chunks are read only as the loop asks for them, so the Streams API applies backpressure: a slow consumer slows reading from the network instead of buffering the whole response.</p>

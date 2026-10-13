@@ -1,42 +1,45 @@
 <h1 id="welcome-to-anza">Welcome to Anza</h1>
-<p>Anza is a modern, zero-dependency web framework and toolchain built around Native Browser ES Modules, Web Standards Custom Elements, Declarative Shadow DOM (DSD), and high-performance Server-Templated UI (STUI).</p>
+<p>Anza is a web library and toolchain built on browser standards: ES modules, custom elements, Declarative Shadow DOM, and service workers. It also ships server template engines (STUI) for Rust, Python and TypeScript.</p>
 <h2 id="what-you-get">What You Get</h2>
-<div class="table-wrap"><table><thead><tr><th>Pillar</th><th>Capability</th></tr></thead><tbody>
-<tr><td><strong>Zero-Bundle Runtime</strong></td><td>True native ESM in development and production. No heavy bundler graphs or transpilation bottlenecks.</td></tr>
-<tr><td><strong>Server-Templated UI</strong></td><td>High-performance server rendering with multi-language engines (Rust, Python, TypeScript) and cryptographic origin signing.</td></tr>
-<tr><td><strong>Declarative Shadow DOM</strong></td><td>Encapsulated custom element trees hydrated instantly by modern browser engines before JavaScript execution.</td></tr>
-<tr><td><strong>Reactive Elements</strong></td><td>Lightweight, type-safe custom element factory (<code>element()</code>) with fine-grained signal observation and scoped styles.</td></tr>
-<tr><td><strong>Offline-First Storage</strong></td><td>Integrated Service Worker cache managers, IndexedDB, and Origin Private File System (OPFS) primitives.</td></tr>
-<tr><td><strong>Rust Toolchain</strong></td><td>Lightning-fast static site generator (<code>anza build</code>), project linter (<code>anza check</code>), and development server with instant SSE hot reload.</td></tr>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>What it does</th></tr></thead><tbody>
+<tr><td><strong>Plain ES modules</strong></td><td>Source is plain JavaScript, HTML and CSS. <code>anza dev</code> serves it unbundled. <code>anza build</code> bundles it into hashed chunks with Rolldown when it is installed.</td></tr>
+<tr><td><strong>Custom elements</strong></td><td><code>element()</code>, <code>view()</code>, <code>part()</code>, <code>dock()</code> and <code>page()</code> define custom elements with props, templates, scoped styles and lifecycle hooks.</td></tr>
+<tr><td><strong>Router</strong></td><td>Client-side routing with nested docks, guards and fallbacks.</td></tr>
+<tr><td><strong>Static HTML</strong></td><td><code>anza build</code> pre-renders public routes with Declarative Shadow DOM, titles, descriptions, Open Graph tags, JSON-LD and a sitemap.</td></tr>
+<tr><td><strong>Server templates</strong></td><td>Engines for Rust, Python and TypeScript render HTML fragments and can sign them (HMAC or Ed25519).</td></tr>
+<tr><td><strong>Offline</strong></td><td>Service worker caching strategies, background sync, IndexedDB and OPFS helpers.</td></tr>
+<tr><td><strong>CLI</strong></td><td><code>anza dev</code> (dev server with live reload), <code>anza build</code>, <code>anza check</code> (project structure check) and <code>anza generate</code>.</td></tr>
 </tbody></table></div>
 <h2 id="core-principles">Core Principles</h2>
-<h3 id="1-web-standards-first">1. Web Standards First</h3>
-<p>Anza builds directly on top of the browser platform—Custom Elements, Shadow DOM, CSS Constructable Stylesheets, View Transitions, and Service Workers—without inventing proprietary component abstractions or virtual DOM overhead.</p>
-<h3 id="2-zero-js-progressive-ssr">2. Zero-JS Progressive SSR</h3>
-<p>Server templates render standard HTML and Declarative Shadow DOM that works immediately with JavaScript disabled. Client hydration attaches seamlessly to existing DOM trees without layout shifts.</p>
-<h3 id="3-native-monospace-wire-envelopes">3. Native Monospace Wire Envelopes</h3>
-<p>Live streaming updates and soft page transitions travel as cryptographically verified JSON envelopes signed by the origin server using Ed25519 keys, verified by CDNs and edge proxies.</p>
+<h3 id="1-web-standards-first">1. Web standards first</h3>
+<p>Anza uses the platform directly: custom elements, Shadow DOM, constructable stylesheets, view transitions and service workers. There is no virtual DOM.</p>
+<h3 id="2-html-first">2. HTML first</h3>
+<p>Pre-rendered pages and server templates are standard HTML with Declarative Shadow DOM, so content shows before JavaScript runs. The client adopts the existing shadow roots instead of rendering them again (<a href="/docs/ui/hydration">Hydration (DSD adopt)</a>).</p>
+<h3 id="3-signed-fragments">3. Signed fragments</h3>
+<p>Server engines can sign the fragments they send for live updates and soft navigation, so the client can check where they came from (<a href="/docs/engines">Engines</a>).</p>
 <h2 id="quick-example">Quick Example</h2>
-<p>Define a reactive custom element in pure JavaScript:</p>
-<view-code language="javascript">import { element } from '@anzaui/anza/ui';
+<p>A custom element with one reactive prop:</p>
+<view-code language="javascript">import { view } from '@anzaui/anza/defs';
 
-element('counter-button', {
-  props: { count: { type: Number, default: 0 } },
-  template: `
-    &lt;button class="btn"&gt;
-      Clicked &lt;span ref="countVal"&gt;0&lt;/span&gt; times
-    &lt;/button&gt;
-  `,
+view('click-counter', {
+  props: { count: 0 },
+  template: '&lt;button type="button"&gt;Clicked &lt;span ref="count"&gt;0&lt;/span&gt; times&lt;/button&gt;',
   on: {
     connect({ el, refs, on }) {
-      on('click', () =&gt; {
-        el.count += 1;
-        refs.countVal.textContent = el.count;
+      refs.count.textContent = el.count;
+      on.click('button', () =&gt; {
+        el.count++;
       });
+    },
+    change({ name, val, refs }) {
+      if (name === 'count') refs.count.textContent = val;
     }
   }
 });
 </view-code>
+<view-code language="html">&lt;click-counter count="3"&gt;&lt;/click-counter&gt;
+</view-code>
+<p>Next: <a href="/docs/intro">Getting Started</a>.</p>
 <div class="doc-pagination">
   <span></span>
   <a href="/docs/intro/install" class="doc-next-link">Next: Installation &rarr;</a>

@@ -7,6 +7,6 @@ page('/docs/elements/tabs', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Tabs — Anza',
-    description: 'ui-tabs — accessible tablist with keyboard navigation.'
+    description: 'ui-tabs — tablist with roving tabindex, arrow, Home and End keys, and panels shown by the active value.'
   }
 }, import.meta.url);

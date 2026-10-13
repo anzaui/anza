@@ -7,6 +7,6 @@ page('/docs/elements/radio', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Radio — Anza',
-    description: 'ui-radio — form-participating radio with name-group coordination.'
+    description: 'ui-radio: a form-associated radio button. Radios with the same name in the same root form one group.'
   }
 }, import.meta.url);

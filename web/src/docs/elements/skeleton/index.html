@@ -1,28 +1,37 @@
 <h1 id="skeleton">Skeleton</h1>
-<p>Loading placeholder with a WAAPI shimmer; pauses when <code>prefers-reduced-motion: reduce</code>.</p>
+<p>Loading placeholder with a pulsing opacity animation.</p>
 <p><strong>Tag:</strong> <code>ui-skeleton</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/skeleton</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
+<view-code language="html">&lt;ui-skeleton variant="circle"&gt;&lt;/ui-skeleton&gt;
+&lt;ui-skeleton variant="text"&gt;&lt;/ui-skeleton&gt;
+&lt;ui-skeleton width="200px" height="8"&gt;&lt;/ui-skeleton&gt;
+</view-code>
 <view-code language="javascript">import '@anzaui/anza/elements/skeleton';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
-<view-code language="html">&lt;ui-skeleton&gt;&lt;/ui-skeleton&gt;
-&lt;ui-skeleton width="12rem" height="1.25rem"&gt;&lt;/ui-skeleton&gt;
-&lt;ui-skeleton variant="circle" width="48px" height="48px"&gt;&lt;/ui-skeleton&gt;
-</view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>variant</code></td><td>String</td><td>Reflect</td><td>Visual shape hint (theme / CSS; e.g. circle)</td></tr>
-<tr><td><code>width</code></td><td>String</td><td>Reflect</td><td>Sets <code>--skeleton-width</code> (CSS length, <code>%</code>, or space token name)</td></tr>
-<tr><td><code>height</code></td><td>String</td><td>Reflect</td><td>Sets <code>--skeleton-height</code> (same resolution as <code>width</code>)</td></tr>
+<h2 id="attributes">Attributes</h2>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>variant</code></td><td>String</td><td>none</td><td><code>circle</code> (round, <code>--space-12</code> square, inline-block) or <code>text</code> (75% wide, <code>--space-3</code> high). Without it: a full-width block, <code>--space-4</code> high.</td></tr>
+<tr><td><code>width</code></td><td>String</td><td>none</td><td>Sets <code>--skeleton-width</code>. A value containing <code>px</code>, <code>%</code> or <code>rem</code> is used as-is; any other value <code>n</code> becomes <code>var(--space-n)</code>.</td></tr>
+<tr><td><code>height</code></td><td>String</td><td>none</td><td>Sets <code>--skeleton-height</code>, with the same rule as <code>width</code>.</td></tr>
 </tbody></table></div>
-<h2 id="notes">Notes</h2>
-<p>Defaults <code>aria-hidden="true"</code>. Shimmer uses <code>part="shimmer"</code>. <code>matchMedia</code> change listener and animation cleanup use <code>el.ctrl.signal</code>.</p>
-<h3 id="lifecycle--memory">Lifecycle / memory</h3>
-<p>The reduced-motion listener is signal-owned. Soft-nav disconnect aborts the leaf <code>ctrl</code> and tears down the listener; pause the WAAPI animation via the same abort path rather than leaving orphan <code>matchMedia</code> handlers.</p>
+<p><code>width</code> and <code>height</code> are written as inline custom properties on the host, so they override the variant sizes.</p>
+<h2 id="keyboard-and-accessibility">Keyboard and accessibility</h2>
+<p>The host gets <code>aria-hidden="true"</code> unless you set <code>aria-hidden</code>. Mark the loading region with <code>aria-busy="true"</code> yourself. The pulse uses the Web Animations API and pauses while <code>prefers-reduced-motion: reduce</code> matches.</p>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>shimmer</code></td><td>The animated placeholder block</td></tr>
+</tbody></table></div>
+<h3 id="custom-properties">Custom properties</h3>
+<div class="table-wrap"><table><thead><tr><th>Property</th><th>Default</th></tr></thead><tbody>
+<tr><td><code>--skeleton-bg</code></td><td><code>var(--color-interactive-disabled)</code></td></tr>
+<tr><td><code>--skeleton-radius</code></td><td><code>var(--radius-md)</code></td></tr>
+<tr><td><code>--skeleton-width</code></td><td><code>100%</code></td></tr>
+<tr><td><code>--skeleton-height</code></td><td><code>var(--space-4)</code></td></tr>
+</tbody></table></div>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/feedback">Feedback</a></li>
 <li><a href="/docs/elements/spinner">Spinner</a></li>
-<li><a href="/docs/ui/advanced">Memory safety &amp; framework globals</a></li>
+<li><a href="/docs/elements/progress">Progress</a></li>
+<li><a href="/docs/elements#feedback">Elements</a></li>
 </ul>

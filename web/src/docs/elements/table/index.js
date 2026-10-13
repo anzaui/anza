@@ -7,6 +7,6 @@ page('/docs/elements/table', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Table — Anza',
-    description: 'ui-table — styled wrapper for native HTML tables.'
+    description: 'ui-table — bordered, horizontally scrolling wrapper for a native HTML table.'
   }
 }, import.meta.url);

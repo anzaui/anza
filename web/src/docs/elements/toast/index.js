@@ -7,6 +7,6 @@ page('/docs/elements/toast', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Toast — Anza',
-    description: 'ui-toast — transient status notification with body portal and auto-dismiss.'
+    description: 'ui-toast: temporary status message that removes itself after a delay. showToast() stacks toasts in a fixed corner container.'
   }
 }, import.meta.url);

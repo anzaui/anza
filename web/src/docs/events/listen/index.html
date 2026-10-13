@@ -68,5 +68,5 @@ events.listen(el, 'mouseleave', onLeave, { signal: ctrl.signal });
 events.listen(el, 'click', onClick, { signal: ctrl.signal });
 
 // Cleanup all three
-cleanup = () =&gt; ctrl.abort();
+const cleanup = () =&gt; ctrl.abort();
 </view-code>

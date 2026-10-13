@@ -7,6 +7,6 @@ page('/docs/elements/input', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Input — Anza',
-    description: 'ui-input — form-participating text control with ElementInternals validation.'
+    description: 'ui-input: a form-associated single-line text control that mirrors a native input, its validation and form reset.'
   }
 }, import.meta.url);

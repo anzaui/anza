@@ -1,7 +1,7 @@
 <h1 id="page-html-contract-mode-a-ssg--mode-b-templates">Page HTML contract (Mode A SSG · Mode B templates)</h1>
 <p>Normative shape for every public, indexable HTML response. <strong>Mode A</strong> (<code>anza build</code> SSG) and <strong>Mode B</strong> (any-language request-time templates) must emit this same contract so client hydration has one adoption path.</p>
 <p>Sibling: the <strong>folder</strong> contract (required / recommended / optional project slots, optional <code>anza.json</code>) lives in <a href="/docs/intro/structure">Structure</a>.</p>
-<p>Overview of Phases 0–6: <a href="/docs/ssg">SSG &amp; SEO</a>. Client adopt details: <a href="/docs/ui/hydration">Hydration (DSD adopt)</a>.</p>
+<p>Overview: <a href="/docs/ssg">SSG &amp; SEO</a>. Client adopt details: <a href="/docs/ui/hydration">Hydration (DSD adopt)</a>.</p>
 <p>Golden samples: <a href="../../tools/fixtures/ssg/">tools/fixtures/ssg/</a>.</p>
 <h2 id="site-root-asset-urls">Site-root asset URLs</h2>
 <p>Production treats <code>dist/</code> as the <strong>document root</strong>. Public asset URLs never include a <code>/dist</code> prefix.</p>
@@ -20,8 +20,9 @@
 <li><strong><code>&lt;title&gt;</code></strong> — unique per route: <code>seo.title</code>, else <code>"{H1} — {Section} — {siteName}"</code> (path-derived name when there is no H1).</li>
 <li><strong>Meta description</strong> — unique per route: <code>seo.description</code>, else the first paragraph cut at a word boundary (155 characters), with the section name added to short or repeated ones.</li>
 <li><strong>Canonical</strong> — <code>link rel="canonical"</code> (path or absolute URL when origin is set).</li>
-<li><strong>Social</strong> — <code>og:type</code> (<code>article</code> under <code>/docs/</code>, else <code>website</code>), <code>og:site_name</code>, <code>og:title</code>, <code>og:description</code>, <code>og:url</code>, <code>og:image</code> (+ <code>og:image:alt</code>) when an image is set, <code>twitter:card</code> (<code>summary_large_image</code> with an image), <code>twitter:title</code>, <code>twitter:description</code>, <code>twitter:image</code>.</li>
-<li><strong>JSON-LD</strong> (Mode A default) — light-DOM <code>@graph</code> linked by <code>@id</code>: <code>WebSite</code>, <code>WebPage</code>, <code>BreadcrumbList</code> and, for <code>/docs/*</code>, <code>TechArticle</code> (<code>headline</code>, <code>dateModified</code>), via <code>ssg.json</code> <code>jsonLd</code> (does not touch DSD).</li>
+<li><strong>Social</strong> — <code>og:type</code> (<code>article</code> under <code>/docs/</code>, else <code>website</code>), <code>og:site_name</code>, <code>og:title</code>, <code>og:description</code>, <code>og:url</code>, <code>og:image</code> (+ <code>og:image:alt</code>) when an image is set, <code>twitter:card</code> (<code>summary_large_image</code> with an image), <code>twitter:title</code>, <code>twitter:description</code>, <code>twitter:image</code>. Docs pages with a known date also get <code>article:modified_time</code>.</li>
+<li><strong>JSON-LD</strong> (Mode A default) — light-DOM <code>@graph</code> linked by <code>@id</code>: <code>WebSite</code>, <code>WebPage</code>, <code>BreadcrumbList</code> and, for <code>/docs/*</code>, <code>TechArticle</code> (<code>headline</code>, <code>dateModified</code>), via <code>ssg.json</code> <code>jsonLd</code> (does not touch DSD).
+Mode A then copies the app shell's <code>icon</code>, <code>apple-touch-icon</code> and <code>manifest</code> links (or <code>/favicon.ico</code> when the shell has none).</li>
 <li><strong>Import map</strong> — inline <code>&lt;script type="importmap"&gt;…&lt;/script&gt;</code> preferred; else <code>src="/importmap.json"</code>. Must appear <strong>before</strong> module scripts.</li>
 <li><strong>Critical CSS</strong> — at least:
 <ul>
@@ -80,6 +81,7 @@
 <p>Public paths with <code>:param</code> (or <code>*</code>) are <strong>not</strong> SSG’d by default — <code>routes.json</code> keeps <code>ssg: false</code> so the client can still match them (Mode B or CSR). To emit Mode A HTML for concrete values, declare a build-time expansion:</p>
 <p><strong>In the page module</strong> (<code>page({ ssg: { expand: […] } })</code>):</p>
 <view-code language="javascript">page('/docs/ssg/expand/:slug', {
+  tag: 'doc-ssg-expand',
   params: [{ name: 'slug', type: String }],
   ssg: {
     expand: [

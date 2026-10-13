@@ -1,36 +1,63 @@
 <h1 id="form">Form</h1>
-<p>Form orchestrator that validates form-associated children, submits JSON via the API pipeline, and can queue offline.</p>
+<p>A wrapper that collects its form-associated controls into a JSON payload, sends it, and can queue it while offline.</p>
 <p><strong>Tag:</strong> <code>ui-form</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/form</code></p>
-<h2 id="import">Import</h2>
+<p>Read <a href="#known-issues">Known issues</a> before using it. In the current code nothing inside <code>ui-form</code> can trigger its submit, and the online request always fails.</p>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/form';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
-<view-code language="html">&lt;ui-form action="/api/profile" method="POST" offline&gt;
-  &lt;ui-field label="Name" required&gt;
-    &lt;ui-input name="name" required&gt;&lt;/ui-input&gt;
-  &lt;/ui-field&gt;
-  &lt;ui-button type="submit"&gt;Save&lt;/ui-button&gt;
+<view-code language="html">&lt;ui-form action="/api/profile" method="PUT" offline&gt;
+  &lt;ui-input name="name" required&gt;&lt;/ui-input&gt;
+  &lt;ui-toggle name="newsletter"&gt;Newsletter&lt;/ui-toggle&gt;
 &lt;/ui-form&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>action</code></td><td>String</td><td>Reflect</td><td>Submit URL (default current location)</td></tr>
-<tr><td><code>method</code></td><td>String</td><td>Reflect</td><td>HTTP method (default <code>POST</code>)</td></tr>
-<tr><td><code>offline</code></td><td>Boolean</td><td>Reflect</td><td>Queue payload when offline instead of failing</td></tr>
+<h2 id="attributes">Attributes</h2>
+<p>All attributes reflect to properties of the same name. <code>action</code> and <code>method</code> are also copied to the inner <code>&lt;form&gt;</code> when set.</p>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>action</code></td><td>String</td><td>the current page URL</td><td>Request URL.</td></tr>
+<tr><td><code>method</code></td><td>String</td><td><code>POST</code></td><td>Request method, upper-cased.</td></tr>
+<tr><td><code>offline</code></td><td>Boolean</td><td><code>false</code></td><td>When the connectivity check fails, queue the payload instead of sending it.</td></tr>
+</tbody></table></div>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td>(default)</td><td>The controls. They stay in the light DOM.</td></tr>
 </tbody></table></div>
 <h2 id="events">Events</h2>
-<div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody>
-<tr><td><code>invalid</code></td><td>Validation failed via <code>reportValidity</code> on a child</td></tr>
-<tr><td><code>submit-start</code></td><td>About to submit — <code>detail.payload</code></td></tr>
-<tr><td><code>success</code></td><td>Online submit succeeded — <code>detail</code> is the response</td></tr>
-<tr><td><code>submit-error</code></td><td>Submit or queue failed</td></tr>
-<tr><td><code>offline-queued</code></td><td>Queued for background sync — <code>detail.syncId</code></td></tr>
+<p>All events bubble and are composed.</p>
+<div class="table-wrap"><table><thead><tr><th>Event</th><th>Detail</th><th>When</th></tr></thead><tbody>
+<tr><td><code>invalid</code></td><td>none</td><td>A control's <code>reportValidity()</code> returned <code>false</code>.</td></tr>
+<tr><td><code>submit-start</code></td><td><code>{ payload }</code></td><td>The payload is built, before the connectivity check.</td></tr>
+<tr><td><code>success</code></td><td>the response</td><td>The request finished.</td></tr>
+<tr><td><code>submit-error</code></td><td>the error</td><td>The request or the queueing failed.</td></tr>
+<tr><td><code>offline-queued</code></td><td><code>{ syncId, payload }</code></td><td><code>offline</code> is set, the check reports offline, and the payload was queued.</td></tr>
 </tbody></table></div>
-<h2 id="notes">Notes</h2>
-<p>Collects descendants with <code>formAssociated</code> constructors. Payload keys come from each control’s <code>name</code> attribute and <code>.value</code>.</p>
+<h2 id="submit-steps">Submit steps</h2>
+<p>When the inner <code>&lt;form&gt;</code> fires <code>submit</code>, the element:</p>
+<ol>
+<li>Prevents the native submission.</li>
+<li>Finds every descendant whose class has <code>formAssociated</code> (for example <code>ui-input</code>, <code>ui-checkbox</code>, <code>ui-button</code>).</li>
+<li>Calls <code>reportValidity()</code> on each control that has one. If any returns <code>false</code>, fires <code>invalid</code> and stops.</li>
+<li>Builds <code>payload</code> as <code>{ [name]: control.value }</code> for each control with a <code>name</code> attribute. Native <code>&lt;input&gt;</code> elements are not included. Checkboxes and toggles give their <code>value</code> whether or not they are checked.</li>
+<li>Fires <code>submit-start</code>.</li>
+<li>Runs the connectivity check (a <code>HEAD</code> request to <code>/favicon.ico</code>, cached for 10 seconds).</li>
+<li>Offline with <code>offline</code> set: pushes a task named <code>offline-form-submit</code> to the offline queue (<code>url</code>, <code>method</code>, JSON <code>Content-Type</code> header, <code>body: payload</code>), registers the Background Sync tag <code>pending</code> when a service worker supports it, then fires <code>offline-queued</code>.</li>
+<li>Otherwise: sends <code>payload</code> as a JSON body and fires <code>success</code> or <code>submit-error</code>.</li>
+</ol>
+<h2 id="known-issues">Known issues</h2>
+<ul>
+<li>The <code>&lt;form&gt;</code> is in the shadow root, so light-DOM children do not belong to it. A <code>ui-button type="submit"</code>, a native submit button or Enter in a field inside <code>ui-form</code> does not submit it. The only trigger is <code>el.shadowRoot.querySelector('form').requestSubmit()</code>.</li>
+<li>Step 8 calls the shared <code>pipeline</code> object as a function, but it is a <code>Pipeline</code> instance. The call throws a <code>TypeError</code>, so an online submit always ends in <code>submit-error</code>.</li>
+<li>The kit controls do not define <code>reportValidity()</code>, so step 3 skips them and <code>required</code> is not checked.</li>
+</ul>
+<p>For working form submission, put the controls in a native <code>&lt;form&gt;</code>. See <a href="/docs/ui/form-associated">Form-associated elements</a>.</p>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>form</code></td><td>The inner <code>&lt;form&gt;</code>, a flex column with <code>var(--space-4)</code> gaps</td></tr>
+</tbody></table></div>
+<p><code>ui-form</code> declares no custom properties and no custom states.</p>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/forms">Forms</a></li>
-<li><a href="/docs/ui/forms">Form association</a></li>
+<li><a href="/docs/elements#forms">Elements</a></li>
+<li><a href="/docs/ui/form-associated">Form-associated elements</a></li>
+<li><a href="/docs/sw/sync">Sync</a></li>
 </ul>

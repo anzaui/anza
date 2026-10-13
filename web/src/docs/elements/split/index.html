@@ -1,29 +1,30 @@
 <h1 id="split">Split</h1>
-<p>Two-pane split layout controlled by a ratio token.</p>
+<p>Two panes side by side that stack on narrow screens.</p>
 <p><strong>Tag:</strong> <code>ui-split</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/split</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/split';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
-<view-code language="html">&lt;ui-split&gt;
-  &lt;div&gt;Left&lt;/div&gt;
-  &lt;div&gt;Right&lt;/div&gt;
-&lt;/ui-split&gt;
-&lt;ui-split ratio="1-2"&gt;
-  &lt;aside&gt;Narrow&lt;/aside&gt;
-  &lt;main&gt;Wide&lt;/main&gt;
+<view-code language="html">&lt;ui-split ratio="2-1"&gt;
+  &lt;section&gt;Main&lt;/section&gt;
+  &lt;aside&gt;Details&lt;/aside&gt;
 &lt;/ui-split&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>ratio</code></td><td>String</td><td>Reflect</td><td>Pane ratio token (default <code>1-1</code>; e.g. <code>1-2</code>)</td></tr>
+<h2 id="attributes">Attributes</h2>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>ratio</code></td><td>String</td><td>—</td><td>Flex ratio of the first to the last child: <code>1-1</code>, <code>1-2</code> or <code>2-1</code>. Without the attribute the panes keep their natural width: the property defaults to <code>1-1</code> but the default is not reflected to the attribute.</td></tr>
 </tbody></table></div>
-<h2 id="notes">Notes</h2>
-<p>Two children in the default slot; <code>part="split"</code> wraps them.</p>
+<p>The panes are <code>var(--space-6)</code> apart. At 768px viewport width or less they stack in a column <code>var(--space-4)</code> apart.</p>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td>default</td><td>Two panes</td></tr>
+</tbody></table></div>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>split</code></td><td>The flex row</td></tr>
+</tbody></table></div>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/layout">Layout</a></li>
+<li><a href="/docs/elements#layout">Elements</a></li>
 <li><a href="/docs/elements/grid">Grid</a></li>
-<li><a href="/docs/elements/sidebar">Sidebar</a></li>
 </ul>

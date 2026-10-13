@@ -1,29 +1,41 @@
 <h1 id="tabs">Tabs</h1>
-<p>Accessible tablist with roving tabindex, arrow / Home / End keys, and optional URL-synced <code>active</code> value.</p>
+<p>A tab list that shows one panel at a time.</p>
 <p><strong>Tag:</strong> <code>ui-tabs</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/tabs</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/tabs';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
-<view-code language="html">&lt;ui-tabs active="one"&gt;
-  &lt;button slot="tab" value="one"&gt;One&lt;/button&gt;
-  &lt;button slot="tab" value="two"&gt;Two&lt;/button&gt;
-  &lt;div role="tabpanel"&gt;Panel one&lt;/div&gt;
-  &lt;div role="tabpanel"&gt;Panel two&lt;/div&gt;
+<view-code language="html">&lt;ui-tabs active="billing"&gt;
+  &lt;button slot="tab" value="profile"&gt;Profile&lt;/button&gt;
+  &lt;button slot="tab" value="billing"&gt;Billing&lt;/button&gt;
+  &lt;section role="tabpanel"&gt;Profile settings&lt;/section&gt;
+  &lt;section role="tabpanel"&gt;Billing settings&lt;/section&gt;
 &lt;/ui-tabs&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>active</code></td><td>String</td><td>Reflect</td><td>Selected tab value (falls back to first tab)</td></tr>
+<h2 id="attributes">Attributes</h2>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>active</code></td><td>String</td><td>—</td><td>Value of the selected tab. A tab's value is its <code>value</code> attribute, or its trimmed text. Without it the first tab is selected.</td></tr>
 </tbody></table></div>
-<h2 id="notes">Notes</h2>
-<p>Named <code>tab</code> slot for tab triggers; default slot for panels (<code>role="tabpanel"</code> or <code>ui-tab-panel</code>). Clicking a tab sets <code>active</code> from <code>value</code> or text content.</p>
-<h3 id="lifecycle--memory">Lifecycle / memory</h3>
-<p>Keyboard and click handlers are shadow-scoped and abort with the component <code>ctrl</code> on disconnect (including soft-nav leaf swap). See <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a>.</p>
+<p>Clicking a tab or moving to it with the keyboard sets <code>active</code>.</p>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td><code>tab</code></td><td>The tabs. Each gets <code>role="tab"</code>.</td></tr>
+<tr><td>default</td><td>The panels, in tab order. Only direct children with <code>role="tabpanel"</code> or the tag <code>ui-tab-panel</code> count as panels.</td></tr>
+</tbody></table></div>
+<p>Panels are matched to tabs by position. The panel at the selected tab's index gets the class <code>active</code> and <code>aria-hidden="false"</code>; the others get <code>aria-hidden="true"</code>. Only <code>role="tabpanel"</code> panels are hidden by the element's CSS.</p>
+<h2 id="keyboard-and-accessibility">Keyboard and accessibility</h2>
+<div class="table-wrap"><table><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody>
+<tr><td>Arrow Right / Arrow Left</td><td>Focus and select the next / previous tab, wrapping around</td></tr>
+<tr><td>Home / End</td><td>Focus and select the first / last tab</td></tr>
+</tbody></table></div>
+<p>The tab list has <code>role="tablist"</code>. The selected tab has <code>aria-selected="true"</code> and <code>tabindex="0"</code>; the others have <code>aria-selected="false"</code> and <code>tabindex="-1"</code>.</p>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>tablist</code></td><td>The <code>role="tablist"</code> wrapper</td></tr>
+<tr><td><code>panels</code></td><td>The panel wrapper</td></tr>
+</tbody></table></div>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/navigation">Navigation</a></li>
-<li><a href="/docs/ui/forms">Form association</a> (when <code>form: true</code>)</li>
-<li><a href="/docs/ui/advanced">Memory safety &amp; framework globals</a></li>
+<li><a href="/docs/elements#navigation">Elements</a></li>
+<li><a href="/docs/elements/steps">Steps</a></li>
 </ul>

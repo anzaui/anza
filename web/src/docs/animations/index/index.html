@@ -1,5 +1,5 @@
 <h1 id="animations">Animations</h1>
-<p>The Anza animations layer wraps the Web Animations API (WAAPI) with a declarative, memory-safe interface. It provides registered animation templates, staggered multi-element orchestration, scroll-driven and view-driven timelines, and CSS token synchronization so JavaScript animations and stylesheets share the same timing values.</p>
+<p>The Anza animations layer wraps the Web Animations API (WAAPI). It provides registered animation templates, staggered multi-element orchestration, scroll-driven and view-driven timelines, and CSS token synchronization so JavaScript animations and stylesheets share the same timing values.</p>
 <h2 id="what-you-get">What You Get</h2>
 <ul>
 <li><strong>Element animation</strong> — <code>animate(el, keyframes, options)</code> with AbortSignal cleanup</li>
@@ -8,7 +8,7 @@
 <li><strong>Template registry</strong> — register and reuse named animation presets</li>
 <li><strong>Scroll/view timelines</strong> — <code>scroll()</code> and <code>view()</code> for scroll-driven animations</li>
 <li><strong>CSS token sync</strong> — <code>duration()</code> and <code>ease()</code> read CSS custom properties at runtime</li>
-<li><strong>Reduced motion</strong> — <code>reduced()</code> respects <code>prefers-reduced-motion</code></li>
+<li><strong>Reduced motion</strong> — <code>reduced()</code> reports <code>prefers-reduced-motion</code>. Animations do not check it for you</li>
 </ul>
 <h2 id="package">Package</h2>
 <view-code language="javascript">import { animations } from '@anzaui/anza/animations';

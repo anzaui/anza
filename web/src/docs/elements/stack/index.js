@@ -7,6 +7,6 @@ page('/docs/elements/stack', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Stack — Anza',
-    description: 'ui-stack — vertical flex stack with configurable gap.'
+    description: 'ui-stack — vertical flex stack with a gap attribute taking a spacing step or a length.'
   }
 }, import.meta.url);

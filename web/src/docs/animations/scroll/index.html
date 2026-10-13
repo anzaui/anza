@@ -34,6 +34,7 @@ if (timeline.unsupported) {
   // Fallback: use scroll listener + manual animation
 }
 </view-code>
+<p>Do not pass the descriptor to <code>el.animate()</code> as <code>timeline</code>. It is a plain object, and the browser rejects it.</p>
 <h2 id="platform-check">Platform Check</h2>
 <view-code language="javascript">import { supports } from '@anzaui/anza/platform';
 

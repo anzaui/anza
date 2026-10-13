@@ -7,6 +7,6 @@ page('/docs/elements/surface', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Surface — Anza',
-    description: 'ui-surface — styled surface for flat, elevated, or bordered panels.'
+    description: 'ui-surface — padded panel with flat, elevated or bordered variants built from surface tokens.'
   }
 }, import.meta.url);

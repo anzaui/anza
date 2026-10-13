@@ -1,32 +1,37 @@
 <h1 id="sidebar">Sidebar</h1>
-<p>Collapsible side panel for navigation or secondary chrome.</p>
+<p>A sticky side panel that can collapse to a narrow rail.</p>
 <p><strong>Tag:</strong> <code>ui-sidebar</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/sidebar</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/sidebar';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
 <view-code language="html">&lt;ui-sidebar&gt;
-  &lt;a href="/docs"&gt;Docs&lt;/a&gt;
-  &lt;a href="/docs/elements"&gt;Elements&lt;/a&gt;
+  &lt;ui-link href="/"&gt;Home&lt;/ui-link&gt;
+  &lt;ui-link href="/settings"&gt;Settings&lt;/ui-link&gt;
 &lt;/ui-sidebar&gt;
-&lt;ui-sidebar collapsed&gt;&lt;/ui-sidebar&gt;
 </view-code>
-<view-code language="javascript">document.querySelector('ui-sidebar').toggle();
-</view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>collapsed</code></td><td>Boolean</td><td>Reflect</td><td>Collapsed layout when set</td></tr>
+<h2 id="attributes">Attributes</h2>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>collapsed</code></td><td>Boolean</td><td><code>false</code></td><td>Narrows the sidebar to <code>var(--space-16)</code> and hides its slotted children.</td></tr>
+</tbody></table></div>
+<p>The sidebar is <code>calc(var(--space-16) * 4)</code> wide and sticks below a <code>var(--space-16)</code> header. The width change is animated.</p>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td>default</td><td>Sidebar content</td></tr>
 </tbody></table></div>
 <h2 id="methods">Methods</h2>
 <div class="table-wrap"><table><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>toggle()</code></td><td>Flips <code>collapsed</code></td></tr>
+<tr><td><code>toggle()</code></td><td>Flips <code>collapsed</code>.</td></tr>
 </tbody></table></div>
-<h2 id="notes">Notes</h2>
-<p>Default slot content sits in <code>part="wrapper"</code>.</p>
+<view-code language="javascript">document.querySelector('ui-sidebar').toggle();
+</view-code>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>wrapper</code></td><td>The scrolling content column</td></tr>
+</tbody></table></div>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/layout">Layout</a></li>
+<li><a href="/docs/elements#layout">Elements</a></li>
 <li><a href="/docs/elements/app">App</a></li>
 <li><a href="/docs/elements/nav">Nav</a></li>
 </ul>

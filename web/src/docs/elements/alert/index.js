@@ -7,6 +7,6 @@ page('/docs/elements/alert', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Alert — Anza',
-    description: 'ui-alert — inline severity notification with optional dismiss.'
+    description: 'ui-alert: inline notice with info, success, warning and error variants, role=alert, and an optional dismiss button.'
   }
 }, import.meta.url);

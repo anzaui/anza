@@ -62,11 +62,12 @@ await events.once(el, 'click'); // never resolves
 <h2 id="abortsignal-not-cleaning-up">AbortSignal not cleaning up</h2>
 <p><strong>Cause:</strong> Signal was created but never aborted.</p>
 <p><strong>Fix:</strong> Ensure the signal aborts when the component unmounts:</p>
-<view-code language="javascript">// Correct
-mount({ ctrl }) {
-  events.on('update', handler, ctrl.signal);
-}
-// ctrl.abort() called on unmount
+<view-code language="javascript">// Correct: the component's ctrl aborts on unmount
+view('live-feed', {
+  mount({ ctrl }) {
+    events.on('update', handler, ctrl.signal);
+  }
+});
 
 // Wrong — signal never aborted
 const ctrl = new AbortController();
@@ -83,12 +84,13 @@ moduleBus.on('internal', handler);
 </view-code>
 <p>Only use <code>events.emit</code> and <code>events.on</code> for truly global events.</p>
 <h2 id="still-stuck">Still stuck?</h2>
-<p>Debug the event flow:</p>
-<view-code language="javascript">// Log every event on the bus
-events.on('*', (e) =&gt; {
-  console.log('Event:', e.type, e.detail);
-});
+<p>The bus has no wildcard listener: <code>events.on('*', ...)</code> only receives events emitted with the literal type <code>'*'</code>. To trace the flow, listen to each type you care about, or wrap <code>emit</code> in your app code:</p>
+<view-code language="javascript">import { bus } from '@anzaui/anza/events';
 
-// Check active listeners (not exposed — use native methods)
-bus.addEventListener('debug', (e) =&gt; console.log(e));
+const emit = bus.emit.bind(bus);
+bus.emit = (type, detail) =&gt; {
+  console.log('Event:', type, detail);
+  emit(type, detail);
+};
 </view-code>
+<p><code>events.emit</code> calls <code>bus.emit</code>, so this logs every global event. The bus does not expose its listener list.</p>

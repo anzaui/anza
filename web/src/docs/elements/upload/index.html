@@ -1,33 +1,52 @@
 <h1 id="upload">Upload</h1>
-<p>Drag-and-drop file picker with optional progress-tracked upload via the core upload API.</p>
+<p>A file picker with a click and drag-and-drop zone. With <code>url</code> set it uploads the files and shows a progress bar.</p>
 <p><strong>Tag:</strong> <code>ui-upload</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/upload</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/upload';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
-<view-code language="html">&lt;ui-upload accept="image/*" multiple&gt;&lt;/ui-upload&gt;
-&lt;ui-upload url="/api/upload" accept=".pdf"&gt;&lt;/ui-upload&gt;
+<view-code language="html">&lt;ui-upload url="/api/files" accept="image/*" multiple&gt;&lt;/ui-upload&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<div class="table-wrap"><table><thead><tr><th>Prop</th><th>Type</th><th>Reflect</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>url</code></td><td>String</td><td>Reflect</td><td>Upload endpoint; when unset, only <code>selected</code> fires</td></tr>
-<tr><td><code>multiple</code></td><td>Boolean</td><td>Reflect</td><td>Allow multiple files</td></tr>
-<tr><td><code>accept</code></td><td>String</td><td>Reflect</td><td>Forwarded to the hidden file input</td></tr>
+<h2 id="attributes">Attributes</h2>
+<p>All attributes reflect to properties of the same name.</p>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>url</code></td><td>String</td><td>none</td><td>Upload endpoint. Without it, the element only fires <code>selected</code>.</td></tr>
+<tr><td><code>multiple</code></td><td>Boolean</td><td><code>false</code></td><td>Allow more than one file. Copied to the hidden file input.</td></tr>
+<tr><td><code>accept</code></td><td>String</td><td>none</td><td>Accepted file types, as for <code>&lt;input type="file"&gt;</code>. Copied to the hidden file input. Dropped files are not filtered.</td></tr>
 </tbody></table></div>
 <h2 id="events">Events</h2>
-<div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody>
-<tr><td><code>selected</code></td><td>Files chosen with no <code>url</code> — <code>detail.files</code></td></tr>
-<tr><td><code>progress</code></td><td>Upload progress from the core upload helper</td></tr>
-<tr><td><code>success</code></td><td>Upload completed — <code>detail.files</code></td></tr>
-<tr><td><code>error</code></td><td>Upload failed — <code>detail</code> is the error</td></tr>
+<p>All events bubble and are composed.</p>
+<div class="table-wrap"><table><thead><tr><th>Event</th><th>Detail</th><th>When</th></tr></thead><tbody>
+<tr><td><code>selected</code></td><td><code>{ files }</code> (a <code>FileList</code>)</td><td>Files are picked or dropped and <code>url</code> is not set.</td></tr>
+<tr><td><code>progress</code></td><td><code>{ loaded, total, percentage }</code></td><td>During the upload, when the size is known. <code>percentage</code> is a whole number from 0 to 100.</td></tr>
+<tr><td><code>success</code></td><td><code>{ files }</code> (a <code>FileList</code>)</td><td>The server answers with a 2xx status. The response body is not passed on.</td></tr>
+<tr><td><code>error</code></td><td>The <code>PlatformError</code></td><td>The upload fails: <code>code</code> is <code>HTTP_ERROR</code> (non-2xx), <code>NETWORK_ERROR</code> (network failure, or aborted because the element disconnected) or <code>NETWORK_TIMEOUT</code>.</td></tr>
 </tbody></table></div>
-<h2 id="notes">Notes</h2>
-<p>Click or drop onto the dropzone. With <code>url</code>, files are posted as <code>FormData</code> (<code>files</code> field) with progress UI.</p>
-<h3 id="lifecycle--memory">Lifecycle / memory</h3>
-<p>Dropzone and upload work use the element <code>ctrl.signal</code> so disconnect / soft-nav aborts in-flight requests and removes listeners. Prefer that pattern over raw <code>document</code> drag listeners. See <a href="/docs/ui/advanced">Memory safety &amp; framework globals</a> and <a href="/docs/events/troubleshooting">Orphan listeners after soft-nav</a>.</p>
+<h2 id="upload-request">Upload request</h2>
+<p>With <code>url</code>, the files are sent as <code>multipart/form-data</code> in one <code>POST</code>, each under the field name <code>files</code>. The request uses the core <code>upload()</code> helper (XMLHttpRequest, for progress) and is aborted when the element disconnects. The progress bar hides one second after the upload ends.</p>
+<h2 id="form-behaviour">Form behaviour</h2>
+<p><code>ui-upload</code> is not form-associated. Its files are not part of a surrounding form's <code>FormData</code>.</p>
+<h2 id="keyboard-and-accessibility">Keyboard and accessibility</h2>
+<p>The drop zone is a <code>&lt;div&gt;</code> that is not focusable, so the picker cannot be opened from the keyboard. The prompt text ("Click to upload or drag and drop") is fixed in the template.</p>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>dropzone</code></td><td>The click and drop area</td></tr>
+<tr><td><code>progress</code></td><td>The progress bar track (hidden when idle)</td></tr>
+<tr><td><code>progress-fill</code></td><td>The progress bar fill</td></tr>
+</tbody></table></div>
+<h3 id="custom-properties">Custom properties</h3>
+<div class="table-wrap"><table><thead><tr><th>Property</th><th>Default</th></tr></thead><tbody>
+<tr><td><code>--upload-bg</code></td><td><code>var(--color-surface-page)</code></td></tr>
+<tr><td><code>--upload-border</code></td><td><code>var(--color-border-default)</code></td></tr>
+<tr><td><code>--upload-border-focus</code></td><td><code>var(--color-border-focus)</code></td></tr>
+<tr><td><code>--upload-radius</code></td><td><code>var(--radius-lg)</code></td></tr>
+<tr><td><code>--upload-padding</code></td><td><code>var(--space-8)</code></td></tr>
+<tr><td><code>--upload-color</code></td><td><code>var(--color-content-secondary)</code></td></tr>
+</tbody></table></div>
+<p><code>--upload-border-focus</code> colours the drop zone border while a file is dragged over it. There are no custom states.</p>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/forms">Forms</a></li>
-<li><a href="/docs/ui/advanced">Memory safety &amp; framework globals</a></li>
+<li><a href="/docs/elements#forms">Elements</a></li>
+<li><a href="/docs/api/uploads">Uploads</a></li>
+<li><a href="/docs/ui/lifecycle#memory-safety">Lifecycle</a></li>
 </ul>

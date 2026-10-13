@@ -8,13 +8,13 @@
 }
 </view-code>
 <h2 id="stagger-not-delaying">Stagger not delaying</h2>
-<p><strong>Cause:</strong> <code>staggerDelay</code> not provided, or elements are not iterable.</p>
-<p><strong>Fix:</strong> Pass <code>staggerDelay</code> explicitly:</p>
+<p><strong>Cause:</strong> <code>staggerDelay</code> set to <code>0</code>, or elements are not iterable. The default step is 60ms.</p>
+<p><strong>Fix:</strong> Pass a positive <code>staggerDelay</code>:</p>
 <view-code language="javascript">animations.stagger(items, 'fade', { staggerDelay: 60 });
 </view-code>
 <p><code>items</code> must be a <code>NodeList</code> or array.</p>
-<h2 id="animation-cancelled-immediately">Animation cancelled immediately</h2>
-<p><strong>Cause:</strong> AbortSignal already aborted when passed.</p>
+<h2 id="animation-not-cancelled-by-the-signal">Animation not cancelled by the signal</h2>
+<p><strong>Cause:</strong> The AbortSignal was already aborted when passed. <code>animate()</code> only listens for a future <code>abort</code> event.</p>
 <p><strong>Fix:</strong> Check signal state before animating:</p>
 <view-code language="javascript">if (!ctrl.signal.aborted) {
   animations.animate(el, 'fade', { signal: ctrl.signal });

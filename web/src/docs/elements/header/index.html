@@ -1,26 +1,29 @@
 <h1 id="header">Header</h1>
-<p>Top bar with brand and actions slots.</p>
+<p>A top bar with a brand area on the left and actions on the right.</p>
 <p><strong>Tag:</strong> <code>ui-header</code> · <strong>Import:</strong> <code>@anzaui/anza/elements/header</code></p>
-<h2 id="import">Import</h2>
+<h2 id="usage">Usage</h2>
 <view-code language="javascript">import '@anzaui/anza/elements/header';
 </view-code>
-<h2 id="basic-usage">Basic usage</h2>
 <view-code language="html">&lt;ui-header&gt;
-  &lt;span slot="brand"&gt;Anza&lt;/span&gt;
+  &lt;strong slot="brand"&gt;Acme&lt;/strong&gt;
   &lt;ui-button&gt;Sign in&lt;/ui-button&gt;
 &lt;/ui-header&gt;
 </view-code>
-<h2 id="props">Props</h2>
-<p><em>None — composition via slots.</em></p>
-<h2 id="slots--parts">Slots / parts</h2>
-<div class="table-wrap"><table><thead><tr><th>Name</th><th>Kind</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>brand</code></td><td>slot</td><td>Logo / product name</td></tr>
-<tr><td><em>(default)</em></td><td>slot</td><td>Actions</td></tr>
-<tr><td><code>header</code> / <code>brand</code> / <code>actions</code></td><td>parts</td><td>Region wrappers</td></tr>
+<p>The header has no attributes. It is <code>var(--space-16)</code> tall with a bottom border.</p>
+<h2 id="slots">Slots</h2>
+<div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
+<tr><td><code>brand</code></td><td>Logo or product name</td></tr>
+<tr><td>default</td><td>Actions</td></tr>
+</tbody></table></div>
+<h2 id="styling">Styling</h2>
+<h3 id="parts">Parts</h3>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
+<tr><td><code>header</code></td><td>The <code>&lt;header&gt;</code></td></tr>
+<tr><td><code>brand</code></td><td>The brand area</td></tr>
+<tr><td><code>actions</code></td><td>The actions area</td></tr>
 </tbody></table></div>
 <h2 id="related">Related</h2>
 <ul>
-<li><a href="/docs/elements">Elements overview</a></li>
-<li><a href="/docs/elements/layout">Layout</a></li>
+<li><a href="/docs/elements#layout">Elements</a></li>
 <li><a href="/docs/elements/app">App</a></li>
 </ul>

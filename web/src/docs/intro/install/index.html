@@ -8,10 +8,13 @@
 <li>Library source and type declarations under <code>@anzaui/anza/*</code></li>
 <li>The <code>anza</code> command — a Node wrapper that spawns the correct prebuilt Rust binary for your OS and CPU</li>
 </ul>
-<p>The package is on <a href="https://www.npmjs.com/package/@anzaui/anza">npm</a>. Each version bundles platform binaries under <code>node_modules/@anzaui/anza/bin/anza/</code> (linux, macOS, and Windows — x64 and arm64).</p>
+<p>The package is on <a href="https://www.npmjs.com/package/@anzaui/anza">npm</a>. Each version bundles platform binaries under <code>node_modules/@anzaui/anza/bin/anza/</code> (Linux and macOS on x64 and arm64, Windows on x64).</p>
 <p>In a project with <code>@anzaui/anza</code> as a dependency, run the CLI via <code>npx anza</code> or an npm script (see <a href="/docs/intro/start">Start</a>).</p>
+<p><code>anza build</code> bundles production output with <a href="https://rolldown.rs">Rolldown</a>, loaded from your project. It is optional: without it, the build ships unbundled modules and prints a warning.</p>
+<view-code language="bash">npm install -D rolldown
+</view-code>
 <h2 id="new-projects">New projects</h2>
-<p>Scaffold an app with the create package — it adds <code>@anzaui/anza</code> as a dependency automatically:</p>
+<p>Scaffold an app with the create package. It adds <code>@anzaui/anza</code> and <code>rolldown</code> as devDependencies:</p>
 <view-code language="bash">npm create @anzaui/anza myapp
 cd myapp
 npm install

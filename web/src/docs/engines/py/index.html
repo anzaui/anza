@@ -1,13 +1,14 @@
 <h1 id="python-engine">Python Engine</h1>
 <p>The Anza Python Engine (<code>anza</code> on PyPI) renders full HTML pages and signed JSON
-fragment envelopes from <code>.html</code> templates. It needs Python 3.10+ and only the
-standard library (Ed25519 uses <code>cryptography</code> when it is installed, and a pure
-Python fallback otherwise).</p>
+fragment envelopes from <code>.html</code> templates. It needs Python 3.10+ and
+<code>cryptography&gt;=42</code>, which <code>pip install anza</code> installs. The rest is the
+standard library. It follows the shared <a href="/docs/engines/contract">Engine Contract</a>.</p>
 <h2 id="what-you-get">What You Get</h2>
 <ul>
 <li><strong>Parse once</strong> — <code>Setup(...).run()</code> loads every template under the root and splits it into static chunks and <code>{{slot}}</code> placeholders</li>
 <li><strong>Plain Python data</strong> — bind dicts, dataclasses, Pydantic models or any object with attributes</li>
-<li><strong>Signing</strong> — HMAC-SHA256 or Ed25519 signatures over <code>ts:slot:html</code></li>
+<li><strong>Signing</strong> — HMAC-SHA256 or Ed25519 signatures (signature v2), with keys validated at setup</li>
+<li><strong>Verification</strong> — <code>verify_envelope</code> checks version, age, slot and signature</li>
 <li><strong>Streaming</strong> — <code>format_event</code> (SSE) and <code>format_packet</code> (WebSocket) encoders, and a <code>Stream</code> operation</li>
 <li><strong>Adapters</strong> — small response helpers for FastAPI/Starlette, Flask, raw ASGI and WSGI</li>
 </ul>
@@ -19,7 +20,7 @@ Python fallback otherwise).</p>
 from fastapi.responses import HTMLResponse, JSONResponse
 from anza import Setup, SignOptions, Page, Fragment
 
-# 1. Load and parse every template once at startup
+# 1. Load and parse every template once at startup (the secret needs 32+ bytes)
 engine = Setup(
     root="./templates",
     signing=SignOptions(mode="hmac", secret="super-secret-key-32-bytes-long!!"),
@@ -28,6 +29,7 @@ engine = Setup(
 app = FastAPI()
 
 # Full page: templates/pages/home.html inside templates/layout/shell.html
+# (or inside the default document when there is no shell)
 @app.get("/", response_class=HTMLResponse)
 async def home():
     doc = Page("/", {"title": "Anza Python"}).run(engine)
@@ -72,23 +74,88 @@ class UserProfile:
 profile = UserProfile(user_id="usr_102", user_name="Alice", role="Admin")
 doc = Page("/profile", profile).run(engine)
 </view-code>
-<p><code>{{user_name}}</code> reads <code>profile.user_name</code>. Missing values render as empty.
-Values are inserted <strong>as is, without HTML escaping</strong>: escape user input before
-passing it in.</p>
+<p><code>{{user_name}}</code> reads <code>profile.user_name</code>. Only public, non-callable attributes
+are read: names starting with <code>_</code> and methods render as empty. Missing values
+and <code>None</code> render as empty, booleans as <code>true</code> / <code>false</code>, integral floats
+without <code>.0</code>, and dicts, lists and tuples as compact JSON (<code>{"a":1}</code>).</p>
+<h2 id="escaping">Escaping</h2>
+<p>By default values are inserted <strong>as is, without HTML escaping</strong>. Escape user
+input with <code>escape_html</code> before passing it in, or turn on the <code>escape</code> option:</p>
+<view-code language="python">from anza import Setup, escape_html
+
+escape_html('&lt;a href="x"&gt;Tom &amp; Jerry\'s&lt;/a&gt;')
+# '&amp;lt;a href=&amp;quot;x&amp;quot;&amp;gt;Tom &amp;amp; Jerry&amp;#39;s&amp;lt;/a&amp;gt;'
+
+engine = Setup(root="./templates", escape=True).run()
+</view-code>
+<p>With <code>escape=True</code>, <code>{{name}}</code> is HTML-escaped and <code>{{{name}}}</code> stays raw. Use
+<code>{{{content}}}</code> in <code>layout/shell.html</code> so the rendered page is not escaped
+twice.</p>
 <h2 id="signing">Signing</h2>
 <view-code language="python">from anza import Setup, SignOptions
 
-Setup(root="./templates", signing=SignOptions(mode="hmac", secret="..."))
-Setup(root="./templates", signing=SignOptions(mode="ed25519", private_key="&lt;64 hex chars&gt;"))
+Setup(root="./templates", signing=SignOptions(mode="hmac", secret="&lt;at least 32 bytes&gt;"))
+Setup(root="./templates", signing=SignOptions(mode="ed25519", private_key="&lt;64 lowercase hex chars&gt;"))
 Setup(root="./templates")  # mode="none": no signature
 </view-code>
-<p>HMAC and Ed25519 raise <code>AnzaError</code> when their key is missing. See <a href="/docs/engines/crypto">Cryptographic Verification</a>.</p>
+<p><code>SignOptions(mode, secret, private_key, public_key)</code> is checked once, in
+<code>Setup.run()</code>. A bad key raises <code>AnzaError</code> with code <code>CRYPTO</code>:</p>
+<ul>
+<li><code>hmac</code> needs a <code>secret</code> (str or bytes) of at least 32 bytes.</li>
+<li><code>ed25519</code> needs a <code>private_key</code> as a 32-byte seed (<code>bytes</code>), 64-char
+lowercase hex, or a <code>cryptography</code> <code>Ed25519PrivateKey</code>. An optional
+<code>public_key</code> must match it.</li>
+</ul>
+<p>The validated key is <code>engine.signer</code>. <code>repr</code> of <code>SignOptions</code>, <code>Signer</code> and
+<code>Engine</code> never prints key material.</p>
+<p>The signature covers the v2 message built by <code>signature_message(ts, slot, html, css)</code> (also <code>envelope.message()</code>). Check a received envelope with
+<code>verify_envelope</code>:</p>
+<view-code language="python">import json
+from anza import VerifyKey, verify_envelope
+
+envelope = json.loads(body)
+verify_envelope(VerifyKey.hmac(secret), envelope, max_age_secs=60, slot="feed")
+verify_envelope(VerifyKey.ed25519(public_key), envelope, max_age_secs=60, slot="feed")
+engine.verify_envelope(envelope, max_age_secs=60, slot="feed")  # the engine's own key
+</view-code>
+<p>Each call returns <code>None</code> or raises <code>AnzaError</code> with code <code>CRYPTO</code> (for example
+<code>envelope expired</code> or <code>slot mismatch</code>). See
+<a href="/docs/engines/crypto">Cryptographic Verification</a>.</p>
 <h2 id="page-rendering">Page Rendering</h2>
 <p><code>Page(route, params)</code> maps the route to a template: <code>/</code> → <code>pages/home.html</code>,
-<code>/about</code> → <code>pages/about.html</code>. The page is wrapped in open declarative shadow
-DOM as <code>&lt;page-about&gt;&lt;template shadowrootmode="open"&gt;…&lt;/template&gt;&lt;/page-about&gt;</code>
-and inserted into <code>layout/shell.html</code> as <code>{{content}}</code> (also <code>{{main}}</code> and
-<code>{{body}}</code>; <code>{{route}}</code> holds the route). The shell is required.</p>
+<code>/about</code> and <code>/about/</code> → <code>pages/about.html</code>. Routes only resolve under
+<code>pages/</code>. When the page doesn't exist, <code>pages/index.html</code> is the catch-all.
+Otherwise, or for a malformed route (<code>..</code>, <code>\</code>, NUL), <code>Page.run</code> raises
+<code>AnzaError</code> with code <code>NOT_FOUND</code> and the message <code>Page not found</code>.</p>
+<p>The page markup is inserted as is (no wrapper element) into
+<code>layout/shell.html</code> as <code>{{content}}</code>. The shell is bound with <code>params</code> plus
+<code>content</code>. When there is no shell, the page goes into a minimal default
+document with a <code>&lt;dock-main&gt;</code> open shadow root.</p>
+<h2 id="setup-options">Setup Options</h2>
+<view-code language="python">engine = Setup(
+    root="./templates",
+    signing=SignOptions(mode="hmac", secret=secret),
+    fragments=["feed/", "partials/menu.html"],  # fragment allowlist
+    escape=True,                                # escape {{x}}, keep {{{x}}} raw
+    max_template_bytes=512 * 1024,              # default 1 MiB
+    watch=True,                                 # reload on change
+).run()
+
+engine.close()  # stops the watcher
+</view-code>
+<ul>
+<li><code>fragments</code> limits which templates <code>Fragment</code> can render. An entry ending in
+<code>/</code> allows that prefix and any other entry allows that exact name. Anything
+else is reported as <code>Template '&lt;name&gt;' not found</code>. Empty (the default)
+allows every template.</li>
+<li><code>max_template_bytes</code> makes a larger file a <code>TEMPLATE</code> error at load.</li>
+<li><code>watch=True</code> starts a polling thread that reloads the templates when files
+are added, changed or removed. Stop it with <code>engine.close()</code>.</li>
+</ul>
+<p>Template names are relative <code>/</code>-separated paths (no leading <code>/</code>, <code>\</code>, NUL,
+or empty, <code>.</code> or <code>..</code> segments). A malformed name is a <code>VALIDATION</code> error.
+Lookups only use the templates loaded at setup: a cache miss is <code>NOT_FOUND</code>
+and never reads from disk.</p>
 <h2 id="streaming-sse">Streaming (SSE)</h2>
 <view-code language="python">import asyncio
 from fastapi.responses import StreamingResponse
@@ -99,20 +166,22 @@ async def stream_feed():
     async def events():
         while True:
             envelope = Fragment("feed/card.html", "feed", {"title": "Push"}).run(engine)
-            yield format_event(envelope)   # "event: template\ndata: {...}\n\n"
+            yield format_event(envelope)   # 'event: template\ndata: {"v":2,...}\n\n'
             await asyncio.sleep(2)
     return StreamingResponse(events(), media_type="text/event-stream")
 </view-code>
-<p><code>Stream(template, slot, params).run(engine)</code> returns the same SSE text in one
-call. See <a href="/docs/engines/streaming">Real-Time Streaming</a>.</p>
+<p>The JSON is <code>envelope.to_json()</code>: compact, UTF-8, <code>v</code> first, byte-identical to
+the Rust and TypeScript engines. <code>format_packet(envelope)</code> returns the same
+JSON for WebSocket messages. <code>Stream(template, slot, params).run(engine)</code>
+returns the SSE text in one call. See <a href="/docs/engines/streaming">Real-Time Streaming</a>.</p>
 <h2 id="package-layout">Package Layout</h2>
 <div class="table-wrap"><table><thead><tr><th>Package</th><th>Contents</th></tr></thead><tbody>
 <tr><td><code>anza.data.input</code></td><td><code>Setup</code>, <code>Page</code>, <code>Fragment</code>, <code>Stream</code></td></tr>
-<tr><td><code>anza.engine.slot</code></td><td><code>{{slot}}</code> parser (<code>extract</code>) and binder (<code>string</code>)</td></tr>
+<tr><td><code>anza.engine.slot</code></td><td><code>{{slot}}</code> parser (<code>extract</code>), binder (<code>string</code>), <code>escape_html</code></td></tr>
 <tr><td><code>anza.engine.file</code></td><td>Template loading, reading and watching</td></tr>
 <tr><td><code>anza.engine.cache</code></td><td><code>Engine</code>, <code>SignOptions</code>, the template store</td></tr>
 <tr><td><code>anza.render</code></td><td><code>render_page</code>, <code>render_fragment</code></td></tr>
-<tr><td><code>anza.crypto</code></td><td><code>hmac</code>, <code>ed25519</code>, <code>hkdf</code>, <code>digest</code></td></tr>
+<tr><td><code>anza.crypto</code></td><td><code>hmac</code>, <code>ed25519</code>, <code>hkdf</code>, <code>digest</code> (SHA-256), <code>hex</code>, <code>signer</code> (<code>Signer</code>), <code>envelope</code> (<code>verify_envelope</code>, <code>VerifyKey</code>, <code>signature_message</code>)</td></tr>
 <tr><td><code>anza.stream</code></td><td><code>format_event</code> (SSE), <code>format_packet</code> (WebSocket)</td></tr>
 <tr><td><code>anza.adapters</code></td><td>FastAPI, Flask, ASGI, WSGI helpers</td></tr>
 <tr><td><code>anza.models</code></td><td><code>Document</code>, <code>Envelope</code>, <code>Manifest</code></td></tr>

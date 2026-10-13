@@ -32,7 +32,9 @@ const products = await api.get('/products', { expiry: 60000 });
 <p>Best for timelines, feeds, and dashboards where perceived speed matters.</p>
 <h2 id="cache-limitations">Cache Limitations</h2>
 <p>Caching applies only to <code>GET</code> requests. <code>POST</code>, <code>PUT</code>, <code>PATCH</code>, and <code>DELETE</code> bypass the cache entirely.</p>
-<p>If the Cache API is unavailable (private mode, unsupported browser), caching is silently disabled and all requests go to the network.</p>
+<p>If the Cache API is unavailable (for example on an insecure origin), caching is skipped and all requests go to the network.</p>
+<p>Entries stored by the named strategies have no TTL. They stay until you delete them. When <code>expiry</code> or <code>ttl</code> is set, it takes precedence over <code>cache</code>.</p>
+<p>Only <code>ok</code> responses are stored. Caches persist across sessions, so clear them on logout if responses contain user data.</p>
 <h2 id="cache-invalidation">Cache Invalidation</h2>
 <h3 id="clear-everything">Clear Everything</h3>
 <view-code language="javascript">await api.cache.clear();
@@ -45,15 +47,17 @@ const products = await api.get('/products', { expiry: 60000 });
 </view-code>
 <p>Glob patterns support <code>*</code> wildcards. The pattern is matched against both the full URL and the pathname.</p>
 <h2 id="direct-cache-access">Direct Cache Access</h2>
-<p>For advanced use, access the cache manager directly:</p>
-<view-code language="javascript">// Read
-const cached = await api.cache.get('/products');
+<p>For advanced use, access the cache manager directly. These methods do not apply prefixes, and a relative URL resolves against the page, so pass the resolved URL:</p>
+<view-code language="javascript">const url = api.prefix.resolve('/products');
+
+// Read
+const cached = await api.cache.get(url);
 
 // Write with TTL
-await api.cache.set('/products', response, 60000);
+await api.cache.set(url, response, 60000);
 
 // Delete
-await api.cache.delete('/products');
+await api.cache.delete(url);
 
 // Purge all
 await api.cache.clear();
@@ -66,4 +70,4 @@ await api.cache.clear();
 api.get('/products');            // key: https://api.example.com/products
 api.get('https://api.example.com/products'); // same key
 </view-code>
-<p>Headers and query strings are not part of the cache key.</p>
+<p>The query string is part of the key. Request headers are not.</p>
