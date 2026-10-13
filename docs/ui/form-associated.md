@@ -49,6 +49,8 @@ view('toggle-switch', {
 
 The form submits the value under the element's `name` attribute.
 
+The element also submits inside a [`ui-form`](../elements/form.md), which reads the last value given to `setFormValue()`.
+
 ## Form hooks
 
 On an `element()` spec, these hooks map to the platform callbacks. Each runs with `this` set to the element, so write them as methods, not arrow functions.
@@ -94,7 +96,7 @@ element('rating-input', {
 
 ## Custom state
 
-A prop with `state: true` adds a custom state named after the prop while its value is truthy. It needs `form: true`, because custom states live on `ElementInternals`.
+A prop with `state: true` adds a custom state named after the prop while its value is truthy, including the value read from the markup on connect. It works without `form: true`: the factory attaches `ElementInternals` for it.
 
 ```javascript
 const props = {

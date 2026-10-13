@@ -48,7 +48,13 @@ export interface Field extends BaseElement {}
 export interface Upload extends BaseElement {
   readonly files: File[];
 }
-export interface Form extends BaseElement {}
+export interface Form extends BaseElement {
+  action: string | null;
+  method: string | null;
+  offline: boolean;
+  /** Validates and submits the contained controls; `submitter` adds its name=value. */
+  requestSubmit(submitter?: Element | null): Promise<void>;
+}
 
 // 3. Overlay System
 export interface Dialog extends BaseElement {}

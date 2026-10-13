@@ -12,3 +12,5 @@ export const hydrationFallbackMap = new WeakMap();
 export const rootMap = new WeakMap();
 /** True once a host's mount (load + connect) has settled and `anza:ready` fired. */
 export const readyMap = new WeakMap();
+/** Last value each factory host passed to `internals.setFormValue()` (read by ui-form). */
+export const formValueMap = new WeakMap();

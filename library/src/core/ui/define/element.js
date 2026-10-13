@@ -5,7 +5,7 @@ import { resolveAssetUrl } from '../../router/base.js';
 import {
   specRegistry, internalsMap, initializedMap, pendingUpdatesMap,
   updateScheduledMap, assetCache, adoptedMap, hydrationFallbackMap,
-  rootMap, readyMap
+  rootMap, readyMap, formValueMap
 } from './state.js';
 import {
   preloadResources, createTemplateFragment,
@@ -260,6 +260,15 @@ export function element(tag, spec, base) {
       if (spec.form || stateKeys.length > 0) {
         const internals = this.attachInternals();
         internalsMap.set(this, internals);
+        // Record the submission value so a shadow-hosted form (ui-form) can
+        // read it; ElementInternals offers no getter.
+        if (spec.form && typeof internals.setFormValue === 'function') {
+          const setFormValue = internals.setFormValue.bind(internals);
+          internals.setFormValue = (value, state) => {
+            formValueMap.set(this, value);
+            return state === undefined ? setFormValue(value) : setFormValue(value, state);
+          };
+        }
       }
 
       // Attr → prop sync for SSG/server initial attributes (PHASE-II §3)
