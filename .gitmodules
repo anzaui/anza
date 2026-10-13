@@ -1,0 +1,9 @@
+[submodule "engines/rust"]
+	path = engines/rust
+	url = https://github.com/anzaui/rust.git
+[submodule "engines/ts"]
+	path = engines/ts
+	url = https://github.com/anzaui/ts.git
+[submodule "engines/py"]
+	path = engines/py
+	url = https://github.com/anzaui/py.git
