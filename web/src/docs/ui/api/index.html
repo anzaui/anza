@@ -35,7 +35,7 @@ define('hello-banner', HelloBanner);
 <p>The older way to declare a router container. Prefer <code>dock()</code> (<a href="/docs/router/docks">Docks</a>).</p>
 <ul>
 <li><code>spec</code> is an <code>element()</code> spec. It also accepts <code>transition</code> (<code>false</code>, or <code>{ name }</code>), like a dock.</li>
-<li>Prepends <code>:host { contain: layout; display: block; }</code> to <code>spec.style</code>. Because of this, <code>spec.style</code> must be a CSS string, not a file path.</li>
+<li>Adds <code>:host { contain: layout; display: block; }</code> before <code>spec.style</code>, inside a cascade layer so your own <code>:host</code> rules win. <code>spec.style</code> can be a CSS string, a file path or an array of both.</li>
 <li>On mount, registers the element with the router under its <code>name</code> attribute (default: the tag). A second live instance with the same name throws <code>ContainerError</code>, which is logged as a mount failure. On unmount, unregisters it.</li>
 <li>Adds <code>swapView(newElement, { direction, transition, name, signal })</code>, which replaces the children inside an element-scoped transition.</li>
 </ul>

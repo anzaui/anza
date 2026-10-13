@@ -20,7 +20,7 @@ drawer.addEventListener('close', () =&gt; console.log('closed'));
 <tr><td><code>open</code></td><td>Boolean</td><td><code>false</code></td><td>Opens the drawer (<code>showModal()</code>) when set and closes it when removed. Closing waits 300ms for the slide-out before the native dialog closes.</td></tr>
 <tr><td><code>placement</code></td><td>String</td><td><code>right</code></td><td>Edge to slide from: <code>left</code> or <code>right</code>.</td></tr>
 </tbody></table></div>
-<p>Set <code>placement</code> as an attribute. The slide styles match <code>[placement="left"]</code> and <code>[placement="right"]</code> on the host, and the <code>right</code> default is not written back to the attribute.</p>
+<p>The slide styles match <code>[placement="left"]</code> and <code>[placement="right"]</code> on the host. Without the attribute, the <code>right</code> default is written to it on connect.</p>
 <h2 id="slots">Slots</h2>
 <div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
 <tr><td>(default)</td><td>Drawer body (column flex layout)</td></tr>

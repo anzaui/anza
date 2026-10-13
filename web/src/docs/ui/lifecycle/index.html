@@ -11,12 +11,12 @@
 <h2 id="order">Order</h2>
 <p>For an element created on the client:</p>
 <ol>
-<li><strong>Constructor.</strong> Attaches an open shadow root, or keeps one that already exists (see <a href="/docs/ui/hydration">Hydration (DSD adopt)</a>). Attaches <code>ElementInternals</code> when <code>form: true</code>. Reads props from attributes.</li>
-<li><strong>Connect.</strong> Creates <code>ctrl</code>, a fresh <code>AbortController</code>.</li>
+<li><strong>Constructor.</strong> Attaches the shadow root (open unless <code>mode: 'closed'</code>), or keeps one that already exists (see <a href="/docs/ui/hydration">Hydration (DSD adopt)</a>). Attaches <code>ElementInternals</code> when <code>form: true</code> or a prop has <code>state: true</code>. Reads props from attributes.</li>
+<li><strong>Connect.</strong> Creates <code>ctrl</code>, a fresh <code>AbortController</code>. Writes reflected prop values to absent attributes and applies the initial <code>:state()</code> set (see <a href="/docs/ui/props#initial-values">Props</a>).</li>
 <li><strong>Resources.</strong> Waits for the template and styles. Files load on the first connect of the first instance; inline strings are ready already.</li>
 <li><strong>Render.</strong> Clones the template into an empty shadow root and applies the styles. If the document is still parsing, it waits one task first.</li>
-<li><strong>Wire.</strong> Builds <code>refs</code>, <code>tags</code>, <code>on</code> and <code>watch</code>, then dispatches <a href="#anzaready"><code>anza:ready</code></a>.</li>
-<li><strong><code>load</code></strong>, then <strong><code>connect</code></strong>.</li>
+<li><strong>Wire.</strong> Builds <code>refs</code>, <code>tags</code>, <code>on</code> and <code>watch</code>.</li>
+<li><strong><code>load</code></strong>, then <strong><code>connect</code></strong>. When both have settled (resolved or rejected), the element dispatches <a href="#anzaready"><code>anza:ready</code></a>.</li>
 <li><strong><code>change</code></strong>, for each later prop change.</li>
 <li><strong>Disconnect.</strong> Runs <code>disconnect</code>, then aborts <code>ctrl</code>.</li>
 </ol>
@@ -83,13 +83,13 @@ page('/members/:handle', {
 </view-code>
 <p>The <code>disconnect</code> context has <code>el</code>, <code>tags</code>, <code>refs</code>, <code>watch</code> and <code>internals</code>. It has no <code>ctrl</code> or <code>on</code>. <code>ctrl</code> aborts right after the hook returns.</p>
 <h2 id="anzaready">anza:ready</h2>
-<p>Every element made by the factory dispatches <code>anza:ready</code> on itself each time it connects, once its context is wired and just before <code>load</code> runs.</p>
+<p>Every element made by the factory dispatches <code>anza:ready</code> on itself each time it connects, once its context is wired and <code>load</code> and <code>connect</code> (the factory's <code>mount</code>) have settled. It is not dispatched if the element disconnects first.</p>
 <div class="table-wrap"><table><thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
 <tr><td>Target</td><td>The element</td></tr>
 <tr><td><code>bubbles</code> / <code>composed</code></td><td><code>false</code> / <code>false</code></td></tr>
 <tr><td><code>detail</code></td><td><code>null</code></td></tr>
 </tbody></table></div>
-<p>It does not fire again when a hydration mismatch re-renders the element, or when HMR swaps its template. The router waits for it on the new page after a soft navigation and then hides the loading indicator, so the indicator ends before <code>load</code> finishes.</p>
+<p>It does not fire again when a hydration mismatch re-renders the element, or when HMR swaps its template. The router waits for it on the new page after a soft navigation and then hides the loading indicator, so the indicator stays until <code>load</code> and <code>connect</code> finish.</p>
 <view-code language="javascript">const card = document.createElement('user-card');
 card.addEventListener('anza:ready', () =&gt; console.log('wired'), { once: true });
 document.body.append(card);

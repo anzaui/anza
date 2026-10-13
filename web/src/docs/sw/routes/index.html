@@ -42,8 +42,7 @@ intercepted.</p>
   new CacheFirst('fonts-v1')
 );
 </view-code>
-<p>Strings become <code>URLPattern({ pathname })</code>. When <code>URLPattern</code> is missing or rejects a pattern, the router uses a small built-in matcher on the path instead, where <code>*</code> matches any characters. That matcher checks only the path, not the origin.</p>
-<p>Give an origin-naming pattern a path other than <code>'*'</code> or <code>'/*'</code>. A catch-all path always uses the path-only matcher, so <code>{ hostname: 'cdn.example.com', pathname: '/*' }</code> would match every request on every origin.</p>
+<p>Strings become <code>URLPattern({ pathname })</code>. When <code>URLPattern</code> is missing or rejects a pattern, or the path is the catch-all <code>'*'</code> or <code>'/*'</code>, the router uses a small built-in matcher instead, where <code>*</code> matches any characters. That matcher still checks the origin a pattern names: every given <code>protocol</code>, <code>hostname</code> and <code>port</code> must match (a <code>baseURL</code> pins all three), so <code>{ hostname: 'cdn.example.com', pathname: '/*' }</code> matches every path on <code>cdn.example.com</code> and nothing else.</p>
 <h2 id="router-api">Router API</h2>
 <h3 id="routerregisterpattern-strategy"><code>router.register(pattern, strategy)</code></h3>
 <p>Add a route. <code>pattern</code> can be a string or <code>URLPatternInit</code> object. <code>strategy</code> is any object with a <code>handle(request, event)</code> method that returns a <code>Response</code> or Promise; the router passes the <code>FetchEvent</code> so background cache writes can use <code>event.waitUntil()</code>.</p>

@@ -36,7 +36,7 @@
 <li>On browser state restore, any non-null state checks the box.</li>
 </ul>
 <h2 id="keyboard-and-accessibility">Keyboard and accessibility</h2>
-<p>The host gets <code>tabindex="0"</code> unless it already has one; it is removed while disabled. Space and Enter toggle the box. The inner <code>box</code> part also has <code>tabindex="0"</code>, which adds a second tab stop. The element sets no <code>role</code> or <code>aria-checked</code>; add <code>role="checkbox"</code> and keep <code>aria-checked</code> in sync yourself if you need them.</p>
+<p>The host is the only tab stop: it gets <code>tabindex="0"</code> unless it already has one, and the <code>tabindex</code> is removed while disabled. It also gets <code>role="checkbox"</code> unless it has a role. <code>aria-checked</code> follows the state (<code>true</code>, <code>false</code>, or <code>mixed</code> while <code>indeterminate</code>), and <code>aria-disabled="true"</code> is set while disabled. Space and Enter toggle the box.</p>
 <h2 id="styling">Styling</h2>
 <h3 id="parts">Parts</h3>
 <div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>

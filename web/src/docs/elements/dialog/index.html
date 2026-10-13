@@ -18,10 +18,10 @@ document.querySelector('#cancel').addEventListener('click', () =&gt; dialog.clos
 document.querySelector('#ok').addEventListener('click', () =&gt; dialog.close('ok'));
 dialog.addEventListener('close', (e) =&gt; console.log(e.detail.returnValue));
 </view-code>
-<p>The methods query the shadow root, so call them after the element has mounted (for example from a user action, or after <code>anza:ready</code>; see <a href="/docs/ui/lifecycle">Lifecycle</a>).</p>
+<p><code>showModal()</code> before the element has mounted sets <code>open</code>, and the dialog opens as soon as it mounts. Markup can open it too: <code>&lt;ui-dialog open&gt;</code> opens as a modal when it connects.</p>
 <h2 id="attributes">Attributes</h2>
 <div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>open</code></td><td>Boolean</td><td><code>false</code></td><td>Reflects the open state. <code>showModal()</code> sets it and <code>close()</code> or a native close clears it. Setting it yourself does <strong>not</strong> open or close the dialog; call <code>showModal()</code>.</td></tr>
+<tr><td><code>open</code></td><td>Boolean</td><td><code>false</code></td><td>Open state. Setting the attribute or property opens the native dialog as a modal; removing it (or <code>false</code>) closes it. <code>showModal()</code> sets it, and <code>close()</code> or a native close (Escape) clears it.</td></tr>
 </tbody></table></div>
 <h2 id="slots">Slots</h2>
 <div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
@@ -29,14 +29,14 @@ dialog.addEventListener('close', (e) =&gt; console.log(e.detail.returnValue));
 </tbody></table></div>
 <h2 id="events">Events</h2>
 <div class="table-wrap"><table><thead><tr><th>Event</th><th>Detail</th><th>When</th></tr></thead><tbody>
-<tr><td><code>show</code></td><td>none</td><td><code>showModal()</code> ran.</td></tr>
-<tr><td><code>close</code></td><td><code>{ returnValue: string }</code></td><td>The native dialog closed: <code>close()</code> or Escape.</td></tr>
+<tr><td><code>show</code></td><td>none</td><td>The dialog opened (<code>showModal()</code>, or <code>open</code> set).</td></tr>
+<tr><td><code>close</code></td><td><code>{ returnValue: string }</code></td><td>The native dialog closed: <code>close()</code>, <code>open</code> removed, or Escape.</td></tr>
 <tr><td><code>cancel</code></td><td>none</td><td>The user pressed Escape. Cancelable: <code>preventDefault()</code> keeps the dialog open.</td></tr>
 </tbody></table></div>
 <p>All three bubble and are composed.</p>
 <h2 id="methods">Methods</h2>
 <div class="table-wrap"><table><thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>showModal()</code></td><td><code>undefined</code></td><td>Opens the native dialog as a modal (if not already open), sets <code>open</code>, fires <code>show</code>.</td></tr>
+<tr><td><code>showModal()</code></td><td><code>undefined</code></td><td>Sets <code>open</code>. Once mounted, opens the native dialog as a modal right away (if not already open) and fires <code>show</code>.</td></tr>
 <tr><td><code>close(returnValue = '')</code></td><td><code>undefined</code></td><td>Closes the native dialog with <code>returnValue</code> (if open) and clears <code>open</code>. <code>close</code> fires when the native dialog closes.</td></tr>
 </tbody></table></div>
 <h2 id="keyboard-and-accessibility">Keyboard and accessibility</h2>

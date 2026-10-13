@@ -7,7 +7,7 @@
 <li>The module scripts load and the custom elements upgrade.</li>
 <li>Constructor: the element keeps <code>this.shadowRoot</code> if one exists. If the browser left a <code>&lt;template shadowrootmode&gt;</code> child unattached, the element attaches a shadow root and moves the template content into it.</li>
 <li>Props are read from the pre-rendered attributes.</li>
-<li>Connect: the element wires <code>refs</code>, <code>tags</code>, <code>on</code> and <code>watch</code> to the existing markup, dispatches <code>anza:ready</code> and runs <code>load</code> and <code>connect</code>. It does this before fetching any file. <code>ctx.adopted</code> is <code>true</code>.</li>
+<li>Connect: the element wires <code>refs</code>, <code>tags</code>, <code>on</code> and <code>watch</code> to the existing markup, runs <code>load</code> and <code>connect</code>, and dispatches <code>anza:ready</code> once they settle. It does this before fetching any file. <code>ctx.adopted</code> is <code>true</code>.</li>
 <li>The element loads what it still needs in the background, applies the styles and checks the markup once.</li>
 </ol>
 <p>This fast path applies when the adopted root holds real elements (not only <code>&lt;style&gt;</code>, <code>&lt;link&gt;</code> or <code>&lt;script&gt;</code>) and the element's resources are not loaded yet. Otherwise the element takes the normal path: it waits for its resources, keeps the adopted markup, applies the styles and runs the same mismatch check before wiring.</p>

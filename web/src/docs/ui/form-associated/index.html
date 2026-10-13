@@ -33,6 +33,7 @@ view('toggle-switch', {
 &lt;/form&gt;
 </view-code>
 <p>The form submits the value under the element's <code>name</code> attribute.</p>
+<p>The element also submits inside a <a href="/docs/elements/form"><code>ui-form</code></a>, which reads the last value given to <code>setFormValue()</code>.</p>
 <h2 id="form-hooks">Form hooks</h2>
 <p>On an <code>element()</code> spec, these hooks map to the platform callbacks. Each runs with <code>this</code> set to the element, so write them as methods, not arrow functions.</p>
 <div class="table-wrap"><table><thead><tr><th>Hook</th><th>Platform callback</th><th>Arguments</th></tr></thead><tbody>
@@ -71,7 +72,7 @@ element('rating-input', {
 </view-code>
 <p><code>restore</code> gets the saved form value when the browser restores the form, for example after back/forward navigation.</p>
 <h2 id="custom-state">Custom state</h2>
-<p>A prop with <code>state: true</code> adds a custom state named after the prop while its value is truthy. It needs <code>form: true</code>, because custom states live on <code>ElementInternals</code>.</p>
+<p>A prop with <code>state: true</code> adds a custom state named after the prop while its value is truthy, including the value read from the markup on connect. It works without <code>form: true</code>: the factory attaches <code>ElementInternals</code> for it.</p>
 <view-code language="javascript">const props = {
   checked: { type: Boolean, state: true },
   invalid: { type: Boolean, state: true }

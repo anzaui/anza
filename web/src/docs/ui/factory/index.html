@@ -71,7 +71,7 @@ element({ tag, ...spec }, base); // single-object form; `name` also works for th
 </tbody></table></div>
 <p>JavaScript changes reload the page. Only file resources hot-swap; inline strings change with the module.</p>
 <h2 id="shadow-dom">Shadow DOM</h2>
-<p>Every element gets an open shadow root. Do not set <code>mode: 'closed'</code>: the factory reads <code>el.shadowRoot</code> after construction, which is <code>null</code> for a closed root. Light DOM (<code>shadow: false</code> in the definition layer) is not supported; it logs a warning and uses an open root.</p>
+<p>Every element gets an open shadow root unless the spec sets <code>mode: 'closed'</code> (<code>shadow: 'closed'</code> in the definition layer). A closed root renders and wires like an open one; only outside code loses access, since <code>el.shadowRoot</code> is <code>null</code>. Light DOM (<code>shadow: false</code> in the definition layer) is not supported; it logs a warning and uses an open root.</p>
 <h2 id="reserved-names">Reserved names</h2>
 <p>These names are skipped in <code>spec.methods</code>, with a warning:</p>
 <ul>

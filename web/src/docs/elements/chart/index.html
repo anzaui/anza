@@ -12,7 +12,7 @@
 <tr><td><code>data</code></td><td>String</td><td>—</td><td>JSON array of numbers. When it is missing or not valid JSON, the chart draws the sample series <code>[10, 30, 20, 50, 40, 60]</code>.</td></tr>
 </tbody></table></div>
 <p>The chart draws for the device pixel ratio and redraws when the canvas resizes (a <code>ResizeObserver</code>, disconnected on unmount) and when <code>type</code> or <code>data</code> changes. It draws four grid lines with value labels from 0 to 110% of the largest value.</p>
-<p>Colours are read from the host's computed <code>--color-interactive</code> (series), <code>--color-border-default</code> (grid) and <code>--color-content-secondary</code> (labels). The line fill appends a hex alpha to <code>--color-interactive</code>, so it needs that token to be a 6-digit hex colour.</p>
+<p>Colours are read from the host's computed <code>--color-interactive</code> (series), <code>--color-border-default</code> (grid) and <code>--color-content-secondary</code> (labels). The line fill fades <code>--color-interactive</code> from 20% opacity to transparent, so the token can be any CSS colour the canvas accepts.</p>
 <p>The host is <code>calc(var(--space-24) * 3)</code> tall. Set <code>height</code> on <code>ui-chart</code> to change it.</p>
 <h2 id="styling">Styling</h2>
 <p>The chart has no parts, custom properties or custom states.</p>

@@ -47,20 +47,20 @@
 <tr><td><code>error-box</code></td><td>The wrapper around the <code>error</code> slot</td></tr>
 </tbody></table></div>
 <h3 id="custom-properties">Custom properties</h3>
-<p>The stylesheet reads these properties but declares no defaults, so set them yourself (on <code>ui-textarea</code> or an ancestor):</p>
+<p>Set these on <code>ui-textarea</code> or an ancestor. Each falls back to a design token when unset:</p>
 <div class="table-wrap"><table><thead><tr><th>Property</th><th>Default</th></tr></thead><tbody>
-<tr><td><code>--textarea-bg</code></td><td>none</td></tr>
-<tr><td><code>--textarea-border</code></td><td>none</td></tr>
-<tr><td><code>--textarea-border-focus</code></td><td>none</td></tr>
-<tr><td><code>--textarea-radius</code></td><td>none</td></tr>
-<tr><td><code>--textarea-font-size</code></td><td>none</td></tr>
-<tr><td><code>--textarea-padding-y</code></td><td>none</td></tr>
-<tr><td><code>--textarea-padding-x</code></td><td>none</td></tr>
-<tr><td><code>--textarea-text-color</code></td><td>none</td></tr>
+<tr><td><code>--textarea-bg</code></td><td><code>--color-surface-page</code></td></tr>
+<tr><td><code>--textarea-border</code></td><td><code>--color-border-default</code></td></tr>
+<tr><td><code>--textarea-border-focus</code></td><td><code>--color-border-focus</code>, else <code>--color-interactive</code></td></tr>
+<tr><td><code>--textarea-radius</code></td><td><code>--radius-md</code>, else <code>0.375rem</code></td></tr>
+<tr><td><code>--textarea-font-size</code></td><td><code>--font-size-base</code></td></tr>
+<tr><td><code>--textarea-padding-y</code></td><td><code>--space-2</code></td></tr>
+<tr><td><code>--textarea-padding-x</code></td><td><code>--space-3</code></td></tr>
+<tr><td><code>--textarea-text-color</code></td><td><code>--color-content-primary</code></td></tr>
 </tbody></table></div>
 <h3 id="states">States</h3>
 <div class="table-wrap"><table><thead><tr><th>State</th><th>When</th></tr></thead><tbody>
-<tr><td><code>disabled</code></td><td>The <code>disabled</code> property changes to true. A <code>disabled</code> attribute already in the markup when the element upgrades does not add the state.</td></tr>
+<tr><td><code>disabled</code></td><td>The <code>disabled</code> property is true, including from a <code>disabled</code> attribute in the markup.</td></tr>
 </tbody></table></div>
 <h2 id="related">Related</h2>
 <ul>

@@ -33,11 +33,12 @@
 <li>A checked radio submits <code>name=value</code> (or <code>name=on</code>). An unchecked radio submits nothing.</li>
 <li>There is no <code>required</code> validation.</li>
 <li>Form reset restores the <code>checked</code> attribute as it was at first mount.</li>
-<li>Inside a disabled <code>&lt;fieldset&gt;</code> the element removes its <code>tabindex</code>.</li>
+<li>Inside a disabled <code>&lt;fieldset&gt;</code> the element removes its <code>tabindex</code>, and arrow keys skip it.</li>
 <li>On browser state restore, any non-null state checks the radio.</li>
 </ul>
 <h2 id="keyboard-and-accessibility">Keyboard and accessibility</h2>
-<p>The host gets <code>role="radio"</code> and <code>tabindex="0"</code> unless it already has them, and <code>aria-checked</code> follows <code>checked</code>. The <code>tabindex</code> is removed while disabled. Space and Enter select the radio. Every radio is its own tab stop and there is no arrow-key navigation. Wrap the group in an element with <code>role="radiogroup"</code> and a label. The inner <code>circle</code> part also has <code>tabindex="0"</code>, which adds a second tab stop.</p>
+<p>The host gets <code>role="radio"</code> unless it already has a role, <code>aria-checked</code> follows <code>checked</code>, and <code>aria-disabled="true"</code> is set while disabled. Space and Enter select the radio.</p>
+<p>A group (radios with the same <code>name</code>) has one tab stop, a roving <code>tabindex</code>: the checked radio has <code>tabindex="0"</code>, or the first enabled radio when none is checked; the others have <code>tabindex="-1"</code>, and disabled radios have none. Arrow Down/Right and Arrow Up/Left move focus to the next or previous enabled radio in the group, wrapping at the ends, and select it (firing <code>change</code>). A radio without <code>name</code> is its own group. Wrap the group in an element with <code>role="radiogroup"</code> and a label.</p>
 <h2 id="styling">Styling</h2>
 <h3 id="parts">Parts</h3>
 <div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>

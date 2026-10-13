@@ -18,7 +18,7 @@
 <div class="table-wrap"><table><thead><tr><th>Slot</th><th>Content</th></tr></thead><tbody>
 <tr><td>default</td><td>The steps, one direct child each</td></tr>
 </tbody></table></div>
-<p>Each step gets <code>role="step"</code> and a <code>state</code> attribute: <code>completed</code> for steps before <code>active</code>, <code>active</code> for the current step, none for later steps. Every step shows a circle before its content; completed steps show a check mark and the active step a focus ring. The progress line fills to <code>active / (steps - 1)</code>.</p>
+<p>The host gets <code>role="list"</code> (unless it has a role) and each step <code>role="listitem"</code>. Each step also gets a <code>state</code> attribute: <code>completed</code> for steps before <code>active</code>, <code>active</code> for the current step, none for later steps. The active step has <code>aria-current="step"</code>. Every step shows a circle before its content; completed steps show a check mark and the active step a focus ring. The progress line fills to <code>active / (steps - 1)</code>.</p>
 <p>Steps are not interactive. Change <code>active</code> to move between them.</p>
 <h2 id="styling">Styling</h2>
 <h3 id="parts">Parts</h3>

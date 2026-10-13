@@ -34,7 +34,7 @@
 <li>On browser state restore, any non-null state turns the switch on.</li>
 </ul>
 <h2 id="keyboard-and-accessibility">Keyboard and accessibility</h2>
-<p>The host gets <code>role="switch"</code> and <code>tabindex="0"</code> unless it already has them, and <code>aria-checked</code> follows <code>checked</code>. The <code>tabindex</code> is removed while disabled. Space and Enter toggle the switch. The inner <code>track</code> part also has <code>tabindex="0"</code>, which adds a second tab stop.</p>
+<p>The host gets <code>role="switch"</code> and <code>tabindex="0"</code> unless it already has them, and <code>aria-checked</code> follows <code>checked</code>. The host is the only tab stop; its <code>tabindex</code> is removed and <code>aria-disabled="true"</code> is set while disabled. Space and Enter toggle the switch.</p>
 <h2 id="styling">Styling</h2>
 <h3 id="parts">Parts</h3>
 <div class="table-wrap"><table><thead><tr><th>Part</th><th>Element</th></tr></thead><tbody>
@@ -54,7 +54,7 @@
 <div class="table-wrap"><table><thead><tr><th>State</th><th>When</th></tr></thead><tbody>
 <tr><td><code>on</code></td><td><code>checked</code> is true</td></tr>
 <tr><td><code>disabled</code></td><td><code>disabled</code> is true</td></tr>
-<tr><td><code>checked</code></td><td>Added and removed when the <code>checked</code> property changes. Not set for a <code>checked</code> attribute already in the markup at upgrade, so prefer <code>on</code>.</td></tr>
+<tr><td><code>checked</code></td><td><code>checked</code> is true (same as <code>on</code>).</td></tr>
 </tbody></table></div>
 <h2 id="related">Related</h2>
 <ul>

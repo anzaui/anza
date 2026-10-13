@@ -15,7 +15,7 @@ view('user-card', {
 <tr><td><code>type</code></td><td><code>String</code></td><td><code>String</code>, <code>Number</code> or <code>Boolean</code>. Controls how attributes are read.</td></tr>
 <tr><td><code>default</code></td><td>see below</td><td>Value when the attribute is absent.</td></tr>
 <tr><td><code>reflect</code></td><td><code>true</code></td><td>Write the value back to the attribute.</td></tr>
-<tr><td><code>state</code></td><td><code>false</code></td><td>Mirror the value to a <code>:state()</code> custom state. Needs <code>form: true</code>.</td></tr>
+<tr><td><code>state</code></td><td><code>false</code></td><td>Mirror the value to a <code>:state()</code> custom state.</td></tr>
 </tbody></table></div>
 <h2 id="shorthand">Shorthand</h2>
 <p>A literal value sets both type and default:</p>
@@ -50,6 +50,7 @@ el.name = 'Bob';   // name="Bob"
 <view-code language="html">&lt;user-card name="Alice" age="30" admin&gt;&lt;/user-card&gt;
 </view-code>
 <p>Without the attribute, the prop takes its <code>default</code>. Without a default, a <code>Boolean</code> is <code>false</code> and other types are <code>null</code>.</p>
+<p>On connect, each reflected prop whose attribute is absent writes its current value to the attribute, so CSS attribute selectors such as <code>:host([orientation="horizontal"])</code> match the default. Strings and numbers are written as text, <code>true</code> booleans as <code>""</code>; <code>false</code>, <code>null</code> and non-primitive values add nothing. An attribute already in the markup is never changed.</p>
 <p><code>change</code> does not run for initial values or for values set before the element has mounted. Render the first state in <code>connect</code>:</p>
 <view-code language="javascript">view('user-name', {
   props: { name: 'Guest' },
@@ -65,9 +66,8 @@ el.name = 'Bob';   // name="Bob"
 });
 </view-code>
 <h2 id="custom-state-state">Custom state (<code>:state()</code>)</h2>
-<p>With <code>state: true</code>, the element adds a custom state named after the prop while the value is truthy, and removes it when the value is falsy. Custom states live on <code>ElementInternals</code>, which the factory attaches only for <code>form: true</code>. Without it, <code>state</code> does nothing.</p>
+<p>With <code>state: true</code>, the element adds a custom state named after the prop while the value is truthy, and removes it when the value is falsy. The initial value counts too: an attribute in the markup (or a truthy default) sets the state when the element connects. Custom states live on <code>ElementInternals</code>, which the factory attaches for <code>form: true</code> or when any prop has <code>state: true</code>; <code>ctx.internals</code> is then set as well.</p>
 <view-code language="javascript">view('save-button', {
-  form: true,
   props: {
     busy: { type: Boolean, state: true }
   },

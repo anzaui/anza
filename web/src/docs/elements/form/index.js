@@ -7,6 +7,6 @@ page('/docs/elements/form', {
   style: ['/styles/shared.css'],
   seo: {
     title: 'Form — Anza',
-    description: 'ui-form: a wrapper that collects named form-associated controls into a JSON payload and can queue it while offline. Read the known issues.'
+    description: 'ui-form: a wrapper that submits its slotted controls as a JSON, query-string or multipart request and can queue the payload while offline.'
   }
 }, import.meta.url);
