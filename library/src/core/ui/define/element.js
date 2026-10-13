@@ -4,7 +4,8 @@ import { router } from '../../router/index.js';
 import { resolveAssetUrl } from '../../router/base.js';
 import {
   specRegistry, internalsMap, initializedMap, pendingUpdatesMap,
-  updateScheduledMap, assetCache, adoptedMap, hydrationFallbackMap
+  updateScheduledMap, assetCache, adoptedMap, hydrationFallbackMap,
+  rootMap, readyMap
 } from './state.js';
 import {
   preloadResources, createTemplateFragment,
@@ -59,6 +60,10 @@ export function element(tag, spec, base) {
   for (const key of propKeys) {
     store[key] = Symbol(key);
   }
+  // Props mirrored to `:state()` need ElementInternals even without `form`.
+  const stateKeys = propKeys.filter(k => spec.props[k].state);
+  // Props whose value is written back to the attribute (the default).
+  const reflectKeys = propKeys.filter(k => spec.props[k].reflect !== false);
 
   // Warn loudly when a relative asset is given without a base — otherwise the
   // resource would silently fail to load (U2).
@@ -240,6 +245,8 @@ export function element(tag, spec, base) {
       if (!shadowRoot) {
         throw new Error(`[Native UI] Failed to attach shadow root for <${tag}>`);
       }
+      // Kept privately so a closed root (`mode: 'closed'`) still renders.
+      rootMap.set(this, shadowRoot);
 
       initializedMap.set(this, false);
       pendingUpdatesMap.set(this, new Map());
@@ -250,7 +257,7 @@ export function element(tag, spec, base) {
         if (!window.__native_hmr_instances__.has(tag)) window.__native_hmr_instances__.set(tag, new Set());
       }
 
-      if (spec.form) {
+      if (spec.form || stateKeys.length > 0) {
         const internals = this.attachInternals();
         internalsMap.set(this, internals);
       }
@@ -281,11 +288,13 @@ export function element(tag, spec, base) {
       if (typeof window !== 'undefined') {
         window.__native_hmr_instances__?.get(tag)?.add(this);
       }
-      
+      readyMap.set(this, false);
+      this.#applyInitial();
+
       // Pre-rendered (DSD) markup is already usable: wire refs/on/mount now and
       // load the client resources in the background for styles and the
       // mismatch check only.
-      if (!resolved && adoptedMap.get(this) === true && hasStructuralElements(this.shadowRoot)) {
+      if (!resolved && adoptedMap.get(this) === true && hasStructuralElements(rootMap.get(this))) {
         await this.#hydrateAdopted();
         return;
       }
@@ -309,7 +318,7 @@ export function element(tag, spec, base) {
       }
 
       const adopted = adoptedMap.get(this) === true;
-      const root = this.shadowRoot;
+      const root = rootMap.get(this);
 
       if (templateNode) {
         if (!adopted) {
@@ -335,8 +344,34 @@ export function element(tag, spec, base) {
     }
 
     /**
+     * Reflects the current value of every reflected prop whose attribute is
+     * absent (so attribute-selector CSS sees defaults) and applies the
+     * initial `:state()` set. Author attributes are never overwritten.
+     * Attributes cannot be added in the constructor, so this runs on connect.
+     */
+    #applyInitial() {
+      for (const key of reflectKeys) {
+        const attrName = key.toLowerCase();
+        if (this.hasAttribute(attrName)) continue;
+        const val = this[store[key]];
+        if (spec.props[key].type === Boolean) {
+          if (val === true) this.setAttribute(attrName, '');
+        } else if (typeof val === 'string' || (typeof val === 'number' && !Number.isNaN(val))) {
+          this.setAttribute(attrName, String(val));
+        }
+      }
+      const states = internalsMap.get(this)?.states;
+      if (!states) return;
+      for (const key of stateKeys) {
+        if (this[store[key]]) states.add(key);
+        else states.delete(key);
+      }
+    }
+
+    /**
      * Builds the component context (refs / tags / on / watch), marks the
-     * element initialized and runs `mount`. Announces `anza:ready` once.
+     * element initialized and runs `mount`. Announces `anza:ready` once
+     * `mount` (and so `load` and `connect`) has settled.
      */
     #wire(root, descriptor, adopted, ctrl, announce) {
       const context = createComponentContext({
@@ -355,22 +390,26 @@ export function element(tag, spec, base) {
       this._watch = context.watch;
 
       initializedMap.set(this, true);
-      if (announce) {
+
+      const ready = () => {
+        if (!announce || ctrl.signal.aborted) return;
+        readyMap.set(this, true);
         this.dispatchEvent(new CustomEvent('anza:ready', { bubbles: false, composed: false }));
-      }
+      };
 
       // Mount hook trigger passed with unified AbortController signal
-      if (spec.mount) {
-        try {
-          const res = spec.mount(context);
-          if (res instanceof Promise) {
-            res.catch((err) => {
-              console.error('[Native UI] mount failed:', err);
-            });
-          }
-        } catch (err) {
+      let res;
+      try {
+        res = spec.mount ? spec.mount(context) : undefined;
+      } catch (err) {
+        console.error('[Native UI] mount failed:', err);
+      }
+      if (res instanceof Promise) {
+        res.catch((err) => {
           console.error('[Native UI] mount failed:', err);
-        }
+        }).then(ready);
+      } else {
+        ready();
       }
     }
 
@@ -391,7 +430,7 @@ export function element(tag, spec, base) {
       const ctrl = this.ctrl;
       if (!ctrl || ctrl.signal.aborted || !this.isConnected) return;
 
-      const root = this.shadowRoot;
+      const root = rootMap.get(this);
       let scope = linkedController(ctrl);
       this.#wire(root, null, true, scope, true);
 
@@ -456,8 +495,9 @@ export function element(tag, spec, base) {
       }
 
       // 2. Clear Shadow DOM
-      this.shadowRoot.innerHTML = '';
-      
+      const root = rootMap.get(this);
+      root.innerHTML = '';
+
       // 3. Clone new template
       let res = resolved;
       if (!res) {
@@ -466,20 +506,20 @@ export function element(tag, spec, base) {
       const { templateNode, stylesheets, cssText, tagsDescriptor } = res;
 
       if (templateNode) {
-        this.shadowRoot.appendChild(templateNode.cloneNode(true));
+        root.appendChild(templateNode.cloneNode(true));
       }
       if (stylesheets && stylesheets.length > 0) {
-        this.shadowRoot.adoptedStyleSheets = stylesheets;
+        root.adoptedStyleSheets = stylesheets;
       } else if (cssText) {
         const style = document.createElement('style');
         style.textContent = cssText;
-        this.shadowRoot.prepend(style);
+        root.prepend(style);
       }
-      
+
       // 4. Recreate component context to rebind DOM events and tags
       const context = createComponentContext({
         el: this,
-        shadowRoot: this.shadowRoot,
+        shadowRoot: root,
         ctrl: this.ctrl,
         descriptor: tagsDescriptor,
         internals: internalsMap.get(this),

@@ -99,7 +99,7 @@ JavaScript changes reload the page. Only file resources hot-swap; inline strings
 
 ## Shadow DOM
 
-Every element gets an open shadow root. Do not set `mode: 'closed'`: the factory reads `el.shadowRoot` after construction, which is `null` for a closed root. Light DOM (`shadow: false` in the definition layer) is not supported; it logs a warning and uses an open root.
+Every element gets an open shadow root unless the spec sets `mode: 'closed'` (`shadow: 'closed'` in the definition layer). A closed root renders and wires like an open one; only outside code loses access, since `el.shadowRoot` is `null`. Light DOM (`shadow: false` in the definition layer) is not supported; it logs a warning and uses an open root.
 
 ## Reserved names
 

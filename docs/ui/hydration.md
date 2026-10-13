@@ -17,7 +17,7 @@ The HTML comes from Mode A (`anza build` / `anza dev` SSG) or Mode B (server tem
 2. The module scripts load and the custom elements upgrade.
 3. Constructor: the element keeps `this.shadowRoot` if one exists. If the browser left a `<template shadowrootmode>` child unattached, the element attaches a shadow root and moves the template content into it.
 4. Props are read from the pre-rendered attributes.
-5. Connect: the element wires `refs`, `tags`, `on` and `watch` to the existing markup, dispatches `anza:ready` and runs `load` and `connect`. It does this before fetching any file. `ctx.adopted` is `true`.
+5. Connect: the element wires `refs`, `tags`, `on` and `watch` to the existing markup, runs `load` and `connect`, and dispatches `anza:ready` once they settle. It does this before fetching any file. `ctx.adopted` is `true`.
 6. The element loads what it still needs in the background, applies the styles and checks the markup once.
 
 This fast path applies when the adopted root holds real elements (not only `<style>`, `<link>` or `<script>`) and the element's resources are not loaded yet. Otherwise the element takes the normal path: it waits for its resources, keeps the adopted markup, applies the styles and runs the same mismatch check before wiring.

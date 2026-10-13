@@ -27,7 +27,7 @@ view('user-card', {
 | `type` | `String` | `String`, `Number` or `Boolean`. Controls how attributes are read. |
 | `default` | see below | Value when the attribute is absent. |
 | `reflect` | `true` | Write the value back to the attribute. |
-| `state` | `false` | Mirror the value to a `:state()` custom state. Needs `form: true`. |
+| `state` | `false` | Mirror the value to a `:state()` custom state. |
 
 ## Shorthand
 
@@ -82,6 +82,8 @@ Props are read from attributes in the constructor:
 
 Without the attribute, the prop takes its `default`. Without a default, a `Boolean` is `false` and other types are `null`.
 
+On connect, each reflected prop whose attribute is absent writes its current value to the attribute, so CSS attribute selectors such as `:host([orientation="horizontal"])` match the default. Strings and numbers are written as text, `true` booleans as `""`; `false`, `null` and non-primitive values add nothing. An attribute already in the markup is never changed.
+
 `change` does not run for initial values or for values set before the element has mounted. Render the first state in `connect`:
 
 ```javascript
@@ -101,11 +103,10 @@ view('user-name', {
 
 ## Custom state (`:state()`)
 
-With `state: true`, the element adds a custom state named after the prop while the value is truthy, and removes it when the value is falsy. Custom states live on `ElementInternals`, which the factory attaches only for `form: true`. Without it, `state` does nothing.
+With `state: true`, the element adds a custom state named after the prop while the value is truthy, and removes it when the value is falsy. The initial value counts too: an attribute in the markup (or a truthy default) sets the state when the element connects. Custom states live on `ElementInternals`, which the factory attaches for `form: true` or when any prop has `state: true`; `ctx.internals` is then set as well.
 
 ```javascript
 view('save-button', {
-  form: true,
   props: {
     busy: { type: Boolean, state: true }
   },

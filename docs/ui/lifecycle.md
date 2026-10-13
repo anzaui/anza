@@ -23,12 +23,12 @@ Other functions under `on` are installed as element methods, so a hook can call 
 
 For an element created on the client:
 
-1. **Constructor.** Attaches an open shadow root, or keeps one that already exists (see [Hydration (DSD adopt)](hydration.md)). Attaches `ElementInternals` when `form: true`. Reads props from attributes.
-2. **Connect.** Creates `ctrl`, a fresh `AbortController`.
+1. **Constructor.** Attaches the shadow root (open unless `mode: 'closed'`), or keeps one that already exists (see [Hydration (DSD adopt)](hydration.md)). Attaches `ElementInternals` when `form: true` or a prop has `state: true`. Reads props from attributes.
+2. **Connect.** Creates `ctrl`, a fresh `AbortController`. Writes reflected prop values to absent attributes and applies the initial `:state()` set (see [Props](props.md#initial-values)).
 3. **Resources.** Waits for the template and styles. Files load on the first connect of the first instance; inline strings are ready already.
 4. **Render.** Clones the template into an empty shadow root and applies the styles. If the document is still parsing, it waits one task first.
-5. **Wire.** Builds `refs`, `tags`, `on` and `watch`, then dispatches [`anza:ready`](#anzaready).
-6. **`load`**, then **`connect`**.
+5. **Wire.** Builds `refs`, `tags`, `on` and `watch`.
+6. **`load`**, then **`connect`**. When both have settled (resolved or rejected), the element dispatches [`anza:ready`](#anzaready).
 7. **`change`**, for each later prop change.
 8. **Disconnect.** Runs `disconnect`, then aborts `ctrl`.
 
@@ -120,7 +120,7 @@ The `disconnect` context has `el`, `tags`, `refs`, `watch` and `internals`. It h
 
 ## anza:ready
 
-Every element made by the factory dispatches `anza:ready` on itself each time it connects, once its context is wired and just before `load` runs.
+Every element made by the factory dispatches `anza:ready` on itself each time it connects, once its context is wired and `load` and `connect` (the factory's `mount`) have settled. It is not dispatched if the element disconnects first.
 
 | Property | Value |
 | -------- | ----- |
@@ -128,7 +128,7 @@ Every element made by the factory dispatches `anza:ready` on itself each time it
 | `bubbles` / `composed` | `false` / `false` |
 | `detail` | `null` |
 
-It does not fire again when a hydration mismatch re-renders the element, or when HMR swaps its template. The router waits for it on the new page after a soft navigation and then hides the loading indicator, so the indicator ends before `load` finishes.
+It does not fire again when a hydration mismatch re-renders the element, or when HMR swaps its template. The router waits for it on the new page after a soft navigation and then hides the loading indicator, so the indicator stays until `load` and `connect` finish.
 
 ```javascript
 const card = document.createElement('user-card');

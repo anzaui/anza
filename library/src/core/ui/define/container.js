@@ -7,9 +7,12 @@ import { runSwapTransition } from '../transitions.js';
  * Wraps ui.element with strict layout guard lifecycles and element-scoped view transitions.
  */
 export function container(tag, spec, base = import.meta.url) {
-  // Inject default contain: layout styling required for element-scoped View Transitions
-  const containerStyle = ':host { contain: layout; display: block; }';
-  spec.style = spec.style ? `${containerStyle}\n${spec.style}` : containerStyle;
+  // Inject default contain: layout styling required for element-scoped View
+  // Transitions. It is a separate (layered, so author styles win) entry, so
+  // a `style` that is a CSS file path or an array still loads as given.
+  const containerStyle = '@layer anza-container { :host { contain: layout; display: block; } }';
+  const authored = spec.style == null ? [] : (Array.isArray(spec.style) ? spec.style : [spec.style]);
+  spec.style = [containerStyle, ...authored];
 
   // Optional VT config on the container spec (same shape as dock).
   const transitionConfig = spec.transition === undefined ? true : spec.transition;

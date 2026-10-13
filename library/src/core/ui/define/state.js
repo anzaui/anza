@@ -8,3 +8,7 @@ export const updateScheduledMap = new WeakMap();
 export const adoptedMap = new WeakMap();
 /** True after a one-shot hydration mismatch fallback for this host. */
 export const hydrationFallbackMap = new WeakMap();
+/** Shadow root of each factory host (open or closed). */
+export const rootMap = new WeakMap();
+/** True once a host's mount (load + connect) has settled and `anza:ready` fired. */
+export const readyMap = new WeakMap();

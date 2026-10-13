@@ -52,7 +52,7 @@ Returns nothing. Does nothing when `customElements` is missing. This is the only
 The older way to declare a router container. Prefer `dock()` ([Docks](../router/docks.md)).
 
 - `spec` is an `element()` spec. It also accepts `transition` (`false`, or `{ name }`), like a dock.
-- Prepends `:host { contain: layout; display: block; }` to `spec.style`. Because of this, `spec.style` must be a CSS string, not a file path.
+- Adds `:host { contain: layout; display: block; }` before `spec.style`, inside a cascade layer so your own `:host` rules win. `spec.style` can be a CSS string, a file path or an array of both.
 - On mount, registers the element with the router under its `name` attribute (default: the tag). A second live instance with the same name throws `ContainerError`, which is logged as a mount failure. On unmount, unregisters it.
 - Adds `swapView(newElement, { direction, transition, name, signal })`, which replaces the children inside an element-scoped transition.
 

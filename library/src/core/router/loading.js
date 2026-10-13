@@ -13,7 +13,7 @@
  */
 
 import { getContainer } from './container.js';
-import { specRegistry, initializedMap } from '../ui/define/state.js';
+import { specRegistry, readyMap } from '../ui/define/state.js';
 import { normalizeOverride } from './pages.js';
 
 const DEFAULT_LOADING_HTML = `
@@ -263,14 +263,14 @@ export function clearLoading(hostOrName) {
 
 /**
  * Wait for a page element to finish resource load + mount.
- * Resolves immediately if `anza:ready` already fired (cached resources).
+ * Resolves immediately if `anza:ready` already fired (mount settled).
  * @param {HTMLElement} el
  * @param {AbortSignal} [signal]
  */
 export function waitForPageReady(el, signal) {
   if (!el || !el.isConnected) return Promise.resolve();
   if (signal?.aborted) return Promise.resolve();
-  if (initializedMap.get(el) === true) return Promise.resolve();
+  if (readyMap.get(el) === true) return Promise.resolve();
 
   return new Promise((resolve) => {
     const done = () => {
@@ -289,7 +289,7 @@ export function waitForPageReady(el, signal) {
     signal?.addEventListener('abort', done, { once: true });
 
     // Race: connectedCallback may have finished between the map check and the listener.
-    if (initializedMap.get(el) === true) done();
+    if (readyMap.get(el) === true) done();
   });
 }
 
