@@ -65,9 +65,7 @@ r.register(
 );
 ```
 
-Strings become `URLPattern({ pathname })`. When `URLPattern` is missing or rejects a pattern, the router uses a small built-in matcher on the path instead, where `*` matches any characters. That matcher checks only the path, not the origin.
-
-Give an origin-naming pattern a path other than `'*'` or `'/*'`. A catch-all path always uses the path-only matcher, so `{ hostname: 'cdn.example.com', pathname: '/*' }` would match every request on every origin.
+Strings become `URLPattern({ pathname })`. When `URLPattern` is missing or rejects a pattern, or the path is the catch-all `'*'` or `'/*'`, the router uses a small built-in matcher instead, where `*` matches any characters. That matcher still checks the origin a pattern names: every given `protocol`, `hostname` and `port` must match (a `baseURL` pins all three), so `{ hostname: 'cdn.example.com', pathname: '/*' }` matches every path on `cdn.example.com` and nothing else.
 
 ## Router API
 

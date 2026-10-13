@@ -30,11 +30,14 @@ function normalize(pattern) {
       : (pattern && typeof pattern === 'object' ? pattern : { pathname: '*' });
 
   const pathStr = typeof pathname === 'string' ? pathname : pathname?.pathname || '*';
+  // A pattern that names an origin must only ever match that origin, even
+  // when its pathname is a catch-all handled by the portable matcher.
+  const origin = hasExplicitOrigin(pattern) ? originMatcher(pattern) : null;
 
   // Catch-all patterns vary across URLPattern implementations; use the
   // portable matcher so `r.register('*', …)` never throws at SW eval time.
   if (!hasURLPattern || pathStr === '*' || pathStr === '/*') {
-    return createFallbackMatcher(pathStr);
+    return createFallbackMatcher(pathStr, origin);
   }
 
   try {
@@ -44,26 +47,61 @@ function normalize(pattern) {
     return new URLPattern(pathname);
   } catch (err) {
     console.error('[anza/sw] Invalid route pattern; using fallback matcher:', pattern, err);
-    return createFallbackMatcher(pathStr);
+    return createFallbackMatcher(pathStr, origin);
   }
 }
 
-/** Minimal pathname matcher used when native URLPattern cannot be constructed. */
-function createFallbackMatcher(pathnamePattern) {
-  const matchAll = !pathnamePattern || pathnamePattern === '*' || pathnamePattern === '/*';
-  let regex;
-  if (matchAll) {
-    regex = /^/;
-  } else {
-    const escaped = String(pathnamePattern)
-      .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
-      .replace(/\*/g, '.*');
-    regex = new RegExp(`^${escaped}$`);
+/** Anchored regex for a URLPattern-style component where `*` is a wildcard. */
+function wildcard(value) {
+  const escaped = String(value)
+    .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
+    .replace(/\*/g, '.*');
+  return new RegExp(`^${escaped}$`);
+}
+
+/**
+ * Origin test for a pattern that names its origin (`baseURL` and/or a
+ * concrete protocol, hostname or port). Every named component must match
+ * exactly (`*` is a wildcard); a `baseURL` pins all three.
+ */
+function originMatcher(pattern) {
+  const parts = {};
+  if (typeof pattern.baseURL === 'string') {
+    try {
+      const base = new URL(pattern.baseURL);
+      parts.protocol = base.protocol.replace(/:$/, '');
+      parts.hostname = base.hostname;
+      parts.port = base.port;
+    } catch {
+      return () => false;
+    }
   }
+  for (const key of ['protocol', 'hostname', 'port']) {
+    const value = pattern[key];
+    if (typeof value === 'string' && value !== '') parts[key] = value;
+  }
+  const checks = Object.entries(parts)
+    .filter(([, value]) => value !== '*')
+    .map(([key, value]) => [key, wildcard(value)]);
+  return (url) => checks.every(([key, re]) => {
+    const actual = key === 'protocol' ? url.protocol.replace(/:$/, '') : url[key];
+    return re.test(actual);
+  });
+}
+
+/**
+ * Minimal pathname matcher used when native URLPattern cannot be constructed.
+ * `origin`, when given, must also accept the URL.
+ */
+function createFallbackMatcher(pathnamePattern, origin = null) {
+  const matchAll = !pathnamePattern || pathnamePattern === '*' || pathnamePattern === '/*';
+  const regex = matchAll ? /^/ : wildcard(pathnamePattern);
   return {
     test(url) {
       try {
-        return regex.test(new URL(url).pathname);
+        const parsed = new URL(url);
+        if (origin && !origin(parsed)) return false;
+        return regex.test(parsed.pathname);
       } catch {
         return false;
       }

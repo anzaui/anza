@@ -99,4 +99,29 @@ describe('SW routes match the worker origin only (X4)', () => {
     if (!fire(r, 'https://cdn.example.test/lib/a.js')) throw new Error('explicit-origin route did not match');
     if (fire(r, 'https://other.test/lib/a.js')) throw new Error('explicit-origin route matched another host');
   });
+
+  it('matches the named origin exactly for a catch-all pathname', () => {
+    const r = router();
+    r.register({ hostname: 'cdn.example.test', pathname: '/*' }, { handle: async () => new Response('x') });
+    if (!fire(r, 'https://cdn.example.test/a.js')) throw new Error('named-origin catch-all did not match its origin');
+    if (fire(r, 'https://evil.test/a.js')) throw new Error('named-origin catch-all matched another origin');
+    if (fire(r, `${ORIGIN}/a.js`)) throw new Error('named-origin catch-all matched the worker origin');
+  });
+
+  it('matches the named origin exactly without URLPattern', () => {
+    const saved = globalThis.URLPattern;
+    delete globalThis.URLPattern;
+    try {
+      const r = router();
+      r.register({ protocol: 'https', hostname: 'cdn.example.test', pathname: '*' }, { handle: async () => new Response('x') });
+      r.register({ baseURL: 'https://img.example.test', pathname: '/img/*' }, { handle: async () => new Response('x') });
+      if (!fire(r, 'https://cdn.example.test/a.js')) throw new Error('fallback named-origin route did not match');
+      if (fire(r, 'http://cdn.example.test/a.js')) throw new Error('fallback route ignored the protocol');
+      if (fire(r, 'https://evil.test/a.js')) throw new Error('fallback route matched another origin');
+      if (!fire(r, 'https://img.example.test/img/a.png')) throw new Error('baseURL route did not match');
+      if (fire(r, 'https://evil.test/img/a.png')) throw new Error('baseURL route matched another origin');
+    } finally {
+      if (saved) globalThis.URLPattern = saved;
+    }
+  });
 });
