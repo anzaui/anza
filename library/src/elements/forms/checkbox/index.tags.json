@@ -1,1 +1,1 @@
-{"version":1,"refs":[],"ids":[],"classes":["box","dash"],"tags":["div","path","slot","svg"],"compound":["div.box","div.dash"],"attrs":["class","d","part","tabindex","viewBox"],"refTypes":{}}
+{"version":1,"refs":[],"ids":[],"classes":["box","dash"],"tags":["div","path","slot","svg"],"compound":["div.box","div.dash"],"attrs":["class","d","part","viewBox"],"refTypes":{}}

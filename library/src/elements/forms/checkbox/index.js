@@ -27,9 +27,12 @@ ui.element('ui-checkbox', {
   mount({ el, internals, ctrl }) {
     if (!defaults.has(el)) defaults.set(el, el.hasAttribute('checked'));
 
-    // Tabindex defaults
-    if (!el.hasAttribute('tabindex')) {
+    // The host is the one tab stop and carries the checkbox semantics.
+    if (!el.hasAttribute('tabindex') && !el.disabled) {
       el.setAttribute('tabindex', '0');
+    }
+    if (!el.hasAttribute('role')) {
+      el.setAttribute('role', 'checkbox');
     }
 
     // User toggle: sync the form value before `change` so listeners that
@@ -89,19 +92,24 @@ function syncAttributes(el, internals) {
   if (checked) {
     internals.states.add('checked');
     internals.states.delete('indeterminate');
+    el.setAttribute('aria-checked', 'true');
   } else if (indeterminate) {
     internals.states.add('indeterminate');
     internals.states.delete('checked');
+    el.setAttribute('aria-checked', 'mixed');
   } else {
     internals.states.delete('checked');
     internals.states.delete('indeterminate');
+    el.setAttribute('aria-checked', 'false');
   }
 
   if (disabled) {
     internals.states.add('disabled');
+    el.setAttribute('aria-disabled', 'true');
     el.removeAttribute('tabindex');
   } else {
     internals.states.delete('disabled');
+    el.removeAttribute('aria-disabled');
     if (!el.hasAttribute('tabindex')) {
       el.setAttribute('tabindex', '0');
     }

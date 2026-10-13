@@ -58,7 +58,7 @@ Setting `checked` from code does not fire `change`.
 
 ## Keyboard and accessibility
 
-The host gets `tabindex="0"` unless it already has one; it is removed while disabled. Space and Enter toggle the box. The inner `box` part also has `tabindex="0"`, which adds a second tab stop. The element sets no `role` or `aria-checked`; add `role="checkbox"` and keep `aria-checked` in sync yourself if you need them.
+The host is the only tab stop: it gets `tabindex="0"` unless it already has one, and the `tabindex` is removed while disabled. It also gets `role="checkbox"` unless it has a role. `aria-checked` follows the state (`true`, `false`, or `mixed` while `indeterminate`), and `aria-disabled="true"` is set while disabled. Space and Enter toggle the box.
 
 ## Styling
 

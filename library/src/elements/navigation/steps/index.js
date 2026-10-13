@@ -18,10 +18,15 @@ ui.element('ui-steps', {
   mount({ el, tags, on }) {
     const slot = tags.one('slot');
 
+    // A list of steps; the active one carries aria-current="step".
+    if (!el.hasAttribute('role')) {
+      el.setAttribute('role', 'list');
+    }
+
     on.slotchange(slot, () => {
       const steps = getSteps(tags);
       steps.forEach((step, index) => {
-        step.setAttribute('role', 'step');
+        step.setAttribute('role', 'listitem');
         // Set numeric step labels inside nodes
         if (step.getAttribute('state') !== 'completed') {
           step.style.setProperty('--step-num', `"${index + 1}"`);
@@ -56,6 +61,11 @@ function update(el, tags) {
       step.setAttribute('state', 'active');
     } else {
       step.removeAttribute('state');
+    }
+    if (index === active) {
+      step.setAttribute('aria-current', 'step');
+    } else {
+      step.removeAttribute('aria-current');
     }
   });
 

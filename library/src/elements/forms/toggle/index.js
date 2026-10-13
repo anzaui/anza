@@ -92,9 +92,11 @@ function syncAttributes(el, internals) {
 
   if (disabled) {
     internals.states.add('disabled');
+    el.setAttribute('aria-disabled', 'true');
     el.removeAttribute('tabindex');
   } else {
     internals.states.delete('disabled');
+    el.removeAttribute('aria-disabled');
     if (!el.hasAttribute('tabindex')) {
       el.setAttribute('tabindex', '0');
     }

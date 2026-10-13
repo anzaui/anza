@@ -35,7 +35,7 @@ import '@anzaui/anza/elements/steps';
 | ---- | ------- |
 | default | The steps, one direct child each |
 
-Each step gets `role="step"` and a `state` attribute: `completed` for steps before `active`, `active` for the current step, none for later steps. Every step shows a circle before its content; completed steps show a check mark and the active step a focus ring. The progress line fills to `active / (steps - 1)`.
+The host gets `role="list"` (unless it has a role) and each step `role="listitem"`. Each step also gets a `state` attribute: `completed` for steps before `active`, `active` for the current step, none for later steps. The active step has `aria-current="step"`. Every step shows a circle before its content; completed steps show a check mark and the active step a focus ring. The progress line fills to `active / (steps - 1)`.
 
 Steps are not interactive. Change `active` to move between them.
 

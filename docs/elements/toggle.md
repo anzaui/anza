@@ -56,7 +56,7 @@ Setting `checked` from code does not fire `change`.
 
 ## Keyboard and accessibility
 
-The host gets `role="switch"` and `tabindex="0"` unless it already has them, and `aria-checked` follows `checked`. The `tabindex` is removed while disabled. Space and Enter toggle the switch. The inner `track` part also has `tabindex="0"`, which adds a second tab stop.
+The host gets `role="switch"` and `tabindex="0"` unless it already has them, and `aria-checked` follows `checked`. The host is the only tab stop; its `tabindex` is removed and `aria-disabled="true"` is set while disabled. Space and Enter toggle the switch.
 
 ## Styling
 

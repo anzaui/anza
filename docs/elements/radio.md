@@ -55,12 +55,14 @@ Clicking a radio that is already checked does nothing.
 - A checked radio submits `name=value` (or `name=on`). An unchecked radio submits nothing.
 - There is no `required` validation.
 - Form reset restores the `checked` attribute as it was at first mount.
-- Inside a disabled `<fieldset>` the element removes its `tabindex`.
+- Inside a disabled `<fieldset>` the element removes its `tabindex`, and arrow keys skip it.
 - On browser state restore, any non-null state checks the radio.
 
 ## Keyboard and accessibility
 
-The host gets `role="radio"` and `tabindex="0"` unless it already has them, and `aria-checked` follows `checked`. The `tabindex` is removed while disabled. Space and Enter select the radio. Every radio is its own tab stop and there is no arrow-key navigation. Wrap the group in an element with `role="radiogroup"` and a label. The inner `circle` part also has `tabindex="0"`, which adds a second tab stop.
+The host gets `role="radio"` unless it already has a role, `aria-checked` follows `checked`, and `aria-disabled="true"` is set while disabled. Space and Enter select the radio.
+
+A group (radios with the same `name`) has one tab stop, a roving `tabindex`: the checked radio has `tabindex="0"`, or the first enabled radio when none is checked; the others have `tabindex="-1"`, and disabled radios have none. Arrow Down/Right and Arrow Up/Left move focus to the next or previous enabled radio in the group, wrapping at the ends, and select it (firing `change`). A radio without `name` is its own group. Wrap the group in an element with `role="radiogroup"` and a label.
 
 ## Styling
 

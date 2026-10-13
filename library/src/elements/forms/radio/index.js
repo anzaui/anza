@@ -26,9 +26,6 @@ ui.element('ui-radio', {
   mount({ el, internals, ctrl }) {
     if (!defaults.has(el)) defaults.set(el, el.hasAttribute('checked'));
 
-    if (!el.hasAttribute('tabindex')) {
-      el.setAttribute('tabindex', '0');
-    }
     if (!el.hasAttribute('role')) {
       el.setAttribute('role', 'radio');
     }
@@ -38,6 +35,7 @@ ui.element('ui-radio', {
       el.checked = true;
       syncAttributes(el, internals);
       uncheckOthers(el);
+      rove(el);
       el.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
     };
 
@@ -49,7 +47,21 @@ ui.element('ui-radio', {
     }, { signal: ctrl.signal });
 
     el.addEventListener('keydown', (e) => {
-      if (el.disabled || el.checked) return;
+      if (el.disabled) return;
+      const step = STEPS[e.key];
+      if (step) {
+        // Arrow keys move focus and selection through the group, like
+        // native radios, skipping disabled ones and wrapping at the ends.
+        const enabled = groupOf(el).filter((radio) => !isDisabled(radio));
+        if (enabled.length < 2) return;
+        e.preventDefault();
+        const index = enabled.indexOf(el);
+        const next = enabled[(index + step + enabled.length) % enabled.length];
+        next.focus();
+        if (!next.checked) next.click();
+        return;
+      }
+      if (el.checked) return;
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
         select();
@@ -63,6 +75,7 @@ ui.element('ui-radio', {
       syncAttributes(el, internals);
       if (name === 'checked' && el.checked) {
         uncheckOthers(el);
+        rove(el);
       }
     }
   },
@@ -71,12 +84,8 @@ ui.element('ui-radio', {
     this.checked = defaults.get(this) ?? false;
     if (this._ctx) syncAttributes(this, this._ctx.internals);
   },
-  disabled(disabled) {
-    if (disabled) {
-      this.removeAttribute('tabindex');
-    } else if (!this.disabled && !this.hasAttribute('tabindex')) {
-      this.setAttribute('tabindex', '0');
-    }
+  disabled() {
+    rove(this);
   },
   restore(state) {
     this.checked = state != null;
@@ -97,16 +106,53 @@ function syncAttributes(el, internals) {
 
   if (disabled) {
     internals.states.add('disabled');
-    el.removeAttribute('tabindex');
+    el.setAttribute('aria-disabled', 'true');
   } else {
     internals.states.delete('disabled');
-    if (!el.hasAttribute('tabindex')) {
-      el.setAttribute('tabindex', '0');
-    }
+    el.removeAttribute('aria-disabled');
   }
 
   const subValue = checked ? (el.value || 'on') : null;
   internals.setFormValue(subValue);
+  rove(el);
+}
+
+/** Arrow keys and the direction they move in the group. */
+const STEPS = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 };
+
+/** Checked state, also for a radio that has not upgraded yet. */
+const isChecked = (radio) => (typeof radio.checked === 'boolean' ? radio.checked : radio.hasAttribute('checked'));
+
+/** Disabled state, including a disabled fieldset or form. */
+function isDisabled(radio) {
+  if (radio.hasAttribute('disabled') || radio.disabled === true) return true;
+  try {
+    return radio.matches(':disabled');
+  } catch {
+    return false;
+  }
+}
+
+/** Radios sharing `el`'s name in its root node, in tree order (just `el` without a name). */
+function groupOf(el) {
+  const name = el.name ?? el.getAttribute('name');
+  if (!name) return [el];
+  const root = el.getRootNode();
+  return Array.from(root.querySelectorAll(`ui-radio[name="${CSS.escape(name)}"]`));
+}
+
+/**
+ * Roving tabindex: the group has one tab stop, the checked radio (or the
+ * first enabled one when none is checked). Disabled radios are skipped.
+ */
+function rove(el) {
+  const group = groupOf(el);
+  const enabled = group.filter((radio) => !isDisabled(radio));
+  const stop = enabled.find(isChecked) ?? enabled[0];
+  for (const radio of group) {
+    if (isDisabled(radio)) radio.removeAttribute('tabindex');
+    else radio.setAttribute('tabindex', radio === stop ? '0' : '-1');
+  }
 }
 
 function uncheckOthers(el) {
